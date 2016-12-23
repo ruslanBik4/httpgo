@@ -30,6 +30,6 @@ bootstrap/
 css/
 dadata.go
 test.html
-test.txt
+config/php-fpm.conf
 Would skip repository
 thetravel/
