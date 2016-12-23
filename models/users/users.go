@@ -50,6 +50,7 @@ func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
 	//resp, _ := client.Get("...")
 	//w.Write(resp.Body)
 }
+//Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
 func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	if state != oauthStateString {
