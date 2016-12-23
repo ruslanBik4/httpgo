@@ -1,0 +1,85 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+це главная страница.
+{% code
+    type ItemMenu struct {
+        Link string
+    }
+    type IndexPageBody struct {
+        Name []byte
+        Pass []byte
+        Content string
+        Catalog []string
+        TopMenu map[string] *ItemMenu
+        Title string
+        Route string
+    }
+%}
+{% func (body *IndexPageBody) IndexHTML() %}
+<style type="text/css">
+    body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+    .sidebar-nav {
+        padding: 9px 0;
+    }
+</style>
+<body>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="#">{%s body.Title %}</a>
+            <div class="nav-collapse collapse">
+                <nav>
+                    <ul class="nav">
+                        {% for name, item := range body.TopMenu %}
+                            <li {% if item.Link == body.Route %} class="active" {% endif %}>
+                                <a href="{%s item.Link %}">{%s name %}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
+            </div><!--/.nav-collapse -->
+            <p class="navbar-text pull-right">
+                <span id="sTitle" >Для начала работы Вам необходимо</span>
+                <a id="bLogOut" href="/user/signout" class="btn btn-navbar btn-login"  onclick="return logOut(this);"  style="display:none">Выйти</a>
+                <a href="/user/login/" class="navbar-link btn-login" title="откроется в модальном окне">Зарегистрироваться</a>
+                <b class="btn-login"> или </b>
+                <a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="container-fluid">
+
+    <div class="row-fluid">
+        <div class="span3">
+            <div id="catalog_pane"  class="well sidebar-nav">
+                {% for _, value := range body.Catalog %}
+                    {%s value %}
+                {% endfor %}
+
+            </div>
+        </div>
+        <div class="span9">
+            <div id="content" rel="{%s body.Route %}">{%s= body.Content  %}</div>
+        </div>
+    </div>
+    <hr>
+
+    <footer>
+        <p>&copy; Company 2012</p>
+    </footer>
+
+</div>
+</body>
+{% endfunc %}

@@ -1,0 +1,330 @@
+package users
+
+import (
+	"../../views/templates/layouts"
+	"../../views/templates/forms"
+	"../../views/templates/mails"
+	"../../views/templates/pages"
+	"../db"
+	"net/http"
+	"fmt"
+	"strconv"
+	"golang.org/x/oauth2"
+	//"context"
+	//"golang.org/x/net/context"
+	"golang.org/x/oauth2/google"
+	//"google.golang.org/appengine"
+	//"google.golang.org/appengine/urlfetch"
+
+	"os"
+	"log"
+	"io/ioutil"
+	"gopkg.in/gomail.v2"
+	"net/mail"
+	"crypto/rand"
+	"encoding/base64"
+	"hash/crc32"
+	"github.com/gorilla/sessions"
+)
+var (
+	googleOauthConfig = &oauth2.Config{
+		RedirectURL:  "",
+		ClientID:     os.Getenv("googlekey"),
+		ClientSecret: os.Getenv("googlesecret"),
+		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.profile",
+			"https://www.googleapis.com/auth/userinfo.email"},
+		Endpoint:     google.Endpoint,
+	}
+	oauthStateString = "random"
+	store = sessions.NewCookieStore([]byte("travel.com.ua"))
+
+)
+func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
+
+
+	googleOauthConfig.RedirectURL = r.Host +  "/user/GoogleCallback/"
+	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	//var ctx context.Context = appengine.NewContext(r)
+	//client := &http.Client{
+	//	Transport: &oauth2.Transport{
+	//		Source: google.AppEngineTokenSource(ctx, "scope"),
+	//		Base:   &urlfetch.Transport{Context: ctx},
+	//	},
+	//}
+	//resp, _ := client.Get("...")
+	//w.Write(resp.Body)
+}
+func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	state := r.FormValue("state")
+	if state != oauthStateString {
+		fmt.Printf("invalid oauth state, expected '%s', got '%s'\n", oauthStateString, state)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	code := r.FormValue("code")
+	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
+	if err != nil {
+		fmt.Println("Code exchange failed with '%s'\n", err)
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	fmt.Fprintf(w, "Content: %s\n", contents)
+}
+type UserRecord struct {
+	Id int
+	Name string
+	Sex int
+}
+var greetings = [] string {"господин", "госпожа"}
+
+func GetSession(r *http.Request, name string) *sessions.Session {
+	// Get a session. We're ignoring the error resulted from decoding an
+	// existing session: Get() always returns a session, even if empty.
+	session, err := store.Get(r, name)
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return session
+}
+func IsLogin(r *http.Request) bool {
+	session := GetSession(r, "user")
+	_, ok := session.Values["id"]
+ return ok
+}
+func HandlerBusiness(w http.ResponseWriter, r *http.Request) {
+
+	session := GetSession(r, "user")
+	userID, ok := session.Values["id"]
+	if !ok {
+		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
+		return
+	}
+	var ns db.FieldsTable
+	ns.Rows = make([] db.FieldStructure, 0)
+	ns.GetColumnsProp("business")
+
+	var fields forms.FieldsTable
+
+	fields.PutDataFrom( ns )
+
+	rows := db.DoQuery("select * from business")
+
+	defer rows.Close()
+	fmt.Fprint(w, userID, pages.ShowTable("business", fields, rows) )
+
+	//RenderTemplate(w, "business", ns)
+}
+func HandlerAddBusiness(w http.ResponseWriter, r *http.Request) {
+	session := GetSession(r, "user")
+	_, ok := session.Values["id"]
+	if !ok {
+		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
+		return
+	}
+	var ns db.FieldsTable
+	ns.Rows = make([] db.FieldStructure, 0)
+	ns.GetColumnsProp("business")
+
+	var fields forms.FieldsTable
+
+	fields.Name = "business"
+	fields.Rows = make([] forms.FieldStructure, 0)
+	fields.IsDadata = true
+
+	fields.PutDataFrom( ns )
+	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Добавить новый бизнес"), forms.DadataScript() )
+
+}
+func HandlerProfile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	session := GetSession(r, "user" )
+	email, ok := session.Values["email"]
+	if !ok {
+		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
+		return
+	}
+	rows := db.DoQuery("select id, fullname, sex from users where login=?", email )
+
+	var row UserRecord
+
+	defer rows.Close()
+	for rows.Next() {
+
+		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+	}
+
+	p := &layouts.MenuOwnerBody{ Title: greetings[row.Sex] + " " + row.Name, TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+
+	var menu db.MenuItems
+
+	menu.GetMenu("menuOwner")
+
+	for _, item := range menu.Items {
+		p.TopMenu[item.Title] = &layouts.ItemMenu{ Link: "/menu/" + item.Name + "/"  }
+
+	}
+	fmt.Fprint(w, p.MenuOwner() )
+}
+func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+	email := r.Form["login"][0]
+	password := r.Form["password"][0]
+
+	rows := db.DoQuery("select id, fullname, sex from users where login=? and hash=?", email, hashPassword(password) )
+
+	defer rows.Close()
+	var row UserRecord
+
+	for rows.Next() {
+
+		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		// session save BEFORE write page
+		session := sessions.NewSession(store, "user")
+		session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
+		session.Values["id"] = row.Id
+		session.Values["email"] = email
+		if err := session.Save(r, w); err != nil {
+			log.Println(err)
+		}
+
+		p := &forms.PersonData{ Id: row.Id, Login: row.Name, Email: email }
+		fmt.Fprint(w, p.JSON())
+	}
+}
+func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
+
+	//cookie, err := r.Cookie("sName")
+	//if err != nil {
+	//	log.Println(err)
+	//	return
+	//}
+	session := GetSession(r, "user" )
+	delete(session.Values, "email")
+	http.Redirect(w, r, "/", http.StatusContinue)
+}
+// GenerateRandomBytes returns securely generated random bytes.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+func GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+// GenerateRandomString returns a URL-safe, base64 encoded
+// securely generated random string.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+func GenerateRandomString(s int) (string, error) {
+	b, err := GenerateRandomBytes(s)
+	return base64.URLEncoding.EncodeToString(b), err
+}
+func generatePassword(email string) (string, error) {
+
+	return GenerateRandomString(16)
+
+}
+func hashPassword(password string) interface{} {
+	// crypto password
+	crc32q := crc32.MakeTable(0xD5828281)
+return 	crc32.Checksum([]byte(password), crc32q)
+}
+func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(32000)
+
+	var args [] interface{}
+	sql, comma, values := "insert into users (", "", ") values ("
+
+	for key, val := range r.MultipartForm.Value {
+		args = append(args, val[0])
+		sql += comma + key
+		values += comma + "?"
+		comma = ","
+	}
+	email := r.MultipartForm.Value["login"][0]
+	password, err := generatePassword(email)
+	if err != nil {
+		log.Println(err)
+	}
+	sql += comma + "hash"
+	values += comma + "?"
+
+	args = append(args, hashPassword(password) )
+	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
+	if err != nil {
+
+		fmt.Fprintf(w, "%v", err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/json; charset=utf-8")
+
+	mRow := forms.MarshalRow{Msg: "Append row", N: lastInsertId}
+	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
+
+	if _, err := mail.ParseAddress(email); err !=nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
+		return
+	}
+	p := &forms.PersonData{ Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
+		Rows: []forms.MarshalRow{mRow}, Email: email }
+	fmt.Fprint(w, p.JSON())
+
+	go sendMail(email, password)
+}
+func sendMail(email, password string)  {
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", "ruslan-bik@yandex.ru")
+	m.SetHeader("To", email )
+	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
+	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
+	m.SetBody("text/html", mails.InviteEmail(email, password) )
+	m.Attach("/home/travel/bootstrap/ico/favicon.png")
+
+	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconF99")
+
+	// Send the email to Bob, Cora and Dan.
+	if err := d.DialAndSend(m); err != nil {
+		log.Println(err)
+	}
+}
+func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm();
+
+	//var args [] interface{}
+
+	//args = append(args, r.Form["email"][0])
+	result, _ := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0])
+	fmt.Fprint(w, result)
+}
+
+

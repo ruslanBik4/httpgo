@@ -1,0 +1,15 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+форма авторизации на сайте.
+{% func SigninForm(email, password string) %}
+<form target="content" action="/user/signin/" class="form-signin" onsubmit="return saveForm(this, afterLogin);" >
+    <h2 class="form-signin-heading">Авторизация</h2>
+    <input type="email" name="login" class="input-block-level" placeholder="Email, указанный при регистрации" value="{%s email %}">
+    <input type="password" name="password" class="input-block-level" placeholder="{%s password %}">
+    <label class="checkbox">
+        <input type="checkbox" name="remember" value="remember-me"> Запомнить меня в системе
+    </label>
+    <button class="btn btn-large btn-primary" type="submit">Войти</button>
+</form>
+{% endfunc %}

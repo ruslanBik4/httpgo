@@ -1,0 +1,65 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+показ табличных данных.
+{%  import (
+    "../forms"
+    "database/sql"
+    "log"
+)
+%}
+{% func  ShowTable(tableName string, ns forms.FieldsTable, rows *sql.Rows) %}
+<link href="/css/tables.css" rel="stylesheet">
+
+<table>
+    <thead>
+        <tr>
+            {%  for _, value := range ns.Rows %}
+                <td>{% if value.COLUMN_COMMENT > "" %}{%s value.COLUMN_COMMENT %}{% else %}{%s value.COLUMN_NAME %}{% endif %}</td>
+            {%  endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {%  code
+            columns, err := rows.Columns()
+            if (err != nil) {
+                log.Println(err)
+            }
+
+            var row [] interface {}
+
+            rowField := make([] *sql.NullString, len(columns))
+
+            for idx, _ := range columns {
+
+                rowField[idx] = new(sql.NullString)
+                row = append( row, rowField[idx] )
+            }
+        %}
+        {% for rows.Next() %}
+            {%  code
+            err = rows.Scan(row...)
+
+            if err != nil {
+                log.Println(err)
+                continue
+            }
+
+            %}
+        <tr>
+            {% for idx, field := range rowField %}
+                {% if idx==0 %}
+                    <td><a href="/admin/row/edit/?table={%s tableName %}&id={%s field.String %}" target="content">{%s field.String %}</a>
+                    </td>
+                {% else %}
+                    <td>{%  if field.Valid %}{%s field.String %}{% endif %}</td>
+                {% endif %}
+            {%  endfor %}
+
+        </tr>
+        {%  endfor %}
+    </tbody>
+
+</table>
+
+{% endfunc %}

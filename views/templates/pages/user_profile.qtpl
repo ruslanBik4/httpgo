@@ -1,0 +1,22 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+страница редактирования основных данных.
+{% code
+    type ProfilePageBody struct {
+        Name []byte
+        Pass []byte
+        Content string
+        Catalog []string
+        TopMenu []string
+        Title string
+    }
+%}
+{% func (body *ProfilePageBody) ProfilePageHTML() %}
+    <div>
+        {% for i := 0; i < len(body.TopMenu); i++ %}
+            <li>{%s body.TopMenu[i] %}</li>
+        {% endfor %}
+    
+    </div>
+{% endfunc %}

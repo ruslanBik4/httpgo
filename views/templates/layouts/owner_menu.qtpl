@@ -1,0 +1,23 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+Menu admin paneli owner's.
+{% code
+type ItemMenu struct {
+    Link string
+}
+type MenuOwnerBody struct {
+    TopMenu map[string] *ItemMenu
+    Title string
+}
+%}
+{% func (menu *MenuOwnerBody) MenuOwner() %}
+<h2>{%s menu.Title %}</h2>
+<div id="catalog_pane">
+    <ul class="nav">
+        {% for name, item := range menu.TopMenu %}
+            <li><a href="{%s item.Link %}">{%s name %}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endfunc %}
