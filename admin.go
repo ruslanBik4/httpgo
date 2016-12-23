@@ -1,18 +1,13 @@
 package main
 import (
 	"encoding/base64"
-	//"encoding/json"
 	"net/http"
-	//"io/ioutil"
 	"strings"
-	//"fmt"
-	"./models/db"
-	//"io"
 	"log"
-	//"path/filepath"
-	"./views/templates/pages"
-	"./views/templates/forms"
-	"./views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"fmt"
 	"database/sql"
 )

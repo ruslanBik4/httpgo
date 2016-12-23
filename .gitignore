@@ -3,6 +3,9 @@
 *.a
 *.so
 
+#quicktemplates compiled files
+*.qtpl.go
+
 # Folders
 _obj
 _test
@@ -22,3 +25,11 @@ _testmain.go
 *.exe
 *.test
 *.prof
+.idea/
+bootstrap/
+css/
+dadata.go
+test.html
+test.txt
+Would skip repository
+thetravel/

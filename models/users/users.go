@@ -1,10 +1,10 @@
 package users
 
 import (
-	"../../views/templates/layouts"
-	"../../views/templates/forms"
-	"../../views/templates/mails"
-	"../../views/templates/pages"
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/httpgo/views/templates/mails"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"../db"
 	"net/http"
 	"fmt"
