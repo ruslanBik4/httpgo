@@ -3,7 +3,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 показ табличных данных.
 {%  import (
-    "../forms"
+    "github.com/ruslanBik4/httpgo/views/templates/forms"
     "database/sql"
     "log"
 )

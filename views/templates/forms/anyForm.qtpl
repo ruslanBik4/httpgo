@@ -2,7 +2,7 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
-    "../../../models/db"
+    "github.com/ruslanBik4/httpgo/models/db"
     "strings"
     "strconv"
     "regexp"
