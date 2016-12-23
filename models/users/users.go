@@ -10,12 +10,7 @@ import (
 	"fmt"
 	"strconv"
 	"golang.org/x/oauth2"
-	//"context"
-	//"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
-	//"google.golang.org/appengine"
-	//"google.golang.org/appengine/urlfetch"
-
 	"os"
 	"log"
 	"io/ioutil"
