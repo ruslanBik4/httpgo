@@ -98,7 +98,7 @@ func correctURL(url string) string {
 //		return
 //	}
 //}
-func BasicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
+func basicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
 		return false
@@ -132,12 +132,10 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
-	if BasicAuth(w, r, username, password) {
+	if basicAuth(w, r, username, password) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems
-
-
 
 		if menu.GetMenu("admin") > 0 {
 

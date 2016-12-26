@@ -10,11 +10,12 @@ import (
 	"log"
 	"time"
 	"os"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/admin"
+
 	//"io"
 	//"bytes"
 	"bitbucket.org/PinIdea/fcgi_client"
@@ -39,13 +40,13 @@ var (
 		"/": handlerDefault,
 		"/main/": handlerMainContent,
 		"/query/": db.HandlerDBQuery,
-		"/admin/": handlerAdmin,
-		"/admin/table/": handlerAdminTable,
-		"/admin/lists/": handlerAdminLists,
-		"/admin/row/new/": handlerNewRecord,
-		"/admin/row/edit/": handlerEditRecord,
-		"/admin/row/add/": handlerAddRecord,
-		"/admin/row/update/": handlerUpdateRecord,
+		"/admin/": admin.HandlerAdmin,
+		"/admin/table/": admin.HandlerAdminTable,
+		"/admin/lists/": admin.HandlerAdminLists,
+		"/admin/row/new/": admin.HandlerNewRecord,
+		"/admin/row/edit/": admin.HandlerEditRecord,
+		"/admin/row/add/": admin.HandlerAddRecord,
+		"/admin/row/update/": admin.HandlerUpdateRecord,
 		"/menu/" : handlerMenu,
 		"/show/forms/": handlerForms,
 		"/user/signup/": users.HandlerSignUp,
