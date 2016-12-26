@@ -15,6 +15,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
+	"github.com/ruslanBik4/httpgo/views"
 
 	//"io"
 	//"bytes"
@@ -249,7 +250,7 @@ func handlerDefault(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Write(body)
 	} else if (r.URL.Path == "/") {
-		RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
+		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
 	} else if imageValidator.MatchString(filename) {
 		body, _ := ioutil.ReadFile(pathToHost + filename)
 		w.Write( body)
@@ -293,7 +294,7 @@ func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "text index page %s %v", "filename", users.GetSession(r, "user") )
 }
 func handlerForms(w http.ResponseWriter, r *http.Request){
-	RenderTemplate(w, r, r.FormValue("name") + "Form", &pages.IndexPageBody{Title : r.FormValue("email") } )
+	views.RenderTemplate(w, r, r.FormValue("name") + "Form", &pages.IndexPageBody{Title : r.FormValue("email") } )
 }
 func isAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
@@ -334,7 +335,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 			Content: content,
 			Route: "/menu/" + idMenu + "/",
 			Catalog : []string {catalog} }
-		RenderTemplate(w, r, "index", pIndex)
+		views.RenderTemplate(w, r, "index", pIndex)
 	}
 
 }
