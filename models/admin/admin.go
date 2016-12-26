@@ -116,7 +116,7 @@ func BasicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
 
 	return pair[0] == string(user) && pair[1] == string(pass)
 }
-func handlerAdminLists(w http.ResponseWriter, r *http.Request) {
+func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -129,7 +129,7 @@ func handlerAdminLists(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, p.MenuOwner() )
 
 }
-func handlerAdmin(w http.ResponseWriter, r *http.Request) {
+func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
 	if BasicAuth(w, r, username, password) {
@@ -162,7 +162,7 @@ func handlerAdmin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(401)
 	w.Write([]byte("401 Unauthorized\n"))
 }
-func handlerAdminTable (w http.ResponseWriter, r *http.Request) {
+func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -197,7 +197,7 @@ func getFields(tableName string) (fields forms.FieldsTable){
 	return fields
 
 }
-func handlerNewRecord(w http.ResponseWriter, r *http.Request) {
+func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -206,7 +206,7 @@ func handlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	fields := getFields(tableName)
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу " + tableName) )
 }
-func handlerEditRecord(w http.ResponseWriter, r *http.Request) {
+func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -247,7 +247,7 @@ func handlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
 
 }
-func handlerAddRecord(w http.ResponseWriter, r *http.Request)  {
+func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -258,7 +258,7 @@ func handlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 		fmt.Fprintf(w, "{\"result\":\"%d\", \"contentURL\":\"/admin/table/%s/\"}", result, r.FormValue("table"))
 	}
 }
-func handlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
+func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if result, err := db.DoUpdateFromForm(r); err != nil {
