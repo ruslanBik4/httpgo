@@ -3,8 +3,6 @@
 *.a
 *.so
 
-#quicktemplates compiled files
-*.qtpl.go
 
 # Folders
 _obj
