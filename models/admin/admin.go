@@ -1,15 +1,16 @@
-package main
+package admin
 import (
 	"encoding/base64"
 	"net/http"
 	"strings"
 	"log"
+	"fmt"
+	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"fmt"
-	"database/sql"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -130,7 +131,6 @@ func handlerAdminLists(w http.ResponseWriter, r *http.Request) {
 }
 func handlerAdmin(w http.ResponseWriter, r *http.Request) {
 
-	pathToHost = getRealPathFromHost(r.Host)
 	// pass from global variables
 	if BasicAuth(w, r, username, password) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -151,7 +151,7 @@ func handlerAdmin(w http.ResponseWriter, r *http.Request) {
 			p.Content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link )
 		}
 
-		if err := RenderTemplate(w, r, "adminPage", p); err != nil {
+		if err := views.RenderTemplate(w, r, "adminPage", p); err != nil {
 			log.Println(err)
 			return
 		}
