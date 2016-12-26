@@ -66,7 +66,7 @@ type AdminPageBody struct {
 
             </div>
         </div>
-        <div id="content" rel="admin/" class="span9">{%s= body.Content %}</div>
+        <div id="content" rel="/admin/" class="span9">{%s= body.Content %}</div>
     </div>
 </div>
 <hr>

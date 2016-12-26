@@ -133,7 +133,7 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
 
             </div>
         </div>
-        <div id="content" rel="admin/" class="span9">`)
+        <div id="content" rel="/admin/" class="span9">`)
 	//line views/templates/pages/admin_index.qtpl:69
 	qw422016.N().S(body.Content)
 	//line views/templates/pages/admin_index.qtpl:69
