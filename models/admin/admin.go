@@ -116,6 +116,10 @@ func basicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
 
 	return pair[0] == string(user) && pair[1] == string(pass)
 }
+func isAJAXRequest(r *http.Request) bool {
+	return len(r.Header["X-Requested-With"]) > 0
+}
+
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
@@ -126,8 +130,11 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
-	fmt.Fprint(w, p.MenuOwner() )
-
+	if isAJAXRequest(r) {
+		fmt.Fprint(w, p.MenuOwner() )
+	} else {
+		HandlerAdmin(w, r)
+	}
 }
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
