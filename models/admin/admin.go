@@ -206,12 +206,13 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 				tableName = key[: strings.Index(key, "[")-1]
 				var ns db.FieldsTable
 				ns.GetColumnsProp(tableName)
-				log.Println(val)
 
 				//fields.Name = tableName
 				for _, name := range val {
 					for _, field := range ns.Rows {
 
+						log.Println(name)
+						log.Println(field.COLUMN_NAME)
 						if field.COLUMN_NAME == name {
 
 							fieldStrc := &forms.FieldStructure{
