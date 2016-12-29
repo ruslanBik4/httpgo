@@ -202,8 +202,8 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	} else {
 		r.ParseForm()
 		for key, val := range r.Form {
-			if strings.Contains(key, "[]") {
-				tableName = strings.TrimRight(key, "[]")
+			if strings.Contains(key, "[") {
+				tableName = key[: strings.Index(key, "[")-1]
 				var ns db.FieldsTable
 				ns.GetColumnsProp(tableName)
 
