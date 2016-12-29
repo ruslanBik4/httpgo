@@ -264,19 +264,19 @@ func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
 	if id, err := db.DoInsertFromForm(r); err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "{\"error\":\"%v\"}", err)
+		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
 	} else {
-		fmt.Fprintf(w, "{\"id\":\"%d\", \"contentURL\":\"/admin/table/%s/\"}", id, r.FormValue("table"))
+		fmt.Fprintf(w, `{"id":"%d", "contentURL":"/admin/table/%s/"}`, id, r.FormValue("table"))
 	}
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if result, err := db.DoUpdateFromForm(r); err != nil {
+	if rowAffected, err := db.DoUpdateFromForm(r); err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "{\"error\":\"%v\"}", err)
+		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
 	} else {
-		fmt.Fprintf(w, "{\"result\":\"%d\", \"contentURL\":\"/admin/table/%s/\"}", result, r.FormValue("table"))
+		fmt.Fprintf(w, `{"rows":"%d", "contentURL":"/admin/table/%s/"}`, rowAffected, r.FormValue("table"))
 	}
 
 }
