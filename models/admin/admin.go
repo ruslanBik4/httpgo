@@ -189,10 +189,15 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 }
 func HandlerSchema(w http.ResponseWriter, r *http.Request) {
-	tableName := r.URL.Path[ len("/admin/schema/") : len(r.URL.Path)-1]
-	var ns db.FieldsTable
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	ns.GetColumnsProp(tableName)
+	tableName := r.FormValue("table")
+	id        := r.FormValue("id")
+	if tableName > "" {
+
+		fields := getFields(tableName)
+		fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+	}
 }
 func getFields(tableName string) (fields forms.FieldsTable){
 
