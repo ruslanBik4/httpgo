@@ -203,7 +203,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		for key, val := range r.Form {
 			if len(val) > 1 {
-				tableName = key[: strings.Index(key, "[")-1]
+				tableName = key[: strings.Index(key, "[")]
 
 				log.Println(tableName)
 				var ns db.FieldsTable
