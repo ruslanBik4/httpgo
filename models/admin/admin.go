@@ -191,13 +191,51 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
+	var fields forms.FieldsTable
+
 	tableName := r.FormValue("table")
 	id        := r.FormValue("id")
 	if tableName > "" {
 
-		fields := getFields(tableName)
-		fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+		fields = getFields(tableName)
+		//fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+	} else {
+		r.ParseForm()
+		for key, val := range r.Form {
+			if strings.Contains(key, "[]") {
+				tableName = strings.TrimRight(key, "[]")
+				var ns db.FieldsTable
+				ns.GetColumnsProp(tableName)
+
+				fields.Name = tableName
+				for name, value := range val {
+					field := ns.Rows[name]
+					fieldStrc := &forms.FieldStructure{
+						COLUMN_NAME: field.COLUMN_NAME,
+						DATA_TYPE  : field.DATA_TYPE,
+						IS_NULLABLE: field.IS_NULLABLE,
+						COLUMN_TYPE: field.COLUMN_TYPE,
+					}
+					if field.CHARACTER_SET_NAME.Valid {
+						fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
+					}
+					if field.COLUMN_COMMENT.Valid {
+						fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+					}
+					if field.CHARACTER_MAXIMUM_LENGTH.Valid {
+						fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
+					}
+					if field.COLUMN_DEFAULT.Valid {
+						fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
+					}
+					fieldStrc.Value = value
+					fields.Rows = append(fields.Rows,*fieldStrc)
+				}
+			}
+		}
 	}
+	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+
 }
 func getFields(tableName string) (fields forms.FieldsTable){
 
