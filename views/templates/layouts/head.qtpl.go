@@ -77,8 +77,8 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen">
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/menu.css" type="text/css" media="screen">
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
-    <link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="bootstrap.css" rel="stylesheet">
+    <link href="bootstrap-responsive.css" rel="stylesheet">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -111,7 +111,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
     <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
     <script  src="http://solution.allservice.in.ua/js/stog.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="bootstrap.min.js"></script>
     <!--[if lt IE 10]>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
     <![endif]-->
@@ -120,7 +120,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
     <script  src="/js/system.js"></script>
     <script  src="/js/drag_drop.js"></script>
-    <script  src="/js/forms.js"></script>
+    <script  src="forms.js"></script>
     `)
 	//line views/templates/layouts/head.qtpl:66
 	for i := 0; i < len(head.Scripts); i++ {
