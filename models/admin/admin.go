@@ -188,6 +188,12 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 
 }
+func HandlerSchema(w http.ResponseWriter, r *http.Request) {
+	tableName := r.URL.Path[ len("/admin/schema/") : len(r.URL.Path)-1]
+	var ns db.FieldsTable
+
+	ns.GetColumnsProp(tableName)
+}
 func getFields(tableName string) (fields forms.FieldsTable){
 
 	var ns db.FieldsTable
@@ -256,11 +262,11 @@ func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if result, err := db.DoInsertFromForm(r); err != nil {
+	if id, err := db.DoInsertFromForm(r); err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, "{\"error\":\"%v\"}", err)
 	} else {
-		fmt.Fprintf(w, "{\"result\":\"%d\", \"contentURL\":\"/admin/table/%s/\"}", result, r.FormValue("table"))
+		fmt.Fprintf(w, "{\"id\":\"%d\", \"contentURL\":\"/admin/table/%s/\"}", id, r.FormValue("table"))
 	}
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
