@@ -206,8 +206,9 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 				tableName = key[: strings.Index(key, "[")-1]
 				var ns db.FieldsTable
 				ns.GetColumnsProp(tableName)
+				log.Println(val)
 
-				fields.Name = tableName
+				//fields.Name = tableName
 				for _, name := range val {
 					for _, field := range ns.Rows {
 
@@ -233,7 +234,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 							}
 							//fieldStrc.Value = value
 							fields.Rows = append(fields.Rows, *fieldStrc)
-							continue
+							break
 						}
 					}
 
