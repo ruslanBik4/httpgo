@@ -47,7 +47,7 @@ func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
             type: "NAME",
             count: 5,
             /* Вызывается, когда пользователь выбирает одну из подсказок */
-            onSelect: signSuggestion()
+            onSelect: signSuggestion,
         });
     </script>
     <label>E-mail, по которому мы зарегистрируем Вас в системе</label>

@@ -208,28 +208,35 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 				ns.GetColumnsProp(tableName)
 
 				fields.Name = tableName
-				for name, value := range val {
-					field := ns.Rows[name]
-					fieldStrc := &forms.FieldStructure{
-						COLUMN_NAME: field.COLUMN_NAME,
-						DATA_TYPE  : field.DATA_TYPE,
-						IS_NULLABLE: field.IS_NULLABLE,
-						COLUMN_TYPE: field.COLUMN_TYPE,
+				for _, name := range val {
+					for _, field := range ns.Rows {
+
+						if field.COLUMN_NAME == name {
+
+							fieldStrc := &forms.FieldStructure{
+								COLUMN_NAME: tableName + ":" + field.COLUMN_NAME,
+								DATA_TYPE:   field.DATA_TYPE,
+								IS_NULLABLE: field.IS_NULLABLE,
+								COLUMN_TYPE: field.COLUMN_TYPE,
+							}
+							if field.CHARACTER_SET_NAME.Valid {
+								fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
+							}
+							if field.COLUMN_COMMENT.Valid {
+								fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+							}
+							if field.CHARACTER_MAXIMUM_LENGTH.Valid {
+								fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
+							}
+							if field.COLUMN_DEFAULT.Valid {
+								fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
+							}
+							//fieldStrc.Value = value
+							fields.Rows = append(fields.Rows, *fieldStrc)
+							continue
+						}
 					}
-					if field.CHARACTER_SET_NAME.Valid {
-						fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
-					}
-					if field.COLUMN_COMMENT.Valid {
-						fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
-					}
-					if field.CHARACTER_MAXIMUM_LENGTH.Valid {
-						fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
-					}
-					if field.COLUMN_DEFAULT.Valid {
-						fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
-					}
-					fieldStrc.Value = value
-					fields.Rows = append(fields.Rows,*fieldStrc)
+
 				}
 			}
 		}
