@@ -212,8 +212,6 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 				for _, name := range val {
 					for _, field := range ns.Rows {
 
-						log.Println(name)
-						log.Println(field.COLUMN_NAME)
 						if field.COLUMN_NAME == name {
 
 							fieldStrc := &forms.FieldStructure{
@@ -245,7 +243,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №" + id + " в таблице " + tableName) )
 
 }
 func getFields(tableName string) (fields forms.FieldsTable){
@@ -333,4 +331,52 @@ func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 		fmt.Fprintf(w, `{"rows":"%d", "contentURL":"/admin/table/%s/"}`, rowAffected, r.FormValue("table"))
 	}
 
+}
+type argsQuery struct {
+	comma, sqlCommand, values string
+	args [] interface {}
+}
+type sMultiQuery struct {
+	queryes map[string] *argsQuery
+}
+func HandlerExec(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	r.ParseForm()
+
+	if r.FormValue("table") == "" {
+		var params sMultiQuery
+
+		params.queryes = make(map[string] *argsQuery, 0)
+		for key, val := range r.Form {
+			tableName := key[ strings.Index(key, ":")-1:]
+			query, ok := params.queryes[tableName]
+			if !ok {
+				query =  &argsQuery{ comma: "",
+					sqlCommand: "insert into " + tableName + "(",
+					values: "values (",
+				}
+			}
+			fieldName := key[ : strings.Index(key, ":")]
+
+			if strings.Contains(fieldName, "[]") {
+				query.sqlCommand += query.comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
+				str, comma := "", ""
+				for _, value := range val {
+					str += comma + value
+					comma = ","
+				}
+				query.args = append(query.args, str)
+			} else {
+				query.sqlCommand += query.comma + "`" + fieldName + "`"
+				query.args = append( query.args, val[0] )
+			}
+			query.values += query.comma + "?"
+			query.comma = ", "
+		}
+
+		for key, value := range params.queryes {
+			log.Println(key)
+			log.Println(value)
+		}
+	}
 }
