@@ -26,6 +26,23 @@ func correctURL(url string) string {
 
 	return url
 }
+func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
+
+	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	var ns db.RecordsTables
+	ns.Rows = make([] db.TableOptions, 0)
+	ns.GetSelectTablesProp("TABLE_SCHEMA='travel' AND TABLE_NAME in ('users', 'object', 'business') " )
+	for _, value := range ns.Rows {
+		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
+
+	}
+	if isAJAXRequest(r) {
+		fmt.Fprint(w, p.MenuOwner() )
+	} else {
+		HandlerAdmin(w, r)
+	}
+}
+
 //func handlerAddPage(w http.ResponseWriter, r *http.Request) {
 //
 //	err := r.ParseForm()
@@ -388,6 +405,8 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
 			if err != nil {
 				log.Println(err)
+				fmt.Fprintf(w, "Error during insert into %s ", key)
+				break
 			} else {
 				fmt.Fprintf(w, "Success insert into %s record #%d", key, id)
 
