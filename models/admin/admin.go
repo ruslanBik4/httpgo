@@ -375,11 +375,28 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			params.queryes[tableName] = query
 		}
 
-		for key, value := range params.queryes {
-			value.sqlCommand += ") "
-			value.values += ") "
+		primaryTable := ""
+		primaryID := 0
+
+		for key, query := range params.queryes {
+			if primaryTable == "" {
+				primaryTable = key
+			} else {
+				query.sqlCommand += query.comma + "`id_" + primaryTable + "`"
+				query.args = append( query.args, primaryID )
+			}
+			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
+			if err != nil {
+				log.Println(err)
+			} else {
+				fmt.Fprintf(w, "Success insert into %s record #%d", key, id)
+
+				 if primaryID == 0 {
+					 primaryID = id
+				 }
+			}
 			log.Println(key)
-			log.Println(value)
+			log.Println(query)
 		}
 	}
 }
