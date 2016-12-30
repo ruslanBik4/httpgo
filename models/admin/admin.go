@@ -205,10 +205,8 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 			if len(val) > 1 {
 				tableName = key[: strings.Index(key, "[")]
 
-				log.Println(tableName)
 				var ns db.FieldsTable
 				ns.GetColumnsProp(tableName)
-				log.Println(ns.Rows)
 
 				//fields.Name = tableName
 				for _, name := range val {

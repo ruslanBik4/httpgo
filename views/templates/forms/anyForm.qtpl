@@ -19,6 +19,7 @@ type FieldStructure struct {
     COLUMN_TYPE string
     CHARACTER_MAXIMUM_LENGTH int
     Value string
+    TableName string
 }
 type FieldsTable struct {
     Name string
@@ -35,6 +36,11 @@ type FieldsTable struct {
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
+        {% code
+            if nameTable == "" {
+                nameTable = field.TableName
+            }
+        %}
         {%= getOptions("id_" + nameTable, field.Value) %}
     </select>
 </div>
@@ -96,7 +102,9 @@ type FieldsTable struct {
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
 <form class="row-fluid" target="content" action="{%s Action %}" method="post" class="form-horizontal" onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">{%s Title %}</h2>
-    <input hidden name="table" value="{%s ns.Name %}" >
+    {% if ns.Name > "" %}
+        <input hidden name="table" value="{%s ns.Name %}" >
+    {% endif %}
     {% for idx, field := range ns.Rows %}
 
         {% code
@@ -110,6 +118,10 @@ type FieldsTable struct {
             if val > "" {
                 val = "value=" + val + ""
             }
+            tableName := ""
+            if field.TableName > "" {
+                tableName = field.TableName + ":"
+            }
         %}
 
         {%if titleLabel=="" %}
@@ -120,7 +132,7 @@ type FieldsTable struct {
         {% if strings.HasPrefix(key, "id_") %}
             <div class="form-group field-{%s key %} {%s required %}">
                 <label for="{%s key %}">{%s titleLabel %}</label>
-                <select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} {%s val %}>
+                <select id="{%s key %}" name="{%s tableName+key %}" class="form-control" {%s required %} {%s val %}>
                     {% if field.IS_NULLABLE=="YES" && val=="" %}
                         <option value="" selected>Значение можно не указывать</option>
                     {% else %}
@@ -130,9 +142,9 @@ type FieldsTable struct {
                 </select>
             </div>
         {% elseif key=="parent_id" %}
-            {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
+            {%= field.renderParentSelect(ns.Name, tableName+key, val, titleLabel, required) %}
         {% elseif key=="id" && val > "" %}
-            <input hidden name="id" {%s val %}>
+            <input hidden name="{%s tableName %}id" {%s val %}>
         {% elseif key!="id" %}
             <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}">
                 {% switch field.DATA_TYPE %}
@@ -143,20 +155,20 @@ type FieldsTable struct {
                                 checked = "checked"
                             }
                         %}
-                        {%= renderCheckBox(key, titleLabel, 1, checked) %}
+                        {%= renderCheckBox(tableName+key, titleLabel, 1, checked) %}
                 {% case "enum" %}
                     <label for="{%s key %}">
                         Enum: {%s titleLabel %}
                     </label>
-                    {%= field.renderEnum(key) %}
+                    {%= field.renderEnum(tableName+key) %}
                 {% case "set" %}
                     <label for="{%s key %}">
                         Set: {%s titleLabel %}
                     </label>
-                    {%= field.renderSet(key) %}
+                    {%= field.renderSet(tableName+key) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
-                <input id="{%s key %}" name="{%s key %}" class="form-control" placeholder="{%s field.COLUMN_COMMENT %}"
+                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s field.COLUMN_COMMENT %}"
                     {%s required %} {%s val %}
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
