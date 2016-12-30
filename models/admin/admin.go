@@ -348,7 +348,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 		params.queryes = make(map[string] *argsQuery, 0)
 		for key, val := range r.Form {
-			tableName := key[ strings.Index(key, ":")-1:]
+			tableName := key[ : strings.Index(key, ":") ]
 			query, ok := params.queryes[tableName]
 			if !ok {
 				query =  &argsQuery{ comma: "",
@@ -356,7 +356,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 					values: "values (",
 				}
 			}
-			fieldName := key[ : strings.Index(key, ":")]
+			fieldName := key[ strings.Index(key, ":")+1 : ]
 
 			if strings.Contains(fieldName, "[]") {
 				query.sqlCommand += query.comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
@@ -376,6 +376,8 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for key, value := range params.queryes {
+			value.sqlCommand += ") "
+			value.values += ") "
 			log.Println(key)
 			log.Println(value)
 		}
