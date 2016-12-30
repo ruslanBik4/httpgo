@@ -372,6 +372,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			}
 			query.values += query.comma + "?"
 			query.comma = ", "
+			params.queryes[tableName] = query
 		}
 
 		for key, value := range params.queryes {
