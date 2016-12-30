@@ -217,10 +217,11 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 						if field.COLUMN_NAME == name {
 
 							fieldStrc := &forms.FieldStructure{
-								COLUMN_NAME: tableName + ":" + field.COLUMN_NAME,
+								COLUMN_NAME: field.COLUMN_NAME,
 								DATA_TYPE:   field.DATA_TYPE,
 								IS_NULLABLE: field.IS_NULLABLE,
 								COLUMN_TYPE: field.COLUMN_TYPE,
+								TableName:   tableName,
 							}
 							if field.CHARACTER_SET_NAME.Valid {
 								fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
