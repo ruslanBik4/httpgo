@@ -90,10 +90,18 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
-func IsLogin(r *http.Request) bool {
-	session := GetSession(r, "user")
-	_, ok := session.Values["id"]
- return ok
+func IsLogin(r *http.Request) (string, bool) {
+	session := GetSession(r, "PHPSESSID")
+	if session == nil {
+		return "", false
+	}
+	if userID, ok := session.Values["id"]; ok {
+
+		return strconv.Itoa(userID.(int)), ok
+	} else {
+		return "", ok
+	}
+
 }
 func HandlerBusiness(w http.ResponseWriter, r *http.Request) {
 
