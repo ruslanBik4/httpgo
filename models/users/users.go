@@ -30,7 +30,7 @@ var (
 		Endpoint:     google.Endpoint,
 	}
 	oauthStateString = "random"
-	store = sessions.NewCookieStore([]byte("travel.com.ua"))
+	store = sessions.NewFilesystemStore("/var/lib/php/session",[]byte("travel.com.ua"))
 
 )
 func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
