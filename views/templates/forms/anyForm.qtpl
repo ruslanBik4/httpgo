@@ -33,7 +33,6 @@ type FieldsTable struct {
 }
 %}
 {% func (field *FieldStructure) renderParentSelect(nameTable, key, val, titleLabel, required  string) %}
-<div class="form-group field-{%s key %}">
     <label for="{%s key %}">{%s titleLabel %}</label>
     <select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} {%s val %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
@@ -48,7 +47,6 @@ type FieldsTable struct {
         %}
         {%= getOptions("id_" + nameTable, field.Value) %}
     </select>
-</div>
 {% endfunc %}
 {% func getOptions(key string, value string) %}
         {% code
@@ -135,34 +133,32 @@ type FieldsTable struct {
             }
             events := ""
             for name, funcName := range field.Events {
-                events += fmt.Sprintf("%s='return %s;'", name, funcName)
+                events += fmt.Sprintf("%s=\"return %s;\"", name, funcName)
             }
         %}
-
-        {%if titleLabel=="" %}
-            {% code
-                titleLabel = key
-            %}
-        {% endif %}
+чувство самосохранения
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input hidden name="{%s key %}" {%s val %}>
-        {% elseif strings.HasPrefix(key, "id_") %}
-            <div class="form-group field-{%s key %} {%s required %}">
-                <label for="{%s key %}">{%s titleLabel %}</label>
-                <select id="{%s key %}" name="{%s tableName+key %}" class="form-control" {%s required %} {%s val %}>
-                    {% if field.IS_NULLABLE=="YES" && val=="" %}
-                        <option value="" selected>Значение можно не указывать</option>
-                    {% else %}
-                        <option disabled >Выберите значение из списка</option>
-                    {% endif %}
-                    {%= getOptions(key, field.Value) %}
-                </select>
-            </div>
-        {% elseif key=="parent_id" %}
-            {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
-        {% elseif key!="id" %}
-            <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}"
+            {% continue %}
+        {% elseif key=="id"%}
+            {% continue %}
+        {%  endif %}
+
+        <div id="divField{%d idx %}" class="form-group field-{%s key %} {%s required %}"
                     {% if field.IsHidden %}style="display:none"{% endif %}>
+        {% if key=="parent_id" %}
+            {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
+        {% elseif strings.HasPrefix(key, "id_") %}
+            <label for="{%s key %}">{%s titleLabel %}</label>
+            <select id="{%s key %}" name="{%s tableName+key %}" class="form-control" {%s required %} {%s val %}>
+                {% if field.IS_NULLABLE=="YES" && val=="" %}
+                    <option value="" selected>Значение можно не указывать</option>
+                {% else %}
+                    <option disabled >Выберите значение из списка</option>
+                {% endif %}
+                {%= getOptions(key, field.Value) %}
+            </select>
+        {% else %}
 
                 {% switch field.DATA_TYPE %}
                 {% case "tinyint" %}
@@ -196,8 +192,8 @@ type FieldsTable struct {
                 />
                 {% endswitch %}
 
-            </div>
         {% endif %}
+        </div>
     {% endfor %}
     <button class="btn btn-large btn-primary" type="submit">Сохранить</button>
 </form>
