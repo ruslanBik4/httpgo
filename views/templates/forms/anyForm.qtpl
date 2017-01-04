@@ -19,6 +19,8 @@ type FieldStructure struct {
     COLUMN_TYPE string
     CHARACTER_MAXIMUM_LENGTH int
     Value string
+    IsHidden bool
+    CSSClass  string
     TableName string
 }
 type FieldsTable struct {
@@ -110,13 +112,18 @@ type FieldsTable struct {
         {% code
             required := ""
             if field.IS_NULLABLE=="NO" {
-                required = "required"
+                required = "required=required"
             }
             titleLabel := field.COLUMN_COMMENT
+            if titleLabel=="" {
+                titleLabel = key
+            }
             key := field.COLUMN_NAME
             val := field.Value
             if val > "" {
                 val = "value=" + val + ""
+            } else if field.COLUMN_DEFAULT > "" {
+                val = "value=" + field.COLUMN_DEFAULT + ""
             }
             tableName := ""
             if field.TableName > "" {
@@ -124,11 +131,6 @@ type FieldsTable struct {
             }
         %}
 
-        {%if titleLabel=="" %}
-            {% code
-                titleLabel = key
-            %}
-        {% endif %}
         {% if strings.HasPrefix(key, "id_") %}
             <div class="form-group field-{%s key %} {%s required %}">
                 <label for="{%s key %}">{%s titleLabel %}</label>
@@ -143,7 +145,7 @@ type FieldsTable struct {
             </div>
         {% elseif key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, tableName+key, val, titleLabel, required) %}
-        {% elseif key=="id" && val > "" %}
+        {% elseif (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input hidden name="{%s tableName %}id" {%s val %}>
         {% elseif key!="id" %}
             <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}">
@@ -168,7 +170,7 @@ type FieldsTable struct {
                     {%= field.renderSet(tableName+key) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
-                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s field.COLUMN_COMMENT %}"
+                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control {%s field.CSSClass %}" placeholder="{%s field.COLUMN_COMMENT %}"
                     {%s required %} {%s val %}
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
@@ -262,6 +264,7 @@ type FieldsTable struct {
         if field.COLUMN_DEFAULT.Valid {
             fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
         }
+        fieldStrc.IsHidden = false
         fields.Rows = append(fields.Rows,*fieldStrc)
     }
 %}

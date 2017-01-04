@@ -35,11 +35,11 @@ func StreamInviteEmail(qw422016 *qt422016.Writer, email, password string) {
 	//line views/templates/mails/registration.qtpl:9
 	qw422016.N().S(`'><b>сюда</b></a>
 После этого Вы можете работать на сайте с помощью пароля:
-   <span> `)
+   "<span>`)
 	//line views/templates/mails/registration.qtpl:11
 	qw422016.E().S(password)
 	//line views/templates/mails/registration.qtpl:11
-	qw422016.N().S(`</span> </br>
+	qw422016.N().S(`</span>" </br>
    <span> Просьба сохранить его в надежном месте, потому что мы ен храним паролей своих пользователей!</span>
 </div>
 

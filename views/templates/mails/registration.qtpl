@@ -8,7 +8,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  А если так - нажмите на ссылку ниже для активации своего аккаунта:
     <a href='http://vps-20777.vps-default-host.net/user/active/?email={%s email %}'><b>сюда</b></a>
 После этого Вы можете работать на сайте с помощью пароля:
-   <span> {%s password %}</span> </br>
+   "<span>{%s password %}</span>" </br>
    <span> Просьба сохранить его в надежном месте, потому что мы ен храним паролей своих пользователей!</span>
 </div>
 
