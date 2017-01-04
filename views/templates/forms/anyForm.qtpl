@@ -161,7 +161,9 @@ type FieldsTable struct {
         {% elseif key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
         {% elseif key!="id" %}
-            <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}">
+            <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}"
+                    {% if field.IsHidden %}style="display:none"{% endif %}>
+
                 {% switch field.DATA_TYPE %}
                 {% case "tinyint" %}
                         {% code
