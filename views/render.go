@@ -67,9 +67,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		}
 		fmt.Fprint(w, headPage.HeadHTML())
 		fmt.Fprint(w, p.ShowAdminPage(""))
-	case "business":
-		users.HandlerBusiness(w,nil)
-
 
 	default:
 		fmt.Fprint(w, "no rendering with page %s with data %v", tmplName, Content)
