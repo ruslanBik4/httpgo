@@ -135,7 +135,7 @@ type FieldsTable struct {
             }
             events := ""
             for name, funcName := range field.Events {
-                events += fmt.Sprintf("%s='return %s'", name, funcName)
+                events += fmt.Sprintf("%s=return %s", name, funcName)
             }
         %}
 
@@ -172,14 +172,10 @@ type FieldsTable struct {
                         %}
                         {%= renderCheckBox(tableName+key, titleLabel, 1, checked) %}
                 {% case "enum" %}
-                    <label for="{%s key %}">
-                        Enum: {%s titleLabel %}
-                    </label>
+                    <label for="{%s key %}">{%s titleLabel %}:</label>
                     {%= field.renderEnum(tableName+key, required) %}
                 {% case "set" %}
-                    <label for="{%s key %}">
-                        Set: {%s titleLabel %}
-                    </label>
+                    <label for="{%s key %}">{%s titleLabel %}:</label>
                     {%= field.renderSet(tableName+key, required) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
@@ -188,7 +184,7 @@ type FieldsTable struct {
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                         type="number"
-                           {%if field.CHARACTER_MAXIMUM_LENGTH>0 %}size="{%d field.CHARACTER_MAXIMUM_LENGTH %}"{% endif %}
+                           {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                     {% elseif strings.Contains(key, "email") %}
                         type="email"
                     {% else %}
