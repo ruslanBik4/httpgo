@@ -1042,6 +1042,7 @@ func (fields *FieldsTable) StreamPutDataFrom(qw422016 *qt422016.Writer, ns db.Fi
 			DATA_TYPE:   field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,
 			COLUMN_TYPE: field.COLUMN_TYPE,
+			Events:      make(map[string]string, 0),
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -1059,34 +1060,34 @@ func (fields *FieldsTable) StreamPutDataFrom(qw422016 *qt422016.Writer, ns db.Fi
 		fields.Rows = append(fields.Rows, *fieldStrc)
 	}
 
-	//line views/templates/forms/anyForm.qtpl:299
+	//line views/templates/forms/anyForm.qtpl:300
 	qw422016.N().S(`
 `)
-//line views/templates/forms/anyForm.qtpl:300
+//line views/templates/forms/anyForm.qtpl:301
 }
 
-//line views/templates/forms/anyForm.qtpl:300
+//line views/templates/forms/anyForm.qtpl:301
 func (fields *FieldsTable) WritePutDataFrom(qq422016 qtio422016.Writer, ns db.FieldsTable) {
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	fields.StreamPutDataFrom(qw422016, ns)
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:300
+//line views/templates/forms/anyForm.qtpl:301
 }
 
-//line views/templates/forms/anyForm.qtpl:300
+//line views/templates/forms/anyForm.qtpl:301
 func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) string {
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	fields.WritePutDataFrom(qb422016, ns)
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:300
+	//line views/templates/forms/anyForm.qtpl:301
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:300
+//line views/templates/forms/anyForm.qtpl:301
 }

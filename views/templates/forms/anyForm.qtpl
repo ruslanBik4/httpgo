@@ -280,6 +280,7 @@ type FieldsTable struct {
             DATA_TYPE  : field.DATA_TYPE,
             IS_NULLABLE: field.IS_NULLABLE,
             COLUMN_TYPE: field.COLUMN_TYPE,
+            Events     : make(map[string] string, 0),
         }
         if field.CHARACTER_SET_NAME.Valid {
             fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
