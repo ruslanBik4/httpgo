@@ -103,50 +103,6 @@ func IsLogin(r *http.Request) (string, bool) {
 	}
 
 }
-func HandlerBusiness(w http.ResponseWriter, r *http.Request) {
-
-	session := GetSession(r, "user")
-	userID, ok := session.Values["id"]
-	if !ok {
-		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
-		return
-	}
-	var ns db.FieldsTable
-	ns.Rows = make([] db.FieldStructure, 0)
-	ns.GetColumnsProp("business")
-
-	var fields forms.FieldsTable
-
-	fields.PutDataFrom( ns )
-
-	rows := db.DoQuery("select * from business")
-
-	defer rows.Close()
-	fmt.Fprint(w, userID, pages.ShowTable("business", fields, rows) )
-
-	//RenderTemplate(w, "business", ns)
-}
-func HandlerAddBusiness(w http.ResponseWriter, r *http.Request) {
-	session := GetSession(r, "user")
-	_, ok := session.Values["id"]
-	if !ok {
-		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
-		return
-	}
-	var ns db.FieldsTable
-	ns.Rows = make([] db.FieldStructure, 0)
-	ns.GetColumnsProp("business")
-
-	var fields forms.FieldsTable
-
-	fields.Name = "business"
-	fields.Rows = make([] forms.FieldStructure, 0)
-	fields.IsDadata = true
-
-	fields.PutDataFrom( ns )
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Добавить новый бизнес"), forms.DadataScript() )
-
-}
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
