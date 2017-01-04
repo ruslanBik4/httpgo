@@ -43,8 +43,8 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		if p.Content == "" {
 
 			p.Title   = "Авторизация"
-			if users.IsLogin(r) {
-				p.Content = "<script>afterLogin({login:'1',sex:'0'})</script>"
+			if userID, ok := users.IsLogin(r); ok {
+				p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
 			} else {
 				p.Content = forms.SigninForm("", "Введите пароль") + forms.ShowForm("введите фамилию имя отчество")
 			}
