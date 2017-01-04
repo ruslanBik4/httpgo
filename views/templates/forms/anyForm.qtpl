@@ -135,7 +135,7 @@ type FieldsTable struct {
             }
             events := ""
             for name, funcName := range field.Events {
-                events += fmt.Sprintf("%s=%s", name, funcName)
+                events += fmt.Sprintf("%s='return %s;'", name, funcName)
             }
         %}
 
@@ -182,7 +182,7 @@ type FieldsTable struct {
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
                 <input id="{%s key %}" name="{%s tableName+key %}" class="form-control {%s field.CSSClass %}" placeholder="{%s field.COLUMN_COMMENT %}"
-                    {%s required %} {%s val %} {%s events %}
+                    {%s required %} {%s val %} {%s= events %}
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                         type="number"

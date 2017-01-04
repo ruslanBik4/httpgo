@@ -347,7 +347,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		}
 		events := ""
 		for name, funcName := range field.Events {
-			events += fmt.Sprintf("%s=\"return %s;\"", name, funcName)
+			events += fmt.Sprintf("%s='return %s;'", name, funcName)
 		}
 
 		//line views/templates/forms/anyForm.qtpl:140
@@ -585,7 +585,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				//line views/templates/forms/anyForm.qtpl:185
 				qw422016.N().S(` `)
 				//line views/templates/forms/anyForm.qtpl:185
-				qw422016.E().S(events)
+				qw422016.N().S(events)
 				//line views/templates/forms/anyForm.qtpl:185
 				qw422016.N().S(`
 
