@@ -27,6 +27,7 @@ type FieldsTable struct {
     Name string
     IsDadata bool
     Rows [] FieldStructure
+    Hiddens map[string] string
 }
 %}
 {% func (field *FieldStructure) renderParentSelect(nameTable, key, val, titleLabel, required  string) %}
@@ -132,7 +133,14 @@ type FieldsTable struct {
             }
         %}
 
-        {% if strings.HasPrefix(key, "id_") %}
+        {%if titleLabel=="" %}
+            {% code
+                titleLabel = key
+            %}
+        {% endif %}
+        {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
+            <input hidden name="{%s key %}" {%s val %}>
+        {% elseif strings.HasPrefix(key, "id_") %}
             <div class="form-group field-{%s key %} {%s required %}">
                 <label for="{%s key %}">{%s titleLabel %}</label>
                 <select id="{%s key %}" name="{%s tableName+key %}" class="form-control" {%s required %} {%s val %}>
@@ -145,9 +153,7 @@ type FieldsTable struct {
                 </select>
             </div>
         {% elseif key=="parent_id" %}
-            {%= field.renderParentSelect(ns.Name, tableName+key, val, titleLabel, required) %}
-        {% elseif (val > "") && ( (key=="id") || field.IsHidden ) %}
-            <input hidden name="{%s tableName %}id" {%s val %}>
+            {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
         {% elseif key!="id" %}
             <div id="{%d idx %}" class="form-group field-{%s key %} {%s required %}">
                 {% switch field.DATA_TYPE %}
@@ -163,12 +169,12 @@ type FieldsTable struct {
                     <label for="{%s key %}">
                         Enum: {%s titleLabel %}
                     </label>
-                    {%= field.renderEnum(tableName+key) %}
+                    {%= field.renderEnum(tableName+key, required) %}
                 {% case "set" %}
                     <label for="{%s key %}">
                         Set: {%s titleLabel %}
                     </label>
-                    {%= field.renderSet(tableName+key) %}
+                    {%= field.renderSet(tableName+key, required) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
                 <input id="{%s key %}" name="{%s tableName+key %}" class="form-control {%s field.CSSClass %}" placeholder="{%s field.COLUMN_COMMENT %}"
@@ -198,9 +204,9 @@ type FieldsTable struct {
 </head>
 {% endif %}
 {% endfunc %}
-{% func (field *FieldStructure) renderSet(key string) %}
+{% func (field *FieldStructure) renderSet(key, required string) %}
     {% code
-        enumValidator := regexp.MustCompile("(?:'([^,]+)',?)")
+        enumValidator := regexp.MustCompile(`(?:'([^,]+)',?)`)
         fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
         checked := ""
     %}
@@ -214,7 +220,7 @@ type FieldsTable struct {
             }
         %}
         {%= renderCheckBox(key + "[]", enumVal, idx, checked) %}
-    {%  endfor %}
+        {%  endfor %}
 {% endfunc %}
 {% func renderCheckBox(key, title string, idx int, checked string) %}
 <label for="{%s key %}{%d idx %}">
@@ -222,23 +228,37 @@ type FieldsTable struct {
     {%s title %}
 </label>
 {% endfunc %}
-{% func (field *FieldStructure) renderEnum(key string) %}
+{% func (field *FieldStructure) renderEnum(key, required string) %}
     {% code
-        enumValidator := regexp.MustCompile("'([^']+)'")
-        fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-        checked := ""
+    enumValidator := regexp.MustCompile(`'([^']+)'`)
+    fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
+    renderSelect := len(fields) > 3
+    checked, selected  := "", ""
     %}
+
+    {% if renderSelect %}
+<select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} >
+    {% endif %}
     {% for idx, title := range fields %}
         {% code
             enumVal := title[len(title)-1]
             if (field.Value > "") && (field.Value == enumVal) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
               checked = "checked"
+                selected = "selected"
             } else {
               checked = ""
+                selected = ""
             }
         %}
+        {% if renderSelect %}
+        <option value='{%s enumVal %}' {%s selected %}>{%s enumVal %}</option>
+    {% else %}
         {%= renderRadioBox(key, enumVal, idx, checked) %}
+        {% endif %}
     {%  endfor %}
+    {% if renderSelect %}
+        </select>
+    {% endif %}
 {% endfunc %}
 {% func renderRadioBox(key, title string, idx int, checked string) %}
 <label for="{%s key %}{%d idx  %}">
