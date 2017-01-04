@@ -120,7 +120,7 @@ type FieldsTable struct {
             required := ""
 
             if field.IS_NULLABLE=="NO" {
-                required = "required=required"
+                required = "required"
             }
             if titleLabel=="" {
                 titleLabel = key
@@ -135,7 +135,7 @@ type FieldsTable struct {
             }
             events := ""
             for name, funcName := range field.Events {
-                events += fmt.Sprintf("%s=return %s", name, funcName)
+                events += fmt.Sprintf("%s=\"return %s;\"", name, funcName)
             }
         %}
 
