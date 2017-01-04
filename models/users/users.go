@@ -20,6 +20,7 @@ import (
 	"hash/crc32"
 	"github.com/gorilla/sessions"
 )
+const nameSession = "PHPSESSID"
 var (
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
@@ -90,7 +91,7 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	return session
 }
 func IsLogin(r *http.Request) (string, bool) {
-	session := GetSession(r, "PHPSESSID")
+	session := GetSession(r, nameSession)
 	if session == nil {
 		return "", false
 	}
@@ -105,7 +106,7 @@ func IsLogin(r *http.Request) (string, bool) {
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	session := GetSession(r, "user" )
+	session := GetSession(r, nameSession )
 	email, ok := session.Values["email"]
 	if !ok {
 		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
@@ -159,7 +160,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// session save BEFORE write page
-		session := sessions.NewSession(store, "user")
+		session := sessions.NewSession(store, nameSession)
 		session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
 		session.Values["id"] = row.Id
 		session.Values["email"] = email
@@ -178,7 +179,7 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	//	log.Println(err)
 	//	return
 	//}
-	session := GetSession(r, "user" )
+	session := GetSession(r, nameSession )
 	delete(session.Values, "email")
 	http.Redirect(w, r, "/", http.StatusContinue)
 }
