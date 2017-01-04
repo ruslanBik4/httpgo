@@ -110,22 +110,23 @@ type FieldsTable struct {
     {% for idx, field := range ns.Rows %}
 
         {% code
+            key := field.COLUMN_NAME
+            titleLabel := field.COLUMN_COMMENT
+            val := field.Value
+            tableName := ""
             required := ""
+
             if field.IS_NULLABLE=="NO" {
                 required = "required=required"
             }
-            titleLabel := field.COLUMN_COMMENT
             if titleLabel=="" {
                 titleLabel = key
             }
-            key := field.COLUMN_NAME
-            val := field.Value
             if val > "" {
                 val = "value=" + val + ""
             } else if field.COLUMN_DEFAULT > "" {
                 val = "value=" + field.COLUMN_DEFAULT + ""
             }
-            tableName := ""
             if field.TableName > "" {
                 tableName = field.TableName + ":"
             }
@@ -176,7 +177,9 @@ type FieldsTable struct {
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                         type="number"
                            {%if field.CHARACTER_MAXIMUM_LENGTH>0 %}size="{%d field.CHARACTER_MAXIMUM_LENGTH %}"{% endif %}
-                    {%  else %}
+                    {% elseif strings.Contains(key, "email") %}
+                        type="email"
+                    {% else %}
                         type="text"
                            {%if field.CHARACTER_MAXIMUM_LENGTH>0 %}size="{%d field.CHARACTER_MAXIMUM_LENGTH %}"{% endif %}
                     {% endif %}
