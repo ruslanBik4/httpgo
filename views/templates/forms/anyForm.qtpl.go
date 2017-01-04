@@ -332,7 +332,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		required := ""
 
 		if field.IS_NULLABLE == "NO" {
-			required = "required=required"
+			required = "required"
 		}
 		if titleLabel == "" {
 			titleLabel = key

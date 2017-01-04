@@ -135,7 +135,7 @@ type FieldsTable struct {
             }
             events := ""
             for name, funcName := range field.Events {
-                events += fmt.Sprintf("%s=\"return %s;\"", name, funcName)
+                events += fmt.Sprintf("%s=%s", name, funcName)
             }
         %}
 
