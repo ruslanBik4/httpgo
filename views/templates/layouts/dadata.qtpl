@@ -1,0 +1,24 @@
+Здесь мы подключаем dadata для автоматического распознавания некоторых полей (ФИО, ИНН предприятия ect).
+
+{% func DadataHead() %}
+    <head>
+        <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
+    </head>
+{% endfunc %}
+
+name "PARTY"
+{% func DadataScript( Inputs map[string] string ) %}
+<script>
+    {% for id, typeS := range Inputs %}
+        $("#{%s= id %}").suggestions({
+            serviceUrl: "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
+            token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
+            type: {%s= typeS %},
+            count: 5,
+            /* Вызывается, когда пользователь выбирает одну из подсказок */
+            onSelect: busnessSuggestion,
+        });
+    {% endfor %}
+</script>
+{% endfunc %}
