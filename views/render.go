@@ -87,6 +87,7 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 			Inputs map[string] string ) error  {
 
 	WriteHeaders(w)
+	fmt.Fprint(w, layouts.PutHead() )
 	if Inputs != nil {
 		fmt.Fprint(w, layouts.DadataHead())
 	}
@@ -95,6 +96,7 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 		fmt.Fprint(w, layouts.DadataScript(Inputs))
 	}
 
+	fmt.Fprint(w, layouts.PutEnd() )
 	return nil
 
 }
