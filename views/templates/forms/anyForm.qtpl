@@ -136,7 +136,7 @@ type FieldsTable struct {
                 events += fmt.Sprintf("%s=\"return %s;\"", name, funcName)
             }
         %}
-чувство самосохранения
+
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input hidden name="{%s key %}" {%s val %}>
             {% continue %}
@@ -144,7 +144,7 @@ type FieldsTable struct {
             {% continue %}
         {%  endif %}
 
-        <div id="divField{%d idx %}" class="form-group field-{%s key %} {%s required %}"
+        <div id="divField{%d idx %}" class="form-group field-{%s key %} {%s required %} {%s field.CSSClass %}"
                     {% if field.IsHidden %}style="display:none"{% endif %}>
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
@@ -177,7 +177,7 @@ type FieldsTable struct {
                     {%= field.renderSet(tableName+key, required) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
-                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control {%s field.CSSClass %}" placeholder="{%s field.COLUMN_COMMENT %}"
+                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s field.COLUMN_COMMENT %}"
                     {%s required %} {%s val %} {%s= events %}
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
@@ -220,40 +220,36 @@ type FieldsTable struct {
             }
         %}
         {%= renderCheckBox(key + "[]", enumVal, idx, checked) %}
-        {%  endfor %}
+    {%  endfor %}
 {% endfunc %}
 {% func renderCheckBox(key, title string, idx int, checked string) %}
-<label for="{%s key %}{%d idx %}">
-    <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}/>
-    {%s title %}
-</label>
+    <label for="{%s key %}{%d idx %}">
+        <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}/>
+        {%s title %}
+    </label>
 {% endfunc %}
 {% func (field *FieldStructure) renderEnum(key, required string) %}
     {% code
-    enumValidator := regexp.MustCompile(`'([^']+)'`)
-    fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-    renderSelect := len(fields) > 3
-    checked, selected  := "", ""
+        enumValidator := regexp.MustCompile(`'([^']+)'`)
+        fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
+        renderSelect := len(fields) > 3
     %}
 
     {% if renderSelect %}
-<select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} >
+        <select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} >
     {% endif %}
     {% for idx, title := range fields %}
         {% code
             enumVal := title[len(title)-1]
+            checked, selected  := "", ""
             if (field.Value > "") && (field.Value == enumVal) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
-              checked = "checked"
-                selected = "selected"
-            } else {
-              checked = ""
-                selected = ""
+              checked, selected = "checked", "selected"
             }
         %}
         {% if renderSelect %}
-        <option value='{%s enumVal %}' {%s selected %}>{%s enumVal %}</option>
-    {% else %}
-        {%= renderRadioBox(key, enumVal, idx, checked) %}
+            <option value='{%s enumVal %}' {%s selected %}>{%s enumVal %}</option>
+        {% else %}
+            {%= renderRadioBox(key, enumVal, idx, checked) %}
         {% endif %}
     {%  endfor %}
     {% if renderSelect %}
@@ -261,10 +257,10 @@ type FieldsTable struct {
     {% endif %}
 {% endfunc %}
 {% func renderRadioBox(key, title string, idx int, checked string) %}
-<label for="{%s key %}{%d idx  %}">
-    <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}/>
-    {%s title %}
-</label>
+    <label for="{%s key %}{%d idx  %}">
+        <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}/>
+        {%s title %}
+    </label>
 {% endfunc %}
 {% func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) %}
 {% code
