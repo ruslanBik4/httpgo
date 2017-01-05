@@ -102,6 +102,20 @@ type FieldsTable struct {
         <option value='-1' >No found</option>
     {% endif %}
 {% endfunc %}
+{% code
+func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel string)  {
+    titleFull = field.COLUMN_COMMENT
+    if titleFull=="" {
+        titleLabel = field.COLUMN_NAME
+    } else if strings.Index(titleFull, ".") > 0 {
+        titleLabel = titleFull[:strings.Index(titleFull, ".")]
+    } else {
+        titleLabel = titleFull
+    }
+
+    return titleFull, titleLabel
+}
+%}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
 <form class="row-fluid" target="content" action="{%s Action %}" method="post" class="form-horizontal" onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">{%s Title %}</h2>
@@ -112,8 +126,7 @@ type FieldsTable struct {
 
         {% code
             key := field.COLUMN_NAME
-            titleFull := field.COLUMN_COMMENT
-            titleLabel := titleFull
+            titleFull, titleLabel := field.GetColumnTitles()
             val := field.Value
             tableName := ""
             required := ""
@@ -122,11 +135,6 @@ type FieldsTable struct {
                 required = "required"
             }
 
-            if titleFull=="" {
-                titleLabel = key
-            } else if strings.Index(titleFull, ".") > 0 {
-                titleLabel = titleFull[:strings.Index(titleFull, ".")]
-            }
             if val > "" {
                 val = "value=" + val + ""
             } else if field.COLUMN_DEFAULT > "" {

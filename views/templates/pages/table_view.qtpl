@@ -9,13 +9,17 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 )
 %}
 {% func  ShowTable(tableName string, ns forms.FieldsTable, rows *sql.Rows) %}
-<link href="/css/tables.css" rel="stylesheet">
+<link href="/tables.css" rel="stylesheet">
 
 <table>
     <thead>
         <tr>
-            {%  for _, value := range ns.Rows %}
-                <td>{% if value.COLUMN_COMMENT > "" %}{%s value.COLUMN_COMMENT %}{% else %}{%s value.COLUMN_NAME %}{% endif %}</td>
+            {%  for _, field := range ns.Rows %}
+                <td>{% code
+                        titleFull, titleLabel := field.GetColumnTitles()
+                    %}
+                    <a href="#" title="{%s= titleFull %}">{%s= titleLabel  %}</a>
+                </td>
             {%  endfor %}
         </tr>
     </thead>
