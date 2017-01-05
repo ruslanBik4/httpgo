@@ -58,8 +58,6 @@ func DadataHead() string {
 //line views/templates/layouts/dadata.qtpl:8
 }
 
-// name "PARTY"
-
 //line views/templates/layouts/dadata.qtpl:11
 func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string]string) {
 	//line views/templates/layouts/dadata.qtpl:11
@@ -77,11 +75,11 @@ func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string]string) {
 		qw422016.N().S(`").suggestions({
             serviceUrl: "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
             token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
-            type: `)
+            type: "`)
 		//line views/templates/layouts/dadata.qtpl:17
 		qw422016.N().S(typeS)
 		//line views/templates/layouts/dadata.qtpl:17
-		qw422016.N().S(`,
+		qw422016.N().S(`",
             count: 5,
             /* Вызывается, когда пользователь выбирает одну из подсказок */
             onSelect: busnessSuggestion,

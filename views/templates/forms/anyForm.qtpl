@@ -112,16 +112,20 @@ type FieldsTable struct {
 
         {% code
             key := field.COLUMN_NAME
-            titleLabel := field.COLUMN_COMMENT
+            titleFull := field.COLUMN_COMMENT
             val := field.Value
             tableName := ""
             required := ""
+            titleLabel := ""
 
             if field.IS_NULLABLE=="NO" {
                 required = "required"
             }
-            if titleLabel=="" {
+
+            if titleFull=="" {
                 titleLabel = key
+            } else if strings.Index(titleFull, ".") > 0 {
+                titleLabel = titleFull[:strings.Index(titleFull, ".")]
             }
             if val > "" {
                 val = "value=" + val + ""
@@ -193,6 +197,7 @@ type FieldsTable struct {
                 {% endswitch %}
 
         {% endif %}
+            <div class="hint-block">{%s titleFull %}</div>
         </div>
     {% endfor %}
     <button class="btn btn-large btn-primary" type="submit">Сохранить</button>

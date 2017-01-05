@@ -7,14 +7,14 @@
     </head>
 {% endfunc %}
 
-name "PARTY"
+
 {% func DadataScript( Inputs map[string] string ) %}
 <script>
     {% for id, typeS := range Inputs %}
         $("#{%s= id %}").suggestions({
             serviceUrl: "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
             token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
-            type: {%s= typeS %},
+            type: "{%s= typeS %}",
             count: 5,
             /* Вызывается, когда пользователь выбирает одну из подсказок */
             onSelect: busnessSuggestion,
