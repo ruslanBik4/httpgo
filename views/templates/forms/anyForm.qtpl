@@ -113,10 +113,10 @@ type FieldsTable struct {
         {% code
             key := field.COLUMN_NAME
             titleFull := field.COLUMN_COMMENT
+            titleLabel := titleFull
             val := field.Value
             tableName := ""
             required := ""
-            titleLabel := ""
 
             if field.IS_NULLABLE=="NO" {
                 required = "required"
@@ -181,7 +181,7 @@ type FieldsTable struct {
                     {%= field.renderSet(tableName+key, required) %}
                 {% default %}
                 <label for="{%s key %}">{%s titleLabel %}</label>
-                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s field.COLUMN_COMMENT %}"
+                <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s titleFull %}"
                     {%s required %} {%s val %} {%s= events %}
 
                     {%if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
@@ -197,17 +197,11 @@ type FieldsTable struct {
                 {% endswitch %}
 
         {% endif %}
-            <div class="hint-block">{%s titleFull %}</div>
+            <div class="hint-block">{%s= titleFull %}</div>
         </div>
     {% endfor %}
     <button class="btn btn-large btn-primary" type="submit">Сохранить</button>
 </form>
-{% if ns.IsDadata %}
-<head>
-    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
-</head>
-{% endif %}
 {% endfunc %}
 {% func (field *FieldStructure) renderSet(key, required string) %}
     {% code
