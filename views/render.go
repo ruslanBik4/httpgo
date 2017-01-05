@@ -84,7 +84,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 }
 
 func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields forms.FieldsTable,
-			Inputs map[string] string ) error  {
+			Inputs map[string] []string ) error  {
 
 	WriteHeaders(w)
 	fmt.Fprint(w, layouts.PutHead() )

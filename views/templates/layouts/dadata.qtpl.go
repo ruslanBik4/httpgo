@@ -59,7 +59,7 @@ func DadataHead() string {
 }
 
 //line views/templates/layouts/dadata.qtpl:11
-func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string]string) {
+func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string][]string) {
 	//line views/templates/layouts/dadata.qtpl:11
 	qw422016.N().S(`
 <script>
@@ -77,12 +77,16 @@ func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string]string) {
             token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
             type: "`)
 		//line views/templates/layouts/dadata.qtpl:17
-		qw422016.N().S(typeS)
+		qw422016.N().S(typeS[0])
 		//line views/templates/layouts/dadata.qtpl:17
 		qw422016.N().S(`",
             count: 5,
             /* Вызывается, когда пользователь выбирает одну из подсказок */
-            onSelect: busnessSuggestion,
+            onSelect: `)
+		//line views/templates/layouts/dadata.qtpl:20
+		qw422016.N().S(typeS[1])
+		//line views/templates/layouts/dadata.qtpl:20
+		qw422016.N().S(`,
         });
     `)
 		//line views/templates/layouts/dadata.qtpl:22
@@ -95,7 +99,7 @@ func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string]string) {
 }
 
 //line views/templates/layouts/dadata.qtpl:24
-func WriteDadataScript(qq422016 qtio422016.Writer, Inputs map[string]string) {
+func WriteDadataScript(qq422016 qtio422016.Writer, Inputs map[string][]string) {
 	//line views/templates/layouts/dadata.qtpl:24
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/layouts/dadata.qtpl:24
@@ -106,7 +110,7 @@ func WriteDadataScript(qq422016 qtio422016.Writer, Inputs map[string]string) {
 }
 
 //line views/templates/layouts/dadata.qtpl:24
-func DadataScript(Inputs map[string]string) string {
+func DadataScript(Inputs map[string][]string) string {
 	//line views/templates/layouts/dadata.qtpl:24
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/layouts/dadata.qtpl:24
