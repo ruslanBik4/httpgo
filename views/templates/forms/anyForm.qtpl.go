@@ -297,7 +297,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
 		pattern = titleFull[posPattern+2:]
 		titleFull = titleFull[:posPattern]
 	} else {
-		pattern = " "
+		pattern = ""
 	}
 	posPlaceholder := strings.Index(titleFull, "#")
 	if posPlaceholder > 0 {
