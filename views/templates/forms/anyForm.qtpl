@@ -214,7 +214,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                         {% else %}
                             type="text"
                                {% if field.CHARACTER_MAXIMUM_LENGTH>0 %}maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"{% endif %}
-                               {% if pattern > "" %}pattern="{%s= pattern %}"{% endif %}
+                               {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
                         {% endif %}
                     />
                 {% endswitch %}

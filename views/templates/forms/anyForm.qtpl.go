@@ -646,7 +646,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 						//line views/templates/forms/anyForm.qtpl:217
 						qw422016.N().S(pattern)
 						//line views/templates/forms/anyForm.qtpl:217
-						qw422016.N().S(`"`)
+						qw422016.N().S(`" onkeyup="return validatePattern(this);"`)
 						//line views/templates/forms/anyForm.qtpl:217
 					}
 					//line views/templates/forms/anyForm.qtpl:217
