@@ -171,7 +171,9 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
         {%  endif %}
 
         <div id="divField{%d idx %}" class="form-group field-{%s key %} {%s required %} {%s field.CSSClass %}"
-                    {% if field.IsHidden %}style="display:none"{% endif %}>
+                    {% if field.IsHidden %}style="display:none"{% endif %}
+             data-toggle="tooltip" title="{%s= titleFull %}"
+        >
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "id_") %}
@@ -220,7 +222,6 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                 {% endswitch %}
 
         {% endif %}
-            <div class="hint-block">{%s= titleFull %}</div>
         </div>
     {% endfor %}
     <button class="btn btn-large btn-primary" type="submit">Сохранить</button>
