@@ -214,12 +214,16 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                 {% default %}
                     <label for="{%s key %}">{%s titleLabel %}</label>
                     <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s placeholder %}"
-                        {%s required %} {%s val %} {%s= events %} {%s= dataJson %}
+                        {%s required %} {%s val %} {%s= events %} {%s= dataJson %} type=""
 
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                             type="number"
                                {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
+                        {% elseif field.DATA_TYPE=="date" %}
+                            type="date"
+                        {% elseif field.DATA_TYPE=="datetime" %}
+                            type="datetime"
                         {% elseif strings.Contains(key, "email") %}
                             type="email"
                         {% else %}
