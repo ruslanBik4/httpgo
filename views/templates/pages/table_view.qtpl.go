@@ -45,7 +45,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
 		qw422016.N().S(`
                 <td>`)
 		//line views/templates/pages/table_view.qtpl:19
-		titleFull, titleLabel, _, _ := field.GetColumnTitles()
+		titleFull, titleLabel, _, _, _ := field.GetColumnTitles()
 		if len(titleLabel) > 22 {
 			titleLabel = titleLabel[22:] + "..."
 		}

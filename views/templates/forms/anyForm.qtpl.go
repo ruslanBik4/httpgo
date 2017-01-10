@@ -287,7 +287,7 @@ func cutPartFromTitle(pattern, defaultStr string) (titleFull, titlePart string) 
 
 	posPattern := strings.Index(titleFull, pattern)
 	if posPattern > 0 {
-		titlePart = titleFull[posPattern+len(posPattern):]
+		titlePart = titleFull[posPattern+len(pattern):]
 		titleFull = titleFull[:posPattern]
 	} else {
 		titlePart = defaultStr
