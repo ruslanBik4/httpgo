@@ -283,9 +283,9 @@ func getOptions(key string, value string) string {
 }
 
 //line views/templates/forms/anyForm.qtpl:106
-func cutPartFromTitle(pattern, defaultStr string) (titleFull, titlePart string) {
+func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string) {
 
-	posPattern := strings.Index(titleFull, pattern)
+	posPattern := strings.Index(title, pattern)
 	if posPattern > 0 {
 		titlePart = titleFull[posPattern+len(pattern):]
 		titleFull = titleFull[:posPattern]
@@ -304,9 +304,9 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
 	} else {
 		titleLabel = titleFull
 	}
-	titleFull, dataJson = cutPartFromTitle("{", "")
-	titleFull, pattern = cutPartFromTitle("//", "")
-	titleFull, placeholder = cutPartFromTitle("#", titleFull)
+	titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
+	titleFull, pattern = cutPartFromTitle(titleFull, "//", "")
+	titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)
 
 	return titleFull, titleLabel, placeholder, pattern, dataJson
 }

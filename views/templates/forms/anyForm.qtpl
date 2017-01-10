@@ -105,7 +105,8 @@ type FieldsTable struct {
 {% code
 func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
 
-    posPattern := strings.Index(title, pattern)
+    titleFull = title
+    posPattern := strings.Index(titleFull, pattern)
     if posPattern > 0 {
         titlePart = titleFull[posPattern+len(pattern):]
         titleFull = titleFull[:posPattern]
