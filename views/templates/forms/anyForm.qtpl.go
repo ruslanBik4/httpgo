@@ -368,7 +368,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			val = "value=" + field.COLUMN_DEFAULT + ""
 		}
 		if dataJson > "" {
-			dataJson = "data-names=" + dataJson
+			dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson)
 		}
 		if field.TableName > "" {
 			tableName = field.TableName + ":"

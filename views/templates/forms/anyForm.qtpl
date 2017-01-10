@@ -160,7 +160,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                 val = "value=" + field.COLUMN_DEFAULT + ""
             }
             if dataJson > "" {
-                dataJson = "data-names=" + dataJson
+                dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson )
             }
             if field.TableName > "" {
                 tableName = field.TableName + ":"
