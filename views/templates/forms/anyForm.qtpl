@@ -103,7 +103,19 @@ type FieldsTable struct {
     {% endif %}
 {% endfunc %}
 {% code
-func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern string)  {
+func cutPartFromTitle(pattern, defaultStr string) (titleFull, titlePart string)  {
+
+    posPattern := strings.Index(titleFull, pattern)
+    if posPattern > 0 {
+        titlePart = titleFull[posPattern+len(posPattern):]
+        titleFull = titleFull[:posPattern]
+    } else {
+        titlePart = defaultStr
+    }
+
+    return titleFull, titlePart
+}
+func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
     titleFull = field.COLUMN_COMMENT
     if titleFull=="" {
         titleLabel = field.COLUMN_NAME
@@ -112,22 +124,11 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
     } else {
         titleLabel = titleFull
     }
-    posPattern := strings.Index(titleFull, "//")
-    if posPattern > 0 {
-        pattern = titleFull[posPattern+2:]
-        titleFull   = titleFull[:posPattern]
-    } else {
-        pattern = ""
-    }
-    posPlaceholder := strings.Index(titleFull, "#")
-    if posPlaceholder > 0 {
-        placeholder = titleFull[posPlaceholder:]
-        titleFull   = titleFull[:posPlaceholder]
-    } else {
-        placeholder = titleFull
-    }
+    titleFull, pattern = cutPartFromTitle("//", "")
+    titleFull, placeholder = cutPartFromTitle("#", titleFull)
+    titleFull, dataJson = cutPartFromTitle("{", "")
 
-    return titleFull, titleLabel, placeholder, pattern
+    return titleFull, titleLabel, placeholder, pattern, dataJson
 }
 %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
@@ -140,7 +141,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
 
         {% code
             key := field.COLUMN_NAME
-            titleFull, titleLabel, placeholder, pattern := field.GetColumnTitles()
+            titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
             val := field.Value
             tableName := ""
             required := ""
@@ -207,6 +208,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                     <label for="{%s key %}">{%s titleLabel %}</label>
                     <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s placeholder %}"
                         {%s required %} {%s val %} {%s= events %}
+                        {% if dataJson > "" %}data-names="{{%s= dataJson %}" {% endif %}
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                             type="number"
