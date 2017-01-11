@@ -339,7 +339,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 	if ns.Name > "" {
 		//line views/templates/forms/anyForm.qtpl:142
 		qw422016.N().S(`
-        <input hidden name="table" value="`)
+        <input type="hidden" name="table" value="`)
 		//line views/templates/forms/anyForm.qtpl:143
 		qw422016.E().S(ns.Name)
 		//line views/templates/forms/anyForm.qtpl:143
@@ -391,7 +391,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		if (val > "") && ((key == "id") || field.IsHidden) {
 			//line views/templates/forms/anyForm.qtpl:175
 			qw422016.N().S(`
-            <input hidden name="`)
+            <input type="hidden" name="`)
 			//line views/templates/forms/anyForm.qtpl:176
 			qw422016.E().S(key)
 			//line views/templates/forms/anyForm.qtpl:176
@@ -462,7 +462,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		} else if strings.HasPrefix(key, "id_") {
 			//line views/templates/forms/anyForm.qtpl:188
 			qw422016.N().S(`
-            <label for="`)
+            <label class="control-label" for="`)
 			//line views/templates/forms/anyForm.qtpl:189
 			qw422016.E().S(key)
 			//line views/templates/forms/anyForm.qtpl:189
@@ -479,7 +479,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			//line views/templates/forms/anyForm.qtpl:190
 			qw422016.E().S(tableName + key)
 			//line views/templates/forms/anyForm.qtpl:190
-			qw422016.N().S(`" class="form-control" `)
+			qw422016.N().S(`" class="controls" `)
 			//line views/templates/forms/anyForm.qtpl:190
 			qw422016.E().S(required)
 			//line views/templates/forms/anyForm.qtpl:190
@@ -581,7 +581,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			default:
 				//line views/templates/forms/anyForm.qtpl:215
 				qw422016.N().S(`
-                    <label for="`)
+                    <label class="control-label" for="`)
 				//line views/templates/forms/anyForm.qtpl:216
 				qw422016.E().S(key)
 				//line views/templates/forms/anyForm.qtpl:216
@@ -598,7 +598,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				//line views/templates/forms/anyForm.qtpl:217
 				qw422016.E().S(tableName + key)
 				//line views/templates/forms/anyForm.qtpl:217
-				qw422016.N().S(`" class="form-control" placeholder="`)
+				qw422016.N().S(`" class="controls" placeholder="`)
 				//line views/templates/forms/anyForm.qtpl:217
 				qw422016.E().S(placeholder)
 				//line views/templates/forms/anyForm.qtpl:217
@@ -672,7 +672,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 						qw422016.N().S(`"
                                     `)
 						//line views/templates/forms/anyForm.qtpl:233
-						if field.CHARACTER_MAXIMUM_LENGTH == 256 {
+						if field.CHARACTER_MAXIMUM_LENGTH == 255 {
 							//line views/templates/forms/anyForm.qtpl:233
 							qw422016.N().S(`
                                         class="input-xlarge"
@@ -829,7 +829,7 @@ func (field *FieldStructure) renderSet(key, required, events, dataJson string) s
 func streamrenderCheckBox(qw422016 *qt422016.Writer, key, title string, idx int, checked, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:269
 	qw422016.N().S(`
-    <label for="`)
+    <label class="checkbox" for="`)
 	//line views/templates/forms/anyForm.qtpl:270
 	qw422016.E().S(key)
 	//line views/templates/forms/anyForm.qtpl:270
@@ -927,7 +927,7 @@ func (field *FieldStructure) streamrenderEnum(qw422016 *qt422016.Writer, key, re
 		//line views/templates/forms/anyForm.qtpl:285
 		qw422016.E().S(key)
 		//line views/templates/forms/anyForm.qtpl:285
-		qw422016.N().S(`" class="form-control" `)
+		qw422016.N().S(`" class="controls" `)
 		//line views/templates/forms/anyForm.qtpl:285
 		qw422016.E().S(required)
 		//line views/templates/forms/anyForm.qtpl:285
@@ -1043,7 +1043,7 @@ func (field *FieldStructure) renderEnum(key, required, events, dataJson string) 
 func streamrenderRadioBox(qw422016 *qt422016.Writer, key, title string, idx int, checked, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:305
 	qw422016.N().S(`
-    <label for="`)
+    <label class="checkbox" for="`)
 	//line views/templates/forms/anyForm.qtpl:306
 	qw422016.E().S(key)
 	//line views/templates/forms/anyForm.qtpl:306

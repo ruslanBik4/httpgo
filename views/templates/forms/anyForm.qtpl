@@ -140,7 +140,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
       onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">{%s Title %}</h2>
     {% if ns.Name > "" %}
-        <input hidden name="table" value="{%s ns.Name %}" >
+        <input type="hidden" name="table" value="{%s ns.Name %}" >
     {% endif %}
     {% for idx, field := range ns.Rows %}
 
@@ -173,7 +173,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
         %}
 
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
-            <input hidden name="{%s key %}" {%s val %}>
+            <input type="hidden" name="{%s key %}" {%s val %}>
             {% continue %}
         {% elseif key=="id"%}
             {% continue %}
@@ -186,8 +186,8 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "id_") %}
-            <label for="{%s key %}">{%s titleLabel %}</label>
-            <select id="{%s key %}" name="{%s tableName+key %}" class="form-control" {%s required %} {%s val %}>
+            <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
+            <select id="{%s key %}" name="{%s tableName+key %}" class="controls" {%s required %} {%s val %}>
                 {% if field.IS_NULLABLE=="YES" && val=="" %}
                     <option value="" selected>Значение можно не указывать</option>
                 {% else %}
@@ -213,8 +213,8 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                     <label for="{%s key %}">{%s titleLabel %}:</label>
                     {%= field.renderSet(tableName+key, required, events, dataJson) %}
                 {% default %}
-                    <label for="{%s key %}">{%s titleLabel %}</label>
-                    <input id="{%s key %}" name="{%s tableName+key %}" class="form-control" placeholder="{%s placeholder %}"
+                    <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
+                    <input id="{%s key %}" name="{%s tableName+key %}" class="controls" placeholder="{%s placeholder %}"
                         {%s required %} {%s val %} {%s= events %} {%s= dataJson %}
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
@@ -230,7 +230,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                             type="text"
                                {% if field.CHARACTER_MAXIMUM_LENGTH>0 %}
                                     maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"
-                                    {%  if field.CHARACTER_MAXIMUM_LENGTH == 256 %}
+                                    {%  if field.CHARACTER_MAXIMUM_LENGTH == 255 %}
                                         class="input-xlarge"
                                     {% endif %}
                                {% endif %}
@@ -267,7 +267,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
     {%  endfor %}
 {% endfunc %}
 {% func renderCheckBox(key, title string, idx int, checked, events, dataJson string) %}
-    <label for="{%s key %}{%d idx %}">
+    <label class="checkbox" for="{%s key %}{%d idx %}">
         <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}
                 {%s= events %} {%s= dataJson %}
         />
@@ -282,7 +282,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
     %}
 
     {% if renderSelect %}
-        <select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} {%s= events %} {%s= dataJson %}>
+        <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %} {%s= events %} {%s= dataJson %}>
     {% endif %}
     {% for idx, title := range fields %}
         {% code
@@ -303,7 +303,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
     {% endif %}
 {% endfunc %}
 {% func renderRadioBox(key, title string, idx int, checked, events, dataJson string) %}
-    <label for="{%s key %}{%d idx  %}">
+    <label class="checkbox" for="{%s key %}{%d idx  %}">
         <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}
                 {%s= events %} {%s= dataJson %}
         />
