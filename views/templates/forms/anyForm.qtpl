@@ -34,7 +34,7 @@ type FieldsTable struct {
 %}
 {% func (field *FieldStructure) renderParentSelect(nameTable, key, val, titleLabel, required  string) %}
     <label for="{%s key %}">{%s titleLabel %}</label>
-    <select id="{%s key %}" name="{%s key %}" class="form-control" {%s required %} {%s val %}>
+    <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %} {%s val %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
         <option value="" selected>Значение можно не указывать</option>
         {% else %}
@@ -161,7 +161,7 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
                 val = "value=" + field.COLUMN_DEFAULT + ""
             }
             if dataJson > "" {
-                dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson )
+                dataJson = fmt.Sprintf("data-names='{% s}'", dataJson )
             }
             if field.TableName > "" {
                 tableName = field.TableName + ":"

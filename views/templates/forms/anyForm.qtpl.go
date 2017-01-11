@@ -75,7 +75,7 @@ func (field *FieldStructure) streamrenderParentSelect(qw422016 *qt422016.Writer,
 	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.E().S(key)
 	//line views/templates/forms/anyForm.qtpl:37
-	qw422016.N().S(`" class="form-control" `)
+	qw422016.N().S(`" class="controls" `)
 	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.E().S(required)
 	//line views/templates/forms/anyForm.qtpl:37
@@ -373,7 +373,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			val = "value=" + field.COLUMN_DEFAULT + ""
 		}
 		if dataJson > "" {
-			dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson)
+			dataJson = fmt.Sprintf("data-names='{% s}'", dataJson)
 		}
 		if field.TableName > "" {
 			tableName = field.TableName + ":"
