@@ -128,15 +128,16 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
     } else {
         titleLabel = titleFull
     }
-    titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
     titleFull, pattern = cutPartFromTitle(titleFull, "//", "")
+    titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
     titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)
 
     return titleFull, titleLabel, placeholder, pattern, dataJson
 }
 %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
-<form class="row-fluid" target="content" action="{%s Action %}" method="post" class="form-horizontal" onsubmit="return saveForm(this, afterSaveAnyForm);" >
+<form name="f{%s ns.Name %}" class="row-fluid" target="content" action="{%s Action %}" method="post"
+      onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">{%s Title %}</h2>
     {% if ns.Name > "" %}
         <input hidden name="table" value="{%s ns.Name %}" >
