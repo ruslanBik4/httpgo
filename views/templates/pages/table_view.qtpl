@@ -18,7 +18,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 <td>{% code
                         titleFull, titleLabel, _, _, _ := field.GetColumnTitles()
                         if len(titleLabel) > 22 {
-                            titleLabel = titleLabel[22:] + "..."
+                            titleLabel = titleLabel[:22] + "..."
                         }
                     %}
                     <a href="#" title="{%s= titleFull %}">{%s= titleLabel  %}</a>
