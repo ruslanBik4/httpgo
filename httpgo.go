@@ -4,7 +4,6 @@ import (
 	"strings"
 	"path/filepath"
 	"net/http"
-	"regexp"
 	"io/ioutil"
 	"log"
 	"time"
@@ -30,8 +29,6 @@ var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
 	// ErrIndexMissingSplit describes an index configuration error.
 	//ErrIndexMissingSplit = errors.New("configured index file(s) must include split value")
-	pathToHost string
-	debug bool
 
 	cacheMu sync.RWMutex
 	cache = map[string] []byte {}
@@ -62,6 +59,16 @@ var (
 	}
 
 )
+func registerRoutes() {
+	http.Handle("/", NewDefaultHandler())
+	for path, fnc := range routes {
+		http.HandleFunc(path, fnc)
+	}
+	for path, fnc := range system.CustomRoutes {
+		http.HandleFunc(path, fnc)
+	}
+}
+// работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
 type DefaultHandler struct{
 	fpm *system.FCGI
 	php *system.FCGI
@@ -118,7 +125,7 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		serveAndCache(filename, w, r)
 		return
 	} else if h.toServe(ext) {
-		http.ServeFile(w, r, filepath.Join(pathToHost, filename))
+		http.ServeFile(w, r, filepath.Join(*f_static, filename))
 		return
 	}
 	h.php.ServeHTTP(w, r)
@@ -139,11 +146,11 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 
 	data, ok := getCache(keyName)
 	if !ok {
-		data, err := ioutil.ReadFile(filepath.Join(pathToHost,filename))
+		data, err := ioutil.ReadFile(filepath.Join(*f_static,filename))
 		if os.IsNotExist(err) {
 			data, err = ioutil.ReadFile(filepath.Join(*f_web, filename))
 		}
-		if writeError(w, err) {
+		if system.WriteError(w, err) {
 			return
 		}
 		setCache(keyName, data)
@@ -151,12 +158,6 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 	http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
 }
 
-func registerRoutes() {
-	http.Handle("/", NewDefaultHandler())
-	for path, fnc := range routes {
-		http.HandleFunc(path, fnc)
-	}
-}
 func sockCatch() {
 	err := recover()
 	log.Println(err)
@@ -251,11 +252,11 @@ var (
 	f_port   = flag.String("port",":80","host address to listen on")
 	f_static = flag.String("path","./static","path to static files")
 	f_web    = flag.String("web","./www","path to web files")
+	F_debug    = flag.String("debug","false","debug mode")
 )
 
 func main() {
 	flag.Parse()
-	pathToHost = *f_static
 	go cacheFiles()
 
 	registerRoutes()

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"os"
+	"log"
 )
 const internalRewriteFieldName  = "travel"
 var (
@@ -48,7 +49,7 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error){
 }
 func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := c.Do(r)
-	if writeError(w, err) {
+	if WriteError(w, err) {
 		return
 	}
 	defer resp.Body.Close()
@@ -133,7 +134,7 @@ func NewPHP(root string, sock string) *FCGI {
 	}
 }
 // не уверен, что это должно быть здесь - должен быть какой общий механизм для выдачи такого
-func writeError(w http.ResponseWriter, err error) bool {
+func WriteError(w http.ResponseWriter, err error) bool {
 	if err == nil {
 		return false
 	}
