@@ -52,10 +52,17 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if WriteError(w, err) {
 		return
 	}
+	status, isStatus := resp.Header["Status"]
+	location, isURL  := resp.Header["Location"]
+	if isStatus && (status[0] == "302 Found") && isURL{
+		http.Redirect (w, r, location[0], http.StatusTemporaryRedirect)
+		return
+	}
+
 	defer resp.Body.Close()
-	h := w.Header()
-	for k, v := range resp.Header {
-		h[k] = v
+	headers := w.Header()
+	for key, val := range resp.Header {
+		headers[key] = val
 	}
 	_, _ = io.Copy(w, resp.Body)
 }

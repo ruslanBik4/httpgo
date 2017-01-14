@@ -265,8 +265,8 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 
 var (
 	f_port   = flag.String("port",":80","host address to listen on")
-	f_static = flag.String("path","./static","path to static files")
-	f_web    = flag.String("web","./www","path to web files")
+	f_static = flag.String("path","/home/travel/","path to static files")
+	f_web    = flag.String("web","/home/www/web/","path to web files")
 	F_debug    = flag.String("debug","false","debug mode")
 )
 
