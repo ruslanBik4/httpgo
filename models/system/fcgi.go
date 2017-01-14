@@ -113,7 +113,7 @@ func NewPHP(root string, sock string) *FCGI {
 				"HTTP_HOST":       r.Host, // added here, since not always part of headers
 				"REQUEST_URI":     r.URL.RequestURI(),
 				"SCRIPT_FILENAME": filepath.Join(root,"index.php"),
-				"SCRIPT_NAME":     "index.php",
+				"SCRIPT_NAME":     "/index.php",
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
