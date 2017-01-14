@@ -19,11 +19,10 @@ import (
 	"sync"
 	"bytes"
 	"flag"
+	"github.com/ruslanBik4/httpgo/models/config"
 )
 //go:generate /Users/rus/go/bin/qtc -dir=views/templates
 
-const pathServer = "/home/travel/"
-const pathToYii  = "/home/www/web/"
 const fpmSocket = "/var/run/php5-fpm.sock"
 var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
@@ -64,7 +63,7 @@ func registerRoutes() {
 	for path, fnc := range routes {
 		http.HandleFunc(path, fnc)
 	}
-	for path, fnc := range system.CustomRoutes {
+	for path, fnc := range config.CustomRoutes {
 		http.HandleFunc(path, fnc)
 	}
 }
