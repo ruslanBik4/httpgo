@@ -6,39 +6,36 @@ import (
 	"net/http"
 	"regexp"
 	"io/ioutil"
-	//"os/exec"
 	"log"
 	"time"
 	"os"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
-	"github.com/ruslanBik4/httpgo/views"
-
-	//"io"
-	//"bytes"
-	"bitbucket.org/PinIdea/fcgi_client"
-	//"strconv"
+	"github.com/ruslanBik4/httpgo/models/system"
 	"path"
+	"sync"
+	"bytes"
+	"flag"
 )
 //go:generate /Users/rus/go/bin/qtc -dir=views/templates
 
-const portHTTP = ":80"
 const pathServer = "/home/travel/"
 const pathToYii  = "/home/www/web/"
-const php_fpmSCK = "/var/run/php5-fpm.sock"
-const internalRewriteFieldName  = "travel"
+const fpmSocket = "/var/run/php5-fpm.sock"
 var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
 	// ErrIndexMissingSplit describes an index configuration error.
 	//ErrIndexMissingSplit = errors.New("configured index file(s) must include split value")
 	pathToHost string
 	debug bool
-	cssCache = map[string] []byte {}
+
+	cacheMu sync.RWMutex
+	cache = map[string] []byte {}
 	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
-		"/": handlerDefault,
 		"/main/": handlerMainContent,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
@@ -65,228 +62,107 @@ var (
 	}
 
 )
-func routeRepeate(key string, w http.ResponseWriter, r *http.Request) error {
-
-	if funcName, ok := routes[key]; ok {
-		funcName(w, r)
-	}
-
-	return nil
+type DefaultHandler struct{
+	fpm *system.FCGI
+	php *system.FCGI
+	cache []string
+	whitelist []string
 }
-func getRealPathFromHost( hostName string ) string {
+func NewDefaultHandler() *DefaultHandler {
+	return &DefaultHandler{
+		fpm: system.NewFPM(fpmSocket),
+		php: system.NewPHP(*f_web, fpmSocket),
+		cache: []string{
+			".svg",".css",".js",".map",".ico",
+		},
+		whitelist: []string{
+			".jpg",".jpeg",".png",".gif",".ttf",".pdf",
+		},
+	}
+}
+func (h *DefaultHandler) toCache(ext string) bool {
+	for _, name := range h.cache {
+		if ext == name {
+			return true
+		}
+	}
+	return false
+}
+func (h *DefaultHandler) toServe(ext string) bool {
+	for _, name := range h.whitelist {
+		if ext == name {
+			return true
+		}
+	}
+	return false
+}
 
-	//if strings.HasSuffix(hostName, portHTTP) {
-	//	hostName = hostName[:strings.Index(hostName, portHTTP)]
-	//}
-	//return pathServer + hostName + "/"
-	return pathServer
+func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	switch r.URL.Path {
+	case "/":
+		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
+		return
+	case "/status","/ping","/pong":
+		h.fpm.ServeHTTP(w, r)
+		return
+	}
+	filename := strings.TrimLeft(r.URL.Path,"/")
+	ext := filepath.Ext(filename)
+
+	if strings.HasPrefix(ext, ".php") {
+		h.php.ServeHTTP(w, r)
+		return
+	}
+	if h.toCache(ext) {
+		serveAndCache(filename, w, r)
+		return
+	} else if h.toServe(ext) {
+		http.ServeFile(w, r, filepath.Join(pathToHost, filename))
+		return
+	}
+	h.php.ServeHTTP(w, r)
+}
+func setCache(path string, data []byte) {
+	cacheMu.Lock()
+	cache[path] = data
+	cacheMu.Unlock()
+}
+func getCache(path string) ([]byte, bool) {
+	cacheMu.RLock()
+	data, ok := cache[path]
+	cacheMu.RUnlock()
+	return data, ok
+}
+func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
+	keyName := path.Base(filename)
+
+	data, ok := getCache(keyName)
+	if !ok {
+		data, err := ioutil.ReadFile(filepath.Join(pathToHost,filename))
+		if os.IsNotExist(err) {
+			data, err = ioutil.ReadFile(filepath.Join(*f_web, filename))
+		}
+		if writeError(w, err) {
+			return
+		}
+		setCache(keyName, data)
+	}
+	http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
+}
+
+func registerRoutes() {
+	http.Handle("/", NewDefaultHandler())
+	for path, fnc := range routes {
+		http.HandleFunc(path, fnc)
+	}
 }
 func sockCatch() {
 	err := recover()
 	log.Println(err)
 }
-func doSocket(fcgi_params map[string]string, r *http.Request) (content []byte, err error){
 
-	typeSckt := "unix" // or "unixgram" or "unixpacket"
 
-	fcgi, err := fcgiclient.Dial(typeSckt, php_fpmSCK)
-	if err != nil {
-		return []byte("dial"), err
-	}
-
-	var resp *http.Response
-	switch fcgi_params["REQUEST_METHOD"] {
-	case "GET":
-		resp, err = fcgi.Get(fcgi_params)
-	case "POST":
-		resp, err = fcgi.Post(fcgi_params, fcgi_params["CONTENT_TYPE"], r.Body, int(r.ContentLength) )
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	content, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return content, nil
-}
-func fpmRun(w http.ResponseWriter, r *http.Request) {
-	env := map[string]string{
-		"QUERY_STRING":      r.URL.RawQuery,
-		"REQUEST_METHOD":    r.Method,
-		"SCRIPT_FILENAME":   r.URL.Path,
-		"SCRIPT_NAME":       r.URL.Path,
-	}
-	if out,err := doSocket(env, r); err == nil {
-		w.Write( out )
-	} else {
-		log.Printf("%s : %v", out, err)
-	}
-}
-func runPHP(filename string, w http.ResponseWriter, r *http.Request) (out []byte, err error){
-
-	ip, port   := r.RemoteAddr, ""
-	if idx := strings.LastIndex(ip, ":"); idx > -1 {
-		port = ip[idx+1:]
-		ip   = ip[:idx]
-	}
-	pathInfo, docURI := "", r.URL.RequestURI()
-
-	if idx := strings.Index(docURI, pathInfo); idx > -1 {
-		docURI = docURI[len(pathInfo):]
-	}
-	// Some variables are unused but cleared explicitly to prevent
-	// the parent environment from interfering.
-	env := map[string]string{
-
-		// Variables defined in CGI 1.1 spec
-		"AUTH_TYPE":         "", // Not used
-		"CONTENT_LENGTH":    r.Header.Get("Content-Length"),
-		"CONTENT_TYPE":      r.Header.Get("Content-Type"),
-		"GATEWAY_INTERFACE": "CGI/1.1",
-		//"PATH_INFO":         pathInfo,
-		"QUERY_STRING":      r.URL.RawQuery,
-		"REMOTE_ADDR":       ip,
-		"REMOTE_HOST":       ip, // For speed, remote host lookups disabled
-		"REMOTE_PORT":       port,
-		"REMOTE_IDENT":      "", // Not used
-		"REMOTE_USER":       "", // Not used
-		"REQUEST_METHOD":    r.Method,
-		"SERVER_NAME":       r.Host,
-		"SERVER_PORT":       portHTTP,
-		"SERVER_PROTOCOL":   r.Proto,
-		"SERVER_SOFTWARE":   "httpGo 0.01",
-
-		// Other variables
-		"DOCUMENT_ROOT":   pathToYii,
-		"DOCUMENT_URI":    docURI,
-		"HTTP_HOST":       r.Host, // added here, since not always part of headers
-		"REQUEST_URI":     r.URL.RequestURI(),
-		"SCRIPT_FILENAME": pathToYii + filename,
-		"SCRIPT_NAME":     filename,
-	}
-	// compliance with the CGI specification that PATH_TRANSLATED
-	// should only exist if PATH_INFO is defined.
-	// Info: https://www.ietf.org/rfc/rfc3875 Page 14
-	//if env["PATH_INFO"] != "" {
-	//	env["PATH_TRANSLATED"] = filepath.Join(pathToYii, pathInfo) // Info: http://www.oreilly.com/openbook/cgi/ch02_04.html
-	//}
-
-	// Some web apps rely on knowing HTTPS or not
-	if r.TLS != nil {
-		env["HTTPS"] = "on"
-	}
-
-	// Add all HTTP headers (except Caddy-Rewrite-Original-URI ) to env variables
-	for field, val := range r.Header {
-		if strings.ToLower(field) == strings.ToLower(internalRewriteFieldName) {
-			continue
-		}
-		header := strings.ToUpper(field)
-		header = headerNameReplacer.Replace(header)
-		env["HTTP_"+header] = strings.Join(val, ", ")
-	}
-
-	defer Catch(w)
-	if out,err = doSocket(env, r); err == nil {
-		return out, nil
-	} else {
-		log.Printf("%s : %v", out, err)
-	}
-	return  nil, err
-}
-func readFile(filename string, w http.ResponseWriter, r *http.Request) ([]byte, error){
-
-	keyName := path.Base(filename)
-	if out, ok := cssCache[keyName]; ok {
-
-		return out, nil
-	}
-	body, err := ioutil.ReadFile(pathToHost + filename);
-	if err != nil {
-
-		if os.IsNotExist(err) {
-			if body, err = ioutil.ReadFile(pathToYii + filename); err != nil {
-				log.Println(err)
-				return nil, err
-			}
-
-		}
-	}
-
-	cssCache[keyName] = body
-	return body, err
-
-}
-func handlerDefault(w http.ResponseWriter, r *http.Request) {
-	var staticValidator = regexp.MustCompile("^([\\w]+/?)*.(svg)|(css)|(js)|(map)|(ttf)$")
-	var htmlValidator = regexp.MustCompile("^([\\wА-Яа-я-_]+/?)*.(html?)|(css)|(js)$")
-	var imageValidator = regexp.MustCompile("^([a-zA-Z0-9-_]+/?)*.(jpe?g)|(png)|(ico)|(gif)$")
-	var phpValidator = regexp.MustCompile("^([a-zA-Z0-9-_]+/?)*.php(\\?\\w*)?$")
-	var fpmValidator = regexp.MustCompile("^(status|ping|pong)$")
-	//var dirValidator = regexp.MustCompile("^([a-zA-Z0-9-_/.]+/?)*/$")
-	// 	var body []byte
-
-	pathToHost = getRealPathFromHost(r.Host)
-
-	filename := r.URL.Path[1:]
-
-	if staticValidator.MatchString(filename){
-		body, err := readFile(filename, w, r)
-		if err != nil {
-			log.Println("Error during reading file ", filename, err )
-		}
-		if filename[len(filename)-4:] == ".css" {
-			w.Header().Set("Content-Type", "text/css; charset=utf-8")
-		}
-		w.Write(body)
-	} else if htmlValidator.MatchString(filename) {
-		body, _ := ioutil.ReadFile(pathToHost + filename)
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Write(body)
-	} else if (r.URL.Path == "/") {
-		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
-	} else if imageValidator.MatchString(filename) {
-		body, _ := ioutil.ReadFile(pathToHost + filename)
-		w.Write( body)
-	} else if phpValidator.MatchString(filename) {
-		if out, err := runPHP(filename, w, r); err != nil {
-			log.Println(err)
-			fmt.Fprintf(w, "Error during execute %s, %v (%s)", filename, err, out)
-		} else {
-			w.Write(out)
-		}
-	} else if fpmValidator.MatchString(filename) {
-		fpmRun(w, r)
-
-	//} else if dirValidator.MatchString(filename) {
-	//
-	//   dirName := filename[:len(filename)-1]
-	//   if info, err := os.Stat(pathToHost + dirName); err == nil && info.IsDir() {
-	//	   if body, err := ioutil.ReadFile(pathToHost + filename + "index.html"); err != nil {
-	//		   log.Println(err)
-	//	   } else {
-	//		   w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//		   w.Write(body)
-	//	   }
-	//   }
-		// php later
-	} else{
-		//http.Redirect(w, r, r.Host + ":8080" + r.RequestURI, http.StatusFound)
-		//return
-		if out, err := runPHP("/index.php", w, r); err != nil {
-			log.Println(err)
-			fmt.Fprintf(w, "Error during execute %s, %v (%s)", filename, err, out)
-		} else {
-			w.Write( out )
-		}
-
-	}
-
-}
 func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, "text index page %s %v", "filename", users.GetSession(r, "user") )
@@ -344,43 +220,47 @@ func Catch(w http.ResponseWriter) {
 	}
 }
 // считываю счасти из папки
-func WalkReadCSS(root string )  filepath.WalkFunc {
-
-	return func(path string, info os.FileInfo, err error) error {
-
-		if info.IsDir() || (filepath.Ext(info.Name()) == ".php") {
-			return nil
-		}
-
-		keyName := filepath.Base(path)
-		if _, ok := cssCache[keyName]; !ok {
-
-			body, err := ioutil.ReadFile(path);
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-			cssCache[keyName] = body
-			log.Println(keyName)
-		}
-		return  nil
+func cacheWalk(path string, info os.FileInfo, err error) error {
+	if err != nil || info.IsDir() {
+		return nil
 	}
+	ext := filepath.Ext(path)
+	switch ext {
+	case ".php":
+		return nil
+	}
+
+	keyName := filepath.Base(path)
+	if _, ok := getCache(keyName); !ok {
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+		setCache(keyName, data)
+		log.Println(keyName)
+	}
+	return  nil
 }
-func cachingCSSAndJS() {
-	filepath.Walk( pathToYii + "assets", WalkReadCSS("") )
-	filepath.Walk( pathToYii + "css", WalkReadCSS("") )
+func cacheFiles() {
+	filepath.Walk( filepath.Join(*f_web,"assets"), cacheWalk )
+	filepath.Walk( filepath.Join(*f_web,"css"), cacheWalk )
 	//filepath.Walk( pathToYii + "js", WalkReadCSS("") )
 }
+var (
+	f_port   = flag.String("port",":80","host address to listen on")
+	f_static = flag.String("path","./static","path to static files")
+	f_web    = flag.String("web","./www","path to web files")
+)
 
 func main() {
-	go cachingCSSAndJS()
+	flag.Parse()
+	pathToHost = *f_static
+	go cacheFiles()
 
-	for route, handler := range routes {
-
-		http.HandleFunc(route, handler)
-	}
+	registerRoutes()
 
 	log.Println("Server starting in " + time.Now().String() )
-	log.Fatal( http.ListenAndServe(portHTTP, nil) )
+	log.Fatal( http.ListenAndServe(*f_port, nil) )
 
 }
