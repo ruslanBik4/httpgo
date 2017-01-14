@@ -33,6 +33,7 @@ var (
 	cache = map[string] []byte {}
 	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
 		"/main/": handlerMainContent,
+		"/recache": handlerRecache,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
 		"/admin/table/": admin.HandlerAdminTable,
@@ -129,6 +130,7 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	h.php.ServeHTTP(w, r)
 }
+// считываем файлы типа css/js ect в память и потом отдаем из нее
 func setCache(path string, data []byte) {
 	cacheMu.Lock()
 	cache[path] = data
@@ -139,6 +141,12 @@ func getCache(path string) ([]byte, bool) {
 	data, ok := cache[path]
 	cacheMu.RUnlock()
 	return data, ok
+}
+func emptyCache() {
+	cacheMu.RLock()
+	cache = make( map[string] []byte, 0 )
+	cacheMu.RUnlock()
+
 }
 func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 	keyName := path.Base(filename)
@@ -247,6 +255,14 @@ func cacheFiles() {
 	filepath.Walk( filepath.Join(*f_web,"css"), cacheWalk )
 	//filepath.Walk( pathToYii + "js", WalkReadCSS("") )
 }
+// rereads files to cache directive
+func handlerRecache(w http.ResponseWriter, r *http.Request) {
+
+	emptyCache()
+	cacheFiles()
+	fmt.Fprintf(w, "recache succesfull!")
+}
+
 var (
 	f_port   = flag.String("port",":80","host address to listen on")
 	f_static = flag.String("path","./static","path to static files")
