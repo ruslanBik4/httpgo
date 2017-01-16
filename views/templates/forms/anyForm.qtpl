@@ -31,7 +31,7 @@ type FieldsTable struct {
 %}
 {% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
     <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
-    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" multiple {%s required %} {%s val %}>
+    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" multiple="multiple" {%s required %} {%s val %}>
         <option disabled >Выберите несколько значений в списке</option>
         {% code
             if nameTable == "" {
@@ -77,15 +77,17 @@ type FieldsTable struct {
             var listNs db.FieldsTable
 
             if err := listNs.GetColumnsProp(tableName); err != nil {
-                for _, list := range listNs.Rows {
-                    switch list.COLUMN_NAME {
-                        case "name":
-                            name = "name"
-                        case "title":
-                            name = "title"
-                        case "fullname":
-                            name = "fullname"
-                    }
+                return
+        // fmt.Printf("<option value='-1' selected>%v</option>", err )
+            }
+            for _, list := range listNs.Rows {
+                switch list.COLUMN_NAME {
+                    case "name":
+                        name = "name"
+                    case "title":
+                        name = "title"
+                    case "fullname":
+                        name = "fullname"
                 }
             }
         %}
@@ -114,7 +116,7 @@ type FieldsTable struct {
                 <option value='{%d id %}' {%s selected %}>{%s title %}</option>
             {% endfor %}
         {% else %}
-            <option value="-1" selected>Значения не найдены!</option>
+            <option value="-1" selected>Поле для значений не найдено!</option>
         {% endif %}
 {% endfunc %}
 {% code
