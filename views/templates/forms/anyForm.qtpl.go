@@ -87,7 +87,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 		nameTable = field.TableName
 	}
 	key = strings.TrimLeft(key, "setid_"+nameTable)
-	key = strings.TrimRigth(key, "_has")
+	key = strings.TrimRight(key, "_has")
 
 	//line views/templates/forms/anyForm.qtpl:43
 	qw422016.N().S(`
