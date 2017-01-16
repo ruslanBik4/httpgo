@@ -30,21 +30,21 @@ type FieldsTable struct {
 }
 %}
 {% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
-    <label for="{%s key %}">{%s titleLabel %}</label>
+    <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
     <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" multiple {%s required %} {%s val %}>
         <option disabled >Выберите несколько значений в списке</option>
         {% code
             if nameTable == "" {
                 nameTable = field.TableName
             }
-            key = strings.TrimLeft(key, "setid_")
+            nameTable = strings.TrimLeft(key, "setid_")
 
         %}
-        {%= getOptions(key, field.Value) %}
+        {%= getOptions(nameTable, field.Value) %}
     </select>
 {% endfunc %}
 {% func (field *FieldStructure) RenderSelect(tablePrefix, key, val, titleLabel, required  string) %}
-    <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
+    <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
     <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" {%s required %} {%s val %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
             <option value="" selected>Значение можно не указывать</option>
@@ -81,13 +81,10 @@ type FieldsTable struct {
                     switch list.COLUMN_NAME {
                         case "name":
                             name = "name"
-                            break
                         case "title":
                             name = "title"
-                        break
                         case "fullname":
                             name = "fullname"
-                        break
                     }
                 }
             }
@@ -102,9 +99,9 @@ type FieldsTable struct {
             {%  for rows.Next() %}
                 {%  code
                     var id int
-                    var name string
+                    var title string
 
-                    if err := rows.Scan(&id, &name); err != nil {
+                    if err := rows.Scan(&id, &title); err != nil {
                         log.Println(err)
                         continue
                     }
@@ -114,8 +111,10 @@ type FieldsTable struct {
                         selected = ""
                     }
                 %}
-                    <option value='{%d id %}' {%s selected %}>{%s name %}</option>
+                <option value='{%d id %}' {%s selected %}>{%s title %}</option>
             {% endfor %}
+        {% else %}
+            <option value="-1" selected>Значения не найдены!</option>
         {% endif %}
 {% endfunc %}
 {% code
