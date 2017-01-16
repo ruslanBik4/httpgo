@@ -84,11 +84,11 @@ func getParentFieldName(tableName string) (name string) {
 
 {% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
     <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
-    <div class="btn-group" id="{%s key %}" name="{%s tablePrefix+key %}" {%s required %} {%s val %}>
-    <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="" >
-       #Выберите несколько значений в списке
-        <b class="caret"></b>
-    </a>
+    <div class="btn-group dropdown" id="{%s key %}" name="{%s tablePrefix+key %}" {%s required %} {%s val %}>
+        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" >
+            <span>Выберите несколько значений в списке </span>
+            <b class="caret"></b>
+        </a>
         {% code
             if nameTable == "" {
                 nameTable = field.TableName
@@ -160,7 +160,7 @@ func getParentFieldName(tableName string) (name string) {
                 {% if mode=="option" %}
                     <option value='{%d id %}' {%s selected %}>{%s title %}</option>
                 {% else %}
-                    <li role='presentation' class='dropdown-menu'>
+                    <li role='presentation'>
                         {%= renderCheckBox(field.COLUMN_NAME, title, idx, "checked", "events", "") %}
                     </li>
                 {% endif %}

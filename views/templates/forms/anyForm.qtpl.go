@@ -115,7 +115,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	qw422016.E().S(titleLabel)
 	//line views/templates/forms/anyForm.qtpl:86
 	qw422016.N().S(`</label>
-    <div class="btn-group" id="`)
+    <div class="btn-group dropdown" id="`)
 	//line views/templates/forms/anyForm.qtpl:87
 	qw422016.E().S(key)
 	//line views/templates/forms/anyForm.qtpl:87
@@ -132,10 +132,10 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	qw422016.E().S(val)
 	//line views/templates/forms/anyForm.qtpl:87
 	qw422016.N().S(`>
-    <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="" >
-       #Выберите несколько значений в списке
-        <b class="caret"></b>
-    </a>
+        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" >
+            <span>Выберите несколько значений в списке </span>
+            <b class="caret"></b>
+        </a>
         `)
 	//line views/templates/forms/anyForm.qtpl:93
 	if nameTable == "" {
@@ -421,7 +421,7 @@ func (field *FieldStructure) streamgetOptions(qw422016 *qt422016.Writer, tableNa
 		} else {
 			//line views/templates/forms/anyForm.qtpl:162
 			qw422016.N().S(`
-                    <li role='presentation' class='dropdown-menu'>
+                    <li role='presentation'>
                         `)
 			//line views/templates/forms/anyForm.qtpl:164
 			streamrenderCheckBox(qw422016, field.COLUMN_NAME, title, idx, "checked", "events", "")
