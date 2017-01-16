@@ -106,7 +106,7 @@ func getParentFieldName(tableName string) (name string) {
 func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, nameTable, tablePrefix, key, val, titleLabel, required string) {
 	//line views/templates/forms/anyForm.qtpl:85
 	qw422016.N().S(`
-    <label class="control-label" for="`)
+    <label for="`)
 	//line views/templates/forms/anyForm.qtpl:86
 	qw422016.E().S(tablePrefix + key)
 	//line views/templates/forms/anyForm.qtpl:86
@@ -115,24 +115,8 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	qw422016.E().S(titleLabel)
 	//line views/templates/forms/anyForm.qtpl:86
 	qw422016.N().S(`</label>
-    <div class="btn-group dropdown" id="`)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.E().S(tablePrefix + key)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.N().S(`" `)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.E().S(required)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:87
-	qw422016.N().S(`>
-        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" >
+    <div class="dropdown">
+        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="" >
             <span>Выберите несколько значений в списке </span>
             <b class="caret"></b>
         </a>

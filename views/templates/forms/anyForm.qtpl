@@ -83,9 +83,9 @@ func getParentFieldName(tableName string) (name string) {
 %}
 
 {% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
-    <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
-    <div class="btn-group dropdown" id="{%s key %}" name="{%s tablePrefix+key %}" {%s required %} {%s val %}>
-        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" >
+    <label for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
+    <div class="dropdown">
+        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="" >
             <span>Выберите несколько значений в списке </span>
             <b class="caret"></b>
         </a>
