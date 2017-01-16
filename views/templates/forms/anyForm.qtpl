@@ -37,8 +37,7 @@ type FieldsTable struct {
             if nameTable == "" {
                 nameTable = field.TableName
             }
-            key = strings.TrimLeft(key, "setid_" + nameTable)
-            key = strings.TrimRight(key, "_has")
+            key = strings.TrimLeft(key, "setid_")
 
         %}
         {%= getOptions(key, field.Value) %}
