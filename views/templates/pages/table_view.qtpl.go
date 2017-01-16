@@ -35,7 +35,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
 	qw422016.N().S(`
 <link href="/tables.css" rel="stylesheet">
 
-<table>
+<table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
         <tr>
             `)
