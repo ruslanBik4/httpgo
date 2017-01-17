@@ -157,11 +157,11 @@
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {%code t := field.renderEnum(nameInput, required, events, dataJson) %}
-                    {%s t %}
+                    {%s= t %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {%code t := field.renderSet(nameInput, required, events, dataJson) %}
-                    {%s t %}
+                    {%s= t %}
                 {% case "blob", "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}">

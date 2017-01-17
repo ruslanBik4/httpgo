@@ -48,7 +48,7 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 		log.Println(sql)
 		return -1, err
 	} else {
-		lastInsertId, err:= resultSQL.LastInsertId()
+		lastInsertId, err := resultSQL.LastInsertId()
 		return int(lastInsertId), err
 	}
 }

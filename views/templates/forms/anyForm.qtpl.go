@@ -587,7 +587,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                     `)
 				//line views/templates/forms/anyForm.qtpl:160
-				qw422016.E().S(t)
+				qw422016.N().S(t)
 				//line views/templates/forms/anyForm.qtpl:160
 				qw422016.N().S(`
                 `)
@@ -612,7 +612,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                     `)
 				//line views/templates/forms/anyForm.qtpl:164
-				qw422016.E().S(t)
+				qw422016.N().S(t)
 				//line views/templates/forms/anyForm.qtpl:164
 				qw422016.N().S(`
                 `)
