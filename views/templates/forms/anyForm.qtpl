@@ -6,26 +6,18 @@
     "log"
     "fmt"
 ) %}
-{%  code
-%}
-{% code
-%}
-
-{% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
+{% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required  string) %}
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" onclick="$(this).parent().toggleClass('open')" >
             <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
         {% code
-            if nameTable == "" {
-                nameTable = field.TableName
-            }
-            nameTable = strings.TrimLeft(key, "setid_")
+            nameTable := strings.TrimLeft(key, "setid_")
 
         %}
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            {%= field.getOptions(nameTable, field.Value, "li", field.whereFromSet() ) %}
+            {%= field.getOptions(nameTable, field.Value, "li", field.whereFromSet(ns) ) %}
         </ul>
     </div>
 {% endfunc %}
@@ -62,9 +54,6 @@
                 name := getParentFieldName(tableName)
                 if name == "" {
                     return
-                }
-                if where > "" {
-                    where = " where " + where
                 }
                 rows := db.DoQuery("select id, " + name + " from " + tableName + where)
                 defer rows.Close()
@@ -151,7 +140,7 @@
         {% elseif strings.HasPrefix(key, "id_") %}
             {%= field.RenderSelect(tablePrefix, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "setid_") %}
-            {%= field.RenderMultiSelect(ns.Name, tablePrefix, key, val, titleLabel, required) %}
+            {%= field.RenderMultiSelect(ns, tablePrefix, key, val, titleLabel, required) %}
         {% else %}
 
                 {% switch field.DATA_TYPE %}

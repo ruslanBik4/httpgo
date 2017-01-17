@@ -4,6 +4,7 @@ import (
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"regexp"
+	"fmt"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -30,11 +31,28 @@ type FieldsTable struct {
 	Rows [] FieldStructure
 	Hiddens map[string] string
 }
-func (field *FieldStructure) whereFromSet() (result string) {
+
+func (ns *FieldsTable) findField(name string) *FieldStructure {
+	for _, field := range ns.Rows {
+		if field.COLUMN_NAME == name {
+			return &field
+		}
+	}
+
+	return nil
+}
+func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := ""
+	comma  := " WHERE "
 	for _, title := range fields {
 		enumVal := title[len(title) - 1]
+		if i := strings.Index(enumVal, ":"); i > 0 {
+			param := ""
+			if paramField := ns.findField(enumVal[:i+1]); paramField != nil {
+				param = paramField.Value
+			}
+			enumVal = enumVal[i:] + fmt.Sprintf("'%s'", param)
+		}
 		result += comma + enumVal
 		comma = " OR "
 	}
