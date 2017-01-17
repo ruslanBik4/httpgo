@@ -360,7 +360,13 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	r.ParseForm()
 
-	if r.FormValue("table") == "" {
+	if r.FormValue("table") > "" {
+		if r.FormValue("id") > "" {
+			HandlerUpdateRecord(w, r)
+		} else {
+			HandlerAddRecord(w, r)
+		}
+	} else {
 		var params sMultiQuery
 
 		params.queryes = make(map[string] *argsQuery, 0)
