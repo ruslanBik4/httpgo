@@ -6,25 +6,28 @@ import (
 	"regexp"
 	"fmt"
 	"log"
+	//"strconv"
+	"database/sql"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
 
 )
 type FieldStructure struct {
-	COLUMN_NAME   string
-	DATA_TYPE string
-	COLUMN_DEFAULT string
-	IS_NULLABLE string
+	COLUMN_NAME   	string
+	DATA_TYPE 	string
+	COLUMN_DEFAULT 	string
+	IS_NULLABLE 	string
 	CHARACTER_SET_NAME string
-	COLUMN_COMMENT string
-	COLUMN_TYPE string
+	COLUMN_COMMENT 	string
+	COLUMN_TYPE 	string
 	CHARACTER_MAXIMUM_LENGTH int
-	Value string
+	Value 		string
 	IsHidden bool
-	CSSClass  string
-	TableName string
-	Events map[string] string
+	CSSClass  	string
+	TableName 	string
+	Events 		map[string] string
+	Html		string
 }
 type FieldsTable struct {
 	Name string
@@ -61,6 +64,45 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 
 	log.Println(result)
 	return result
+}
+func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
+
+	key := field.COLUMN_NAME
+	tableName := strings.TrimLeft(key, "setid_")
+	valTable  := ns.Name + "_" + tableName + "_has"
+
+	titleField := getParentFieldName(tableName)
+	if titleField == "" {
+		return
+	}
+	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_$s from %s left join %s where %s",
+					titleField, ns.Name,
+					tableName, valTable,  field.whereFromSet(ns) ) )
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+	idx := 0
+
+	field.Html = ""
+	for rows.Next() {
+		var title, checked string
+		var idRooms sql.NullInt64
+
+		if err := rows.Scan(&title, &idRooms); err != nil {
+				log.Println(err)
+				continue
+		}
+		if idRooms.Valid {
+			checked = "checked"
+		}
+		idx++
+
+
+		field.Html += "<li role='presentation'>" + renderCheckBox(key, title, idx, checked, "events", "") + "</li>"
+	}
+
 }
 func (field *FieldStructure) renderSet(key, required, events, dataJson string) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)

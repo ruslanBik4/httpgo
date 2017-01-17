@@ -3,7 +3,8 @@
     "strconv"
     "regexp"
     "log"
-    "fmt"
+"github.com/ruslanBik4/httpgo/models/db"
+"fmt"
 ) %}
 {% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required  string) %}
     <div class="dropdown">
@@ -11,12 +12,9 @@
             <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
-        {% code
-            nameTable := strings.TrimLeft(key, "setid_")
-
-        %}
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            {%= field.getOptions(nameTable, field.Value, "li", field.whereFromSet(ns) ) %}
+            {%code field.getMultiSelect(ns) %}
+            {%s= field.Html  %}
         </ul>
     </div>
 {% endfunc %}
