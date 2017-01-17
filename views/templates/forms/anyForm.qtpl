@@ -7,85 +7,14 @@
     "fmt"
 ) %}
 {%  code
-type FieldStructure struct {
-    COLUMN_NAME   string
-    DATA_TYPE string
-    COLUMN_DEFAULT string
-    IS_NULLABLE string
-    CHARACTER_SET_NAME string
-    COLUMN_COMMENT string
-    COLUMN_TYPE string
-    CHARACTER_MAXIMUM_LENGTH int
-    Value string
-    IsHidden bool
-    CSSClass  string
-    TableName string
-    Events map[string] string
-}
-type FieldsTable struct {
-    Name string
-    IsDadata bool
-    Rows [] FieldStructure
-    Hiddens map[string] string
-}
 %}
 {% code
-func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
-    titleFull = title
-    if title == "" {
-        return "", ""
-    }
-    posPattern := strings.Index(titleFull, pattern)
-    if posPattern > 0 {
-        titlePart = titleFull[posPattern + len(pattern):]
-        titleFull = titleFull[:posPattern]
-    } else {
-        titlePart = defaultStr
-    }
-
-    return titleFull, titlePart
-}
-func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
-    titleFull = field.COLUMN_COMMENT
-    if titleFull=="" {
-        titleLabel = field.COLUMN_NAME
-    } else if strings.Index(titleFull, ".") > 0 {
-        titleLabel = titleFull[:strings.Index(titleFull, ".")]
-    } else {
-        titleLabel = titleFull
-    }
-    titleFull, pattern = cutPartFromTitle(titleFull, "//", "")
-    titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
-    titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)
-
-    return titleFull, titleLabel, placeholder, pattern, dataJson
-}
-func getParentFieldName(tableName string) (name string) {
-    var listNs db.FieldsTable
-
-    if err := listNs.GetColumnsProp(tableName); err != nil {
-        return ""
-    }
-    for _, list := range listNs.Rows {
-        switch list.COLUMN_NAME {
-        case "name":
-            name = "name"
-        case "title":
-            name = "title"
-        case "fullname":
-            name = "fullname"
-        }
-    }
-
-    return name
-
-}
 %}
 
 {% func (field *FieldStructure) RenderMultiSelect(nameTable, tablePrefix, key, val, titleLabel, required  string) %}
     <div class="dropdown">
-        <a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="" >
-            <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
+        <a class="dropdown-toggle" role="button" onclick="$(this).parent().toggleClass('open')" >
+            <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
         {% code
@@ -96,7 +25,7 @@ func getParentFieldName(tableName string) (name string) {
 
         %}
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            {%= field.getOptions(nameTable, field.Value, "li") %}
+            {%= field.getOptions(nameTable, field.Value, "li", field.whereFromSet() ) %}
         </ul>
     </div>
 {% endfunc %}
@@ -108,7 +37,7 @@ func getParentFieldName(tableName string) (name string) {
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
-        {%= field.getOptions(key[3:], field.Value, "option") %}
+        {%= field.getOptions(key[3:], field.Value, "option", "") %}
     </select>
 {% endfunc %}
 
@@ -125,16 +54,19 @@ func getParentFieldName(tableName string) (name string) {
                 nameTable = field.TableName
             }
         %}
-        {%= field.getOptions(nameTable, field.Value, "option") %}
+        {%= field.getOptions(nameTable, field.Value, "option", "") %}
     </select>
 {% endfunc %}
-{% func (field *FieldStructure) getOptions(tableName, value, mode string) %}
+{% func (field *FieldStructure) getOptions(tableName, value, mode, where string) %}
             {% code
                 name := getParentFieldName(tableName)
                 if name == "" {
                     return
                 }
-                rows := db.DoQuery("select id, " + name + " from " + tableName)
+                if where > "" {
+                    where = " where " + where
+                }
+                rows := db.DoQuery("select id, " + name + " from " + tableName + where)
                 defer rows.Close()
                 selected := ""
                 idx := 0
@@ -236,7 +168,8 @@ func getParentFieldName(tableName string) (name string) {
                     {%= field.renderEnum(nameInput, required, events, dataJson) %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%= field.renderSet(nameInput, required, events, dataJson) %}
+                    {%code t :=field.renderSet(nameInput, required, events, dataJson) %}
+                    {%s t %}
                 {% case "blob", "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}">
@@ -278,24 +211,6 @@ func getParentFieldName(tableName string) (name string) {
 
     </div>
 </form>
-{% endfunc %}
-{% func (field *FieldStructure) renderSet(key, required, events, dataJson string) %}
-    {% code
-        enumValidator := regexp.MustCompile(`(?:'([^,]+)',?)`)
-        fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-        checked := ""
-    %}
-    {% for idx, title := range fields %}
-        {% code
-            enumVal := title[len(title)-1]
-            if (field.Value > "") && (strings.Index(field.Value, enumVal) > -1) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
-                checked = "checked"
-            } else {
-                checked = ""
-            }
-        %}
-        {%= renderCheckBox(key + "[]", enumVal, idx, checked, events, dataJson) %}
-    {%  endfor %}
 {% endfunc %}
 {% func renderCheckBox(key, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
