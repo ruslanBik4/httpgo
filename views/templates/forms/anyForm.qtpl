@@ -55,6 +55,7 @@
                 if name == "" {
                     return
                 }
+                log.Println(where)
                 rows := db.DoQuery("select id, " + name + " from " + tableName + where)
                 defer rows.Close()
                 selected := ""
