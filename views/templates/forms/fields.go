@@ -54,7 +54,6 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 			param := ""
 			if paramField := ns.findField(enumVal[i+1:]); paramField != nil {
 				param = paramField.Value
-				log.Println(param)
 			}
 			enumVal = enumVal[:i] + fmt.Sprintf("'%s'", param)
 		}
@@ -62,7 +61,6 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
-	log.Println(result)
 	return result
 }
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
@@ -75,7 +73,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 	if titleField == "" {
 		return
 	}
-	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_$s from %s p left join %s v ON p.id=v.id_%s %s",
+	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_%s from %s p left join %s v ON p.id=v.id_%s %s",
 					titleField, ns.Name,
 		tableProps, tableValue,  tableProps, field.whereFromSet(ns) ) )
 	if err != nil {
