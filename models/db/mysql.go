@@ -13,8 +13,10 @@ import (
 const dbName = "travel"
 const dbUser = "travel"
 const dbPass = "rjgbvktc"
-var dbConn *sql.DB
-
+var (
+	dbConn *sql.DB
+	SQLvalidator = regexp.MustCompile(`^select\s+[\S\s]+\s*from\s+`)
+)
 func doConnect() error {
 	var DriveName mysql.MySQLDriver
 	var err error
@@ -63,6 +65,17 @@ func DoUpdate(sql string, args ...interface{}) (int, error) {
 	} else {
 		RowsAffected, err:= resultSQL.RowsAffected()
 		return int(RowsAffected), err
+	}
+}
+func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
+
+	if err := doConnect(); err != nil {
+		return nil, err
+	}
+	if SQLvalidator.MatchString(sql) {
+		return dbConn.Query(sql, args ...)
+	} else {
+		return nil, mysql.ErrMalformPkt
 	}
 }
 func DoQuery(sql string, args ...interface{})  *sql.Rows {

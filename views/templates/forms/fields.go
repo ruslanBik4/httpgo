@@ -5,6 +5,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"regexp"
 	"fmt"
+	"log"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -57,6 +58,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
+	log.Println(result)
 	return result
 }
 func (field *FieldStructure) renderSet(key, required, events, dataJson string) (result string) {
@@ -103,6 +105,33 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
 	titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)
 
 	return titleFull, titleLabel, placeholder, pattern, dataJson
+}
+// заполняет структуру для формы данными, взятыми из структуры БД
+func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
+
+	for _, field := range ns.Rows {
+		fieldStrc := &FieldStructure{
+			COLUMN_NAME: field.COLUMN_NAME,
+			DATA_TYPE  : field.DATA_TYPE,
+			IS_NULLABLE: field.IS_NULLABLE,
+			COLUMN_TYPE: field.COLUMN_TYPE,
+			Events     : make(map[string] string, 0),
+		}
+		if field.CHARACTER_SET_NAME.Valid {
+			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
+		}
+		if field.COLUMN_COMMENT.Valid {
+			fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+		}
+		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
+			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
+		}
+		if field.COLUMN_DEFAULT.Valid {
+			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
+		}
+		fieldStrc.IsHidden = false
+		fields.Rows = append(fields.Rows,*fieldStrc)
+	}
 }
 func getParentFieldName(tableName string) (name string) {
 	var listNs db.FieldsTable
