@@ -49,9 +49,9 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
 			param := ""
-			log.Println(enumVal[i+1:])
 			if paramField := ns.findField(enumVal[i+1:]); paramField != nil {
 				param = paramField.Value
+				log.Println(param)
 			}
 			enumVal = enumVal[:i] + fmt.Sprintf("'%s'", param)
 		}
