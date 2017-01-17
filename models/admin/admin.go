@@ -357,7 +357,6 @@ type sMultiQuery struct {
 	queryes map[string] *argsQuery
 }
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	r.ParseForm()
 
 	if r.FormValue("table") > "" {
@@ -367,6 +366,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			HandlerAddRecord(w, r)
 		}
 	} else {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		var params sMultiQuery
 
 		params.queryes = make(map[string] *argsQuery, 0)
