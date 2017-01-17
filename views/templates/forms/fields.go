@@ -68,16 +68,16 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
 	key := field.COLUMN_NAME
-	tableName := strings.TrimLeft(key, "setid_")
-	valTable  := ns.Name + "_" + tableName + "_has"
+	tableProps := strings.TrimLeft(key, "setid_")
+	tableValue := ns.Name + "_" + tableProps + "_has"
 
-	titleField := getParentFieldName(tableName)
+	titleField := getParentFieldName(tableProps)
 	if titleField == "" {
 		return
 	}
-	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_$s from %s left join %s where %s",
+	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_$s from %s p left join %s v ON p.id=v.id_%s %s",
 					titleField, ns.Name,
-					tableName, valTable,  field.whereFromSet(ns) ) )
+		tableProps, tableValue,  tableProps, field.whereFromSet(ns) ) )
 	if err != nil {
 		log.Println(err)
 		return
