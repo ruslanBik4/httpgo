@@ -1,5 +1,4 @@
 {% import (
-    "github.com/ruslanBik4/httpgo/models/db"
     "strings"
     "strconv"
     "regexp"
@@ -55,6 +54,7 @@
                 if name == "" {
                     return
                 }
+                rows, err := db.DoSelect("select id, " + name + " from " + tableName + where)
                 if err != nil {
                     log.Println(err)
                     return
