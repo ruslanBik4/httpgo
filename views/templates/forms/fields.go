@@ -69,11 +69,11 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 	tableProps := strings.TrimLeft(key, "setid_")
 	tableValue := ns.Name + "_" + tableProps + "_has"
 
-	titleField := getParentFieldName(tableProps)
+	titleField := db.GetParentFieldName(tableProps)
 	if titleField == "" {
 		return
 	}
-	rows, err := db.DoSelect( fmt.Sprintf( "select %s, id_%s from %s p left join %s v ON p.id=v.id_%s %s",
+	rows, err := db.DoSelect( fmt.Sprintf( "select p.id, %s, id_%s from %s p left join %s v ON p.id=v.id_%s %s",
 					titleField, ns.Name,
 		tableProps, tableValue,  tableProps, field.whereFromSet(ns) ) )
 	if err != nil {
@@ -85,10 +85,11 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
 	field.Html = ""
 	for rows.Next() {
+		var id string
 		var title, checked string
 		var idRooms sql.NullInt64
 
-		if err := rows.Scan(&title, &idRooms); err != nil {
+		if err := rows.Scan(&id, &title, &idRooms); err != nil {
 				log.Println(err)
 				continue
 		}
@@ -98,7 +99,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 		idx++
 
 
-		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", title, idx, checked, "events", "") + "</li>"
+		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, idx, checked, "events", "") + "</li>"
 	}
 
 }
@@ -112,6 +113,34 @@ func (field *FieldStructure) renderSet(key, required, events, dataJson string) (
 			checked = "checked"
 		}
 		result += renderCheckBox(key + "[]", enumVal, idx, checked, events, dataJson)
+	}
+
+	return result
+}
+func (field *FieldStructure) renderEnum(key, required, events, dataJson string) (result string) {
+
+
+	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
+	renderSelect := len(fields) > 2
+
+	if renderSelect {
+		result += fmt.Sprintf("<select id='%s'  name='%[1]s class='controls' %s %s %s",
+			key, required, events, dataJson )
+	}
+	for idx, title := range fields {
+		enumVal := title[len(title)-1]
+		checked, selected  := "", ""
+		if (field.Value > "") && (field.Value == enumVal) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
+			checked, selected = "checked", "selected"
+		}
+		if renderSelect {
+			result += fmt.Sprintf("<option value='%s' %s >%s</option>",  enumVal, selected, enumVal )
+		} else {
+			result += renderRadioBox(key, enumVal, idx, checked, events, dataJson)
+		}
+	}
+	if renderSelect {
+		result += `</select>`
 	}
 
 	return result
@@ -173,25 +202,5 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		fieldStrc.IsHidden = false
 		fields.Rows = append(fields.Rows,*fieldStrc)
 	}
-}
-func getParentFieldName(tableName string) (name string) {
-	var listNs db.FieldsTable
-
-	if err := listNs.GetColumnsProp(tableName); err != nil {
-		return ""
-	}
-	for _, list := range listNs.Rows {
-		switch list.COLUMN_NAME {
-		case "name":
-			name = "name"
-		case "title":
-			name = "title"
-		case "fullname":
-			name = "fullname"
-		}
-	}
-
-	return name
-
 }
 

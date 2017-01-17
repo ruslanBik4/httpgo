@@ -11,8 +11,44 @@ import (
 type
 	argsRAW  [] interface {}
 
+func GetParentFieldName(tableName string) (name string) {
+	var listNs FieldsTable
+
+	if err := listNs.GetColumnsProp(tableName); err != nil {
+		return ""
+	}
+	for _, list := range listNs.Rows {
+		switch list.COLUMN_NAME {
+		case "name":
+			name = "name"
+		case "title":
+			name = "title"
+		case "fullname":
+			name = "fullname"
+		}
+	}
+
+	return name
+
+}
+
 //TODO: добавить запись для мультиполей (setid_)
-func DoInsertFromForm( r *http.Request ) (int, error) {
+func insertMultiSet(tableName, key string, values []string, idChan <- chan int) {
+	var id int
+
+	id = <-idChan
+
+	tableProps := strings.TrimLeft(key, "setid_")
+	tableValue := tableName + "_" + tableProps + "_has"
+
+	for _, value := range values {
+
+		DoInsert(fmt.Sprintf("insert into %s (id_%s, id_%s) values (%d, %s) ",
+			tableValue, tableName, tableProps, id, value) )
+	}
+
+}
+func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 
 	r.ParseForm()
 
@@ -21,14 +57,19 @@ func DoInsertFromForm( r *http.Request ) (int, error) {
 		return -1, http.ErrNotSupported
 	}
 
-	var row argsRAW
+	tableName := r.FormValue("table")
 
-	comma, sqlCommand, values := "", "insert into " + r.FormValue("table") + "(", "values ("
+	var row argsRAW
+	var idNew chan int
+
+	comma, sqlCommand, values := "", "insert into " + tableName + "(", "values ("
 
 	for key, val := range r.Form {
 
 		if key == "table" {
 			continue
+		} else if strings.HasPrefix(key, "setid_"){
+			defer insertMultiSet(tableName, strings.TrimRight(key, "[]"), val, idNew)
 		}
 		if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
@@ -46,10 +87,14 @@ func DoInsertFromForm( r *http.Request ) (int, error) {
 		comma = ", "
 
 	}
-	return DoInsert(sqlCommand + ") " + values + ")", row ... )
+
+	lastInsertId, err = DoInsert(sqlCommand + ") " + values + ")", row ... )
+
+	idNew <- lastInsertId
+	return lastInsertId, err
 
 }
-func DoUpdateFromForm( r *http.Request ) (int, error) {
+func DoUpdateFromForm( r *http.Request ) (lastInsertId int, err error) {
 
 	r.ParseForm()
 
@@ -85,7 +130,7 @@ func DoUpdateFromForm( r *http.Request ) (int, error) {
 		comma = ", "
 
 	}
-	return DoInsert(sqlCommand + where, row ... )
+	return DoUpdate(sqlCommand + where, row ... )
 
 }
 func createCommand( sqlCommand string, r *http.Request, typeQuery string ) (row argsRAW, sqlQuery string) {

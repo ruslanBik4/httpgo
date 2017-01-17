@@ -1,11 +1,12 @@
 {% import (
     "strings"
     "strconv"
-    "regexp"
     "log"
-"github.com/ruslanBik4/httpgo/models/db"
-"fmt"
+    "github.com/ruslanBik4/httpgo/models/db"
+    "fmt"
 ) %}
+Здесь рисуем элементы ввода для полей, обозначающие связи таблицы многие-к-многим
+При этом имя поля однозначно определяет тип связи и таблицу, с которой связываемся
 {% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required  string) %}
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" onclick="$(this).parent().toggleClass('open')" >
@@ -48,7 +49,7 @@
 {% endfunc %}
 {% func (field *FieldStructure) getOptions(tableName, value, mode, where string) %}
             {% code
-                name := getParentFieldName(tableName)
+                name := db.GetParentFieldName(tableName)
                 if name == "" {
                     return
                 }
@@ -155,10 +156,11 @@
                         {%= renderCheckBox(nameInput, titleLabel, 1, checked, events, dataJson) %}
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%= field.renderEnum(nameInput, required, events, dataJson) %}
+                    {%code t := field.renderEnum(nameInput, required, events, dataJson) %}
+                    {%s t %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t :=field.renderSet(nameInput, required, events, dataJson) %}
+                    {%code t := field.renderSet(nameInput, required, events, dataJson) %}
                     {%s t %}
                 {% case "blob", "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
@@ -209,34 +211,6 @@
         />
         {%s title %}
     </label>
-{% endfunc %}
-{% func (field *FieldStructure) renderEnum(key, required, events, dataJson string) %}
-    {% code
-        enumValidator := regexp.MustCompile(`'([^']+)'`)
-        fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-        renderSelect := len(fields) > 2
-    %}
-
-    {% if renderSelect %}
-        <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %} {%s= events %} {%s= dataJson %}>
-    {% endif %}
-    {% for idx, title := range fields %}
-        {% code
-            enumVal := title[len(title)-1]
-            checked, selected  := "", ""
-            if (field.Value > "") && (field.Value == enumVal) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
-              checked, selected = "checked", "selected"
-            }
-        %}
-        {% if renderSelect %}
-            <option value='{%s enumVal %}' {%s selected %}>{%s enumVal %}</option>
-        {% else %}
-            {%= renderRadioBox(key, enumVal, idx, checked, events, dataJson) %}
-        {% endif %}
-    {%  endfor %}
-    {% if renderSelect %}
-        </select>
-    {% endif %}
 {% endfunc %}
 {% func renderRadioBox(key, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx  %}">
