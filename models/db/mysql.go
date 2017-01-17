@@ -76,7 +76,7 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 	w := io.Writer(&result)
 	Encode := json.NewEncoder(w)
 
-	if (strings.Index(sql, "insert") > -1) {
+	if strings.HasPrefix(sql, "insert") {
 		resultSQL, err := dbConn.Exec( sql, args ...)
 
 		if err != nil {
@@ -86,12 +86,12 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 			Encode.Encode(lastInsertId)
 		}
 
-		fmt.Print( result.String() )
+		log.Print( result.String() )
 
 		return nil
 	}
 
-	if (strings.Index(sql, "update") > -1) {
+	if strings.HasPrefix(sql, "update") {
 		resultSQL, err := dbConn.Exec( sql, args ...)
 
 		if err != nil {
@@ -101,7 +101,7 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 			Encode.Encode(RowsAffected)
 		}
 
-		fmt.Print( result.String() )
+		log.Print( result.String() )
 
 		return nil
 	}
