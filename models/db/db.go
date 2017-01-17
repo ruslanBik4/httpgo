@@ -11,6 +11,7 @@ import (
 type
 	argsRAW  [] interface {}
 
+//TODO: добавить запись для мультиполей (setid_)
 func DoInsertFromForm( r *http.Request ) (int, error) {
 
 	r.ParseForm()
