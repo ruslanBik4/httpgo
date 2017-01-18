@@ -39,7 +39,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 
 	for _, value := range values {
 
-		sqlCommand := fmt.Sprintf("insert into %s_%s_has (id_%[1]s, id_%[2]s) values (?, ?)",
+		sqlCommand := fmt.Sprintf("reinsert into %s_%s_has (id_%[1]s, id_%[2]s) values (?, ?)",
 			tableName, tableProps)
 		if lastInsertId, err := DoInsert( sqlCommand, id, value); err != nil {
 			log.Println(err)
