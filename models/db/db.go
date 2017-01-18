@@ -36,12 +36,11 @@ func GetParentFieldName(tableName string) (name string) {
 func insertMultiSet(tableName, key string, values []string, id int) {
 
 	tableProps := strings.TrimLeft(key, "setid_")
-	tableValue := tableName + "_" + tableProps + "_has"
 
 	for _, value := range values {
 
-		sqlCommand := fmt.Sprintf("insert into %s (id_%s, id_%s) values (?, ?)",
-			tableValue, tableName, tableProps)
+		sqlCommand := fmt.Sprintf("insert into %s_%s_has (id_%[1]s, id_%[2]s) values (?, ?)",
+			tableName, tableProps)
 		if lastInsertId, err := DoInsert( sqlCommand, id, value); err != nil {
 			log.Println(err)
 			log.Println(sqlCommand)
@@ -71,7 +70,9 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 		if key == "table" {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
-			defer func() { insertMultiSet(tableName, strings.TrimRight(key, "[]"), val, lastInsertId) }()
+			defer func(tableName, key string, values []string) {
+				insertMultiSet(tableName, key, values, lastInsertId)
+			}(tableName, strings.TrimRight(key, "[]"), val)
 		}
 		if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
@@ -118,7 +119,9 @@ func DoUpdateFromForm( r *http.Request ) (id int, err error) {
 			id, _ = strconv.Atoi(val[0])
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
-			defer func() { insertMultiSet(tableName, strings.TrimRight(key, "[]"), val, id) }()
+			defer func(tableName, key string, values []string) {
+				insertMultiSet(tableName, key, values, id)
+			}(tableName, strings.TrimRight(key, "[]"), val)
 		}
 
 		if strings.Contains(key, "[]") {
