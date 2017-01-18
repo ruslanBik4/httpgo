@@ -46,7 +46,7 @@ func (ns *FieldsTable) findField(name string) *FieldStructure {
 }
 func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := " WHERE "
+	comma  := " AND ("
 	for _, title := range fields {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
@@ -60,7 +60,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
-	return result
+	return result + ")"
 }
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
@@ -72,9 +72,13 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 	if titleField == "" {
 		return
 	}
-	rows, err := db.DoSelect( fmt.Sprintf( "select p.id, %s, id_%s from %s p left join %s v ON p.id=v.id_%s %s",
-					titleField, ns.Name,
-		tableProps, tableValue,  tableProps, field.whereFromSet(ns) ) )
+	sqlCommand := fmt.Sprintf( `select p.id, %s, id_%s
+	from %s p left join %s v ON p.id=v.id_%[3]s
+	WHERE p.id_%[3]s=id_%[2]s %s`,
+		titleField, ns.Name,
+		tableProps, tableValue, field.whereFromSet(ns) )
+	log.Println(sqlCommand)
+	rows, err := db.DoSelect( sqlCommand )
 	if err != nil {
 		log.Println(err)
 		return
@@ -129,9 +133,6 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 		}
 		if val == id {
 			selected = "selected"
-			log.Println(selected)
-		} else {
-			log.Println(val, id)
 		}
 		idx++
 
