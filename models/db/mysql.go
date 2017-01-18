@@ -15,7 +15,7 @@ const dbUser = "travel"
 const dbPass = "rjgbvktc"
 var (
 	dbConn *sql.DB
-	SQLvalidator = regexp.MustCompile(`^select\s+[\S\s]+\s*from\s+`)
+	SQLvalidator = regexp.MustCompile(`^select\s+[\S\s]+\s*from\s+/img`)
 )
 func doConnect() error {
 	var DriveName mysql.MySQLDriver
