@@ -63,7 +63,6 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 	tableName := r.FormValue("table")
 
 	var row argsRAW
-	var idNew chan int
 
 	comma, sqlCommand, values := "", "insert into " + tableName + "(", "values ("
 
