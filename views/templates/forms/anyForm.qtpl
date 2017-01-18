@@ -164,7 +164,7 @@
 {% endfunc %}
 {% func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
-        <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s checked %}
+        <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
                 {%s= events %} {%s= dataJson %}
         />
         {%s title %}
@@ -172,18 +172,18 @@
 {% endfunc %}
 {% func renderRadioBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
-        <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s checked %}
+        <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
                 {%s= events %} {%s= dataJson %}
         />
         {%s title %}
     </label>
 {% endfunc %}
 {% func renderSelect(key, options, required, events, dataJson string) %}
-    <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %} {%s events %} {%s dataJson %}>
+    <select id="{%s key %}" name="{%s key %}" class="controls" {%s= required %} {%s= events %} {%s= dataJson %}>
         {%s= options %}
     </select>
 {% endfunc %}
 {% func renderOption(val, title, selected string) %}
-    <option value="{%s val %}" {%s selected %} >{%s title %}</option>
+    <option value="{%s val %}" {%s= selected %} >{%s title %}</option>
 {% endfunc %}
 

@@ -751,7 +751,7 @@ func streamrenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx
 	//line views/templates/forms/anyForm.qtpl:167
 	qw422016.N().S(`" `)
 	//line views/templates/forms/anyForm.qtpl:167
-	qw422016.E().S(checked)
+	qw422016.N().S(checked)
 	//line views/templates/forms/anyForm.qtpl:167
 	qw422016.N().S(`
                 `)
@@ -827,7 +827,7 @@ func streamrenderRadioBox(qw422016 *qt422016.Writer, key, val, title string, idx
 	//line views/templates/forms/anyForm.qtpl:175
 	qw422016.N().S(`" `)
 	//line views/templates/forms/anyForm.qtpl:175
-	qw422016.E().S(checked)
+	qw422016.N().S(checked)
 	//line views/templates/forms/anyForm.qtpl:175
 	qw422016.N().S(`
                 `)
@@ -890,15 +890,15 @@ func streamrenderSelect(qw422016 *qt422016.Writer, key, options, required, event
 	//line views/templates/forms/anyForm.qtpl:182
 	qw422016.N().S(`" class="controls" `)
 	//line views/templates/forms/anyForm.qtpl:182
-	qw422016.E().S(required)
+	qw422016.N().S(required)
 	//line views/templates/forms/anyForm.qtpl:182
 	qw422016.N().S(` `)
 	//line views/templates/forms/anyForm.qtpl:182
-	qw422016.E().S(events)
+	qw422016.N().S(events)
 	//line views/templates/forms/anyForm.qtpl:182
 	qw422016.N().S(` `)
 	//line views/templates/forms/anyForm.qtpl:182
-	qw422016.E().S(dataJson)
+	qw422016.N().S(dataJson)
 	//line views/templates/forms/anyForm.qtpl:182
 	qw422016.N().S(`>
         `)
@@ -947,7 +947,7 @@ func streamrenderOption(qw422016 *qt422016.Writer, val, title, selected string) 
 	//line views/templates/forms/anyForm.qtpl:187
 	qw422016.N().S(`" `)
 	//line views/templates/forms/anyForm.qtpl:187
-	qw422016.E().S(selected)
+	qw422016.N().S(selected)
 	//line views/templates/forms/anyForm.qtpl:187
 	qw422016.N().S(` >`)
 	//line views/templates/forms/anyForm.qtpl:187
