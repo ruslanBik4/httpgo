@@ -77,7 +77,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) %[5]s`,
 		titleField, ns.Name,
 		tableProps, tableValue, field.whereFromSet(ns) )
-	log.Println(sqlCommand)
+	log.Println(sqlCommand, ns.ID)
 	rows, err := db.DoSelect( sqlCommand, ns.ID )
 	if err != nil {
 		log.Println(err)
