@@ -97,6 +97,7 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 	lastInsertId, err = DoInsert(sqlCommand + ") " + values + ")", row ... )
 
 	idNew <- lastInsertId
+	close(idNew)
 	return lastInsertId, err
 
 }
