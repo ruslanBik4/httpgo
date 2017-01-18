@@ -72,7 +72,7 @@ func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
 	if err := doConnect(); err != nil {
 		return nil, err
 	}
-	if SQLvalidator.MatchString(sql) {
+	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return dbConn.Query(sql, args ...)
 	} else {
 		return nil, mysql.ErrMalformPkt
