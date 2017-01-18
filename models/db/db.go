@@ -33,10 +33,7 @@ func GetParentFieldName(tableName string) (name string) {
 }
 
 //TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, key string, values []string, idChan <- chan int) {
-	var id int
-
-	id = <-idChan
+func insertMultiSet(tableName, key string, values []string, id int) {
 
 	tableProps := strings.TrimLeft(key, "setid_")
 	tableValue := tableName + "_" + tableProps + "_has"
@@ -75,7 +72,7 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 		if key == "table" {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
-			defer insertMultiSet(tableName, strings.TrimRight(key, "[]"), val, idNew)
+			defer func() { insertMultiSet(tableName, strings.TrimRight(key, "[]"), val, lastInsertId) }()
 		}
 		if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
