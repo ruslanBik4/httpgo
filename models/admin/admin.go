@@ -11,6 +11,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views"
+	"strconv"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -294,7 +295,12 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	id        := r.FormValue("id")
 
 	fields := getFields(tableName)
-	rows := db.DoQuery("select * from " + tableName + " where id=?", id)
+	rows, err := db.DoSelect("select * from " + tableName + " where id=?", id)
+	if (err != nil) {
+		log.Println(err)
+		fmt.Fprint(w, "Error during reading record with id=%s", id)
+		return
+	}
 
 	defer rows.Close()
 	var row [] interface {}
@@ -319,6 +325,9 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 		for idx, field := range rowField {
 			if field.Valid {
 				fields.Rows[idx].Value = field.String
+				if fields.Rows[idx].COLUMN_NAME == "id" {
+					fields.ID, _ = strconv.Atoi(id)
+				}
 			}
 		}
 
