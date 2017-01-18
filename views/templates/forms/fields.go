@@ -8,6 +8,7 @@ import (
 	"log"
 	//"strconv"
 	"database/sql"
+	"strconv"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -99,48 +100,79 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 		idx++
 
 
-		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, idx, checked, "events", "") + "</li>"
+		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, title, idx, checked, "events", "") + "</li>"
 	}
 
 }
-func (field *FieldStructure) renderSet(key, required, events, dataJson string) (result string) {
+func (field *FieldStructure) getOptions(tableName, val string) {
+
+	name := db.GetParentFieldName(tableName)
+	if name == "" {
+		return
+	}
+	rows, err := db.DoSelect("select id, " + name + " from " + tableName )
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer rows.Close()
+	idx := 0
+	valueID, _ := strconv.Atoi(val)
+
+	field.Html = ""
+
+	for rows.Next() {
+
+		var id int
+		var title, selected string
+
+		if err := rows.Scan(&id, &title); err != nil {
+			log.Println(err)
+			continue
+		}
+		if valueID == id {
+			selected = "selected"
+		}
+		idx++
+
+		field.Html += renderOption(id, title, selected)
+	}
+}
+
+func (field *FieldStructure) renderSet(key, val, required, events, dataJson string) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 
 	for idx, title := range fields {
 		enumVal := title[len(title)-1]
 		checked := ""
-		if (field.Value > "") && (strings.Index(field.Value, enumVal) > -1) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
+		if strings.Contains(val, enumVal) {
 			checked = "checked"
 		}
-		result += renderCheckBox(key + "[]", enumVal, idx, checked, events, dataJson)
+		result += renderCheckBox(key + "[]", enumVal, enumVal, idx, checked, events, dataJson)
 	}
 
 	return result
 }
-func (field *FieldStructure) renderEnum(key, required, events, dataJson string) (result string) {
+func (field *FieldStructure) renderEnum(key, val, required, events, dataJson string) (result string) {
 
 
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	renderSelect := len(fields) > 2
 
-	if renderSelect {
-		result += fmt.Sprintf("<select id='%s'  name='%[1]s class='controls' %s %s %s",
-			key, required, events, dataJson )
-	}
 	for idx, title := range fields {
 		enumVal := title[len(title)-1]
 		checked, selected  := "", ""
-		if (field.Value > "") && (field.Value == enumVal) || (field.Value == "") && (enumVal == field.COLUMN_DEFAULT) {
+		if val == enumVal {
 			checked, selected = "checked", "selected"
 		}
 		if renderSelect {
-			result += fmt.Sprintf("<option value='%s' %s >%s</option>",  enumVal, selected, enumVal )
+			result += renderOption(enumVal, enumVal, selected)
 		} else {
-			result += renderRadioBox(key, enumVal, idx, checked, events, dataJson)
+			result += renderRadioBox(key, enumVal, enumVal, idx, checked, events, dataJson)
 		}
 	}
 	if renderSelect {
-		result += `</select>`
+		return renderSelect(key, result, required, events, dataJson )
 	}
 
 	return result

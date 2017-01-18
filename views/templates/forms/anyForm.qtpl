@@ -15,7 +15,7 @@
         </a>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
             {%code field.getMultiSelect(ns) %}
-            {%s= field.Html  %}
+            {%s= field.Html %}
         </ul>
     </div>
 {% endfunc %}
@@ -27,7 +27,8 @@
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
-        {%= field.getOptions(key[3:], field.Value, "option", "") %}
+        {%code field.getOptions(key[3:], val) %}
+        {%s= field.Html %}
     </select>
 {% endfunc %}
 
@@ -44,49 +45,9 @@
                 nameTable = field.TableName
             }
         %}
-        {%= field.getOptions(nameTable, field.Value, "option", "") %}
+        {%code field.getOptions(nameTable, val) %}
+        {%s= field.Html %}
     </select>
-{% endfunc %}
-{% func (field *FieldStructure) getOptions(tableName, value, mode, where string) %}
-            {% code
-                name := db.GetParentFieldName(tableName)
-                if name == "" {
-                    return
-                }
-                rows, err := db.DoSelect("select id, " + name + " from " + tableName + where)
-                if err != nil {
-                    log.Println(err)
-                    return
-                }
-                defer rows.Close()
-                selected := ""
-                idx := 0
-                valueID, _ := strconv.Atoi(value)
-            %}
-            {%  for rows.Next() %}
-                {%  code
-                    var id int
-                    var title, checked string
-
-                    if err := rows.Scan(&id, &title); err != nil {
-                        log.Println(err)
-                        continue
-                    }
-                    if valueID == id {
-                        selected, checked = "selected", "checked"
-                    } else {
-                        selected, checked = "", ""
-                    }
-                    idx++
-                %}
-                {% if mode=="option" %}
-                    <option value='{%d id %}' {%s selected %}>{%s title %}</option>
-                {% else %}
-                    <li role='presentation'>
-                        {%= renderCheckBox(field.COLUMN_NAME, title, idx, checked, "events", "") %}
-                    </li>
-                {% endif %}
-            {% endfor %}
 {% endfunc %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
 <form name="f{%s ns.Name %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
@@ -153,14 +114,14 @@
                                 checked = "checked"
                             }
                         %}
-                        {%= renderCheckBox(nameInput, titleLabel, 1, checked, events, dataJson) %}
+                        {%= renderCheckBox(nameInput, titleLabel, titleLabel, 1, checked, events, dataJson) %}
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderEnum(nameInput, required, events, dataJson) %}
+                    {%code t := field.renderEnum(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderSet(nameInput, required, events, dataJson) %}
+                    {%code t := field.renderSet(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
                 {% case "blob", "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
@@ -204,19 +165,28 @@
     </div>
 </form>
 {% endfunc %}
-{% func renderCheckBox(key, title string, idx int, checked, events, dataJson string) %}
+{% func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
-        <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}
+        <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s checked %}
                 {%s= events %} {%s= dataJson %}
         />
         {%s title %}
     </label>
 {% endfunc %}
-{% func renderRadioBox(key, title string, idx int, checked, events, dataJson string) %}
-    <label class="checkbox" for="{%s key %}{%d idx  %}">
-        <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s title %}" {%s checked %}
+{% func renderRadioBox(key, val, title string, idx int, checked, events, dataJson string) %}
+    <label class="checkbox" for="{%s key %}{%d idx %}">
+        <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s checked %}
                 {%s= events %} {%s= dataJson %}
         />
         {%s title %}
     </label>
 {% endfunc %}
+{% func renderSelect(key, options, required, events, dataJson string) %}
+    <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %} {%s events %} {%s dataJson %}>
+        {%s= options %}
+    </select>
+{% endfunc %}
+{% func renderOption(val, title, selected string) %}
+    <option value="{%s val %}" {%s selected %} >{%s title %}</option>
+{% endfunc %}
+
