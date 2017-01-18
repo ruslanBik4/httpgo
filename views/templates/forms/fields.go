@@ -6,9 +6,7 @@ import (
 	"regexp"
 	"fmt"
 	"log"
-	//"strconv"
 	"database/sql"
-	"strconv"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -117,20 +115,19 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 	}
 	defer rows.Close()
 	idx := 0
-	valueID, _ := strconv.Atoi(val)
+	//valueID, _ := strconv.Atoi(val)
 
 	field.Html = ""
 
 	for rows.Next() {
 
-		var id int
-		var title, selected string
+		var id, title, selected string
 
 		if err := rows.Scan(&id, &title); err != nil {
 			log.Println(err)
 			continue
 		}
-		if valueID == id {
+		if val == id {
 			selected = "selected"
 		}
 		idx++
@@ -157,7 +154,7 @@ func (field *FieldStructure) renderEnum(key, val, required, events, dataJson str
 
 
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	renderSelect := len(fields) > 2
+	isRenderSelect := len(fields) > 2
 
 	for idx, title := range fields {
 		enumVal := title[len(title)-1]
@@ -165,13 +162,13 @@ func (field *FieldStructure) renderEnum(key, val, required, events, dataJson str
 		if val == enumVal {
 			checked, selected = "checked", "selected"
 		}
-		if renderSelect {
+		if isRenderSelect {
 			result += renderOption(enumVal, enumVal, selected)
 		} else {
 			result += renderRadioBox(key, enumVal, enumVal, idx, checked, events, dataJson)
 		}
 	}
-	if renderSelect {
+	if isRenderSelect {
 		return renderSelect(key, result, required, events, dataJson )
 	}
 
