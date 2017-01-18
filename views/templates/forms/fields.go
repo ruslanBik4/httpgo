@@ -74,7 +74,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 		return
 	}
 	sqlCommand := fmt.Sprintf( `SELECT p.id, %s, id_%s
-	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) %s`,
+	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) %[5]s`,
 		titleField, ns.Name,
 		tableProps, tableValue, field.whereFromSet(ns) )
 	log.Println(sqlCommand)
