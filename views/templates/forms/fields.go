@@ -129,6 +129,7 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 		}
 		if val == id {
 			selected = "selected"
+			log.Println(selected)
 		}
 		idx++
 
