@@ -380,7 +380,15 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 		params.queryes = make(map[string] *argsQuery, 0)
 		for key, val := range r.Form {
-			tableName := key[ : strings.Index(key, ":") ]
+
+			indSeparator := strings.Index(key, ":")
+			if indSeparator < 1 {
+				log.Printf("Error in name field %s^ don't write to DB!", key)
+				continue
+			}
+
+			tableName := key[: indSeparator ]
+
 			query, ok := params.queryes[tableName]
 			if !ok {
 				query =  &argsQuery{ comma: "",

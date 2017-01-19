@@ -98,13 +98,13 @@
         %}
 
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
-            <input type="hidden" name="{%s key %}" {% if val > "" %}value="{%s val %}"{% endif %} >
+            <input type="hidden" name="{%s nameInput %}" {% if val > "" %}value="{%s val %}"{% endif %} >
             {% continue %}
         {% elseif key=="id"%}
             {% continue %}
         {%  endif %}
 
-        <div id="divField{%d idx %}" class="control-group field-{%s key %} {%s required %} {%s field.CSSClass %}"
+        <div id="divField{%d idx %}" class="control-group field-{%s nameInput %} {%s required %} {%s field.CSSClass %}"
                     {% if field.IsHidden %}style="display:none"{% endif %}
              data-toggle="tooltip" title="{%s= titleFull %}"
         >

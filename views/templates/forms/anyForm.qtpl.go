@@ -381,7 +381,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
             <input type="hidden" name="`)
 			//line views/templates/forms/anyForm.qtpl:101
-			qw422016.E().S(key)
+			qw422016.E().S(nameInput)
 			//line views/templates/forms/anyForm.qtpl:101
 			qw422016.N().S(`" `)
 			//line views/templates/forms/anyForm.qtpl:101
@@ -417,7 +417,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.N().S(`" class="control-group field-`)
 		//line views/templates/forms/anyForm.qtpl:107
-		qw422016.E().S(key)
+		qw422016.E().S(nameInput)
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.N().S(` `)
 		//line views/templates/forms/anyForm.qtpl:107
