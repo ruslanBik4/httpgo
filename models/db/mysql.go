@@ -17,6 +17,9 @@ var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
 )
+func prepareQuery(sql string) (*sql.Stmt, error){
+	return dbConn.Prepare(sql)
+}
 func doConnect() error {
 	var DriveName mysql.MySQLDriver
 	var err error

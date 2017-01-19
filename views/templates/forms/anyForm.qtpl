@@ -6,14 +6,28 @@
 При этом имя поля однозначно определяет тип связи и таблицу, с которой связываемся
 {% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
     <div class="dropdown">
-        <a class="dropdown-toggle" role="button" onclick="$(this).parent().toggleClass('open')" >
+        <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
+           {#onclick="$(this).parent().toggleClass('open')" >#}
             <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            {%code field.getMultiSelect(ns) %}
-            {%s= field.Html %}
-        </ul>
+        <div class="modal" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
+             aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
+            </div>
+            <div class="modal-body">
+                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                {%code field.getMultiSelect(ns) %}
+                {%s= field.Html %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <input>
+                <button>Add</button>
+            </div>
+        </div>
     </div>
 {% endfunc %}
 {% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) %}
