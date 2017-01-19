@@ -424,6 +424,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			} else {
 				query.sqlCommand += query.comma + "`id_" + primaryTable + "`"
 				query.args = append( query.args, primaryID )
+				query.values += query.comma + "?"
 			}
 			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
 			if err != nil {
