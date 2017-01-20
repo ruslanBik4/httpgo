@@ -29,16 +29,6 @@
         </div>
     </div>
     <script>
-        function addNewItems(thisButton) {
-            var parentDiv = $(thisButton).parents('.modal'),
-                newItem   = $(thisButton).prev().val();
-            li = $('li:last', parentDiv).clone();
-            li.children('input').val(newItem);
-            $('ul', parentDiv).append(li);
-            li.append("<span>" + newItem + "</span>");
-
-            return false;
-        }
         $('#{%s tablePrefix+key %}').modal('hide')
     </script>
 {% endfunc %}
