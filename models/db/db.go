@@ -59,7 +59,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		valParams = append(valParams, value )
 		comma = ","
 	}
-	sqlCommand = fmt.Sprintf("delete from  %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%s)",
+	sqlCommand = fmt.Sprintf("delete from  %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%[4]s)",
 		tableName, tableProps, id, params)
 
 	smtp, err = prepareQuery(sqlCommand)
