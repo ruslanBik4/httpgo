@@ -46,11 +46,12 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		return
 	}
 	for _, value := range values {
-		if lastInsertId, err := smtp.Exec(value); err != nil {
+		if resultSQL, err := smtp.Exec(value); err != nil {
 			log.Println(err)
 			log.Println(sqlCommand)
 		} else {
-			log.Println(lastInsertId)
+			log.Println(resultSQL.LastInsertId())
+			log.Println(sqlCommand)
 		}
 	}
 
