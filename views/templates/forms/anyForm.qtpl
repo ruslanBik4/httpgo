@@ -7,7 +7,6 @@
 {% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
-           {#onclick="$(this).parent().toggleClass('open')" >#}
             <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
@@ -18,7 +17,7 @@
                 <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
             </div>
             <div class="modal-body">
-                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                <ul class="hor-menu" role="menu" aria-labelledby="dLabel">
                 {%code field.getMultiSelect(ns) %}
                 {%s= field.Html %}
                 </ul>

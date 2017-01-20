@@ -384,6 +384,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			indSeparator := strings.Index(key, ":")
 			if indSeparator < 1 {
 				log.Printf("Error in name field %s^ don't write to DB!", key)
+				fmt.Fprintf(w, `{"error":true,"message":"Error in name field %s^ don't write to DB!"}`, key)
 				continue
 			}
 
@@ -429,17 +430,16 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
 			if err != nil {
 				log.Println(err)
-				fmt.Fprintf(w, "Error during insert into %s ", key)
+				fmt.Fprintf(w, `{"error":true,"message":"Error during insert into %s "}`, key)
 				break
 			} else {
-				fmt.Fprintf(w, "Success insert into %s record #%d", key, id)
+				fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
+				fmt.Fprintf(w, `{message:"Success insert into %s record #%d"}`, key, id)
 
 				 if primaryID == 0 {
 					 primaryID = id
 				 }
 			}
-			log.Println(key)
-			log.Println(query)
 		}
 	}
 }
