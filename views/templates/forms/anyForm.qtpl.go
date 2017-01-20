@@ -93,7 +93,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
             li = $('li:last', parentDiv).clone();
             li.children('input').val(newItem);
             $('ul', parentDiv).append(li);
-            li.append("span>" + newItem + "</span>");
+            li.append("<span>" + newItem + "</span>");
 
             return false;
         }

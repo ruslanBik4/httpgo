@@ -34,11 +34,11 @@ func GetParentFieldName(tableName string) (name string) {
 }
 
 var (
-	DigitsValidator = regexp.MustCompile("^/d+$")
+	DigitsValidator = regexp.MustCompile(`^\d+$`)
 )
 func addNewItem(tableProps, value string) (int, error) {
 
-	if newId, err := DoInsert("insert into " + tableProps + "('title') values (?)", value); err != nil {
+	if newId, err := DoInsert("insert into " + tableProps + "(title, id_users) values (?, ?)", value, 1); err != nil {
 		return -1, err
 	} else {
 		return newId, nil
@@ -81,7 +81,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		valParams = append(valParams, value )
 		comma = ","
 	}
-	sqlCommand = fmt.Sprintf("delete from  %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%[4]s)",
+	sqlCommand = fmt.Sprintf("delete from %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%[4]s)",
 		tableName, tableProps, id, params)
 
 	smtp, err = prepareQuery(sqlCommand)
