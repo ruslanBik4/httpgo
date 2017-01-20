@@ -87,264 +87,271 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
             </div>
         </div>
     </div>
-`)
-//line views/templates/forms/anyForm.qtpl:32
-}
-
-//line views/templates/forms/anyForm.qtpl:32
-func (field *FieldStructure) WriteRenderMultiSelect(qq422016 qtio422016.Writer, ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) {
-	//line views/templates/forms/anyForm.qtpl:32
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:32
-	field.StreamRenderMultiSelect(qw422016, ns, tablePrefix, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:32
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:32
-}
-
-//line views/templates/forms/anyForm.qtpl:32
-func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) string {
-	//line views/templates/forms/anyForm.qtpl:32
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:32
-	field.WriteRenderMultiSelect(qb422016, ns, tablePrefix, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:32
-	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:32
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:32
-	return qs422016
-//line views/templates/forms/anyForm.qtpl:32
-}
-
-//line views/templates/forms/anyForm.qtpl:33
-func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer, tablePrefix, key, val, titleLabel, required string) {
+    <script>
+        $('#`)
 	//line views/templates/forms/anyForm.qtpl:33
+	qw422016.E().S(tablePrefix + key)
+	//line views/templates/forms/anyForm.qtpl:33
+	qw422016.N().S(`').modal('hide')
+    </script>
+`)
+//line views/templates/forms/anyForm.qtpl:35
+}
+
+//line views/templates/forms/anyForm.qtpl:35
+func (field *FieldStructure) WriteRenderMultiSelect(qq422016 qtio422016.Writer, ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) {
+	//line views/templates/forms/anyForm.qtpl:35
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/forms/anyForm.qtpl:35
+	field.StreamRenderMultiSelect(qw422016, ns, tablePrefix, key, val, titleLabel, required)
+	//line views/templates/forms/anyForm.qtpl:35
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/forms/anyForm.qtpl:35
+}
+
+//line views/templates/forms/anyForm.qtpl:35
+func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) string {
+	//line views/templates/forms/anyForm.qtpl:35
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/forms/anyForm.qtpl:35
+	field.WriteRenderMultiSelect(qb422016, ns, tablePrefix, key, val, titleLabel, required)
+	//line views/templates/forms/anyForm.qtpl:35
+	qs422016 := string(qb422016.B)
+	//line views/templates/forms/anyForm.qtpl:35
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/forms/anyForm.qtpl:35
+	return qs422016
+//line views/templates/forms/anyForm.qtpl:35
+}
+
+//line views/templates/forms/anyForm.qtpl:36
+func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer, tablePrefix, key, val, titleLabel, required string) {
+	//line views/templates/forms/anyForm.qtpl:36
 	qw422016.N().S(`
     <label class="control-label" for="`)
-	//line views/templates/forms/anyForm.qtpl:34
+	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.E().S(tablePrefix + key)
-	//line views/templates/forms/anyForm.qtpl:34
+	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.N().S(`">`)
-	//line views/templates/forms/anyForm.qtpl:34
+	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.E().S(titleLabel)
-	//line views/templates/forms/anyForm.qtpl:34
+	//line views/templates/forms/anyForm.qtpl:37
 	qw422016.N().S(`</label>
     <select id="`)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.E().S(tablePrefix + key)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.N().S(`" class="controls" `)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.E().S(required)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:35
+	//line views/templates/forms/anyForm.qtpl:38
 	qw422016.N().S(`>
         `)
-	//line views/templates/forms/anyForm.qtpl:36
+	//line views/templates/forms/anyForm.qtpl:39
 	if field.IS_NULLABLE == "YES" && val == "" {
-		//line views/templates/forms/anyForm.qtpl:36
+		//line views/templates/forms/anyForm.qtpl:39
 		qw422016.N().S(`
             <option value="" selected>Значение можно не указывать</option>
         `)
-		//line views/templates/forms/anyForm.qtpl:38
+		//line views/templates/forms/anyForm.qtpl:41
 	} else {
-		//line views/templates/forms/anyForm.qtpl:38
+		//line views/templates/forms/anyForm.qtpl:41
 		qw422016.N().S(`
             <option disabled >Выберите значение из списка</option>
         `)
-		//line views/templates/forms/anyForm.qtpl:40
+		//line views/templates/forms/anyForm.qtpl:43
 	}
-	//line views/templates/forms/anyForm.qtpl:40
+	//line views/templates/forms/anyForm.qtpl:43
 	qw422016.N().S(`
         `)
-	//line views/templates/forms/anyForm.qtpl:41
+	//line views/templates/forms/anyForm.qtpl:44
 	field.getOptions(key[3:], val)
 
-	//line views/templates/forms/anyForm.qtpl:41
+	//line views/templates/forms/anyForm.qtpl:44
 	qw422016.N().S(`
         `)
-	//line views/templates/forms/anyForm.qtpl:42
+	//line views/templates/forms/anyForm.qtpl:45
 	qw422016.N().S(field.Html)
-	//line views/templates/forms/anyForm.qtpl:42
+	//line views/templates/forms/anyForm.qtpl:45
 	qw422016.N().S(`
     </select>
 `)
-//line views/templates/forms/anyForm.qtpl:44
+//line views/templates/forms/anyForm.qtpl:47
 }
 
-//line views/templates/forms/anyForm.qtpl:44
+//line views/templates/forms/anyForm.qtpl:47
 func (field *FieldStructure) WriteRenderForeignSelect(qq422016 qtio422016.Writer, tablePrefix, key, val, titleLabel, required string) {
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:44
+//line views/templates/forms/anyForm.qtpl:47
 }
 
-//line views/templates/forms/anyForm.qtpl:44
+//line views/templates/forms/anyForm.qtpl:47
 func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) string {
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	field.WriteRenderForeignSelect(qb422016, tablePrefix, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:44
+	//line views/templates/forms/anyForm.qtpl:47
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:44
+//line views/templates/forms/anyForm.qtpl:47
 }
 
-//line views/templates/forms/anyForm.qtpl:46
+//line views/templates/forms/anyForm.qtpl:49
 func (field *FieldStructure) streamrenderParentSelect(qw422016 *qt422016.Writer, nameTable, key, val, titleLabel, required string) {
-	//line views/templates/forms/anyForm.qtpl:46
+	//line views/templates/forms/anyForm.qtpl:49
 	qw422016.N().S(`
     <label class="control-label" for="`)
-	//line views/templates/forms/anyForm.qtpl:47
+	//line views/templates/forms/anyForm.qtpl:50
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:47
+	//line views/templates/forms/anyForm.qtpl:50
 	qw422016.N().S(`">`)
-	//line views/templates/forms/anyForm.qtpl:47
+	//line views/templates/forms/anyForm.qtpl:50
 	qw422016.E().S(titleLabel)
-	//line views/templates/forms/anyForm.qtpl:47
+	//line views/templates/forms/anyForm.qtpl:50
 	qw422016.N().S(`</label>
     <select id="`)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.N().S(`" class="controls" `)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.E().S(required)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:48
+	//line views/templates/forms/anyForm.qtpl:51
 	qw422016.N().S(`>
         `)
-	//line views/templates/forms/anyForm.qtpl:49
+	//line views/templates/forms/anyForm.qtpl:52
 	if field.IS_NULLABLE == "YES" && val == "" {
-		//line views/templates/forms/anyForm.qtpl:49
+		//line views/templates/forms/anyForm.qtpl:52
 		qw422016.N().S(`
             <option value="" selected>Значение можно не указывать</option>
         `)
-		//line views/templates/forms/anyForm.qtpl:51
+		//line views/templates/forms/anyForm.qtpl:54
 	} else {
-		//line views/templates/forms/anyForm.qtpl:51
+		//line views/templates/forms/anyForm.qtpl:54
 		qw422016.N().S(`
             <option disabled >Выберите значение из списка</option>
         `)
-		//line views/templates/forms/anyForm.qtpl:53
+		//line views/templates/forms/anyForm.qtpl:56
 	}
-	//line views/templates/forms/anyForm.qtpl:53
+	//line views/templates/forms/anyForm.qtpl:56
 	qw422016.N().S(`
         `)
-	//line views/templates/forms/anyForm.qtpl:55
+	//line views/templates/forms/anyForm.qtpl:58
 	if nameTable == "" {
 		nameTable = field.TableName
 	}
 
-	//line views/templates/forms/anyForm.qtpl:58
+	//line views/templates/forms/anyForm.qtpl:61
 	qw422016.N().S(`
         `)
-	//line views/templates/forms/anyForm.qtpl:59
+	//line views/templates/forms/anyForm.qtpl:62
 	field.getOptions(nameTable, val)
 
-	//line views/templates/forms/anyForm.qtpl:59
+	//line views/templates/forms/anyForm.qtpl:62
 	qw422016.N().S(`
         `)
-	//line views/templates/forms/anyForm.qtpl:60
+	//line views/templates/forms/anyForm.qtpl:63
 	qw422016.N().S(field.Html)
-	//line views/templates/forms/anyForm.qtpl:60
+	//line views/templates/forms/anyForm.qtpl:63
 	qw422016.N().S(`
     </select>
 `)
-//line views/templates/forms/anyForm.qtpl:62
+//line views/templates/forms/anyForm.qtpl:65
 }
 
-//line views/templates/forms/anyForm.qtpl:62
+//line views/templates/forms/anyForm.qtpl:65
 func (field *FieldStructure) writerenderParentSelect(qq422016 qtio422016.Writer, nameTable, key, val, titleLabel, required string) {
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	field.streamrenderParentSelect(qw422016, nameTable, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:62
+//line views/templates/forms/anyForm.qtpl:65
 }
 
-//line views/templates/forms/anyForm.qtpl:62
+//line views/templates/forms/anyForm.qtpl:65
 func (field *FieldStructure) renderParentSelect(nameTable, key, val, titleLabel, required string) string {
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	field.writerenderParentSelect(qb422016, nameTable, key, val, titleLabel, required)
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:62
+	//line views/templates/forms/anyForm.qtpl:65
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:62
+//line views/templates/forms/anyForm.qtpl:65
 }
 
-//line views/templates/forms/anyForm.qtpl:63
+//line views/templates/forms/anyForm.qtpl:66
 func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Title string) {
-	//line views/templates/forms/anyForm.qtpl:63
+	//line views/templates/forms/anyForm.qtpl:66
 	qw422016.N().S(`
 <form name="f`)
-	//line views/templates/forms/anyForm.qtpl:64
+	//line views/templates/forms/anyForm.qtpl:67
 	qw422016.E().S(ns.Name)
-	//line views/templates/forms/anyForm.qtpl:64
+	//line views/templates/forms/anyForm.qtpl:67
 	qw422016.N().S(`" role='form' class="form-horizontal row-fluid" target="content" action="`)
-	//line views/templates/forms/anyForm.qtpl:64
+	//line views/templates/forms/anyForm.qtpl:67
 	qw422016.E().S(Action)
-	//line views/templates/forms/anyForm.qtpl:64
+	//line views/templates/forms/anyForm.qtpl:67
 	qw422016.N().S(`" method="post"
       onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">`)
-	//line views/templates/forms/anyForm.qtpl:66
+	//line views/templates/forms/anyForm.qtpl:69
 	qw422016.E().S(Title)
-	//line views/templates/forms/anyForm.qtpl:66
+	//line views/templates/forms/anyForm.qtpl:69
 	qw422016.N().S(`</h2>
     `)
-	//line views/templates/forms/anyForm.qtpl:67
+	//line views/templates/forms/anyForm.qtpl:70
 	if ns.Name > "" {
-		//line views/templates/forms/anyForm.qtpl:67
+		//line views/templates/forms/anyForm.qtpl:70
 		qw422016.N().S(`
         <input type="hidden" name="table" value="`)
-		//line views/templates/forms/anyForm.qtpl:68
+		//line views/templates/forms/anyForm.qtpl:71
 		qw422016.E().S(ns.Name)
-		//line views/templates/forms/anyForm.qtpl:68
+		//line views/templates/forms/anyForm.qtpl:71
 		qw422016.N().S(`" >
     `)
-		//line views/templates/forms/anyForm.qtpl:69
+		//line views/templates/forms/anyForm.qtpl:72
 	}
-	//line views/templates/forms/anyForm.qtpl:69
+	//line views/templates/forms/anyForm.qtpl:72
 	qw422016.N().S(`
     `)
-	//line views/templates/forms/anyForm.qtpl:70
+	//line views/templates/forms/anyForm.qtpl:73
 	for idx, field := range ns.Rows {
-		//line views/templates/forms/anyForm.qtpl:70
+		//line views/templates/forms/anyForm.qtpl:73
 		qw422016.N().S(`
 
         `)
-		//line views/templates/forms/anyForm.qtpl:73
+		//line views/templates/forms/anyForm.qtpl:76
 		key := field.COLUMN_NAME
 		titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
 		val := field.Value
@@ -371,374 +378,374 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
 		}
 
-		//line views/templates/forms/anyForm.qtpl:98
+		//line views/templates/forms/anyForm.qtpl:101
 		qw422016.N().S(`
 
         `)
-		//line views/templates/forms/anyForm.qtpl:100
+		//line views/templates/forms/anyForm.qtpl:103
 		if (val > "") && ((key == "id") || field.IsHidden) {
-			//line views/templates/forms/anyForm.qtpl:100
+			//line views/templates/forms/anyForm.qtpl:103
 			qw422016.N().S(`
             <input type="hidden" name="`)
-			//line views/templates/forms/anyForm.qtpl:101
+			//line views/templates/forms/anyForm.qtpl:104
 			qw422016.E().S(nameInput)
-			//line views/templates/forms/anyForm.qtpl:101
+			//line views/templates/forms/anyForm.qtpl:104
 			qw422016.N().S(`" `)
-			//line views/templates/forms/anyForm.qtpl:101
+			//line views/templates/forms/anyForm.qtpl:104
 			if val > "" {
-				//line views/templates/forms/anyForm.qtpl:101
+				//line views/templates/forms/anyForm.qtpl:104
 				qw422016.N().S(`value="`)
-				//line views/templates/forms/anyForm.qtpl:101
+				//line views/templates/forms/anyForm.qtpl:104
 				qw422016.E().S(val)
-				//line views/templates/forms/anyForm.qtpl:101
+				//line views/templates/forms/anyForm.qtpl:104
 				qw422016.N().S(`"`)
-				//line views/templates/forms/anyForm.qtpl:101
+				//line views/templates/forms/anyForm.qtpl:104
 			}
-			//line views/templates/forms/anyForm.qtpl:101
+			//line views/templates/forms/anyForm.qtpl:104
 			qw422016.N().S(` >
             `)
-			//line views/templates/forms/anyForm.qtpl:102
+			//line views/templates/forms/anyForm.qtpl:105
 			continue
-			//line views/templates/forms/anyForm.qtpl:103
+			//line views/templates/forms/anyForm.qtpl:106
 		} else if key == "id" {
-			//line views/templates/forms/anyForm.qtpl:103
+			//line views/templates/forms/anyForm.qtpl:106
 			qw422016.N().S(`
             `)
-			//line views/templates/forms/anyForm.qtpl:104
+			//line views/templates/forms/anyForm.qtpl:107
 			continue
-			//line views/templates/forms/anyForm.qtpl:105
+			//line views/templates/forms/anyForm.qtpl:108
 		}
-		//line views/templates/forms/anyForm.qtpl:105
+		//line views/templates/forms/anyForm.qtpl:108
 		qw422016.N().S(`
 
         <div id="divField`)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.N().D(idx)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.N().S(`" class="control-group field-`)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.E().S(nameInput)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.N().S(` `)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.E().S(required)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.N().S(` `)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.E().S(field.CSSClass)
-		//line views/templates/forms/anyForm.qtpl:107
+		//line views/templates/forms/anyForm.qtpl:110
 		qw422016.N().S(`"
                     `)
-		//line views/templates/forms/anyForm.qtpl:108
+		//line views/templates/forms/anyForm.qtpl:111
 		if field.IsHidden {
-			//line views/templates/forms/anyForm.qtpl:108
+			//line views/templates/forms/anyForm.qtpl:111
 			qw422016.N().S(`style="display:none"`)
-			//line views/templates/forms/anyForm.qtpl:108
+			//line views/templates/forms/anyForm.qtpl:111
 		}
-		//line views/templates/forms/anyForm.qtpl:108
+		//line views/templates/forms/anyForm.qtpl:111
 		qw422016.N().S(`
              data-toggle="tooltip" title="`)
-		//line views/templates/forms/anyForm.qtpl:109
+		//line views/templates/forms/anyForm.qtpl:112
 		qw422016.N().S(titleFull)
-		//line views/templates/forms/anyForm.qtpl:109
+		//line views/templates/forms/anyForm.qtpl:112
 		qw422016.N().S(`"
         >
         `)
-		//line views/templates/forms/anyForm.qtpl:111
+		//line views/templates/forms/anyForm.qtpl:114
 		if key == "parent_id" {
-			//line views/templates/forms/anyForm.qtpl:111
+			//line views/templates/forms/anyForm.qtpl:114
 			qw422016.N().S(`
             `)
-			//line views/templates/forms/anyForm.qtpl:112
+			//line views/templates/forms/anyForm.qtpl:115
 			field.streamrenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required)
-			//line views/templates/forms/anyForm.qtpl:112
+			//line views/templates/forms/anyForm.qtpl:115
 			qw422016.N().S(`
         `)
-			//line views/templates/forms/anyForm.qtpl:113
+			//line views/templates/forms/anyForm.qtpl:116
 		} else if strings.HasPrefix(key, "id_") {
-			//line views/templates/forms/anyForm.qtpl:113
+			//line views/templates/forms/anyForm.qtpl:116
 			qw422016.N().S(`
             `)
-			//line views/templates/forms/anyForm.qtpl:114
+			//line views/templates/forms/anyForm.qtpl:117
 			field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
-			//line views/templates/forms/anyForm.qtpl:114
+			//line views/templates/forms/anyForm.qtpl:117
 			qw422016.N().S(`
         `)
-			//line views/templates/forms/anyForm.qtpl:115
+			//line views/templates/forms/anyForm.qtpl:118
 		} else if strings.HasPrefix(key, "setid_") {
-			//line views/templates/forms/anyForm.qtpl:115
+			//line views/templates/forms/anyForm.qtpl:118
 			qw422016.N().S(`
             `)
-			//line views/templates/forms/anyForm.qtpl:116
+			//line views/templates/forms/anyForm.qtpl:119
 			field.StreamRenderMultiSelect(qw422016, ns, tablePrefix, key, val, titleLabel, required)
-			//line views/templates/forms/anyForm.qtpl:116
+			//line views/templates/forms/anyForm.qtpl:119
 			qw422016.N().S(`
         `)
-			//line views/templates/forms/anyForm.qtpl:117
+			//line views/templates/forms/anyForm.qtpl:120
 		} else {
-			//line views/templates/forms/anyForm.qtpl:117
+			//line views/templates/forms/anyForm.qtpl:120
 			qw422016.N().S(`
 
                 `)
-			//line views/templates/forms/anyForm.qtpl:119
+			//line views/templates/forms/anyForm.qtpl:122
 			switch field.DATA_TYPE {
-			//line views/templates/forms/anyForm.qtpl:120
+			//line views/templates/forms/anyForm.qtpl:123
 			case "tinyint":
-				//line views/templates/forms/anyForm.qtpl:120
+				//line views/templates/forms/anyForm.qtpl:123
 				qw422016.N().S(`
                         `)
-				//line views/templates/forms/anyForm.qtpl:122
+				//line views/templates/forms/anyForm.qtpl:125
 				checked := ""
 				if val > "" {
 					checked = "checked"
 				}
 
-				//line views/templates/forms/anyForm.qtpl:126
+				//line views/templates/forms/anyForm.qtpl:129
 				qw422016.N().S(`
                         `)
-				//line views/templates/forms/anyForm.qtpl:127
+				//line views/templates/forms/anyForm.qtpl:130
 				streamrenderCheckBox(qw422016, nameInput, titleLabel, titleLabel, 1, checked, events, dataJson)
-				//line views/templates/forms/anyForm.qtpl:127
+				//line views/templates/forms/anyForm.qtpl:130
 				qw422016.N().S(`
                 `)
-			//line views/templates/forms/anyForm.qtpl:128
+			//line views/templates/forms/anyForm.qtpl:131
 			case "enum":
-				//line views/templates/forms/anyForm.qtpl:128
+				//line views/templates/forms/anyForm.qtpl:131
 				qw422016.N().S(`
                     <label class="control-label" for="`)
-				//line views/templates/forms/anyForm.qtpl:129
+				//line views/templates/forms/anyForm.qtpl:132
 				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:129
+				//line views/templates/forms/anyForm.qtpl:132
 				qw422016.N().S(`">`)
-				//line views/templates/forms/anyForm.qtpl:129
+				//line views/templates/forms/anyForm.qtpl:132
 				qw422016.E().S(titleLabel)
-				//line views/templates/forms/anyForm.qtpl:129
+				//line views/templates/forms/anyForm.qtpl:132
 				qw422016.N().S(`:</label>
                     `)
-				//line views/templates/forms/anyForm.qtpl:130
+				//line views/templates/forms/anyForm.qtpl:133
 				t := field.renderEnum(nameInput, val, required, events, dataJson)
 
-				//line views/templates/forms/anyForm.qtpl:130
+				//line views/templates/forms/anyForm.qtpl:133
 				qw422016.N().S(`
-                    `)
-				//line views/templates/forms/anyForm.qtpl:131
-				qw422016.N().S(t)
-				//line views/templates/forms/anyForm.qtpl:131
-				qw422016.N().S(`
-                `)
-			//line views/templates/forms/anyForm.qtpl:132
-			case "set":
-				//line views/templates/forms/anyForm.qtpl:132
-				qw422016.N().S(`
-                    <label class="control-label" for="`)
-				//line views/templates/forms/anyForm.qtpl:133
-				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:133
-				qw422016.N().S(`">`)
-				//line views/templates/forms/anyForm.qtpl:133
-				qw422016.E().S(titleLabel)
-				//line views/templates/forms/anyForm.qtpl:133
-				qw422016.N().S(`:</label>
                     `)
 				//line views/templates/forms/anyForm.qtpl:134
+				qw422016.N().S(t)
+				//line views/templates/forms/anyForm.qtpl:134
+				qw422016.N().S(`
+                `)
+			//line views/templates/forms/anyForm.qtpl:135
+			case "set":
+				//line views/templates/forms/anyForm.qtpl:135
+				qw422016.N().S(`
+                    <label class="control-label" for="`)
+				//line views/templates/forms/anyForm.qtpl:136
+				qw422016.E().S(key)
+				//line views/templates/forms/anyForm.qtpl:136
+				qw422016.N().S(`">`)
+				//line views/templates/forms/anyForm.qtpl:136
+				qw422016.E().S(titleLabel)
+				//line views/templates/forms/anyForm.qtpl:136
+				qw422016.N().S(`:</label>
+                    `)
+				//line views/templates/forms/anyForm.qtpl:137
 				t := field.renderSet(nameInput, val, required, events, dataJson)
 
-				//line views/templates/forms/anyForm.qtpl:134
+				//line views/templates/forms/anyForm.qtpl:137
 				qw422016.N().S(`
                     `)
-				//line views/templates/forms/anyForm.qtpl:135
+				//line views/templates/forms/anyForm.qtpl:138
 				qw422016.N().S(t)
-				//line views/templates/forms/anyForm.qtpl:135
+				//line views/templates/forms/anyForm.qtpl:138
 				qw422016.N().S(`
                 `)
-			//line views/templates/forms/anyForm.qtpl:136
+			//line views/templates/forms/anyForm.qtpl:139
 			case "blob", "text":
-				//line views/templates/forms/anyForm.qtpl:136
+				//line views/templates/forms/anyForm.qtpl:139
 				qw422016.N().S(`
                     <label class="control-label" for="`)
-				//line views/templates/forms/anyForm.qtpl:137
+				//line views/templates/forms/anyForm.qtpl:140
 				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:137
+				//line views/templates/forms/anyForm.qtpl:140
 				qw422016.N().S(`">`)
-				//line views/templates/forms/anyForm.qtpl:137
+				//line views/templates/forms/anyForm.qtpl:140
 				qw422016.E().S(titleLabel)
-				//line views/templates/forms/anyForm.qtpl:137
+				//line views/templates/forms/anyForm.qtpl:140
 				qw422016.N().S(`:</label>
                     <textarea id="`)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.N().S(`" name="`)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.E().S(nameInput)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.N().S(`" class="controls" placeholder="`)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.E().S(placeholder)
-				//line views/templates/forms/anyForm.qtpl:138
+				//line views/templates/forms/anyForm.qtpl:141
 				qw422016.N().S(`">
                         `)
-				//line views/templates/forms/anyForm.qtpl:139
+				//line views/templates/forms/anyForm.qtpl:142
 				qw422016.N().S(val)
-				//line views/templates/forms/anyForm.qtpl:139
+				//line views/templates/forms/anyForm.qtpl:142
 				qw422016.N().S(`
                     </textarea>
 
                `)
-			//line views/templates/forms/anyForm.qtpl:142
+			//line views/templates/forms/anyForm.qtpl:145
 			default:
-				//line views/templates/forms/anyForm.qtpl:142
+				//line views/templates/forms/anyForm.qtpl:145
 				qw422016.N().S(`
                     <label class="control-label" for="`)
-				//line views/templates/forms/anyForm.qtpl:143
+				//line views/templates/forms/anyForm.qtpl:146
 				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:143
+				//line views/templates/forms/anyForm.qtpl:146
 				qw422016.N().S(`">`)
-				//line views/templates/forms/anyForm.qtpl:143
+				//line views/templates/forms/anyForm.qtpl:146
 				qw422016.E().S(titleLabel)
-				//line views/templates/forms/anyForm.qtpl:143
+				//line views/templates/forms/anyForm.qtpl:146
 				qw422016.N().S(`</label>
                     <input id="`)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.E().S(key)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.N().S(`" name="`)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.E().S(nameInput)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.N().S(`" class="controls" placeholder="`)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.E().S(placeholder)
-				//line views/templates/forms/anyForm.qtpl:144
+				//line views/templates/forms/anyForm.qtpl:147
 				qw422016.N().S(`"
                         `)
-				//line views/templates/forms/anyForm.qtpl:145
+				//line views/templates/forms/anyForm.qtpl:148
 				qw422016.E().S(required)
-				//line views/templates/forms/anyForm.qtpl:145
+				//line views/templates/forms/anyForm.qtpl:148
 				qw422016.N().S(`
                         `)
-				//line views/templates/forms/anyForm.qtpl:146
+				//line views/templates/forms/anyForm.qtpl:149
 				if val > "" {
-					//line views/templates/forms/anyForm.qtpl:146
+					//line views/templates/forms/anyForm.qtpl:149
 					qw422016.N().S(`value="`)
-					//line views/templates/forms/anyForm.qtpl:146
+					//line views/templates/forms/anyForm.qtpl:149
 					qw422016.E().S(val)
-					//line views/templates/forms/anyForm.qtpl:146
+					//line views/templates/forms/anyForm.qtpl:149
 					qw422016.N().S(`"`)
-					//line views/templates/forms/anyForm.qtpl:146
+					//line views/templates/forms/anyForm.qtpl:149
 				}
-				//line views/templates/forms/anyForm.qtpl:146
+				//line views/templates/forms/anyForm.qtpl:149
 				qw422016.N().S(`
                         `)
-				//line views/templates/forms/anyForm.qtpl:147
+				//line views/templates/forms/anyForm.qtpl:150
 				qw422016.N().S(events)
-				//line views/templates/forms/anyForm.qtpl:147
+				//line views/templates/forms/anyForm.qtpl:150
 				qw422016.N().S(` `)
-				//line views/templates/forms/anyForm.qtpl:147
+				//line views/templates/forms/anyForm.qtpl:150
 				qw422016.N().S(dataJson)
-				//line views/templates/forms/anyForm.qtpl:147
+				//line views/templates/forms/anyForm.qtpl:150
 				qw422016.N().S(`
 
                         `)
-				//line views/templates/forms/anyForm.qtpl:149
+				//line views/templates/forms/anyForm.qtpl:152
 				if field.DATA_TYPE == "int" || field.DATA_TYPE == "double" {
-					//line views/templates/forms/anyForm.qtpl:149
+					//line views/templates/forms/anyForm.qtpl:152
 					qw422016.N().S(`
                             type="number"
                                `)
-					//line views/templates/forms/anyForm.qtpl:151
+					//line views/templates/forms/anyForm.qtpl:154
 					if strings.Contains(field.COLUMN_TYPE, "unsigned") {
-						//line views/templates/forms/anyForm.qtpl:151
+						//line views/templates/forms/anyForm.qtpl:154
 						qw422016.N().S(`min="0"`)
-						//line views/templates/forms/anyForm.qtpl:151
+						//line views/templates/forms/anyForm.qtpl:154
 					}
-					//line views/templates/forms/anyForm.qtpl:151
+					//line views/templates/forms/anyForm.qtpl:154
 					qw422016.N().S(`
                         `)
-					//line views/templates/forms/anyForm.qtpl:152
+					//line views/templates/forms/anyForm.qtpl:155
 				} else if field.DATA_TYPE == "date" {
-					//line views/templates/forms/anyForm.qtpl:152
+					//line views/templates/forms/anyForm.qtpl:155
 					qw422016.N().S(`
                             type="date"
                         `)
-					//line views/templates/forms/anyForm.qtpl:154
+					//line views/templates/forms/anyForm.qtpl:157
 				} else if field.DATA_TYPE == "datetime" {
-					//line views/templates/forms/anyForm.qtpl:154
+					//line views/templates/forms/anyForm.qtpl:157
 					qw422016.N().S(`
                             type="datetime"
                         `)
-					//line views/templates/forms/anyForm.qtpl:156
+					//line views/templates/forms/anyForm.qtpl:159
 				} else if strings.Contains(key, "email") {
-					//line views/templates/forms/anyForm.qtpl:156
+					//line views/templates/forms/anyForm.qtpl:159
 					qw422016.N().S(`
                             type="email"
                         `)
-					//line views/templates/forms/anyForm.qtpl:158
+					//line views/templates/forms/anyForm.qtpl:161
 				} else {
-					//line views/templates/forms/anyForm.qtpl:158
+					//line views/templates/forms/anyForm.qtpl:161
 					qw422016.N().S(`
                             type="text"
                                `)
-					//line views/templates/forms/anyForm.qtpl:160
+					//line views/templates/forms/anyForm.qtpl:163
 					if field.CHARACTER_MAXIMUM_LENGTH > 0 {
-						//line views/templates/forms/anyForm.qtpl:160
+						//line views/templates/forms/anyForm.qtpl:163
 						qw422016.N().S(`
                                     maxlength="`)
-						//line views/templates/forms/anyForm.qtpl:161
+						//line views/templates/forms/anyForm.qtpl:164
 						qw422016.N().D(field.CHARACTER_MAXIMUM_LENGTH)
-						//line views/templates/forms/anyForm.qtpl:161
+						//line views/templates/forms/anyForm.qtpl:164
 						qw422016.N().S(`"
                                     `)
-						//line views/templates/forms/anyForm.qtpl:162
+						//line views/templates/forms/anyForm.qtpl:165
 						if field.CHARACTER_MAXIMUM_LENGTH == 255 {
-							//line views/templates/forms/anyForm.qtpl:162
+							//line views/templates/forms/anyForm.qtpl:165
 							qw422016.N().S(`
                                         class="input-xlarge"
                                     `)
-							//line views/templates/forms/anyForm.qtpl:164
+							//line views/templates/forms/anyForm.qtpl:167
 						}
-						//line views/templates/forms/anyForm.qtpl:164
+						//line views/templates/forms/anyForm.qtpl:167
 						qw422016.N().S(`
                                `)
-						//line views/templates/forms/anyForm.qtpl:165
+						//line views/templates/forms/anyForm.qtpl:168
 					}
-					//line views/templates/forms/anyForm.qtpl:165
+					//line views/templates/forms/anyForm.qtpl:168
 					qw422016.N().S(`
                                `)
-					//line views/templates/forms/anyForm.qtpl:166
+					//line views/templates/forms/anyForm.qtpl:169
 					if pattern > "" {
-						//line views/templates/forms/anyForm.qtpl:166
+						//line views/templates/forms/anyForm.qtpl:169
 						qw422016.N().S(`pattern="`)
-						//line views/templates/forms/anyForm.qtpl:166
+						//line views/templates/forms/anyForm.qtpl:169
 						qw422016.N().S(pattern)
-						//line views/templates/forms/anyForm.qtpl:166
+						//line views/templates/forms/anyForm.qtpl:169
 						qw422016.N().S(`" onkeyup="return validatePattern(this);"`)
-						//line views/templates/forms/anyForm.qtpl:166
+						//line views/templates/forms/anyForm.qtpl:169
 					}
-					//line views/templates/forms/anyForm.qtpl:166
+					//line views/templates/forms/anyForm.qtpl:169
 					qw422016.N().S(`
                         `)
-					//line views/templates/forms/anyForm.qtpl:167
+					//line views/templates/forms/anyForm.qtpl:170
 				}
-				//line views/templates/forms/anyForm.qtpl:167
+				//line views/templates/forms/anyForm.qtpl:170
 				qw422016.N().S(`
                     />
                 `)
-				//line views/templates/forms/anyForm.qtpl:169
+				//line views/templates/forms/anyForm.qtpl:172
 			}
-			//line views/templates/forms/anyForm.qtpl:169
+			//line views/templates/forms/anyForm.qtpl:172
 			qw422016.N().S(`
 
         `)
-			//line views/templates/forms/anyForm.qtpl:171
+			//line views/templates/forms/anyForm.qtpl:174
 		}
-		//line views/templates/forms/anyForm.qtpl:171
+		//line views/templates/forms/anyForm.qtpl:174
 		qw422016.N().S(`
         </div>
     `)
-		//line views/templates/forms/anyForm.qtpl:173
+		//line views/templates/forms/anyForm.qtpl:176
 	}
-	//line views/templates/forms/anyForm.qtpl:173
+	//line views/templates/forms/anyForm.qtpl:176
 	qw422016.N().S(`
     <div class="form-actions">
         <button class="btn btn-large btn-primary" type="submit">Сохранить</button>
@@ -746,291 +753,291 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
     </div>
 </form>
 `)
-//line views/templates/forms/anyForm.qtpl:179
+//line views/templates/forms/anyForm.qtpl:182
 }
 
-//line views/templates/forms/anyForm.qtpl:179
+//line views/templates/forms/anyForm.qtpl:182
 func (ns *FieldsTable) WriteShowAnyForm(qq422016 qtio422016.Writer, Action, Title string) {
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	ns.StreamShowAnyForm(qw422016, Action, Title)
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:179
+//line views/templates/forms/anyForm.qtpl:182
 }
 
-//line views/templates/forms/anyForm.qtpl:179
+//line views/templates/forms/anyForm.qtpl:182
 func (ns *FieldsTable) ShowAnyForm(Action, Title string) string {
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	ns.WriteShowAnyForm(qb422016, Action, Title)
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:179
+	//line views/templates/forms/anyForm.qtpl:182
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:179
+//line views/templates/forms/anyForm.qtpl:182
 }
 
-//line views/templates/forms/anyForm.qtpl:180
+//line views/templates/forms/anyForm.qtpl:183
 func streamrenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line views/templates/forms/anyForm.qtpl:180
+	//line views/templates/forms/anyForm.qtpl:183
 	qw422016.N().S(`
     <label class="checkbox" for="`)
-	//line views/templates/forms/anyForm.qtpl:181
+	//line views/templates/forms/anyForm.qtpl:184
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:181
+	//line views/templates/forms/anyForm.qtpl:184
 	qw422016.N().D(idx)
-	//line views/templates/forms/anyForm.qtpl:181
+	//line views/templates/forms/anyForm.qtpl:184
 	qw422016.N().S(`">
         <input type="checkbox" id="`)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().D(idx)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().S(`" value="`)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().S(`" `)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().S(checked)
-	//line views/templates/forms/anyForm.qtpl:182
+	//line views/templates/forms/anyForm.qtpl:185
 	qw422016.N().S(`
                 `)
-	//line views/templates/forms/anyForm.qtpl:183
+	//line views/templates/forms/anyForm.qtpl:186
 	qw422016.N().S(events)
-	//line views/templates/forms/anyForm.qtpl:183
+	//line views/templates/forms/anyForm.qtpl:186
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:183
+	//line views/templates/forms/anyForm.qtpl:186
 	qw422016.N().S(dataJson)
-	//line views/templates/forms/anyForm.qtpl:183
+	//line views/templates/forms/anyForm.qtpl:186
 	qw422016.N().S(`
         />
         `)
-	//line views/templates/forms/anyForm.qtpl:185
+	//line views/templates/forms/anyForm.qtpl:188
 	qw422016.E().S(title)
-	//line views/templates/forms/anyForm.qtpl:185
-	qw422016.N().S(`
-    </label>
-`)
-//line views/templates/forms/anyForm.qtpl:187
-}
-
-//line views/templates/forms/anyForm.qtpl:187
-func writerenderCheckBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line views/templates/forms/anyForm.qtpl:187
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:187
-	streamrenderCheckBox(qw422016, key, val, title, idx, checked, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:187
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:187
-}
-
-//line views/templates/forms/anyForm.qtpl:187
-func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) string {
-	//line views/templates/forms/anyForm.qtpl:187
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:187
-	writerenderCheckBox(qb422016, key, val, title, idx, checked, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:187
-	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:187
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:187
-	return qs422016
-//line views/templates/forms/anyForm.qtpl:187
-}
-
-//line views/templates/forms/anyForm.qtpl:188
-func streamrenderRadioBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:188
 	qw422016.N().S(`
+    </label>
+`)
+//line views/templates/forms/anyForm.qtpl:190
+}
+
+//line views/templates/forms/anyForm.qtpl:190
+func writerenderCheckBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
+	//line views/templates/forms/anyForm.qtpl:190
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/forms/anyForm.qtpl:190
+	streamrenderCheckBox(qw422016, key, val, title, idx, checked, events, dataJson)
+	//line views/templates/forms/anyForm.qtpl:190
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/forms/anyForm.qtpl:190
+}
+
+//line views/templates/forms/anyForm.qtpl:190
+func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) string {
+	//line views/templates/forms/anyForm.qtpl:190
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/forms/anyForm.qtpl:190
+	writerenderCheckBox(qb422016, key, val, title, idx, checked, events, dataJson)
+	//line views/templates/forms/anyForm.qtpl:190
+	qs422016 := string(qb422016.B)
+	//line views/templates/forms/anyForm.qtpl:190
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/forms/anyForm.qtpl:190
+	return qs422016
+//line views/templates/forms/anyForm.qtpl:190
+}
+
+//line views/templates/forms/anyForm.qtpl:191
+func streamrenderRadioBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
+	//line views/templates/forms/anyForm.qtpl:191
+	qw422016.N().S(`
     <label class="checkbox" for="`)
-	//line views/templates/forms/anyForm.qtpl:189
+	//line views/templates/forms/anyForm.qtpl:192
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:189
+	//line views/templates/forms/anyForm.qtpl:192
 	qw422016.N().D(idx)
-	//line views/templates/forms/anyForm.qtpl:189
+	//line views/templates/forms/anyForm.qtpl:192
 	qw422016.N().S(`">
         <input type="radio" id="`)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().D(idx)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().S(`" value="`)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().S(`" `)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().S(checked)
-	//line views/templates/forms/anyForm.qtpl:190
+	//line views/templates/forms/anyForm.qtpl:193
 	qw422016.N().S(`
                 `)
-	//line views/templates/forms/anyForm.qtpl:191
+	//line views/templates/forms/anyForm.qtpl:194
 	qw422016.N().S(events)
-	//line views/templates/forms/anyForm.qtpl:191
+	//line views/templates/forms/anyForm.qtpl:194
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:191
+	//line views/templates/forms/anyForm.qtpl:194
 	qw422016.N().S(dataJson)
-	//line views/templates/forms/anyForm.qtpl:191
+	//line views/templates/forms/anyForm.qtpl:194
 	qw422016.N().S(`
         />
         `)
-	//line views/templates/forms/anyForm.qtpl:193
+	//line views/templates/forms/anyForm.qtpl:196
 	qw422016.E().S(title)
-	//line views/templates/forms/anyForm.qtpl:193
+	//line views/templates/forms/anyForm.qtpl:196
 	qw422016.N().S(`
     </label>
 `)
-//line views/templates/forms/anyForm.qtpl:195
+//line views/templates/forms/anyForm.qtpl:198
 }
 
-//line views/templates/forms/anyForm.qtpl:195
+//line views/templates/forms/anyForm.qtpl:198
 func writerenderRadioBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	streamrenderRadioBox(qw422016, key, val, title, idx, checked, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:195
+//line views/templates/forms/anyForm.qtpl:198
 }
 
-//line views/templates/forms/anyForm.qtpl:195
+//line views/templates/forms/anyForm.qtpl:198
 func renderRadioBox(key, val, title string, idx int, checked, events, dataJson string) string {
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	writerenderRadioBox(qb422016, key, val, title, idx, checked, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:195
+	//line views/templates/forms/anyForm.qtpl:198
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:195
+//line views/templates/forms/anyForm.qtpl:198
 }
 
-//line views/templates/forms/anyForm.qtpl:196
+//line views/templates/forms/anyForm.qtpl:199
 func streamrenderSelect(qw422016 *qt422016.Writer, key, options, required, events, dataJson string) {
-	//line views/templates/forms/anyForm.qtpl:196
+	//line views/templates/forms/anyForm.qtpl:199
 	qw422016.N().S(`
     <select id="`)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(`" name="`)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.E().S(key)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(`" class="controls" `)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(required)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(events)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(` `)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(dataJson)
-	//line views/templates/forms/anyForm.qtpl:197
+	//line views/templates/forms/anyForm.qtpl:200
 	qw422016.N().S(`>
         `)
-	//line views/templates/forms/anyForm.qtpl:198
+	//line views/templates/forms/anyForm.qtpl:201
 	qw422016.N().S(options)
-	//line views/templates/forms/anyForm.qtpl:198
+	//line views/templates/forms/anyForm.qtpl:201
 	qw422016.N().S(`
     </select>
 `)
-//line views/templates/forms/anyForm.qtpl:200
+//line views/templates/forms/anyForm.qtpl:203
 }
 
-//line views/templates/forms/anyForm.qtpl:200
+//line views/templates/forms/anyForm.qtpl:203
 func writerenderSelect(qq422016 qtio422016.Writer, key, options, required, events, dataJson string) {
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	streamrenderSelect(qw422016, key, options, required, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:200
+//line views/templates/forms/anyForm.qtpl:203
 }
 
-//line views/templates/forms/anyForm.qtpl:200
+//line views/templates/forms/anyForm.qtpl:203
 func renderSelect(key, options, required, events, dataJson string) string {
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	writerenderSelect(qb422016, key, options, required, events, dataJson)
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:200
+	//line views/templates/forms/anyForm.qtpl:203
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:200
+//line views/templates/forms/anyForm.qtpl:203
 }
 
-//line views/templates/forms/anyForm.qtpl:201
+//line views/templates/forms/anyForm.qtpl:204
 func streamrenderOption(qw422016 *qt422016.Writer, val, title, selected string) {
-	//line views/templates/forms/anyForm.qtpl:201
+	//line views/templates/forms/anyForm.qtpl:204
 	qw422016.N().S(`
     <option value="`)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.E().S(val)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.N().S(`" `)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.N().S(selected)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.N().S(` >`)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.E().S(title)
-	//line views/templates/forms/anyForm.qtpl:202
+	//line views/templates/forms/anyForm.qtpl:205
 	qw422016.N().S(`</option>
 `)
-//line views/templates/forms/anyForm.qtpl:203
+//line views/templates/forms/anyForm.qtpl:206
 }
 
-//line views/templates/forms/anyForm.qtpl:203
+//line views/templates/forms/anyForm.qtpl:206
 func writerenderOption(qq422016 qtio422016.Writer, val, title, selected string) {
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	streamrenderOption(qw422016, val, title, selected)
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/anyForm.qtpl:203
+//line views/templates/forms/anyForm.qtpl:206
 }
 
-//line views/templates/forms/anyForm.qtpl:203
+//line views/templates/forms/anyForm.qtpl:206
 func renderOption(val, title, selected string) string {
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	writerenderOption(qb422016, val, title, selected)
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/anyForm.qtpl:203
+	//line views/templates/forms/anyForm.qtpl:206
 	return qs422016
-//line views/templates/forms/anyForm.qtpl:203
+//line views/templates/forms/anyForm.qtpl:206
 }

@@ -29,6 +29,9 @@
             </div>
         </div>
     </div>
+    <script>
+        $('#{%s tablePrefix+key %}').modal('hide')
+    </script>
 {% endfunc %}
 {% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) %}
     <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
