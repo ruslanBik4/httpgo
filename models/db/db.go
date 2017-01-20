@@ -122,7 +122,7 @@ func DoUpdateFromForm( r *http.Request ) (id int, err error) {
 		} else if key == "id" {
 			where += val[0]
 			id, _ = strconv.Atoi(val[0])
-			log.Println(val[0])
+			log.Println(id)
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
