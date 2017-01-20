@@ -45,7 +45,9 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		log.Println(err)
 		return
 	}
-	var valParams, params, comma string
+	var params, comma string
+	var valParams argsRAW
+
 	for _, value := range values {
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			log.Println(err)
@@ -54,7 +56,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 			log.Println(resultSQL.LastInsertId())
 		}
 		params += comma + "?"
-		valParams  += comma + strconv.Itoa(int(value))
+		valParams = append(valParams, value )
 		comma = ","
 	}
 	sqlCommand = fmt.Sprintf("delete from  %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%s)",
@@ -66,7 +68,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		return
 	}
 
-	if resultSQL, err := smtp.Exec(valParams); err != nil {
+	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
 		log.Println(err)
 		log.Println(sqlCommand)
 	}else {
