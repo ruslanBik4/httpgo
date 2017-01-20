@@ -51,7 +51,6 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 			log.Println(sqlCommand)
 		} else {
 			log.Println(resultSQL.LastInsertId())
-			log.Println(sqlCommand)
 		}
 	}
 
@@ -123,9 +122,11 @@ func DoUpdateFromForm( r *http.Request ) (id int, err error) {
 		} else if key == "id" {
 			where += val[0]
 			id, _ = strconv.Atoi(val[0])
+			log.Println(val[0])
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
+				log.Println(id)
 				insertMultiSet(tableName, key, values, id)
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		}
