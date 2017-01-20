@@ -45,6 +45,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		log.Println(err)
 		return
 	}
+	var values, params, comma string
 	for _, value := range values {
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			log.Println(err)
@@ -52,7 +53,26 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 		} else {
 			log.Println(resultSQL.LastInsertId())
 		}
+		params += comma + "?"
+		values  += comma + strconv.Itoa(value)
+		comma = ","
 	}
+	sqlCommand = fmt.Sprintf("delete from  %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%s)",
+		tableName, tableProps, id, params)
+
+	smtp, err = prepareQuery(sqlCommand)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	if resultSQL, err := smtp.Exec(values); err != nil {
+		log.Println(err)
+		log.Println(sqlCommand)
+	}else {
+		log.Println(resultSQL.RowsAffected())
+	}
+
 
 }
 func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
@@ -123,11 +143,9 @@ func DoUpdateFromForm( r *http.Request ) (RowsAffected int, err error) {
 		} else if key == "id" {
 			where += val[0]
 			id, _ = strconv.Atoi(val[0])
-			log.Println(id)
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				log.Println(id)
 				insertMultiSet(tableName, key, values, id)
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		}
