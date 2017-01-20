@@ -96,12 +96,12 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 
 	}
 
-	lastInsertId, err = DoInsert(sqlCommand + ") " + values + ")", row ... )
+	return DoInsert(sqlCommand + ") " + values + ")", row ... )
 
-	return lastInsertId, err
+	//return lastInsertId, err
 
 }
-func DoUpdateFromForm( r *http.Request ) (id int, err error) {
+func DoUpdateFromForm( r *http.Request ) (RowsAffected int, err error) {
 
 	r.ParseForm()
 
@@ -112,6 +112,7 @@ func DoUpdateFromForm( r *http.Request ) (id int, err error) {
 
 	tableName := r.FormValue("table")
 	var row argsRAW
+	var id int
 
 	comma, sqlCommand, where := "", "update " + tableName + " set ", " where id="
 
@@ -122,11 +123,9 @@ func DoUpdateFromForm( r *http.Request ) (id int, err error) {
 		} else if key == "id" {
 			where += val[0]
 			id, _ = strconv.Atoi(val[0])
-			log.Println(id)
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				log.Println(id)
 				insertMultiSet(tableName, key, values, id)
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		}
