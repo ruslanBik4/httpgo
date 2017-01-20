@@ -38,7 +38,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 	tableProps := strings.TrimLeft(key, "setid_")
 
 
-	sqlCommand := fmt.Sprintf("reinsert into %s_%s_has (id_%[1]s, id_%[2]s) values (%d, ?)",
+	sqlCommand := fmt.Sprintf("insert IGNORE into %s_%s_has (id_%[1]s, id_%[2]s) values (%d, ?)",
 		tableName, tableProps, id)
 	smtp, err := prepareQuery(sqlCommand)
 	if err != nil {
