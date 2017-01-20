@@ -43,7 +43,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	qw422016.N().S(`</span>
             <b class="caret"></b>
         </a>
-        <div class="modal" id="`)
+        <div class="modal hide" id="`)
 	//line views/templates/forms/anyForm.qtpl:13
 	qw422016.E().S(tablePrefix + key)
 	//line views/templates/forms/anyForm.qtpl:13
