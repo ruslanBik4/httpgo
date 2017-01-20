@@ -88,7 +88,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
     </div>
     <script>
         function addNewItems(thisButton) {
-            var parentDiv = thisButton.parents('.modal'),
+            var parentDiv = $(thisButton).parents('.modal'),
                 newItem   = $(thisButton).prev().val();
             li = $('li:last', parentDiv).clone();
             li.children('input').val(newItem);

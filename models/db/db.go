@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 	"strconv"
+	"regexp"
 )
 type
 	argsRAW  [] interface {}
@@ -32,6 +33,18 @@ func GetParentFieldName(tableName string) (name string) {
 
 }
 
+var (
+	DigitsValidator = regexp.MustCompile("^/d+$")
+)
+func addNewItem(tableProps, value string) (int, error) {
+
+	if newId, err := DoInsert("insert into " + tableProps + "('title') values (?)", value); err != nil {
+		return -1, err
+	} else {
+		return newId, nil
+	}
+
+}
 //TODO: добавить запись для мультиполей (setid_)
 func insertMultiSet(tableName, key string, values []string, id int) {
 
@@ -49,6 +62,15 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 	var valParams argsRAW
 
 	for _, value := range values {
+
+		if !DigitsValidator.MatchString(value) {
+			newId, err := addNewItem(tableProps, value)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			value =  strconv.Itoa(newId)
+		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			log.Println(err)
 			log.Println(sqlCommand)
