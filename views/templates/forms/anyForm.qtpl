@@ -105,8 +105,8 @@
         {%  endif %}
 
         <div id="divField{%d idx %}" class="control-group field-{%s nameInput %} {%s field.CSSClass %}"
-             {%s required %} {% if field.IsHidden %}style="display:none"{% endif %}
-             data-toggle="tooltip" title="{%s titleFull %}"
+            {% if field.IsHidden %} style="display:none" {% endif %}
+            {%s required %}  data-toggle="tooltip" title="{%s titleFull %}"
         >
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
@@ -141,9 +141,8 @@
                {% default %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
                     <input id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
-                        {%s required %}
-                        {% if val > "" %}value="{%s val %}"{% endif %}
-                        {%s= events %} {%s= dataJson %}
+                        {% if val > "" %} value="{%s val %}" {% endif %}
+                        {%s required %} {%s= events %} {%s= dataJson %}
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                             type="number"
