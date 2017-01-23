@@ -465,6 +465,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				 }
 			}
 		}
+		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
 		views.RenderAnyJSON(w, arrJSON)
 	}
 }
