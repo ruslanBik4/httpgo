@@ -536,10 +536,12 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(events)
 				//line views/templates/forms/anyForm.qtpl:145
 				qw422016.N().S(dataJson)
+				//line views/templates/forms/anyForm.qtpl:145
+				qw422016.N().S(`type=" `)
 				//line views/templates/forms/anyForm.qtpl:147
 				if field.DATA_TYPE == "int" || field.DATA_TYPE == "double" {
 					//line views/templates/forms/anyForm.qtpl:147
-					qw422016.N().S(`type="number" `)
+					qw422016.N().S(`number" `)
 					//line views/templates/forms/anyForm.qtpl:149
 					if strings.Contains(field.COLUMN_TYPE, "unsigned") {
 						//line views/templates/forms/anyForm.qtpl:149
@@ -549,19 +551,19 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 					//line views/templates/forms/anyForm.qtpl:150
 				} else if field.DATA_TYPE == "date" {
 					//line views/templates/forms/anyForm.qtpl:150
-					qw422016.N().S(`type="date" `)
+					qw422016.N().S(`date" `)
 					//line views/templates/forms/anyForm.qtpl:152
 				} else if field.DATA_TYPE == "datetime" {
 					//line views/templates/forms/anyForm.qtpl:152
-					qw422016.N().S(`type="datetime" `)
+					qw422016.N().S(`datetime" `)
 					//line views/templates/forms/anyForm.qtpl:154
 				} else if strings.Contains(key, "email") {
 					//line views/templates/forms/anyForm.qtpl:154
-					qw422016.N().S(`type="email" `)
+					qw422016.N().S(`email" `)
 					//line views/templates/forms/anyForm.qtpl:156
 				} else {
 					//line views/templates/forms/anyForm.qtpl:156
-					qw422016.N().S(`type="text" `)
+					qw422016.N().S(`text" `)
 					//line views/templates/forms/anyForm.qtpl:158
 					if field.CHARACTER_MAXIMUM_LENGTH > 0 {
 						//line views/templates/forms/anyForm.qtpl:158

@@ -60,7 +60,6 @@
     </select>
 {% endfunc %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
-{% collapsespace %}
 <form name="f{%s ns.Name %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
       onsubmit="return saveForm(this, afterSaveAnyForm);" >
     <h2 class="form-signin-heading">{%s Title %}</h2>
@@ -174,7 +173,6 @@
 
     </div>
 </form>
-{% endcollapsespace %}
 {% endfunc %}
 {% func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
