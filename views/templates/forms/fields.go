@@ -102,7 +102,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 		idx++
 
 
-		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, title, idx, checked, "events", "") + "</li>"
+		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, title, idx, checked, "", "") + "</li>"
 	}
 
 }
