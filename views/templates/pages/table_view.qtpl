@@ -21,7 +21,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             titleLabel = titleLabel[:22] + "..."
                         }
                     %}
-                    <a href="#" title="{%s= titleFull %}">{%s= titleLabel  %}</a>
+                    <a href="#" title="{%s titleFull %}">{%s titleLabel %}</a>
                 </td>
             {%  endfor %}
         </tr>

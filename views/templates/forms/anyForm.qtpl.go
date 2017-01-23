@@ -616,7 +616,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                         `)
 				//line views/templates/forms/anyForm.qtpl:144
-				qw422016.E().S(required)
+				qw422016.N().S(required)
 				//line views/templates/forms/anyForm.qtpl:144
 				qw422016.N().S(` `)
 				//line views/templates/forms/anyForm.qtpl:144
