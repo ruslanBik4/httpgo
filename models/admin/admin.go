@@ -193,9 +193,24 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	tableName := r.URL.Path[ len("/admin/table/") : len(r.URL.Path)-1]
 	fmt.Fprint(w, tableName )
 
-	p := &layouts.MenuOwnerBody{ Title: tableName, TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	var menu db.MenuItems
 
-	p.TopMenu["Добавить"] = &layouts.ItemMenu{ Link: "/admin/row/new/" + tableName + "/" }
+	p := &layouts.MenuOwnerBody{ Title: tableName, TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	if menu.GetMenu(tableName) > 0 {
+
+		for _, item := range menu.Items {
+			p.TopMenu[item.Title] = &layouts.ItemMenu{ Link: "/menu/" + item.Name + "/" }
+
+		}
+
+		// return into parent menu if he occurent
+		if menu.Self.ParentID > 0 {
+			p.TopMenu["< на уровень выше"] = &layouts.ItemMenu{ Link: fmt.Sprintf("/menu/%d/", menu.Self.ParentID ) }
+		}
+	} else {
+
+		p.TopMenu["Добавить"] = &layouts.ItemMenu{Link: "/admin/row/new/" + tableName + "/" }
+	}
 
 	fmt.Fprint(w, p.MenuOwner() )
 

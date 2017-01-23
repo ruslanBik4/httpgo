@@ -54,11 +54,11 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
 		qw422016.N().S(`
                     <a href="#" title="`)
 		//line views/templates/pages/table_view.qtpl:24
-		qw422016.N().S(titleFull)
+		qw422016.E().S(titleFull)
 		//line views/templates/pages/table_view.qtpl:24
 		qw422016.N().S(`">`)
 		//line views/templates/pages/table_view.qtpl:24
-		qw422016.N().S(titleLabel)
+		qw422016.E().S(titleLabel)
 		//line views/templates/pages/table_view.qtpl:24
 		qw422016.N().S(`</a>
                 </td>
