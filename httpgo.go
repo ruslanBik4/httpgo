@@ -176,7 +176,7 @@ func sockCatch() {
 
 func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, "text index page %s %v", "filename", users.GetSession(r, "user") )
+	fmt.Fprintf(w, "text index page %s ", "filename" )
 }
 func handlerForms(w http.ResponseWriter, r *http.Request){
 	views.RenderTemplate(w, r, r.FormValue("name") + "Form", &pages.IndexPageBody{Title : r.FormValue("email") } )

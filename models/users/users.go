@@ -103,6 +103,13 @@ func IsLogin(r *http.Request) (string, bool) {
 	}
 
 }
+func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
+	session := GetSession(r, nameSession )
+	delete(session.Values, "id")
+	delete(session.Values, "email")
+	return session.Save(r, w)
+
+}
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -174,14 +181,9 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 }
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 
-	//cookie, err := r.Cookie("sName")
-	//if err != nil {
-	//	log.Println(err)
-	//	return
-	//}
-	session := GetSession(r, nameSession )
-	delete(session.Values, "id")
-	delete(session.Values, "email")
+	if err := deleteCurrentUser(w, r); err != nil {
+		log.Println(err)
+	}
 	http.Redirect(w, r, "/show/forms/?name=signin", http.StatusContinue)
 }
 // GenerateRandomBytes returns securely generated random bytes.
