@@ -1,0 +1,15 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+.
+{% func WriteAnyJSON(arrJSON map[string] string) %}
+{% stripspace %}
+ {
+   {% code comma := "" %}
+   {% for key, value := range  arrJSON %}
+       {%s= comma %} "{%s= key %}": "{%s= value %}"
+       {% code comma = "," %}
+   {% endfor %}
+ }
+{% endstripspace %}
+{% endfunc %}

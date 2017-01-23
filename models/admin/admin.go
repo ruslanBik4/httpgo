@@ -397,6 +397,9 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		var params sMultiQuery
+		var arrJSON map[string] string
+
+		arrJSON = make( map[string] string, 0)
 
 		params.queryes = make(map[string] *argsQuery, 0)
 		for key, val := range r.Form {
@@ -404,7 +407,8 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			indSeparator := strings.Index(key, ":")
 			if indSeparator < 1 {
 				log.Printf("Error in name field %s^ don't write to DB!", key)
-				fmt.Fprintf(w, `{"error":true,"message":"Error in name field %s^ don't write to DB!"}`, key)
+				arrJSON["error"]   = "true"
+				arrJSON["message"] = fmt.Sprintf("Error in name field %s^ don't write to DB!", key)
 				continue
 			}
 
@@ -450,16 +454,17 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
 			if err != nil {
 				log.Println(err)
-				fmt.Fprintf(w, `{"error":true,"message":"Error during insert into %s "}`, key)
+				arrJSON["error"] = "true"
+				arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
 				break
 			} else {
-				fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
-				fmt.Fprintf(w, `{message:"Success insert into %s record #%d"}`, key, id)
+			arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
 
 				 if primaryID == 0 {
 					 primaryID = id
 				 }
 			}
 		}
+		views.RenderAnyJSON(w, arrJSON)
 	}
 }

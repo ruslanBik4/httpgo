@@ -9,6 +9,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/models/users"
 )
 
@@ -99,4 +100,9 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 	fmt.Fprint(w, layouts.PutEnd() )
 	return nil
 
+}
+func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] string) {
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	fmt.Fprintf(w, json.WriteAnyJSON(arrJSON) )
 }
