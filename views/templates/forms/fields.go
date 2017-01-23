@@ -36,7 +36,7 @@ type FieldsTable struct {
 	Hiddens map[string] string
 }
 
-func (ns *FieldsTable) findField(name string) *FieldStructure {
+func (ns *FieldsTable) FindField(name string) *FieldStructure {
 	for _, field := range ns.Rows {
 		if field.COLUMN_NAME == name {
 			return &field
@@ -52,7 +52,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
 			param := ""
-			if paramField := ns.findField(enumVal[i+1:]); paramField != nil {
+			if paramField := ns.FindField(enumVal[i+1:]); paramField != nil {
 				param = paramField.Value
 			}
 			enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
@@ -196,8 +196,9 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 }
 func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
 	titleFull = field.COLUMN_COMMENT
-	if titleFull=="" {
+	if titleFull == "" {
 		titleLabel = field.COLUMN_NAME
+		return titleFull, titleLabel, placeholder, pattern, dataJson
 	} else if strings.Index(titleFull, ".") > 0 {
 		titleLabel = titleFull[:strings.Index(titleFull, ".")]
 	} else {

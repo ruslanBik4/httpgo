@@ -6,6 +6,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     "github.com/ruslanBik4/httpgo/views/templates/forms"
     "database/sql"
     "log"
+   "strings"
 )
 %}
 {% func  ShowTable(tableName string, ns forms.FieldsTable, rows *sql.Rows) %}
@@ -21,7 +22,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             titleLabel = titleLabel[:22] + "..."
                         }
                     %}
-                    <a href="#" title="{%s titleFull %}">{%s titleLabel %}</a>
+                    <a href="#" title="{%u titleFull %}">{%s titleLabel %}</a>
                 </td>
             {%  endfor %}
         </tr>
@@ -59,7 +60,25 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     <td><a href="/admin/row/edit/?table={%s tableName %}&id={%s field.String %}" target="content">{%s field.String %}</a>
                     </td>
                 {% else %}
-                    <td>{%  if field.Valid %}{%s field.String %}{% endif %}</td>
+                    <td>
+                    {%  if field.Valid %}
+                        {% code
+                            fieldStruct := ns.FindField( columns[idx] )
+                            key := columns[idx]
+                            val := field.String
+                            required, tablePrefix, titleLabel := "", "", ""
+                        %}
+                        {% if key=="parent_id" %}
+                            {%= fieldStruct.RenderParentSelect(ns.Name, key, val, titleLabel, required) %}
+                        {% elseif strings.HasPrefix(key, "id_") %}
+                            {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
+                        {% elseif strings.HasPrefix(key, "setid_") %}
+                            {%= fieldStruct.RenderMultiSelect(&ns, tablePrefix, key, val, titleLabel, required) %}
+                        {%  else %}
+                            {%s field.String %}
+                        {% endif %}
+                    {% endif %}
+                    </td>
                 {% endif %}
             {%  endfor %}
 

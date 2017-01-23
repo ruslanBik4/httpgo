@@ -202,7 +202,7 @@ func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLab
 }
 
 //line views/templates/forms/anyForm.qtpl:45
-func (field *FieldStructure) streamrenderParentSelect(qw422016 *qt422016.Writer, nameTable, key, val, titleLabel, required string) {
+func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer, nameTable, key, val, titleLabel, required string) {
 	//line views/templates/forms/anyForm.qtpl:45
 	qw422016.N().S(`
     <label class="control-label" for="`)
@@ -269,22 +269,22 @@ func (field *FieldStructure) streamrenderParentSelect(qw422016 *qt422016.Writer,
 }
 
 //line views/templates/forms/anyForm.qtpl:61
-func (field *FieldStructure) writerenderParentSelect(qq422016 qtio422016.Writer, nameTable, key, val, titleLabel, required string) {
+func (field *FieldStructure) WriteRenderParentSelect(qq422016 qtio422016.Writer, nameTable, key, val, titleLabel, required string) {
 	//line views/templates/forms/anyForm.qtpl:61
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/anyForm.qtpl:61
-	field.streamrenderParentSelect(qw422016, nameTable, key, val, titleLabel, required)
+	field.StreamRenderParentSelect(qw422016, nameTable, key, val, titleLabel, required)
 	//line views/templates/forms/anyForm.qtpl:61
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/anyForm.qtpl:61
 }
 
 //line views/templates/forms/anyForm.qtpl:61
-func (field *FieldStructure) renderParentSelect(nameTable, key, val, titleLabel, required string) string {
+func (field *FieldStructure) RenderParentSelect(nameTable, key, val, titleLabel, required string) string {
 	//line views/templates/forms/anyForm.qtpl:61
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/anyForm.qtpl:61
-	field.writerenderParentSelect(qb422016, nameTable, key, val, titleLabel, required)
+	field.WriteRenderParentSelect(qb422016, nameTable, key, val, titleLabel, required)
 	//line views/templates/forms/anyForm.qtpl:61
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/anyForm.qtpl:61
@@ -441,7 +441,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
             `)
 			//line views/templates/forms/anyForm.qtpl:111
-			field.streamrenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required)
+			field.StreamRenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required)
 			//line views/templates/forms/anyForm.qtpl:111
 			qw422016.N().S(`
         `)
