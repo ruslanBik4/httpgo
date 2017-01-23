@@ -103,7 +103,7 @@
             {% continue %}
         {%  endif %}
 
-        <div id="divField{%d idx %}" class="control-group {%s required %} field-{%s nameInput %} {%s field.CSSClass %}"
+        <div id="divField{%d idx %}" class="control-group {%s= required %} field-{%s nameInput %} {%s field.CSSClass %}"
             {% if field.IsHidden %} style="display:none" {% endif %}
             data-toggle="tooltip" title="{%s titleFull %}"
         >
@@ -141,7 +141,7 @@
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
                     <input id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
                         {% if val > "" %} value="{%s val %}" {% endif %}
-                        {%s required %} {%s= events %} {%s= dataJson %} type="
+                        {%s= required %} {%s= events %} {%s= dataJson %} type="
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                             number"
