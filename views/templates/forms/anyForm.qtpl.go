@@ -389,11 +389,11 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.E().S(nameInput)
 		//line views/templates/forms/anyForm.qtpl:107
-		qw422016.E().S(required)
-		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.E().S(field.CSSClass)
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.N().S(`"`)
+		//line views/templates/forms/anyForm.qtpl:108
+		qw422016.E().S(required)
 		//line views/templates/forms/anyForm.qtpl:108
 		if field.IsHidden {
 			//line views/templates/forms/anyForm.qtpl:108
@@ -403,7 +403,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		//line views/templates/forms/anyForm.qtpl:108
 		qw422016.N().S(`data-toggle="tooltip" title="`)
 		//line views/templates/forms/anyForm.qtpl:109
-		qw422016.N().S(titleFull)
+		qw422016.E().S(titleFull)
 		//line views/templates/forms/anyForm.qtpl:109
 		qw422016.N().S(`">`)
 		//line views/templates/forms/anyForm.qtpl:111

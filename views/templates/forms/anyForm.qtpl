@@ -104,9 +104,9 @@
             {% continue %}
         {%  endif %}
 
-        <div id="divField{%d idx %}" class="control-group field-{%s nameInput %} {%s required %} {%s field.CSSClass %}"
-                    {% if field.IsHidden %}style="display:none"{% endif %}
-             data-toggle="tooltip" title="{%s= titleFull %}"
+        <div id="divField{%d idx %}" class="control-group field-{%s nameInput %} {%s field.CSSClass %}"
+             {%s required %} {% if field.IsHidden %}style="display:none"{% endif %}
+             data-toggle="tooltip" title="{%s titleFull %}"
         >
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
