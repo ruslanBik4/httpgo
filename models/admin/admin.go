@@ -12,6 +12,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
+	"github.com/ruslanBik4/httpgo/models/users"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -336,11 +337,25 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
 
 }
+func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
+	userID, ok := users.IsLogin(r)
+	if !ok {
+		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
+		return "", false
+	}
+
+	return userID, true
+
+}
 func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if id, err := db.DoInsertFromForm(r); err != nil {
+	userID, ok := checkUserLogin(w, r)
+	if !ok {
+		return
+	}
+	if id, err := db.DoInsertFromForm(r, userID); err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
 	} else {
@@ -348,9 +363,14 @@ func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	if rowAffected, err := db.DoUpdateFromForm(r); err != nil {
+	userID, ok := checkUserLogin(w, r)
+	if !ok {
+		return
+	}
+	if rowAffected, err := db.DoUpdateFromForm(r, userID); err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
 	} else {

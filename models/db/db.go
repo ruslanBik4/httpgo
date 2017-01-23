@@ -36,9 +36,9 @@ func GetParentFieldName(tableName string) (name string) {
 var (
 	DigitsValidator = regexp.MustCompile(`^\d+$`)
 )
-func addNewItem(tableProps, value string) (int, error) {
+func addNewItem(tableProps, value, userID string) (int, error) {
 
-	if newId, err := DoInsert("insert into " + tableProps + "(title, id_users) values (?, ?)", value, 1); err != nil {
+	if newId, err := DoInsert("insert into " + tableProps + "(title, id_users) values (?, ?)", value, userID); err != nil {
 		return -1, err
 	} else {
 		return newId, nil
@@ -46,7 +46,7 @@ func addNewItem(tableProps, value string) (int, error) {
 
 }
 //TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, key string, values []string, id int) {
+func insertMultiSet(tableName, key, userID string, values []string, id int) {
 
 	tableProps := strings.TrimLeft(key, "setid_")
 
@@ -64,7 +64,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 	for _, value := range values {
 
 		if !DigitsValidator.MatchString(value) {
-			newId, err := addNewItem(tableProps, value)
+			newId, err := addNewItem(tableProps, value, userID)
 			if err != nil {
 				log.Println(err)
 				continue
@@ -99,7 +99,7 @@ func insertMultiSet(tableName, key string, values []string, id int) {
 
 
 }
-func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
+func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err error) {
 
 	r.ParseForm()
 
@@ -120,10 +120,14 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				insertMultiSet(tableName, key, values, lastInsertId)
-			}(tableName, strings.TrimRight(key, "[]"), val)
-		}
-		if strings.Contains(key, "[]") {
+				insertMultiSet(tableName, key, userID, values, lastInsertId)
+			} (tableName, strings.TrimRight(key, "[]"), val)
+		} else if key == "id_users" {
+
+			sqlCommand += comma + "`" + key + "`"
+			row = append( row, userID )
+
+		} else if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
 			str, comma := "", ""
 			for _, value := range val {
@@ -145,7 +149,7 @@ func DoInsertFromForm( r *http.Request ) (lastInsertId int, err error) {
 	//return lastInsertId, err
 
 }
-func DoUpdateFromForm( r *http.Request ) (RowsAffected int, err error) {
+func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err error) {
 
 	r.ParseForm()
 
@@ -170,11 +174,14 @@ func DoUpdateFromForm( r *http.Request ) (RowsAffected int, err error) {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				insertMultiSet(tableName, key, values, id)
+				insertMultiSet(tableName, key, userID, values, id)
 			}(tableName, strings.TrimRight(key, "[]"), val)
-		}
+		} else if key == "id_users" {
 
-		if strings.Contains(key, "[]") {
+			sqlCommand += comma + "`" + key + "`"
+			row = append( row, userID )
+
+		} else if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
 			str, comma := "", ""
 			for _, value := range val {
