@@ -104,9 +104,9 @@
             {% continue %}
         {%  endif %}
 
-        <div id="divField{%d idx %}" class="control-group field-{%s nameInput %} {%s field.CSSClass %}"
+        <div id="divField{%d idx %}" class="control-group {%s required %} field-{%s nameInput %} {%s field.CSSClass %}"
             {% if field.IsHidden %} style="display:none" {% endif %}
-            {%s required %}  data-toggle="tooltip" title="{%s titleFull %}"
+            data-toggle="tooltip" title="{%s titleFull %}"
         >
         {% if key=="parent_id" %}
             {%= field.renderParentSelect(ns.Name, key, val, titleLabel, required) %}
@@ -142,19 +142,19 @@
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
                     <input id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
                         {% if val > "" %} value="{%s val %}" {% endif %}
-                        {%s required %} {%s= events %} {%s= dataJson %}
+                        {%s required %} {%s= events %} {%s= dataJson %} type="
 
                         {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
-                            type="number"
+                            number"
                                {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                         {% elseif field.DATA_TYPE=="date" %}
-                            type="date"
+                            date"
                         {% elseif field.DATA_TYPE=="datetime" %}
-                            type="datetime"
+                            datetime"
                         {% elseif strings.Contains(key, "email") %}
-                            type="email"
+                            email"
                         {% else %}
-                            type="text"
+                            text"
                                {% if field.CHARACTER_MAXIMUM_LENGTH>0 %}
                                     maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"
                                     {%  if field.CHARACTER_MAXIMUM_LENGTH == 255 %}

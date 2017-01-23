@@ -385,7 +385,11 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.N().D(idx)
 		//line views/templates/forms/anyForm.qtpl:107
-		qw422016.N().S(`" class="control-group field-`)
+		qw422016.N().S(`" class="control-group `)
+		//line views/templates/forms/anyForm.qtpl:107
+		qw422016.E().S(required)
+		//line views/templates/forms/anyForm.qtpl:107
+		qw422016.N().S(`field-`)
 		//line views/templates/forms/anyForm.qtpl:107
 		qw422016.E().S(nameInput)
 		//line views/templates/forms/anyForm.qtpl:107
@@ -398,9 +402,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`style="display:none" `)
 			//line views/templates/forms/anyForm.qtpl:108
 		}
-		//line views/templates/forms/anyForm.qtpl:109
-		qw422016.E().S(required)
-		//line views/templates/forms/anyForm.qtpl:109
+		//line views/templates/forms/anyForm.qtpl:108
 		qw422016.N().S(`data-toggle="tooltip" title="`)
 		//line views/templates/forms/anyForm.qtpl:109
 		qw422016.E().S(titleFull)
