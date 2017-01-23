@@ -180,8 +180,9 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	//	return
 	//}
 	session := GetSession(r, nameSession )
+	delete(session.Values, "id")
 	delete(session.Values, "email")
-	http.Redirect(w, r, "/", http.StatusContinue)
+	http.Redirect(w, r, "/show/forms/?name=signin", http.StatusContinue)
 }
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random

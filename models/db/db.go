@@ -178,7 +178,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		} else if key == "id_users" {
 
-			sqlCommand += comma + "`" + key + "`"
+			sqlCommand += comma + "`" + key + "`=?"
 			row = append( row, userID )
 
 		} else if strings.Contains(key, "[]") {
