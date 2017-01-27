@@ -34,6 +34,7 @@ type FieldsTable struct {
 	IsDadata bool
 	Rows [] FieldStructure
 	Hiddens map[string] string
+	SaveFormEvents 	map[string] string
 }
 
 func (ns *FieldsTable) FindField(name string) *FieldStructure {
