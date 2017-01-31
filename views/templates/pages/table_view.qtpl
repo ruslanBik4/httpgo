@@ -10,25 +10,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 )
 %}
 {% func  ShowTable(tableName string, ns forms.FieldsTable, rows *sql.Rows) %}
-<link href="/tables.css" rel="stylesheet">
-
-<table class="table table-striped table-bordered table-hover table-condensed">
-    <thead>
-        <tr>
-            {%  for _, field := range ns.Rows %}
-                <td>{% code
-                        titleFull, titleLabel, _, _, _ := field.GetColumnTitles()
-                        if len(titleLabel) > 22 {
-                            titleLabel = titleLabel[:22]
-                             titleLabel += "..."
-                        }
-                    %}
-                    <a href="#" title="{%u titleFull %}">{%s titleLabel %}</a>
-                </td>
-            {%  endfor %}
-        </tr>
-    </thead>
-    <tbody>
         {%  code
             columns, err := rows.Columns()
             if (err != nil) {
@@ -45,6 +26,26 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 row = append( row, rowField[idx] )
             }
         %}
+<link href="/tables.css" rel="stylesheet">
+
+<table class="table table-striped table-bordered table-hover table-condensed">
+    <thead>
+        <tr>
+            {%  for idx, _ := range columns %}
+                <td>{% code
+                        fieldStruct := ns.FindField( columns[idx] )
+                        titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
+                        if len(titleLabel) > 22 {
+                            titleLabel = titleLabel[:22]
+                            // titleLabel += "..."
+                        }
+                    %}
+                    <a href="#" title="{%s titleFull %}">{%s titleLabel %}</a>
+                </td>
+            {%  endfor %}
+        </tr>
+    </thead>
+    <tbody>
         {% for rows.Next() %}
             {%  code
             err = rows.Scan(row...)
@@ -74,7 +75,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "id_") %}
                             {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
                         {% elseif strings.HasPrefix(key, "setid_") %}
-                            {%= fieldStruct.RenderMultiSelect(&ns, tablePrefix, key, val, "Смотреть", required) %}
+                            {%= fieldStruct.RenderMultiSelect(&ns, tablePrefix, key, val, "См. ", required) %}
                         {%  else %}
                             {%s field.String %}
                         {% endif %}
