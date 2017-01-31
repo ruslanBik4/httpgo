@@ -48,13 +48,21 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     <tbody>
         {% for rows.Next() %}
             {%  code
-            err = rows.Scan(row...)
+                err = rows.Scan(row...)
 
-            if err != nil {
-                log.Println(err)
-                continue
-            }
+                if err != nil {
+                    log.Println(err)
+                    continue
+                }
 
+                for idx, field := range rowField {
+                    fieldStruct := ns.FindField( columns[idx] )
+                    if field.Valid {
+                        fieldStruct.Value = field.String
+                    } else {
+                         fieldStruct.Value = ""
+                   }
+                }
             %}
         <tr>
             {% for idx, field := range rowField %}
