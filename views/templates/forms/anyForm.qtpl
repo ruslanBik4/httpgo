@@ -105,8 +105,10 @@
             }
         %}
 
-        {% if (figure > "") && (figure != field.Figure) %}
-            </figure>
+        {% if figure != field.Figure %}
+            {% if figure > "" %}
+                </figure>
+            {% endif %}
             {%code
                 figure = field.Figure
             %}
