@@ -111,6 +111,7 @@
         {%code
             figure = field.Figure
         %}
+            <figcaption>{%s figure %}</figcaption>
         {% if figure > "" %}
             <figure>
             <figcaption>{%s figure %}</figcaption>
@@ -188,6 +189,9 @@
         {% endif %}
         </div>
     {% endfor %}
+    {% if figure > "" %}
+        </figure>
+    {% endif %}
     <div class="form-actions">
         <button class="btn btn-large btn-primary" type="submit">Сохранить</button>
 
