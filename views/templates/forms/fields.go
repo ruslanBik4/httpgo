@@ -82,7 +82,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
 	rows, err := db.DoSelect( sqlCommand, ns.ID )
 	if err != nil {
-		log.Println(err)
+		log.Println(sqlCommand, err)
 		return
 	}
 	defer rows.Close()
