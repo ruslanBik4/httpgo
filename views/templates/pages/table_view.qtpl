@@ -19,7 +19,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 <td>{% code
                         titleFull, titleLabel, _, _, _ := field.GetColumnTitles()
                         if len(titleLabel) > 22 {
-                            titleLabel = titleLabel[:22] + "..."
+                            titleLabel = titleLabel[:22]
+                             titleLabel += "..."
                         }
                     %}
                     <a href="#" title="{%u titleFull %}">{%s titleLabel %}</a>
@@ -73,7 +74,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "id_") %}
                             {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
                         {% elseif strings.HasPrefix(key, "setid_") %}
-                            {%= fieldStruct.RenderMultiSelect(&ns, tablePrefix, key, val, titleLabel, required) %}
+                            {%= fieldStruct.RenderMultiSelect(&ns, tablePrefix, key, val, "Смотреть", required) %}
                         {%  else %}
                             {%s field.String %}
                         {% endif %}

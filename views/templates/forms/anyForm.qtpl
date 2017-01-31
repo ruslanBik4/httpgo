@@ -8,9 +8,7 @@
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
             <span>{%s titleLabel %}</span>
-            <b class="caret"></b> <figure>
-                <figcaption></figcaption>
-            </figure>
+            <b class="caret"></b>
         </a>
         <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
              aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
