@@ -387,38 +387,34 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			//line views/templates/forms/anyForm.qtpl:108
 			qw422016.N().S(`
             </figure>
-        `)
-			//line views/templates/forms/anyForm.qtpl:110
-		}
-		//line views/templates/forms/anyForm.qtpl:110
-		qw422016.N().S(`
-        `)
-		//line views/templates/forms/anyForm.qtpl:112
-		figure = field.Figure
+            `)
+			//line views/templates/forms/anyForm.qtpl:111
+			figure = field.Figure
 
-		//line views/templates/forms/anyForm.qtpl:113
-		qw422016.N().S(`
-            <figcaption>`)
-		//line views/templates/forms/anyForm.qtpl:114
-		qw422016.E().S(figure)
-		//line views/templates/forms/anyForm.qtpl:114
-		qw422016.N().S(`</figcaption>
-        `)
-		//line views/templates/forms/anyForm.qtpl:115
-		if figure > "" {
-			//line views/templates/forms/anyForm.qtpl:115
+			//line views/templates/forms/anyForm.qtpl:112
 			qw422016.N().S(`
-            <figure>
-            <figcaption>`)
-			//line views/templates/forms/anyForm.qtpl:117
-			qw422016.E().S(figure)
-			//line views/templates/forms/anyForm.qtpl:117
-			qw422016.N().S(`</figcaption>
+            `)
+			//line views/templates/forms/anyForm.qtpl:113
+			if figure > "" {
+				//line views/templates/forms/anyForm.qtpl:113
+				qw422016.N().S(`
+                <figure>
+                <figcaption>`)
+				//line views/templates/forms/anyForm.qtpl:115
+				qw422016.E().S(figure)
+				//line views/templates/forms/anyForm.qtpl:115
+				qw422016.N().S(`</figcaption>
+            `)
+				//line views/templates/forms/anyForm.qtpl:116
+			}
+			//line views/templates/forms/anyForm.qtpl:116
+			qw422016.N().S(`
         `)
-			//line views/templates/forms/anyForm.qtpl:118
+			//line views/templates/forms/anyForm.qtpl:117
 		}
-		//line views/templates/forms/anyForm.qtpl:118
+		//line views/templates/forms/anyForm.qtpl:117
 		qw422016.N().S(`
+
 
         `)
 		//line views/templates/forms/anyForm.qtpl:120

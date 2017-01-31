@@ -107,15 +107,15 @@
 
         {% if (figure > "") && (figure != field.Figure) %}
             </figure>
+            {%code
+                figure = field.Figure
+            %}
+            {% if figure > "" %}
+                <figure>
+                <figcaption>{%s figure %}</figcaption>
+            {% endif %}
         {% endif %}
-        {%code
-            figure = field.Figure
-        %}
-            <figcaption>{%s figure %}</figcaption>
-        {% if figure > "" %}
-            <figure>
-            <figcaption>{%s figure %}</figcaption>
-        {% endif %}
+
 
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input type="hidden" name="{%s nameInput %}" {% if val > "" %}value="{%s val %}"{% endif %} >
