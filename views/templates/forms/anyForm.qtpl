@@ -113,7 +113,7 @@
                 figure = field.Figure
             %}
             {% if figure > "" %}
-                <figure>
+                <figure class="{%s field.CSSClass %}">
                 <figcaption>{%s figure %}</figcaption>
             {% endif %}
         {% endif %}

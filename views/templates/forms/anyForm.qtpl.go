@@ -408,7 +408,11 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			if figure > "" {
 				//line views/templates/forms/anyForm.qtpl:115
 				qw422016.N().S(`
-                <figure>
+                <figure class="`)
+				//line views/templates/forms/anyForm.qtpl:116
+				qw422016.E().S(field.CSSClass)
+				//line views/templates/forms/anyForm.qtpl:116
+				qw422016.N().S(`">
                 <figcaption>`)
 				//line views/templates/forms/anyForm.qtpl:117
 				qw422016.E().S(figure)
