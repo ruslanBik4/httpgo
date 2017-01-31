@@ -26,6 +26,7 @@ type FieldStructure struct {
 	CSSClass  	string
 	TableName 	string
 	Events 		map[string] string
+	Figure 		string
 	Html		string
 }
 type FieldsTable struct {

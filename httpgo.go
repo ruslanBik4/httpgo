@@ -21,7 +21,7 @@ import (
 	"flag"
 	"github.com/ruslanBik4/httpgo/models/config"
 )
-//go:generate /Users/rus/go/bin/qtc -dir=views/templates
+//go:generate qtc -dir=views/templates
 
 const fpmSocket = "/var/run/php5-fpm.sock"
 var (
@@ -267,7 +267,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	f_port   = flag.String("port",":80","host address to listen on")
+	f_port   = flag.String("port",":8080","host address to listen on")
 	f_static = flag.String("path","/home/travel/","path to static files")
 	f_web    = flag.String("web","/home/www/web/","path to web files")
 	F_debug    = flag.String("debug","false","debug mode")

@@ -8,7 +8,9 @@
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
             <span>{%s titleLabel %}</span>
-            <b class="caret"></b>
+            <b class="caret"></b> <figure>
+                <figcaption></figcaption>
+            </figure>
         </a>
         <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
              aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
@@ -61,6 +63,7 @@
 {% endfunc %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
 {%code
+    var figure string
     if ns.SaveFormEvents == nil {
         ns.SaveFormEvents = make(map[string] string, 1)
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
@@ -101,6 +104,17 @@
                 events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
             }
         %}
+
+        {% if (figure > "") && (figure != field.Figure) %}
+            </figure>
+        {% endif %}
+        {%code
+            figure = field.Figure
+        %}
+        {% if figure > "" %}
+            <figure>
+            <figcaption>{%s figure %}</figcaption>
+        {% endif %}
 
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input type="hidden" name="{%s nameInput %}" {% if val > "" %}value="{%s val %}"{% endif %} >
