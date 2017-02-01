@@ -70,6 +70,8 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 			if paramField := ns.FindField(enumVal[i+1:]); paramField != nil {
 				param = paramField.Value
 				enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
+			} else {
+				continue
 			}
 		}
 		result += comma + enumVal

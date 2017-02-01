@@ -31,7 +31,7 @@ var (
 )
 
 //line views/templates/pages/table_view.qtpl:12
-func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
+func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields *forms.FieldsTable, rows *sql.Rows) {
 	//line views/templates/pages/table_view.qtpl:12
 	qw422016.N().S(`
         `)
@@ -186,7 +186,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 					qw422016.N().S(`
                             `)
 					//line views/templates/pages/table_view.qtpl:85
-					fieldStruct.StreamRenderMultiSelect(qw422016, &fields, tablePrefix, key, val, "См. ", required)
+					fieldStruct.StreamRenderMultiSelect(qw422016, fields, tablePrefix, key, val, "См. ", required)
 					//line views/templates/pages/table_view.qtpl:85
 					qw422016.N().S(`
                         `)
@@ -231,7 +231,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 }
 
 //line views/templates/pages/table_view.qtpl:99
-func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
+func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields *forms.FieldsTable, rows *sql.Rows) {
 	//line views/templates/pages/table_view.qtpl:99
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/pages/table_view.qtpl:99
@@ -242,7 +242,7 @@ func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.F
 }
 
 //line views/templates/pages/table_view.qtpl:99
-func ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) string {
+func ShowTable(tableName string, fields *forms.FieldsTable, rows *sql.Rows) string {
 	//line views/templates/pages/table_view.qtpl:99
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/pages/table_view.qtpl:99
