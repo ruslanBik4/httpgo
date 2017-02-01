@@ -52,9 +52,9 @@ func (field *FieldStructure) Scan(value interface{}) error {
 }
 
 func (ns *FieldsTable) FindField(name string) *FieldStructure {
-	for _, field := range ns.Rows {
+	for idx, field := range ns.Rows {
 		if field.COLUMN_NAME == name {
-			return &field
+			return &ns.Rows[idx]
 		}
 	}
 
