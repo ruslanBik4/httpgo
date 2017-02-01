@@ -40,8 +40,12 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fieldStruct := fields.FindField( fieldName )
                         titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
 
+                        if len(titleLabel) > 30 {
+                            titleLabel = titleLabel[30:]
+                        }
+
                     %}
-                    <a href="#{%d idx%}" title="{%s titleFull %}">{%s titleLabel[22:] %}</a>
+                    <a href="#{%d idx%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
                 </td>
             {%  endfor %}
         </tr>
