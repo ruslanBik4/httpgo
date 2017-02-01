@@ -110,7 +110,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	for idx, _ := range columns {
 
 		rowField[idx] = new(sql.NullString)
-		row = append( row, field )
+		row = append( row, rowField[idx] )
 	}
 
 	idx := 0
