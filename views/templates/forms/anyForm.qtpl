@@ -17,7 +17,7 @@
                 <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
             </div>
             <div class="modal-body">
-                <table class="hor-menu" role="menu" aria-labelledby="dLabel">
+                <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
                 <tbody>
                     {%code field.getTableFrom(ns) %}
                     {%s= field.Html %}

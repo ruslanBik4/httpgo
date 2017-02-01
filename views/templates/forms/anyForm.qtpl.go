@@ -66,7 +66,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 	qw422016.N().S(`</h3>
             </div>
             <div class="modal-body">
-                <table class="hor-menu" role="menu" aria-labelledby="dLabel">
+                <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
                 <tbody>
                     `)
 	//line views/templates/forms/anyForm.qtpl:22
