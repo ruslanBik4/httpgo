@@ -40,7 +40,7 @@ type FieldsTable struct {
 
 // Scan implements the Scanner interface.
 func (field *FieldStructure) Scan(value interface{}) error {
-	var temp *sql.NullString
+	var temp sql.NullString
 
 	if err := temp.Scan(value); err != nil {
 		field.Value = ""
