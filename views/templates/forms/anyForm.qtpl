@@ -25,8 +25,7 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <input >
-                <button onclick="return addNewItems(this);">Добавить</button>
+                <button onclick="return addNewRow(this);">Добавить</button>
             </div>
         </div>
     </div>

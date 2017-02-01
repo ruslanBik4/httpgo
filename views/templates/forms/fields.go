@@ -127,8 +127,14 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		}
 		idx++
 		field.Html += "<tr>"
-		for _, value := range rowField {
-			field.Html +=  "<td>" + value.String + "</td>"
+		for i, value := range rowField {
+			if strings.HasPrefix( columns[i], "id" ) {
+				field.Html +=  "<td><input type='hidden' value='" + value.String + "'/></td>"
+
+			} else {
+				field.Html +=  "<td><input type='text' value='" + value.String + "'/></td>"
+
+			}
 		}
 
 		field.Html += "</tr>"
