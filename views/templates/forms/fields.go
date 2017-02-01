@@ -98,8 +98,6 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 		tableProps, tableValue, where)
 
 
-	log.Println(where)
-
 	rows, err := db.DoSelect( sqlCommand, ns.ID )
 	if err != nil {
 		log.Println(sqlCommand, err)
