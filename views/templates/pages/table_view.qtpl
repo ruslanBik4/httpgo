@@ -73,7 +73,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     </td>
                 {% else %}
                     <td>
-                    {%  if val > "" %}
                         {% if key=="parent_id" %}
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
@@ -83,7 +82,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {%  else %}
                             {%s val %}
                         {% endif %}
-                    {% endif %}
                     </td>
                 {% endif %}
             {%  endfor %}
