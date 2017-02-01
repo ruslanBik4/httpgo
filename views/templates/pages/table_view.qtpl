@@ -39,10 +39,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 <td>{% code
                         fieldStruct := fields.FindField( fieldName )
                         titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
-                        if len(titleLabel) > 22 {
-                            titleLabel = titleLabel[:22]
-                            // titleLabel += "..."
-                        }
+
                     %}
                     <a href="#{%d idx%}" title="{%s titleFull %}">{%s titleLabel %}</a>
                 </td>
@@ -63,8 +60,15 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         <tr>
             {% for idx, rawField := range row %}
                 {% code
-                    fieldStruct := rawField.(*forms.FieldStructure)
-                    key := columns[idx]
+                    var fieldStruct *forms.FieldStructure
+
+                    switch rawField.(type) {
+                        case *forms.FieldStructure:
+                            fieldStruct = rawField.(*forms.FieldStructure)
+                        default:
+                            continue
+                    }
+                    key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
                     required, tablePrefix, titleLabel := "", "", ""
                 %}
