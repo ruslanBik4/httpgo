@@ -48,7 +48,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 		var field interface{}
 
 		if fieldStruct := fields.FindField(fieldName); fieldStruct != nil {
-			field = &fieldStruct
+			field = fieldStruct
 		} else {
 			field = new(sql.NullString)
 		}
@@ -124,7 +124,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 			qw422016.N().S(`
                 `)
 			//line views/templates/pages/table_view.qtpl:66
-			fieldStruct := rawField.(forms.FieldStructure)
+			fieldStruct := rawField.(*forms.FieldStructure)
 			key := columns[idx]
 			val := fieldStruct.Value
 			required, tablePrefix, titleLabel := "", "", ""

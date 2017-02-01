@@ -23,7 +23,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 var field interface {}
 
                 if fieldStruct := fields.FindField( fieldName ); fieldStruct != nil {
-                    field = &fieldStruct
+                    field = fieldStruct
                 } else {
                     field = new(sql.NullString)
                 }
@@ -63,7 +63,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         <tr>
             {% for idx, rawField := range row %}
                 {% code
-                    fieldStruct := rawField.(forms.FieldStructure)
+                    fieldStruct := rawField.(*forms.FieldStructure)
                     key := columns[idx]
                     val := fieldStruct.Value
                     required, tablePrefix, titleLabel := "", "", ""
