@@ -218,7 +218,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	rows := db.DoQuery("select * from " + tableName)
 
 	defer rows.Close()
-	fmt.Fprint(w, pages.ShowTable(tableName, &fields, rows) )
+	fmt.Fprint(w, pages.ShowTable(tableName, fields, rows) )
 
 
 }
