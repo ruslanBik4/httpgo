@@ -80,6 +80,58 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 
 	return result
 }
+//получаем связанную таблицу с полями
+func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
+	key := field.COLUMN_NAME
+	tableProps := strings.TrimLeft(key, "tableid_")
+
+	where := field.whereFromSet(ns)
+	if where > "" {
+		where += " AND (id_%s=?)"
+	} else {
+		where = " WHERE (id_%s=?)"
+	}
+	sqlCommand := fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, ns.Name )
+
+
+	rows, err := db.DoSelect( sqlCommand, ns.ID )
+	if err != nil {
+		log.Println(sqlCommand, err)
+		return
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if (err != nil) {
+		log.Println(err)
+	}
+
+	var row [] interface {}
+	rowField := make([] *sql.NullString, len(columns))
+	for idx, _ := range columns {
+
+		rowField[idx] = new(sql.NullString)
+		row = append( row, field )
+	}
+
+	idx := 0
+
+	field.Html = ""
+	for rows.Next() {
+		if err := rows.Scan(row...); err != nil {
+			log.Println(err)
+			continue
+		}
+		idx++
+		field.Html += "<tr>"
+		for _, value := range rowField {
+			field.Html +=  "<td>" + value.String + "</td>"
+		}
+
+		field.Html += "</tr>"
+
+
+	}
+}
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
 	key := field.COLUMN_NAME
