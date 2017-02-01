@@ -4,6 +4,7 @@
 ) %}
 Показываем связанную таблицу RenderTable
 {% func (field *FieldStructure) RenderTable(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
+<link href="/tables.css" rel="stylesheet">
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
             <span>{%s titleLabel %}</span>
