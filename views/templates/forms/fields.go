@@ -105,17 +105,21 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		log.Println(err)
 	}
 
+	field.Html = "<thead> <tr>"
+
 	var row [] interface {}
 	rowField := make([] *sql.NullString, len(columns))
-	for idx, _ := range columns {
+	for idx, fieldName := range columns {
+
+		field.Html += "<td>" + fieldName + "</td>"
 
 		rowField[idx] = new(sql.NullString)
 		row = append( row, rowField[idx] )
 	}
+	field.Html += "</tr></thead>"
 
 	idx := 0
 
-	field.Html = ""
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
 			log.Println(err)
@@ -128,7 +132,6 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		}
 
 		field.Html += "</tr>"
-
 
 	}
 }

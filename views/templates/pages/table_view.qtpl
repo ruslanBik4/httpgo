@@ -93,7 +93,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "setid_") %}
                             {%= fieldStruct.RenderMultiSelect(&fields, tablePrefix, key, val, "См. ", required) %}
                         {% elseif strings.HasPrefix(key, "tableid_") %}
-                            {%= fieldStruct.RenderTable(&fields, tablePrefix, key, val, titleLabel, required) %}
+                            {%= fieldStruct.RenderTable(&fields, tablePrefix, key, val, "Табл", required) %}
                         {%  else %}
                             {%s val %}
                         {% endif %}
