@@ -22,7 +22,7 @@ type FieldStructure struct {
 	COLUMN_TYPE 	string
 	CHARACTER_MAXIMUM_LENGTH int
 	Value 		string
-	IsHidden bool
+	IsHidden 	bool
 	CSSClass  	string
 	TableName 	string
 	Events 		map[string] string
@@ -36,6 +36,19 @@ type FieldsTable struct {
 	Rows [] FieldStructure
 	Hiddens map[string] string
 	SaveFormEvents 	map[string] string
+}
+
+// Scan implements the Scanner interface.
+func (field *FieldStructure) Scan(value interface{}) error {
+	var temp *sql.NullString
+
+	if err := temp.Scan(value); err != nil {
+		field.Value = ""
+		return err
+	}
+	field.Value = temp.String
+
+	return nil
 }
 
 func (ns *FieldsTable) FindField(name string) *FieldStructure {

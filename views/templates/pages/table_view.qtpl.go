@@ -31,7 +31,7 @@ var (
 )
 
 //line views/templates/pages/table_view.qtpl:12
-func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.FieldsTable, rows *sql.Rows) {
+func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
 	//line views/templates/pages/table_view.qtpl:12
 	qw422016.N().S(`
         `)
@@ -43,15 +43,19 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
 
 	var row []interface{}
 
-	rowField := make([]*sql.NullString, len(columns))
+	// mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
+	for _, fieldName := range columns {
+		var field interface{}
 
-	for idx, _ := range columns {
-
-		rowField[idx] = new(sql.NullString)
-		row = append(row, rowField[idx])
+		if fieldStruct := fields.FindField(fieldName); fieldStruct != nil {
+			field = &fieldStruct
+		} else {
+			field = new(sql.NullString)
+		}
+		row = append(row, field)
 	}
 
-	//line views/templates/pages/table_view.qtpl:28
+	//line views/templates/pages/table_view.qtpl:32
 	qw422016.N().S(`
 <link href="/tables.css" rel="stylesheet">
 
@@ -59,46 +63,50 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
     <thead>
         <tr>
             `)
-	//line views/templates/pages/table_view.qtpl:34
-	for idx, _ := range columns {
-		//line views/templates/pages/table_view.qtpl:34
+	//line views/templates/pages/table_view.qtpl:38
+	for idx, fieldName := range columns {
+		//line views/templates/pages/table_view.qtpl:38
 		qw422016.N().S(`
                 <td>`)
-		//line views/templates/pages/table_view.qtpl:36
-		fieldStruct := ns.FindField(columns[idx])
+		//line views/templates/pages/table_view.qtpl:40
+		fieldStruct := fields.FindField(fieldName)
 		titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
 		if len(titleLabel) > 22 {
 			titleLabel = titleLabel[:22]
 			// titleLabel += "..."
 		}
 
-		//line views/templates/pages/table_view.qtpl:42
+		//line views/templates/pages/table_view.qtpl:46
 		qw422016.N().S(`
-                    <a href="#" title="`)
-		//line views/templates/pages/table_view.qtpl:43
+                    <a href="#`)
+		//line views/templates/pages/table_view.qtpl:47
+		qw422016.N().D(idx)
+		//line views/templates/pages/table_view.qtpl:47
+		qw422016.N().S(`" title="`)
+		//line views/templates/pages/table_view.qtpl:47
 		qw422016.E().S(titleFull)
-		//line views/templates/pages/table_view.qtpl:43
+		//line views/templates/pages/table_view.qtpl:47
 		qw422016.N().S(`">`)
-		//line views/templates/pages/table_view.qtpl:43
+		//line views/templates/pages/table_view.qtpl:47
 		qw422016.E().S(titleLabel)
-		//line views/templates/pages/table_view.qtpl:43
+		//line views/templates/pages/table_view.qtpl:47
 		qw422016.N().S(`</a>
                 </td>
             `)
-		//line views/templates/pages/table_view.qtpl:45
+		//line views/templates/pages/table_view.qtpl:49
 	}
-	//line views/templates/pages/table_view.qtpl:45
+	//line views/templates/pages/table_view.qtpl:49
 	qw422016.N().S(`
         </tr>
     </thead>
     <tbody>
         `)
-	//line views/templates/pages/table_view.qtpl:49
+	//line views/templates/pages/table_view.qtpl:53
 	for rows.Next() {
-		//line views/templates/pages/table_view.qtpl:49
+		//line views/templates/pages/table_view.qtpl:53
 		qw422016.N().S(`
             `)
-		//line views/templates/pages/table_view.qtpl:51
+		//line views/templates/pages/table_view.qtpl:55
 		err = rows.Scan(row...)
 
 		if err != nil {
@@ -106,160 +114,151 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, ns forms.Field
 			continue
 		}
 
-		for idx, field := range rowField {
-			fieldStruct := ns.FindField(columns[idx])
-			if field.Valid {
-				fieldStruct.Value = field.String
-			} else {
-				fieldStruct.Value = ""
-			}
-		}
-
-		//line views/templates/pages/table_view.qtpl:66
+		//line views/templates/pages/table_view.qtpl:62
 		qw422016.N().S(`
         <tr>
             `)
-		//line views/templates/pages/table_view.qtpl:68
-		for idx, field := range rowField {
-			//line views/templates/pages/table_view.qtpl:68
+		//line views/templates/pages/table_view.qtpl:64
+		for idx, rawField := range row {
+			//line views/templates/pages/table_view.qtpl:64
 			qw422016.N().S(`
                 `)
-			//line views/templates/pages/table_view.qtpl:69
+			//line views/templates/pages/table_view.qtpl:66
+			fieldStruct := rawField.(forms.FieldStructure)
+			key := columns[idx]
+			val := fieldStruct.Value
+			required, tablePrefix, titleLabel := "", "", ""
+
+			//line views/templates/pages/table_view.qtpl:70
+			qw422016.N().S(`
+                `)
+			//line views/templates/pages/table_view.qtpl:71
 			if idx == 0 {
-				//line views/templates/pages/table_view.qtpl:69
+				//line views/templates/pages/table_view.qtpl:71
 				qw422016.N().S(`
                     <td><a href="/admin/row/edit/?table=`)
-				//line views/templates/pages/table_view.qtpl:70
+				//line views/templates/pages/table_view.qtpl:72
 				qw422016.E().S(tableName)
-				//line views/templates/pages/table_view.qtpl:70
+				//line views/templates/pages/table_view.qtpl:72
 				qw422016.N().S(`&id=`)
-				//line views/templates/pages/table_view.qtpl:70
-				qw422016.E().S(field.String)
-				//line views/templates/pages/table_view.qtpl:70
+				//line views/templates/pages/table_view.qtpl:72
+				qw422016.E().S(val)
+				//line views/templates/pages/table_view.qtpl:72
 				qw422016.N().S(`" target="content">`)
-				//line views/templates/pages/table_view.qtpl:70
-				qw422016.E().S(field.String)
-				//line views/templates/pages/table_view.qtpl:70
+				//line views/templates/pages/table_view.qtpl:72
+				qw422016.E().S(val)
+				//line views/templates/pages/table_view.qtpl:72
 				qw422016.N().S(`</a>
                     </td>
                 `)
-				//line views/templates/pages/table_view.qtpl:72
+				//line views/templates/pages/table_view.qtpl:74
 			} else {
-				//line views/templates/pages/table_view.qtpl:72
+				//line views/templates/pages/table_view.qtpl:74
 				qw422016.N().S(`
                     <td>
                     `)
-				//line views/templates/pages/table_view.qtpl:74
-				if field.Valid {
-					//line views/templates/pages/table_view.qtpl:74
-					qw422016.N().S(`
-                        `)
+				//line views/templates/pages/table_view.qtpl:76
+				if val > "" {
 					//line views/templates/pages/table_view.qtpl:76
-					fieldStruct := ns.FindField(columns[idx])
-					key := columns[idx]
-					val := field.String
-					required, tablePrefix, titleLabel := "", "", ""
-
-					//line views/templates/pages/table_view.qtpl:80
 					qw422016.N().S(`
                         `)
-					//line views/templates/pages/table_view.qtpl:81
+					//line views/templates/pages/table_view.qtpl:77
 					if key == "parent_id" {
+						//line views/templates/pages/table_view.qtpl:77
+						qw422016.N().S(`
+                            `)
+						//line views/templates/pages/table_view.qtpl:78
+						fieldStruct.StreamRenderParentSelect(qw422016, fields.Name, key, val, titleLabel, required)
+						//line views/templates/pages/table_view.qtpl:78
+						qw422016.N().S(`
+                        `)
+						//line views/templates/pages/table_view.qtpl:79
+					} else if strings.HasPrefix(key, "id_") {
+						//line views/templates/pages/table_view.qtpl:79
+						qw422016.N().S(`
+                            `)
+						//line views/templates/pages/table_view.qtpl:80
+						fieldStruct.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
+						//line views/templates/pages/table_view.qtpl:80
+						qw422016.N().S(`
+                        `)
+						//line views/templates/pages/table_view.qtpl:81
+					} else if strings.HasPrefix(key, "setid_") {
 						//line views/templates/pages/table_view.qtpl:81
 						qw422016.N().S(`
                             `)
 						//line views/templates/pages/table_view.qtpl:82
-						fieldStruct.StreamRenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required)
+						fieldStruct.StreamRenderMultiSelect(qw422016, &fields, tablePrefix, key, val, "См. ", required)
 						//line views/templates/pages/table_view.qtpl:82
 						qw422016.N().S(`
                         `)
 						//line views/templates/pages/table_view.qtpl:83
-					} else if strings.HasPrefix(key, "id_") {
+					} else {
 						//line views/templates/pages/table_view.qtpl:83
 						qw422016.N().S(`
                             `)
 						//line views/templates/pages/table_view.qtpl:84
-						fieldStruct.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
+						qw422016.E().S(val)
 						//line views/templates/pages/table_view.qtpl:84
 						qw422016.N().S(`
                         `)
 						//line views/templates/pages/table_view.qtpl:85
-					} else if strings.HasPrefix(key, "setid_") {
-						//line views/templates/pages/table_view.qtpl:85
-						qw422016.N().S(`
-                            `)
-						//line views/templates/pages/table_view.qtpl:86
-						fieldStruct.StreamRenderMultiSelect(qw422016, &ns, tablePrefix, key, val, "См. ", required)
-						//line views/templates/pages/table_view.qtpl:86
-						qw422016.N().S(`
-                        `)
-						//line views/templates/pages/table_view.qtpl:87
-					} else {
-						//line views/templates/pages/table_view.qtpl:87
-						qw422016.N().S(`
-                            `)
-						//line views/templates/pages/table_view.qtpl:88
-						qw422016.E().S(field.String)
-						//line views/templates/pages/table_view.qtpl:88
-						qw422016.N().S(`
-                        `)
-						//line views/templates/pages/table_view.qtpl:89
 					}
-					//line views/templates/pages/table_view.qtpl:89
+					//line views/templates/pages/table_view.qtpl:85
 					qw422016.N().S(`
                     `)
-					//line views/templates/pages/table_view.qtpl:90
+					//line views/templates/pages/table_view.qtpl:86
 				}
-				//line views/templates/pages/table_view.qtpl:90
+				//line views/templates/pages/table_view.qtpl:86
 				qw422016.N().S(`
                     </td>
                 `)
-				//line views/templates/pages/table_view.qtpl:92
+				//line views/templates/pages/table_view.qtpl:88
 			}
-			//line views/templates/pages/table_view.qtpl:92
+			//line views/templates/pages/table_view.qtpl:88
 			qw422016.N().S(`
             `)
-			//line views/templates/pages/table_view.qtpl:93
+			//line views/templates/pages/table_view.qtpl:89
 		}
-		//line views/templates/pages/table_view.qtpl:93
+		//line views/templates/pages/table_view.qtpl:89
 		qw422016.N().S(`
 
         </tr>
         `)
-		//line views/templates/pages/table_view.qtpl:96
+		//line views/templates/pages/table_view.qtpl:92
 	}
-	//line views/templates/pages/table_view.qtpl:96
+	//line views/templates/pages/table_view.qtpl:92
 	qw422016.N().S(`
     </tbody>
 
 </table>
 
 `)
-//line views/templates/pages/table_view.qtpl:101
+//line views/templates/pages/table_view.qtpl:97
 }
 
-//line views/templates/pages/table_view.qtpl:101
-func WriteShowTable(qq422016 qtio422016.Writer, tableName string, ns forms.FieldsTable, rows *sql.Rows) {
-	//line views/templates/pages/table_view.qtpl:101
+//line views/templates/pages/table_view.qtpl:97
+func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
+	//line views/templates/pages/table_view.qtpl:97
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/table_view.qtpl:101
-	StreamShowTable(qw422016, tableName, ns, rows)
-	//line views/templates/pages/table_view.qtpl:101
+	//line views/templates/pages/table_view.qtpl:97
+	StreamShowTable(qw422016, tableName, fields, rows)
+	//line views/templates/pages/table_view.qtpl:97
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/table_view.qtpl:101
+//line views/templates/pages/table_view.qtpl:97
 }
 
-//line views/templates/pages/table_view.qtpl:101
-func ShowTable(tableName string, ns forms.FieldsTable, rows *sql.Rows) string {
-	//line views/templates/pages/table_view.qtpl:101
+//line views/templates/pages/table_view.qtpl:97
+func ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) string {
+	//line views/templates/pages/table_view.qtpl:97
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/table_view.qtpl:101
-	WriteShowTable(qb422016, tableName, ns, rows)
-	//line views/templates/pages/table_view.qtpl:101
+	//line views/templates/pages/table_view.qtpl:97
+	WriteShowTable(qb422016, tableName, fields, rows)
+	//line views/templates/pages/table_view.qtpl:97
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/table_view.qtpl:101
+	//line views/templates/pages/table_view.qtpl:97
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/table_view.qtpl:101
+	//line views/templates/pages/table_view.qtpl:97
 	return qs422016
-//line views/templates/pages/table_view.qtpl:101
+//line views/templates/pages/table_view.qtpl:97
 }
