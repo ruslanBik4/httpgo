@@ -21,7 +21,7 @@
                 <tbody>
                     {%code field.getTableFrom(ns) %}
                     {%s= field.Html %}
-                </tbode>
+                </tbody>
                 </table>
             </div>
             <div class="modal-footer">
