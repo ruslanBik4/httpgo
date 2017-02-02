@@ -446,6 +446,25 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 					comma = ","
 				}
 				query.args = append(query.args, str)
+			} else if strings.Contains(fieldName, "[")  {
+				log.Println(fieldName)
+				pos := strings.Index(fieldName, "[")
+				//number := fieldName[ pos+1 : strings.Index(fieldName, "]") ]
+				fieldName = "`" + fieldName[ :pos] + "`"
+
+				// пока беда в том, что количество должно точно соответствовать!
+				//если первый  - то создаем новый список параметров для вставки
+				if strings.HasPrefix(query.sqlCommand, "insert into " + tableName + "(" + fieldName) {
+					query.comma = "), ("
+					//args, ok := query.args[0][fieldName]
+				} else if !strings.Contains(query.sqlCommand, fieldName )  {
+					query.sqlCommand += query.comma + fieldName
+					//query.args = append(query.args, make(map[string] string, 0))
+				}
+
+				log.Println(fieldName)
+				query.args = append(query.args, val[0])
+
 			} else {
 				query.sqlCommand += query.comma + "`" + fieldName + "`"
 				query.args = append( query.args, val[0] )
@@ -466,6 +485,9 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				query.args = append( query.args, primaryID )
 				query.values += query.comma + "?"
 			}
+			for key, value := range query.args {
+				log.Println(key, value)
+			}
 			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
 			if err != nil {
 				log.Println(err)
@@ -473,7 +495,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
 				break
 			} else {
-			arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
+				arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
 
 				 if primaryID == 0 {
 					 primaryID = id
