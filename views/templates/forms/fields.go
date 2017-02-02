@@ -81,7 +81,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	return result
 }
 //получаем связанную таблицу с полями
-const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="s"/></td>`
+const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
 
 func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	key := field.COLUMN_NAME
