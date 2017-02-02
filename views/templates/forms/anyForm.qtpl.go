@@ -83,7 +83,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
                 </table>
             </div>
             <div class="modal-footer">
-                <button onclick="return addNewRow(this);">Добавить</button>
+                <button onclick="return addNewRowTableID(this);">Добавить</button>
             </div>
         </div>
     </div>

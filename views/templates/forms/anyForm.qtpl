@@ -25,7 +25,7 @@
                 </table>
             </div>
             <div class="modal-footer">
-                <button onclick="return addNewRow(this);">Добавить</button>
+                <button onclick="return addNewRowTableID(this);">Добавить</button>
             </div>
         </div>
     </div>

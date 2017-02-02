@@ -81,6 +81,8 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	return result
 }
 //получаем связанную таблицу с полями
+const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="s"/></td>`
+
 func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	key := field.COLUMN_NAME
 	tableProps := strings.TrimLeft(key, "tableid_")
@@ -128,11 +130,12 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		idx++
 		field.Html += "<tr>"
 		for i, value := range rowField {
-			if strings.HasPrefix( columns[i], "id" ) {
-				field.Html +=  "<td><input type='hidden' value='" + value.String + "'/></td>"
+			inputName := columns[i]
+			if strings.HasPrefix(inputName, "id" ) {
+				field.Html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value.String)
 
 			} else {
-				field.Html +=  "<td><input type='text' value='" + value.String + "'/></td>"
+				field.Html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value.String)
 
 			}
 		}
