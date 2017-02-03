@@ -134,8 +134,9 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		if (fieldName == "id") || (fieldName == "id_" + ns.Name ) {
 			//newRow += "<td></td>"
 		} else {
-			field.Html += "<td>" + fieldName + "</td>"
-			newRow += getTD(tableProps, fieldName, "", "id_" + ns.Name, 0, fields.FindField(fieldName) )
+			fieldStruct := fields.FindField(fieldName)
+			field.Html += "<td>" + fieldStruct.COLUMN_COMMENT + "</td>"
+			newRow += getTD(tableProps, fieldName, "", "id_" + ns.Name, 0, fieldStruct )
 		}
 
 		rowField[idx] = new(sql.NullString)
@@ -162,7 +163,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	field.Html += "<tr>" + newRow + "</tr>" + "</tbody>"
 }
 const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
-const CELL_SELECT  = `<td><select name="%s:%s" class="controls">%s</select></td>`
+const CELL_SELECT  = `<td><select name="%s:%s" class="">%s</select></td>`
 func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
