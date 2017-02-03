@@ -130,7 +130,6 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	}
 
 	query.Values += query.Comma + "?"
-	log.Println(query)
 	query.Comma = ", "
 	query.Args = append(query.Args, val)
 	for i, v := range val {
