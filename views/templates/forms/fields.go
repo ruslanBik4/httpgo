@@ -167,6 +167,12 @@ const CELL_SELECT  = `<td><select name="%s:%s" class="">%s</select></td>`
 func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
+	required, events, dataJson := "", "", ""
+
+	if fieldStruct.IS_NULLABLE=="NO" {
+		required = "required"
+	}
+
 	if (fieldName == "id") || (fieldName == parentField) {
 		if value > "" {
 			html += fmt.Sprintf(`<input type="%s" name="%s:%s" value="%s"/>`, "hidden", tableProps, inputName, value)
@@ -174,8 +180,17 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.getOptions(fieldName[3:], value)
 		html += fmt.Sprintf(CELL_SELECT, tableProps, inputName, fieldStruct.Html )
+	} else if strings.HasPrefix(fieldName, "setid_") {
+		html += fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required)
 	} else {
-		html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
+		switch fieldStruct.DATA_TYPE {
+		case "enum":
+			html += fieldStruct.renderEnum(inputName, value, required, events, dataJson)
+		case "set":
+			html += fieldStruct.renderSet(inputName, value, required, events, dataJson)
+		default:
+			html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
+		}
 	}
 
 	return html
