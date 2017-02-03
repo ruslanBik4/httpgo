@@ -168,7 +168,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 
 	if (fieldName == "id") || (fieldName == parentField) {
 		if value > "" {
-			html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value)
+			html += fmt.Sprintf(`<input type="%s" name="%s:%s" value="%s"/>`, "hidden", tableProps, inputName, value)
 		}
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.getOptions(fieldName[3:], value)
