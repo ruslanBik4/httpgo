@@ -118,7 +118,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		field.Html += "<td>" + fieldName + "</td>"
 		inputName := fieldName + fmt.Sprintf("[%d]", 0)
 		if strings.HasPrefix(fieldName, "id" ) {
-			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
+			newRow += "<td></td>"
 		} else {
 			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
 		}
