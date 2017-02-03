@@ -159,7 +159,6 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 				}
 			}
 			fieldName := key[ strings.Index(key, ":") + 1: ]
-			log.Println(fieldName)
 			pos := strings.Index(fieldName, "[")
 			fieldName = "`" + fieldName[ :pos] + "`"
 
@@ -175,6 +174,9 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			log.Println(query)
 			query.Comma = ", "
 			query.Args = append(query.Args, val[0])
+			for i, v := range val {
+				log.Println(i,v)
+			}
 			tableIDQueryes.Queryes[tableName] = query
 			continue
 

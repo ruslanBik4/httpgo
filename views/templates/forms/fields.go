@@ -141,10 +141,10 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 			inputName := columns[i] + fmt.Sprintf("[%d]", idx)
 			if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
 				field.Html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value.String)
-
+			} else if strings.HasPrefix(columns[i], "id_") {
+				field.Html += field.RenderForeignSelect(tableProps + ":", columns[i], value.String, "", "required")
 			} else {
 				field.Html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value.String)
-
 			}
 		}
 
