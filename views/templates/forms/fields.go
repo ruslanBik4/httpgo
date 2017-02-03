@@ -86,6 +86,7 @@ const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
 func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	key := field.COLUMN_NAME
 	tableProps := strings.TrimLeft(key, "tableid_")
+	log.Println(key, tableProps)
 
 	where := field.whereFromSet(ns)
 	if where > "" {
