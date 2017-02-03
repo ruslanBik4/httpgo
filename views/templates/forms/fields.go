@@ -110,10 +110,18 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	field.Html = "<thead> <tr>"
 
 	var row [] interface {}
+	var newRow string
+
 	rowField := make([] *sql.NullString, len(columns))
 	for idx, fieldName := range columns {
 
 		field.Html += "<td>" + fieldName + "</td>"
+		inputName := fieldName + fmt.Sprintf("[%d]", 0)
+		if strings.HasPrefix(fieldName, "id" ) {
+			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
+		} else {
+			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
+		}
 
 		rowField[idx] = new(sql.NullString)
 		row = append( row, rowField[idx] )
@@ -143,7 +151,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		field.Html += "</tr>"
 
 	}
-	field.Html += "</tbody>"
+	field.Html += "<tr>" + newRow + "</tr>" + "</tbody>"
 }
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 

@@ -393,13 +393,6 @@ func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 	}
 
 }
-type argsQuery struct {
-	comma, sqlCommand, values string
-	args [] interface {}
-}
-type sMultiQuery struct {
-	queryes map[string] *argsQuery
-}
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
@@ -411,12 +404,12 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		var params sMultiQuery
+		var params db.MultiQuery
 		var arrJSON map[string] string
 
 		arrJSON = make( map[string] string, 0)
 
-		params.queryes = make(map[string] *argsQuery, 0)
+		params.Queryes = make(map[string] *db.ArgsQuery, 0)
 		for key, val := range r.Form {
 
 			indSeparator := strings.Index(key, ":")
@@ -429,23 +422,24 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 			tableName := key[: indSeparator ]
 
-			query, ok := params.queryes[tableName]
+			query, ok := params.Queryes[tableName]
 			if !ok {
-				query =  &argsQuery{ comma: "",
-					sqlCommand: "insert into " + tableName + "(",
-					values: "values (",
+				query =  &db.ArgsQuery{
+					Comma: "",
+					SQLCommand: "insert into " + tableName + "(",
+					Values: "values (",
 				}
 			}
 			fieldName := key[ strings.Index(key, ":")+1 : ]
 
 			if strings.Contains(fieldName, "[]") {
-				query.sqlCommand += query.comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
+				query.SQLCommand += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
 				str, comma := "", ""
 				for _, value := range val {
 					str += comma + value
 					comma = ","
 				}
-				query.args = append(query.args, str)
+				query.Args = append(query.Args, str)
 			} else if strings.Contains(fieldName, "[")  {
 				log.Println(fieldName)
 				pos := strings.Index(fieldName, "[")
@@ -454,41 +448,39 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 				// пока беда в том, что количество должно точно соответствовать!
 				//если первый  - то создаем новый список параметров для вставки
-				if strings.HasPrefix(query.sqlCommand, "insert into " + tableName + "(" + fieldName) {
-					query.comma = "), ("
+				if strings.HasPrefix(query.SQLCommand, "insert into " + tableName + "(" + fieldName) {
+					query.Comma = "), ("
 					//args, ok := query.args[0][fieldName]
-				} else if !strings.Contains(query.sqlCommand, fieldName )  {
-					query.sqlCommand += query.comma + fieldName
+				} else if !strings.Contains(query.SQLCommand, fieldName )  {
+					query.SQLCommand += query.Comma + fieldName
 					//query.args = append(query.args, make(map[string] string, 0))
 				}
 
 				log.Println(fieldName)
-				query.args = append(query.args, val[0])
+				query.Args = append(query.Args, val[0])
 
 			} else {
-				query.sqlCommand += query.comma + "`" + fieldName + "`"
-				query.args = append( query.args, val[0] )
+				query.SQLCommand += query.Comma + "`" + fieldName + "`"
+				query.Args = append( query.Args, val[0] )
 			}
-			query.values += query.comma + "?"
-			query.comma = ", "
-			params.queryes[tableName] = query
+			query.Values += query.Comma + "?"
+			query.Comma = ", "
+			params.Queryes[tableName] = query
 		}
 
 		primaryTable := ""
 		primaryID := 0
 
-		for key, query := range params.queryes {
+		for key, query := range params.Queryes {
 			if primaryTable == "" {
 				primaryTable = key
 			} else {
-				query.sqlCommand += query.comma + "`id_" + primaryTable + "`"
-				query.args = append( query.args, primaryID )
-				query.values += query.comma + "?"
+				query.SQLCommand += query.Comma + "`id_" + primaryTable + "`"
+				query.Args = append( query.Args, primaryID )
+				query.Values += query.Comma + "?"
 			}
-			for key, value := range query.args {
-				log.Println(key, value)
-			}
-			id, err := db.DoInsert(query.sqlCommand + ") " + query.values + ")", query.args ... )
+
+			id, err := db.DoInsert(query.SQLCommand + ") " + query.Values + ")", query.Args ... )
 			if err != nil {
 				log.Println(err)
 				arrJSON["error"] = "true"
