@@ -193,6 +193,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 		defer func(Queryes map[string] *ArgsQuery) {
 			for tableName, query := range Queryes {
 				query.Args = append(query.Args, lastInsertId)
+				query.SQLCommand += query.Comma + "id_" + tableName
 				query.Values += query.Comma + "?"
 				fullCommand := fmt.Sprintf("insert into %s (%s) values (%s)", tableName, query.SQLCommand, query.Values)
 				if id, err := DoInsert(fullCommand,  query.Args ...); err != nil {
