@@ -118,7 +118,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		rowField[idx] = new(sql.NullString)
 		row = append( row, rowField[idx] )
 	}
-	field.Html += "</tr></thead>"
+	field.Html += "</tr></thead><tbody>"
 
 	idx := 0
 
@@ -143,6 +143,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		field.Html += "</tr>"
 
 	}
+	field.Html += "</tbody>"
 }
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 

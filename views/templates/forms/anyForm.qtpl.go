@@ -67,7 +67,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
             </div>
             <div class="modal-body">
                 <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
-                <tbody>
+
                     `)
 	//line views/templates/forms/anyForm.qtpl:22
 	field.getTableFrom(ns)
@@ -79,7 +79,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 	qw422016.N().S(field.Html)
 	//line views/templates/forms/anyForm.qtpl:23
 	qw422016.N().S(`
-                </tbody>
+                
                 </table>
             </div>
             <div class="modal-footer">
