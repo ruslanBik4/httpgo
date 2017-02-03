@@ -107,6 +107,70 @@ func insertMultiSet(tableName, key, userID string, values []string, id int) {
 
 
 }
+func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val []string) {
+	tableName := key[: indSeparator ]
+	query, ok := tableIDQueryes.Queryes[tableName]
+	if !ok {
+		query = &ArgsQuery{
+			Comma:      "",
+			SQLCommand: "",
+			Values:     "",
+		}
+	}
+	fieldName := key[ strings.Index(key, ":") + 1: ]
+	pos := strings.Index(fieldName, "[")
+	fieldName = "`" + fieldName[ :pos] + "`"
+
+	// пока беда в том, что количество должно точно соответствовать!
+	//если первый  - то создаем новый список параметров для вставки
+	if strings.HasPrefix(query.SQLCommand, fieldName) {
+		query.Comma = "), ("
+	} else if !strings.Contains(query.SQLCommand, fieldName )  {
+		query.SQLCommand += query.Comma + fieldName
+	}
+
+	query.Values += query.Comma + "?"
+	log.Println(query)
+	query.Comma = ", "
+	query.Args = append(query.Args, val)
+	for i, v := range val {
+		log.Println(i,v)
+	}
+	tableIDQueryes.Queryes[tableName] = query
+
+}
+func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int, Queryes map[string] *ArgsQuery) {
+	for childTableName, query := range Queryes {
+		//query.Args = append(query.Args, lastInsertId)
+		query.SQLCommand += query.Comma + "id_" + tableName
+		query.Values += query.Comma + "?"
+		fullCommand := fmt.Sprintf("insert into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
+
+		var args [] interface{}
+
+		for i, _ := range query.Args[0].([]string) {
+			if i > 0 {
+				fullCommand += ",(" + query.Values + ")"
+			}
+			for _, valArr := range query.Args {
+				switch valArr.(type) {
+				case [] string:
+					args = append(args, valArr.([]string)[i])
+				default:
+					args = append(args, valArr)
+
+				}
+			}
+			// последним добавляем вторичный ключe
+			args = append(args, lastInsertId)
+		}
+		if id, err := DoInsert(fullCommand,  args ...); err != nil {
+			log.Println(err)
+		} else {
+			log.Println(fullCommand, id)
+		}
+	}
+}
 func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err error) {
 
 	r.ParseForm()
@@ -134,6 +198,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			defer func(tableName, key string, values []string) {
 				insertMultiSet(tableName, key, userID, values, lastInsertId)
 			} (tableName, strings.TrimRight(key, "[]"), val)
+			continue
 		} else if key == "id_users" {
 
 			sqlCommand += comma + "`" + key + "`"
@@ -148,38 +213,8 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			}
 			row = append(row, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
-
-			tableName := key[: indSeparator ]
-			query, ok := tableIDQueryes.Queryes[tableName]
-			if !ok {
-				query = &ArgsQuery{
-					Comma:      "",
-					SQLCommand: "",
-					Values:     "",
-				}
-			}
-			fieldName := key[ strings.Index(key, ":") + 1: ]
-			pos := strings.Index(fieldName, "[")
-			fieldName = "`" + fieldName[ :pos] + "`"
-
-			// пока беда в том, что количество должно точно соответствовать!
-			//если первый  - то создаем новый список параметров для вставки
-			if strings.HasPrefix(query.SQLCommand, fieldName) {
-				query.Comma = "), ("
-			} else if !strings.Contains(query.SQLCommand, fieldName )  {
-				query.SQLCommand += query.Comma + fieldName
-			}
-
-			query.Values += query.Comma + "?"
-			log.Println(query)
-			query.Comma = ", "
-			query.Args = append(query.Args, val[0])
-			for i, v := range val {
-				log.Println(i,v)
-			}
-			tableIDQueryes.Queryes[tableName] = query
+			tableIDQueryes.addNewParam(key, indSeparator, val)
 			continue
-
 		} else {
 			sqlCommand += comma + "`" + key + "`"
 			row = append( row, val[0] )
@@ -192,19 +227,9 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 	// если будут дополнительные запросы
 	if len(tableIDQueryes.Queryes) > 0 {
 		// исполнить по завершению функции, чтобы получить lastInsertId
-		defer func(Queryes map[string] *ArgsQuery) {
-			for childTableName, query := range Queryes {
-				query.Args = append(query.Args, lastInsertId)
-				query.SQLCommand += query.Comma + "id_" + tableName
-				query.Values += query.Comma + "?"
-				fullCommand := fmt.Sprintf("insert into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
-				if id, err := DoInsert(fullCommand,  query.Args ...); err != nil {
-					log.Println(err)
-				} else {
-					log.Println(fullCommand, id)
-				}
-			}
-		} (tableIDQueryes.Queryes)
+		defer func() {
+			tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
+		} ()
 
 	}
 	return DoInsert(sqlCommand + ") " + values + ")", row ... )
@@ -224,11 +249,14 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 	tableName := r.FormValue("table")
 	var row argsRAW
 	var id int
+	var tableIDQueryes MultiQuery
+	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
 
 	comma, sqlCommand, where := "", "update " + tableName + " set ", " where id="
 
 	for key, val := range r.Form {
 
+		indSeparator := strings.Index(key, ":")
 		if key == "table" {
 			continue
 		} else if key == "id" {
@@ -252,11 +280,22 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 				comma = ","
 			}
 			row = append(row, str)
+		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
+			tableIDQueryes.addNewParam(key, indSeparator, val)
+			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`=?"
 			row = append( row, val[0] )
 		}
 		comma = ", "
+
+	}
+	// если будут дополнительные запросы
+	if len(tableIDQueryes.Queryes) > 0 {
+		// исполнить по завершению функции, чтобы получить lastInsertId
+		defer func() {
+			tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
+		} ()
 
 	}
 	return DoUpdate(sqlCommand + where, row ... )

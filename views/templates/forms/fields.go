@@ -93,7 +93,6 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	return result
 }
 //получаем связанную таблицу с полями
-const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
 
 func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	key := field.COLUMN_NAME
@@ -162,13 +161,16 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	}
 	field.Html += "<tr>" + newRow + "</tr>" + "</tbody>"
 }
+const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
+const CELL_SELECT  = `<td><select name="%s:%s" class="controls">%s</select></td>`
 func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
 	if (fieldName == "id") || (fieldName == parentField) {
 		html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value)
 	} else if strings.HasPrefix(fieldName, "id_") {
-		html += fieldStruct.RenderForeignSelect(tableProps + ":", fieldName, value, "", "required")
+		fieldStruct.getOptions(fieldName[3:], value)
+		html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, fieldStruct.Html )
 	} else {
 		html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
 	}
