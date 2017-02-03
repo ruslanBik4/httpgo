@@ -117,7 +117,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 
 		field.Html += "<td>" + fieldName + "</td>"
 		inputName := fieldName + fmt.Sprintf("[%d]", 0)
-		if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
+		if (fieldName == "id") || (fieldName == "id_" + ns.Name ) {
 			newRow += "<td></td>"
 		} else {
 			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
