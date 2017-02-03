@@ -117,7 +117,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 
 		field.Html += "<td>" + fieldName + "</td>"
 		inputName := fieldName + fmt.Sprintf("[%d]", 0)
-		if strings.HasPrefix(fieldName, "id" ) {
+		if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
 			newRow += "<td></td>"
 		} else {
 			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
@@ -139,7 +139,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		field.Html += "<tr>"
 		for i, value := range rowField {
 			inputName := columns[i] + fmt.Sprintf("[%d]", idx)
-			if strings.HasPrefix(columns[i], "id" ) {
+			if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
 				field.Html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value.String)
 
 			} else {
