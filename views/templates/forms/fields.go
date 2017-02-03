@@ -131,10 +131,10 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	rowField := make([] *sql.NullString, len(columns))
 	for idx, fieldName := range columns {
 
-		field.Html += "<td>" + fieldName + "</td>"
 		if (fieldName == "id") || (fieldName == "id_" + ns.Name ) {
-			newRow += "<td></td>"
+			//newRow += "<td></td>"
 		} else {
+			field.Html += "<td>" + fieldName + "</td>"
 			newRow += getTD(tableProps, fieldName, "", "id_" + ns.Name, 0, fields.FindField(fieldName) )
 		}
 
@@ -167,10 +167,12 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
 	if (fieldName == "id") || (fieldName == parentField) {
-		html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value)
+		if value > "" {
+			html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value)
+		}
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.getOptions(fieldName[3:], value)
-		html += fmt.Sprintf(CELL_SELECT, "text", tableProps, inputName, fieldStruct.Html )
+		html += fmt.Sprintf(CELL_SELECT, tableProps, inputName, fieldStruct.Html )
 	} else {
 		html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
 	}
