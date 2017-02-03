@@ -38,6 +38,18 @@ type FieldsTable struct {
 	SaveFormEvents 	map[string] string
 }
 
+func getFields(tableName string) (fields FieldsTable, err error) {
+	var ns db.FieldsTable
+
+	ns.GetColumnsProp(tableName)
+
+
+	fields.PutDataFrom( ns )
+	fields.Name = tableName
+
+	return fields, nil
+}
+
 // Scan implements the Scanner interface.
 func (field *FieldStructure) Scan(value interface{}) error {
 	var temp sql.NullString
@@ -87,6 +99,12 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	key := field.COLUMN_NAME
 	tableProps := key[ len("tableid_") : ]
 
+	fields, err := getFields(tableProps)
+	if err != nil {
+		field.Html += "<td>Error during readin table schema!" + tableProps + "</td>"
+		return
+	}
+
 	where := field.whereFromSet(ns)
 	if where > "" {
 		where += " AND (id_%s=?)"
@@ -94,7 +112,6 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		where = " WHERE (id_%s=?)"
 	}
 	sqlCommand := fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, ns.Name )
-
 
 	rows, err := db.DoSelect( sqlCommand, ns.ID )
 	if err != nil {
@@ -142,7 +159,9 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 			if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
 				field.Html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value.String)
 			} else if strings.HasPrefix(columns[i], "id_") {
-				field.Html += field.RenderForeignSelect(tableProps + ":", columns[i], value.String, "", "required")
+
+				fieldStruct := fields.FindField(columns[i])
+				field.Html += fieldStruct.RenderForeignSelect(tableProps + ":", columns[i], value.String, "", "required")
 			} else {
 				field.Html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value.String)
 			}
