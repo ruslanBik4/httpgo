@@ -133,11 +133,10 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	for idx, fieldName := range columns {
 
 		field.Html += "<td>" + fieldName + "</td>"
-		inputName := fieldName + fmt.Sprintf("[%d]", 0)
 		if (fieldName == "id") || (fieldName == "id_" + ns.Name ) {
 			newRow += "<td></td>"
 		} else {
-			newRow += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, "")
+			newRow += getTD(tableProps, fieldName, "", "id_" + ns.Name, 0, fields.FindField(fieldName) )
 		}
 
 		rowField[idx] = new(sql.NullString)
@@ -155,16 +154,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		idx++
 		field.Html += "<tr>"
 		for i, value := range rowField {
-			inputName := columns[i] + fmt.Sprintf("[%d]", idx)
-			if (columns[i] == "id") || (columns[i] == "id_" + ns.Name ) {
-				field.Html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value.String)
-			} else if strings.HasPrefix(columns[i], "id_") {
-
-				fieldStruct := fields.FindField(columns[i])
-				field.Html += fieldStruct.RenderForeignSelect(tableProps + ":", columns[i], value.String, "", "required")
-			} else {
-				field.Html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value.String)
-			}
+			field.Html += getTD(tableProps, columns[i], value.String, "id_" + ns.Name, idx, fields.FindField(columns[i]) )
 		}
 
 		field.Html += "</tr>"
@@ -172,6 +162,20 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 	}
 	field.Html += "<tr>" + newRow + "</tr>" + "</tbody>"
 }
+func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
+	inputName := fieldName + fmt.Sprintf("[%d]", idx)
+
+	if (fieldName == "id") || (fieldName == parentField) {
+		html += fmt.Sprintf(CELL_TABLE, "hidden", tableProps, inputName, value)
+	} else if strings.HasPrefix(fieldName, "id_") {
+		html += fieldStruct.RenderForeignSelect(tableProps + ":", fieldName, value, "", "required")
+	} else {
+		html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
+	}
+
+	return html
+}
+
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
 
 	key := field.COLUMN_NAME
