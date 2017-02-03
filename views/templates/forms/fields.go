@@ -181,13 +181,13 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 		fieldStruct.getOptions(fieldName[3:], value)
 		html += fmt.Sprintf(CELL_SELECT, tableProps, inputName, fieldStruct.Html )
 	} else if strings.HasPrefix(fieldName, "setid_") {
-		html += fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required)
+		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
 	} else {
 		switch fieldStruct.DATA_TYPE {
 		case "enum":
-			html += fieldStruct.renderEnum(inputName, value, required, events, dataJson)
+			html += "<td>" + fieldStruct.renderEnum(inputName, value, required, events, dataJson) + "</td>"
 		case "set":
-			html += fieldStruct.renderSet(inputName, value, required, events, dataJson)
+			html += "<td>" + fieldStruct.renderSet(inputName, value, required, events, dataJson) + "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
 		}
