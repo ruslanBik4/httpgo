@@ -175,6 +175,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			query.Values += query.Comma + "?"
 			query.Comma = ", "
 			query.Args = append(query.Args, val[0])
+			log.Println(query)
 			continue
 
 		} else {
