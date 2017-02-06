@@ -197,9 +197,8 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	return html
 }
 
-func (field *FieldStructure) getMultiSelect(ns *FieldsTable){
+func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 
-	key := field.COLUMN_NAME
 	tableProps := strings.TrimLeft(key, "setid_")
 	tableValue := ns.Name + "_" + tableProps + "_has"
 

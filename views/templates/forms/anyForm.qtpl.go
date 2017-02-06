@@ -197,7 +197,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	}
 	//line views/templates/forms/anyForm.qtpl:46
 	qw422016.N().S(`"
-            id="`)
+            id="div`)
 	//line views/templates/forms/anyForm.qtpl:47
 	qw422016.E().S(tablePrefix + key)
 	//line views/templates/forms/anyForm.qtpl:47
@@ -223,7 +223,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
                 <ul class="hor-menu" role="menu" aria-labelledby="dLabel">
                 `)
 	//line views/templates/forms/anyForm.qtpl:55
-	field.getMultiSelect(ns)
+	field.getMultiSelect(ns, key)
 
 	//line views/templates/forms/anyForm.qtpl:55
 	qw422016.N().S(`
@@ -236,7 +236,11 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
             </div>
             <div class="modal-footer">
                 <input >
-                <button onclick="return addNewItems(this);">Добавить</button>
+                <button onclick="return addNewItems(this);" data-parent-div="div`)
+	//line views/templates/forms/anyForm.qtpl:61
+	qw422016.E().S(tablePrefix + key)
+	//line views/templates/forms/anyForm.qtpl:61
+	qw422016.N().S(`">Добавить</button>
             </div>
         </div>
     `)
