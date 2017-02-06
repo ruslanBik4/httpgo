@@ -36,7 +36,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 		//line views/templates/forms/anyForm.qtpl:8
 		qw422016.N().S(`
         <div class="dropdown">
-            <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#`)
+            <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#div`)
 		//line views/templates/forms/anyForm.qtpl:10
 		qw422016.E().S(tablePrefix + key)
 		//line views/templates/forms/anyForm.qtpl:10
@@ -66,7 +66,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 	}
 	//line views/templates/forms/anyForm.qtpl:15
 	qw422016.N().S(`"
-                id="`)
+                id="div`)
 	//line views/templates/forms/anyForm.qtpl:16
 	qw422016.E().S(tablePrefix + key)
 	//line views/templates/forms/anyForm.qtpl:16
@@ -167,7 +167,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 		//line views/templates/forms/anyForm.qtpl:39
 		qw422016.N().S(`
     <div class="dropdown">
-        <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#`)
+        <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#div`)
 		//line views/templates/forms/anyForm.qtpl:41
 		qw422016.E().S(tablePrefix + key)
 		//line views/templates/forms/anyForm.qtpl:41
