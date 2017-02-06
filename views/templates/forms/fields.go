@@ -365,7 +365,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
 			titleFull, dataJson := cutPartFromTitle(fieldStrc.COLUMN_COMMENT, "{", "")
 			var properMap map[string]*json.RawMessage
-			if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+			if err := json.Unmarshal([]byte("{" + dataJson), &properMap); err != nil {
 				for key, val := range properMap {
 					buff, err := val.MarshalJSON()
 					if err != nil {
