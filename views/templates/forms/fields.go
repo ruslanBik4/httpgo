@@ -362,27 +362,33 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
 		if field.COLUMN_COMMENT.Valid {
-			fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
-			titleFull, dataJson := cutPartFromTitle(fieldStrc.COLUMN_COMMENT, "{", "")
-			var properMap map[string]*json.RawMessage
-			if err := json.Unmarshal([]byte("{" + dataJson), &properMap); err != nil {
-				for key, val := range properMap {
-					buff, err := val.MarshalJSON()
-					if err != nil {
-						log.Println(err)
-						continue
-					}
-					switch key {
-					case "Figure":
-						fieldStrc.Figure = string(buff)
-					case "classCSS":
-						fieldStrc.CSSClass = string(buff)
 
+			if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
+
+				dataJson := field.COLUMN_COMMENT.String[posPattern:]
+
+				var properMap map[string]*json.RawMessage
+				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+					for key, val := range properMap {
+						buff, err := val.MarshalJSON()
+						if err != nil {
+							log.Println(err)
+							continue
+						}
+						switch key {
+						case "Figure":
+							fieldStrc.Figure = string(buff)
+						case "classCSS":
+							fieldStrc.CSSClass = string(buff)
+
+						}
 					}
 				}
-			}
 
-			fieldStrc.COLUMN_COMMENT = titleFull
+				fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String[:posPattern]
+			} else {
+				fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+			}
 
 		}
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
