@@ -370,6 +370,8 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 
 				var properMap map[string]*json.RawMessage
 				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+					log.Println(err)
+				} else {
 					for key, val := range properMap {
 
 						log.Println(key, val)
