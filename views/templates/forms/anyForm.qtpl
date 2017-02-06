@@ -6,34 +6,31 @@
 {% func (field *FieldStructure) RenderTable(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
     <link href="/tables.css" rel="stylesheet">
     {% if field.CSSClass > "" %}
-        <div class="{%s field.CSSClass %}" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
+        <div class="{%s field.CSSClass %}" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
     {% else }
-    <div class="dropdown">
-        <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
-            <span>{%s titleLabel %}</span>
-            <b class="caret"></b>
-        </a>
-        <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
+        <div class="dropdown">
+            <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
+                <span>{%s titleLabel %}</span>
+                <b class="caret"></b>
+            </a>
+            <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
     {% endif }
-             aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                     <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
+                </div>
+                <div class="modal-body">
+                    <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
+                        {%code field.getTableFrom(ns) %}
+                        {%s= field.Html %}
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="return addNewRowTableID(this);">Добавить</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
-
-                    {%code field.getTableFrom(ns) %}
-                    {%s= field.Html %}
-
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button onclick="return addNewRowTableID(this);">Добавить</button>
-            </div>
-        </div>
     {% if field.CSSClass = "" %}
-    </div>
+        </div> // end div field.CSSClass = ""
     {% endif }
 {% endfunc %}
 Здесь рисуем элементы ввода для полей, обозначающие связи таблицы многие-к-многим
