@@ -5,16 +5,16 @@
 Показываем связанную таблицу RenderTable
 {% func (field *FieldStructure) RenderTable(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
     <link href="/tables.css" rel="stylesheet">
-    {% if field.CSSClass > "" %}
-        <div class="{%s field.CSSClass %}" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
-    {% else }
+    {% if field.CSSClass == "" %}
         <div class="dropdown">
             <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
                 <span>{%s titleLabel %}</span>
                 <b class="caret"></b>
             </a>
-            <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
-    {% endif }
+    {% endif %}
+            <div class="{% if field.CSSClass == "" %}modal hide{% else %}{%s field.CSSClass %}{% endif %}"
+                id="{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel"
+                aria-hidden="true">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
                      <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
@@ -29,23 +29,22 @@
                     <button onclick="return addNewRowTableID(this);">Добавить</button>
                 </div>
             </div>
-    {% if field.CSSClass = "" %}
-        </div> // end div field.CSSClass = ""
-    {% endif }
+    {% if field.CSSClass == "" %}
+        </div> // end div field.CSSClass == ""
+    {% endif %}
 {% endfunc %}
 Здесь рисуем элементы ввода для полей, обозначающие связи таблицы многие-к-многим
 При этом имя поля однозначно определяет тип связи и таблицу, с которой связываемся
 {% func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
-    {% if field.CSSClass > "" %}
-        <div class="{%s field.CSSClass %}" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
-    {% else }
+    {% if field.CSSClass == "" %}
     <div class="dropdown">
         <a class="dropdown-toggle" role="button" class="btn" data-toggle="modal" data-target="#{%s tablePrefix+key %}" >
             <span>{%s titleLabel %}</span>
             <b class="caret"></b>
         </a>
-        <div class="modal hide" id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
-    {% endif }
+    {% endif %}
+        <div class="{% if field.CSSClass == "" %}modal hide{% else %}{%s field.CSSClass %}{% endif %}"
+            id="{%s tablePrefix+key %}" tabindex="-1" role="dialog"
              aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
@@ -62,9 +61,9 @@
                 <button onclick="return addNewItems(this);">Добавить</button>
             </div>
         </div>
-    {% if field.CSSClass = "" %}
-    </div>
-    {% endif }
+    {% if field.CSSClass == "" %}
+        </div> // end div field.CSSClass == ""
+    {% endif %}
 {% endfunc %}
 {% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) %}
     <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
@@ -203,7 +202,9 @@
                         {% if val > "" %} value="{%s val %}" {% endif %}
                         {%s= required %} {%s= events %} {%s= dataJson %} type=
 
-                        {% if field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
+                        {% if field.InputType > "" %}
+                            "{%s field.InputType %}"
+                        {% elseif field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
                             "number"
                                {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                         {% elseif field.DATA_TYPE=="date" %}

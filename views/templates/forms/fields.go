@@ -23,6 +23,7 @@ type FieldStructure struct {
 	CHARACTER_MAXIMUM_LENGTH int
 	Value 		string
 	IsHidden 	bool
+	InputType	string
 	CSSClass  	string
 	TableName 	string
 	Events 		map[string] string
