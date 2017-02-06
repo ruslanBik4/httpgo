@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"database/sql"
+	"encoding/json"
+	"github.com/gorilla/securecookie"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -362,6 +364,22 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		}
 		if field.COLUMN_COMMENT.Valid {
 			fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+			titleFull, dataJson := cutPartFromTitle(fieldStrc.COLUMN_COMMENT, "{", "")
+			var properMap map[string]*json.RawMessage
+			if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+				for key, val := range properMap {
+					switch key {
+					case "Figure":
+						fieldStrc.Figure = string(val)
+					case "classCSS":
+						fieldStrc.CSSClass = string(val)
+
+					}
+				}
+			}
+
+			fieldStrc.COLUMN_COMMENT = titleFull
+
 		}
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
 			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
@@ -370,6 +388,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
 		fieldStrc.IsHidden = false
+
 		fields.Rows = append(fields.Rows,*fieldStrc)
 	}
 }
