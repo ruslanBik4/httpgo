@@ -366,6 +366,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
 
 				dataJson := field.COLUMN_COMMENT.String[posPattern:]
+				log.Println(dataJson)
 
 				var properMap map[string]*json.RawMessage
 				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
