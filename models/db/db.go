@@ -54,7 +54,7 @@ func addNewItem(tableProps, value, userID string) (int, error) {
 
 }
 //TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, key, userID string, values []string, id int) {
+func insertMultiSet(tableName, key, userID string, values []string, id int) (err error) {
 
 	tableProps := strings.TrimLeft(key, "setid_")
 
@@ -64,7 +64,7 @@ func insertMultiSet(tableName, key, userID string, values []string, id int) {
 	smtp, err := prepareQuery(sqlCommand)
 	if err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 	var params, comma string
 	var valParams argsRAW
@@ -92,18 +92,20 @@ func insertMultiSet(tableName, key, userID string, values []string, id int) {
 	sqlCommand = fmt.Sprintf("delete from %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%[4]s)",
 		tableName, tableProps, id, params)
 
-	smtp, err = prepareQuery(sqlCommand)
-	if err != nil {
+	if smtp, err = prepareQuery(sqlCommand); err != nil {
 		log.Println(err)
-		return
+		return err
 	}
 
 	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
 		log.Println(err)
 		log.Println(sqlCommand)
+		return err
 	}else {
 		log.Println(resultSQL.RowsAffected())
 	}
+
+	return err
 
 
 }
@@ -138,12 +140,12 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	tableIDQueryes.Queryes[tableName] = query
 
 }
-func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int, Queryes map[string] *ArgsQuery) {
+func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int, Queryes map[string] *ArgsQuery) (err error){
 	for childTableName, query := range Queryes {
 		//query.Args = append(query.Args, lastInsertId)
 		query.SQLCommand += query.Comma + "id_" + tableName
 		query.Values += query.Comma + "?"
-		fullCommand := fmt.Sprintf("insert into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
+		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
 
 		var args [] interface{}
 
@@ -169,6 +171,8 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 			log.Println(fullCommand, id)
 		}
 	}
+
+	return err
 }
 func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err error) {
 
@@ -195,7 +199,9 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				insertMultiSet(tableName, key, userID, values, lastInsertId)
+				if err != nil {
+					err = insertMultiSet(tableName, key, userID, values, lastInsertId)
+				}
 			} (tableName, strings.TrimRight(key, "[]"), val)
 			continue
 		} else if key == "id_users" {
@@ -227,13 +233,13 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 	if len(tableIDQueryes.Queryes) > 0 {
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
-			tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
+			if err != nil {
+				err = tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
+			}
 		} ()
 
 	}
 	return DoInsert(sqlCommand + ") " + values + ")", row ... )
-
-	//return lastInsertId, err
 
 }
 func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err error) {
@@ -264,7 +270,9 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
-				insertMultiSet(tableName, key, userID, values, id)
+				if err != nil {
+					err = insertMultiSet(tableName, key, userID, values, id)
+				}
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		} else if key == "id_users" {
 
@@ -293,7 +301,9 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 	if len(tableIDQueryes.Queryes) > 0 {
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
-			tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
+			if err != nil {
+				err = tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
+			}
 		} ()
 
 	}
