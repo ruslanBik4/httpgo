@@ -92,7 +92,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
                     <table  class="table table-striped table-bordered table-hover table-condensed" role="menu" aria-labelledby="dLabel">
                         `)
 	//line views/templates/forms/anyForm.qtpl:24
-	field.getTableFrom(ns)
+	field.getTableFrom(ns, tablePrefix, key)
 
 	//line views/templates/forms/anyForm.qtpl:24
 	qw422016.N().S(`
@@ -104,7 +104,11 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button onclick="return addNewRowTableID(this);">Добавить</button>
+                    <button onclick="return addNewRowTableID(this);" data-last-tr="tr`)
+	//line views/templates/forms/anyForm.qtpl:29
+	qw422016.E().S(tablePrefix + key)
+	//line views/templates/forms/anyForm.qtpl:29
+	qw422016.N().S(`">Добавить</button>
                 </div>
             </div>
     `)
@@ -112,7 +116,9 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 	if field.CSSClass == "" {
 		//line views/templates/forms/anyForm.qtpl:32
 		qw422016.N().S(`
-        </div> // end div field.CSSClass == ""
+        </div> `)
+		//line views/templates/forms/anyForm.qtpl:33
+		qw422016.N().S(`
     `)
 		//line views/templates/forms/anyForm.qtpl:34
 	}
@@ -238,7 +244,9 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	if field.CSSClass == "" {
 		//line views/templates/forms/anyForm.qtpl:64
 		qw422016.N().S(`
-        </div> // end div field.CSSClass == ""
+        </div> `)
+		//line views/templates/forms/anyForm.qtpl:65
+		qw422016.N().S(`
     `)
 		//line views/templates/forms/anyForm.qtpl:66
 	}

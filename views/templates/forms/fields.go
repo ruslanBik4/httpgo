@@ -95,8 +95,8 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 }
 //получаем связанную таблицу с полями
 
-func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
-	key := field.COLUMN_NAME
+func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key string) {
+	//key := field.COLUMN_NAME
 	tableProps := key[ len("tableid_") : ]
 
 	fields, err := getFields(tableProps)
@@ -161,7 +161,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable) {
 		field.Html += "</tr>"
 
 	}
-	field.Html += "<tr>" + newRow + "</tr>" + "</tbody>"
+	field.Html += fmt.Sprintf( `<tr id="tr%s">%s</tr></tbody>`, tablePrefix+key, newRow)
 }
 const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
 const CELL_SELECT  = `<td><select name="%s:%s" class="">%s</select></td>`
