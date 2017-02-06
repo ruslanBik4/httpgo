@@ -8,7 +8,6 @@ import (
 	"log"
 	"database/sql"
 	"encoding/json"
-	"github.com/gorilla/securecookie"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -368,11 +367,16 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			var properMap map[string]*json.RawMessage
 			if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 				for key, val := range properMap {
+					buff, err := val.MarshalJSON()
+					if err != nil {
+						log.Println(err)
+						continue
+					}
 					switch key {
 					case "Figure":
-						fieldStrc.Figure = string(val)
+						fieldStrc.Figure = string(buff)
 					case "classCSS":
-						fieldStrc.CSSClass = string(val)
+						fieldStrc.CSSClass = string(buff)
 
 					}
 				}
