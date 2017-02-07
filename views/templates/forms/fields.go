@@ -253,13 +253,13 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 
 		ForeignFields = db.GetParentFieldName(tableName)
 		if ForeignFields == "" {
-			field.Html += "<option>Нет значений связанной таблицы!</option>"
+			field.Html += "<option disabled>Нет значений связанной таблицы!</option>"
 			return
 		}
 
 	}
 	sql := "select id, " + ForeignFields + " from " + tableName
-	rows, err := db.DoSelect(sql )
+	rows, err := db.DoSelect(sql)
 	if err != nil {
 		log.Println(err, sql)
 		return
@@ -400,23 +400,12 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 							fieldStrc.Pattern = val.(string)
 						case "foreingKeys":
 							fieldStrc.ForeignFields = val.(string)
-						case "events":
 							log.Println(key, val)
-							//var eventsMap map[string]*json.RawMessage
-							//if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
-							//	log.Println(err)
-							//} else {
-								fieldStrc.Events = make(map[string] string, 0)
-								for name, event := range val.(map[string] interface{}) {
-									//if buff, err := event.MarshalJSON(); err != nil {
-									//	log.Println(err)
-									//	continue
-									//} else {
-										fieldStrc.Events[name] = event.(string)
-									//}
-								}
-							//}
-
+						case "events":
+							fieldStrc.Events = make(map[string] string, 0)
+							for name, event := range val.(map[string] interface{}) {
+									fieldStrc.Events[name] = event.(string)
+							}
 						}
 					}
 				}
