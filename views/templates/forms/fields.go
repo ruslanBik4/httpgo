@@ -29,6 +29,8 @@ type FieldStructure struct {
 	TableName 	string
 	Events 		map[string] string
 	Figure 		string
+	Placeholder	string
+	Pattern		string
 	Html		string
 }
 type FieldsTable struct {
@@ -381,10 +383,29 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 							continue
 						}
 						switch key {
-						case "Figure":
+						case "figure":
 							fieldStrc.Figure = string(buff)
 						case "classCSS":
 							fieldStrc.CSSClass = string(buff)
+						case "placeholder":
+							fieldStrc.Placeholder = string(buff)
+						case "pattern":
+							fieldStrc.Pattern = string(buff)
+						case "events":
+							var eventsMap map[string]*json.RawMessage
+							if err := json.Unmarshal(buff, &eventsMap); err != nil {
+								log.Println(err)
+							} else {
+								fieldStrc.Events = make(map[string] string, 0)
+								for name, event := range eventsMap {
+									if buff, err := event.MarshalJSON(); err != nil {
+										log.Println(err)
+										continue
+									} else {
+										fieldStrc.Events[name] = string(buff)
+									}
+								}
+							}
 
 						}
 					}
