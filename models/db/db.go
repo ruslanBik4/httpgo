@@ -54,10 +54,7 @@ func addNewItem(tableProps, value, userID string) (int, error) {
 
 }
 //TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, key, userID string, values []string, id int) (err error) {
-
-	tableProps := strings.TrimLeft(key, "setid_")
-
+func insertMultiSet(tableName, tableProps, userID string, values []string, id int) (err error) {
 
 	sqlCommand := fmt.Sprintf("insert IGNORE into %s_%s_has (id_%[1]s, id_%[2]s) values (%d, ?)",
 		tableName, tableProps, id)
@@ -200,7 +197,14 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName, key, userID, values, lastInsertId)
+					err = insertMultiSet(tableName,  strings.TrimLeft(key, "setid_"), userID, values, lastInsertId)
+				}
+			} (tableName, strings.TrimRight(key, "[]"), val)
+			continue
+		} else if strings.HasPrefix(key, "nodeid_"){
+			defer func(tableName, key string, values []string) {
+				if err != nil {
+					err = insertMultiSet(tableName,  strings.TrimLeft(key, "nodeid_"), userID, values, lastInsertId)
 				}
 			} (tableName, strings.TrimRight(key, "[]"), val)
 			continue
@@ -271,7 +275,13 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, key string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName, key, userID, values, id)
+					err = insertMultiSet(tableName,  strings.TrimLeft(key, "setid_"), userID, values, id)
+				}
+			}(tableName, strings.TrimRight(key, "[]"), val)
+		} else if strings.HasPrefix(key, "nodeid_"){
+			defer func(tableName, key string, values []string) {
+				if err != nil {
+					err = insertMultiSet(tableName,  strings.TrimLeft(key, "nodeid_"), userID, values, id)
 				}
 			}(tableName, strings.TrimRight(key, "[]"), val)
 		} else if key == "id_users" {
