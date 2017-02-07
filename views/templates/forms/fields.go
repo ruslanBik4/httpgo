@@ -406,6 +406,8 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 							for name, event := range val.(map[string] interface{}) {
 									fieldStrc.Events[name] = event.(string)
 							}
+						default:
+							log.Println(key,val)
 						}
 					}
 				}
