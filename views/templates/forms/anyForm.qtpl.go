@@ -689,7 +689,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
         `)
 			//line views/templates/forms/anyForm.qtpl:171
-		} else if strings.HasPrefix(key, "setid_") {
+		} else if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") {
 			//line views/templates/forms/anyForm.qtpl:171
 			qw422016.N().S(`
             `)

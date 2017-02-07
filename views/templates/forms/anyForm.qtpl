@@ -168,7 +168,7 @@
             {%= field.RenderParentSelect(ns.Name, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "id_") %}
             {%= field.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
-        {% elseif strings.HasPrefix(key, "setid_") %}
+        {% elseif strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") %}
             {%= field.RenderMultiSelect(ns, tablePrefix, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "tableid_") %}
             {%= field.RenderTable(ns, tablePrefix, key, val, titleLabel, required) %}

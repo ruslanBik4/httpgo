@@ -200,25 +200,66 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 
 	return html
 }
-
-func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
-
+func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimLeft(key, "setid_")
-	tableValue := ns.Name + "_" + tableProps + "_has"
+	tableValue := parentTable + "_" + tableProps + "_has"
 
-	titleField := db.GetParentFieldName(tableProps)
+	titleField := field.getForeignFields(tableProps)
 	if titleField == "" {
+		return ""
+	}
+
+	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
+		titleField, parentTable,
+		tableProps, tableValue)
+
+}
+
+func (field *FieldStructure) getSQLFromNodeID(key, parentTable string) string{
+	var tableProps string
+
+	tableValue := strings.TrimLeft(key, "nodeid_")
+
+	var ns db.FieldsTable
+	ns.GetColumnsProp(tableValue)
+
+	for _, field := range ns.Rows {
+		if strings.HasPrefix(field.COLUMN_NAME, "id_") {
+			tableProps = field.COLUMN_NAME[3:]
+		}
+	}
+
+
+	titleField := field.getForeignFields(tableProps)
+	if titleField == "" {
+		return ""
+	}
+
+	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
+		titleField, parentTable,
+		tableProps, tableValue)
+
+}
+func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
+	var sqlCommand string
+
+	if strings.HasPrefix(key, "setid_") {
+		sqlCommand = field.getSQLFromSETID(key, ns.Name)
+	} else if strings.HasPrefix(key, "nodeid_"){
+
+		sqlCommand = field.getSQLFromNodeID(key, ns.Name)
+
+	}
+
+	if sqlCommand == "" {
 		return
 	}
 
 	where := field.whereFromSet(ns)
-	sqlCommand := fmt.Sprintf( `SELECT p.id, %s, id_%s
-	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) %[5]s`,
-		titleField, ns.Name,
-		tableProps, tableValue, where)
 
-
-	rows, err := db.DoSelect( sqlCommand, ns.ID )
+	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
 	if err != nil {
 		log.Println(sqlCommand, err)
 		return
@@ -246,18 +287,25 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 	}
 
 }
+func (field *FieldStructure) getForeignFields(tableName string)  string {
+
+
+	if field.ForeignFields > "" {
+		return field.ForeignFields
+	} else {
+		return db.GetParentFieldName(tableName)
+	}
+}
 func (field *FieldStructure) getOptions(tableName, val string) {
 
-	ForeignFields := field.ForeignFields
+	ForeignFields := field.getForeignFields(tableName)
+
 	if ForeignFields == "" {
-
-		ForeignFields = db.GetParentFieldName(tableName)
-		if ForeignFields == "" {
-			field.Html += "<option disabled>Нет значений связанной таблицы!</option>"
-			return
-		}
-
+		field.Html += "<option disabled>Нет значений связанной таблицы!</option>"
+		return
 	}
+
+
 	sql := "select id, " + ForeignFields + " from " + tableName
 	rows, err := db.DoSelect(sql)
 	if err != nil {
