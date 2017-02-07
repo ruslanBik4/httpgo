@@ -251,16 +251,17 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 	ForeignFields := field.ForeignFields
 	if ForeignFields == "" {
 
-		name := db.GetParentFieldName(tableName)
-		if name == "" {
+		ForeignFields = db.GetParentFieldName(tableName)
+		if ForeignFields == "" {
 			field.Html += "<option>Нет значений связанной таблицы!</option>"
 			return
 		}
 
 	}
-	rows, err := db.DoSelect("select id, " + ForeignFields + " from " + tableName )
+	sql := "select id, " + ForeignFields + " from " + tableName
+	rows, err := db.DoSelect(sql )
 	if err != nil {
-		log.Println(err)
+		log.Println(err, sql)
 		return
 	}
 	defer rows.Close()
@@ -375,15 +376,14 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
 
 				dataJson := field.COLUMN_COMMENT.String[posPattern:]
-				log.Println(dataJson)
 
 				var properMap map[string] interface{}
 				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 					log.Println(err)
+					log.Println(dataJson)
 				} else {
 					for key, val := range properMap {
 
-						log.Println(key, val)
 						//buff, err := val.MarshalJSON()
 						if err != nil {
 							log.Println(err)
@@ -401,6 +401,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 						case "foreingKeys":
 							fieldStrc.ForeignFields = val.(string)
 						case "events":
+							log.Println(key, val)
 							//var eventsMap map[string]*json.RawMessage
 							//if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
 							//	log.Println(err)
