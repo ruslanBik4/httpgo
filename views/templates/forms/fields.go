@@ -398,6 +398,8 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 							fieldStrc.Placeholder = val.(string)
 						case "pattern":
 							fieldStrc.Pattern = val.(string)
+						case "foreingKeys":
+							fieldStrc.ForeignFields = val.(string)
 						case "events":
 							var eventsMap map[string]*json.RawMessage
 							if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
