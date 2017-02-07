@@ -229,7 +229,7 @@ func getSQLFromNodeID(key, parentTable string) string{
 	fields.PutDataFrom(ns)
 
 	for _, field := range fields.Rows {
-		if strings.HasPrefix(field.COLUMN_NAME, "id_") {
+		if (field.COLUMN_NAME != "id_" + parentTable) || strings.HasPrefix(field.COLUMN_NAME, "id_") {
 			tableProps = field.COLUMN_NAME[3:]
 			titleField = field.getForeignFields(tableProps)
 			break
