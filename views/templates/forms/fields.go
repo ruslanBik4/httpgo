@@ -401,20 +401,20 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 						case "foreingKeys":
 							fieldStrc.ForeignFields = val.(string)
 						case "events":
-							var eventsMap map[string]*json.RawMessage
-							if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
-								log.Println(err)
-							} else {
+							//var eventsMap map[string]*json.RawMessage
+							//if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
+							//	log.Println(err)
+							//} else {
 								fieldStrc.Events = make(map[string] string, 0)
-								for name, event := range eventsMap {
-									if buff, err := event.MarshalJSON(); err != nil {
-										log.Println(err)
-										continue
-									} else {
-										fieldStrc.Events[name] = string(buff)
-									}
+								for name, event := range val.(map[string] interface{}) {
+									//if buff, err := event.MarshalJSON(); err != nil {
+									//	log.Println(err)
+									//	continue
+									//} else {
+										fieldStrc.Events[name] = event.(string)
+									//}
 								}
-							}
+							//}
 
 						}
 					}
