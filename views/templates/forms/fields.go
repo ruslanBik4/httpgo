@@ -216,24 +216,27 @@ func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
 
 }
 
-func (field *FieldStructure) getSQLFromNodeID(key, parentTable string) string{
-	var tableProps string
+func getSQLFromNodeID(key, parentTable string) string{
+	var tableProps, titleField string
 
 	tableValue := strings.TrimLeft(key, "nodeid_")
 
 	var ns db.FieldsTable
 	ns.GetColumnsProp(tableValue)
 
-	for _, field := range ns.Rows {
+	var fields FieldsTable
+
+	fields.PutDataFrom(ns)
+
+	for _, field := range fields.Rows {
 		if strings.HasPrefix(field.COLUMN_NAME, "id_") {
 			tableProps = field.COLUMN_NAME[3:]
+			titleField = field.getForeignFields(tableProps)
+			break
 		}
 	}
 
-
-	titleField := field.getForeignFields(tableProps)
 	if titleField == "" {
-		log.Println(field)
 		return ""
 	}
 
@@ -250,17 +253,16 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		sqlCommand = field.getSQLFromSETID(key, ns.Name)
 	} else if strings.HasPrefix(key, "nodeid_"){
 
-		sqlCommand = field.getSQLFromNodeID(key, ns.Name)
+		sqlCommand = getSQLFromNodeID(key, ns.Name)
 
 	}
-log.Println(sqlCommand)
+
 	if sqlCommand == "" {
 		field.Html += "не получается собрать запрос для поля" + key
 		return
 	}
 
 	where := field.whereFromSet(ns)
-	log.Println(where)
 
 	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
 	if err != nil {
