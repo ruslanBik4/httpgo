@@ -370,30 +370,30 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 				dataJson := field.COLUMN_COMMENT.String[posPattern:]
 				log.Println(dataJson)
 
-				var properMap map[string]*json.RawMessage
+				var properMap map[string]*string
 				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 					log.Println(err)
 				} else {
 					for key, val := range properMap {
 
 						log.Println(key, val)
-						buff, err := val.MarshalJSON()
+						//buff, err := val.MarshalJSON()
 						if err != nil {
 							log.Println(err)
 							continue
 						}
 						switch key {
 						case "figure":
-							fieldStrc.Figure = string(buff)
+							fieldStrc.Figure = *val //string(buff)
 						case "classCSS":
-							fieldStrc.CSSClass = string(buff)
+							fieldStrc.CSSClass = *val //string(buff)
 						case "placeholder":
-							fieldStrc.Placeholder = string(buff)
+							fieldStrc.Placeholder = *val //string(buff)
 						case "pattern":
-							fieldStrc.Pattern = string(buff)
+							fieldStrc.Pattern = *val //string(buff)
 						case "events":
 							var eventsMap map[string]*json.RawMessage
-							if err := json.Unmarshal(buff, &eventsMap); err != nil {
+							if err := json.Unmarshal([]byte(*val), &eventsMap); err != nil {
 								log.Println(err)
 							} else {
 								fieldStrc.Events = make(map[string] string, 0)
