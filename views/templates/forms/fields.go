@@ -233,6 +233,7 @@ func (field *FieldStructure) getSQLFromNodeID(key, parentTable string) string{
 
 	titleField := field.getForeignFields(tableProps)
 	if titleField == "" {
+		log.Println(field)
 		return ""
 	}
 
@@ -252,12 +253,14 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		sqlCommand = field.getSQLFromNodeID(key, ns.Name)
 
 	}
-
+log.Println(sqlCommand)
 	if sqlCommand == "" {
+		field.Html += "не получается собрать запрос для поля" + key
 		return
 	}
 
 	where := field.whereFromSet(ns)
+	log.Println(where)
 
 	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
 	if err != nil {
