@@ -32,6 +32,7 @@ type FieldStructure struct {
 	Placeholder	string
 	Pattern		string
 	Html		string
+	ForeignFields	string
 }
 type FieldsTable struct {
 	Name string
@@ -247,11 +248,17 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 }
 func (field *FieldStructure) getOptions(tableName, val string) {
 
-	name := db.GetParentFieldName(tableName)
-	if name == "" {
-		return
+	ForeignFields := field.ForeignFields
+	if ForeignFields == "" {
+
+		name := db.GetParentFieldName(tableName)
+		if name == "" {
+			field.Html += "<option>Нет значений связанной таблицы!</option>"
+			return
+		}
+
 	}
-	rows, err := db.DoSelect("select id, " + name + " from " + tableName )
+	rows, err := db.DoSelect("select id, " + ForeignFields + " from " + tableName )
 	if err != nil {
 		log.Println(err)
 		return
@@ -370,7 +377,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 				dataJson := field.COLUMN_COMMENT.String[posPattern:]
 				log.Println(dataJson)
 
-				var properMap map[string]*string
+				var properMap map[string] interface{}
 				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 					log.Println(err)
 				} else {
@@ -384,16 +391,16 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 						}
 						switch key {
 						case "figure":
-							fieldStrc.Figure = *val //string(buff)
+							fieldStrc.Figure = val.(string)
 						case "classCSS":
-							fieldStrc.CSSClass = *val //string(buff)
+							fieldStrc.CSSClass = val.(string)
 						case "placeholder":
-							fieldStrc.Placeholder = *val //string(buff)
+							fieldStrc.Placeholder = val.(string)
 						case "pattern":
-							fieldStrc.Pattern = *val //string(buff)
+							fieldStrc.Pattern = val.(string)
 						case "events":
 							var eventsMap map[string]*json.RawMessage
-							if err := json.Unmarshal([]byte(*val), &eventsMap); err != nil {
+							if err := json.Unmarshal(val.([]byte), &eventsMap); err != nil {
 								log.Println(err)
 							} else {
 								fieldStrc.Events = make(map[string] string, 0)
