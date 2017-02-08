@@ -118,9 +118,11 @@
             key := field.COLUMN_NAME
 
             if field.DATA_TYPE=="date" {
-                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d'});`
+                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d'});
+                `
             } else if field.DATA_TYPE=="datetime" {
-                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d H:i'});`
+                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d H:i'});
+                `
             }
 
             titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
@@ -251,7 +253,9 @@
     <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
     <script src="/jquery.datetimepicker.js"></script>
     <script>
-    {%s= setDatePicker %}
+    $(function () {
+        {%s= setDatePicker %}
+    })
     </script>
 {% endif %}
 {% endfunc %}

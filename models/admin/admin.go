@@ -352,7 +352,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
+	views.RenderAnyForm(w, r, "Меняем запись №" + id + " в таблице " + tableName, fields, nil)
 
 }
 func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
