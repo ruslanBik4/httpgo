@@ -453,7 +453,10 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 							fieldStrc.Pattern = val.(string)
 						case "foreingKeys":
 							fieldStrc.ForeignFields = val.(string)
-							log.Println(key, val)
+						case "inputType":
+							fieldStrc.InputType = val.(string)
+						case "isHidden":
+							fieldStrc.IsHidden = val.(bool)
 						case "events":
 							fieldStrc.Events = make(map[string] string, 0)
 							for name, event := range val.(map[string] interface{}) {
