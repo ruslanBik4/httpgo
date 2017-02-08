@@ -1020,7 +1020,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		qw422016.N().S(`
     <head>
         <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
-        <script type="text/javascript" src="/jquery.datetimepicker.js"></script>
+        <script type="text/javascript" src="/jquery.datetimepicker.js"></script >
     </head>
     <script>
     $(function () {
