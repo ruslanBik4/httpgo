@@ -168,8 +168,8 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 	}
 	field.Html += fmt.Sprintf( `<tr id="tr%s">%s</tr></tbody>`, tablePrefix+key, newRow)
 }
-const CELL_TABLE  = `<td><input type="%s" name="%s:%s" value="%s"/></td>`
-const CELL_SELECT  = `<td><select name="%s:%s" class="">%s</select></td>`
+const CELL_TABLE  = `<td class="%s"><input type="%s" name="%s:%s" value="%s"/></td>`
+const CELL_SELECT  = `<td class="%s"><select name="%s:%s" class="">%s</select></td>`
 func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
@@ -185,17 +185,24 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 		}
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.getOptions(fieldName[3:], value)
-		html += fmt.Sprintf(CELL_SELECT, tableProps, inputName, fieldStruct.Html )
+		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html )
 	} else if strings.HasPrefix(fieldName, "setid_") {
 		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
 	} else {
 		switch fieldStruct.DATA_TYPE {
 		case "enum":
-			html += "<td>" + fieldStruct.renderEnum(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.renderEnum(inputName, value, required, events, dataJson) + "</td>"
 		case "set":
-			html += "<td>" + fieldStruct.renderSet(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.renderSet(inputName, value, required, events, dataJson) + "</td>"
+		case "tinyint":
+			checked := ""
+			if value == "1" {
+				checked = "checked"
+			}
+			html += "<td class='" + fieldStruct.CSSClass + "'>" +
+					renderCheckBox(inputName, fieldName, "", 1, checked, events, dataJson)+ "</td>"
 		default:
-			html += fmt.Sprintf(CELL_TABLE, "text", tableProps, inputName, value)
+			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, "text", tableProps, inputName, value)
 		}
 	}
 
@@ -312,10 +319,10 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 	}
 
 
-	sql := "select id, " + ForeignFields + " from " + tableName
-	rows, err := db.DoSelect(sql)
+	sqlCommand := "select id, " + ForeignFields + " from " + tableName
+	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
-		log.Println(err, sql)
+		log.Println(err, sqlCommand)
 		return
 	}
 	defer rows.Close()

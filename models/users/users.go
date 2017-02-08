@@ -63,7 +63,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		fmt.Println("Code exchange failed with '%s'\n", err)
+		log.Printf("Code exchange failed with '%v'\n", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -117,7 +117,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	session := GetSession(r, nameSession )
 	email, ok := session.Values["email"]
 	if !ok {
-		fmt.Fprintf(w, "Сперва необходимо авторизоваться!")
+		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
 		return
 	}
 	rows := db.DoQuery("select id, fullname, sex from users where login=?", email )
@@ -213,6 +213,7 @@ func GenerateRandomString(s int) (string, error) {
 }
 func generatePassword(email string) (string, error) {
 
+	log.Println(email)
 	return GenerateRandomString(16)
 
 }

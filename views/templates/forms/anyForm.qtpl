@@ -178,7 +178,7 @@
                 {% case "tinyint" %}
                         {% code
                             checked := ""
-                            if (val > "") {
+                            if (val == "1") {
                                 checked = "checked"
                             }
                         %}

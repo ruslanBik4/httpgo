@@ -209,7 +209,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableName, tableProps string, values []string) {
-				if err != nil {
+				if err == nil {
 					err = insertMultiSet(tableName,  tableProps,
 						tableName + "_" + tableProps + "_has", userID, values, lastInsertId)
 				}
@@ -217,7 +217,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
 			defer func(tableName, tableValues string, values []string) {
-				if err != nil {
+				if err == nil {
 					err = insertMultiSet(tableName, GetNameTableProps(tableValues, tableName),
 						tableValues, userID, values, lastInsertId)
 				}
@@ -289,16 +289,17 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
 			defer func(tableProps string, values []string) {
-				if err != nil {
+				if err == nil {
 					err = insertMultiSet(tableName,  tableProps,
 						tableName + "_" + tableProps + "_has", userID, values, id)
+				} else {
+					log.Println(err)
 				}
 			} (key[len("setid_"):len(key)-2], val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
-			log.Println(key)
 			defer func(tableValues string, values []string) {
-				if err != nil {
+				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
 						log.Println("Empty tableProps! ", tableValues )
