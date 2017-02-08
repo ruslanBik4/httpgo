@@ -54,10 +54,10 @@ func addNewItem(tableProps, value, userID string) (int, error) {
 
 }
 //TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, tableProps, userID string, values []string, id int) (err error) {
+func  insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
 
-	sqlCommand := fmt.Sprintf("insert IGNORE into %s_%s_has (id_%[1]s, id_%[2]s) values (%d, ?)",
-		tableName, tableProps, id)
+	sqlCommand := fmt.Sprintf("insert IGNORE into %s (id_%s, id_%s) values (%d, ?)",
+		tableValues, tableName, tableProps, id)
 	smtp, err := prepareQuery(sqlCommand)
 	if err != nil {
 		log.Println(err)
@@ -68,6 +68,7 @@ func insertMultiSet(tableName, tableProps, userID string, values []string, id in
 
 	for _, value := range values {
 
+		// если не числовое значение - стало быть, это новое свойство и его добавим в таблицу свойств
 		if !DigitsValidator.MatchString(value) {
 			newId, err := addNewItem(tableProps, value, userID)
 			if err != nil {
@@ -171,6 +172,18 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 
 	return err
 }
+func GetNameTableProps(tableValue, parentTable string) string{
+	var ns FieldsTable
+	ns.GetColumnsProp(tableValue)
+
+	for _, field := range ns.Rows {
+		if (field.COLUMN_NAME != "id_" + parentTable) && strings.HasPrefix(field.COLUMN_NAME, "id_") {
+			return field.COLUMN_NAME[3:]
+		}
+	}
+
+	return ""
+}
 func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err error) {
 
 	r.ParseForm()
@@ -195,18 +208,20 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 		if key == "table" {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
-			defer func(tableName, key string, values []string) {
+			defer func(tableName, tableProps string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName,  strings.TrimLeft(key, "setid_"), userID, values, lastInsertId)
+					err = insertMultiSet(tableName,  tableProps,
+						tableName + "_" + tableProps + "_has", userID, values, lastInsertId)
 				}
-			} (tableName, strings.TrimRight(key, "[]"), val)
+			} (tableName, key[len("setid_"):len(key)-2], val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
-			defer func(tableName, key string, values []string) {
+			defer func(tableName, tableValues string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName,  strings.TrimLeft(key, "nodeid_"), userID, values, lastInsertId)
+					err = insertMultiSet(tableName, GetNameTableProps(tableValues, tableName),
+						tableValues, userID, values, lastInsertId)
 				}
-			} (tableName, strings.TrimRight(key, "[]"), val)
+			} (tableName, key[len("nodeid_"):len(key)-2], val)
 			continue
 		} else if key == "id_users" {
 
@@ -273,17 +288,21 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			id, _ = strconv.Atoi(val[0])
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
-			defer func(tableName, key string, values []string) {
+			defer func(tableProps string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName,  strings.TrimLeft(key, "setid_"), userID, values, id)
+					err = insertMultiSet(tableName,  tableProps,
+						tableName + "_" + tableProps + "_has", userID, values, id)
 				}
-			}(tableName, strings.TrimRight(key, "[]"), val)
+			} (key[len("setid_"):len(key)-2], val)
+			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
-			defer func(tableName, key string, values []string) {
+			defer func(tableValues string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName,  strings.TrimLeft(key, "nodeid_"), userID, values, id)
+					err = insertMultiSet(tableName, GetNameTableProps(tableValues, tableName),
+						tableValues, userID, values, id)
 				}
-			}(tableName, strings.TrimRight(key, "[]"), val)
+			} (key[len("nodeid_"):len(key)-2], val)
+			continue
 		} else if key == "id_users" {
 
 			sqlCommand += comma + "`" + key + "`=?"

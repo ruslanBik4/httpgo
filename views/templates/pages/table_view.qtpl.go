@@ -70,10 +70,10 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
                 <td>`)
 		//line views/templates/pages/table_view.qtpl:40
 		fieldStruct := fields.FindField(fieldName)
-		titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
+		titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
-		if len(titleLabel) > 30 {
-			titleLabel = titleLabel[:30] + "..."
+		if len(titleFull) > 30 {
+			titleLabel = titleFull[:30] + "..."
 		}
 
 		//line views/templates/pages/table_view.qtpl:47
