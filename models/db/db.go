@@ -81,7 +81,7 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 			log.Println(err)
 			log.Println(sqlCommand)
 		} else {
-			log.Println(resultSQL.LastInsertId())
+			log.Println(resultSQL)
 		}
 		params += comma + "?"
 		valParams = append(valParams, value )
@@ -100,7 +100,7 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		log.Println(sqlCommand)
 		return err
 	}else {
-		log.Println(resultSQL.RowsAffected())
+		log.Println(resultSQL)
 	}
 
 	return err
@@ -133,7 +133,7 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	query.Comma = ", "
 	query.Args = append(query.Args, val)
 	for i, v := range val {
-		log.Println(i,v)
+		log.Println("tableid_ - params", i,v)
 	}
 	tableIDQueryes.Queryes[tableName] = query
 
@@ -298,8 +298,11 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 		} else if strings.HasPrefix(key, "nodeid_"){
 			defer func(tableValues string, values []string) {
 				if err != nil {
-					err = insertMultiSet(tableName, GetNameTableProps(tableValues, tableName),
-						tableValues, userID, values, id)
+					tableProps := GetNameTableProps(tableValues, tableName)
+					if tableProps == "" {
+						log.Println("Empty tableProps! ", tableValues )
+					}
+					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				}
 			} (key[len("nodeid_"):len(key)-2], val)
 			continue

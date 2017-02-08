@@ -371,6 +371,7 @@ func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
+		fmt.Fprintf(w, `{"error":true,"message":"%s"}`, users.NOT_AUTHORIZE)
 		return
 	}
 	if id, err := db.DoInsertFromForm(r, userID); err != nil {
@@ -386,6 +387,7 @@ func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
+		fmt.Fprintf(w, `{"error":true,"message":"%s"}`, users.NOT_AUTHORIZE)
 		return
 	}
 	if rowAffected, err := db.DoUpdateFromForm(r, userID); err != nil {

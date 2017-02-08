@@ -21,6 +21,7 @@ import (
 	"github.com/gorilla/sessions"
 )
 const nameSession = "PHPSESSID"
+const NOT_AUTHORIZE = "Нет данных об авторизации!"
 var (
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
