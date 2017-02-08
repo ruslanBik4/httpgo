@@ -218,8 +218,11 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 		} else if strings.HasPrefix(key, "nodeid_"){
 			defer func(tableName, tableValues string, values []string) {
 				if err == nil {
-					err = insertMultiSet(tableName, GetNameTableProps(tableValues, tableName),
-						tableValues, userID, values, lastInsertId)
+					tableProps := GetNameTableProps(tableValues, tableName)
+					if tableProps == "" {
+						log.Println("Empty tableProps! ", tableValues )
+					}
+					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
 			} (tableName, key[len("nodeid_"):len(key)-2], val)
 			continue
