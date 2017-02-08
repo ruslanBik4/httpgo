@@ -250,15 +250,15 @@
     </div>
 </form>
 {% if setDatePicker > "" %}
-    <head>
-        <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
-        <script type="text/javascript" src="/jquery.datetimepicker.js">
-    </head>
     <script>
     $(function () {
         {%s= setDatePicker %}
     })
     </script>
+    <head>
+        <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
+        <script type="text/javascript" src="/jquery.datetimepicker.js" />
+    </head>
 {% endif %}
 {% endfunc %}
 {% func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
