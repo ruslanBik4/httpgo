@@ -87,8 +87,8 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		valParams = append(valParams, value )
 		comma = ","
 	}
-	sqlCommand = fmt.Sprintf("delete from %s_%s_has where id_%[1]s = %[3]d AND id_%[2]s not in (%[4]s)",
-		tableName, tableProps, id, params)
+	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
+		tableValues, tableName, id, tableProps, params)
 
 	if smtp, err = prepareQuery(sqlCommand); err != nil {
 		log.Println(err)
@@ -147,7 +147,7 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 
 		var args [] interface{}
 
-		for i, _ := range query.Args[0].([]string) {
+		for i := range query.Args[0].([]string) {
 			if i > 0 {
 				fullCommand += ",(" + query.Values + ")"
 			}
@@ -160,7 +160,7 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 
 				}
 			}
-			// последним добавляем вторичный ключe
+			// последним добавляем вторичный ключ
 			args = append(args, lastInsertId)
 		}
 		if id, err := DoInsert(fullCommand,  args ...); err != nil {
