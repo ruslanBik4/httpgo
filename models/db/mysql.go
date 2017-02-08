@@ -219,7 +219,26 @@ type TableOptions struct {
 type RecordsTables struct {
 	Rows [] TableOptions
 }
+// получение данных для одной таблицы
+func (ns *TableOptions) GetTableProp(tableName string) error {
 
+	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, " +
+		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) " +
+		"FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? order by TABLE_COMMENT", tableName)
+
+	for rows.Next() {
+
+		err := rows.Scan( &ns.TABLE_NAME, &ns.TABLE_TYPE, &ns.ENGINE, &ns.TABLE_COMMENT)
+
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+	}
+
+	return nil
+}
 // получение таблиц
 func (ns *RecordsTables) GetTablesProp(bd_name string)  error {
 

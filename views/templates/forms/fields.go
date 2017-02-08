@@ -77,6 +77,7 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
+// create where for ЫЙД query from setting field
 func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE "
@@ -84,7 +85,8 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
 			param := ""
-			if paramField := ns.FindField(enumVal[i+1:]); paramField != nil {
+			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+			if paramField := ns.FindField(enumVal[i+1:]); (paramField != nil) && (paramField.Value != "") {
 				param = paramField.Value
 				enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
 			} else {
@@ -98,7 +100,6 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	return result
 }
 //получаем связанную таблицу с полями
-
 func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key string) {
 	//key := field.COLUMN_NAME
 	tableProps := key[ len("tableid_") : ]

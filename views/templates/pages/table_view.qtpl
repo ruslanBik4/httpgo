@@ -32,17 +32,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             }
         %}
 <link href="/tables.css" rel="stylesheet">
-
 <table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
         <tr>
             {%  for idx, fieldName := range columns %}
                 <td>{% code
                         fieldStruct := fields.FindField( fieldName )
-                        titleFull, titleLabel, _, _, _ := fieldStruct.GetColumnTitles()
+                        titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
-                        if len(titleLabel) > 30 {
-                            titleLabel = titleLabel[:30] + "..."
+                        if len(titleFull) > 30 {
+                            titleLabel = titleFull[:30] + "..."
                         }
 
                     %}
@@ -100,7 +99,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     </td>
                 {% endif %}
             {%  endfor %}
-
         </tr>
         {%  endfor %}
     </tbody>
