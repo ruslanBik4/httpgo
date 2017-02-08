@@ -296,6 +296,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			} (key[len("setid_"):len(key)-2], val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
+			log.Println(key)
 			defer func(tableValues string, values []string) {
 				if err != nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
@@ -303,6 +304,8 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 						log.Println("Empty tableProps! ", tableValues )
 					}
 					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
+				} else {
+					log.Println(err)
 				}
 			} (key[len("nodeid_"):len(key)-2], val)
 			continue
@@ -320,7 +323,6 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			}
 			row = append(row, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
-			log.Println(key)
 			tableIDQueryes.addNewParam(key, indSeparator, val)
 			continue
 		} else {
