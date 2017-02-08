@@ -420,6 +420,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			IS_NULLABLE: field.IS_NULLABLE,
 			COLUMN_TYPE: field.COLUMN_TYPE,
 			Events     : make(map[string] string, 0),
+			IsHidden   : false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -480,7 +481,6 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		if field.COLUMN_DEFAULT.Valid {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
-		fieldStrc.IsHidden = false
 
 		fields.Rows = append(fields.Rows,*fieldStrc)
 	}
