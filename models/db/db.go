@@ -133,7 +133,7 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	query.Comma = ", "
 	query.Args = append(query.Args, val)
 	for i, v := range val {
-		log.Println("tableid_ - params", i,v)
+		log.Println("tableid_ - params", tableName,  i,v)
 	}
 	tableIDQueryes.Queryes[tableName] = query
 
@@ -320,6 +320,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			}
 			row = append(row, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
+			log.Println(key)
 			tableIDQueryes.addNewParam(key, indSeparator, val)
 			continue
 		} else {
