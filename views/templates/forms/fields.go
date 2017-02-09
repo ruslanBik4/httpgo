@@ -38,6 +38,7 @@ type FieldStructure struct {
 type FieldsTable struct {
 	Name string
 	ID   int
+	Comment string
 	IsDadata bool
 	Rows [] FieldStructure
 	Hiddens map[string] string
@@ -408,7 +409,7 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 	for key, val := range fieldStrc.DataJSOM {
 		dataJson += fmt.Sprintf(`"%s": "%s"`, key, val)
 	}
-	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_NAME, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
+	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
 func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
 

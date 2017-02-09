@@ -284,6 +284,7 @@ type FieldStructure struct {
 }
 type FieldsTable struct {
 	Rows [] FieldStructure
+	Options TableOptions
 }
 
 // получение значений полей для форматирования данных

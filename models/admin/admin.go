@@ -286,11 +286,13 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 func getFields(tableName string) (fields forms.FieldsTable){
 
 	var ns db.FieldsTable
+	ns.Options.GetTableProp(tableName)
 	ns.Rows = make([] db.FieldStructure, 0)
 	ns.GetColumnsProp(tableName)
 
 	fields.Rows = make([] forms.FieldStructure, 0)
 	fields.Name = tableName
+	fields.Comment = ns.Options.TABLE_COMMENT
 
 	fields.PutDataFrom(ns)
 
@@ -352,7 +354,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	views.RenderAnyForm(w, r, "Меняем запись №" + id + " в таблице " + tableName, fields, nil)
+	views.RenderAnyForm(w, r, "Меняем запись №" + id + " в таблице " + fields.Comment, fields, nil)
 
 }
 func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
