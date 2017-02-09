@@ -210,9 +210,7 @@
                     </textarea>
                {% default %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
-                    <input id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
-                        {% if val > "" %} value="{%s val %}" {% endif %}
-                        {%s= required %} {%s= events %} {%s= dataJson %} type=
+                    <input type=
 
                         {% if field.InputType > "" %}
                             "{%s field.InputType %}"
@@ -235,6 +233,9 @@
                                {% endif %}
                                {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
                         {% endif %}
+                        id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
+                                                {% if val > "" %} value="{%s val %}" {% endif %}
+                                                {%s= required %} {%s= events %} {%s= dataJson %}
                     />
                 {% endswitch %}
 

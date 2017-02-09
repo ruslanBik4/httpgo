@@ -33,6 +33,7 @@ type FieldStructure struct {
 	Pattern		string
 	Html		string
 	ForeignFields	string
+	DataJSOM        map[string] interface{}
 }
 type FieldsTable struct {
 	Name string
@@ -402,23 +403,68 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 
 	return titleFull, titlePart
 }
-func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
-	titleFull = field.COLUMN_COMMENT
-	if titleFull == "" {
-		titleLabel = field.COLUMN_NAME
-		return titleFull, titleLabel, placeholder, pattern, dataJson
-	} else if strings.Index(titleFull, ".") > 0 {
-		titleLabel = titleFull[:strings.Index(titleFull, ".")]
+func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
+
+	for key, val := range fieldStrc.DataJSOM {
+		dataJson += fmt.Sprintf(`"%s": "%s"`, key, val)
+	}
+	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_NAME, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
+}
+func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
+
+	if field.COLUMN_COMMENT.Valid {
+		return ""
+	}
+	titleFull := field.COLUMN_COMMENT.String
+	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "#", titleFull)
+	if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
+
+		dataJson := field.COLUMN_COMMENT.String[posPattern:]
+
+		var properMap map[string] interface{}
+		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+			log.Println(err)
+			log.Println(dataJson)
+		} else {
+			for key, val := range properMap {
+
+				//buff, err := val.MarshalJSON()
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				switch key {
+				case "figure":
+					fieldStrc.Figure = val.(string)
+				case "classCSS":
+					fieldStrc.CSSClass = val.(string)
+				case "placeholder":
+					fieldStrc.Placeholder = val.(string)
+				case "pattern":
+					fieldStrc.Pattern = val.(string)
+				case "foreingKeys":
+					fieldStrc.ForeignFields = val.(string)
+				case "inputType":
+					fieldStrc.InputType = val.(string)
+				case "isHidden":
+					fieldStrc.IsHidden = val.(bool)
+				case "events":
+					fieldStrc.Events = make(map[string] string, 0)
+					for name, event := range val.(map[string] interface{}) {
+						fieldStrc.Events[name] = event.(string)
+					}
+				default:
+					fieldStrc.DataJSOM[key] = val
+				}
+			}
+		}
+
+		fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String[:posPattern]
 	} else {
-		titleLabel = titleFull
+		fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
 	}
 
-
-	titleFull, pattern = cutPartFromTitle(titleFull, "//", "")
-	titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
-	titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)
-
-	return titleFull, titleLabel, placeholder, pattern, dataJson
+	return fieldStrc.COLUMN_COMMENT
 }
 // заполняет структуру для формы данными, взятыми из структуры БД
 func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
@@ -430,61 +476,14 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			IS_NULLABLE: field.IS_NULLABLE,
 			COLUMN_TYPE: field.COLUMN_TYPE,
 			Events     : make(map[string] string, 0),
+			DataJSOM   : make(map[string] interface{}, 0),
 			IsHidden   : false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
-		if field.COLUMN_COMMENT.Valid {
+		fieldStrc.getTitle(field)
 
-			if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
-
-				dataJson := field.COLUMN_COMMENT.String[posPattern:]
-
-				var properMap map[string] interface{}
-				if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
-					log.Println(err)
-					log.Println(dataJson)
-				} else {
-					for key, val := range properMap {
-
-						//buff, err := val.MarshalJSON()
-						if err != nil {
-							log.Println(err)
-							continue
-						}
-						switch key {
-						case "figure":
-							fieldStrc.Figure = val.(string)
-						case "classCSS":
-							fieldStrc.CSSClass = val.(string)
-						case "placeholder":
-							fieldStrc.Placeholder = val.(string)
-						case "pattern":
-							fieldStrc.Pattern = val.(string)
-						case "foreingKeys":
-							fieldStrc.ForeignFields = val.(string)
-						case "inputType":
-							fieldStrc.InputType = val.(string)
-						case "isHidden":
-							fieldStrc.IsHidden = val.(bool)
-						case "events":
-							fieldStrc.Events = make(map[string] string, 0)
-							for name, event := range val.(map[string] interface{}) {
-									fieldStrc.Events[name] = event.(string)
-							}
-						default:
-							log.Println(key,val)
-						}
-					}
-				}
-
-				fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String[:posPattern]
-			} else {
-				fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
-			}
-
-		}
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
 			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
 		}

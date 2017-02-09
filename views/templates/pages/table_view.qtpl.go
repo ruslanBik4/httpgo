@@ -72,9 +72,9 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 		fieldStruct := fields.FindField(fieldName)
 		titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
-		if len(titleFull) > 30 {
+		if len(titleFull) > 50 {
 
-			titleLabel = titleFull[:strings.LastIndex(titleFull[:30], " ")] + "..."
+			titleLabel = titleFull[:strings.LastIndex(titleFull[:50], " ")] + "..."
 		}
 
 		//line views/templates/pages/table_view.qtpl:48

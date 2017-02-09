@@ -40,9 +40,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fieldStruct := fields.FindField( fieldName )
                         titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
-                        if len(titleFull) > 30 {
+                        if len(titleFull) > 50 {
 
-                            titleLabel = titleFull[:strings.LastIndex(titleFull[:30], " ")] + "..."
+                            titleLabel = titleFull[:strings.LastIndex(titleFull[:50], " ")] + "..."
                         }
 
                     %}
