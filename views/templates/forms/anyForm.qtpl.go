@@ -746,7 +746,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                         `)
 				//line views/templates/forms/anyForm.qtpl:197
-				streamrenderCheckBox(qw422016, nameInput, titleLabel, titleLabel, 1, checked, events, dataJson)
+				streamrenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, events, dataJson)
 				//line views/templates/forms/anyForm.qtpl:197
 				qw422016.N().S(`
                 `)

@@ -132,9 +132,6 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	query.Values += query.Comma + "?"
 	query.Comma = ", "
 	query.Args = append(query.Args, val)
-	for i, v := range val {
-		log.Println("tableid_ - params", tableName,  i,v)
-	}
 	tableIDQueryes.Queryes[tableName] = query
 
 }
@@ -255,7 +252,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 	if len(tableIDQueryes.Queryes) > 0 {
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
-			if err != nil {
+			if err == nil {
 				err = tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
 			}
 		} ()
@@ -340,7 +337,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 	if len(tableIDQueryes.Queryes) > 0 {
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
-			if err != nil {
+			if err == nil {
 				err = tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
 			}
 		} ()
