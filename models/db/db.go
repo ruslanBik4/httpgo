@@ -136,10 +136,13 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 
 }
 func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int, Queryes map[string] *ArgsQuery) (err error){
+
+	parentKey := "id_" + tableName
 	for childTableName, query := range Queryes {
-		//query.Args = append(query.Args, lastInsertId)
-		query.SQLCommand += query.Comma + "id_" + tableName
-		query.Values += query.Comma + "?"
+		if ! strings.Contains(query.SQLCommand, parentKey) {
+			query.SQLCommand += query.Comma + parentKey
+			query.Values += query.Comma + "?"
+		}
 		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
 
 		var args [] interface{}
@@ -158,7 +161,9 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 				}
 			}
 			// последним добавляем вторичный ключ
-			args = append(args, lastInsertId)
+			if ! strings.Contains(query.SQLCommand, parentKey) {
+				args = append(args, lastInsertId)
+			}
 		}
 		if id, err := DoInsert(fullCommand,  args ...); err != nil {
 			log.Println(err)
