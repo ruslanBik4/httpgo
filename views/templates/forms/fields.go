@@ -417,7 +417,7 @@ func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
 		return ""
 	}
 	titleFull := field.COLUMN_COMMENT.String
-	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "#", titleFull)
+	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
 	if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
 
 		dataJson := field.COLUMN_COMMENT.String[posPattern:]
