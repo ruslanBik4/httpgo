@@ -41,7 +41,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
                         if len(titleFull) > 30 {
-                            titleLabel = titleFull[:30] + "..."
+
+                            titleLabel = titleFull[:strings.LastIndex(titleFull[:30], " ")] + "..."
                         }
 
                     %}

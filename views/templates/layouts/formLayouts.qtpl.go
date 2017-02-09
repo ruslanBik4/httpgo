@@ -61,9 +61,9 @@ func PutHead() string {
 func StreamPutEnd(qw422016 *qt422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:9
 	qw422016.N().S(`
-    <script src="/yii.js">
-    <script src="/yii.validation.js">
-    <script src="/yii.activeForm.js">
+    <script src="/yii.js"></script>
+    <script src="/yii.validation.js"></script>
+    <script src="/yii.activeForm.js"></script>
 
 `)
 //line views/templates/layouts/formLayouts.qtpl:14

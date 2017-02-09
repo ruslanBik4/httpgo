@@ -412,6 +412,8 @@ func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placehold
 	} else {
 		titleLabel = titleFull
 	}
+
+
 	titleFull, pattern = cutPartFromTitle(titleFull, "//", "")
 	titleFull, dataJson = cutPartFromTitle(titleFull, "{", "")
 	titleFull, placeholder = cutPartFromTitle(titleFull, "#", titleFull)

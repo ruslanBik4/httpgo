@@ -7,8 +7,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 
 {% func PutEnd() %}
-    <script src="/yii.js">
-    <script src="/yii.validation.js">
-    <script src="/yii.activeForm.js">
+    <script src="/yii.js"></script>
+    <script src="/yii.validation.js"></script>
+    <script src="/yii.activeForm.js"></script>
 
 {% endfunc %}

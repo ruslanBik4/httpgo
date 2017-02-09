@@ -252,12 +252,12 @@
 {% if setDatePicker > "" %}
     <head>
         <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
+        <script src="/jquery.datetimepicker.js"></script>
     </head>
     <script>
-          LoadJScript( "/jquery.datetimepicker.js", true, true, setDatePickerToElem )
-        function setDatePickerToElem() {
+        $(function () {
             {%s= setDatePicker %}
-        }
+        })
     </script>
 {% endif %}
 {% endfunc %}

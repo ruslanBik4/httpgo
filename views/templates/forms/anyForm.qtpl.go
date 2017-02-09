@@ -1020,16 +1020,16 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		qw422016.N().S(`
     <head>
         <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
+        <script src="/jquery.datetimepicker.js"></script>
     </head>
     <script>
-          LoadJScript( "/jquery.datetimepicker.js", true, true, setDatePickerToElem )
-        function setDatePickerToElem() {
+        $(function () {
             `)
 		//line views/templates/forms/anyForm.qtpl:259
 		qw422016.N().S(setDatePicker)
 		//line views/templates/forms/anyForm.qtpl:259
 		qw422016.N().S(`
-        }
+        })
     </script>
 `)
 		//line views/templates/forms/anyForm.qtpl:262
