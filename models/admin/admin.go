@@ -223,7 +223,11 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	if order > "" {
 		order = " order by " + order
 	}
-	rows := db.DoQuery("select * from " + tableName + order)
+	rows, err := db.DoSelect("select * from " + tableName + order)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Error during run query %s", "select * from " + tableName + order)
+	}
 
 	defer rows.Close()
 	fmt.Fprint(w, pages.ShowTable(tableName, fields, rows) )

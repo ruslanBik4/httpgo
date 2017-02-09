@@ -427,6 +427,7 @@ func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
 		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 			log.Println(err)
 			log.Println(dataJson)
+			log.Println(properMap)
 		} else {
 			for key, val := range properMap {
 

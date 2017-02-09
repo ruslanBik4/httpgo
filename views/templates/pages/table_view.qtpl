@@ -50,7 +50,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         }
 
                     %}
-                    <a href="/admin/table/{%s tableName %}?order={%s fieldName%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
+                    <a href="/admin/table/{%s tableName %}/?order={%s fieldName%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
                 </td>
             {%  endfor %}
         </tr>
