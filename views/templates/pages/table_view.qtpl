@@ -38,7 +38,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             {%  for idx, fieldName := range columns %}
                 <td>{% code
                         fieldStruct := fields.FindField( fieldName )
-                        titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
+                        titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, ""
 
                         if len(titleFull) > 50 {
 
