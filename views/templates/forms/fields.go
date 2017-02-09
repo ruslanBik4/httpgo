@@ -412,7 +412,7 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 }
 func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
 
-	if field.COLUMN_COMMENT.Valid {
+	if ! field.COLUMN_COMMENT.Valid {
 		return ""
 	}
 	titleFull := field.COLUMN_COMMENT.String
