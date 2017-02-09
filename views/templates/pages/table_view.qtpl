@@ -78,7 +78,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     val := fieldStruct.Value
                 %}
                 {% if idx==0 %}
-                    <td><a href="/admin/row/edit/?table={%s tableName %}&id={%s val %}" target="content">{%s val %}</a>
+                    <td><a href="/{%s tableName %}/edit/?id={%s val %}" target="content">{%s val %}</a>
                     </td>
                     {%code
                         tablePrefix = val
