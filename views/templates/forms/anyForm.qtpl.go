@@ -912,7 +912,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 						if field.CHARACTER_MAXIMUM_LENGTH == 255 {
 							//line views/templates/forms/anyForm.qtpl:230
 							qw422016.N().S(`
-                                        class="input-xlarge"
+                                        style="width:350px;"
                                     `)
 							//line views/templates/forms/anyForm.qtpl:232
 						}

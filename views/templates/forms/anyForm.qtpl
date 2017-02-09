@@ -228,7 +228,7 @@
                                {% if field.CHARACTER_MAXIMUM_LENGTH>0 %}
                                     maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"
                                     {%  if field.CHARACTER_MAXIMUM_LENGTH == 255 %}
-                                        class="input-xlarge"
+                                        style="width:350px;"
                                     {% endif %}
                                {% endif %}
                                {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
