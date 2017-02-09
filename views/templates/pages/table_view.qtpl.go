@@ -87,7 +87,7 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 		//line views/templates/pages/table_view.qtpl:53
 		qw422016.E().S(tableName)
 		//line views/templates/pages/table_view.qtpl:53
-		qw422016.N().S(`?order=`)
+		qw422016.N().S(`/?order=`)
 		//line views/templates/pages/table_view.qtpl:53
 		qw422016.E().S(fieldName)
 		//line views/templates/pages/table_view.qtpl:53

@@ -496,5 +496,21 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 
 		fields.Rows = append(fields.Rows,*fieldStrc)
 	}
+
+	if fields.Name == "" {
+		return
+	}
+	var tableOpt db.TableOptions
+	tableOpt.GetTableProp(fields.Name)
+
+	if pos := strings.Index(tableOpt.TABLE_COMMENT, "onload:"); pos > 0 {
+		fields.Comment = tableOpt.TABLE_COMMENT[:pos]
+		fields.DataJSOM = make( map[string] interface{}, 0 )
+
+		fields.DataJSOM["onload"] = tableOpt.TABLE_COMMENT[pos + len("onload:"): ]
+	} else {
+		fields.Comment = tableOpt.TABLE_COMMENT
+	}
+
 }
 
