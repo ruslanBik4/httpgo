@@ -139,7 +139,9 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 
 	parentKey := "id_" + tableName
 	for childTableName, query := range Queryes {
-		if ! strings.Contains(query.SQLCommand, parentKey) {
+
+		isNotContainParentKey := ! strings.Contains(query.SQLCommand, parentKey)
+		if isNotContainParentKey {
 			query.SQLCommand += query.Comma + parentKey
 			query.Values += query.Comma + "?"
 		}
@@ -161,7 +163,7 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 				}
 			}
 			// последним добавляем вторичный ключ
-			if ! strings.Contains(query.SQLCommand, parentKey) {
+			if isNotContainParentKey {
 				args = append(args, lastInsertId)
 			}
 		}

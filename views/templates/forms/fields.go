@@ -43,6 +43,7 @@ type FieldsTable struct {
 	Rows [] FieldStructure
 	Hiddens map[string] string
 	SaveFormEvents 	map[string] string
+	DataJSOM        map[string] interface{}
 }
 
 func getFields(tableName string) (fields FieldsTable, err error) {
@@ -202,7 +203,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 				checked = "checked"
 			}
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
-					renderCheckBox(inputName, fieldName, "", 1, checked, events, dataJson)+ "</td>"
+					RenderCheckBox(inputName, fieldName, "", 1, checked, events, dataJson)+ "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, "text", tableProps, inputName, value)
 		}
@@ -298,7 +299,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		idx++
 
 
-		field.Html += "<li role='presentation'>" + renderCheckBox(key + "[]", id, title, idx, checked, "", "") + "</li>"
+		field.Html += "<li role='presentation'>" + RenderCheckBox(key + "[]", id, title, idx, checked, "", "") + "</li>"
 	}
 
 }
@@ -359,7 +360,7 @@ func (field *FieldStructure) renderSet(key, val, required, events, dataJson stri
 		if strings.Contains(val, enumVal) {
 			checked = "checked"
 		}
-		result += renderCheckBox(key + "[]", enumVal, enumVal, idx, checked, events, dataJson)
+		result += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, events, dataJson)
 	}
 
 	return result

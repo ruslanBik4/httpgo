@@ -218,7 +218,12 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, tableOpt.TABLE_COMMENT )
 	fields := getFields(tableName)
-	rows := db.DoQuery("select * from " + tableName)
+
+	order := r.FormValue("order")
+	if order > "" {
+		order = " order by " + order
+	}
+	rows := db.DoQuery("select * from " + tableName + order)
 
 	defer rows.Close()
 	fmt.Fprint(w, pages.ShowTable(tableName, fields, rows) )

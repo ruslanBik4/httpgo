@@ -30,12 +30,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 }
                 row = append( row, field )
             }
-        %}
+            hrefEdit := "/admin/row/edit/?table=" + tableName + "&id="
+            if routeEdit, ok := fields.DataJSOM["routeEdit"]; ok {
+               hrefEdit =  routeEdit.(string)
+            }
+            %}
 <link href="/tables.css" rel="stylesheet">
 <table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
         <tr>
-            {%  for idx, fieldName := range columns %}
+            {%  for _, fieldName := range columns %}
                 <td>{% code
                         fieldStruct := fields.FindField( fieldName )
                         titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
@@ -46,7 +50,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         }
 
                     %}
-                    <a href="#{%d idx%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
+                    <a href="/admin/table/{%s tableName %}?order={%s fieldName%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
                 </td>
             {%  endfor %}
         </tr>
@@ -78,7 +82,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     val := fieldStruct.Value
                 %}
                 {% if idx==0 %}
-                    <td><a href="/admin/row/edit/?table={%s tableName %}&id={%s val %}" target="content">{%s val %}</a>
+                    <td><a href="{%s= hrefEdit %}{%s val %}" target="content">{%s val %}</a>
                     </td>
                     {%code
                         tablePrefix = val
@@ -95,7 +99,18 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "tableid_") %}
                             {%= fieldStruct.RenderTable(&fields, tablePrefix, key, val, "Табл", required) %}
                         {%  else %}
-                            {%s val %}
+                            {% switch fieldStruct.DATA_TYPE %}
+                            {% case "tinyint" %}
+                                    {% code
+                                        checked := ""
+                                        if (val == "1") {
+                                            checked = "checked"
+                                        }
+                                    %}
+                                    {%= forms.RenderCheckBox(tablePrefix + key, "1", titleLabel, 1, checked, "", "") %}
+                            {% default %}
+                                {%s val %}
+                            {% endswitch %}
                         {% endif %}
                     </td>
                 {% endif %}

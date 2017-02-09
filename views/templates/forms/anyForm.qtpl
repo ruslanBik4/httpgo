@@ -194,7 +194,7 @@
                                 checked = "checked"
                             }
                         %}
-                        {%= renderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
+                        {%= RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {%code t := field.renderEnum(nameInput, val, required, events, dataJson) %}
@@ -262,7 +262,7 @@
     </script>
 {% endif %}
 {% endfunc %}
-{% func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
+{% func RenderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
         <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
                 {%s= events %} {%s= dataJson %}

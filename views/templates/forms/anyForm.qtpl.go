@@ -746,7 +746,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                         `)
 				//line views/templates/forms/anyForm.qtpl:197
-				streamrenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, events, dataJson)
+				StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, events, dataJson)
 				//line views/templates/forms/anyForm.qtpl:197
 				qw422016.N().S(`
                 `)
@@ -1068,7 +1068,7 @@ func (ns *FieldsTable) ShowAnyForm(Action, Title string) string {
 }
 
 //line views/templates/forms/anyForm.qtpl:265
-func streamrenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
+func StreamRenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:265
 	qw422016.N().S(`
     <label class="checkbox" for="`)
@@ -1118,22 +1118,22 @@ func streamrenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx
 }
 
 //line views/templates/forms/anyForm.qtpl:272
-func writerenderCheckBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
+func WriteRenderCheckBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:272
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/anyForm.qtpl:272
-	streamrenderCheckBox(qw422016, key, val, title, idx, checked, events, dataJson)
+	StreamRenderCheckBox(qw422016, key, val, title, idx, checked, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:272
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/anyForm.qtpl:272
 }
 
 //line views/templates/forms/anyForm.qtpl:272
-func renderCheckBox(key, val, title string, idx int, checked, events, dataJson string) string {
+func RenderCheckBox(key, val, title string, idx int, checked, events, dataJson string) string {
 	//line views/templates/forms/anyForm.qtpl:272
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/anyForm.qtpl:272
-	writerenderCheckBox(qb422016, key, val, title, idx, checked, events, dataJson)
+	WriteRenderCheckBox(qb422016, key, val, title, idx, checked, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:272
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/anyForm.qtpl:272
