@@ -34,7 +34,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 {% func (query *QueryStruct) RenderTable() %}
         {%  code
-            query.beforeRender()
+            if err := query.beforeRender(); err != nil {
+                return
+            }
         %}
         {%= query.renderHeadTables() %}
         {%= query.renderBodyTables() %}
@@ -45,8 +47,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             query.Rows = rows
             query.Href = "/admin/table/" + tableName
             query.HrefEdit = "/admin/row/edit/?table=" + tableName + "&id="
-            query.beforeRender()
             query.Tables = append(query.Tables, &fields)
+
+            if err := query.beforeRender(); err != nil {
+                return
+            }
         %}
         {%= query.renderHeadTables() %}
         {%= query.renderBodyTables() %}
