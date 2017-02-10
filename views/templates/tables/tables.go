@@ -16,9 +16,9 @@ type QueryStruct struct {
 	Tables [] *forms.FieldsTable
 }
 
-func (query *QueryStruct) beforeRender() error {
+func (query *QueryStruct) beforeRender() (err error) {
 
-	columns, err := query.Rows.Columns()
+	query.columns, err = query.Rows.Columns()
 	if (err != nil) {
 		log.Println(err)
 		return err
@@ -26,7 +26,7 @@ func (query *QueryStruct) beforeRender() error {
 
 
 	// mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
-	for _, fieldName := range columns {
+	for _, fieldName := range query.columns {
 		var field interface {}
 
 		for _, fields := range query.Tables {
