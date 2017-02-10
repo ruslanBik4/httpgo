@@ -14,6 +14,7 @@ var (
 
 )
 type FieldStructure struct {
+	Table 		*FieldsTable
 	COLUMN_NAME   	string
 	DATA_TYPE 	string
 	COLUMN_DEFAULT 	string

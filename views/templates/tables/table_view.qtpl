@@ -10,38 +10,14 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    "strconv"
 )
 %}
-{% func  ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) %}
-        {%  code
-            columns, err := rows.Columns()
-            if (err != nil) {
-                log.Println(err)
-            }
-
-            var row [] interface {}
-
-            // mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
-            for _, fieldName := range columns {
-                var field interface {}
-
-                if fieldStruct := fields.FindField( fieldName ); fieldStruct != nil {
-                    field = fieldStruct
-                } else {
-                    field = new(sql.NullString)
-                }
-                row = append( row, field )
-            }
-            hrefEdit := "/admin/row/edit/?table=" + tableName + "&id="
-            if routeEdit, ok := fields.DataJSOM["routeEdit"]; ok {
-               hrefEdit =  routeEdit.(string)
-            }
-            %}
+{% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
 <table class="table table-striped table-bordered table-hover table-condensed">
     <thead>
         <tr>
-            {%  for _, fieldName := range columns %}
+            {% for idx, fieldName := range query.columns %}
                 <td>{% code
-                        fieldStruct := fields.FindField( fieldName )
+                        fieldStruct := query.fields[idx]
                         titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
 
                         if len(titleFull) > 50 {
@@ -50,17 +26,36 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         }
 
                     %}
-                    <a href="/admin/table/{%s tableName %}/?order={%s fieldName%}" title="{%s titleFull %}">{%s  titleLabel %}</a>
+                    <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s  titleLabel %}</a>
                 </td>
-            {%  endfor %}
+            {% endfor %}
         </tr>
     </thead>
+{% endfunc %}
+{% func (query *QueryStruct) RenderTable() %}
+        {%  code
+            query.beforeRender()
+        %}
+        {%= query.renderHeadTables() %}
+        {%= query.renderBodyTables() %}
+{% endfunc %}
+{% func  ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) %}
+        {%  code
+            var query QueryStruct
+            query.Rows = rows
+            query.Href = "/admin/table/" + tableName
+            query.HrefEdit = "/admin/row/edit/?table=" + tableName + "&id="
+            query.beforeRender()
+            query.Tables = append(query.Tables, &fields)
+        %}
+        {%= query.renderHeadTables() %}
+        {%= query.renderBodyTables() %}
+{% endfunc %}
+{% func (query *QueryStruct) renderBodyTables() %}
     <tbody>
-        {% for rows.Next() %}
+        {% for query.Rows.Next() %}
             {%  code
-                err = rows.Scan(row...)
-
-                if err != nil {
+                if err := query.Rows.Scan(query.row...); err != nil {
                     log.Println(err)
                     continue
                 }
@@ -68,7 +63,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 required, tablePrefix, titleLabel := "", "", ""
             %}
         <tr>
-            {% for idx, rawField := range row %}
+            {% for idx, rawField := range query.row %}
                 {% code
                     var fieldStruct *forms.FieldStructure
 
@@ -80,12 +75,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     }
                     key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
+                    fields := fieldStruct.Table
                 %}
                 {% if idx==0 %}
-                    <td><a href="{%s= hrefEdit %}{%s val %}" target="content">{%s val %}</a>
+                    <td><a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
                     </td>
                     {%code
-                        tablePrefix = val
+                        tablePrefix = fields.Name
                         fields.ID, _ = strconv.Atoi(val)
                     %}
                 {% else %}
@@ -95,9 +91,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "id_") %}
                             {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
                         {% elseif strings.HasPrefix(key, "setid_") %}
-                            {%= fieldStruct.RenderMultiSelect(&fields, tablePrefix, key, val, "См. ", required) %}
+                            {%= fieldStruct.RenderMultiSelect(fields, tablePrefix, key, val, "См. ", required) %}
                         {% elseif strings.HasPrefix(key, "tableid_") %}
-                            {%= fieldStruct.RenderTable(&fields, tablePrefix, key, val, "Табл", required) %}
+                            {%= fieldStruct.RenderTable(fields, tablePrefix, key, val, "Табл", required) %}
                         {%  else %}
                             {% switch fieldStruct.DATA_TYPE %}
                             {% case "tinyint" %}

@@ -13,6 +13,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
+	"github.com/ruslanBik4/httpgo/views/templates/tables"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -230,7 +231,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer rows.Close()
-	fmt.Fprint(w, pages.ShowTable(tableName, fields, rows) )
+	fmt.Fprint(w, tables.ShowTable(tableName, fields, rows) )
 
 
 }
