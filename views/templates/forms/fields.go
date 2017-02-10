@@ -28,6 +28,7 @@ type FieldStructure struct {
 	CSSClass  	string
 	TableName 	string
 	Events 		map[string] string
+	Where 		string
 	Figure 		string
 	Placeholder	string
 	Pattern		string
@@ -314,6 +315,7 @@ func (field *FieldStructure) getForeignFields(tableName string)  string {
 }
 func (field *FieldStructure) getOptions(tableName, val string) {
 
+	var where string
 	ForeignFields := field.getForeignFields(tableName)
 
 	if ForeignFields == "" {
@@ -321,8 +323,11 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 		return
 	}
 
+        if field.Where > "" {
+	   where = " WHERE " + field.Where
+	}
 
-	sqlCommand := "select id, " + ForeignFields + " from " + tableName
+	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
 	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
 		log.Println(err, sqlCommand)
@@ -412,7 +417,7 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 	}
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
-func (fieldStrc *FieldStructure) getTitle(field db.FieldStructure) string{
+func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	if ! field.COLUMN_COMMENT.Valid {
 		return ""
@@ -485,13 +490,34 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
-		fieldStrc.getTitle(field)
+		fieldStrc.GetTitle(field)
 
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
 			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
 		}
 		if field.COLUMN_DEFAULT.Valid {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
+		}
+
+		if whereJSON, ok := fieldStrc.DataJSOM["where"]; ok {
+
+			comma := ""
+			for key, value := range whereJSON.(map[string]string) {
+				enumVal := value
+				if i := strings.Index(enumVal, ":"); i > 0 {
+					param := ""
+					// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+					if paramField := fields.FindField(enumVal[i+1:]); (paramField != nil) && (paramField.Value != "") {
+						param = paramField.Value
+						enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
+					} else {
+						continue
+					}
+				}
+				fieldStrc.Where += comma + key + enumVal
+				comma = " OR "
+
+			}
 		}
 
 		fields.Rows = append(fields.Rows,*fieldStrc)
