@@ -76,7 +76,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         case *forms.FieldStructure:
                             fieldStruct = rawField.(*forms.FieldStructure)
                         default:
-                            continue
+                            fieldStruct = query.fields[idx]
                     }
                     key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
