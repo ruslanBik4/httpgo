@@ -256,7 +256,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 			case *forms.FieldStructure:
 				fieldStruct = rawField.(*forms.FieldStructure)
 			default:
-				continue
+				fieldStruct = query.fields[idx]
 			}
 			key := fieldStruct.COLUMN_NAME
 			val := fieldStruct.Value
