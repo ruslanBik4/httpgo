@@ -25,6 +25,10 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             titleLabel = titleFull[:strings.LastIndex(titleFull[:51], " ")] + "..."
                         }
 
+                        if titleLabel == "" {
+                            titleLabel = fieldName
+                        }
+
                     %}
                     <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s  titleLabel %}</a>
                 </td>

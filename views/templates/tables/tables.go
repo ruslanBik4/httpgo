@@ -16,6 +16,18 @@ type QueryStruct struct {
 	Tables [] *forms.FieldsTable
 }
 
+func (query *QueryStruct) findField(fieldName string) *forms.FieldStructure {
+	for _, fields := range query.Tables {
+		if field := fields.FindField(fieldName); field != nil {
+			field.Table  = fields
+			query.fields = append(query.fields, field)
+			return field
+		}
+	}
+
+	return nil
+
+}
 func (query *QueryStruct) beforeRender() (err error) {
 
 	query.columns, err = query.Rows.Columns()
@@ -27,19 +39,12 @@ func (query *QueryStruct) beforeRender() (err error) {
 
 	// mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
 	for _, fieldName := range query.columns {
-		var field interface {}
-
-		for _, fields := range query.Tables {
-			if field := fields.FindField(fieldName); field != nil {
-				field.Table  = fields
-				query.fields = append(query.fields, field)
-				break
-			}
+		if field := query.findField(fieldName); field == nil  {
+			query.row = append(query.row, new(sql.NullString) )
+			query.fields = append(query.fields, field)
+		} else {
+			query.row = append(query.row, field)
 		}
-		if field == nil  {
-			field = new(sql.NullString)
-		}
-		query.row = append( query.row, field )
 	}
 
 	return nil
