@@ -246,7 +246,8 @@ func Catch(w http.ResponseWriter) {
 }
 // считываю счасти из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
-	if err != nil || info.IsDir() {
+	if (err != nil) || ( (info != nil) && info.IsDir() ) {
+		log.Println(err, info)
 		return nil
 	}
 	ext := filepath.Ext(path)
@@ -268,9 +269,13 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 	return  nil
 }
 func cacheFiles() {
-	filepath.Walk( filepath.Join(*f_web,"assets"), cacheWalk )
+	filepath.Walk( filepath.Join(*f_web,"js"), cacheWalk )
 	filepath.Walk( filepath.Join(*f_web,"css"), cacheWalk )
-	//filepath.Walk( pathToYii + "js", WalkReadCSS("") )
+	filepath.Walk( filepath.Join(*f_static,"js"), cacheWalk )
+
+	//log.Println(filepath.Join(*f_web,"js"))
+	//log.Println(filepath.Join(*f_web,"sss"))
+	//log.Println(filepath.Join(*f_static,"js"))
 }
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
@@ -284,11 +289,14 @@ var (
 	f_port   = flag.String("port",":8080","host address to listen on")
 	f_static = flag.String("path","/home/travel/","path to static files")
 	f_web    = flag.String("web","/home/www/web/","path to web files")
+	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	F_debug    = flag.String("debug","false","debug mode")
+	db_user   = flag.String("dbUser","travel","user name for database")
 )
 
 func main() {
 	flag.Parse()
+	users.SetSessionPath(*f_session)
 	go cacheFiles()
 
 	registerRoutes()

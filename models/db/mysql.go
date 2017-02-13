@@ -16,6 +16,7 @@ const dbPass = "rjgbvktc"
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
+
 )
 func prepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)

@@ -32,9 +32,13 @@ var (
 		Endpoint:     google.Endpoint,
 	}
 	oauthStateString = "random"
-	store = sessions.NewFilesystemStore("/var/lib/php/session",[]byte("travel.com.ua"))
+	store *sessions.FilesystemStore
 
 )
+func SetSessionPath(f_session string) {
+	store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
+}
+
 func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
 
 
