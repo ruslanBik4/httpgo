@@ -39,6 +39,7 @@ func (query *QueryStruct) beforeRender() (err error) {
 
 	// mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
 	for _, fieldName := range query.columns {
+		log.Println(fieldName)
 		if field := query.findField(fieldName); field == nil  {
 			query.row = append(query.row, new(sql.NullString) )
 			query.fields = append(query.fields, &forms.FieldStructure{COLUMN_NAME: fieldName, COLUMN_COMMENT: fieldName})

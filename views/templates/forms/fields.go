@@ -430,10 +430,9 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 		dataJson := field.COLUMN_COMMENT.String[posPattern:]
 
 		var properMap map[string] interface{}
-		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
+		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
 			log.Println(err)
 			log.Println(dataJson)
-			log.Println(properMap)
 		} else {
 			for key, val := range properMap {
 
