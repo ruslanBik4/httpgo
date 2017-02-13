@@ -418,6 +418,26 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 	}
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
+func getPattern(name string) string {
+	rows, err := db.DoSelect("select pattern from patterns_list where name=?", name)
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	for rows.Next() {
+		var pattern sql.NullString
+		if err := rows.Scan(&pattern); err != nil {
+			log.Println(err)
+			return ""
+		}
+		if pattern.Valid {
+			return pattern.String
+		} else  {
+			return ""
+		}
+
+	}
+}
 func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	if ! field.COLUMN_COMMENT.Valid {
@@ -449,7 +469,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 				case "placeholder":
 					fieldStrc.Placeholder = val.(string)
 				case "pattern":
-					fieldStrc.Pattern = val.(string)
+					fieldStrc.Pattern = getPattern( val.(string) )
 				case "foreingKeys":
 					fieldStrc.ForeignFields = val.(string)
 				case "inputType":
