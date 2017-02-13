@@ -437,6 +437,8 @@ func getPattern(name string) string {
 		}
 
 	}
+
+	return ""
 }
 func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
