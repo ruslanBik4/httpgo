@@ -422,9 +422,9 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		var params db.MultiQuery
-		var arrJSON map[string] string
+		var arrJSON map[string] interface {}
 
-		arrJSON = make( map[string] string, 0)
+		arrJSON = make( map[string] interface {}, 0)
 
 		params.Queryes = make(map[string] *db.ArgsQuery, 0)
 		for key, val := range r.Form {

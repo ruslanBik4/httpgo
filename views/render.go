@@ -101,7 +101,7 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 	return nil
 
 }
-func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] string) {
+func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	fmt.Fprintf(w, json.WriteAnyJSON(arrJSON) )

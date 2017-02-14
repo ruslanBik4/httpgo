@@ -209,7 +209,7 @@
                         {%s= val %}
                     </textarea>
                {% default %}
-                    {%= field.RenderInputFromType(key, val, title, pattern, required, events, dataJson string) %}
+                    {%= field.RenderInputFromType(nameInput, val, titleLabel, placeholder, pattern, required, events, dataJson) %}
                {% endswitch %}
 
         {% endif %}
@@ -242,32 +242,32 @@
     </script>
 {% endif %}
 {% endfunc %}
-{% func (fieldStrc *FieldStructure) RenderInputFromType(key, val, title, pattern, required, events, dataJson string) %}
-                    <label class="control-label" for="{%s key %}">{%s title %}</label>
+{% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
+                    <label class="control-label" for="{%s nameInput %}">{%s title %}</label>
                     <input type=
 
                         {% if fieldStrc.InputType > "" %}
-                            "{%s field.InputType %}"
-                        {% elseif fieldStrc.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
+                            "{%s fieldStrc.InputType %}"
+                        {% elseif fieldStrc.DATA_TYPE=="int" || fieldStrc.DATA_TYPE=="double" %}
                             "number"
-                               {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
+                               {% if strings.Contains(fieldStrc.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                         {% elseif fieldStrc.DATA_TYPE=="date" %}
                             "date"
                         {% elseif fieldStrc.DATA_TYPE=="datetime" %}
                             "datetime"
-                        {% elseif strings.Contains(key, "email") %}
+                        {% elseif strings.Contains(nameInput, "email") %}
                             "email"
                         {% else %}
                             "text"
                                {% if fieldStrc.CHARACTER_MAXIMUM_LENGTH>0 %}
-                                    maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"
+                                    maxlength="{%d fieldStrc.CHARACTER_MAXIMUM_LENGTH %}"
                                     {%  if fieldStrc.CHARACTER_MAXIMUM_LENGTH == 255 %}
                                         style="width:350px;"
                                     {% endif %}
                                {% endif %}
                                {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
                         {% endif %}
-                        id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
+                        id="{%s nameInput %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
                                                 {% if val > "" %} value="{%s val %}" {% endif %}
                                                 {%s= required %} {%s= events %} {%s= dataJson %}
                     />
