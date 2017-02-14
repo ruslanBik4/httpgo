@@ -526,12 +526,20 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			comma := ""
 			for key, value := range whereJSON.(map[string]string) {
 				enumVal := value
-				if i := strings.Index(enumVal, ":"); i > 0 {
-					param := ""
+				// отбираем параметры типы :имя_поля
+				if i := strings.Index(enumVal, ":"); i > -1 {
+					param := enumVal[i+1:]
+					// считаем, что окончанием могут быть символы ", )"
+					if j := strings.IndexAny(param, ", )"); j > 0 {
+						param = param[:j]
+						enumVal = enumVal[:i] + "%s" + enumVal[i+j:]
+					} else {
+						enumVal = enumVal[:i] + "%s"
+					}
 					// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-					if paramField := fields.FindField(enumVal[i+1:]); (paramField != nil) && (paramField.Value != "") {
+					if paramField := fields.FindField(param); (paramField != nil) && (paramField.Value != "") {
 						param = paramField.Value
-						enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
+						enumVal = fmt.Sprintf(enumVal, param)
 					} else {
 						continue
 					}
