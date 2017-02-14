@@ -287,7 +287,7 @@ func (field *FieldStructure) RenderMultiSelect(ns *FieldsTable, tablePrefix, key
 }
 
 //line views/templates/forms/anyForm.qtpl:68
-func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer, tablePrefix, key, val, titleLabel, required string) {
+func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer, tablePrefix, key, val, titleLabel, required, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:68
 	qw422016.N().S(`
     <label class="control-label" for="`)
@@ -310,6 +310,14 @@ func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer
 	qw422016.N().S(`" class="controls" `)
 	//line views/templates/forms/anyForm.qtpl:70
 	qw422016.E().S(required)
+	//line views/templates/forms/anyForm.qtpl:70
+	qw422016.N().S(`  `)
+	//line views/templates/forms/anyForm.qtpl:70
+	qw422016.N().S(events)
+	//line views/templates/forms/anyForm.qtpl:70
+	qw422016.N().S(` `)
+	//line views/templates/forms/anyForm.qtpl:70
+	qw422016.N().S(dataJson)
 	//line views/templates/forms/anyForm.qtpl:70
 	qw422016.N().S(`>
         `)
@@ -346,22 +354,22 @@ func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer
 }
 
 //line views/templates/forms/anyForm.qtpl:79
-func (field *FieldStructure) WriteRenderForeignSelect(qq422016 qtio422016.Writer, tablePrefix, key, val, titleLabel, required string) {
+func (field *FieldStructure) WriteRenderForeignSelect(qq422016 qtio422016.Writer, tablePrefix, key, val, titleLabel, required, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:79
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/anyForm.qtpl:79
-	field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
+	field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:79
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/anyForm.qtpl:79
 }
 
 //line views/templates/forms/anyForm.qtpl:79
-func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) string {
+func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson string) string {
 	//line views/templates/forms/anyForm.qtpl:79
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/anyForm.qtpl:79
-	field.WriteRenderForeignSelect(qb422016, tablePrefix, key, val, titleLabel, required)
+	field.WriteRenderForeignSelect(qb422016, tablePrefix, key, val, titleLabel, required, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:79
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/anyForm.qtpl:79
@@ -372,7 +380,7 @@ func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLab
 }
 
 //line views/templates/forms/anyForm.qtpl:81
-func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer, nameTable, key, val, titleLabel, required string) {
+func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer, nameTable, key, val, titleLabel, required, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:81
 	qw422016.N().S(`
     <label class="control-label" for="`)
@@ -395,6 +403,14 @@ func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer,
 	qw422016.N().S(`" class="controls" `)
 	//line views/templates/forms/anyForm.qtpl:83
 	qw422016.E().S(required)
+	//line views/templates/forms/anyForm.qtpl:83
+	qw422016.N().S(`  `)
+	//line views/templates/forms/anyForm.qtpl:83
+	qw422016.N().S(events)
+	//line views/templates/forms/anyForm.qtpl:83
+	qw422016.N().S(` `)
+	//line views/templates/forms/anyForm.qtpl:83
+	qw422016.N().S(dataJson)
 	//line views/templates/forms/anyForm.qtpl:83
 	qw422016.N().S(`>
         `)
@@ -439,22 +455,22 @@ func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer,
 }
 
 //line views/templates/forms/anyForm.qtpl:97
-func (field *FieldStructure) WriteRenderParentSelect(qq422016 qtio422016.Writer, nameTable, key, val, titleLabel, required string) {
+func (field *FieldStructure) WriteRenderParentSelect(qq422016 qtio422016.Writer, nameTable, key, val, titleLabel, required, events, dataJson string) {
 	//line views/templates/forms/anyForm.qtpl:97
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/anyForm.qtpl:97
-	field.StreamRenderParentSelect(qw422016, nameTable, key, val, titleLabel, required)
+	field.StreamRenderParentSelect(qw422016, nameTable, key, val, titleLabel, required, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:97
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/anyForm.qtpl:97
 }
 
 //line views/templates/forms/anyForm.qtpl:97
-func (field *FieldStructure) RenderParentSelect(nameTable, key, val, titleLabel, required string) string {
+func (field *FieldStructure) RenderParentSelect(nameTable, key, val, titleLabel, required, events, dataJson string) string {
 	//line views/templates/forms/anyForm.qtpl:97
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/anyForm.qtpl:97
-	field.WriteRenderParentSelect(qb422016, nameTable, key, val, titleLabel, required)
+	field.WriteRenderParentSelect(qb422016, nameTable, key, val, titleLabel, required, events, dataJson)
 	//line views/templates/forms/anyForm.qtpl:97
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/anyForm.qtpl:97
@@ -689,7 +705,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
             `)
 			//line views/templates/forms/anyForm.qtpl:180
-			field.StreamRenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required)
+			field.StreamRenderParentSelect(qw422016, ns.Name, key, val, titleLabel, required, events, dataJson)
 			//line views/templates/forms/anyForm.qtpl:180
 			qw422016.N().S(`
         `)
@@ -699,7 +715,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
             `)
 			//line views/templates/forms/anyForm.qtpl:182
-			field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required)
+			field.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required, events, dataJson)
 			//line views/templates/forms/anyForm.qtpl:182
 			qw422016.N().S(`
         `)
@@ -825,7 +841,15 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				//line views/templates/forms/anyForm.qtpl:208
 				qw422016.E().S(placeholder)
 				//line views/templates/forms/anyForm.qtpl:208
-				qw422016.N().S(`">
+				qw422016.N().S(`" `)
+				//line views/templates/forms/anyForm.qtpl:208
+				qw422016.N().S(events)
+				//line views/templates/forms/anyForm.qtpl:208
+				qw422016.N().S(` `)
+				//line views/templates/forms/anyForm.qtpl:208
+				qw422016.N().S(dataJson)
+				//line views/templates/forms/anyForm.qtpl:208
+				qw422016.N().S(`>
                         `)
 				//line views/templates/forms/anyForm.qtpl:209
 				qw422016.N().S(val)
