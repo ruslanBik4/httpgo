@@ -197,11 +197,11 @@
                         {%= RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderEnum(nameInput, val, required, events, dataJson) %}
+                    {%code t := field.RenderEnum(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderSet(nameInput, val, required, events, dataJson) %}
+                    {%code t := field.RenderSet(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
                 {% case "blob", "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>

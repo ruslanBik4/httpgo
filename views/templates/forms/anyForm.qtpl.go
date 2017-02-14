@@ -781,7 +781,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`:</label>
                     `)
 				//line views/templates/forms/anyForm.qtpl:200
-				t := field.renderEnum(nameInput, val, required, events, dataJson)
+				t := field.RenderEnum(nameInput, val, required, events, dataJson)
 
 				//line views/templates/forms/anyForm.qtpl:200
 				qw422016.N().S(`
@@ -806,7 +806,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`:</label>
                     `)
 				//line views/templates/forms/anyForm.qtpl:204
-				t := field.renderSet(nameInput, val, required, events, dataJson)
+				t := field.RenderSet(nameInput, val, required, events, dataJson)
 
 				//line views/templates/forms/anyForm.qtpl:204
 				qw422016.N().S(`

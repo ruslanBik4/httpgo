@@ -196,9 +196,9 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	} else {
 		switch fieldStruct.DATA_TYPE {
 		case "enum":
-			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.renderEnum(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderEnum(inputName, value, required, events, dataJson) + "</td>"
 		case "set":
-			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.renderSet(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderSet(inputName, value, required, events, dataJson) + "</td>"
 		case "tinyint":
 			checked := ""
 			if value == "1" {
@@ -357,7 +357,7 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 	}
 }
 
-func (field *FieldStructure) renderSet(key, val, required, events, dataJson string) (result string) {
+func (field *FieldStructure) RenderSet(key, val, required, events, dataJson string) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 
 	for idx, title := range fields {
@@ -371,7 +371,7 @@ func (field *FieldStructure) renderSet(key, val, required, events, dataJson stri
 
 	return result
 }
-func (field *FieldStructure) renderEnum(key, val, required, events, dataJson string) (result string) {
+func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson string) (result string) {
 
 
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
