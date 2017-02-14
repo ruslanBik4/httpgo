@@ -45,6 +45,7 @@ var (
 		"/admin/row/edit/": admin.HandlerEditRecord,
 		"/admin/row/add/": admin.HandlerAddRecord,
 		"/admin/row/update/": admin.HandlerUpdateRecord,
+		"/admin/row/show/": admin.HandlerShowRecord,
 		"/admin/exec/": admin.HandlerExec,
 		"/admin/schema/": admin.HandlerSchema,
 		"/admin/umutable/": admin.HandlerUMUTables,
