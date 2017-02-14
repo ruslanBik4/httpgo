@@ -307,7 +307,19 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 			} else {
 				//line views/templates/tables/table_view.qtpl:106
 				qw422016.N().S(`
-                    <td>
+                    <td class="`)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.N().S(required)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.N().S(` field-`)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.E().S(nameInput)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.N().S(` `)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.E().S(fieldStruct.CSSClass)
+				//line views/templates/tables/table_view.qtpl:107
+				qw422016.N().S(`">
                         `)
 				//line views/templates/tables/table_view.qtpl:108
 				if key == "parent_id" {
@@ -371,7 +383,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 						qw422016.N().S(`
                                     `)
 						//line views/templates/tables/table_view.qtpl:125
-						forms.StreamRenderCheckBox(qw422016, tablePrefix+key, "1", titleLabel, 1, checked, events, dataJson)
+						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, events, dataJson)
 						//line views/templates/tables/table_view.qtpl:125
 						qw422016.N().S(`
                         `)

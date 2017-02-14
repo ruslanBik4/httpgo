@@ -104,7 +104,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fields.ID, _ = strconv.Atoi(val)
                     %}
                 {% else %}
-                    <td>
+                    <td class="{%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}">
                         {% if key=="parent_id" %}
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
@@ -122,7 +122,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                             checked = "checked"
                                         }
                                     %}
-                                    {%= forms.RenderCheckBox(tablePrefix + key, "1", titleLabel, 1, checked, events, dataJson) %}
+                                    {%= forms.RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
                         {% case "enum" %}
                             {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
                             {%s= t %}
