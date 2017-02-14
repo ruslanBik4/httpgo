@@ -124,15 +124,12 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                     %}
                                     {%= forms.RenderCheckBox(tablePrefix + key, "1", titleLabel, 1, checked, events, dataJson) %}
                         {% case "enum" %}
-                            <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                             {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
                             {%s= t %}
                         {% case "set" %}
-                            <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                             {%code t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson) %}
                             {%s= t %}
                         {% case "blob", "text" %}
-                            <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                             <textarea id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
                                 {%s= val %}
                             </textarea>
