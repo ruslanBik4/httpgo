@@ -214,7 +214,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	return html
 }
 func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
-	tableProps := strings.TrimLeft(key, "setid_")
+	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
 	titleField := field.getForeignFields(tableProps)
@@ -232,7 +232,7 @@ func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
 func getSQLFromNodeID(key, parentTable string) string{
 	var tableProps, titleField string
 
-	tableValue := strings.TrimLeft(key, "nodeid_")
+	tableValue := strings.TrimPrefix(key, "nodeid_")
 
 	var ns db.FieldsTable
 	ns.GetColumnsProp(tableValue)
@@ -271,7 +271,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 	}
 
 	if sqlCommand == "" {
-		field.Html += "не получается собрать запрос для поля" + key
+		field.Html += "не получается собрать запрос для поля " + key
 		return
 	}
 
