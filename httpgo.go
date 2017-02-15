@@ -19,10 +19,9 @@ import (
 	"sync"
 	"bytes"
 	"flag"
-	//"github.com/ruslanBik4/httpgo/models/config"
+	"github.com/ruslanBik4/httpgo/models/config"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"database/sql"
-	"../../../../../../OpenServer/domains/travel.loc/go/models/config"
 )
 //go:generate qtc -dir=views/templates
 
