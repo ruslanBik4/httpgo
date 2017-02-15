@@ -478,6 +478,8 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 					fieldStrc.InputType = val.(string)
 				case "isHidden":
 					fieldStrc.IsHidden = val.(bool)
+				case "where":
+					fieldStrc.Where = val.(string)
 				case "events":
 					fieldStrc.Events = make(map[string] string, 0)
 					for name, event := range val.(map[string] interface{}) {
