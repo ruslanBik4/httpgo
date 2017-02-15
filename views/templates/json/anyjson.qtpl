@@ -8,12 +8,12 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    {% code comma := "" %}
    {% for key, value := range  arrJSON %}
         {% code
-            text := ""
+            text := comma + `"` + key + `": "`
             switch value.(type) {
             case map[string] interface {}:
-                text = WriteAnyJSON(value.(map[string] interface {}))
+                text += WriteAnyJSON(value.(map[string] interface {}))
             default:
-                text = comma + `"` + key + `": "` +  value.(string) + `"`
+                text +=   value.(string) + `"`
                 comma = ","
             }
         %}

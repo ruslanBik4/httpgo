@@ -35,12 +35,12 @@ func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{
 	//line views/templates/json/anyjson.qtpl:9
 	for key, value := range arrJSON {
 		//line views/templates/json/anyjson.qtpl:11
-		text := ""
+		text := comma + `"` + key + `": "`
 		switch value.(type) {
 		case map[string]interface{}:
-			text = WriteAnyJSON(value.(map[string]interface{}))
+			text += WriteAnyJSON(value.(map[string]interface{}))
 		default:
-			text = comma + `"` + key + `": "` + value.(string) + `"`
+			text += value.(string) + `"`
 			comma = ","
 		}
 

@@ -104,6 +104,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fields.ID, _ = strconv.Atoi(val)
                     %}
                 {% else %}
+                // TODO: сменить показ селектов от формы на табличные виды
                     <td class="{%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}">
                         {% if key=="parent_id" %}
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
