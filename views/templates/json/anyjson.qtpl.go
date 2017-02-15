@@ -45,7 +45,7 @@ func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{
 		}
 
 		//line views/templates/json/anyjson.qtpl:20
-		qw422016.E().S(text)
+		qw422016.N().S(text)
 		//line views/templates/json/anyjson.qtpl:21
 	}
 	//line views/templates/json/anyjson.qtpl:21
