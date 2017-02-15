@@ -191,7 +191,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	tableName := r.URL.Path[ len("/admin/table/") : len(r.URL.Path)-1]
+	tableName := strings.Trim( r.URL.Path[ len("/admin/table/") : ], "/" )
 
 	var menu db.MenuItems
 

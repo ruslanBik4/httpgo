@@ -29,10 +29,6 @@ func (query *QueryStruct) findField(fieldName string) *forms.FieldStructure {
 }
 func (query *QueryStruct) beforeRender() (err error) {
 
-	if query.Rows == nil {
-		log.Println("nil rows!!!")
-		return sql.ErrNoRows
-	}
 	query.columns, err = query.Rows.Columns()
 	if (err != nil) {
 		log.Println(err)
