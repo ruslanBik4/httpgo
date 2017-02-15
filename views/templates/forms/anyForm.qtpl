@@ -203,7 +203,13 @@
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {%code t := field.RenderSet(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
-                {% case "blob", "text" %}
+                {% case "blob" %}
+                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
+                     <input type="file"
+                        id="{%s nameInput %}" name="{%s nameInput %}" class="controls"
+                                                {%s= required %} {%s= events %} {%s= dataJson %}
+                     />
+               {% case "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
                     <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}" {%s= events %} {%s= dataJson %}>
                         {%s= val %}
