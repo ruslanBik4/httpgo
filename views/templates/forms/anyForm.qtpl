@@ -65,9 +65,9 @@
         </div> {% comment %} enddiv field.CSSClass == "" {% endcomment %}
     {% endif %}
 {% endfunc %}
-{% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required string) %}
+{% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson string) %}
     <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
-    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" {%s required %}>
+    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" {%s required %}  {%s= events %} {%s= dataJson %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
             <option value="" selected>Значение можно не указывать</option>
         {% else %}
@@ -78,9 +78,9 @@
     </select>
 {% endfunc %}
 
-{% func (field *FieldStructure) RenderParentSelect(nameTable, key, val, titleLabel, required string) %}
+{% func (field *FieldStructure) RenderParentSelect(nameTable, key, val, titleLabel, required, events, dataJson string) %}
     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
-    <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %}>
+    <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %}  {%s= events %} {%s= dataJson %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
             <option value="" selected>Значение можно не указывать</option>
         {% else %}
@@ -177,9 +177,9 @@
             data-toggle="tooltip" title="{%s titleFull %}"
         >
         {% if key=="parent_id" %}
-            {%= field.RenderParentSelect(ns.Name, key, val, titleLabel, required) %}
+            {%= field.RenderParentSelect(ns.Name, key, val, titleLabel, required, events, dataJson) %}
         {% elseif strings.HasPrefix(key, "id_") %}
-            {%= field.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
+            {%= field.RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson) %}
         {% elseif strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") %}
             {%= field.RenderMultiSelect(ns, tablePrefix, key, val, titleLabel, required) %}
         {% elseif strings.HasPrefix(key, "tableid_") %}
@@ -197,47 +197,26 @@
                         {%= RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
                 {% case "enum" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderEnum(nameInput, val, required, events, dataJson) %}
+                    {%code t := field.RenderEnum(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
                 {% case "set" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    {%code t := field.renderSet(nameInput, val, required, events, dataJson) %}
+                    {%code t := field.RenderSet(nameInput, val, required, events, dataJson) %}
                     {%s= t %}
-                {% case "blob", "text" %}
+                {% case "blob" %}
+                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
+                     <input type="file"
+                        id="{%s nameInput %}" name="{%s nameInput %}" class="controls"
+                                                {%s= required %} {%s= events %} {%s= dataJson %}
+                     />
+               {% case "text" %}
                     <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}">
+                    <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}" {%s= events %} {%s= dataJson %}>
                         {%s= val %}
                     </textarea>
                {% default %}
-                    <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
-                    <input type=
-
-                        {% if field.InputType > "" %}
-                            "{%s field.InputType %}"
-                        {% elseif field.DATA_TYPE=="int" || field.DATA_TYPE=="double" %}
-                            "number"
-                               {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
-                        {% elseif field.DATA_TYPE=="date" %}
-                            "date"
-                        {% elseif field.DATA_TYPE=="datetime" %}
-                            "datetime"
-                        {% elseif strings.Contains(key, "email") %}
-                            "email"
-                        {% else %}
-                            "text"
-                               {% if field.CHARACTER_MAXIMUM_LENGTH>0 %}
-                                    maxlength="{%d field.CHARACTER_MAXIMUM_LENGTH %}"
-                                    {%  if field.CHARACTER_MAXIMUM_LENGTH == 255 %}
-                                        style="width:350px;"
-                                    {% endif %}
-                               {% endif %}
-                               {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
-                        {% endif %}
-                        id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
-                                                {% if val > "" %} value="{%s val %}" {% endif %}
-                                                {%s= required %} {%s= events %} {%s= dataJson %}
-                    />
-                {% endswitch %}
+                    {%= field.RenderInputFromType(nameInput, val, titleLabel, placeholder, pattern, required, events, dataJson) %}
+               {% endswitch %}
 
         {% endif %}
         </div>
@@ -252,7 +231,6 @@
 </form>
 {% if setDatePicker > "" %}
     <head>
-        <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
         <script src="/jquery.datetimepicker.js"></script>
     </head>
     <script>
@@ -269,6 +247,37 @@
     </script>
 {% endif %}
 {% endfunc %}
+{% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
+                    <label class="control-label" for="{%s nameInput %}">{%s title %}</label>
+                    <input type=
+
+                        {% if fieldStrc.InputType > "" %}
+                            "{%s fieldStrc.InputType %}"
+                        {% elseif fieldStrc.DATA_TYPE=="int" || fieldStrc.DATA_TYPE=="double" %}
+                            "number"
+                               {% if strings.Contains(fieldStrc.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
+                        {% elseif fieldStrc.DATA_TYPE=="date" %}
+                            "date"
+                        {% elseif fieldStrc.DATA_TYPE=="datetime" %}
+                            "datetime"
+                        {% elseif strings.Contains(nameInput, "email") %}
+                            "email"
+                        {% else %}
+                            "text"
+                               {% if fieldStrc.CHARACTER_MAXIMUM_LENGTH>0 %}
+                                    maxlength="{%d fieldStrc.CHARACTER_MAXIMUM_LENGTH %}"
+                                    {%  if fieldStrc.CHARACTER_MAXIMUM_LENGTH == 255 %}
+                                        style="width:350px;"
+                                    {% endif %}
+                               {% endif %}
+                               {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
+                        {% endif %}
+                        id="{%s nameInput %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
+                                                {% if val > "" %} value="{%s val %}" {% endif %}
+                                                {%s= required %} {%s= events %} {%s= dataJson %}
+                    />
+{% endfunc %}
+
 {% func RenderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
         <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}

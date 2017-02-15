@@ -44,6 +44,7 @@ type HeadHTMLPage struct {
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/bootstrap/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="/bootstrap/ico/apple-touch-icon-57-precomposed.png">
     <link rel="shortcut icon" href="/bootstrap/ico/favicon.png">
+        <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
     {% for i := 0; i< len(head.LinkStyles); i++ %}
         {%s head.LinkStyles[i] %}
     {% endfor %}

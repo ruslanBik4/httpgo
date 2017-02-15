@@ -191,7 +191,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	tableName := r.URL.Path[ len("/admin/table/") : len(r.URL.Path)-1]
+	tableName := strings.Trim( r.URL.Path[ len("/admin/table/") : ], "/" )
 
 	var menu db.MenuItems
 
@@ -228,6 +228,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, "Error during run query %s", "select * from " + tableName + order)
+		return
 	}
 
 	defer rows.Close()
@@ -318,37 +319,31 @@ func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	fields := getFields(tableName)
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу " + tableName) )
 }
-func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
+func getRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	tableName := r.FormValue("table")
-	id        := r.FormValue("id")
-
-	fields := getFields(tableName)
-	rows, err := db.DoSelect("select * from " + tableName + " where id=?", id)
+	fields = getFields(tableName)
+	rows, err := db.DoSelect("select * from "+tableName+" where id=?", id)
 	if (err != nil) {
 		log.Println(err)
-		fmt.Fprint(w, "Error during reading record with id=%s", id)
-		return
+		return fields, err
 	}
 
 	defer rows.Close()
-	var row [] interface {}
+	var row [] interface{}
 
 	columns, err := rows.Columns()
 	if (err != nil) {
 		log.Println(err)
 	}
-	rowField := make( [] *sql.NullString, len(columns) )
+	rowField := make([] *sql.NullString, len(columns))
 	for idx, _ := range columns {
 
 		rowField[idx] = new(sql.NullString)
-		row = append( row, rowField[idx] )
+		row = append(row, rowField[idx])
 	}
 
 	for rows.Next() {
-
 
 		if err := rows.Scan(row...); err != nil {
 			log.Println(err)
@@ -364,7 +359,35 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	views.RenderAnyForm(w, r, "Меняем запись №" + id + " в таблице " + fields.Comment, fields, nil)
+	return fields, nil
+}
+
+func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	tableName := r.FormValue("table")
+	id := r.FormValue("id")
+
+	if fields, err := getRecord(tableName, id); err != nil {
+		fmt.Fprint(w, "Error during reading record with id=%s", id)
+
+	} else {
+		fmt.Fprint(w, fields.ShowRecord( "Меняем запись №"+id+" в таблице " + fields.Comment ) )
+	}
+
+
+}
+func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	tableName := r.FormValue("table")
+	id := r.FormValue("id")
+
+	if fields, err := getRecord(tableName, id); err != nil {
+		fmt.Fprint(w, "Error during reading record with id=%s", id)
+
+	} else {
+		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil)
+	}
 
 }
 func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
@@ -422,9 +445,9 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		var params db.MultiQuery
-		var arrJSON map[string] string
+		var arrJSON map[string] interface {}
 
-		arrJSON = make( map[string] string, 0)
+		arrJSON = make( map[string] interface {}, 0)
 
 		params.Queryes = make(map[string] *db.ArgsQuery, 0)
 		for key, val := range r.Form {

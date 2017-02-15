@@ -6,6 +6,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     "github.com/ruslanBik4/httpgo/views/templates/forms"
     "database/sql"
     "log"
+    "fmt"
    "strings"
    "strconv"
 )
@@ -85,6 +86,15 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
                     fields := fieldStruct.Table
+                    nameInput := tablePrefix + key
+                    dataJson := ""
+                     if dataJson > "" {
+                         dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson )
+                     }
+                   events := ""
+                    for name, funcName := range fieldStruct.Events {
+                        events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
+                    }
                 %}
                 {% if idx==0 %}
                     <td><a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
@@ -94,11 +104,12 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fields.ID, _ = strconv.Atoi(val)
                     %}
                 {% else %}
-                    <td>
+                // TODO: сменить показ селектов от формы на табличные виды
+                    <td class="{%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}">
                         {% if key=="parent_id" %}
-                            {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required) %}
+                            {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
-                            {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required) %}
+                            {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "setid_") %}
                             {%= fieldStruct.RenderMultiSelect(fields, tablePrefix, key, val, "См. ", required) %}
                         {% elseif strings.HasPrefix(key, "tableid_") %}
@@ -112,7 +123,17 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                             checked = "checked"
                                         }
                                     %}
-                                    {%= forms.RenderCheckBox(tablePrefix + key, "1", titleLabel, 1, checked, "", "") %}
+                                    {%= forms.RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
+                        {% case "enum" %}
+                            {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
+                            {%s= t %}
+                        {% case "set" %}
+                            {%code t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson) %}
+                            {%s= t %}
+                        {% case "blob", "text" %}
+                            <textarea id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
+                                {%s= val %}
+                            </textarea>
                             {% default %}
                                 {%s val %}
                             {% endswitch %}
