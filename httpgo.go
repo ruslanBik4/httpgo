@@ -1,4 +1,5 @@
 package main
+
 import (
 	"fmt"
 	"strings"
@@ -19,8 +20,9 @@ import (
 	"sync"
 	"bytes"
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/config"
+	//"../../../../../../OpenServer/domains/travel.loc/go/models/config"
 	"github.com/ruslanBik4/httpgo/views/fonts"
+	"github.com/ruslanBik4/httpgo/models/config"
 )
 //go:generate qtc -dir=views/templates
 
