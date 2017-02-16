@@ -400,48 +400,44 @@ func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
 	return userID, true
 
 }
-func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
+func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
 
 	var arrJSON map[string] interface {}
+	arrJSON = make( map[string] interface {}, 0)
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
 		arrJSON["error"] = "true"
 		arrJSON["message"] = fmt.Sprintf("%s", users.NOT_AUTHORIZE)
 	} else {
+		var err error
+		var id int
 
-		if id, err := db.DoInsertFromForm(r, userID); err != nil {
+		if operation == "id" {
+			id, err = db.DoInsertFromForm(r, userID)
+		} else {
+			id, err = db.DoUpdateFromForm(r, userID)
+		}
+
+		tableName := r.FormValue("table")
+		if err != nil {
 			log.Println(err)
 			arrJSON["error"] = "true"
-			arrJSON["message"] = fmt.Sprintf("Error %v during insert into %s ", err, r.FormValue("table"))
+			arrJSON["message"] = fmt.Sprintf("Error %v during uodate table '%s' ", err, tableName)
 		} else {
-			arrJSON["id"] = id
-			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", r.FormValue("table"))
+			arrJSON[operation] = id
+			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName )
 		}
 	}
 	views.RenderAnyJSON(w, arrJSON)
 }
+func HandlerAddRecord(w http.ResponseWriter, r *http.Request) {
+
+	HandlerRecord(w, r, "id" )
+}
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 
-	var arrJSON map[string] interface {}
-
-	userID, ok := checkUserLogin(w, r)
-	if !ok {
-		arrJSON["error"] = "true"
-		arrJSON["message"] = fmt.Sprintf("%s", users.NOT_AUTHORIZE)
-	} else {
-
-		if rowAffected, err := db.DoUpdateFromForm(r, userID); err != nil {
-			log.Println(err)
-			arrJSON["error"] = "true"
-			arrJSON["message"] = fmt.Sprintf("Error %v during update %s record %s", err, r.FormValue("table"), r.FormValue("id"))
-		} else {
-			arrJSON["rowAffected"] = rowAffected
-			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", r.FormValue("table"))
-		}
-	}
-
-	views.RenderAnyJSON(w, arrJSON)
+	HandlerRecord(w, r, "rowAffected" )
 
 }
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
