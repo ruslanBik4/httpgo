@@ -1,7 +1,9 @@
 package json
 
+import "log"
 
 func getType(value interface {} ) string {
+	log.Println(value)
 	switch value.(type) {
 	case map[string]interface{}:
 		return "array"
