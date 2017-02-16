@@ -280,8 +280,6 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 	return  nil
 }
 func cacheFiles() {
-	filepath.Walk( filepath.Join(*f_web,"js"), cacheWalk )
-	filepath.Walk( filepath.Join(*f_web,"css"), cacheWalk )
 	filepath.Walk( filepath.Join(*f_static,"js"), cacheWalk )
 
 	cachePath := *f_chePath
@@ -289,9 +287,10 @@ func cacheFiles() {
 	for p > 0 {
 
 		filepath.Walk( filepath.Join(*f_web,cachePath[ :p ]), cacheWalk )
-		cachePath = cachePath[p: ]
+		cachePath = cachePath[p+1: ]
 		p = strings.Index(cachePath, ";")
 	}
+	filepath.Walk( filepath.Join(*f_web,cachePath), cacheWalk )
 }
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
