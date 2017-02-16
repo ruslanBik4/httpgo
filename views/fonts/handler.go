@@ -24,6 +24,7 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 
 	//w.Header().Set("Content-Type", "mime/type; ttf")
 
+	PathWeb := "/home/travel/thetravel/web"
 	ext := ".ttf"
 	if browser:= r.Header["User-Agent"]; contains(browser, "Safari") {
 		ext = ".woff"
