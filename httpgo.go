@@ -36,7 +36,7 @@ var (
 	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
-		"/test/":  handleTest,
+		"/update/":  handleUpdate,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
 		"/admin/table/": admin.HandlerAdminTable,
@@ -66,17 +66,6 @@ var (
 	}
 
 )
-func handleTest(w http.ResponseWriter, r *http.Request) {
-	var fStruc forms.FieldStructure
-	var field db.FieldStructure
-
-	field.COLUMN_COMMENT = sql.NullString{ Valid: true,
-		String:`test comment{"placeholder": "Телефон бухгалтера. #формат ввода +380(00) 000-00-00",
-		"pattern": "^\d+\\(\d{2}\)\s\d{3}[-]\d{2}[-]\d{2}$"}`}
-	fmt.Fprint(w, fStruc.GetTitle(field) )
-
-	fmt.Fprint(w,fStruc.Pattern)
-}
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
 	for path, fnc := range routes {
@@ -131,7 +120,9 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
+}
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
