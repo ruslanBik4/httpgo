@@ -94,7 +94,7 @@ type DefaultHandler struct{
 	whitelist []string
 }
 func NewDefaultHandler() *DefaultHandler {
-	return &DefaultHandler{
+	handler := &DefaultHandler{
 		fpm: system.NewFPM(fpmSocket),
 		php: system.NewPHP(*f_web, fpmSocket),
 		cache: []string{
@@ -104,6 +104,16 @@ func NewDefaultHandler() *DefaultHandler {
 			".jpg",".jpeg",".png",".gif",".ttf",".pdf",
 		},
 	}
+	// read from flags
+	cacheExt := *f_cache
+	p := strings.Index(cacheExt, ";")
+	for p > 0 {
+
+		handler.cache = append(handler.cache, cacheExt[ :p ])
+		cacheExt = cacheExt[p: ]
+		p = strings.Index(cacheExt, ";")
+	}
+	return handler
 }
 func (h *DefaultHandler) toCache(ext string) bool {
 	for _, name := range h.cache {
@@ -274,9 +284,14 @@ func cacheFiles() {
 	filepath.Walk( filepath.Join(*f_web,"css"), cacheWalk )
 	filepath.Walk( filepath.Join(*f_static,"js"), cacheWalk )
 
-	//log.Println(filepath.Join(*f_web,"js"))
-	//log.Println(filepath.Join(*f_web,"sss"))
-	//log.Println(filepath.Join(*f_static,"js"))
+	cachePath := *f_chePath
+	p := strings.Index(cachePath, ";")
+	for p > 0 {
+
+		filepath.Walk( filepath.Join(*f_web,cachePath[ :p ]), cacheWalk )
+		cachePath = cachePath[p: ]
+		p = strings.Index(cachePath, ";")
+	}
 }
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
@@ -291,6 +306,8 @@ var (
 	f_static = flag.String("path","/home/travel/","path to static files")
 	f_web    = flag.String("web","/home/www/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
+	f_cache    = flag.String( "cacheFileExt", `eot;ttf;woff;woff2`, "file extensions for caching HTTPGO" )
+	f_chePath  = flag.String("cachePath","css;js;fonts","path to cached files")
 	F_debug    = flag.String("debug","false","debug mode")
 	db_user   = flag.String("dbUser","travel","user name for database")
 )
