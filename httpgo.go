@@ -19,9 +19,8 @@ import (
 	"sync"
 	"bytes"
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/config"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"database/sql"
+	//"github.com/ruslanBik4/httpgo/models/config"
+	"../../../../../../OpenServer/domains/travel.loc/go/models/config"
 )
 //go:generate qtc -dir=views/templates
 
@@ -36,7 +35,7 @@ var (
 	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
-		"/test/":  handleTest,
+		"/update/":  handleUpdate,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
 		"/admin/table/": admin.HandlerAdminTable,
@@ -66,17 +65,6 @@ var (
 	}
 
 )
-func handleTest(w http.ResponseWriter, r *http.Request) {
-	var fStruc forms.FieldStructure
-	var field db.FieldStructure
-
-	field.COLUMN_COMMENT = sql.NullString{ Valid: true,
-		String:`test comment{"placeholder": "Телефон бухгалтера. #формат ввода +380(00) 000-00-00",
-		"pattern": "^\d+\\(\d{2}\)\s\d{3}[-]\d{2}[-]\d{2}$"}`}
-	fmt.Fprint(w, fStruc.GetTitle(field) )
-
-	fmt.Fprint(w,fStruc.Pattern)
-}
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
 	for path, fnc := range routes {
@@ -131,7 +119,9 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
+}
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
@@ -305,7 +295,7 @@ var (
 	f_static = flag.String("path","/home/travel/","path to static files")
 	f_web    = flag.String("web","/home/www/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
-	f_cache    = flag.String( "cacheFileExt", `eot;ttf;woff;woff2;otf`, "file extensions for caching HTTPGO" )
+	f_cache    = flag.String( "cacheFileExt", `eot;ttf;woff;woff2;otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts","path to cached files")
 	F_debug    = flag.String("debug","false","debug mode")
 	db_user   = flag.String("dbUser","travel","user name for database")

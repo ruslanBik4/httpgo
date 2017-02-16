@@ -402,35 +402,46 @@ func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
 }
 func HandlerAddRecord(w http.ResponseWriter, r *http.Request)  {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	var arrJSON map[string] interface {}
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
-		fmt.Fprintf(w, `{"error":true,"message":"%s"}`, users.NOT_AUTHORIZE)
-		return
-	}
-	if id, err := db.DoInsertFromForm(r, userID); err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
+		arrJSON["error"] = "true"
+		arrJSON["message"] = fmt.Sprintf("%s", users.NOT_AUTHORIZE)
 	} else {
-		fmt.Fprintf(w, `{"id":"%d", "contentURL":"/admin/table/%s/"}`, id, r.FormValue("table"))
+
+		if id, err := db.DoInsertFromForm(r, userID); err != nil {
+			log.Println(err)
+			arrJSON["error"] = "true"
+			arrJSON["message"] = fmt.Sprintf("Error %v during insert into %s ", err, r.FormValue("table"))
+		} else {
+			arrJSON["id"] = id
+			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", r.FormValue("table"))
+		}
 	}
+	views.RenderAnyJSON(w, arrJSON)
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	var arrJSON map[string] interface {}
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
-		fmt.Fprintf(w, `{"error":true,"message":"%s"}`, users.NOT_AUTHORIZE)
-		return
-	}
-	if rowAffected, err := db.DoUpdateFromForm(r, userID); err != nil {
-		log.Println(err)
-		fmt.Fprintf(w, `{"error":true,"message":"%v"}`, err)
+		arrJSON["error"] = "true"
+		arrJSON["message"] = fmt.Sprintf("%s", users.NOT_AUTHORIZE)
 	} else {
-		fmt.Fprintf(w, `{"rows":"%d", "contentURL":"/admin/table/%s/"}`, rowAffected, r.FormValue("table"))
+
+		if rowAffected, err := db.DoUpdateFromForm(r, userID); err != nil {
+			log.Println(err)
+			arrJSON["error"] = "true"
+			arrJSON["message"] = fmt.Sprintf("Error %v during update %s record %s", err, r.FormValue("table"), r.FormValue("id"))
+		} else {
+			arrJSON["rowAffected"] = rowAffected
+			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", r.FormValue("table"))
+		}
 	}
+
+	views.RenderAnyJSON(w, arrJSON)
 
 }
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
