@@ -20,8 +20,6 @@ import (
 	"bytes"
 	"flag"
 	"github.com/ruslanBik4/httpgo/models/config"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"database/sql"
 )
 //go:generate qtc -dir=views/templates
 

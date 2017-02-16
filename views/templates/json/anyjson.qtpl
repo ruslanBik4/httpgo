@@ -9,11 +9,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    {% for key, value := range  arrJSON %}
         {%s comma %}
         "{%s key %}":
-     {% if isArray(value) %}
+     {% switch getType(value) %}
+     {% case "array" %}
             [ {%= WriteAnyJSON(value.(map[string] interface {})) %} ]
-      {% else %}
+      {% case "string" %}
          "{%s value.(string) %}"
-     {% endif %}
+      {% case "int" %}
+            value.(int)
+      {% default %}
+            value
+     {% endswitch %}
 
          {% code  comma = ","
         %}

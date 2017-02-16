@@ -1,11 +1,15 @@
 package json
 
 
-func isArray(value interface {} ) bool {
+func getType(value interface {} ) string {
 	switch value.(type) {
 	case map[string]interface{}:
-		return true
+		return "array"
+	case string:
+		return "string"
+	case int:
+		return "int"
 	default:
-		return false
+		return value.(string)
 	}
 }
