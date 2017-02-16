@@ -3,6 +3,8 @@ package fonts
 import (
 	"net/http"
 	"strings"
+	"io/ioutil"
+	"log"
 )
 var 	PathWeb string
 func GetPath(path string) {
@@ -25,6 +27,13 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 	ext := ".ttf"
 	if browser:= r.Header["User-Agent"]; contains(browser, "Safari") {
 		ext = ".woff"
+		w.Header().Set("Content-Type", "application/font-woff")
+		if data, err := ioutil.ReadFile(PathWeb+r.URL.Path+ext); err != nil {
+			log.Println(err)
+		} else {
+			w.Write(data)
+		}
+	} else {
+		http.ServeFile(w, r, PathWeb+r.URL.Path+ext)
 	}
-	http.ServeFile(w, r, PathWeb + r.URL.Path + ext)
 }
