@@ -17,9 +17,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case "string" %}
          "{%s= value.(string) %}"
       {% case "int" %}
-            value.(int)
+            {%d value.(int) %}
       {% default %}
-            value
+            {%v value %}
      {% endswitch %}
 
          {% code  comma = ","

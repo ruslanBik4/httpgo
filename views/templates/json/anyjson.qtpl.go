@@ -62,12 +62,12 @@ func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{
 			qw422016.N().S(`"`)
 		//line views/templates/json/anyjson.qtpl:19
 		case "int":
-			//line views/templates/json/anyjson.qtpl:19
-			qw422016.N().S(`value.(int)`)
+			//line views/templates/json/anyjson.qtpl:20
+			qw422016.N().D(value.(int))
 		//line views/templates/json/anyjson.qtpl:21
 		default:
-			//line views/templates/json/anyjson.qtpl:21
-			qw422016.N().S(`value`)
+			//line views/templates/json/anyjson.qtpl:22
+			qw422016.E().V(value)
 			//line views/templates/json/anyjson.qtpl:23
 		}
 		//line views/templates/json/anyjson.qtpl:25
