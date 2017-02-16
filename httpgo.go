@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"flag"
 	"github.com/ruslanBik4/httpgo/models/config"
+	"github.com/ruslanBik4/httpgo/views/fonts"
 )
 //go:generate qtc -dir=views/templates
 
@@ -35,6 +36,7 @@ var (
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
 		"/update/":  handleUpdate,
+		"/fonts/":  fonts.HandleGetFont,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
 		"/admin/table/": admin.HandlerAdminTable,
@@ -307,7 +309,10 @@ func main() {
 	users.SetSessionPath(*f_session)
 	go cacheFiles()
 
+	fonts.GetPath(*f_static)
+
 	registerRoutes()
+
 
 	log.Println("Server starting in " + time.Now().String() )
 	log.Fatal( http.ListenAndServe(*f_port, nil) )
