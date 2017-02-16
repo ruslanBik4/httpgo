@@ -11,13 +11,15 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         "{%s key %}":
      {% switch getType(value) %}
      {% case "array" %}
-            [ {%= WriteAnyJSON(value.(map[string] interface {})) %} ]
+            [
+                {%= WriteAnyJSON(value.(map[string] interface {})) %}
+            ]
       {% case "string" %}
-         "{%s value.(string) %}"
+         "{%s= value.(string) %}"
       {% case "int" %}
-            value.(int)
+            {%d value.(int) %}
       {% default %}
-            value
+            {%v value %}
      {% endswitch %}
 
          {% code  comma = ","
