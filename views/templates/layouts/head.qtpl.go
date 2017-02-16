@@ -77,8 +77,10 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen">
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/menu.css" type="text/css" media="screen">
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
-    <link href="/css/bootstrap.css" rel="stylesheet">
-    <link href="/css/bootstrap-responsive.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="/css/fonts.css">
+    <link rel="stylesheet" href="/css/travel.css"">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -92,19 +94,19 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="shortcut icon" href="/bootstrap/ico/favicon.png">
         <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
     `)
-	//line views/templates/layouts/head.qtpl:48
+	//line views/templates/layouts/head.qtpl:50
 	for i := 0; i < len(head.LinkStyles); i++ {
-		//line views/templates/layouts/head.qtpl:48
+		//line views/templates/layouts/head.qtpl:50
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:49
+		//line views/templates/layouts/head.qtpl:51
 		qw422016.E().S(head.LinkStyles[i])
-		//line views/templates/layouts/head.qtpl:49
+		//line views/templates/layouts/head.qtpl:51
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:50
+		//line views/templates/layouts/head.qtpl:52
 	}
-	//line views/templates/layouts/head.qtpl:50
+	//line views/templates/layouts/head.qtpl:52
 	qw422016.N().S(`
     <!--[if IE]><script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script><![endif]-->
     <!--[if !IE]--><script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script><!--[endif]-->
@@ -123,50 +125,50 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="/js/drag_drop.js"></script>
     <script  src="/js/forms.js"></script>
     `)
-	//line views/templates/layouts/head.qtpl:67
+	//line views/templates/layouts/head.qtpl:69
 	for i := 0; i < len(head.Scripts); i++ {
-		//line views/templates/layouts/head.qtpl:67
+		//line views/templates/layouts/head.qtpl:69
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:68
+		//line views/templates/layouts/head.qtpl:70
 		qw422016.E().S(head.Scripts[i])
-		//line views/templates/layouts/head.qtpl:68
+		//line views/templates/layouts/head.qtpl:70
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:69
+		//line views/templates/layouts/head.qtpl:71
 	}
-	//line views/templates/layouts/head.qtpl:69
+	//line views/templates/layouts/head.qtpl:71
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
 
 </head>
 `)
-//line views/templates/layouts/head.qtpl:74
+//line views/templates/layouts/head.qtpl:76
 }
 
-//line views/templates/layouts/head.qtpl:74
+//line views/templates/layouts/head.qtpl:76
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	head.StreamHeadHTML(qw422016)
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:74
+//line views/templates/layouts/head.qtpl:76
 }
 
-//line views/templates/layouts/head.qtpl:74
+//line views/templates/layouts/head.qtpl:76
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	head.WriteHeadHTML(qb422016)
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	qs422016 := string(qb422016.B)
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/layouts/head.qtpl:74
+	//line views/templates/layouts/head.qtpl:76
 	return qs422016
-//line views/templates/layouts/head.qtpl:74
+//line views/templates/layouts/head.qtpl:76
 }

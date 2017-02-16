@@ -7,17 +7,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  {
    {% code comma := "" %}
    {% for key, value := range  arrJSON %}
-        {% code
-            text := ""
-            switch value.(type) {
-            case map[string] interface {}:
-                text = WriteAnyJSON(value.(map[string] interface {}))
-            default:
-                text = comma + `"` + key + `": "` +  value.(string) + `"`
-                comma = ","
-            }
+        {%s comma %}
+        "{%s key %}":
+     {% if isArray(value) %}
+            [ {%= WriteAnyJSON(value.(map[string] interface {})) %} ]
+      {% else %}
+         "{%s value.(string) %}"
+     {% endif %}
+
+         {% code  comma = ","
         %}
-        {%s text %}
    {% endfor %}
  }
 {% endstripspace %}
