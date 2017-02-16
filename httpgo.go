@@ -309,7 +309,7 @@ func main() {
 	users.SetSessionPath(*f_session)
 	go cacheFiles()
 
-	fonts.GetPath(*f_static)
+	fonts.GetPath(*f_web)
 
 	registerRoutes()
 
