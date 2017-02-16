@@ -20,7 +20,7 @@ import (
 	"sync"
 	"bytes"
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/config"
+	"models/config"
 	"github.com/ruslanBik4/httpgo/views/fonts"
 )
 //go:generate qtc -dir=views/templates
