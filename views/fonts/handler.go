@@ -8,7 +8,7 @@ import (
 )
 var 	PathWeb string
 func GetPath(path *string) {
-	PathWeb = path[:0]
+	PathWeb = *path
 	log.Println(PathWeb )
 }
 func contains(array [] string, str string) bool {
