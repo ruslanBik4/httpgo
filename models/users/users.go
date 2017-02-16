@@ -3,7 +3,7 @@ package users
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	//"github.com/ruslanBik4/httpgo/views/templates/mails"
+	"github.com/ruslanBik4/httpgo/views/templates/mails"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"net/http"
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"os"
 	"log"
 	"io/ioutil"
-	// "gopkg.in/gomail.v2"
+	"gopkg.in/gomail.v2"
 	"net/mail"
 	"crypto/rand"
 	"encoding/base64"
@@ -36,7 +36,7 @@ var (
 
 )
 func SetSessionPath(f_session string) {
-    store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
+	store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
 }
 func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
 
@@ -270,20 +270,20 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 }
 func sendMail(email, password string)  {
 
-	// m := gomail.NewMessage()
-	// m.SetHeader("From", "ruslan-bik@yandex.ru")
-	// m.SetHeader("To", email )
-	// //m.SetAddressHeader("Cc", "dan@example.com", "Dan")
-	// m.SetHeader("Subject", "Регистрация на travel.com.ua!")
-	// m.SetBody("text/html", mails.InviteEmail(email, password) )
-	// m.Attach("/home/travel/bootstrap/ico/favicon.png")
+	m := gomail.NewMessage()
+	m.SetHeader("From", "ruslan-bik@yandex.ru")
+	m.SetHeader("To", email )
+	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
+	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
+	m.SetBody("text/html", mails.InviteEmail(email, password) )
+	m.Attach("/home/travel/bootstrap/ico/favicon.png")
 
-	// d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconF99")
+	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconF99")
 
-	// // Send the email to Bob, Cora and Dan.
-	// if err := d.DialAndSend(m); err != nil {
-	// 	log.Println(err)
-	// }
+	// Send the email to Bob, Cora and Dan.
+	if err := d.DialAndSend(m); err != nil {
+		log.Println(err)
+	}
 }
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm();
