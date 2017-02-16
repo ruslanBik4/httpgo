@@ -454,7 +454,6 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			HandlerAddRecord(w, r)
 		}
 	} else {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		var params db.MultiQuery
 		var arrJSON map[string] interface {}
 
@@ -539,6 +538,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				break
 			} else {
 				arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
+				arrJSON["id"]      = id
 
 				 if primaryID == 0 {
 					 primaryID = id

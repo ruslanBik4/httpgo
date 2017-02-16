@@ -123,6 +123,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	defer Catch(w)
 	switch r.URL.Path {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
@@ -242,6 +243,7 @@ func Catch(w http.ResponseWriter) {
 	err := recover()
 	if err != nil {
 		log.Print("panic runtime! ", err)
+		fmt.Fprint(w, "Error during executing %v", err)
 	}
 }
 // считываю счасти из папки
@@ -294,7 +296,7 @@ var (
 	f_static = flag.String("path","/home/travel/","path to static files")
 	f_web    = flag.String("web","/home/www/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
-	f_cache    = flag.String( "cacheFileExt", `eot;ttf;woff;woff2;otf;`, "file extensions for caching HTTPGO" )
+	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts","path to cached files")
 	F_debug    = flag.String("debug","false","debug mode")
 	db_user   = flag.String("dbUser","travel","user name for database")
