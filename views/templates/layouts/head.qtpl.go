@@ -77,8 +77,9 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen">
     <link rel="stylesheet" href="http://solution.allservice.in.ua/css/menu.css" type="text/css" media="screen">
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
-    <link rel="stylesheet" href="/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.css">
     <link rel="stylesheet" href="/css/fonts.css">
     <link rel="stylesheet" href="/css/travel.css"">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -94,19 +95,19 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="shortcut icon" href="/bootstrap/ico/favicon.png">
         <link rel="stylesheet" href="/jquery.datetimepicker.css" type="text/css" media="screen">
     `)
-	//line views/templates/layouts/head.qtpl:50
+	//line views/templates/layouts/head.qtpl:51
 	for i := 0; i < len(head.LinkStyles); i++ {
-		//line views/templates/layouts/head.qtpl:50
+		//line views/templates/layouts/head.qtpl:51
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:51
+		//line views/templates/layouts/head.qtpl:52
 		qw422016.E().S(head.LinkStyles[i])
-		//line views/templates/layouts/head.qtpl:51
+		//line views/templates/layouts/head.qtpl:52
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:52
+		//line views/templates/layouts/head.qtpl:53
 	}
-	//line views/templates/layouts/head.qtpl:52
+	//line views/templates/layouts/head.qtpl:53
 	qw422016.N().S(`
     <!--[if IE]><script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script><![endif]-->
     <!--[if !IE]--><script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script><!--[endif]-->
@@ -114,6 +115,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
     <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
     <script  src="http://solution.allservice.in.ua/js/stog.js"></script>
+    <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <!--[if lt IE 10]>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
@@ -125,50 +127,50 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="/js/drag_drop.js"></script>
     <script  src="/js/forms.js"></script>
     `)
-	//line views/templates/layouts/head.qtpl:69
+	//line views/templates/layouts/head.qtpl:71
 	for i := 0; i < len(head.Scripts); i++ {
-		//line views/templates/layouts/head.qtpl:69
+		//line views/templates/layouts/head.qtpl:71
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:70
+		//line views/templates/layouts/head.qtpl:72
 		qw422016.E().S(head.Scripts[i])
-		//line views/templates/layouts/head.qtpl:70
+		//line views/templates/layouts/head.qtpl:72
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:71
+		//line views/templates/layouts/head.qtpl:73
 	}
-	//line views/templates/layouts/head.qtpl:71
+	//line views/templates/layouts/head.qtpl:73
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
 
 </head>
 `)
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:78
 }
 
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:78
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	head.StreamHeadHTML(qw422016)
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:78
 }
 
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:78
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	head.WriteHeadHTML(qb422016)
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	qs422016 := string(qb422016.B)
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/layouts/head.qtpl:76
+	//line views/templates/layouts/head.qtpl:78
 	return qs422016
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:78
 }

@@ -57,7 +57,7 @@ var (
 		"/user/signout/": users.HandlerSignOut,
 		"/user/active/" : users.HandlerActivateUser,
 		"/user/profile/": users.HandlerProfile,
-		"/user/oauth/":    users.HandlerQauth2,
+		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		//"/admin/add": handlerAddPage,
 		//"/store/nav/": handlerStoreNav,

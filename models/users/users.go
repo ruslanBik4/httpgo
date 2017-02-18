@@ -13,12 +13,13 @@ import (
 	"os"
 	"log"
 	"io/ioutil"
-	"gopkg.in/gomail.v2"
+	//"gopkg.in/gomail.v2"
 	"net/mail"
 	"crypto/rand"
 	"encoding/base64"
 	"hash/crc32"
 	"github.com/gorilla/sessions"
+	"gopkg.in/gomail.v2"
 )
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
@@ -38,22 +39,22 @@ var (
 func SetSessionPath(f_session string) {
 	store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
 }
-func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
-
-
-	googleOauthConfig.RedirectURL = r.Host +  "/user/GoogleCallback/"
-	url := googleOauthConfig.AuthCodeURL(oauthStateString)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-	//var ctx context.Context = appengine.NewContext(r)
-	//client := &http.Client{
-	//	Transport: &oauth2.Transport{
-	//		Source: google.AppEngineTokenSource(ctx, "scope"),
-	//		Base:   &urlfetch.Transport{Context: ctx},
-	//	},
-	//}
-	//resp, _ := client.Get("...")
-	//w.Write(resp.Body)
-}
+//func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
+//
+//
+//	googleOauthConfig.RedirectURL = r.Host +  "/user/GoogleCallback/"
+//	url := googleOauthConfig.AuthCodeURL(oauthStateString)
+//	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+//	//var ctx context.Context = appengine.NewContext(r)
+//	//client := &http.Client{
+//	//	Transport: &oauth2.Transport{
+//	//		Source: google.AppEngineTokenSource(ctx, "scope"),
+//	//		Base:   &urlfetch.Transport{Context: ctx},
+//	//	},
+//	//}
+//	//resp, _ := client.Get("...")
+//	//w.Write(resp.Body)
+//}
 //Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
 func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
