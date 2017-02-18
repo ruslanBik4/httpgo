@@ -102,8 +102,9 @@
         ns.SaveFormEvents = make(map[string] string, 1)
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
+    formName := "f" + ns.Name
 %}
-<form name="f{%s ns.Name %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
+<form id=="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
       onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" >
       {% code
         setDatePicker := ""
@@ -250,7 +251,7 @@
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
                     <label class="input-label" for="{%s nameInput %}">{%s title %}</label>
                     <div class="form-items-wrap">
-                        <span class="custom-input-label" for="name">У{%s placeholder %}</span>
+                        <span class="custom-input-label" for="name">{%s placeholder %}</span>
                         <input type=
 
                         {% if fieldStrc.InputType > "" %}
