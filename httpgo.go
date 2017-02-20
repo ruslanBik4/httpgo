@@ -146,7 +146,7 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		serveAndCache(filename, w, r)
 		return
 	} else if h.toServe(ext) {
-		http.ServeFile(w, r, filepath.Join(*f_static, filename))
+		http.ServeFile(w, r, filepath.Join(*f_web, filename))
 		return
 	}
 	h.php.ServeHTTP(w, r)
