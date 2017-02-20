@@ -146,7 +146,7 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		serveAndCache(filename, w, r)
 		return
 	} else if h.toServe(ext) {
-		http.ServeFile(w, r, filepath.Join(*f_static, filename))
+		http.ServeFile(w, r, filepath.Join(*f_web, filename))
 		return
 	}
 	h.php.ServeHTTP(w, r)
@@ -277,6 +277,7 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 }
 func cacheFiles() {
 	filepath.Walk( filepath.Join(*f_static,"js"), cacheWalk )
+	filepath.Walk( filepath.Join(*f_static,"css"), cacheWalk )
 
 	cachePath := *f_chePath
 	p := strings.Index(cachePath, ";")
@@ -297,8 +298,8 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	f_port   = flag.String("port",":8080","host address to listen on")
-	f_static = flag.String("path","/home/travel/","path to static files")
+	f_port   = flag.String("port",":80","host address to listen on")
+	f_static = flag.String("path","/root/gocode/src/github.com/ruslanBik4/httpgo/","path to static files")
 	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )

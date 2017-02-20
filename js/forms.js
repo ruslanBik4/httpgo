@@ -38,6 +38,15 @@ function alertField(thisElem) {
 function correctField(thisElem) {
     $(thisElem).css( { border: '' } );
 }
+function validatePattern(thisElem) {
+    var re = thisElem.pattern;
+
+    if (re == "") {
+        return true;
+    }
+    re = new RegExp(re);
+    return re.test(thisElem.value);
+}
 function validateEmail(email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
@@ -81,19 +90,47 @@ function validateReguiredFields(thisForm) {
 
     return result;
 }
+// проверка полей с выставленными патеррнами
+function validatePatternsField(thisForm) {
+    var result = true;
 
-function saveForm(thisForm, successFunction)
+    $('input[pattern]:visible', thisForm).each(
+        function (index) {
+            result = result && validatePattern(this);
+            if (!result) {
+                alertField(this);
+
+            }
+
+            return result;
+
+        });
+
+    return result;
+}
+function validateFields(thisForm) {
+
+    return (validateReguiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
+}
+// стандарт созранения форм, требуется расширить количество обработчиков (callback) типа ошибок записи и т.П.
+function saveForm(thisForm, successFunction, errorFunction)
 {
+    // TODO: create element form for output form result
     var $out = $('output', thisForm),
         $loading = $('.loading', thisForm),
         $progress = $('progress', thisForm);
 
-    if (!(validateReguiredFields(thisForm) && validateEmailFields(thisForm)))
+    if (!validateFields(thisForm))
         return false;
 
     $(thisForm).ajaxSubmit({
         beforeSubmit: function(a,f,o) {
             o.dataType = "json";
+            // добавляем чекбокс-поля, которые были отменены в форме
+            $("input[type=checkbox][checked]:not(:checked)").each(
+                function() {
+                    a.push({ name: this.name, value: 0, type : this.type, required: this.required })
+                });
             $out.html('Начинаю отправку...');
             $progress.show();
             $loading.show();
@@ -104,13 +141,23 @@ function saveForm(thisForm, successFunction)
         },
         success: function(data, status) {
             $out.html('Успешно изменили запись.');
-            successFunction( data );
+            // TODO: lj,fdbnm ghjdthre b ltajknysq j,hf,jnxbr
+            if (successFunction !== undefined) {
+                successFunction(data, thisForm);
+            } else {
+                afterSaveAnyForm(data);
+            }
             $.fancybox.close();
         },
         error: function(error, status) {
             $out.html( error.responseText );
+            if (errorFunction !== undefined) {
+                errorFunction(data, thisForm);
+            } else {
+                alert(error);
+            }
         },
-        complete: function(data, status) {
+        complete: function(status, data) {
             $progress.hide();
             $loading.hide();
             console.log(status);
@@ -120,129 +167,26 @@ function saveForm(thisForm, successFunction)
 
     return false;
 }
+// стандартная обработка формы типа AnyForm после успшного сохранения результата
 function afterSaveAnyForm(data) {
 
     if (data.contentURL !== undefined) {
         ShowOkno(data.contentURL);
         // TODO  catalog after
+    } else if (data.error !== undefined) {
+        alert(data.message)
     } else {
-        alert(data.error)
+        console.log(data)
     }
-
-}
-function showAddToolsForm(thisElem, notSaved) {
-    var dataElem = $(thisElem).data(),
-        props = dataElem.props,
-
-        inputName = '<label class="required">Название</label><input type="text" name="name" required placeholder="Например, место его расположения"/>',
-        propsValue = '', comma = '',
-        endform = '<input id="isAdding" type="checkbox" checked/><label>Добавить в текущую комнату</label><button>Добавить в реестр</button>',
-        text = '<form method="post" class="login" action="/user/usertools/add" onsubmit="return saveForm(this, afterSaveTools);">'
-                + '<input hidden name="id_tools" value="' + dataElem.id + '"/>'
-                + (notSaved ? inputName : '<figcaption>' + thisElem.title + '</figcaption>'),
-        prefixText = notSaved ? 'Введите ' : '',
-        rflog = '';
-
-    for (var i in props ) {
-
-        if ( props[i]== "?" || !notSaved) {
-            text +=  '<div><label ' + (notSaved ? 'class="required"' : '') + '>' + prefixText + getNameFromID(i)
-                    + '</label><input type="text" required name="props:' + i
-                    + (notSaved ? '' : '" value="' + props[i] ) + '"/></div>';
-        } else {
-            propsValue += comma + '\"' + i + '\":\"' + props[i] +'\"';
-            comma = ',';
-        }
-    }
-    // если есть свойства, которые не редактируют, то их сохраняем в отдельном параметре
-    if (propsValue) {
-        propsValue = "<input hidden name='props' value='" + propsValue + "'/>";
-    }
-
-    $.fancybox( text + propsValue + endform + rflog + '</form>',
-        {
-            title: 'Данные для прибора ' + thisElem.title,
-            transitionIn	 : 'elastic',
-            transitionOut	 : 'elastic',
-            helpers		: {
-                overlay : { showEarly  : true },
-                title	: { type : 'float'
-                }
-            },
-            'onClosed': function (currentArray, currentIndex, currentOpts) {
-                // Use closedParam here
-                if (notSaved && confirm( 'Вы внесли изменения и не сохранили результат. Закрыть форму?' ))
-                    return false;
-            }
-        });
-
-    $(thisElem).parent('div').slideUp();
-
-    return false;
-
-}
-function saveRoom(thisForm)
-{
-    var props = '',
-        comma = '';
-
-    $('.draggable').each( function () {
-        var coords    = getCoords(this),
-            propsData = $(this).data();
-        props += comma + '{' + '"left":' + coords.left + ',"top":' + coords.top ;
-        for (var i in propsData ) {
-            props += ',' + '"' + i + '":"' + propsData[i] + '"';
-        }
-        props += '}';
-        comma = ',';
-    });
-    $('input[name=props]', thisForm).val(props);
-
-    saveForm(thisForm, afterSaveRoom);
-
-    return false;
-}
-// ПОСЛЕ сохранения инструмента
-function afterSaveTools(data) {
-    $('#dMyTools').load('/user/usertools/menu');
-
-    if ($('#isAdding:checked').length > 0)
-        AddItem( data );
-
 }
 // ПОСЛЕ сохранение комнаты
-function afterSaveRoom(data) {
-    if (data.result !== undefined) {
-        divContent.load(data.result);
-    } else {
-        alert(data.error)
-    }
-}
-
 function changeLoginForm() {
     $('#fLogin').attr('action', '/user/login/signup');
     $('#fLogin figcaption').toggle();
 
     return false;
 }
-function busnessSuggestion(suggestion) {
-    var data = suggestion.data;
-
-    console.log(suggestion);
-    if (!data)
-        return;
-
-    $('#inn').val(data.inn);
-    $('#kpp').val(data.kpp);
-    $('#ogrn').val(data.ogrn);
-    $('#okpo').val(data.okpo);
-    $('#type').val(data.type);
-    $('#address').val(data.address.value);
-//            $('#inn').val(data.inn);
-//            $('#inn').val(data.inn);
-
-}
-
+// установка пола при регистрации
 function signSuggestion(suggestion) {
     console.log(suggestion);
     switch (suggestion.data.gender) {
@@ -254,6 +198,38 @@ function signSuggestion(suggestion) {
             break;
     }
 }
+// создаем новый элемент из панели набора галочек, меняем название - этот механизм нужно изменить потом
+// TODO: change this code in future
+function addNewItems(thisButton) {
+    var data = $(thisButton).data(),
+        parentDiv = $('div#' + data.parentDiv),
+        newItem   = $(thisButton).prev().val(),
+        li = $('li:last', parentDiv).clone(),
+        input = $('input', li).val(newItem);
 
+    $("label", li).text(newItem).append(input);
+    $('ul', parentDiv).append(li);
+    // li.append("<span>" + newItem + "</span>");
 
+    return false;
+}
+// создаем новый элемент из панели набора галочек, меняем название - этот механизм нужно изменить потом
+// TODO: change this code in future
+function addNewRowTableID(thisButton) {
+    var data = $(thisButton).data(),
+        lastTr = $('tr#' + data.lastTr),
+        parentTable = lastTr.parents('table').first(),
+        tr = lastTr.clone();
 
+    // обнуляем id
+    tr[0].id = '';
+    // обнуляем поля ввода
+    $('input, select', tr).val('');
+
+    parentTable.append(tr);
+
+    // переносим фокус в первый элемент ввода
+    $('input, select', tr).first().focus();
+
+    return false;
+}
