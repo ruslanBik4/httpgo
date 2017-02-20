@@ -104,12 +104,13 @@
     }
     formName := "f" + ns.Name
 %}
+<div class="main-form-wrap">
+<h2 class="form-signin-heading">{%s Title %}</h2>
 <form id=="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
       onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" >
       {% code
         setDatePicker := ""
       %}
-    <h2 class="form-signin-heading">{%s Title %}</h2>
     {% if ns.Name > "" %}
         <input type="hidden" name="table" value="{%s ns.Name %}" >
     {% endif %}
@@ -230,6 +231,7 @@
 
     </div>
 </form>
+</div>
 {% if setDatePicker > "" %}
     <head>
         <script src="/jquery.datetimepicker.js"></script>
