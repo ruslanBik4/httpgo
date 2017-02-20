@@ -51,98 +51,74 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </style>
 <body>
 <div class="content-wrap">
-<div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <a class="brand" href="#">`)
-	//line views/templates/pages/index.qtpl:40
-	qw422016.E().S(body.Title)
-	//line views/templates/pages/index.qtpl:40
-	qw422016.N().S(`</a>
-            <div class="nav-collapse collapse">
-                <nav>
-                    <ul class="nav">
-                        `)
-	//line views/templates/pages/index.qtpl:44
+<div class="topline">
+			<div id="partner-topline" class="topline-inner-wrap">
+				<div class="logo">
+					<a href="#"><img src="images/logo-final-02.png" alt="logo"></a>
+				</div>
+				<nav class="topline-navbar">
+					<ul class="top-mnu-list">
+						`)
+	//line views/templates/pages/index.qtpl:38
 	for name, item := range body.TopMenu {
-		//line views/templates/pages/index.qtpl:44
+		//line views/templates/pages/index.qtpl:38
 		qw422016.N().S(`
-                            <li `)
-		//line views/templates/pages/index.qtpl:45
-		if item.Link == body.Route {
-			//line views/templates/pages/index.qtpl:45
-			qw422016.N().S(` class="active" `)
-			//line views/templates/pages/index.qtpl:45
-		}
-		//line views/templates/pages/index.qtpl:45
-		qw422016.N().S(`>
+                            <li class="top-mnu-item">
                                 <a href="`)
-		//line views/templates/pages/index.qtpl:46
+		//line views/templates/pages/index.qtpl:40
 		qw422016.E().S(item.Link)
-		//line views/templates/pages/index.qtpl:46
+		//line views/templates/pages/index.qtpl:40
 		qw422016.N().S(`">`)
-		//line views/templates/pages/index.qtpl:46
+		//line views/templates/pages/index.qtpl:40
 		qw422016.E().S(name)
-		//line views/templates/pages/index.qtpl:46
+		//line views/templates/pages/index.qtpl:40
 		qw422016.N().S(`</a>
                             </li>
                         `)
-		//line views/templates/pages/index.qtpl:48
+		//line views/templates/pages/index.qtpl:42
 	}
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:42
 	qw422016.N().S(`
-                    </ul>
-                </nav>
-            </div><!--/.nav-collapse -->
-            <p class="navbar-text pull-right">
-                <span id="sTitle" >Для начала работы Вам необходимо</span>
-                <a id="bLogOut" href="/user/signout" class="btn btn-navbar btn-login"  onclick="return logOut(this);"  style="display:none">Выйти</a>
-                <a href="/user/login/" class="navbar-link btn-login" title="откроется в модальном окне">Зарегистрироваться</a>
-                <b class="btn-login"> или </b>
-                <a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
-            </p>
-        </div>
-    </div>
-</div>
-
+					</ul>
+				</nav>
+				<div class="topline-btns">
+					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="images/open-exit-door.png" alt=""></a>
+					<a href="#" id="burger" class="brg-mnu"></a>
+					<a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
+				</div>
+			</div>
+		</div>
 <div id="container-fluid">
-
     <div class="row-fluid">
         <div class="span3">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
-	//line views/templates/pages/index.qtpl:68
+	//line views/templates/pages/index.qtpl:56
 	for _, value := range body.Catalog {
-		//line views/templates/pages/index.qtpl:68
+		//line views/templates/pages/index.qtpl:56
 		qw422016.N().S(`
                     `)
-		//line views/templates/pages/index.qtpl:69
+		//line views/templates/pages/index.qtpl:57
 		qw422016.E().S(value)
-		//line views/templates/pages/index.qtpl:69
+		//line views/templates/pages/index.qtpl:57
 		qw422016.N().S(`
                 `)
-		//line views/templates/pages/index.qtpl:70
+		//line views/templates/pages/index.qtpl:58
 	}
-	//line views/templates/pages/index.qtpl:70
+	//line views/templates/pages/index.qtpl:58
 	qw422016.N().S(`
 
             </div>
         </div>
         <div class="span9">
             <div id="content" rel="`)
-	//line views/templates/pages/index.qtpl:75
+	//line views/templates/pages/index.qtpl:63
 	qw422016.E().S(body.Route)
-	//line views/templates/pages/index.qtpl:75
+	//line views/templates/pages/index.qtpl:63
 	qw422016.N().S(`">`)
-	//line views/templates/pages/index.qtpl:75
+	//line views/templates/pages/index.qtpl:63
 	qw422016.N().S(body.Content)
-	//line views/templates/pages/index.qtpl:75
+	//line views/templates/pages/index.qtpl:63
 	qw422016.N().S(`</div>
         </div>
     </div>
@@ -156,31 +132,31 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </div>
 </body>
 `)
-//line views/templates/pages/index.qtpl:87
+//line views/templates/pages/index.qtpl:75
 }
 
-//line views/templates/pages/index.qtpl:87
+//line views/templates/pages/index.qtpl:75
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	body.StreamIndexHTML(qw422016)
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/index.qtpl:87
+//line views/templates/pages/index.qtpl:75
 }
 
-//line views/templates/pages/index.qtpl:87
+//line views/templates/pages/index.qtpl:75
 func (body *IndexPageBody) IndexHTML() string {
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	body.WriteIndexHTML(qb422016)
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/index.qtpl:87
+	//line views/templates/pages/index.qtpl:75
 	return qs422016
-//line views/templates/pages/index.qtpl:87
+//line views/templates/pages/index.qtpl:75
 }
