@@ -10,6 +10,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     <label class="checkbox">
         <input type="checkbox" name="remember" value="remember-me"> Запомнить меня в системе
     </label>
-    <button class="btn btn-large btn-primary" type="submit">Войти</button>
+    <button class="main-btn" type="submit">Войти</button>
 </form>
 {% endfunc %}
