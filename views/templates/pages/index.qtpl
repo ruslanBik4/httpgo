@@ -31,7 +31,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 <div class="topline">
 			<div id="partner-topline" class="topline-inner-wrap">
 				<div class="logo">
-					<a href="#"><img src="images/logo-final-02.png" alt="logo"></a>
+					<a href="#"><img src="/images/logo-final-02.png" alt="logo"></a>
 				</div>
 				<nav class="topline-navbar">
 					<ul class="top-mnu-list">
@@ -43,7 +43,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 					</ul>
 				</nav>
 				<div class="topline-btns">
-					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="images/open-exit-door.png" alt=""></a>
+					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="/images/open-exit-door.png" alt=""></a>
 					<a href="#" id="burger" class="brg-mnu"></a>
 					<a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
 				</div>
