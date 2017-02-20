@@ -61,36 +61,32 @@ func PutHead() string {
 func StreamPutEnd(qw422016 *qt422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:9
 	qw422016.N().S(`
-    <script src="/yii.js"></script>
-    <script src="/yii.validation.js"></script>
-    <script src="/yii.activeForm.js"></script>
-
 `)
-//line views/templates/layouts/formLayouts.qtpl:14
+//line views/templates/layouts/formLayouts.qtpl:10
 }
 
-//line views/templates/layouts/formLayouts.qtpl:14
+//line views/templates/layouts/formLayouts.qtpl:10
 func WritePutEnd(qq422016 qtio422016.Writer) {
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	StreamPutEnd(qw422016)
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/formLayouts.qtpl:14
+//line views/templates/layouts/formLayouts.qtpl:10
 }
 
-//line views/templates/layouts/formLayouts.qtpl:14
+//line views/templates/layouts/formLayouts.qtpl:10
 func PutEnd() string {
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	WritePutEnd(qb422016)
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	qs422016 := string(qb422016.B)
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/layouts/formLayouts.qtpl:14
+	//line views/templates/layouts/formLayouts.qtpl:10
 	return qs422016
-//line views/templates/layouts/formLayouts.qtpl:14
+//line views/templates/layouts/formLayouts.qtpl:10
 }
