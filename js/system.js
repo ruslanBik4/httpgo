@@ -6,6 +6,7 @@ var imgItem, divContent, default_page = '/main/', notSaved;
 $(function() {
 
 //     imgItem = document.getElementById('imgItem');
+    // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
 //     imgItem.onmousedown = readyForDragAndDrop;
 
@@ -19,6 +20,7 @@ $(function() {
 
 });
 // после загрузки новой страницы
+// тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
 }
 // перед загрузкой новой страницы, чистим хвосты
@@ -27,12 +29,14 @@ function beforeLoadContent() {
     $('#dRoomtools').html('');
     divContent.css({background: ''});
 }
+// собственно, нужен для того, чтобы после регистрации отобразтит в заголовке нечто
 function afterSignup(data) {
     if (!data)
         return false;
 
     divContent.load('/show/forms/?name=signin&email=' + data.email);
 }
+// собственно, нужен для того, чтобы после авторизации отобразтит в заголовке нечто
 function afterLogin(data)
 {
     if (!data)
@@ -54,6 +58,7 @@ function afterLogin(data)
         AddClickShowOkno( divContent );
     } );
 }
+// события после кнопки Выйти
 function logOut(thisElem) {
     $('canvas').detach();
     loginToggle();
@@ -81,28 +86,6 @@ function getOauth(thisElem)
 
     $(thisElem).next().load(dataElem.href);
     return false;
-}
-
-function newRoom(thisElem, cloneId) {
-    var dataElem = $(thisElem).data();
-
-    beforeLoadContent();
-    $('#dMyRooms').hide();
-    $('#dRoomForm').load(
-        'user/rooms/edit',
-        cloneId  ? {cloneId : dataElem.id} : {}
-    );
-    // $('#fRoom input[name=parent_id]').val(parentID);
-    $('#dRoomForm').mousedown( readyForDragAndDrop ).slideDown('fast').slideUp('fast').slideDown('slow');
-    divContent.css( {backgroundImage: ''} ).html('<svg class="room"><rect width="98%" height="98%" fill="rgb(234,234,234)" stroke-width="1" stroke="rgb(0,0,0)"/></svg>');
-
-    return false;
-}
-function resizeRoom(thisElem) {
-    $('svg.room').css({
-        width:  $('#fRoom input[name=width]').val(),
-        height: $('#fRoom input[name=height]').val()
-    });
 }
 // добавление фото для новой комнаты
 function handleFileSelect(evt) {
@@ -153,7 +136,7 @@ function showFlat(thisElem) {
 
     return false;
 }
-
+// на слуяай отвала зароса по AJAx
 function failAjax(data, status) {
     console.Log(data);
     alert(status);

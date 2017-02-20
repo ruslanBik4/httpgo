@@ -233,6 +233,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	defer rows.Close()
 	fmt.Fprint(w, tables.ShowTable(tableName, fields, rows) )
+	fmt.Fprint(w, "<script src='/%s'></script>", tableName )
 
 
 }
