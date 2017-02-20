@@ -1,0 +1,7 @@
+{% func PutHead() %}
+    <h1 class="business-title">Регистрация партнера на сервисе</h1>
+    <h4 class="business-title-second">Добавьте свой бизнес для быстрого роста продаж</h4>
+{% endfunc %}
+
+{% func PutEnd() %}
+{% endfunc %}
