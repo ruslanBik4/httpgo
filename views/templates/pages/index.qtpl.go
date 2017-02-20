@@ -54,7 +54,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 <div class="topline">
 			<div id="partner-topline" class="topline-inner-wrap">
 				<div class="logo">
-					<a href="#"><img src="images/logo-final-02.png" alt="logo"></a>
+					<a href="#"><img src="/images/logo-final-02.png" alt="logo"></a>
 				</div>
 				<nav class="topline-navbar">
 					<ul class="top-mnu-list">
@@ -82,7 +82,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 					</ul>
 				</nav>
 				<div class="topline-btns">
-					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="images/open-exit-door.png" alt=""></a>
+					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="/images/open-exit-door.png" alt=""></a>
 					<a href="#" id="burger" class="brg-mnu"></a>
 					<a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
 				</div>

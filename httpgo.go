@@ -303,7 +303,7 @@ var (
 	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
-	f_chePath  = flag.String("cachePath","css;js;fonts","path to cached files")
+	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
 	F_debug    = flag.String("debug","false","debug mode")
 	db_user   = flag.String("dbUser","travel","user name for database")
 )
