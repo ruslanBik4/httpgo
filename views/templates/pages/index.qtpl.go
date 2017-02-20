@@ -148,7 +148,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
     <hr>
 
     <footer>
-        <p>&copy; Company 2012</p>
+        <p>&copy; uStudio 2017</p>
     </footer>
 
 </div>
