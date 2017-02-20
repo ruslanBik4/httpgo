@@ -277,6 +277,7 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 }
 func cacheFiles() {
 	filepath.Walk( filepath.Join(*f_static,"js"), cacheWalk )
+	filepath.Walk( filepath.Join(*f_static,"css"), cacheWalk )
 
 	cachePath := *f_chePath
 	p := strings.Index(cachePath, ";")
