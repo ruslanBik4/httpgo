@@ -115,7 +115,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
     <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
     <script  src="http://solution.allservice.in.ua/js/stog.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
     <!--[if lt IE 10]>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
     <![endif]-->
@@ -123,56 +123,55 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script  src="/js/system.js"></script>
-    <script  src="/js/drag_drop.js"></script>
+    <script  src="/system.js"></script>
+    <script  src="/drag_drop.js"></script>
     <script  src="/forms.js"></script>
     <script  src="/jquery.formstyler.min.js"></script>
-    <script  src="/js/forView.js"></script>
     `)
-	//line layouts/head.qtpl:73
+	//line layouts/head.qtpl:72
 	for i := 0; i < len(head.Scripts); i++ {
-		//line layouts/head.qtpl:73
+		//line layouts/head.qtpl:72
 		qw422016.N().S(`
         `)
-		//line layouts/head.qtpl:74
+		//line layouts/head.qtpl:73
 		qw422016.E().S(head.Scripts[i])
-		//line layouts/head.qtpl:74
+		//line layouts/head.qtpl:73
 		qw422016.N().S(`
     `)
-		//line layouts/head.qtpl:75
+		//line layouts/head.qtpl:74
 	}
-	//line layouts/head.qtpl:75
+	//line layouts/head.qtpl:74
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
 
 </head>
 `)
-//line layouts/head.qtpl:80
+//line layouts/head.qtpl:79
 }
 
-//line layouts/head.qtpl:80
+//line layouts/head.qtpl:79
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	head.StreamHeadHTML(qw422016)
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	qt422016.ReleaseWriter(qw422016)
-//line layouts/head.qtpl:80
+//line layouts/head.qtpl:79
 }
 
-//line layouts/head.qtpl:80
+//line layouts/head.qtpl:79
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	head.WriteHeadHTML(qb422016)
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	qs422016 := string(qb422016.B)
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line layouts/head.qtpl:80
+	//line layouts/head.qtpl:79
 	return qs422016
-//line layouts/head.qtpl:80
+//line layouts/head.qtpl:79
 }

@@ -57,7 +57,7 @@ type HeadHTMLPage struct {
     <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
     <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
     <script  src="http://solution.allservice.in.ua/js/stog.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
     <!--[if lt IE 10]>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
     <![endif]-->
@@ -65,11 +65,10 @@ type HeadHTMLPage struct {
     <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script  src="/js/system.js"></script>
-    <script  src="/js/drag_drop.js"></script>
+    <script  src="/system.js"></script>
+    <script  src="/drag_drop.js"></script>
     <script  src="/forms.js"></script>
     <script  src="/jquery.formstyler.min.js"></script>
-    <script  src="/js/forView.js"></script>
     {% for i := 0; i< len(head.Scripts); i++ %}
         {%s head.Scripts[i] %}
     {% endfor %}
