@@ -495,6 +495,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 
 	//line forms/anyForm.qtpl:106
 	qw422016.N().S(`
+<<<<<<< HEAD
 <div class="main-form-wrap">
 <h2 class="form-signin-heading">`)
 	//line forms/anyForm.qtpl:108
@@ -503,6 +504,10 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 	qw422016.N().S(`</h2>
 <form id=="`)
 	//line forms/anyForm.qtpl:109
+=======
+<form id="`)
+	//line views/templates/forms/anyForm.qtpl:107
+>>>>>>> origin/master
 	qw422016.E().S(formName)
 	//line forms/anyForm.qtpl:109
 	qw422016.N().S(`" name="`)
