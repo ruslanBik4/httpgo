@@ -28,40 +28,28 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 </style>
 <body>
 <div class="content-wrap">
-<div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <a class="brand" href="#">{%s body.Title %}</a>
-            <div class="nav-collapse collapse">
-                <nav>
-                    <ul class="nav">
-                        {% for name, item := range body.TopMenu %}
-                            <li {% if item.Link == body.Route %} class="active" {% endif %}>
+<div class="topline">
+			<div id="partner-topline" class="topline-inner-wrap">
+				<div class="logo">
+					<a href="#"><img src="images/logo-final-02.png" alt="logo"></a>
+				</div>
+				<nav class="topline-navbar">
+					<ul class="top-mnu-list">
+						{% for name, item := range body.TopMenu %}
+                            <li class="top-mnu-item">
                                 <a href="{%s item.Link %}">{%s name %}</a>
                             </li>
                         {% endfor %}
-                    </ul>
-                </nav>
-            </div><!--/.nav-collapse -->
-            <p class="navbar-text pull-right">
-                <span id="sTitle" >Для начала работы Вам необходимо</span>
-                <a id="bLogOut" href="/user/signout" class="btn btn-navbar btn-login"  onclick="return logOut(this);"  style="display:none">Выйти</a>
-                <a href="/user/login/" class="navbar-link btn-login" title="откроется в модальном окне">Зарегистрироваться</a>
-                <b class="btn-login"> или </b>
-                <a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
-            </p>
-        </div>
-    </div>
-</div>
-
+					</ul>
+				</nav>
+				<div class="topline-btns">
+					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="images/open-exit-door.png" alt=""></a>
+					<a href="#" id="burger" class="brg-mnu"></a>
+					<a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
+				</div>
+			</div>
+		</div>
 <div id="container-fluid">
-
     <div class="row-fluid">
         <div class="span3">
             <div id="catalog_pane"  class="well sidebar-nav">
