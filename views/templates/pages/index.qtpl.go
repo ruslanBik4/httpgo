@@ -50,6 +50,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
     }
 </style>
 <body>
+<div class="content-wrap">
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container-fluid">
@@ -60,41 +61,41 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
                 <span class="icon-bar"></span>
             </a>
             <a class="brand" href="#">`)
-	//line views/templates/pages/index.qtpl:39
+	//line views/templates/pages/index.qtpl:40
 	qw422016.E().S(body.Title)
-	//line views/templates/pages/index.qtpl:39
+	//line views/templates/pages/index.qtpl:40
 	qw422016.N().S(`</a>
             <div class="nav-collapse collapse">
                 <nav>
                     <ul class="nav">
                         `)
-	//line views/templates/pages/index.qtpl:43
+	//line views/templates/pages/index.qtpl:44
 	for name, item := range body.TopMenu {
-		//line views/templates/pages/index.qtpl:43
+		//line views/templates/pages/index.qtpl:44
 		qw422016.N().S(`
                             <li `)
-		//line views/templates/pages/index.qtpl:44
+		//line views/templates/pages/index.qtpl:45
 		if item.Link == body.Route {
-			//line views/templates/pages/index.qtpl:44
+			//line views/templates/pages/index.qtpl:45
 			qw422016.N().S(` class="active" `)
-			//line views/templates/pages/index.qtpl:44
+			//line views/templates/pages/index.qtpl:45
 		}
-		//line views/templates/pages/index.qtpl:44
+		//line views/templates/pages/index.qtpl:45
 		qw422016.N().S(`>
                                 <a href="`)
-		//line views/templates/pages/index.qtpl:45
+		//line views/templates/pages/index.qtpl:46
 		qw422016.E().S(item.Link)
-		//line views/templates/pages/index.qtpl:45
+		//line views/templates/pages/index.qtpl:46
 		qw422016.N().S(`">`)
-		//line views/templates/pages/index.qtpl:45
+		//line views/templates/pages/index.qtpl:46
 		qw422016.E().S(name)
-		//line views/templates/pages/index.qtpl:45
+		//line views/templates/pages/index.qtpl:46
 		qw422016.N().S(`</a>
                             </li>
                         `)
-		//line views/templates/pages/index.qtpl:47
+		//line views/templates/pages/index.qtpl:48
 	}
-	//line views/templates/pages/index.qtpl:47
+	//line views/templates/pages/index.qtpl:48
 	qw422016.N().S(`
                     </ul>
                 </nav>
@@ -116,32 +117,32 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
         <div class="span3">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
-	//line views/templates/pages/index.qtpl:67
+	//line views/templates/pages/index.qtpl:68
 	for _, value := range body.Catalog {
-		//line views/templates/pages/index.qtpl:67
+		//line views/templates/pages/index.qtpl:68
 		qw422016.N().S(`
                     `)
-		//line views/templates/pages/index.qtpl:68
+		//line views/templates/pages/index.qtpl:69
 		qw422016.E().S(value)
-		//line views/templates/pages/index.qtpl:68
+		//line views/templates/pages/index.qtpl:69
 		qw422016.N().S(`
                 `)
-		//line views/templates/pages/index.qtpl:69
+		//line views/templates/pages/index.qtpl:70
 	}
-	//line views/templates/pages/index.qtpl:69
+	//line views/templates/pages/index.qtpl:70
 	qw422016.N().S(`
 
             </div>
         </div>
         <div class="span9">
             <div id="content" rel="`)
-	//line views/templates/pages/index.qtpl:74
+	//line views/templates/pages/index.qtpl:75
 	qw422016.E().S(body.Route)
-	//line views/templates/pages/index.qtpl:74
+	//line views/templates/pages/index.qtpl:75
 	qw422016.N().S(`">`)
-	//line views/templates/pages/index.qtpl:74
+	//line views/templates/pages/index.qtpl:75
 	qw422016.N().S(body.Content)
-	//line views/templates/pages/index.qtpl:74
+	//line views/templates/pages/index.qtpl:75
 	qw422016.N().S(`</div>
         </div>
     </div>
@@ -152,33 +153,34 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
     </footer>
 
 </div>
+</div>
 </body>
 `)
-//line views/templates/pages/index.qtpl:85
+//line views/templates/pages/index.qtpl:87
 }
 
-//line views/templates/pages/index.qtpl:85
+//line views/templates/pages/index.qtpl:87
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	body.StreamIndexHTML(qw422016)
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/index.qtpl:85
+//line views/templates/pages/index.qtpl:87
 }
 
-//line views/templates/pages/index.qtpl:85
+//line views/templates/pages/index.qtpl:87
 func (body *IndexPageBody) IndexHTML() string {
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	body.WriteIndexHTML(qb422016)
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/index.qtpl:85
+	//line views/templates/pages/index.qtpl:87
 	return qs422016
-//line views/templates/pages/index.qtpl:85
+//line views/templates/pages/index.qtpl:87
 }
