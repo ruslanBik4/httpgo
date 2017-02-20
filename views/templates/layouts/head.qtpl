@@ -65,6 +65,7 @@ type HeadHTMLPage struct {
     <script src="//cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/latest/all/gauge.min.js"></script>
     <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <script  src="/js/system.js"></script>
     <script  src="/js/drag_drop.js"></script>
     <script  src="/js/forms.js"></script>
