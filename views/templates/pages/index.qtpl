@@ -17,15 +17,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     }
 %}
 {% func (body *IndexPageBody) IndexHTML() %}
-<style type="text/css">
-    body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-    }
-    .sidebar-nav {
-        padding: 9px 0;
-    }
-</style>
 <body>
 <div class="content-wrap">
 <div class="topline">
