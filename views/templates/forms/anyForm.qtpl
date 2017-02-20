@@ -234,19 +234,18 @@
     <head>
         <script src="/jquery.datetimepicker.js"></script>
     </head>
-    <script>
-        $(function () {
+{% endif %}
+<script>
+ $(function(){
+    $(".business-form-select").styler();
+    {% if setDatePicker > "" %}
             {%s= setDatePicker %}
-        })
-    </script>
-{% endif %}
-{% if onload, ok := ns.DataJSOM["onload"]; ok %}
-    <script>
-        $(function () {
-            {%s= onload.(string) %}
-        })
-    </script>
-{% endif %}
+    {% endif %}
+    {% if onload, ok := ns.DataJSOM["onload"]; ok %}
+             {%s= onload.(string) %}
+    {% endif %}
+})
+</script>
 {% endfunc %}
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
                     <label class="input-label" for="{%s nameInput %}">{%s title %}</label>

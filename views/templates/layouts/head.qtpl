@@ -67,8 +67,8 @@ type HeadHTMLPage struct {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <script  src="/js/system.js"></script>
     <script  src="/js/drag_drop.js"></script>
-    <script  src="/js/forms.js"></script>
-    <script  src="/js/jquery.formstyler.min.js"></script>
+    <script  src="/forms.js"></script>
+    <script  src="/jquery.formstyler.min.js"></script>
     <script  src="/js/forView.js"></script>
     {% for i := 0; i< len(head.Scripts); i++ %}
         {%s head.Scripts[i] %}
