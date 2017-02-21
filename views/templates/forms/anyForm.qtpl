@@ -241,6 +241,9 @@
     $(".custom-input-label").click(function(){
     	$(this).addClass('small-label');
     });
+    $(".input-label").click(function(){
+        	$(this).next('.form-items-wrap').find(".custom-input-label").addClass('small-label');
+        });
     $('.business-form-input').keyup(function(){
     	if($(this).val() != ''){
     		$(this).next(".custom-input-label").addClass('small-label');
@@ -259,7 +262,7 @@
 </script>
 {% endfunc %}
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
-                    <span class="input-label">{%s title %}</span>
+                    <label for="{%s nameInput %}" class="input-label">{%s title %}</label>
                     <div class="form-items-wrap">
                         <input type=
 
