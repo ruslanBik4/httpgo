@@ -554,6 +554,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 				comma = " OR "
 
 			}
+			log.Println(fieldStrc.Where)
 		}
 
 		fields.Rows = append(fields.Rows,*fieldStrc)
