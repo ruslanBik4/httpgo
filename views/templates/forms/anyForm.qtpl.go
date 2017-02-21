@@ -1111,367 +1111,352 @@ func (fieldStrc *FieldStructure) StreamRenderInputFromType(qw422016 *qt422016.Wr
 			qw422016.N().D(fieldStrc.CHARACTER_MAXIMUM_LENGTH)
 			//line anyForm.qtpl:281
 			qw422016.N().S(`"
-                                    `)
-			//line anyForm.qtpl:282
-			if fieldStrc.CHARACTER_MAXIMUM_LENGTH == 255 {
-				//line anyForm.qtpl:282
-				qw422016.N().S(`
-                                        style="width:350px;"
-                                    `)
-				//line anyForm.qtpl:284
-			}
-			//line anyForm.qtpl:284
-			qw422016.N().S(`
                                `)
-			//line anyForm.qtpl:285
+			//line anyForm.qtpl:282
 		}
-		//line anyForm.qtpl:285
+		//line anyForm.qtpl:282
 		qw422016.N().S(`
                                `)
-		//line anyForm.qtpl:286
+		//line anyForm.qtpl:283
 		if pattern > "" {
-			//line anyForm.qtpl:286
+			//line anyForm.qtpl:283
 			qw422016.N().S(`pattern="`)
-			//line anyForm.qtpl:286
+			//line anyForm.qtpl:283
 			qw422016.N().S(pattern)
-			//line anyForm.qtpl:286
+			//line anyForm.qtpl:283
 			qw422016.N().S(`" onkeyup="return validatePattern(this);"`)
-			//line anyForm.qtpl:286
+			//line anyForm.qtpl:283
 		}
-		//line anyForm.qtpl:286
+		//line anyForm.qtpl:283
 		qw422016.N().S(`
                         `)
-		//line anyForm.qtpl:287
+		//line anyForm.qtpl:284
 	}
-	//line anyForm.qtpl:287
+	//line anyForm.qtpl:284
 	qw422016.N().S(`
                         id="`)
-	//line anyForm.qtpl:288
+	//line anyForm.qtpl:285
 	qw422016.E().S(nameInput)
-	//line anyForm.qtpl:288
+	//line anyForm.qtpl:285
 	qw422016.N().S(`" name="`)
-	//line anyForm.qtpl:288
+	//line anyForm.qtpl:285
 	qw422016.E().S(nameInput)
-	//line anyForm.qtpl:288
-	qw422016.N().S(`" class="business-form-input" placeholder="`)
-	//line anyForm.qtpl:288
-	qw422016.E().S(placeholder)
-	//line anyForm.qtpl:288
-	qw422016.N().S(`"
+	//line anyForm.qtpl:285
+	qw422016.N().S(`" class="business-form-input"
                                                 `)
-	//line anyForm.qtpl:289
+	//line anyForm.qtpl:286
 	if val > "" {
-		//line anyForm.qtpl:289
+		//line anyForm.qtpl:286
 		qw422016.N().S(` value="`)
-		//line anyForm.qtpl:289
+		//line anyForm.qtpl:286
 		qw422016.E().S(val)
-		//line anyForm.qtpl:289
+		//line anyForm.qtpl:286
 		qw422016.N().S(`" `)
-		//line anyForm.qtpl:289
+		//line anyForm.qtpl:286
 	}
-	//line anyForm.qtpl:289
+	//line anyForm.qtpl:286
 	qw422016.N().S(`
                                                 `)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(required)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(events)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(dataJson)
-	//line anyForm.qtpl:290
+	//line anyForm.qtpl:287
 	qw422016.N().S(`
                     />
                     </div>
 `)
-//line anyForm.qtpl:293
+//line anyForm.qtpl:290
 }
 
-//line anyForm.qtpl:293
+//line anyForm.qtpl:290
 func (fieldStrc *FieldStructure) WriteRenderInputFromType(qq422016 qtio422016.Writer, nameInput, val, title, placeholder, pattern, required, events, dataJson string) {
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	fieldStrc.StreamRenderInputFromType(qw422016, nameInput, val, title, placeholder, pattern, required, events, dataJson)
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:293
+//line anyForm.qtpl:290
 }
 
-//line anyForm.qtpl:293
+//line anyForm.qtpl:290
 func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) string {
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	fieldStrc.WriteRenderInputFromType(qb422016, nameInput, val, title, placeholder, pattern, required, events, dataJson)
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:293
+	//line anyForm.qtpl:290
 	return qs422016
-//line anyForm.qtpl:293
+//line anyForm.qtpl:290
 }
 
-//line anyForm.qtpl:295
+//line anyForm.qtpl:292
 func StreamRenderCheckBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line anyForm.qtpl:295
+	//line anyForm.qtpl:292
 	qw422016.N().S(`
     <label class="checkbox" for="`)
-	//line anyForm.qtpl:296
+	//line anyForm.qtpl:293
 	qw422016.E().S(key)
-	//line anyForm.qtpl:296
+	//line anyForm.qtpl:293
 	qw422016.N().D(idx)
-	//line anyForm.qtpl:296
+	//line anyForm.qtpl:293
 	qw422016.N().S(`">
         <input type="checkbox" id="`)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.E().S(key)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().D(idx)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().S(`" name="`)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.E().S(key)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().S(`" value="`)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.E().S(val)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().S(`" `)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().S(checked)
-	//line anyForm.qtpl:297
+	//line anyForm.qtpl:294
 	qw422016.N().S(`
                 `)
-	//line anyForm.qtpl:298
+	//line anyForm.qtpl:295
 	qw422016.N().S(events)
-	//line anyForm.qtpl:298
+	//line anyForm.qtpl:295
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:298
+	//line anyForm.qtpl:295
 	qw422016.N().S(dataJson)
-	//line anyForm.qtpl:298
+	//line anyForm.qtpl:295
 	qw422016.N().S(`
         />
         `)
-	//line anyForm.qtpl:300
+	//line anyForm.qtpl:297
 	qw422016.E().S(title)
-	//line anyForm.qtpl:300
+	//line anyForm.qtpl:297
 	qw422016.N().S(`
     </label>
 `)
-//line anyForm.qtpl:302
+//line anyForm.qtpl:299
 }
 
-//line anyForm.qtpl:302
+//line anyForm.qtpl:299
 func WriteRenderCheckBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	StreamRenderCheckBox(qw422016, key, val, title, idx, checked, events, dataJson)
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:302
+//line anyForm.qtpl:299
 }
 
-//line anyForm.qtpl:302
+//line anyForm.qtpl:299
 func RenderCheckBox(key, val, title string, idx int, checked, events, dataJson string) string {
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	WriteRenderCheckBox(qb422016, key, val, title, idx, checked, events, dataJson)
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:302
+	//line anyForm.qtpl:299
 	return qs422016
-//line anyForm.qtpl:302
+//line anyForm.qtpl:299
 }
 
-//line anyForm.qtpl:303
+//line anyForm.qtpl:300
 func streamrenderRadioBox(qw422016 *qt422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line anyForm.qtpl:303
+	//line anyForm.qtpl:300
 	qw422016.N().S(`
     <label class="checkbox" for="`)
-	//line anyForm.qtpl:304
+	//line anyForm.qtpl:301
 	qw422016.E().S(key)
-	//line anyForm.qtpl:304
+	//line anyForm.qtpl:301
 	qw422016.N().D(idx)
-	//line anyForm.qtpl:304
+	//line anyForm.qtpl:301
 	qw422016.N().S(`">
         <input type="radio" id="`)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.E().S(key)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().D(idx)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().S(`" name="`)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.E().S(key)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().S(`" value="`)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.E().S(val)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().S(`" `)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().S(checked)
-	//line anyForm.qtpl:305
+	//line anyForm.qtpl:302
 	qw422016.N().S(`
                 `)
-	//line anyForm.qtpl:306
+	//line anyForm.qtpl:303
 	qw422016.N().S(events)
-	//line anyForm.qtpl:306
+	//line anyForm.qtpl:303
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:306
+	//line anyForm.qtpl:303
 	qw422016.N().S(dataJson)
-	//line anyForm.qtpl:306
+	//line anyForm.qtpl:303
 	qw422016.N().S(`
         />
         `)
-	//line anyForm.qtpl:308
+	//line anyForm.qtpl:305
 	qw422016.E().S(title)
-	//line anyForm.qtpl:308
+	//line anyForm.qtpl:305
 	qw422016.N().S(`
     </label>
 `)
-//line anyForm.qtpl:310
+//line anyForm.qtpl:307
 }
 
-//line anyForm.qtpl:310
+//line anyForm.qtpl:307
 func writerenderRadioBox(qq422016 qtio422016.Writer, key, val, title string, idx int, checked, events, dataJson string) {
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	streamrenderRadioBox(qw422016, key, val, title, idx, checked, events, dataJson)
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:310
+//line anyForm.qtpl:307
 }
 
-//line anyForm.qtpl:310
+//line anyForm.qtpl:307
 func renderRadioBox(key, val, title string, idx int, checked, events, dataJson string) string {
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	writerenderRadioBox(qb422016, key, val, title, idx, checked, events, dataJson)
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:310
+	//line anyForm.qtpl:307
 	return qs422016
-//line anyForm.qtpl:310
+//line anyForm.qtpl:307
 }
 
-//line anyForm.qtpl:311
+//line anyForm.qtpl:308
 func streamrenderSelect(qw422016 *qt422016.Writer, key, options, required, events, dataJson string) {
-	//line anyForm.qtpl:311
+	//line anyForm.qtpl:308
 	qw422016.N().S(`
     <select id="`)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.E().S(key)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(`" name="`)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.E().S(key)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(`" class="business-form-select" `)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(required)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(events)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(` `)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(dataJson)
-	//line anyForm.qtpl:312
+	//line anyForm.qtpl:309
 	qw422016.N().S(`>
         `)
-	//line anyForm.qtpl:313
+	//line anyForm.qtpl:310
 	qw422016.N().S(options)
-	//line anyForm.qtpl:313
+	//line anyForm.qtpl:310
 	qw422016.N().S(`
     </select>
 `)
-//line anyForm.qtpl:315
+//line anyForm.qtpl:312
 }
 
-//line anyForm.qtpl:315
+//line anyForm.qtpl:312
 func writerenderSelect(qq422016 qtio422016.Writer, key, options, required, events, dataJson string) {
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	streamrenderSelect(qw422016, key, options, required, events, dataJson)
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:315
+//line anyForm.qtpl:312
 }
 
-//line anyForm.qtpl:315
+//line anyForm.qtpl:312
 func renderSelect(key, options, required, events, dataJson string) string {
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	writerenderSelect(qb422016, key, options, required, events, dataJson)
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:315
+	//line anyForm.qtpl:312
 	return qs422016
-//line anyForm.qtpl:315
+//line anyForm.qtpl:312
 }
 
-//line anyForm.qtpl:316
+//line anyForm.qtpl:313
 func streamrenderOption(qw422016 *qt422016.Writer, val, title, selected string) {
-	//line anyForm.qtpl:316
+	//line anyForm.qtpl:313
 	qw422016.N().S(`
     <option value="`)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.E().S(val)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.N().S(`" `)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.N().S(selected)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.N().S(` >`)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.E().S(title)
-	//line anyForm.qtpl:317
+	//line anyForm.qtpl:314
 	qw422016.N().S(`</option>
 `)
-//line anyForm.qtpl:318
+//line anyForm.qtpl:315
 }
 
-//line anyForm.qtpl:318
+//line anyForm.qtpl:315
 func writerenderOption(qq422016 qtio422016.Writer, val, title, selected string) {
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	streamrenderOption(qw422016, val, title, selected)
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:318
+//line anyForm.qtpl:315
 }
 
-//line anyForm.qtpl:318
+//line anyForm.qtpl:315
 func renderOption(val, title, selected string) string {
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	writerenderOption(qb422016, val, title, selected)
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:318
+	//line anyForm.qtpl:315
 	return qs422016
-//line anyForm.qtpl:318
+//line anyForm.qtpl:315
 }

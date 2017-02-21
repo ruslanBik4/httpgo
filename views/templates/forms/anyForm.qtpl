@@ -279,13 +279,10 @@
                             "text"
                                {% if fieldStrc.CHARACTER_MAXIMUM_LENGTH>0 %}
                                     maxlength="{%d fieldStrc.CHARACTER_MAXIMUM_LENGTH %}"
-                                    {%  if fieldStrc.CHARACTER_MAXIMUM_LENGTH == 255 %}
-                                        style="width:350px;"
-                                    {% endif %}
                                {% endif %}
                                {% if pattern > "" %}pattern="{%s= pattern %}" onkeyup="return validatePattern(this);"{% endif %}
                         {% endif %}
-                        id="{%s nameInput %}" name="{%s nameInput %}" class="business-form-input" placeholder="{%s placeholder %}"
+                        id="{%s nameInput %}" name="{%s nameInput %}" class="business-form-input"
                                                 {% if val > "" %} value="{%s val %}" {% endif %}
                                                 {%s= required %} {%s= events %} {%s= dataJson %}
                     />
