@@ -238,6 +238,17 @@
 <script>
  $(function(){
     $(".business-form-select").styler();
+    $(".custom-input-label").click(function(){
+    	$(this).addClass('small-label');
+    });
+    $('.business-form-input').keyup(function(){
+    	if($(this).val() != ''){
+    		$(this).next(".custom-input-label").addClass('small-label');
+    	} else {
+    		$(this).next(".custom-input-label").removeClass('small-label');
+    		}
+    });
+
     {% if setDatePicker > "" %}
             {%s= setDatePicker %}
     {% endif %}
@@ -248,9 +259,9 @@
 </script>
 {% endfunc %}
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
-                    <label class="input-label" for="{%s nameInput %}">{%s title %}</label>
+                    <span class="input-label">{%s title %}</span>
                     <div class="form-items-wrap">
-                        <span class="custom-input-label" for="name">{%s placeholder %}</span>
+                        <label class="custom-input-label" for="{%s nameInput %}">{%s placeholder %}</label>
                         <input type=
 
                         {% if fieldStrc.InputType > "" %}
