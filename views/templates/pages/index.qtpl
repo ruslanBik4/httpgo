@@ -54,13 +54,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             <div id="content" rel="{%s body.Route %}">{%s= body.Content  %}</div>
         </div>
     </div>
-    <hr>
-
-    <footer>
-        <p>&copy; uStudio 2017</p>
-    </footer>
-
 </div>
 </div>
+<footer>
+       <div class="footer-inner-wrap">
+            <div class="footer-block">
+                <h5>Защищенные системы</h5>
+            </div>
+            <div class="footer-block">2</div>
+            <div class="footer-block">3</div>
+       </div>
+</footer>
 </body>
 {% endfunc %}
