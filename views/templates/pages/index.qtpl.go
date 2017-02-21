@@ -120,9 +120,9 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
             <div class="footer-block">
                 <h5>Защищенные системы</h5>
             </div>
-            <div class="footer-block">2
+            <div class="footer-block">
             </div>
-            <div class="footer-block">3
+            <div class="footer-block">
             </div>
        </div>
 </footer>

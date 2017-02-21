@@ -61,9 +61,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             <div class="footer-block">
                 <h5>Защищенные системы</h5>
             </div>
-            <div class="footer-block">2
+            <div class="footer-block">
             </div>
-            <div class="footer-block">3
+            <div class="footer-block">
             </div>
        </div>
 </footer>
