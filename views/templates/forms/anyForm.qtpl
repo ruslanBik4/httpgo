@@ -104,9 +104,10 @@
     }
     formName := "f" + ns.Name
 %}
-<h2 class="form-signin-heading">{%s Title %}</h2>
+
 <form id=="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
-      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" >
+      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" >
+
       {% code
         setDatePicker := ""
       %}
