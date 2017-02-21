@@ -123,7 +123,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     <script  src="/system.js"></script>
     <script  src="/drag_drop.js"></script>
     <script  src="/forms.js"></script>
