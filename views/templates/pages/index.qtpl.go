@@ -81,7 +81,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 		</div>
 <div id="container-fluid">
     <div class="row-fluid">
-        <div class="span3">
+        <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
 	//line index.qtpl:47
@@ -101,7 +101,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 
             </div>
         </div>
-        <div class="span9">
+        <div class="content-section">
             <div id="content" rel="`)
 	//line index.qtpl:54
 	qw422016.E().S(body.Route)

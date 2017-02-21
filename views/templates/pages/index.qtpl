@@ -42,7 +42,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 		</div>
 <div id="container-fluid">
     <div class="row-fluid">
-        <div class="span3">
+        <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                 {% for _, value := range body.Catalog %}
                     {%s value %}
@@ -50,7 +50,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
             </div>
         </div>
-        <div class="span9">
+        <div class="content-section">
             <div id="content" rel="{%s body.Route %}">{%s= body.Content  %}</div>
         </div>
     </div>
