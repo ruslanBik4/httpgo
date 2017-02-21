@@ -80,4 +80,11 @@ type DiscountAllData struct {
 
 }
 {% endfunc %}
+{% func PutRoomsHead() %}
+    <div class="main-form-wrap">
+{% endfunc %}
+
+{% func PutRoomsEnd() %}
+</div>
+{% endfunc %}
 {% endstripspace %}
