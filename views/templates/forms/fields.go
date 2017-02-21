@@ -86,7 +86,7 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
-// create where for ЫЙД query from setting field
+// create where for  query from SETID_ / NODEID_ fields
 func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE "
@@ -330,6 +330,7 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 
         if field.Where > "" {
 	   where = " WHERE " + field.Where
+		log.Println(field.Where)
 	}
 
 	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
@@ -474,7 +475,6 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 			comma = " OR "
 
 		}
-		log.Println(fieldStrc.Where)
 	default:
 		log.Println("not correct type WhereJSON !", whereJSON)
 	}
