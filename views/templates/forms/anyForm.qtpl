@@ -261,7 +261,6 @@
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
                     <span class="input-label">{%s title %}</span>
                     <div class="form-items-wrap">
-                        <label class="custom-input-label" for="{%s nameInput %}">{%s placeholder %}</label>
                         <input type=
 
                         {% if fieldStrc.InputType > "" %}
@@ -285,7 +284,10 @@
                         id="{%s nameInput %}" name="{%s nameInput %}" class="business-form-input"
                                                 {% if val > "" %} value="{%s val %}" {% endif %}
                                                 {%s= required %} {%s= events %} {%s= dataJson %}
-                    />
+                        />
+                        {% comment %} Тут мы описываем текст, который появиться НАД полем ввода при фокусировании в поле
+                        {% endcomment %}
+                        <label class="custom-input-label" for="{%s nameInput %}">{%s placeholder %}</label>
                     </div>
 {% endfunc %}
 
