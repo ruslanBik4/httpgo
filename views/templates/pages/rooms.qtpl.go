@@ -2,7 +2,7 @@
 // See https://github.com/valyala/quicktemplate for details.
 
 //line rooms.qtpl:1
-package rooms
+package pages
 
 //line rooms.qtpl:1
 import (
@@ -163,4 +163,70 @@ func (d *DiscountAllData) JSON() string {
 	//line rooms.qtpl:82
 	return qs422016
 //line rooms.qtpl:82
+}
+
+//line rooms.qtpl:83
+func StreamPutRoomsHead(qw422016 *qt422016.Writer) {
+	//line rooms.qtpl:83
+	qw422016.N().S(`<div class="main-form-wrap">`)
+//line rooms.qtpl:85
+}
+
+//line rooms.qtpl:85
+func WritePutRoomsHead(qq422016 qtio422016.Writer) {
+	//line rooms.qtpl:85
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line rooms.qtpl:85
+	StreamPutRoomsHead(qw422016)
+	//line rooms.qtpl:85
+	qt422016.ReleaseWriter(qw422016)
+//line rooms.qtpl:85
+}
+
+//line rooms.qtpl:85
+func PutRoomsHead() string {
+	//line rooms.qtpl:85
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line rooms.qtpl:85
+	WritePutRoomsHead(qb422016)
+	//line rooms.qtpl:85
+	qs422016 := string(qb422016.B)
+	//line rooms.qtpl:85
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line rooms.qtpl:85
+	return qs422016
+//line rooms.qtpl:85
+}
+
+//line rooms.qtpl:87
+func StreamPutRoomsEnd(qw422016 *qt422016.Writer) {
+	//line rooms.qtpl:87
+	qw422016.N().S(`</div>`)
+//line rooms.qtpl:89
+}
+
+//line rooms.qtpl:89
+func WritePutRoomsEnd(qq422016 qtio422016.Writer) {
+	//line rooms.qtpl:89
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line rooms.qtpl:89
+	StreamPutRoomsEnd(qw422016)
+	//line rooms.qtpl:89
+	qt422016.ReleaseWriter(qw422016)
+//line rooms.qtpl:89
+}
+
+//line rooms.qtpl:89
+func PutRoomsEnd() string {
+	//line rooms.qtpl:89
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line rooms.qtpl:89
+	WritePutRoomsEnd(qb422016)
+	//line rooms.qtpl:89
+	qs422016 := string(qb422016.B)
+	//line rooms.qtpl:89
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line rooms.qtpl:89
+	return qs422016
+//line rooms.qtpl:89
 }
