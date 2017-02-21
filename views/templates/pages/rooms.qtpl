@@ -1,0 +1,90 @@
+{% code
+type DiscountTermRules struct{
+    Main_place_only int
+    Value string
+    Condition int
+    Night_count int
+}
+
+type DiscountRules struct {
+    Count_use_for int
+    Value string
+}
+
+type DiscountData struct {
+    Rules []DiscountRules
+    ChildRules DiscountRules
+    DiscountLongTermRules DiscountTermRules
+}
+
+type DiscountAllData struct {
+    Min_points_count int
+    Max_points_count int
+    DiscountMain DiscountData
+    DiscountChildren DiscountData
+    DiscountTerm DiscountData
+}
+%}
+
+// JSON marshaling
+{% stripspace %}
+{% func (d *DiscountAllData) JSON() %}
+{
+    "min_points_count": "{%d d.Min_points_count %}",
+    "max_points_count": "{%d d.Max_points_count %}",
+    {% if len(d.DiscountMain.Rules)>0 %}
+    "discountMain":
+                    {
+                    "rules":[
+                     {% for j, s := range d.DiscountMain.Rules %}
+                     {
+                        "value": {%q= s.Value %},
+                        "count_use_for": "{%d s.Count_use_for %}"
+                     }
+                     {% if j + 1 < len(d.DiscountMain.Rules) %},{% endif %}
+                                                     {% endfor %}
+
+                    ]
+                }
+        {% if (d.DiscountChildren.ChildRules.Value>"" && d.DiscountChildren.ChildRules.Count_use_for>0) || (d.DiscountTerm.DiscountLongTermRules.Main_place_only>0 && d.DiscountTerm.DiscountLongTermRules.Value>"" && d.DiscountTerm.DiscountLongTermRules.Condition>0 && d.DiscountTerm.DiscountLongTermRules.Night_count>0) %},{% endif %}
+    {% endif %}
+
+    {% if d.DiscountChildren.ChildRules.Value>"" && d.DiscountChildren.ChildRules.Count_use_for>0 %}
+     "discountChildren":
+                    {
+                                   "rules":{
+                                       "value":{%q= d.DiscountChildren.ChildRules.Value %},
+                                       "count_use_for":"{%d d.DiscountChildren.ChildRules.Count_use_for %}"
+                                   }
+
+
+                    }
+                    {% if d.DiscountTerm.DiscountLongTermRules.Main_place_only>0 && d.DiscountTerm.DiscountLongTermRules.Value>"" && d.DiscountTerm.DiscountLongTermRules.Condition>0 && d.DiscountTerm.DiscountLongTermRules.Night_count>0 %},{% endif %}
+    {% endif %}
+
+    {% if d.DiscountTerm.DiscountLongTermRules.Main_place_only>0 && d.DiscountTerm.DiscountLongTermRules.Value>"" && d.DiscountTerm.DiscountLongTermRules.Condition>0 && d.DiscountTerm.DiscountLongTermRules.Night_count>0 %}
+     "discountLongTerm":
+                    {
+                        "rules":{
+                            "main_place_only":"{%d d.DiscountTerm.DiscountLongTermRules.Main_place_only %}",
+                            "value":{%q= d.DiscountTerm.DiscountLongTermRules.Value %},
+                            "condition":"{%d d.DiscountTerm.DiscountLongTermRules.Condition %}",
+                            "night_count":"{%d d.DiscountTerm.DiscountLongTermRules.Night_count %}"
+                        }
+                    }
+    {% endif %}
+
+
+
+
+
+}
+{% endfunc %}
+{% func PutRoomsHead() %}
+    <div class="main-form-wrap">
+{% endfunc %}
+
+{% func PutRoomsEnd() %}
+</div>
+{% endfunc %}
+{% endstripspace %}
