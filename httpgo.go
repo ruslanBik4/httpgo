@@ -319,6 +319,8 @@ func main() {
 
 
 	log.Println("Server starting in " + time.Now().String() )
+	log.Println("Static files found in " + *f_web )
+	log.Println("System files found in " + *f_static )
 	log.Fatal( http.ListenAndServe(*f_port, nil) )
 
 }

@@ -9,7 +9,6 @@ import (
 var 	PathWeb string
 func GetPath(path *string) {
 	PathWeb = *path
-	log.Println(PathWeb )
 }
 func contains(array [] string, str string) bool {
 	for _, value := range array {
