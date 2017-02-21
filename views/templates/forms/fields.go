@@ -446,12 +446,12 @@ func getPattern(name string) string {
 }
 func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON interface{}) {
 	switch whereJSON.(type) {
-	case map[string]string:
+	case map[string] interface{}:
 
 		comma := ""
 		fieldStrc.Where = ""
-		for key, value := range whereJSON.(map[string]string) {
-			enumVal := value
+		for key, value := range whereJSON.(map[string]interface{}) {
+			enumVal := value.(string)
 			// отбираем параметры типы :имя_поля
 			if i := strings.Index(enumVal, ":"); i > -1 {
 				param := enumVal[i+1:]
