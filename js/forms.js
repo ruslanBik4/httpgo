@@ -44,6 +44,7 @@ function validatePattern(thisElem) {
     if (re == "") {
         return true;
     }
+    // TODO: добавить проверку на валидность - иногда вылетает тут
     re = new RegExp(re);
     return re.test(thisElem.value);
 }
@@ -141,7 +142,7 @@ function saveForm(thisForm, successFunction, errorFunction)
         },
         success: function(data, status) {
             $out.html('Успешно изменили запись.');
-            // TODO: lj,fdbnm ghjdthre b ltajknysq j,hf,jnxbr
+            // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
             if (successFunction !== undefined) {
                 successFunction(data, thisForm);
             } else {

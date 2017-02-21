@@ -444,6 +444,42 @@ func getPattern(name string) string {
 
 	return ""
 }
+func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON interface{}) {
+	switch whereJSON.(type) {
+	case map[string]string:
+
+		comma := ""
+		fieldStrc.Where = ""
+		for key, value := range whereJSON.(map[string]string) {
+			enumVal := value
+			// отбираем параметры типы :имя_поля
+			if i := strings.Index(enumVal, ":"); i > -1 {
+				param := enumVal[i+1:]
+				// считаем, что окончанием могут быть символы ", )"
+				if j := strings.IndexAny(param, ", )"); j > 0 {
+					param = param[:j]
+					enumVal = enumVal[:i] + "%s" + enumVal[i+j:]
+				} else {
+					enumVal = enumVal[:i] + "%s"
+				}
+				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+				if paramField := fieldStrc.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
+					param = paramField.Value
+					enumVal = fmt.Sprintf(enumVal, param)
+				} else {
+					continue
+				}
+			}
+			fieldStrc.Where += comma + key + enumVal
+			comma = " OR "
+
+		}
+		log.Println(fieldStrc.Where)
+	default:
+		log.Println("not correct type WhereJSON !", whereJSON)
+	}
+
+}
 func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	if ! field.COLUMN_COMMENT.Valid {
@@ -483,7 +519,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 				case "isHidden":
 					fieldStrc.IsHidden = val.(bool)
 				case "where":
-					fieldStrc.Where = val.(string)
+					fieldStrc.parseWhere(field, val)
 				case "events":
 					fieldStrc.Events = make(map[string] string, 0)
 					for name, event := range val.(map[string] interface{}) {
@@ -513,6 +549,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			COLUMN_TYPE: field.COLUMN_TYPE,
 			Events     : make(map[string] string, 0),
 			DataJSOM   : make(map[string] interface{}, 0),
+			Table	   : fields,
 			IsHidden   : false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
@@ -525,35 +562,6 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		}
 		if field.COLUMN_DEFAULT.Valid {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
-		}
-
-		if whereJSON, ok := fieldStrc.DataJSOM["where"]; ok {
-
-			comma := ""
-			for key, value := range whereJSON.(map[string]string) {
-				enumVal := value
-				// отбираем параметры типы :имя_поля
-				if i := strings.Index(enumVal, ":"); i > -1 {
-					param := enumVal[i+1:]
-					// считаем, что окончанием могут быть символы ", )"
-					if j := strings.IndexAny(param, ", )"); j > 0 {
-						param = param[:j]
-						enumVal = enumVal[:i] + "%s" + enumVal[i+j:]
-					} else {
-						enumVal = enumVal[:i] + "%s"
-					}
-					// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-					if paramField := fields.FindField(param); (paramField != nil) && (paramField.Value != "") {
-						param = paramField.Value
-						enumVal = fmt.Sprintf(enumVal, param)
-					} else {
-						continue
-					}
-				}
-				fieldStrc.Where += comma + key + enumVal
-				comma = " OR "
-
-			}
 		}
 
 		fields.Rows = append(fields.Rows,*fieldStrc)
