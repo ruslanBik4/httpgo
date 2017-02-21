@@ -66,8 +66,8 @@
     {% endif %}
 {% endfunc %}
 {% func (field *FieldStructure) RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson string) %}
-    <label class="control-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
-    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="controls" {%s required %}  {%s= events %} {%s= dataJson %}>
+    <label class="input-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
+    <select id="{%s key %}" name="{%s tablePrefix+key %}" class="business-form-select" {%s required %}  {%s= events %} {%s= dataJson %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
             <option value="" selected>Значение можно не указывать</option>
         {% else %}
