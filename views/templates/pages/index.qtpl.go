@@ -117,38 +117,40 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </div>
 <footer>
        <div class="footer-inner-wrap">
-            <div class="footer-block">1</div>
+            <div class="footer-block">
+                <h5>Защищенные системы</h5>
+            </div>
             <div class="footer-block">2</div>
             <div class="footer-block">3</div>
        </div>
 </footer>
 </body>
 `)
-//line index.qtpl:67
+//line index.qtpl:69
 }
 
-//line index.qtpl:67
+//line index.qtpl:69
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-	//line index.qtpl:67
+	//line index.qtpl:69
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line index.qtpl:67
+	//line index.qtpl:69
 	body.StreamIndexHTML(qw422016)
-	//line index.qtpl:67
+	//line index.qtpl:69
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:67
+//line index.qtpl:69
 }
 
-//line index.qtpl:67
+//line index.qtpl:69
 func (body *IndexPageBody) IndexHTML() string {
-	//line index.qtpl:67
+	//line index.qtpl:69
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line index.qtpl:67
+	//line index.qtpl:69
 	body.WriteIndexHTML(qb422016)
-	//line index.qtpl:67
+	//line index.qtpl:69
 	qs422016 := string(qb422016.B)
-	//line index.qtpl:67
+	//line index.qtpl:69
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line index.qtpl:67
+	//line index.qtpl:69
 	return qs422016
-//line index.qtpl:67
+//line index.qtpl:69
 }
