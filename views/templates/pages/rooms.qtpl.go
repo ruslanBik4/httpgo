@@ -57,176 +57,164 @@ func (d *DiscountAllData) StreamJSON(qw422016 *qt422016.Writer) {
 	//line rooms.qtpl:34
 	qw422016.N().D(d.Max_points_count)
 	//line rooms.qtpl:34
-	qw422016.N().S(`",`)
+	qw422016.N().S(`"`)
 	//line rooms.qtpl:35
 	if len(d.DiscountMain.Rules) > 0 {
 		//line rooms.qtpl:35
-		qw422016.N().S(`"discountMain":{"rules":[`)
-		//line rooms.qtpl:39
+		qw422016.N().S(`,"discountMain":{"rules":[`)
+		//line rooms.qtpl:40
 		for j, s := range d.DiscountMain.Rules {
-			//line rooms.qtpl:39
+			//line rooms.qtpl:40
 			qw422016.N().S(`{"value":`)
-			//line rooms.qtpl:41
+			//line rooms.qtpl:42
 			qw422016.N().Q(s.Value)
-			//line rooms.qtpl:41
+			//line rooms.qtpl:42
 			qw422016.N().S(`,"count_use_for": "`)
-			//line rooms.qtpl:42
+			//line rooms.qtpl:43
 			qw422016.N().D(s.Count_use_for)
-			//line rooms.qtpl:42
+			//line rooms.qtpl:43
 			qw422016.N().S(`"}`)
-			//line rooms.qtpl:44
-			if j+1 < len(d.DiscountMain.Rules) {
-				//line rooms.qtpl:44
-				qw422016.N().S(`,`)
-				//line rooms.qtpl:44
-			}
 			//line rooms.qtpl:45
+			if j+1 < len(d.DiscountMain.Rules) {
+				//line rooms.qtpl:45
+				qw422016.N().S(`,`)
+				//line rooms.qtpl:45
+			}
+			//line rooms.qtpl:46
 		}
-		//line rooms.qtpl:45
+		//line rooms.qtpl:46
 		qw422016.N().S(`]}`)
-		//line rooms.qtpl:49
-		if (d.DiscountChildren.ChildRules.Value > "" && d.DiscountChildren.ChildRules.Count_use_for > 0) || (d.DiscountTerm.DiscountLongTermRules.Main_place_only > 0 && d.DiscountTerm.DiscountLongTermRules.Value > "" && d.DiscountTerm.DiscountLongTermRules.Condition > 0 && d.DiscountTerm.DiscountLongTermRules.Night_count > 0) {
-			//line rooms.qtpl:49
-			qw422016.N().S(`,`)
-			//line rooms.qtpl:49
-		}
 		//line rooms.qtpl:50
 	}
 	//line rooms.qtpl:52
 	if d.DiscountChildren.ChildRules.Value > "" && d.DiscountChildren.ChildRules.Count_use_for > 0 {
 		//line rooms.qtpl:52
-		qw422016.N().S(`"discountChildren":{"rules":{"value":`)
-		//line rooms.qtpl:56
+		qw422016.N().S(`,"discountChildren":{"rules":{"value":`)
+		//line rooms.qtpl:57
 		qw422016.N().Q(d.DiscountChildren.ChildRules.Value)
-		//line rooms.qtpl:56
+		//line rooms.qtpl:57
 		qw422016.N().S(`,"count_use_for":"`)
-		//line rooms.qtpl:57
+		//line rooms.qtpl:58
 		qw422016.N().D(d.DiscountChildren.ChildRules.Count_use_for)
-		//line rooms.qtpl:57
+		//line rooms.qtpl:58
 		qw422016.N().S(`"}}`)
-		//line rooms.qtpl:62
-		if d.DiscountTerm.DiscountLongTermRules.Main_place_only > 0 && d.DiscountTerm.DiscountLongTermRules.Value > "" && d.DiscountTerm.DiscountLongTermRules.Condition > 0 && d.DiscountTerm.DiscountLongTermRules.Night_count > 0 {
-			//line rooms.qtpl:62
-			qw422016.N().S(`,`)
-			//line rooms.qtpl:62
-		}
 		//line rooms.qtpl:63
 	}
 	//line rooms.qtpl:65
 	if d.DiscountTerm.DiscountLongTermRules.Main_place_only > 0 && d.DiscountTerm.DiscountLongTermRules.Value > "" && d.DiscountTerm.DiscountLongTermRules.Condition > 0 && d.DiscountTerm.DiscountLongTermRules.Night_count > 0 {
 		//line rooms.qtpl:65
-		qw422016.N().S(`"discountLongTerm":{"rules":{"main_place_only":"`)
-		//line rooms.qtpl:69
+		qw422016.N().S(`,"discountLongTerm":{"rules":{"main_place_only":"`)
+		//line rooms.qtpl:70
 		qw422016.N().D(d.DiscountTerm.DiscountLongTermRules.Main_place_only)
-		//line rooms.qtpl:69
+		//line rooms.qtpl:70
 		qw422016.N().S(`","value":`)
-		//line rooms.qtpl:70
+		//line rooms.qtpl:71
 		qw422016.N().Q(d.DiscountTerm.DiscountLongTermRules.Value)
-		//line rooms.qtpl:70
+		//line rooms.qtpl:71
 		qw422016.N().S(`,"condition":"`)
-		//line rooms.qtpl:71
+		//line rooms.qtpl:72
 		qw422016.N().D(d.DiscountTerm.DiscountLongTermRules.Condition)
-		//line rooms.qtpl:71
+		//line rooms.qtpl:72
 		qw422016.N().S(`","night_count":"`)
-		//line rooms.qtpl:72
+		//line rooms.qtpl:73
 		qw422016.N().D(d.DiscountTerm.DiscountLongTermRules.Night_count)
-		//line rooms.qtpl:72
+		//line rooms.qtpl:73
 		qw422016.N().S(`"}}`)
-		//line rooms.qtpl:75
+		//line rooms.qtpl:76
 	}
-	//line rooms.qtpl:75
+	//line rooms.qtpl:76
 	qw422016.N().S(`}`)
-//line rooms.qtpl:82
+//line rooms.qtpl:78
 }
 
-//line rooms.qtpl:82
+//line rooms.qtpl:78
 func (d *DiscountAllData) WriteJSON(qq422016 qtio422016.Writer) {
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	d.StreamJSON(qw422016)
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	qt422016.ReleaseWriter(qw422016)
-//line rooms.qtpl:82
+//line rooms.qtpl:78
 }
 
-//line rooms.qtpl:82
+//line rooms.qtpl:78
 func (d *DiscountAllData) JSON() string {
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	d.WriteJSON(qb422016)
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	qs422016 := string(qb422016.B)
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line rooms.qtpl:82
+	//line rooms.qtpl:78
 	return qs422016
-//line rooms.qtpl:82
+//line rooms.qtpl:78
+}
+
+//line rooms.qtpl:79
+func StreamPutRoomsHead(qw422016 *qt422016.Writer) {
+	//line rooms.qtpl:79
+	qw422016.N().S(`<div class="main-form-wrap">`)
+//line rooms.qtpl:81
+}
+
+//line rooms.qtpl:81
+func WritePutRoomsHead(qq422016 qtio422016.Writer) {
+	//line rooms.qtpl:81
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line rooms.qtpl:81
+	StreamPutRoomsHead(qw422016)
+	//line rooms.qtpl:81
+	qt422016.ReleaseWriter(qw422016)
+//line rooms.qtpl:81
+}
+
+//line rooms.qtpl:81
+func PutRoomsHead() string {
+	//line rooms.qtpl:81
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line rooms.qtpl:81
+	WritePutRoomsHead(qb422016)
+	//line rooms.qtpl:81
+	qs422016 := string(qb422016.B)
+	//line rooms.qtpl:81
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line rooms.qtpl:81
+	return qs422016
+//line rooms.qtpl:81
 }
 
 //line rooms.qtpl:83
-func StreamPutRoomsHead(qw422016 *qt422016.Writer) {
-	//line rooms.qtpl:83
-	qw422016.N().S(`<div class="main-form-wrap">`)
-//line rooms.qtpl:85
-}
-
-//line rooms.qtpl:85
-func WritePutRoomsHead(qq422016 qtio422016.Writer) {
-	//line rooms.qtpl:85
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line rooms.qtpl:85
-	StreamPutRoomsHead(qw422016)
-	//line rooms.qtpl:85
-	qt422016.ReleaseWriter(qw422016)
-//line rooms.qtpl:85
-}
-
-//line rooms.qtpl:85
-func PutRoomsHead() string {
-	//line rooms.qtpl:85
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line rooms.qtpl:85
-	WritePutRoomsHead(qb422016)
-	//line rooms.qtpl:85
-	qs422016 := string(qb422016.B)
-	//line rooms.qtpl:85
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line rooms.qtpl:85
-	return qs422016
-//line rooms.qtpl:85
-}
-
-//line rooms.qtpl:87
 func StreamPutRoomsEnd(qw422016 *qt422016.Writer) {
-	//line rooms.qtpl:87
+	//line rooms.qtpl:83
 	qw422016.N().S(`</div>`)
-//line rooms.qtpl:89
+//line rooms.qtpl:85
 }
 
-//line rooms.qtpl:89
+//line rooms.qtpl:85
 func WritePutRoomsEnd(qq422016 qtio422016.Writer) {
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	StreamPutRoomsEnd(qw422016)
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	qt422016.ReleaseWriter(qw422016)
-//line rooms.qtpl:89
+//line rooms.qtpl:85
 }
 
-//line rooms.qtpl:89
+//line rooms.qtpl:85
 func PutRoomsEnd() string {
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	WritePutRoomsEnd(qb422016)
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	qs422016 := string(qb422016.B)
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line rooms.qtpl:89
+	//line rooms.qtpl:85
 	return qs422016
-//line rooms.qtpl:89
+//line rooms.qtpl:85
 }
