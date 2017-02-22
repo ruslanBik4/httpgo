@@ -137,9 +137,9 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
             		</div>
             	</div>
             	<div class="footer-social">
-            		<img src="images/instagram.svg" alt="" class="social">
-            		<img src="images/facebook.svg" alt="" class="social">
-            		<img src="images/vk.svg" alt="" class="social">
+            		<img src="/images/instagram.svg" alt="" class="social">
+            		<img src="/images/facebook.svg" alt="" class="social">
+            		<img src="/images/vk.svg" alt="" class="social">
             	</div>
             </div>
             <div class="footer-block">
