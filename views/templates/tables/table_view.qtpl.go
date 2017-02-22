@@ -386,7 +386,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 						qw422016.N().S(`
                                     `)
 						//line views/templates/tables/table_view.qtpl:128
-						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, events, dataJson)
+						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, required, events, dataJson)
 						//line views/templates/tables/table_view.qtpl:128
 						qw422016.N().S(`
                         `)

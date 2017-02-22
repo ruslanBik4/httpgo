@@ -108,7 +108,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 
 	return result
 }
-//получаем связанную таблицу с полями
+//получаем связанную таблицу с полями для поля типа TABLEID_
 func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key string) {
 	//key := field.COLUMN_NAME
 	tableProps := key[ len("tableid_") : ]
@@ -134,7 +134,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 	}
 	defer rows.Close()
 	columns, err := rows.Columns()
-	if (err != nil) {
+	if err != nil {
 		log.Println(err)
 	}
 
@@ -195,7 +195,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.getOptions(fieldName[3:], value)
 		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html )
-	} else if strings.HasPrefix(fieldName, "setid_") {
+	} else if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
 		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
 	} else {
 		switch fieldStruct.DATA_TYPE {
@@ -209,7 +209,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 				checked = "checked"
 			}
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
-					RenderCheckBox(inputName, fieldName, "", 1, checked, events, dataJson)+ "</td>"
+					RenderCheckBox(inputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, "text", tableProps, inputName, value)
 		}
@@ -293,19 +293,19 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 	for rows.Next() {
 		var id string
 		var title, checked string
-		var idRooms sql.NullInt64
+		var idParent sql.NullInt64
 
-		if err := rows.Scan(&id, &title, &idRooms); err != nil {
+		if err := rows.Scan(&id, &title, &idParent); err != nil {
 				log.Println(err)
 				continue
 		}
-		if idRooms.Valid {
+		if idParent.Valid {
 			checked = "checked"
 		}
 		idx++
 
 
-		field.Html += "<li role='presentation'>" + RenderCheckBox(key + "[]", id, title, idx, checked, "", "") + "</li>"
+		field.Html += "<li role='presentation'>" + RenderCheckBox(key + "[]", id, title, idx, checked, "", "", "") + "</li>"
 	}
 
 }
@@ -371,7 +371,7 @@ func (field *FieldStructure) RenderSet(key, val, required, events, dataJson stri
 		if strings.Contains(val, enumVal) {
 			checked = "checked"
 		}
-		result += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, events, dataJson)
+		result += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, required, events, dataJson)
 	}
 
 	return result
@@ -391,7 +391,7 @@ func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson str
 		if isRenderSelect {
 			result += renderOption(enumVal, enumVal, selected)
 		} else {
-			result += renderRadioBox(key, enumVal, enumVal, idx, checked, events, dataJson)
+			result += renderRadioBox(key, enumVal, enumVal, idx, checked, required, events, dataJson)
 		}
 	}
 	if isRenderSelect {

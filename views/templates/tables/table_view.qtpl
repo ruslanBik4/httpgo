@@ -125,7 +125,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                             checked = "checked"
                                         }
                                     %}
-                                    {%= forms.RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
+                                    {%= forms.RenderCheckBox(nameInput, "1", titleLabel, 1, checked, required, events, dataJson) %}
                         {% case "enum" %}
                             {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
                             {%s= t %}

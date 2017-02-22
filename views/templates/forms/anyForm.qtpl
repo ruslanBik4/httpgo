@@ -196,7 +196,7 @@
                                 checked = "checked"
                             }
                         %}
-                        {%= RenderCheckBox(nameInput, "1", titleLabel, 1, checked, events, dataJson) %}
+                        {%= RenderCheckBox(nameInput, "1", titleLabel, 1, checked, required, events, dataJson) %}
                 {% case "enum" %}
                     <label class="input-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {%code t := field.RenderEnum(nameInput, val, required, events, dataJson) %}
@@ -284,18 +284,18 @@
                     </div>
 {% endfunc %}
 
-{% func RenderCheckBox(key, val, title string, idx int, checked, events, dataJson string) %}
+{% func RenderCheckBox(key, val, title string, idx int, checked, required, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
         <input type="checkbox" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
-                {%s= events %} {%s= dataJson %}
+                {%s= required %} {%s= events %} {%s= dataJson %}
         />
         {%s title %}
     </label>
 {% endfunc %}
-{% func renderRadioBox(key, val, title string, idx int, checked, events, dataJson string) %}
+{% func renderRadioBox(key, val, title string, idx int, checked, required, events, dataJson string) %}
     <label class="checkbox" for="{%s key %}{%d idx %}">
         <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
-                {%s= events %} {%s= dataJson %}
+                {%s= required %} {%s= events %} {%s= dataJson %}
         />
         {%s title %}
     </label>
