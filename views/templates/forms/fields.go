@@ -329,8 +329,27 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 	}
 
         if field.Where > "" {
-	   where = " WHERE " + field.Where
-		log.Println(field.Where)
+		where = " WHERE "
+		enumVal := field.Where
+		i, j := strings.Index(enumVal, ":"), 0
+
+		for i > 0 {
+			param := enumVal[i+1: ]
+			if j = strings.IndexAny(param, ", )"); j > 0 {
+				param = param[:j]
+			}
+			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+			if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
+				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
+			}
+			/// попозже перепроверить
+			enumVal = enumVal[ : i + len(param) ]
+			i = strings.Index(enumVal, ":")
+		}
+
+		where += enumVal
+
+		log.Println(where)
 	}
 
 	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
@@ -456,18 +475,12 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 			// отбираем параметры типы :имя_поля
 			if i := strings.Index(enumVal, ":"); i > -1 {
 				param := enumVal[i+1:]
-				// считаем, что окончанием могут быть символы ", )"
+				// считаем, что окончанием параметра могут быть символы ", )"
 				if j := strings.IndexAny(param, ", )"); j > 0 {
 					param = param[:j]
-					enumVal = enumVal[:i] + "%s" + enumVal[i+j:]
-				} else {
-					enumVal = enumVal[:i] + "%s"
 				}
 				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				if paramField := fieldStrc.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
-					param = paramField.Value
-					enumVal = fmt.Sprintf(enumVal, param)
-				} else {
+				if paramField := fieldStrc.Table.FindField(param); paramField == nil {
 					continue
 				}
 			}
