@@ -39,14 +39,22 @@ function correctField(thisElem) {
     $(thisElem).css( { border: '' } );
 }
 function validatePattern(thisElem) {
-    var re = thisElem.pattern;
+    var re = thisElem.pattern,
+        result = true;
 
     if (re == "") {
         return true;
     }
     // TODO: добавить проверку на валидность - иногда вылетает тут
-    re = new RegExp(re);
-    return re.test(thisElem.value);
+    try {
+
+        re = new RegExp(re);
+        result = re.test(thisElem.value)
+
+    } catch (e) {
+        console.log(e)
+    }
+    return result;
 }
 function validateEmail(email) {
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -77,6 +85,7 @@ function validateReguiredFields(thisForm) {
 
     $('input[required]:visible, select[required]:visible', thisForm).each(
         function (index) {
+            //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
             if ( !this.value ) {
                 result = false;
                 alertField(this);
@@ -86,6 +95,14 @@ function validateReguiredFields(thisForm) {
             else {
                 correctField(this);
             }
+        }
+    );
+    // пока поставил временно, до решения Туду выше
+    $("input[type=checkbox][required]:not(:checked)").each(
+        function (index) {
+            result = false;
+            alertField(this);
+
         }
     );
 
@@ -158,7 +175,7 @@ function saveForm(thisForm, successFunction, errorFunction)
                 alert(error);
             }
         },
-        complete: function(status, data) {
+        complete: function(data, status) {
             $progress.hide();
             $loading.hide();
             console.log(status);

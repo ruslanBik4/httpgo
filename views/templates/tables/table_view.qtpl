@@ -112,7 +112,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
                             {%= fieldStruct.RenderForeignSelect(tablePrefix, key, val, titleLabel, required, events, dataJson) %}
-                        {% elseif strings.HasPrefix(key, "setid_") %}
+                        {% elseif strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") %}
                             {%= fieldStruct.RenderMultiSelect(fields, tablePrefix, key, val, "См. ", required) %}
                         {% elseif strings.HasPrefix(key, "tableid_") %}
                             {%= fieldStruct.RenderTable(fields, tablePrefix, key, val, "Табл", required) %}

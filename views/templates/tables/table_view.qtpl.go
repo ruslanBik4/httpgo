@@ -345,7 +345,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 					qw422016.N().S(`
                         `)
 					//line views/templates/tables/table_view.qtpl:115
-				} else if strings.HasPrefix(key, "setid_") {
+				} else if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") {
 					//line views/templates/tables/table_view.qtpl:115
 					qw422016.N().S(`
                             `)
