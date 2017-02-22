@@ -343,7 +343,7 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
 			/// попозже перепроверить
-			enumVal = enumVal[ : i + len(param) ]
+			enumVal = enumVal[i + len(param) + 1 : ]
 			i = strings.Index(enumVal, ":")
 		}
 
