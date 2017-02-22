@@ -486,7 +486,7 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 			}
 			fieldStrc.Where += comma + key + enumVal
 			comma = " OR "
-			log.Println(fieldStrc.where)
+			log.Println(fieldStrc.Where)
 
 		}
 	default:
