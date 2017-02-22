@@ -587,6 +587,8 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(fields.Name)
 
+	fields.SaveFormEvents = make(map[string] string, 0)
+
 	if pos := strings.Index(tableOpt.TABLE_COMMENT, "onload:"); pos > 0 {
 		fields.Comment = tableOpt.TABLE_COMMENT[:pos]
 		fields.DataJSOM = make( map[string] interface{}, 0 )
