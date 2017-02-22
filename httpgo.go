@@ -16,6 +16,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/docx"
 	"path"
 	"sync"
 	"bytes"
@@ -37,6 +38,7 @@ var (
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
 		"/update/":  handleUpdate,
+		"/test/":  handleTest,
 		"/fonts/":  fonts.HandleGetFont,
 		"/query/": db.HandlerDBQuery,
 		"/admin/": admin.HandlerAdmin,
@@ -121,6 +123,11 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
+func handleTest(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Fprint(w, docx.ReadDocx( filepath.Join(*f_web + "/files", "физлицо.docx") ) )
+}
+
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 }
