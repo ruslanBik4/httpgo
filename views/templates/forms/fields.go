@@ -401,6 +401,17 @@ func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson str
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	isRenderSelect := len(fields) > 2
 
+	// если не имеет значение, покажем placeholder как первый option в списке
+	if isRenderSelect && (val == "") {
+		if field.Placeholder > "" {
+
+			result = "<option disabled>" + field.Placeholder + "</option>"
+		} else {
+
+			result = "<option disabled>Выберите значение</option>"
+		}
+	}
+
 	for idx, title := range fields {
 		enumVal := title[len(title)-1]
 		checked, selected  := "", ""
