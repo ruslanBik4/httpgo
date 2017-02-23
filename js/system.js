@@ -43,7 +43,7 @@ function moveLabel(){
     });
 }
 function changeBg(){
-    var checkFrom = $('#fbusiness');
+    var checkFrom = $('#fbusiness').length > 0;
     if(checkFrom){
         $('.content-wrap').css('background-image','url(/images/bg1.png)')
     } else {

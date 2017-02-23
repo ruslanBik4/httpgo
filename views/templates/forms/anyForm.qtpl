@@ -69,7 +69,7 @@
     <label class="input-label" for="{%s tablePrefix+key %}">{%s titleLabel %}</label>
     <select id="{%s key %}" name="{%s tablePrefix+key %}" class="business-form-select" {%s required %}  {%s= events %} {%s= dataJson %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
-            <option value="" selected>Значение можно не указывать</option>
+            <option disabled selected>Значение можно не указывать</option>
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
@@ -82,7 +82,7 @@
     <label class="control-label" for="{%s key %}">{%s titleLabel %}</label>
     <select id="{%s key %}" name="{%s key %}" class="controls" {%s required %}  {%s= events %} {%s= dataJson %}>
         {% if field.IS_NULLABLE=="YES" && val=="" %}
-            <option value="" selected>Значение можно не указывать</option>
+            <option disabled selected>Значение можно не указывать</option>
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
@@ -214,10 +214,13 @@
                                                 {%s= required %} {%s= events %} {%s= dataJson %}
                      />
                {% case "text" %}
-                        <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
-                    <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}" {%s= events %} {%s= dataJson %}>
+                    <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
+                    {% stripspace %}
+                    <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
+                    {%s= events %} {%s= dataJson %}>
                         {%s= val %}
                     </textarea>
+                    {% endstripspace %}
                {% default %}
                     {%= field.RenderInputFromType(nameInput, val, titleLabel, placeholder, pattern, required, events, dataJson) %}
                {% endswitch %}
@@ -240,9 +243,7 @@
 {% endif %}
 <script>
  $(function(){
-    changeBg();
     $(".business-form-select").styler();
-    moveLabel();
 
     {% if setDatePicker > "" %}
             {%s= setDatePicker %}

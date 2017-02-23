@@ -86,7 +86,7 @@ function validateReguiredFields(thisForm) {
     $('input[required]:visible, select[required]:visible', thisForm).each(
         function (index) {
             //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
-            if ( !this.value ) {
+            if ( !this.value || ( (this.type == "checkbox") && !(this.checked) ) ) {
                 result = false;
                 alertField(this);
 
@@ -95,14 +95,6 @@ function validateReguiredFields(thisForm) {
             else {
                 correctField(this);
             }
-        }
-    );
-    // пока поставил временно, до решения Туду выше
-    $("input[type=checkbox][required]:not(:checked)").each(
-        function (index) {
-            result = false;
-            alertField(this);
-
         }
     );
 
