@@ -22,6 +22,12 @@ $(function() {
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
+
+    $(".business-form-select").styler();
+    changeBg();
+    moveLabel();
+}
+function moveLabel(){
     $(".custom-input-label").click(function(){
         $(this).addClass('small-label');
     });
@@ -29,12 +35,20 @@ function SitePostShow() {
         $(this).next('.form-items-wrap').find(".custom-input-label").addClass('small-label');
     });
     $('.business-form-input').keyup(function(){
-        if($(this).val() != ''){
+        if($(this).val().length != 0){
             $(this).next(".custom-input-label").addClass('small-label');
         } else {
             $(this).next(".custom-input-label").removeClass('small-label');
         }
     });
+}
+function changeBg(){
+    var checkFrom = $('#fbusiness');
+    if(checkFrom){
+        $('.content-wrap').css('background-image','url(/images/bg1.png)')
+    } else {
+        $('.content-wrap').css('background-image','url(/images/bg2.png)')
+    }
 }
 // перед загрузкой новой страницы, чистим хвосты
 function beforeLoadContent() {
