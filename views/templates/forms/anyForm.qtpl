@@ -100,6 +100,8 @@
     var figure string
     if ns.SaveFormEvents == nil {
         ns.SaveFormEvents = make(map[string] string, 1)
+    }
+    if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
     formName := "f" + ns.Name
@@ -233,7 +235,7 @@
 </form>
 {% if setDatePicker > "" %}
     <head>
-        <script src="/jquery.datetimepicker.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     </head>
 {% endif %}
 <script>

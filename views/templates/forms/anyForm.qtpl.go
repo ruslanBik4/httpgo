@@ -953,7 +953,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 		//line views/templates/forms/anyForm.qtpl:234
 		qw422016.N().S(`
     <head>
-        <script src="/jquery.datetimepicker.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     </head>
 `)
 		//line views/templates/forms/anyForm.qtpl:238
