@@ -36,8 +36,8 @@ function SitePostShow() {
         }
     });
     $(".business-form-select").styler();
-    var checkWindow = $('.fbusiness');
-    if(checkWindow){
+    var checkFrom = $('.fbusiness');
+    if(checkFrom){
         $('.content-wrap').css('background-image','url(/images/bg1.png)')
     } else {
         $('.content-wrap').css('background-image','url(/images/bg2.png)')
