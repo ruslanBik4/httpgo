@@ -267,7 +267,7 @@ function moveLabel(){
         $(this).next('.form-items-wrap').find(".custom-input-label").addClass('small-label');
     });
     $('.business-form-input').keyup(function(){
-        if($(this).val() != ''){
+        if($(this).val().length != 0){
             $(this).next(".custom-input-label").addClass('small-label');
         } else {
             $(this).next(".custom-input-label").removeClass('small-label');
