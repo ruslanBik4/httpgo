@@ -343,7 +343,7 @@ func (field *FieldStructure) getOptions(tableName, val string) {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
 			/// попозже перепроверить
-			enumVal = enumVal[ : i + len(param) ]
+			enumVal = enumVal[i + len(param) + 1 : ]
 			i = strings.Index(enumVal, ":")
 		}
 
@@ -586,6 +586,8 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 	}
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(fields.Name)
+
+	fields.SaveFormEvents = make(map[string] string, 0)
 
 	if pos := strings.Index(tableOpt.TABLE_COMMENT, "onload:"); pos > 0 {
 		fields.Comment = tableOpt.TABLE_COMMENT[:pos]
