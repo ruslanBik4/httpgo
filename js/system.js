@@ -35,6 +35,13 @@ function SitePostShow() {
             $(this).next(".custom-input-label").removeClass('small-label');
         }
     });
+    $(".business-form-select").styler();
+    var checkWindow = $('.fbusiness');
+    if(checkWindow){
+        $('.content-wrap').css('background-image','url(/images/bg1.png)')
+    } else {
+        $('.content-wrap').css('background-image','url(/images/bg2.png)')
+    }
 }
 // перед загрузкой новой страницы, чистим хвосты
 function beforeLoadContent() {
