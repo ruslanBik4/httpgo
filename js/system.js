@@ -22,6 +22,19 @@ $(function() {
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
+    $(".custom-input-label").click(function(){
+        $(this).addClass('small-label');
+    });
+    $(".input-label").click(function(){
+        $(this).next('.form-items-wrap').find(".custom-input-label").addClass('small-label');
+    });
+    $('.business-form-input').keyup(function(){
+        if($(this).val() != ''){
+            $(this).next(".custom-input-label").addClass('small-label');
+        } else {
+            $(this).next(".custom-input-label").removeClass('small-label');
+        }
+    });
 }
 // перед загрузкой новой страницы, чистим хвосты
 function beforeLoadContent() {
