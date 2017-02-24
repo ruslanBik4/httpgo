@@ -43,7 +43,7 @@
             <b class="caret"></b>
         </a>
     {% endif %}
-        <div class="{% if field.CSSClass == "" %}modal hide{% else %}{%s field.CSSClass %}{% endif %}"
+        <div class="{% if field.CSSClass == "" %}modal{% else %}{%s field.CSSClass %}{% endif %}"
             id="div{%s tablePrefix+key %}" tabindex="-1" role="dialog"
              aria-labelledby="{%s tablePrefix+key %}ModalLabel" aria-hidden="true">
             <div class="modal-header">

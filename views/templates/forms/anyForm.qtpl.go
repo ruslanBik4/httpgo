@@ -188,7 +188,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 	//line anyForm.qtpl:46
 	if field.CSSClass == "" {
 		//line anyForm.qtpl:46
-		qw422016.N().S(`modal hide`)
+		qw422016.N().S(`modal`)
 		//line anyForm.qtpl:46
 	} else {
 		//line anyForm.qtpl:46
