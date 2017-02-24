@@ -519,7 +519,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 	//line anyForm.qtpl:111
 	qw422016.E().S(Title)
 	//line anyForm.qtpl:111
-	qw422016.N().S(`" >
+	qw422016.N().S(`" novalidate>
 
       `)
 	//line anyForm.qtpl:114

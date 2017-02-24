@@ -108,7 +108,7 @@
 %}
 
 <form id="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
-      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" >
+      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate>
 
       {% code
         setDatePicker := ""
