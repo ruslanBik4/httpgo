@@ -137,12 +137,18 @@ function saveForm(thisForm, successFunction, errorFunction)
         beforeSubmit: function(a,f,o) {
             o.dataType = "json";
             // TODO: удаляем пустые поля - переделать потом !
-            a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
+            // a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
             // добавляем чекбокс-поля, которые были отменены в форме
-            $("input[type=checkbox][checked]:not(:checked)").each(
-                function() {
-                    a.push({ name: this.name, value: 0, type : this.type, required: this.required })
-                });
+            // $("input[type=checkbox][checked]:not(:checked)").each(
+            //     function() {
+            //         a.push({ name: this.name, value: 0, type : this.type, required: this.required })
+            //     });
+            var inputArr = $('input');
+            for (var i = 0; i <=inputArr.length; i++){
+                if($(inputArr[i]).is(':hidden')){
+                    $(inputArr[i]).removeAttr('required');
+                }
+            }
             $out.html('Начинаю отправку...');
             $progress.show();
             $loading.show();
