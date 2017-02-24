@@ -33,7 +33,7 @@ function alertField(thisElem) {
         nameField = thisElem.placeholder
     }
     alert( 'Заполните поле - ' + nameField );
-    $(thisElem).css( { border: '1px red solid' } ).focus();
+    $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus();
 }
 function correctField(thisElem) {
     $(thisElem).css( { border: '' } );
