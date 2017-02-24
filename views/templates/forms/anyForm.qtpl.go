@@ -57,7 +57,7 @@ func (field *FieldStructure) StreamRenderTable(qw422016 *qt422016.Writer, ns *Fi
 	//line anyForm.qtpl:15
 	if field.CSSClass == "" {
 		//line anyForm.qtpl:15
-		qw422016.N().S(` modal `)
+		qw422016.N().S(`modal`)
 		//line anyForm.qtpl:15
 	} else {
 		//line anyForm.qtpl:15
