@@ -243,26 +243,3 @@ function addNewRowTableID(thisButton) {
 
     return false;
 }
-function changeBg(){
-    var checkWindow = $('.form-signin');
-    if(!checkWindow){
-        $('.content-wrap').css('background-image','url(/images/bg1.png)')
-    } else {
-        $('.content-wrap').css('background-image','url(/images/bg2.png)')
-    }
-}
-function moveLabel(){
-    $(".custom-input-label").click(function(){
-        $(this).addClass('small-label');
-    });
-    $(".input-label").click(function(){
-        $(this).next('.form-items-wrap').find(".custom-input-label").addClass('small-label');
-    });
-    $('.business-form-input').keyup(function(){
-        if($(this).val().length != 0){
-            $(this).next(".custom-input-label").addClass('small-label');
-        } else {
-            $(this).next(".custom-input-label").removeClass('small-label');
-        }
-    });
-}
