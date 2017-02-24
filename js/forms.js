@@ -136,6 +136,8 @@ function saveForm(thisForm, successFunction, errorFunction)
     $(thisForm).ajaxSubmit({
         beforeSubmit: function(a,f,o) {
             o.dataType = "json";
+            // TODO: удаляем пустые поля - переделать потом !
+            a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
             // добавляем чекбокс-поля, которые были отменены в форме
             $("input[type=checkbox][checked]:not(:checked)").each(
                 function() {
