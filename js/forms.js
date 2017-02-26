@@ -143,6 +143,8 @@ function saveForm(thisForm, successFunction, errorFunction)
             //     function() {
             //         a.push({ name: this.name, value: 0, type : this.type, required: this.required })
             //     });
+            // ты напрасно здесь заново отбираешь input - parametr а уже содержит объекты, которые будут отправлены на сервер
+            // потому я из него и делпл удадение
             var inputArr = $('input');
             for (var i = 0; i <=inputArr.length; i++){
                 if($(inputArr[i]).is(':hidden')){
