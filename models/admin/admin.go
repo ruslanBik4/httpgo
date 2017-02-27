@@ -320,7 +320,7 @@ func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	fields := getFields(tableName)
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу " + tableName) )
 }
-func getRecord(tableName, id string) (fields forms.FieldsTable, err error) {
+func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 
 	fields = getFields(tableName)
@@ -368,7 +368,7 @@ func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
-	if fields, err := getRecord(tableName, id); err != nil {
+	if fields, err := GetRecord(tableName, id); err != nil {
 		fmt.Fprint(w, "Error during reading record with id=%s", id)
 
 	} else {
@@ -383,7 +383,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
-	if fields, err := getRecord(tableName, id); err != nil {
+	if fields, err := GetRecord(tableName, id); err != nil {
 		fmt.Fprint(w, "Error during reading record with id=%s", id)
 
 	} else {
