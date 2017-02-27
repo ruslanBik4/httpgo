@@ -3,14 +3,9 @@ package docx
 import (
 	"github.com/nguyenthenguyen/docx"
 	"log"
-	"flag"
 )
 
-var (
-	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
-
-)
-func ReplaceDocx(input, output string, replaces map[string] string) bool {
+ func ReplaceDocx(input, output string, replaces map[string] string) bool {
 	if r, err := docx.ReadDocxFile(input); err != nil {
 		log.Println(err)
 		return false
