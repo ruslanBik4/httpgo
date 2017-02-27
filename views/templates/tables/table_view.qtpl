@@ -126,16 +126,18 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                         }
                                     %}
                                     {%= forms.RenderCheckBox(nameInput, "1", titleLabel, 1, checked, required, events, dataJson) %}
-                        {% case "enum" %}
-                            {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
-                            {%s= t %}
-                        {% case "set" %}
-                            {%code t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson) %}
-                            {%s= t %}
-                        {% case "blob", "text" %}
-                            <textarea id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
-                                {%s= val %}
-                            </textarea>
+                            {% case "enum" %}
+                                {%code t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson) %}
+                                {%s= t %}
+                            {% case "set" %}
+                                {%code t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson) %}
+                                {%s= t %}
+                            {% case "text" %}
+                                <textarea id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
+                                    {%s= val %}
+                                </textarea>
+                            {% case "blob" %}
+                                <image src="/expand_hover.png" />
                             {% default %}
                                 {%s val %}
                             {% endswitch %}
