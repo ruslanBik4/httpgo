@@ -160,9 +160,20 @@ type rowFields struct {
 // }
 func GetResultToJSON (rows *sql.Rows) []byte{
 
-	columns, err := rows.Columns()
-	if (err != nil) {
+	var row [] interface {}
+	var rowOutput [] map[string] string
+
+	rowField := make( map[string] *sql.NullString )
+
+	if columns, err := rows.Columns(); err != nil {
 		return nil
+	} else {
+
+		for _, val := range columns {
+
+			rowField[val] = new(sql.NullString)
+			row = append( row, rowField[val] )
+		}
 	}
 
 	var result bytes.Buffer
@@ -170,23 +181,13 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 	Encode := json.NewEncoder(w)
 
 
-	var row [] interface {}
-	var rowOutput [] map[string] string
 
-	rowField := make( map[string] *sql.NullString )
 
-	for _, val := range columns {
-
-		rowField[val] = new(sql.NullString)
-		row = append( row, rowField[val] )
-	}
 
 	defer rows.Close()
 	for rows.Next() {
 
-		err = rows.Scan(row...)
-
-		if err != nil {
+		if err := rows.Scan(row...); err != nil {
 			fmt.Println("err:", err)
 			continue
 		}
@@ -204,7 +205,7 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 		rowOutput = append( rowOutput, output)
 	}
 
-	if err = Encode.Encode(rowOutput); err != nil {
+	if err := Encode.Encode(rowOutput); err != nil {
 		Encode.Encode(err)
 	}
 

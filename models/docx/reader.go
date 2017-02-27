@@ -17,8 +17,8 @@ import (
 		}
 
 		if err := docx1.WriteToFile(output); err != nil {
+			log.Println(err)
 			return false
-
 		}
 
 		r.Close()
