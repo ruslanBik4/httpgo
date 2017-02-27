@@ -138,17 +138,16 @@ function saveForm(thisForm, successFunction, errorFunction)
             o.dataType = "json";
             // TODO: удаляем пустые поля - переделать потом !
             // a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
-            // добавляем чекбокс-поля, которые были отменены в форме
-            // $("input[type=checkbox][checked]:not(:checked)").each(
-            //     function() {
-            //         a.push({ name: this.name, value: 0, type : this.type, required: this.required })
-            //     });
-            var inputArr = $('input');
-            for (var i = 0; i <=inputArr.length; i++){
-                if($(inputArr[i]).is(':hidden')){
-                    $(inputArr[i]).removeAttr('required');
+            for( var i = a.length -1; i >= 0; --i){
+                if (a[i].value === '' && a[i].type === 'select-one' || a[i].value === '' && a[i].name === 'id'){
+                    a.splice(i,1);
                 }
             }
+            // добавляем чекбокс-поля, которые были отменены в форме
+            $("input[type=checkbox][checked]:not(:checked)").each(
+                function() {
+                    a.push({ name: this.name, value: 0, type : this.type, required: this.required })
+                });
             $out.html('Начинаю отправку...');
             $progress.show();
             $loading.show();
