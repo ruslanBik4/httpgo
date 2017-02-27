@@ -16,7 +16,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/system"
-	"github.com/ruslanBik4/httpgo/models/docx"
+	//"github.com/ruslanBik4/httpgo/models/docx"
 	"path"
 	"sync"
 	"bytes"
@@ -125,7 +125,7 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprint(w, docx.ReadDocx( filepath.Join(*f_web + "/files", "физлицо.docx") ) )
+	//fmt.Fprint(w, docx.ReadDocx( filepath.Join(*f_web + "/files", "физлицо.docx") ) )
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {

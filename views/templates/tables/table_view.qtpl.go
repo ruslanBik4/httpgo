@@ -389,44 +389,44 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, required, events, dataJson)
 						//line views/templates/tables/table_view.qtpl:128
 						qw422016.N().S(`
-                        `)
+                            `)
 					//line views/templates/tables/table_view.qtpl:129
 					case "enum":
 						//line views/templates/tables/table_view.qtpl:129
 						qw422016.N().S(`
-                            `)
+                                `)
 						//line views/templates/tables/table_view.qtpl:130
 						t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson)
 
 						//line views/templates/tables/table_view.qtpl:130
 						qw422016.N().S(`
-                            `)
+                                `)
 						//line views/templates/tables/table_view.qtpl:131
 						qw422016.N().S(t)
 						//line views/templates/tables/table_view.qtpl:131
 						qw422016.N().S(`
-                        `)
+                            `)
 					//line views/templates/tables/table_view.qtpl:132
 					case "set":
 						//line views/templates/tables/table_view.qtpl:132
 						qw422016.N().S(`
-                            `)
+                                `)
 						//line views/templates/tables/table_view.qtpl:133
 						t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson)
 
 						//line views/templates/tables/table_view.qtpl:133
 						qw422016.N().S(`
-                            `)
+                                `)
 						//line views/templates/tables/table_view.qtpl:134
 						qw422016.N().S(t)
 						//line views/templates/tables/table_view.qtpl:134
 						qw422016.N().S(`
-                        `)
+                            `)
 					//line views/templates/tables/table_view.qtpl:135
-					case "blob", "text":
+					case "text":
 						//line views/templates/tables/table_view.qtpl:135
 						qw422016.N().S(`
-                            <textarea id="`)
+                                <textarea id="`)
 						//line views/templates/tables/table_view.qtpl:136
 						qw422016.E().S(key)
 						//line views/templates/tables/table_view.qtpl:136
@@ -443,79 +443,85 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 						qw422016.N().S(dataJson)
 						//line views/templates/tables/table_view.qtpl:136
 						qw422016.N().S(`>
-                                `)
+                                    `)
 						//line views/templates/tables/table_view.qtpl:137
 						qw422016.N().S(val)
 						//line views/templates/tables/table_view.qtpl:137
 						qw422016.N().S(`
-                            </textarea>
+                                </textarea>
                             `)
 					//line views/templates/tables/table_view.qtpl:139
-					default:
+					case "blob":
 						//line views/templates/tables/table_view.qtpl:139
 						qw422016.N().S(`
+                                <image src="/expand_hover.png" />
+                            `)
+					//line views/templates/tables/table_view.qtpl:141
+					default:
+						//line views/templates/tables/table_view.qtpl:141
+						qw422016.N().S(`
                                 `)
-						//line views/templates/tables/table_view.qtpl:140
+						//line views/templates/tables/table_view.qtpl:142
 						qw422016.E().S(val)
-						//line views/templates/tables/table_view.qtpl:140
+						//line views/templates/tables/table_view.qtpl:142
 						qw422016.N().S(`
                             `)
-						//line views/templates/tables/table_view.qtpl:141
+						//line views/templates/tables/table_view.qtpl:143
 					}
-					//line views/templates/tables/table_view.qtpl:141
+					//line views/templates/tables/table_view.qtpl:143
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:142
+					//line views/templates/tables/table_view.qtpl:144
 				}
-				//line views/templates/tables/table_view.qtpl:142
+				//line views/templates/tables/table_view.qtpl:144
 				qw422016.N().S(`
                     </td>
                 `)
-				//line views/templates/tables/table_view.qtpl:144
+				//line views/templates/tables/table_view.qtpl:146
 			}
-			//line views/templates/tables/table_view.qtpl:144
+			//line views/templates/tables/table_view.qtpl:146
 			qw422016.N().S(`
             `)
-			//line views/templates/tables/table_view.qtpl:145
+			//line views/templates/tables/table_view.qtpl:147
 		}
-		//line views/templates/tables/table_view.qtpl:145
+		//line views/templates/tables/table_view.qtpl:147
 		qw422016.N().S(`
         </tr>
         `)
-		//line views/templates/tables/table_view.qtpl:147
+		//line views/templates/tables/table_view.qtpl:149
 	}
-	//line views/templates/tables/table_view.qtpl:147
+	//line views/templates/tables/table_view.qtpl:149
 	qw422016.N().S(`
     </tbody>
 
 </table>
 
 `)
-//line views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:154
 }
 
-//line views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:154
 func (query *QueryStruct) writerenderBodyTables(qq422016 qtio422016.Writer) {
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	query.streamrenderBodyTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:154
 }
 
-//line views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:154
 func (query *QueryStruct) renderBodyTables() string {
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	query.writerenderBodyTables(qb422016)
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	qs422016 := string(qb422016.B)
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/tables/table_view.qtpl:152
+	//line views/templates/tables/table_view.qtpl:154
 	return qs422016
-//line views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:154
 }
