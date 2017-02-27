@@ -143,6 +143,7 @@ function saveForm(thisForm, successFunction, errorFunction)
                     a.splice(i,1);
                 }
             }
+
             // добавляем чекбокс-поля, которые были отменены в форме
             $("input[type=checkbox][checked]:not(:checked)").each(
                 function() {
