@@ -138,8 +138,10 @@ function saveForm(thisForm, successFunction, errorFunction)
             o.dataType = "json";
             // TODO: удаляем пустые поля - переделать потом !
             // a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
+            var isNewRecord = $('input[name=id]').length == 0;
+
             for( var i = a.length -1; i >= 0; --i){
-                if (a[i].value === '' && a[i].type === 'select-one' || a[i].value === '' && a[i].name === 'id'){
+                if ( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one') ) {
                     a.splice(i,1);
                 }
             }
