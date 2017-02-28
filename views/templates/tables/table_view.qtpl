@@ -140,7 +140,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 <image src="/images/expand_hover.png" />
                             {% default %}
                                 {% if fieldStruct.LinkTD > "" %}
-                                 <a href="{%s= fieldStruct.LinkTD %}?id={%d fields.ID %}" > !! </a>
+                                 <a href="{%s= fieldStruct.LinkTD %}?id={%d fields.ID %}" target="_blank"> !! </a>
                                  {% endif %}
                                 {%s val %}
                             {% endswitch %}
