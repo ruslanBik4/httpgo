@@ -296,7 +296,7 @@
     </label>
 {% endfunc %}
 {% func renderRadioBox(key, val, title string, idx int, checked, required, events, dataJson string) %}
-    <label class="checkbox" for="{%s key %}{%d idx %}">
+    <label for="{%s key %}{%d idx %}">
         <input type="radio" id="{%s key %}{%d idx %}" name="{%s key %}" value="{%s val %}" {%s= checked %}
                 {%s= required %} {%s= events %} {%s= dataJson %}
         />
