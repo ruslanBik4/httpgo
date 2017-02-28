@@ -473,7 +473,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 							//line views/templates/tables/table_view.qtpl:143
 							qw422016.N().D(fields.ID)
 							//line views/templates/tables/table_view.qtpl:143
-							qw422016.N().S(`" target="_blank"> !! </a>
+							qw422016.N().S(`" target="_blank" class="referal"> !! </a>
                                  `)
 							//line views/templates/tables/table_view.qtpl:144
 						}
