@@ -43,11 +43,11 @@ function moveLabel(){
     });
 }
 function changeBg(){
-    var checkFrom = $('#fbusiness').length > 0;
-    if(checkFrom){
-        $('.content-wrap').css('background-image','url(/images/bg1.png)')
-    } else {
+    var checkFrom = $('#fbusiness');
+    if(checkFrom.length > 0){
         $('.content-wrap').css('background-image','url(/images/bg2.png)')
+    } else {
+        $('.content-wrap').css('background-image','url(/images/bg1.png)')
     }
 }
 // перед загрузкой новой страницы, чистим хвосты
