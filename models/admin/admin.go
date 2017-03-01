@@ -217,8 +217,9 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(tableName)
 
-	fmt.Fprint(w, tableOpt.TABLE_COMMENT )
 	fields := getFields(tableName)
+
+	fmt.Fprint(w, fields.Comment )
 
 	order := r.FormValue("order")
 	if order > "" {
