@@ -456,6 +456,10 @@ func (menu *MenuItems) GetMenu(id string) int {
 	rows, err := DoSelect("select * from menu_items where parent_id=?", menu.Init(id))
 
 	if err != nil {
+		log.Println(err)
+		return 0
+	}
+	if rows == nil {
 		log.Println("nil row")
 		return 0
 	}
@@ -486,9 +490,13 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	rows, err := DoSelect(sqlQuery, id)
 	if err != nil {
-		log.Println("Not find menu wich id = ", id)
 		log.Println(err)
 		return -1
+	}
+	if rows == nil {
+		log.Println("Not find menu wich id = ", id)
+		return -1
+
 	}
 
 	defer rows.Close()
