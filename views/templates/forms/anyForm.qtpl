@@ -243,8 +243,6 @@
 {% endif %}
 <script>
  $(function(){
-    $(".business-form-select").styler();
-
     {% if setDatePicker > "" %}
             {%s= setDatePicker %}
     {% endif %}
