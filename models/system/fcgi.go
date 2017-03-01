@@ -50,6 +50,7 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error){
 func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := c.Do(r)
 	if WriteError(w, err) {
+		log.Println(r.RequestURI)
 		return
 	}
 	status, isStatus := resp.Header["Status"]
@@ -64,7 +65,9 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for key, val := range resp.Header {
 		headers[key] = val
 	}
-	_, _ = io.Copy(w, resp.Body)
+	if _, err := io.Copy(w, resp.Body); WriteError(w, err) {
+		log.Println(r.RequestURI)
+	}
 }
 
 func NewFPM(sock string) *FCGI {
