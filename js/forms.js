@@ -49,7 +49,12 @@ function validatePattern(thisElem) {
     try {
 
         re = new RegExp(re);
-        result = re.test(thisElem.value)
+        result = re.test(thisElem.value);
+        if(result){
+            $(thisElem).css('border-color','green');
+        } else {
+            $(thisElem).css('border-color','red');
+        }
 
     } catch (e) {
         console.log(e)
@@ -119,6 +124,7 @@ function validatePatternsField(thisForm) {
     return result;
 }
 function validateFields(thisForm) {
+    //TODO : что бы подсвечивало все невалидные поля
 
     return (validateReguiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
 }
@@ -136,8 +142,8 @@ function saveForm(thisForm, successFunction, errorFunction)
     $(thisForm).ajaxSubmit({
         beforeSubmit: function(a,f,o) {
             o.dataType = "json";
-            // TODO: удаляем пустые поля - переделать потом !
-            // a.forEach(function(thisElem, idx) { if (thisElem.value == ""){ delete a[idx] } } );
+
+            //удаляем пустые поля
             var isNewRecord = $('input[name=id]').length == 0;
 
             for( var i = a.length -1; i >= 0; --i){
