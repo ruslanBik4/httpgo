@@ -96,19 +96,16 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 }
 
 func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields forms.FieldsTable,
-			Inputs map[string] []string ) error  {
+			Inputs map[string] []string, head, foot string ) error  {
 
 	WriteHeaders(w)
-	fmt.Fprint(w, layouts.PutHead() )
-	if Inputs != nil {
-		fmt.Fprint(w, layouts.DadataHead())
-	}
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", Title))
-	if Inputs != nil {
-		fmt.Fprint(w, layouts.DadataScript(Inputs))
-	}
 
-	fmt.Fprint(w, layouts.PutEnd() )
+	if Inputs != nil {
+		head += layouts.DadataHead()
+		foot += layouts.DadataScript(Inputs)
+	}
+	RenderAnyPage(w, r, head + layouts.PutHeadForm() + fields.ShowAnyForm("/admin/exec/", Title) + layouts.PutEndForm() + foot )
+
 	return nil
 
 }

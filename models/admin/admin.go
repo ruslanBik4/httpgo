@@ -386,7 +386,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil)
+		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil, "", "")
 	}
 
 }
