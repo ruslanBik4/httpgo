@@ -43,12 +43,12 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 
 		fmt.Fprint(w, headPage.HeadHTML())
 
-		p.TopMenu = make( map[string] *pages.ItemMenu, 0)
+		p.TopMenu = make( map[string] string, 0)
 
 		menu.GetMenu("indexTop")
 
 		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = &pages.ItemMenu{ Link: "/menu/" + item.Name + "/"}
+			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
 
 		}
 		if p.Content == "" {

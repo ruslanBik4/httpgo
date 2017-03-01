@@ -13,16 +13,21 @@ import (
 
 // All the text outside function templates is treated as comments,
 // i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
-//
+
+//line views/templates/pages/index.qtpl:3
+import (
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+)
+
 // це главная страница.
 
-//line views/templates/pages/index.qtpl:5
+//line views/templates/pages/index.qtpl:8
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/pages/index.qtpl:6
+//line views/templates/pages/index.qtpl:9
 type ItemMenu struct {
 	Link string
 }
@@ -31,163 +36,92 @@ type IndexPageBody struct {
 	Pass    []byte
 	Content string
 	Catalog []string
-	TopMenu map[string]*ItemMenu
+	TopMenu map[string]string
 	Title   string
 	Route   string
 }
 
-//line views/templates/pages/index.qtpl:19
+//line views/templates/pages/index.qtpl:22
 func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
-	//line views/templates/pages/index.qtpl:19
+	//line views/templates/pages/index.qtpl:22
 	qw422016.N().S(`
 <body>
 <div class="content-wrap">
-<div class="topline">
-			<div id="partner-topline" class="topline-inner-wrap">
-				<div class="logo">
-					<a href="#"><img src="/images/logo-final-02.png" alt="logo"></a>
-				</div>
-				<nav class="topline-navbar">
-					<ul class="top-mnu-list">
-						`)
-	//line views/templates/pages/index.qtpl:29
-	for name, item := range body.TopMenu {
-		//line views/templates/pages/index.qtpl:29
-		qw422016.N().S(`
-                            <li class="top-mnu-item">
-                                <a href="`)
-		//line views/templates/pages/index.qtpl:31
-		qw422016.E().S(item.Link)
-		//line views/templates/pages/index.qtpl:31
-		qw422016.N().S(`">`)
-		//line views/templates/pages/index.qtpl:31
-		qw422016.E().S(name)
-		//line views/templates/pages/index.qtpl:31
-		qw422016.N().S(`</a>
-                            </li>
-                        `)
-		//line views/templates/pages/index.qtpl:33
-	}
-	//line views/templates/pages/index.qtpl:33
+    `)
+	//line views/templates/pages/index.qtpl:25
+	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
+	//line views/templates/pages/index.qtpl:25
 	qw422016.N().S(`
-					</ul>
-				</nav>
-				<div class="topline-btns">
-					<a href="user/signout" id="bLogOut" onclick="return logOut(this);"><img src="/images/open-exit-door.png" alt=""></a>
-					<a href="#" id="burger" class="brg-mnu"></a>
-					<a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться</a>
-				</div>
-			</div>
-		</div>
 <div id="container-fluid">
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
-	//line views/templates/pages/index.qtpl:47
+	//line views/templates/pages/index.qtpl:30
 	for _, value := range body.Catalog {
-		//line views/templates/pages/index.qtpl:47
+		//line views/templates/pages/index.qtpl:30
 		qw422016.N().S(`
                     `)
-		//line views/templates/pages/index.qtpl:48
+		//line views/templates/pages/index.qtpl:31
 		qw422016.E().S(value)
-		//line views/templates/pages/index.qtpl:48
+		//line views/templates/pages/index.qtpl:31
 		qw422016.N().S(`
                 `)
-		//line views/templates/pages/index.qtpl:49
+		//line views/templates/pages/index.qtpl:32
 	}
-	//line views/templates/pages/index.qtpl:49
+	//line views/templates/pages/index.qtpl:32
 	qw422016.N().S(`
 
             </div>
         </div>
         <div class="content-section">
             <div id="content" rel="`)
-	//line views/templates/pages/index.qtpl:54
+	//line views/templates/pages/index.qtpl:37
 	qw422016.E().S(body.Route)
-	//line views/templates/pages/index.qtpl:54
+	//line views/templates/pages/index.qtpl:37
 	qw422016.N().S(`">`)
-	//line views/templates/pages/index.qtpl:54
+	//line views/templates/pages/index.qtpl:37
 	qw422016.N().S(body.Content)
-	//line views/templates/pages/index.qtpl:54
+	//line views/templates/pages/index.qtpl:37
 	qw422016.N().S(`</div>
         </div>
     </div>
 </div>
 </div>
-<footer>
-		<div class="footer-inner-wrap">
-            <div class="footer-block">
-                <h5>Защищенные системы</h5>
-                <img src="/images/bitmap.png" alt="" class="footer-img">
-                <img src="/images/bitmap1.png" alt="" class="footer-img">
-            </div>
-            <div class="footer-block">
-            	<div class="footer-phones">
-            		<div class="first-phone clearfix">
-            			<span class="phone-numbers">8-800-700-82-82 &ensp;- &ensp;бесплатно по РФ</span>
-            		</div>
-            		<div class="second-phone clearfix">
-            			<span class="phone-numbers2">+7-978-978-82-82</span>
-            			<span class="phone-descr">&ensp;&ensp; - &ensp;согласно тарифам</span>
-            			<div class="perenos">Вашего оператора</div>
-            		</div>
-            		<div class="mail">
-            			<a href="mailto:ingo@82RU.ru" class="footer-mail">ingo@82RU.ru</a>
-            		</div>
-            	</div>
-            	<div class="footer-social">
-            		<img src="/images/instagram.svg" alt="" class="social">
-            		<img src="/images/facebook.svg" alt="" class="social">
-            		<img src="/images/vk.svg" alt="" class="social">
-            	</div>
-            </div>
-            <div class="footer-block">
-            	<div class="footer-mnu">
-            		<ul class="main-list">
-            			<li><a href="#">Главная</a></li>
-            			<li><a href="#">Отели</a></li>
-            			<li><a href="#">Транспорт</a></li>
-            			<li><a href="#">Отдых</a></li>
-            			<li><a href="#">Путеводитель</a></li>
-            			<li><a href="#">Блог</a></li>
-            			<li><a href="#">Партнерам</a></li>
-            		</ul>
-            		<ul class="second-list">
-            				<li><a href="#">F.A.Q.</a></li>
-            				<li><a href="#">О нас</a></li>
-            			</ul>
-            	</div>
-            </div>
-       </div>
-	</footer>
+
+    `)
+	//line views/templates/pages/index.qtpl:43
+	layouts.StreamFooterHTML(qw422016)
+	//line views/templates/pages/index.qtpl:43
+	qw422016.N().S(`
+
 </body>
 `)
-//line views/templates/pages/index.qtpl:106
+//line views/templates/pages/index.qtpl:46
 }
 
-//line views/templates/pages/index.qtpl:106
+//line views/templates/pages/index.qtpl:46
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	body.StreamIndexHTML(qw422016)
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/index.qtpl:106
+//line views/templates/pages/index.qtpl:46
 }
 
-//line views/templates/pages/index.qtpl:106
+//line views/templates/pages/index.qtpl:46
 func (body *IndexPageBody) IndexHTML() string {
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	body.WriteIndexHTML(qb422016)
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/index.qtpl:106
+	//line views/templates/pages/index.qtpl:46
 	return qs422016
-//line views/templates/pages/index.qtpl:106
+//line views/templates/pages/index.qtpl:46
 }

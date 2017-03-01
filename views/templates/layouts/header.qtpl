@@ -1,4 +1,4 @@
-{% func headerHTML() %}
+{% func HeaderHTML(TopMenu map[string] string) %}
 <header class="main-header">
 <div class="topline">
 			<div id="partner-topline" class="topline-inner-wrap">
@@ -7,9 +7,9 @@
 				</div>
 				<nav class="topline-navbar">
 					<ul class="top-mnu-list">
-						{% for name, item := range body.TopMenu %}
+						{% for name, link := range TopMenu %}
                             <li class="top-mnu-item">
-                                <a href="{%s item.Link %}">{%s name %}</a>
+                                <a href="{%s link %}">{%s name %}</a>
                             </li>
                         {% endfor %}
 					</ul>

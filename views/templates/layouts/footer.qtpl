@@ -1,4 +1,4 @@
-{% func footerHTML() %}
+{% func FooterHTML() %}
 <footer class="main-footer">
 		<div class="footer-inner-wrap">
             <div class="footer-block">
