@@ -69,11 +69,11 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		p.TopMenu = make( map[string] *pages.ItemMenu, 0)
+		p.TopMenu = make( map[string] string, 0)
 		menu.GetMenu("indexTop")
 
 		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = &pages.ItemMenu{ Link: "/menu/" + item.Name + "/"}
+			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
 
 		}
 		fmt.Fprint(w, headPage.HeadHTML())

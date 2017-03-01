@@ -12,7 +12,7 @@ type AdminPageBody struct {
     Pass []byte
     Content string
     Catalog map[string] *ItemMenu
-    TopMenu map[string] *ItemMenu
+    TopMenu map[string] string
     Title string
 }
 %}
