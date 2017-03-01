@@ -451,12 +451,13 @@ type MenuItems struct {
 func (menu *MenuItems) GetMenu(id string) int {
 
 
-	rows := DoQuery("select * from menu_items where parent_id=?", menu.Init(id))
+	rows, err := DoSelect("select * from menu_items where parent_id=?", menu.Init(id))
 
-	if rows == nil {
+	if err != nil {
 		log.Println("nil row")
 		return 0
 	}
+
 	defer rows.Close()
 	for rows.Next() {
 
@@ -473,17 +474,18 @@ func (menu *MenuItems) GetMenu(id string) int {
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 
-	var sqlQuery string
+	sqlQuery := "select * from menu_items where "
 
 	if _, err := strconv.Atoi(id); err == nil {
-		sqlQuery = "select * from menu_items where id=?"
+		sqlQuery += "id=?"
 	} else {
-		sqlQuery = "select * from menu_items where name=?"
+		sqlQuery += "name=?"
 	}
 
-	rows := DoQuery(sqlQuery, id)
-	if rows == nil {
+	rows, err := DoSelect(sqlQuery, id)
+	if err != nil {
 		log.Println("Not find menu wich id = ", id)
+		log.Println(err)
 		return -1
 	}
 
