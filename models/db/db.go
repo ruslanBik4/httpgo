@@ -459,10 +459,6 @@ func (menu *MenuItems) GetMenu(id string) int {
 		log.Println(err)
 		return 0
 	}
-	if rows == nil {
-		log.Println("nil row")
-		return 0
-	}
 
 	defer rows.Close()
 	for rows.Next() {
@@ -493,21 +489,21 @@ func (menu *MenuItems) Init(id string) int32 {
 		log.Println(err)
 		return -1
 	}
-	if rows == nil {
+
+	defer rows.Close()
+	// если нет записей
+	if !rows.Next() {
 		log.Println("Not find menu wich id = ", id)
 		return -1
 
 	}
 
-	defer rows.Close()
-	for rows.Next() {
-
-		if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
-			&menu.Self.SQL, &menu.Self.Link); err != nil {
-			log.Println(err)
-			continue
-		}
+	if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
+		&menu.Self.SQL, &menu.Self.Link); err != nil {
+		log.Println(err)
+		return -1
 	}
+
 	menu.Items = make( [] *menuItem, 0)
 
 	return menu.Self.Id
