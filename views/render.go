@@ -24,6 +24,17 @@ func WriteHeaders(w http.ResponseWriter) {
 		w.Header().Set(key, value)
 	}
 }
+func IsAJAXRequest(r *http.Request) bool {
+	return len(r.Header["X-Requested-With"]) > 0
+}
+func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
+	if IsAJAXRequest(r) {
+		fmt.Fprint(w, strContent)
+	} else {
+		p := &pages.IndexPageBody{ Content: strContent }
+		RenderTemplate(w, r, "index", p)
+	}
+}
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 	var menu db.MenuItems
 
@@ -39,9 +50,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "index":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
 
-		headPage.Title = "введите Ваше имя отчество фамилию"
-
-		fmt.Fprint(w, headPage.HeadHTML())
 
 		p.TopMenu = make( map[string] string, 0)
 
@@ -53,14 +61,17 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		}
 		if p.Content == "" {
 
-			p.Title   = "Авторизация"
+			//p.Title   = "Авторизация"
 			if userID, ok := users.IsLogin(r); ok {
 				p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
 			} else {
 				p.Content = forms.SigninForm("", "Введите пароль") + forms.ShowForm("введите фамилию имя отчество")
 			}
+			headPage.Title = "введите Ваше имя отчество фамилию"
 			p.Route = "/"
 		}
+
+		fmt.Fprint(w, headPage.HeadHTML())
 		fmt.Fprint(w, p.IndexHTML())
 	case "signinForm":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
@@ -85,19 +96,16 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 }
 
 func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields forms.FieldsTable,
-			Inputs map[string] []string ) error  {
+			Inputs map[string] []string, head, foot string ) error  {
 
 	WriteHeaders(w)
-	fmt.Fprint(w, layouts.PutHead() )
-	if Inputs != nil {
-		fmt.Fprint(w, layouts.DadataHead())
-	}
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", Title))
-	if Inputs != nil {
-		fmt.Fprint(w, layouts.DadataScript(Inputs))
-	}
 
-	fmt.Fprint(w, layouts.PutEnd() )
+	if Inputs != nil {
+		head += layouts.DadataHead()
+		foot += layouts.DadataScript(Inputs)
+	}
+	RenderAnyPage(w, r, head + layouts.PutHeadForm() + fields.ShowAnyForm("/admin/exec/", Title) + layouts.PutEndForm() + foot )
+
 	return nil
 
 }

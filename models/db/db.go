@@ -447,16 +447,19 @@ type MenuItems struct {
 	Self menuItem
 	Items [] *menuItem
 }
+var 	IDvalidator = regexp.MustCompile(`^\d+$`)
+
 // find submenu (init menu first) return count submenu items
 func (menu *MenuItems) GetMenu(id string) int {
 
 
-	rows := DoQuery("select * from menu_items where parent_id=?", menu.Init(id))
+	rows, err := DoSelect("select * from menu_items where parent_id=?", menu.Init(id))
 
-	if rows == nil {
-		log.Println("nil row")
+	if err != nil {
+		log.Println(err)
 		return 0
 	}
+
 	defer rows.Close()
 	for rows.Next() {
 
@@ -473,29 +476,34 @@ func (menu *MenuItems) GetMenu(id string) int {
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 
-	var sqlQuery string
+	sqlQuery := "select * from menu_items where "
 
-	if _, err := strconv.Atoi(id); err == nil {
-		sqlQuery = "select * from menu_items where id=?"
+	if IDvalidator.MatchString(id) {
+		sqlQuery += "id=?"
 	} else {
-		sqlQuery = "select * from menu_items where name=?"
+		sqlQuery += "name=?"
 	}
 
-	rows := DoQuery(sqlQuery, id)
-	if rows == nil {
-		log.Println("Not find menu wich id = ", id)
+	rows, err := DoSelect(sqlQuery, id)
+	if err != nil {
+		log.Println(err)
 		return -1
 	}
 
 	defer rows.Close()
-	for rows.Next() {
+	// если нет записей
+	if !rows.Next() {
+		log.Println("Not find menu wich id = ", id)
+		return -1
 
-		if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
-			&menu.Self.SQL, &menu.Self.Link); err != nil {
-			log.Println(err)
-			continue
-		}
 	}
+
+	if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
+		&menu.Self.SQL, &menu.Self.Link); err != nil {
+		log.Println(err)
+		return -1
+	}
+
 	menu.Items = make( [] *menuItem, 0)
 
 	return menu.Self.Id

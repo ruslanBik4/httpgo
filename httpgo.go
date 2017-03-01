@@ -239,17 +239,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	if menu.Self.Link > ""  {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
-	if isAJAXRequest(r) {
-		fmt.Fprintf(w, "%s %s", catalog, content)
-	} else {
-		pIndex := &pages.IndexPageBody{
-			Title: menu.Self.Title,
-			Content: content,
-			Route: "/menu/" + idMenu + "/",
-			Catalog : []string {catalog} }
-		views.RenderTemplate(w, r, "index", pIndex)
-	}
-
+	views.RenderAnyPage(w, r, catalog + content)
 }
 func Catch(w http.ResponseWriter) {
 	err := recover()

@@ -23,7 +23,7 @@ var (
 )
 
 //line views/templates/layouts/formLayouts.qtpl:5
-func StreamPutHead(qw422016 *qt422016.Writer) {
+func StreamPutHeadForm(qw422016 *qt422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:5
 	qw422016.N().S(`
     <link rel="stylesheet" href="/fields.css" type="text/css"  media="screen">
@@ -32,22 +32,22 @@ func StreamPutHead(qw422016 *qt422016.Writer) {
 }
 
 //line views/templates/layouts/formLayouts.qtpl:7
-func WritePutHead(qq422016 qtio422016.Writer) {
+func WritePutHeadForm(qq422016 qtio422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:7
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/layouts/formLayouts.qtpl:7
-	StreamPutHead(qw422016)
+	StreamPutHeadForm(qw422016)
 	//line views/templates/layouts/formLayouts.qtpl:7
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/layouts/formLayouts.qtpl:7
 }
 
 //line views/templates/layouts/formLayouts.qtpl:7
-func PutHead() string {
+func PutHeadForm() string {
 	//line views/templates/layouts/formLayouts.qtpl:7
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/layouts/formLayouts.qtpl:7
-	WritePutHead(qb422016)
+	WritePutHeadForm(qb422016)
 	//line views/templates/layouts/formLayouts.qtpl:7
 	qs422016 := string(qb422016.B)
 	//line views/templates/layouts/formLayouts.qtpl:7
@@ -58,7 +58,7 @@ func PutHead() string {
 }
 
 //line views/templates/layouts/formLayouts.qtpl:9
-func StreamPutEnd(qw422016 *qt422016.Writer) {
+func StreamPutEndForm(qw422016 *qt422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:9
 	qw422016.N().S(`
 `)
@@ -66,22 +66,22 @@ func StreamPutEnd(qw422016 *qt422016.Writer) {
 }
 
 //line views/templates/layouts/formLayouts.qtpl:10
-func WritePutEnd(qq422016 qtio422016.Writer) {
+func WritePutEndForm(qq422016 qtio422016.Writer) {
 	//line views/templates/layouts/formLayouts.qtpl:10
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/layouts/formLayouts.qtpl:10
-	StreamPutEnd(qw422016)
+	StreamPutEndForm(qw422016)
 	//line views/templates/layouts/formLayouts.qtpl:10
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/layouts/formLayouts.qtpl:10
 }
 
 //line views/templates/layouts/formLayouts.qtpl:10
-func PutEnd() string {
+func PutEndForm() string {
 	//line views/templates/layouts/formLayouts.qtpl:10
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/layouts/formLayouts.qtpl:10
-	WritePutEnd(qb422016)
+	WritePutEndForm(qb422016)
 	//line views/templates/layouts/formLayouts.qtpl:10
 	qs422016 := string(qb422016.B)
 	//line views/templates/layouts/formLayouts.qtpl:10

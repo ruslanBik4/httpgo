@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
@@ -39,7 +39,7 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
-	if isAJAXRequest(r) {
+	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner() )
 	} else {
 		HandlerAdmin(w, r)
@@ -136,9 +136,6 @@ func basicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
 
 	return pair[0] == string(user) && pair[1] == string(pass)
 }
-func isAJAXRequest(r *http.Request) bool {
-	return len(r.Header["X-Requested-With"]) > 0
-}
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
@@ -150,7 +147,7 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
-	if isAJAXRequest(r) {
+	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner() )
 	} else {
 		HandlerAdmin(w, r)
@@ -217,8 +214,9 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(tableName)
 
-	fmt.Fprint(w, tableOpt.TABLE_COMMENT )
-	fields := getFields(tableName)
+	fields := GetFields(tableName)
+
+	fmt.Fprint(w, fields.Comment )
 
 	order := r.FormValue("order")
 	if order > "" {
@@ -246,7 +244,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	id        := r.FormValue("id")
 	if tableName > "" {
 
-		fields = getFields(tableName)
+		fields = GetFields(tableName)
 		//fmt.Fprint(w, fields.ShowAnyForm("/admin/row/update/", "Меняем запись №" + id + " в таблице " + tableName) )
 	} else {
 		r.ParseForm()
@@ -295,16 +293,16 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №" + id + " в таблице " + tableName) )
 
 }
-func getFields(tableName string) (fields forms.FieldsTable){
+func GetFields(tableName string) (fields forms.FieldsTable){
 
 	var ns db.FieldsTable
 	ns.Options.GetTableProp(tableName)
-	ns.Rows = make([] db.FieldStructure, 0)
+	//ns.Rows = make([] db.FieldStructure, 0)
 	ns.GetColumnsProp(tableName)
 
-	fields.Rows = make([] forms.FieldStructure, 0)
+	//fields.Rows = make([] forms.FieldStructure, 0)
 	fields.Name = tableName
-	fields.Comment = ns.Options.TABLE_COMMENT
+	//fields.Comment = ns.Options.TABLE_COMMENT
 
 	fields.PutDataFrom(ns)
 
@@ -317,13 +315,13 @@ func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.URL.Path[ len("/admin/row/new/") : len(r.URL.Path)-1]
 
-	fields := getFields(tableName)
+	fields := GetFields(tableName)
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу " + tableName) )
 }
 func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 
-	fields = getFields(tableName)
+	fields = GetFields(tableName)
 	rows, err := db.DoSelect("select * from "+tableName+" where id=?", id)
 	if (err != nil) {
 		log.Println(err)
@@ -388,7 +386,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil)
+		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil, "", "")
 	}
 
 }
