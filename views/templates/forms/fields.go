@@ -39,6 +39,7 @@ type FieldStructure struct {
 	Pattern		string
 	Html		string
 	ForeignFields	string
+	LinkTD		string
 	DataJSOM        map[string] interface{}
 }
 type FieldsTable struct {
@@ -399,7 +400,8 @@ func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson str
 
 
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	isRenderSelect := len(fields) > 2
+	// TODO: придумать параметр, который будет определять элемент тега ывне зависемости от количества
+	isRenderSelect := (len(fields) > 2) || (field.InputType == "select")
 
 	// если не имеет значение, покажем placeholder как первый option в списке
 	if isRenderSelect && (val == "") {
@@ -543,6 +545,8 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 					fieldStrc.InputType = val.(string)
 				case "isHidden":
 					fieldStrc.IsHidden = val.(bool)
+				case "linkTD":
+					fieldStrc.LinkTD   = val.(string)
 				case "where":
 					fieldStrc.parseWhere(field, val)
 				case "events":

@@ -137,8 +137,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                     {%s= val %}
                                 </textarea>
                             {% case "blob" %}
-                                <image src="/expand_hover.png" />
+                                <image src="/images/expand_hover.png" />
                             {% default %}
+                                {% if fieldStruct.LinkTD > "" %}
+                                 <a href="{%s= fieldStruct.LinkTD %}?id={%d fields.ID %}" target="_blank" class="referal"> !! </a>
+                                 {% endif %}
                                 {%s val %}
                             {% endswitch %}
                         {% endif %}

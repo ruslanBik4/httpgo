@@ -232,7 +232,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer rows.Close()
-	fmt.Fprint(w, "<script src='/%s'></script>", tableName )
+	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
 	fmt.Fprint(w, tables.ShowTable(tableName, fields, rows) )
 
 
@@ -387,7 +387,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Error during reading record with id=%s", id)
 
 	} else {
-		fmt.Fprint(w, "<script src='/%s'></script>", tableName )
+		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
 		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil)
 	}
 
