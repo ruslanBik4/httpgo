@@ -238,7 +238,7 @@
     {% endif %}
     <div class="form-actions">
         <button class="main-btn" type="submit">Сохранить</button>
-        {%s addingButtons %}
+        {%s= addingButtons %}
     </div>
 </form>
 {% if setDatePicker > "" %}

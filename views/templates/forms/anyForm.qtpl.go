@@ -961,7 +961,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
         <button class="main-btn" type="submit">Сохранить</button>
         `)
 	//line views/templates/forms/anyForm.qtpl:241
-	qw422016.E().S(addingButtons)
+	qw422016.N().S(addingButtons)
 	//line views/templates/forms/anyForm.qtpl:241
 	qw422016.N().S(`
     </div>
