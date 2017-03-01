@@ -447,6 +447,8 @@ type MenuItems struct {
 	Self menuItem
 	Items [] *menuItem
 }
+var 	IDvalidator = regexp.MustCompile(`^\d+$`)
+
 // find submenu (init menu first) return count submenu items
 func (menu *MenuItems) GetMenu(id string) int {
 
@@ -476,7 +478,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	sqlQuery := "select * from menu_items where "
 
-	if _, err := strconv.Atoi(id); err == nil {
+	if IDvalidator.MatchString(id) {
 		sqlQuery += "id=?"
 	} else {
 		sqlQuery += "name=?"
