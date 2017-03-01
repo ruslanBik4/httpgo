@@ -679,7 +679,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			qw422016.N().S(`
             `)
 			//line views/templates/forms/anyForm.qtpl:179
-			addingButtons += `<button class="main-btn" type="button" onclick="alert('Щас все поудаляю!');">Сохранить</button>`
+			addingButtons += `<button class="main-btn" type="button" onclick="alert('Щас все поудаляю!');">Удалить</button>`
 
 			//line views/templates/forms/anyForm.qtpl:180
 			qw422016.N().S(`

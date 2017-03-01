@@ -176,7 +176,7 @@
             {% continue %}
         {% elseif key=="isDel"%}
             {% code
-                addingButtons += `<button class="main-btn" type="button" onclick="alert('Щас все поудаляю!');">Сохранить</button>`
+                addingButtons += `<button class="main-btn" type="button" onclick="alert('Щас все поудаляю!');">Удалить</button>`
             %}
             {% continue %}
         {%  endif %}
