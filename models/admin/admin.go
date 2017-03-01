@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
@@ -39,7 +39,7 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
-	if isAJAXRequest(r) {
+	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner() )
 	} else {
 		HandlerAdmin(w, r)
@@ -136,9 +136,6 @@ func basicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
 
 	return pair[0] == string(user) && pair[1] == string(pass)
 }
-func isAJAXRequest(r *http.Request) bool {
-	return len(r.Header["X-Requested-With"]) > 0
-}
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
@@ -150,7 +147,7 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
-	if isAJAXRequest(r) {
+	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner() )
 	} else {
 		HandlerAdmin(w, r)
