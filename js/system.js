@@ -21,6 +21,7 @@ $(function() {
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
 
+
     $(".business-form-select").styler();
     changeBg();
     moveLabel();
@@ -51,7 +52,10 @@ function SitePostShow() {
     });
 
     //TODO: сделать подключение остальных полей (без maxDate) и, других своств - minDate, например
-
+    if($('#approximation').length > 0){
+        //TODO: научить проверять этот метод,  на загруженнсть джс
+        enableApproximationHandler();
+    }
 }
 function moveLabel(){
     $(".custom-input-label").click(function(){
