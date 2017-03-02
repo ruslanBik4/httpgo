@@ -1021,7 +1021,7 @@ func (fieldStrc *FieldStructure) streamrenderDateAttributtes(qw422016 *qt422016.
 			qw422016.N().S(`
             maxDate="`)
 			//line views/templates/forms/anyForm.qtpl:247
-			qw422016.N().S(time.Now().Local().Format("2017.01.01"))
+			qw422016.N().S(time.Now().Local().Format("2006.01.02"))
 			//line views/templates/forms/anyForm.qtpl:247
 			qw422016.N().S(`"
         `)
