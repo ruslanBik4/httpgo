@@ -244,7 +244,7 @@
     {% if maxDate, ok := fieldStrc.DataJSOM["maxDate"]; ok %}
         {% switch maxDate.(string) %}
         {% case "today" %}
-            maxDate="{%s= time.Now().Local().Format("2017.01.01") %}"
+            maxDate="{%s= time.Now().Format("2006.01.02") %}"
         {% default %}
             maxDate="{%s= maxDate.(string) %}"
         {% endswitch %}
