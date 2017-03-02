@@ -111,7 +111,7 @@
       onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate>
 
       {% code
-        setDatePicker, addingButtons := "", ""
+        addingButtons := ""
       %}
     {% if ns.Name > "" %}
         <input type="hidden" name="table" value="{%s ns.Name %}" >
@@ -122,13 +122,6 @@
             key := field.COLUMN_NAME
 
             if field.DATA_TYPE=="date" {
-                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d'});
-                `
-            } else if field.DATA_TYPE=="datetime" {
-                setDatePicker += "$('#" + key + `').datetimepicker({format:'Y-m-d H:i'});
-                `
-            }
-
             titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
             val := field.Value
             tablePrefix := ""
@@ -241,17 +234,9 @@
         {%s= addingButtons %}
     </div>
 </form>
-{% if setDatePicker > "" %}
-    <head>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
-    </head>
-{% endif %}
 <script>
  $(function(){
 
-    {% if setDatePicker > "" %}
-            {%s= setDatePicker %}
-    {% endif %}
     {% if onload, ok := ns.DataJSOM["onload"]; ok %}
              {%s= onload.(string) %}
     {% endif %}

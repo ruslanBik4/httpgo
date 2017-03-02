@@ -5,10 +5,8 @@
 var imgItem, divContent, default_page = '/main/', notSaved;
 $(function() {
 
-//     imgItem = document.getElementById('imgItem');
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
-//     imgItem.onmousedown = readyForDragAndDrop;
 
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
@@ -26,6 +24,26 @@ function SitePostShow() {
     $(".business-form-select").styler();
     changeBg();
     moveLabel();
+    $("input[type=date]").each(function() {
+        $(this).datetimepicker({
+        format:'Y-m-d',
+        onShow:function(){
+            this.setOptions({
+                maxDate:"01.02.2017"
+            })
+        }
+        });
+    });
+    $("input[type=datetime]").each(function() {
+        $(this).datetimepicker({
+        format:'Y-m-d',
+        onShow:function(){
+            this.setOptions({
+                maxDate:"01.02.2017"
+            })
+        }
+        });
+    });
 }
 function moveLabel(){
     $(".custom-input-label").click(function(){
