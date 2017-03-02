@@ -24,26 +24,32 @@ function SitePostShow() {
     $(".business-form-select").styler();
     changeBg();
     moveLabel();
-    $("input[type=date]").each(function() {
+    if ($("input[type=date]").length > 0) {
+    //TODO: сделать проверку или установить флаг на то, что модуль уже загружен и не загружать если так
+        $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
+    }
+
+    $("input[type=date][maxDate]").each(function() {
         $(this).datetimepicker({
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate:"01.02.2017"
+                maxDate: this.maxDate
             })
         }
         });
     });
-    $("input[type=datetime]").each(function() {
+    $("input[type=datetime][maxDate]").each(function() {
         $(this).datetimepicker({
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate:"01.02.2017"
+                maxDate: this.maxDate
             })
         }
         });
     });
+
 }
 function moveLabel(){
     $(".custom-input-label").click(function(){

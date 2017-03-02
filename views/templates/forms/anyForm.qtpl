@@ -104,15 +104,12 @@
     if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
-    formName := "f" + ns.Name
+    formName, addingButtons := "f" + ns.Name, ""
 %}
 
 <form id="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
       onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate>
 
-      {% code
-        addingButtons := ""
-      %}
     {% if ns.Name > "" %}
         <input type="hidden" name="table" value="{%s ns.Name %}" >
     {% endif %}
@@ -121,7 +118,6 @@
         {% code
             key := field.COLUMN_NAME
 
-            if field.DATA_TYPE=="date" {
             titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
             val := field.Value
             tablePrefix := ""
