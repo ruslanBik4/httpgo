@@ -34,7 +34,7 @@ function SitePostShow() {
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate: this.maxDate
+                maxDate: $(this).attr('maxDate')
             })
         }
         });
@@ -44,7 +44,7 @@ function SitePostShow() {
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate: this.maxDate
+                maxDate: $(this).attr('maxDate')
             })
         }
         });
