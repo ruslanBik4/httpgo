@@ -34,7 +34,7 @@ function SitePostShow() {
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate: $(this).hasAttribute('maxdate')?$(this).attr('maxdate'):false
+                maxDate: $(this).attr('maxdate')?$(this).attr('maxdate'):false
             })
         }
         });
@@ -44,7 +44,7 @@ function SitePostShow() {
         format:'Y-m-d H:i',
         onShow:function(){
             this.setOptions({
-                maxDate: $(this).hasAttribute('maxdate')?$(this).attr('maxdate'):false
+                maxDate: $(this).attr('maxdate')?$(this).attr('maxdate'):false
             })
         }
         });
