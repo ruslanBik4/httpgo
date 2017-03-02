@@ -1,6 +1,7 @@
 {% import (
     "strings"
     "fmt"
+	"time"
 ) %}
 Показываем связанную таблицу RenderTable
 {% func (field *FieldStructure) RenderTable(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
@@ -239,6 +240,16 @@
 })
 </script>
 {% endfunc %}
+{% func (fieldStrc *FieldStructure) renderDateAttributtes() %}
+    {% if maxDate, ok := fieldStrc.DataJSOM["maxDate"]; ok %}
+        {% switch maxDate.(string) %}
+        {% case "today" %}
+            maxDate="{%s= time.Now().String() %}"
+        {% default %}
+            maxDate="{%s= maxDate.(string) %}"
+        {% endswitch %}
+    {% endif %}
+{% endfunc %}
 {% func (fieldStrc *FieldStructure) RenderInputFromType(nameInput, val, title, placeholder, pattern, required, events, dataJson string) %}
                     <label for="{%s nameInput %}" class="input-label">{%s title %}</label>
                     <div class="form-items-wrap">
@@ -251,8 +262,10 @@
                                {% if strings.Contains(fieldStrc.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                         {% elseif fieldStrc.DATA_TYPE=="date" %}
                             "date"
+                            {%= fieldStrc.renderDateAttributtes() %}
                         {% elseif fieldStrc.DATA_TYPE=="datetime" %}
                             "datetime"
+                            {%= fieldStrc.renderDateAttributtes() %}
                         {% elseif strings.Contains(nameInput, "email") %}
                             "email"
                         {% else %}
@@ -296,4 +309,3 @@
 {% func renderOption(val, title, selected string) %}
     <option value="{%s val %}" {%s= selected %} >{%s title %}</option>
 {% endfunc %}
-
