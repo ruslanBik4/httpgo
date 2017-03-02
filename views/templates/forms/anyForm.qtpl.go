@@ -561,7 +561,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			val = field.COLUMN_DEFAULT
 		}
 		if dataJson > "" {
-			dataJson = fmt.Sprintf(`data-names="{% s}"`, dataJson)
+			dataJson = fmt.Sprintf("data-names='{%s}'", dataJson)
 		}
 		if field.TableName > "" {
 			tablePrefix = field.TableName + ":"
@@ -1021,7 +1021,7 @@ func (fieldStrc *FieldStructure) streamrenderDateAttributtes(qw422016 *qt422016.
 			qw422016.N().S(`
             maxDate="`)
 			//line views/templates/forms/anyForm.qtpl:247
-			qw422016.N().S(time.Now().Local().Format("2006-01-02"))
+			qw422016.N().S(time.Now().Local().Format("2017.01.01"))
 			//line views/templates/forms/anyForm.qtpl:247
 			qw422016.N().S(`"
         `)
