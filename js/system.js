@@ -29,26 +29,28 @@ function SitePostShow() {
         $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
     }
 
-    $("input[type=date][maxDate]").each(function() {
+    $("input[type=date][maxdate]").each(function() {
         $(this).datetimepicker({
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate: $(this).attr('maxDate')
+                maxDate: $(this).attr('maddate')
             })
         }
         });
     });
-    $("input[type=datetime][maxDate]").each(function() {
+    $("input[type=datetime][maxdate]").each(function() {
         $(this).datetimepicker({
         format:'Y-m-d',
         onShow:function(){
             this.setOptions({
-                maxDate: $(this).attr('maxDate')
+                maxDate: $(this).attr('maxdate')
             })
         }
         });
     });
+
+    //TODO: сделать подключение остальных полей (без maxDate) и, других своств - minDate, например
 
 }
 function moveLabel(){
