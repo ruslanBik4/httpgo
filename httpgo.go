@@ -49,6 +49,7 @@ var (
 		"/admin/row/add/": admin.HandlerAddRecord,
 		"/admin/row/update/": admin.HandlerUpdateRecord,
 		"/admin/row/show/": admin.HandlerShowRecord,
+		"/admin/row/del/" : admin.HandlerDeleteRecord,
 		"/admin/exec/": admin.HandlerExec,
 		"/admin/schema/": admin.HandlerSchema,
 		"/admin/umutable/": admin.HandlerUMUTables,
@@ -74,9 +75,7 @@ func registerRoutes() {
 	for path, fnc := range routes {
 		http.HandleFunc(path, fnc)
 	}
-	for path, fnc := range config.CustomRoutes {
-		http.HandleFunc(path, fnc)
-	}
+	config.RegisterRoutes()
 }
 // работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
 type DefaultHandler struct{

@@ -360,7 +360,12 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 	return fields, nil
 }
+// удаление записи - помечаем специальное поле isDel
+func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 
+	r.Form.Add("isDel", "1")
+	HandlerUpdateRecord(w, r)
+}
 func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tableName := r.FormValue("table")

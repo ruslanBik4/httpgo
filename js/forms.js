@@ -1,4 +1,14 @@
 "use strict";
+// ОБщие события для форм - стандарт
+function formInput(thisForm) {
+
+}
+function formReset(thisForm) {
+    alert('reset');
+}
+function formDelClick(thisButton) {
+    $.post('/admin/row/del/', {table: $('input[name="table"]').val() });
+}
 function showFormModal(data) {
 
     $.fancybox( {

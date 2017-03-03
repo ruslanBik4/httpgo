@@ -2,6 +2,7 @@
     "strings"
     "fmt"
 	"time"
+    "strconv"
 ) %}
 Показываем связанную таблицу RenderTable
 {% func (field *FieldStructure) RenderTable(ns *FieldsTable, tablePrefix, key, val, titleLabel, required string) %}
@@ -105,6 +106,9 @@
     if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
+    if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
+        ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
+    }
 
     if onload, ok := ns.DataJSOM["onload"]; ok {
              invalid = fmt.Sprintf(`oninvalid="%s"`, onload.(string) )
@@ -113,7 +117,8 @@
 %}
 
 <form id="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
-      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate {%s= invalid %} >
+      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate {%s= invalid %}
+      oninput="formInput(this);" onreset="formReset(this);">
 
     {% if ns.Name > "" %}
         <input type="hidden" name="table" value="{%s ns.Name %}" >
@@ -165,13 +170,16 @@
 
         {% if (val > "") && ( (key=="id") || field.IsHidden ) %}
             <input type="hidden" name="{%s nameInput %}" {% if val > "" %}value="{%s val %}"{% endif %} >
+            {% code ns.ID, _ = strconv.Atoi(val) %}
             {% continue %}
         {% elseif key=="id"%}
             {% continue %}
         {% elseif key=="isDel"%}
-            {% code
-                addingButtons += `<button class="main-btn" type="button" onclick="alert('Щас все поудаляю!');">Удалить</button>`
-            %}
+            {% if ns.ID > 0 %}
+                {% code
+                    addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">Удалить</button>`
+                %}
+            {% endif %}
             {% continue %}
         {%  endif %}
 
