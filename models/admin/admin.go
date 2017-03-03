@@ -370,10 +370,10 @@ func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Not tabe name!")
 		return
 	}
-	if _, err := db.DoUpdate("update " + tableName + "set isDel=1 where id=?", id); err != nil {
+	if _, err := db.DoUpdate("update " + tableName + " set isDel=1 where id=?", id); err != nil {
 		log.Println(err)
 	} else {
-		fmt.Fprint(w, "Успещно узалили запись с номером " + id)
+		fmt.Fprint(w, "Успешно узалили запись с номером " + id)
 	}
 }
 func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
