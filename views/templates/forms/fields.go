@@ -450,8 +450,15 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 }
 func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
 
+	counter := 1
+	comma := ","
 	for key, val := range fieldStrc.DataJSOM {
-		dataJson += fmt.Sprintf(`"%s": "%s"`, key, val)
+
+		if counter == len(fieldStrc.DataJSOM) {
+			comma = ""
+		}
+		dataJson += fmt.Sprintf(`"%s": "%s"` + comma, key, val)
+		counter++
 	}
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
