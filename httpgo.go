@@ -294,7 +294,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	f_port   = flag.String("port",":80","host address to listen on")
+	f_port   = flag.String("port",":8080","host address to listen on")
 	f_static = flag.String("path","/root/gocode/src/github.com/ruslanBik4/httpgo","path to static files")
 	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
