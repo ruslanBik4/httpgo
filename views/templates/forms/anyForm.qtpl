@@ -177,7 +177,7 @@
         {% elseif key=="isDel"%}
             {% if ns.ID > 0 %}
                 {% code
-                    addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">Удалить</button>`
+                    addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">titleLabel</button>`
                 %}
             {% endif %}
             {% continue %}
@@ -221,7 +221,7 @@
                                                 {%s= required %} {%s= events %} {%s= dataJson %}
                      />
                {% case "text" %}
-                    <label class="control-label" for="{%s key %}">{%s titleLabel %}:</label>
+                    <label class="input-label" for="{%s key %}">{%s titleLabel %}:</label>
                     {% stripspace %}
                     <textarea id="{%s key %}" name="{%s nameInput %}" class="controls" placeholder="{%s placeholder %}"
                     {%s= events %} {%s= dataJson %}>

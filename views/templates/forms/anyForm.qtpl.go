@@ -690,7 +690,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 				qw422016.N().S(`
                 `)
 				//line views/templates/forms/anyForm.qtpl:180
-				addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">Удалить</button>`
+				addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">titleLabel</button>`
 
 				//line views/templates/forms/anyForm.qtpl:181
 				qw422016.N().S(`
@@ -899,7 +899,7 @@ func (ns *FieldsTable) StreamShowAnyForm(qw422016 *qt422016.Writer, Action, Titl
 			case "text":
 				//line views/templates/forms/anyForm.qtpl:223
 				qw422016.N().S(`
-                    <label class="control-label" for="`)
+                    <label class="input-label" for="`)
 				//line views/templates/forms/anyForm.qtpl:224
 				qw422016.E().S(key)
 				//line views/templates/forms/anyForm.qtpl:224
