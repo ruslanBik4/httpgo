@@ -20,12 +20,17 @@ $(function() {
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
+
+    //красивый скроллинг, потом проработать что бы он применялся ко всем элементам со скроллом
+    $(".main-form-wrap").niceScroll();
     var dateInputs = $("input[type=date],input[type=datetime]");
 
+    //стилизация селектов и инпутов, смена бг
     $(".business-form-select").styler();
     changeBg();
     moveLabel();
 
+    // устанавливаем необходимые датапикеры
     if (dateInputs.length > 0) {
     //TODO: сделать проверку или установить флаг на то, что модуль уже загружен и не загружать если так
         $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
