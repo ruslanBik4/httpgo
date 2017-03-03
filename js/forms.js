@@ -7,7 +7,11 @@ function formReset(thisForm) {
     alert('reset');
 }
 function formDelClick(thisButton) {
-    $.post('/admin/row/del/', {table: $('input[name="table"]').val() });
+    $.post('/admin/row/del/', {table: $('input[name="table"]').val(), id: $('input[name="table"]').val() } ).success(succesDelRecord);
+}
+function succesDelRecord(data, status) {
+    $('form').hide();
+    alert(status);
 }
 function showFormModal(data) {
 

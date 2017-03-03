@@ -363,8 +363,18 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 // удаление записи - помечаем специальное поле isDel
 func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 
-	r.Form.Add("isDel", "1")
-	HandlerUpdateRecord(w, r)
+	tableName := r.FormValue("table")
+	id	  := r.FormValue("id")
+
+	if tableName == "" {
+		fmt.Fprint(w, "Not tabe name!")
+		return
+	}
+	if _, err := db.DoUpdate("update " + tableName + " set isDel=1 where id=?", id); err != nil {
+		log.Println(err)
+	} else {
+		fmt.Fprint(w, "Успешно узалили запись с номером " + id)
+	}
 }
 func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
