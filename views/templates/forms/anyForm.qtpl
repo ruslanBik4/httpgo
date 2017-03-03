@@ -98,18 +98,22 @@
 {% endfunc %}
 {% func (ns *FieldsTable) ShowAnyForm(Action, Title string) %}
 {%code
-    var figure string
+    var figure, invalid string
     if ns.SaveFormEvents == nil {
         ns.SaveFormEvents = make(map[string] string, 1)
     }
     if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
+
+    if onload, ok := ns.DataJSOM["onload"]; ok {
+             invalid = fmt.Sprintf(`oninvalid="%s"`, onload.(string) )
+    }
     formName, addingButtons := "f" + ns.Name, ""
 %}
 
 <form id="{%s formName %}" name="{%s formName %}" role='form' class="form-horizontal row-fluid" target="content" action="{%s Action %}" method="post"
-      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate>
+      onsubmit="return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});" caption="{%s Title %}" novalidate {%s= invalid %} >
 
     {% if ns.Name > "" %}
         <input type="hidden" name="table" value="{%s ns.Name %}" >
@@ -231,14 +235,6 @@
         {%s= addingButtons %}
     </div>
 </form>
-<script>
- $(function(){
-
-    {% if onload, ok := ns.DataJSOM["onload"]; ok %}
-             {%s= onload.(string) %}
-    {% endif %}
-})
-</script>
 {% endfunc %}
 {% func (fieldStrc *FieldStructure) renderDateAttributtes() %}
     {% if maxDate, ok := fieldStrc.DataJSOM["maxDate"]; ok %}

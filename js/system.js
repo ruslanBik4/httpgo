@@ -52,10 +52,13 @@ function SitePostShow() {
     });
 
     //TODO: сделать подключение остальных полей (без maxDate) и, других своств - minDate, например
-    if($('#fapproximation').length > 0){
-        //TODO: научить проверять этот метод,  на загруженнсть джс
-        enableApproximationHandler();
-    }
+
+    $("form[oninvalid]").trigger('invalid');
+
+    // if($('#fapproximation').length > 0){
+    //     //TODO: научить проверять этот метод,  на загруженнсть джс
+    //     enableApproximationHandler();
+    // }
 }
 function moveLabel(){
     $(".custom-input-label").click(function(){
