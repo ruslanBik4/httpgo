@@ -29,20 +29,17 @@ function SitePostShow() {
     if (dateInputs.length > 0) {
     //TODO: сделать проверку или установить флаг на то, что модуль уже загружен и не загружать если так
         $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
-        $("input[type=date]").each(function() {
+        dateInputs.each(function() {
             var currDate = $(this).attr('maxdate');
             if(currDate){
                 $(this).datetimepicker({
-                    format:'Y-m-d',
+                    format: this.type == "datetime" ? 'Y-m-d H:i' : 'Y-m-d',
                     maxDate: currDate
                 });
             } else {
                 $(this).datetimepicker({format:'Y-m-d'});
             }
 
-        });
-        $("input[type=datetime]").each(function() {
-            $(this).datetimepicker({format:'Y-m-d H:i'});
         });
     }
 
