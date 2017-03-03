@@ -74,9 +74,7 @@ func registerRoutes() {
 	for path, fnc := range routes {
 		http.HandleFunc(path, fnc)
 	}
-	for path, fnc := range config.CustomRoutes {
-		http.HandleFunc(path, fnc)
-	}
+	config.RegisterRoutes()
 }
 // работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
 type DefaultHandler struct{
@@ -295,7 +293,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	f_port   = flag.String("port",":80","host address to listen on")
+	f_port   = flag.String("port",":8080","host address to listen on")
 	f_static = flag.String("path","/root/gocode/src/github.com/ruslanBik4/httpgo","path to static files")
 	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
