@@ -20,39 +20,37 @@ $(function() {
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
-
+    var dateInputs = $("input[type=date],input[type=datetime]");
 
     $(".business-form-select").styler();
     changeBg();
     moveLabel();
-    if (($("input[type=date]") || $("input[type=datetime]")).length > 0) {
+
+    if (dateInputs.length > 0) {
     //TODO: сделать проверку или установить флаг на то, что модуль уже загружен и не загружать если так
         $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
+        $("input[type=date]").each(function() {
+            var currDate = $(this).attr('maxdate');
+            if(currDate){
+                $(this).datetimepicker({
+                    format:'Y-m-d',
+                    maxDate: currDate
+                });
+            } else {
+                $(this).datetimepicker({format:'Y-m-d'});
+            }
+
+        });
+        $("input[type=datetime]").each(function() {
+            $(this).datetimepicker({format:'Y-m-d H:i'});
+        });
     }
 
-    $("input[type=date]").each(function() {
-        $(this).datetimepicker({
-        format:'Y-m-d',
-        onShow:function(){
-            this.setOptions({
-                maxDate: $(this).attr('maxdate')?$(this).attr('maxdate'):false
-            })
-        }
-        });
-    });
-    $("input[type=datetime]").each(function() {
-        $(this).datetimepicker({
-        format:'Y-m-d H:i',
-        onShow:function(){
-            this.setOptions({
-                maxDate: $(this).attr('maxdate')?$(this).attr('maxdate'):false
-            })
-        }
-        });
-    });
+
 
     //TODO: сделать подключение остальных полей (без maxDate) и, других своств - minDate, например
 
+    //используем как событие загрузки формы
     $("form[oninvalid]").trigger('invalid');
 
     // if($('#fapproximation').length > 0){
