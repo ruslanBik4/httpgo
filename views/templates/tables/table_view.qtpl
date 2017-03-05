@@ -36,7 +36,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
                         }
                         width := forms.GetLengthFromType(fieldStruct.InputType)
-                        fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
+                        fieldStruct.CSSStyle = fmt.Sprintf("min-width:%dpx;", width)
                         query.widthTable += width
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
