@@ -31,6 +31,7 @@ type FieldStructure struct {
 	IsHidden 	bool
 	InputType	string
 	CSSClass  	string
+	CSSStyle        string
 	TableName 	string
 	Events 		map[string] string
 	Where 		string
@@ -51,6 +52,50 @@ type FieldsTable struct {
 	Hiddens map[string] string
 	SaveFormEvents 	map[string] string
 	DataJSOM        map[string] interface{}
+}
+// стиль показа для разных типов полей
+func StyleInput(dataType string) string{
+	switch (dataType) {
+	case "string":
+		return "search"
+	case "set", "enum":
+		return "select"
+	case "tinyint":
+		return "checkbox"
+	case "int":
+		return "number"
+	case "date":
+		return "date"
+	case "timestamp", "datetime":
+		return "datetime"
+	case "blob":
+		return "textarea"
+	}
+
+	return "text"
+
+}
+// минимальный размер поля для разных типов полей
+func GetLengthFromType(dataType string) int{
+	switch (dataType) {
+	case "select":
+		return 120
+	case "checkbox":
+		return 50
+	case "number":
+		return 70
+	case "date":
+		return 110
+	case "datetime":
+		return 140
+	case "timestamp":
+		return 140
+	case "textarea":
+		return 100
+	}
+
+	return 100
+
 }
 
 func getFields(tableName string) (fields FieldsTable, err error) {
