@@ -103,7 +103,7 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 			if figure > "" {
 				//line views/templates/tables/table_view.qtpl:50
 				qw422016.N().S(`
-                            <div class='td'> <p class='name_group' > `)
+                            <div class='td'> <p class='name_group' style="border: 1px inset gray; padding-top: 1px;"> `)
 				//line views/templates/tables/table_view.qtpl:51
 				qw422016.E().S(figure)
 				//line views/templates/tables/table_view.qtpl:51
@@ -311,7 +311,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 	//line views/templates/tables/table_view.qtpl:89
 	qw422016.N().D(query.widthTable)
 	//line views/templates/tables/table_view.qtpl:89
-	qw422016.N().S(`px;' class='panel-body scroll-pane '>
+	qw422016.N().S(`px;height:350px;' class='panel-body scroll-pane '>
         `)
 	//line views/templates/tables/table_view.qtpl:90
 	for query.Rows.Next() {
@@ -421,7 +421,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 				//line views/templates/tables/table_view.qtpl:136
 				qw422016.E().S(fieldStruct.CSSStyle)
 				//line views/templates/tables/table_view.qtpl:136
-				qw422016.N().S(`">
+				qw422016.N().S(`;margin:auto; height:auto;">
                         `)
 				//line views/templates/tables/table_view.qtpl:137
 				if key == "parent_id" {
