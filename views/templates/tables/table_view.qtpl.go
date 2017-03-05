@@ -103,7 +103,7 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 			if figure > "" {
 				//line views/templates/tables/table_view.qtpl:50
 				qw422016.N().S(`
-                            <div class='td'> <p class='name_group' style="border: 1px inset gray; padding-top: 1px;"> `)
+                            <div class='td' style="border: 1px inset gray; padding-top: 1px;"> <p class='name_group'> `)
 				//line views/templates/tables/table_view.qtpl:51
 				qw422016.E().S(figure)
 				//line views/templates/tables/table_view.qtpl:51

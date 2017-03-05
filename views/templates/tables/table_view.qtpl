@@ -48,7 +48,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         figure = fieldStruct.Figure
                     %}
                     {% if figure > "" %}
-                            <div class='td'> <p class='name_group' style="border: 1px inset gray; padding-top: 1px;"> {%s figure %}</p>
+                            <div class='td' style="border: 1px inset gray; padding-top: 1px;"> <p class='name_group'> {%s figure %}</p>
                     {% endif %}
                 {% endif %}
                  <div title="{%s fieldName %}" class="th" style="{%s fieldStruct.CSSStyle %}">
