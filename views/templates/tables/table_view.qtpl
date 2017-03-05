@@ -14,6 +14,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
 <!--table class="table table-striped table-bordered table-hover table-condensed" -->
+<div style='margin:0;' class='thead table row-fluid' >
     <div class='tr' style='$style_div' >
         {% code
             var figure string
@@ -58,6 +59,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 </div>
             {% endif %}
     </div>
+</div>
 {% endfunc %}
 {% func (query *QueryStruct) RenderTable() %}
         {%  code
