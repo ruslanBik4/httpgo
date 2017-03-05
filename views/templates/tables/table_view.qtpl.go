@@ -44,7 +44,11 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 	for idx, fieldName := range query.columns {
 		//line views/templates/tables/table_view.qtpl:18
 		qw422016.N().S(`
-                <div name="">`)
+                <div title="`)
+		//line views/templates/tables/table_view.qtpl:19
+		qw422016.E().S(fieldName)
+		//line views/templates/tables/table_view.qtpl:19
+		qw422016.N().S(`" class="th">`)
 		//line views/templates/tables/table_view.qtpl:20
 		fieldStruct := query.fields[idx]
 		titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
@@ -281,7 +285,11 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 			if idx == 0 {
 				//line views/templates/tables/table_view.qtpl:97
 				qw422016.N().S(`
-                    <div name="" class="td">
+                    <div name="`)
+				//line views/templates/tables/table_view.qtpl:98
+				qw422016.E().S(key)
+				//line views/templates/tables/table_view.qtpl:98
+				qw422016.N().S(`" class="td">
                         <a href="`)
 				//line views/templates/tables/table_view.qtpl:99
 				qw422016.N().S(query.HrefEdit)
@@ -309,7 +317,11 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
                 `)
 				//line views/templates/tables/table_view.qtpl:108
 				qw422016.N().S(`
-                    <div name="" class="td `)
+                    <div name="`)
+				//line views/templates/tables/table_view.qtpl:109
+				qw422016.E().S(key)
+				//line views/templates/tables/table_view.qtpl:109
+				qw422016.N().S(`" class="td `)
 				//line views/templates/tables/table_view.qtpl:109
 				qw422016.N().S(required)
 				//line views/templates/tables/table_view.qtpl:109
