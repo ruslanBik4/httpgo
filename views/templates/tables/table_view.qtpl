@@ -34,8 +34,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         if fieldStruct.InputType == "" {
                             fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
                         }
-                        fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", forms.GetLengthFromType(fieldStruct.InputType))
-
+                        width := forms.GetLengthFromType(fieldStruct.InputType)
+                        fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
+                        query.widthTable += width
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
                 {% if figure != fieldStruct.Figure %}
@@ -83,7 +84,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%= query.renderBodyTables() %}
 {% endfunc %}
 {% func (query *QueryStruct) renderBodyTables() %}
-<div id="table_body" style='width: <?=$width_all?>px;' class='panel-body scroll-pane '>
+<div id="table_body" style='width: {%d query.widthTable %}px;' class='panel-body scroll-pane '>
         {% for query.Rows.Next() %}
             {%  code
                 if err := query.Rows.Scan(query.row...); err != nil {
