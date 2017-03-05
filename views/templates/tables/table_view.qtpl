@@ -13,11 +13,10 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
-<table class="table table-striped table-bordered table-hover table-condensed">
-    <thead>
-        <tr>
+<!--table class="table table-striped table-bordered table-hover table-condensed" -->
+    <div class='tr' style='$style_div' >
             {% for idx, fieldName := range query.columns %}
-                <td>{% code
+                <div name="">{% code
                         fieldStruct := query.fields[idx]
                         titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
 
@@ -32,10 +31,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
                     %}
                     <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s  titleLabel %}</a>
-                </td>
+                </div>
             {% endfor %}
-        </tr>
-    </thead>
+    </div>
 {% endfunc %}
 {% func (query *QueryStruct) RenderTable() %}
         {%  code
@@ -62,7 +60,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%= query.renderBodyTables() %}
 {% endfunc %}
 {% func (query *QueryStruct) renderBodyTables() %}
-    <tbody>
+<div id="table_body" style='width: <?=$width_all?>px;' class='panel-body scroll-pane '>
         {% for query.Rows.Next() %}
             {%  code
                 if err := query.Rows.Scan(query.row...); err != nil {
@@ -72,7 +70,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
                 required, tablePrefix, titleLabel := "", "", ""
             %}
-        <tr>
+        <div class='tr' style='$style_div'>
             {% for idx, rawField := range query.row %}
                 {% code
                     var fieldStruct *forms.FieldStructure
@@ -97,8 +95,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     }
                 %}
                 {% if idx==0 %}
-                    <td><a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
-                    </td>
+                    <div name="" class="td">
+                        <a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
+                    </div>
                     {%code
                         tablePrefix = fields.Name
                         fields.ID, _ = strconv.Atoi(val)
@@ -107,7 +106,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 {% comment %}
                 // TODO: сменить показ селектов от формы на табличные виды
                 {% endcomment %}
-                    <td class="{%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}">
+                    <div name="" class="td {%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}">
                         {% if key=="parent_id" %}
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
@@ -145,13 +144,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 {%s val %}
                             {% endswitch %}
                         {% endif %}
-                    </td>
+                    </div>
                 {% endif %}
             {%  endfor %}
-        </tr>
+        </div>
         {%  endfor %}
-    </tbody>
+    </div>
 
-</table>
+<!--/table-->
 
 {% endfunc %}

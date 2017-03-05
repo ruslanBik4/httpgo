@@ -177,7 +177,7 @@
         {% elseif key=="isDel"%}
             {% if ns.ID > 0 %}
                 {% code
-                    addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">titleLabel</button>`
+                    addingButtons += `<button class="main-btn" type="button" onclick="return formDelClick(this);">` + titleLabel + `</button>`
                 %}
             {% endif %}
             {% continue %}
