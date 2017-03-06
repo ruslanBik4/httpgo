@@ -218,20 +218,30 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprint(w, fields.Comment )
 
-	order := r.FormValue("order")
-	if order > "" {
-		order = " order by " + order
+	sqlCommand := "select * from " + tableName
+
+	var query tables.QueryStruct
+
+	query.Order = r.FormValue("order")
+	if query.Order > "" {
+		sqlCommand += " order by " + query.Order
 	}
-	rows, err := db.DoSelect("select * from " + tableName + order)
+	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "Error during run query %s", "select * from " + tableName + order)
+		fmt.Fprintf(w, "Error during run query %s", sqlCommand)
 		return
 	}
 
 	defer rows.Close()
+
+	query.Rows = rows
+	query.Href = "/admin/table/" + tableName
+	query.HrefEdit = "/admin/row/edit/?table=" + tableName + "&id="
+	query.Tables = append(query.Tables, &fields)
+
 	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-	fmt.Fprint(w, tables.ShowTable(tableName, fields, rows) )
+	fmt.Fprint(w, query.RenderTable() )
 
 
 }

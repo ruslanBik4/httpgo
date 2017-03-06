@@ -4,14 +4,22 @@ function formInput(thisForm) {
 
 }
 function formReset(thisForm) {
-    alert('reset');
+    if ( confirm('Очистить все введенные данные?') )
+        return false;
+
 }
 function formDelClick(thisButton) {
-    $.post('/admin/row/del/', {table: $('input[name="table"]').val(), id: $('input[name="table"]').val() }, succesDelRecord);
+    $.post('/admin/row/del/', {table: $('input[name="table"]').val(), id: $('input[name="id"]').val() }, succesDelRecord);
 }
 function succesDelRecord(data, status) {
-    $('form').hide();
-    alert(status);
+    if (status == "Success") {
+        $('form').hide();
+        alert("Успешно удалили запись!" + data )
+
+    } else {
+        alert(data);
+
+    }
 }
 function showFormModal(data) {
 

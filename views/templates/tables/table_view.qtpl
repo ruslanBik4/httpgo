@@ -19,6 +19,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     <div class='tr' style='$style_div' >
         {% code
             var figure, filterFields string
+            if query.Order == "" {
+                        query.Order = "id"
+            }
         %}
             {% for idx, fieldName := range query.columns %}
                 {% code
@@ -40,7 +43,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         fieldStruct.CSSStyle = fmt.Sprintf("min-width:%dpx;", width)
                         query.widthTable += width
                         filterFields     += fmt.Sprintf(`<div title="%s" class="td" style="%s"></div>`, fieldName, fieldStruct.CSSStyle )
-                        query.Order = "id"
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
                 {% if figure != fieldStruct.Figure %}
