@@ -18,7 +18,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 <div style='margin:0;' class='thead table row-fluid' >
     <div class='tr' style='$style_div' >
         {% code
-            var figure string
+            var figure, filterFields string
         %}
             {% for idx, fieldName := range query.columns %}
                 {% code
@@ -39,6 +39,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         width := forms.GetLengthFromType(fieldStruct.InputType)
                         fieldStruct.CSSStyle = fmt.Sprintf("min-width:%dpx;", width)
                         query.widthTable += width
+                        filterFields     += fmt.Sprintf(`<div title="%s" class="th" style="%s"></div>`, fieldName, fieldStruct.CSSStyle )
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
                 {% if figure != fieldStruct.Figure %}
@@ -54,13 +55,20 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     {% endif %}
                 {% endif %}
                  <div title="{%s fieldName %}" class="th" style="{%s fieldStruct.CSSStyle %}">
-                   <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s  titleLabel %}</a>
+                   <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s  titleLabel %}
+                    <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
+                   </a>
                 </div>
             {% endfor %}
             {% if figure > "" %}
                 </div>
             {% endif %}
     </div>
+    <form name='fFilter' id='fFilter' class='form-simple tr thead' role='form' action='{%s query.Href %}/?filter'  method='post'  target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data' title='$title' oninput='return FormIsModified( event, this);'
+    onabort="alert('fFilter');">
+        <input name="{%s query.Tables[0].Name %}" hidden />
+        {%s= filterFields %}
+    </form>
 </div>
 {% endfunc %}
 {% func (query *QueryStruct) RenderTable() %}
@@ -88,7 +96,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%= query.renderBodyTables() %}
 {% endfunc %}
 {% func (query *QueryStruct) renderBodyTables() %}
-<div id="table_body" style='width: {%d query.widthTable %}px;height:350px;' class='panel-body scroll-pane'>
+<div id="table_body" style='width: {%d query.widthTable %}px;' class='panel-body scroll-pane'>
         {% for query.Rows.Next() %}
             {%  code
                 if err := query.Rows.Scan(query.row...); err != nil {

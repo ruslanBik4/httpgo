@@ -15,6 +15,7 @@ type QueryStruct struct {
 	Rows 	*sql.Rows
 	Tables [] *forms.FieldsTable
 	widthTable int
+	Order   string
 }
 
 func (query *QueryStruct) findField(fieldName string) *forms.FieldStructure {
