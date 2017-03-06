@@ -51,6 +51,7 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := c.Do(r)
 	if WriteError(w, err) {
 		log.Println(r.RequestURI)
+		log.Println(r)
 		return
 	}
 	status, isStatus := resp.Header["Status"]

@@ -74,7 +74,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 	//line views/templates/layouts/head.qtpl:29
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="http://solution.allservice.in.ua/js/fancybox2/jquery.fancybox.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen">
+    <!-- link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen"-->
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.css">

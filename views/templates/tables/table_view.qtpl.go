@@ -351,7 +351,7 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 	//line views/templates/tables/table_view.qtpl:105
 	qw422016.N().D(query.widthTable)
 	//line views/templates/tables/table_view.qtpl:105
-	qw422016.N().S(`px;' class='panel-body scroll-pane'>
+	qw422016.N().S(`px;' >
         `)
 	//line views/templates/tables/table_view.qtpl:106
 	for query.Rows.Next() {
