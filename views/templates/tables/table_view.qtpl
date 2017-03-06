@@ -57,7 +57,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 {% endif %}
                  <div title="{%s fieldName %}" class="td" style="{%s fieldStruct.CSSStyle %}">
                    <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s titleLabel %}
-                    {% if fieldName == query.Order %}
+                    {% if fieldName != query.Order %}
+                    {% else %}
                         <span class="glyphicon glyphicon-sort-by-attributes-alt"></span>
                     {% endif %}
                    </a>
