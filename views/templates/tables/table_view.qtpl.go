@@ -72,7 +72,7 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 			fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
 		}
 		width := forms.GetLengthFromType(fieldStruct.InputType)
-		fieldStruct.CSSStyle = fmt.Sprintf("min-width:%dpx;", width)
+		fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
 		query.widthTable += width
 		filterFields += fmt.Sprintf(`<div title="%s" class="td" style="%s"></div>`, fieldName, fieldStruct.CSSStyle)
 
