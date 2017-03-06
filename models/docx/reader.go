@@ -3,6 +3,7 @@ package docx
 import (
 	"github.com/nguyenthenguyen/docx"
 	"log"
+	"net/http"
 )
 
  func ReplaceDocx(input, output string, replaces map[string] string) bool {
@@ -25,4 +26,19 @@ import (
 
 		return true
 	}
+}
+
+func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string] string)  error {
+	if r, err := docx.ReadDocxFile(templatesName); err != nil {
+		log.Println(err)
+		return err
+	} else {
+		template := r.Editable()
+		for search, replace := range replaces {
+			template.Replace(search, replace, -1)
+		}
+		template.Write(w)
+	}
+
+	return nil
 }
