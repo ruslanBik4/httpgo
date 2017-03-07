@@ -1,85 +1,54 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
-.
-{% func WriteAnyJSON(arrJSON map[string] interface {}) %}
+получаем объект произвольной формы и возвращаем JSON текстом
+{% func WriteAnyJSON(arrJSON MultiDimension) %}
 {% stripspace %}
  {
-   {% code comma := "" %}
-   {% for key, value := range  arrJSON %}
-        {%s comma %}
-        "{%s key %}":
-     {% switch getType(value) %}
-     {% case "map" %}
-
-            [
-           {% if len(value.(map[string] interface {}))>0 %}
-                {%= WriteAnyJSON(value.(map[string] interface {})) %}
-             {% endif %}
-            ]
-
-      {% case "array" %}
-
-            [
-           {% if len(value.([] interface {}))>0 %}
-                {%= WriteArrJSON(value.([] interface {})) %}
-             {% endif %}
-            ]
-
-      {% case "string" %}
-         "{%s= value.(string) %}"
-      {% case "bool" %}
-         {%v value.(bool) %}
-      {% case "int" %}
-            {%d value.(int) %}
-      {% case "float64" %}
-             {%f value.(float64) %}
-      {% case "nil" %}
-             null
-      {% default %}
-            {%v value %}
-     {% endswitch %}
-
-         {% code  comma = ","
-        %}
+    {% code comma := "" %}
+    {% for key, value := range  arrJSON %}
+         {%s comma %}
+         "{%s key %}":
+            {%= WriteElement(value)%}
+     {% code  comma = ","   %}
    {% endfor %}
  }
 {% endstripspace %}
 {% endfunc %}
+пишем элемент массива в зависемсти от типа
+{% func WriteElement(value interface{} ) %}
+     {% switch vv := value.(type) %}
+      {% case string %}
+         "{%s= vv %}"
+      {% case bool %}
+         {%v vv %}
+      {% case int %}
+            {%d vv %}
+      {% case float64 %}
+             {%f vv %}
+      {% case nil %}
+             NULL
+      {% case SimpleDimension %}
+             {%= WriteArrJSON(vv) %}
 
-{% func WriteArrJSON(arrJSON [] interface {}) %}
-{% stripspace %}
- {
-   {% code comma := "" %}
-   {% for key, value := range  arrJSON %}
-        {%s comma %}
-        "{%d key %}":
-     {% switch getType(value) %}
-      {% case "array" %}
-
-            [
-           {% if len(value.([] interface {}))>0 %}
-                {%= WriteAnyJSON(value.(map[string] interface {})) %}
-             {% endif %}
-            ]
-
-      {% case "string" %}
-         "{%s= value.(string) %}"
-      {% case "bool" %}
-         {%v value.(bool) %}
-      {% case "int" %}
-            {%d value.(int) %}
-      {% case "float64" %}
-             {%f value.(float64) %}
-      {% case "nil" %}
-             null
+      {% case MultiDimension %}
+             {%= WriteAnyJSON(vv) %}
       {% default %}
-            {%v value %}
+            {%v vv %}
      {% endswitch %}
+{% endfunc %}
 
-         {% code  comma = ","
-        %}
-   {% endfor %}
- }
+{% func WriteArrJSON(arrJSON SimpleDimension ) %}
+{% stripspace %}
+ [
+    {% code comma := "" %}
+    {% for key, value := range  arrJSON %}
+         {%s comma %}
+         {%d key %}:
+            {%= WriteElement(value)%}
+         {% code  comma = ","   %}
+    {% endfor %}
+ ]
 {% endstripspace %}
 {% endfunc %}
+

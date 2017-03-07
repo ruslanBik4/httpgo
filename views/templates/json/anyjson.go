@@ -2,6 +2,9 @@ package json
 
 import "log"
 
+type MultiDimension map[string] interface{}
+type SimpleDimension [] interface{}
+
 func getType(value interface {} ) string {
 	log.Println(value)
 	switch value.(type) {
