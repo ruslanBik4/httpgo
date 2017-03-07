@@ -45,7 +45,7 @@ func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{
 		//line anyjson.qtpl:12
 		switch getType(value) {
 		//line anyjson.qtpl:13
-		case "array":
+		case "map":
 			//line anyjson.qtpl:13
 			qw422016.N().S(`[`)
 			//line anyjson.qtpl:16
@@ -57,70 +57,185 @@ func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{
 			//line anyjson.qtpl:18
 			qw422016.N().S(`]`)
 		//line anyjson.qtpl:21
-		case "string":
+		case "array":
 			//line anyjson.qtpl:21
-			qw422016.N().S(`"`)
-			//line anyjson.qtpl:22
-			qw422016.N().S(value.(string))
-			//line anyjson.qtpl:22
-			qw422016.N().S(`"`)
-		//line anyjson.qtpl:23
-		case "bool":
+			qw422016.N().S(`[`)
 			//line anyjson.qtpl:24
-			qw422016.E().V(value.(bool))
-		//line anyjson.qtpl:25
-		case "int":
+			if len(value.([]interface{})) > 0 {
+				//line anyjson.qtpl:25
+				StreamWriteArrJSON(qw422016, value.([]interface{}))
+				//line anyjson.qtpl:26
+			}
 			//line anyjson.qtpl:26
-			qw422016.N().D(value.(int))
-		//line anyjson.qtpl:27
-		case "float64":
-			//line anyjson.qtpl:28
-			qw422016.N().F(value.(float64))
+			qw422016.N().S(`]`)
 		//line anyjson.qtpl:29
-		case "nil":
+		case "string":
 			//line anyjson.qtpl:29
-			qw422016.N().S(`[ddd]`)
+			qw422016.N().S(`"`)
+			//line anyjson.qtpl:30
+			qw422016.N().S(value.(string))
+			//line anyjson.qtpl:30
+			qw422016.N().S(`"`)
 		//line anyjson.qtpl:31
-		default:
+		case "bool":
 			//line anyjson.qtpl:32
-			qw422016.E().V(value)
-			//line anyjson.qtpl:33
-		}
+			qw422016.E().V(value.(bool))
+		//line anyjson.qtpl:33
+		case "int":
+			//line anyjson.qtpl:34
+			qw422016.N().D(value.(int))
 		//line anyjson.qtpl:35
+		case "float64":
+			//line anyjson.qtpl:36
+			qw422016.N().F(value.(float64))
+		//line anyjson.qtpl:37
+		case "nil":
+			//line anyjson.qtpl:37
+			qw422016.N().S(`null`)
+		//line anyjson.qtpl:39
+		default:
+			//line anyjson.qtpl:40
+			qw422016.E().V(value)
+			//line anyjson.qtpl:41
+		}
+		//line anyjson.qtpl:43
 		comma = ","
 
-		//line anyjson.qtpl:37
+		//line anyjson.qtpl:45
 	}
-	//line anyjson.qtpl:37
+	//line anyjson.qtpl:45
 	qw422016.N().S(`}`)
-	//line anyjson.qtpl:39
+	//line anyjson.qtpl:47
 	qw422016.N().S(`
 `)
-//line anyjson.qtpl:40
+//line anyjson.qtpl:48
 }
 
-//line anyjson.qtpl:40
+//line anyjson.qtpl:48
 func WriteWriteAnyJSON(qq422016 qtio422016.Writer, arrJSON map[string]interface{}) {
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	StreamWriteAnyJSON(qw422016, arrJSON)
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:40
+//line anyjson.qtpl:48
 }
 
-//line anyjson.qtpl:40
+//line anyjson.qtpl:48
 func WriteAnyJSON(arrJSON map[string]interface{}) string {
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	WriteWriteAnyJSON(qb422016, arrJSON)
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:48
 	return qs422016
-//line anyjson.qtpl:40
+//line anyjson.qtpl:48
+}
+
+//line anyjson.qtpl:50
+func StreamWriteArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
+	//line anyjson.qtpl:50
+	qw422016.N().S(`
+`)
+	//line anyjson.qtpl:51
+	qw422016.N().S(`{`)
+	//line anyjson.qtpl:53
+	comma := ""
+
+	//line anyjson.qtpl:54
+	for key, value := range arrJSON {
+		//line anyjson.qtpl:55
+		qw422016.E().S(comma)
+		//line anyjson.qtpl:55
+		qw422016.N().S(`"`)
+		//line anyjson.qtpl:56
+		qw422016.N().D(key)
+		//line anyjson.qtpl:56
+		qw422016.N().S(`":`)
+		//line anyjson.qtpl:57
+		switch getType(value) {
+		//line anyjson.qtpl:58
+		case "array":
+			//line anyjson.qtpl:58
+			qw422016.N().S(`[`)
+			//line anyjson.qtpl:61
+			if len(value.([]interface{})) > 0 {
+				//line anyjson.qtpl:62
+				StreamWriteAnyJSON(qw422016, value.(map[string]interface{}))
+				//line anyjson.qtpl:63
+			}
+			//line anyjson.qtpl:63
+			qw422016.N().S(`]`)
+		//line anyjson.qtpl:66
+		case "string":
+			//line anyjson.qtpl:66
+			qw422016.N().S(`"`)
+			//line anyjson.qtpl:67
+			qw422016.N().S(value.(string))
+			//line anyjson.qtpl:67
+			qw422016.N().S(`"`)
+		//line anyjson.qtpl:68
+		case "bool":
+			//line anyjson.qtpl:69
+			qw422016.E().V(value.(bool))
+		//line anyjson.qtpl:70
+		case "int":
+			//line anyjson.qtpl:71
+			qw422016.N().D(value.(int))
+		//line anyjson.qtpl:72
+		case "float64":
+			//line anyjson.qtpl:73
+			qw422016.N().F(value.(float64))
+		//line anyjson.qtpl:74
+		case "nil":
+			//line anyjson.qtpl:74
+			qw422016.N().S(`null`)
+		//line anyjson.qtpl:76
+		default:
+			//line anyjson.qtpl:77
+			qw422016.E().V(value)
+			//line anyjson.qtpl:78
+		}
+		//line anyjson.qtpl:80
+		comma = ","
+
+		//line anyjson.qtpl:82
+	}
+	//line anyjson.qtpl:82
+	qw422016.N().S(`}`)
+	//line anyjson.qtpl:84
+	qw422016.N().S(`
+`)
+//line anyjson.qtpl:85
+}
+
+//line anyjson.qtpl:85
+func WriteWriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
+	//line anyjson.qtpl:85
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line anyjson.qtpl:85
+	StreamWriteArrJSON(qw422016, arrJSON)
+	//line anyjson.qtpl:85
+	qt422016.ReleaseWriter(qw422016)
+//line anyjson.qtpl:85
+}
+
+//line anyjson.qtpl:85
+func WriteArrJSON(arrJSON []interface{}) string {
+	//line anyjson.qtpl:85
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line anyjson.qtpl:85
+	WriteWriteArrJSON(qb422016, arrJSON)
+	//line anyjson.qtpl:85
+	qs422016 := string(qb422016.B)
+	//line anyjson.qtpl:85
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line anyjson.qtpl:85
+	return qs422016
+//line anyjson.qtpl:85
 }

@@ -6,7 +6,7 @@ func getType(value interface {} ) string {
 	log.Println(value)
 	switch value.(type) {
 	case map[string]interface{}:
-		return "array"
+		return "map"
 	case string:
 		return "string"
 	case int:
@@ -17,6 +17,8 @@ func getType(value interface {} ) string {
 		return "float64"
 	case nil:
 		return "nil"
+	case []interface{}:
+		return "array"
 
 
 	default:

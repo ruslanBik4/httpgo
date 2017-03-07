@@ -10,10 +10,55 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%s comma %}
         "{%s key %}":
      {% switch getType(value) %}
-     {% case "array" %}
+     {% case "map" %}
 
             [
            {% if len(value.(map[string] interface {}))>0 %}
+                {%= WriteAnyJSON(value.(map[string] interface {})) %}
+             {% endif %}
+            ]
+
+      {% case "array" %}
+
+            [
+           {% if len(value.([] interface {}))>0 %}
+                {%= WriteArrJSON(value.([] interface {})) %}
+             {% endif %}
+            ]
+
+      {% case "string" %}
+         "{%s= value.(string) %}"
+      {% case "bool" %}
+         {%v value.(bool) %}
+      {% case "int" %}
+            {%d value.(int) %}
+      {% case "float64" %}
+             {%f value.(float64) %}
+      {% case "nil" %}
+             null
+      {% default %}
+            {%v value %}
+     {% endswitch %}
+
+         {% code  comma = ","
+        %}
+   {% endfor %}
+ }
+{% endstripspace %}
+{% endfunc %}
+
+{% func WriteArrJSON(arrJSON [] interface {}) %}
+{% stripspace %}
+ {
+   {% code comma := "" %}
+   {% for key, value := range  arrJSON %}
+        {%s comma %}
+        "{%d key %}":
+     {% switch getType(value) %}
+      {% case "array" %}
+
+            [
+           {% if len(value.([] interface {}))>0 %}
                 {%= WriteAnyJSON(value.(map[string] interface {})) %}
              {% endif %}
             ]
@@ -27,7 +72,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case "float64" %}
              {%f value.(float64) %}
       {% case "nil" %}
-             [ddd]
+             null
       {% default %}
             {%v value %}
      {% endswitch %}
