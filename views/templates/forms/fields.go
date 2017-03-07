@@ -38,7 +38,9 @@ type FieldStructure struct {
 	Figure 		string
 	Placeholder	string
 	Pattern		string
+	BeforeHtml	string
 	Html		string
+	AfterHtml	string
 	ForeignFields	string
 	LinkTD		string
 	DataJSOM        map[string] interface{}

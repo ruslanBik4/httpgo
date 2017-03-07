@@ -124,7 +124,7 @@
         <input type="hidden" name="table" value="{%s ns.Name %}" >
     {% endif %}
     {% for idx, field := range ns.Rows %}
-
+        {%s= field.BeforeHtml %}
         {% code
             key := field.COLUMN_NAME
 
@@ -234,6 +234,7 @@
 
         {% endif %}
         </div>
+        {%s= field.AfterHtml %}
     {% endfor %}
     {% if figure > "" %}
         </figure>
