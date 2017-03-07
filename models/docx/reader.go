@@ -12,6 +12,7 @@ import (
 		return false
 	} else {
 		docx1 := r.Editable()
+		defer r.Close()
 
 		for search, replace := range replaces {
 			docx1.Replace(search, replace, -1)
@@ -22,7 +23,6 @@ import (
 			return false
 		}
 
-		r.Close()
 
 		return true
 	}
@@ -34,6 +34,7 @@ func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[
 		return err
 	} else {
 		template := r.Editable()
+		defer r.Close()
 		for search, replace := range replaces {
 			template.Replace(search, replace, -1)
 		}
