@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"strings"
+	"strconv"
 )
 const dbName = "travel"
 const dbUser = "travel"
@@ -291,13 +292,26 @@ type FieldsTable struct {
 
 // получение значений полей для форматирования данных
 // получение значений полей для таблицы
-func (ns *FieldsTable) GetColumnsProp(table_name string) error {
+// @param args []int{} - можно передавать ограничения выводимых полей.
+// Действует как LIMIT a или LIMIT a, b
+//
+func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
+
+	valuesText := []string{}
+	for _, arg := range args {
+		valuesText = append(valuesText, strconv.Itoa(arg))
+	}
+
+	limiter := strings.Join(valuesText, ", ")
+	if limiter != "" {
+		limiter = " LIMIT " + limiter
+	}
 
 
 	rows := DoQuery("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, " +
 		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
 		"FROM INFORMATION_SCHEMA.COLUMNS C " +
-		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION",
+		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION" + limiter,
 		dbName, table_name);
 	//, form.html_name AS form_html_name, form.html_id AS form_html_id, form.js_func_onsubmit, field.db_table_name, field.db_field_name, field.label, field.html_type, field.html_class, field.html_name, field.html_id, field.html_value, c.name AS constraint_name, rc.value AS constraint_value, rc.relative_html_input_name
 
