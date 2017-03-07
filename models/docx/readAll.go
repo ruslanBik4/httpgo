@@ -5,7 +5,7 @@ import (
  "log"
 )
 
-func getPlainText(fileName string) string{
+func GetPlainText(fileName string) string{
   if responce, err := docconv.ConvertPath(fileName); err != nil {
     log.Println(err)
   } else {
