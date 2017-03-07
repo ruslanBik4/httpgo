@@ -56,7 +56,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 <div class='th' style="border-bottom: 1px outset gray; padding-top: 1px;"> {%s figure %}</div>
                     {% endif %}
                 {% endif %}
-                 <div title="{%s fieldName %}" class="td{% if fieldName != query.Order %}td-order{% endif %}"
+                 <div title="{%s fieldName %}" class="td{% if fieldName == query.Order %} td-order{% endif %}"
                  style="{%s fieldStruct.CSSStyle %}">
                    <a href="{%s query.Href %}/?order={%s fieldName %}" title="{%s titleFull %}">{%s titleLabel %}</a>
                 </div>

@@ -129,9 +129,9 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 		//line views/templates/tables/table_view.qtpl:59
 		qw422016.N().S(`" class="td`)
 		//line views/templates/tables/table_view.qtpl:59
-		if fieldName != query.Order {
+		if fieldName == query.Order {
 			//line views/templates/tables/table_view.qtpl:59
-			qw422016.N().S(`td-order`)
+			qw422016.N().S(` td-order`)
 			//line views/templates/tables/table_view.qtpl:59
 		}
 		//line views/templates/tables/table_view.qtpl:59
