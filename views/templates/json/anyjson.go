@@ -11,6 +11,14 @@ func getType(value interface {} ) string {
 		return "string"
 	case int:
 		return "int"
+	case bool:
+		return "bool"
+	case float64:
+		return "float64"
+	case nil:
+		return "nil"
+
+
 	default:
 		return value.(string)
 	}

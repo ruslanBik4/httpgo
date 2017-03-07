@@ -11,13 +11,23 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         "{%s key %}":
      {% switch getType(value) %}
      {% case "array" %}
+
             [
+           {% if len(value.(map[string] interface {}))>0 %}
                 {%= WriteAnyJSON(value.(map[string] interface {})) %}
+             {% endif %}
             ]
+
       {% case "string" %}
          "{%s= value.(string) %}"
+      {% case "bool" %}
+         {%v value.(bool) %}
       {% case "int" %}
             {%d value.(int) %}
+      {% case "float64" %}
+             {%f value.(float64) %}
+      {% case "nil" %}
+             [ddd]
       {% default %}
             {%v value %}
      {% endswitch %}
