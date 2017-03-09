@@ -222,9 +222,9 @@ function afterSaveAnyForm(data) {
         ShowOkno(data.contentURL);
         // TODO  catalog after
     } else if (data.error !== undefined) {
-        alert(data.message)
+        alert(data.message);
     } else {
-        console.log(data)
+        console.log(data);
     }
 }
 // ПОСЛЕ сохранение комнаты
