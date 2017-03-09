@@ -12,4 +12,5 @@ func GetPlainText(fileName string) string{
   } else {
     return responce.Body
   }
+
 }
