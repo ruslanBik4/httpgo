@@ -70,8 +70,10 @@ func StyleInput(dataType string) string{
 		return "date"
 	case "timestamp", "datetime":
 		return "datetime"
-	case "blob":
+	case "test":
 		return "textarea"
+	case "blob":
+		return "file"
 	}
 
 	return "text"
@@ -259,7 +261,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
 					RenderCheckBox(inputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
 		default:
-			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, "text", tableProps, inputName, value)
+			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, StyleInput(fieldStruct.DATA_TYPE), tableProps, inputName, value)
 		}
 	}
 
