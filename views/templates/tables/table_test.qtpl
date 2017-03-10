@@ -1,6 +1,5 @@
 {% func TableTesting()%}
 
-<link rel="import" href="/polymer.html">
 
 <dom-module id="juicy-table-repeat">
     <template>
@@ -77,21 +76,4 @@
     </script>
 </dom-module>
 
-<juicy-table-repeat rows="{{model.Shops}}">
-    <table>
-      <thead>
-      <!-- your favorite thead -->
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-    <template is="dom-template" class="row-template">
-        <table>
-            <tr>
-              <td>{{item.Name}}</td>
-              <!-- other item stuff -->
-            </tr>
-        </table>
-    </template>
-</juicy-table-repeat>
 {% endfunc %}

@@ -23,6 +23,7 @@ import (
 	"flag"
 	"models/config"
 	"github.com/ruslanBik4/httpgo/views/fonts"
+	"github.com/ruslanBik4/httpgo/views/templates/tables"
 )
 //go:generate qtc -dir=views/templates
 
@@ -124,7 +125,7 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	//fmt.Fprint(w, docx.ReadDocx( filepath.Join(*f_web + "/files", "физлицо.docx") ) )
+	fmt.Fprint(w, tables.TableTesting()  )
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
@@ -136,33 +137,32 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
-		return
 		// спецвойска
 	case "/polymer.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer.html"))
-	case "polymer-mini.html":
+	case "/polymer-mini.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-mini.html"))
-	case "polymer-micro.html":
+	case "/polymer-micro.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-micro.html"))
 	case "/status","/ping","/pong":
 		h.fpm.ServeHTTP(w, r)
-		return
-	}
-	filename := strings.TrimLeft(r.URL.Path,"/")
-	ext := filepath.Ext(filename)
+	default:
+		filename := strings.TrimLeft(r.URL.Path,"/")
+		ext := filepath.Ext(filename)
 
-	if strings.HasPrefix(ext, ".php") {
+		if strings.HasPrefix(ext, ".php") {
+			h.php.ServeHTTP(w, r)
+			return
+		}
+		if h.toCache(ext) {
+			serveAndCache(filename, w, r)
+			return
+		} else if h.toServe(ext) {
+			http.ServeFile(w, r, filepath.Join(*f_web, filename))
+			return
+		}
 		h.php.ServeHTTP(w, r)
-		return
 	}
-	if h.toCache(ext) {
-		serveAndCache(filename, w, r)
-		return
-	} else if h.toServe(ext) {
-		http.ServeFile(w, r, filepath.Join(*f_web, filename))
-		return
-	}
-	h.php.ServeHTTP(w, r)
 }
 // считываем файлы типа css/js ect в память и потом отдаем из нее
 func setCache(path string, data []byte) {

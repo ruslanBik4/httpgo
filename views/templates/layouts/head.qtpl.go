@@ -73,6 +73,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 	qw422016.E().S(head.Title)
 	//line views/templates/layouts/head.qtpl:29
 	qw422016.N().S(`</title>
+    <link rel="import" href="/polymer.html">
     <link rel="stylesheet" href="http://solution.allservice.in.ua/js/fancybox2/jquery.fancybox.css" type="text/css" media="screen">
     <!-- link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen"-->
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
@@ -95,19 +96,19 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="shortcut icon" href="/bootstrap/ico/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
     `)
-	//line views/templates/layouts/head.qtpl:51
+	//line views/templates/layouts/head.qtpl:52
 	for i := 0; i < len(head.LinkStyles); i++ {
-		//line views/templates/layouts/head.qtpl:51
+		//line views/templates/layouts/head.qtpl:52
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:52
+		//line views/templates/layouts/head.qtpl:53
 		qw422016.E().S(head.LinkStyles[i])
-		//line views/templates/layouts/head.qtpl:52
+		//line views/templates/layouts/head.qtpl:53
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:53
+		//line views/templates/layouts/head.qtpl:54
 	}
-	//line views/templates/layouts/head.qtpl:53
+	//line views/templates/layouts/head.qtpl:54
 	qw422016.N().S(`
     <!--[if IE]><script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script><![endif]-->
     <!--[if !IE]--><script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script><!--[endif]-->
@@ -133,50 +134,51 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="/forms.js"></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     `)
-	//line views/templates/layouts/head.qtpl:77
+	//line views/templates/layouts/head.qtpl:78
 	for i := 0; i < len(head.Scripts); i++ {
-		//line views/templates/layouts/head.qtpl:77
+		//line views/templates/layouts/head.qtpl:78
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:78
+		//line views/templates/layouts/head.qtpl:79
 		qw422016.E().S(head.Scripts[i])
-		//line views/templates/layouts/head.qtpl:78
+		//line views/templates/layouts/head.qtpl:79
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:79
+		//line views/templates/layouts/head.qtpl:80
 	}
-	//line views/templates/layouts/head.qtpl:79
+	//line views/templates/layouts/head.qtpl:80
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
+    <script  src="/webcomponents.js"></script>
 
 </head>
 `)
-//line views/templates/layouts/head.qtpl:84
+//line views/templates/layouts/head.qtpl:86
 }
 
-//line views/templates/layouts/head.qtpl:84
+//line views/templates/layouts/head.qtpl:86
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	head.StreamHeadHTML(qw422016)
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:84
+//line views/templates/layouts/head.qtpl:86
 }
 
-//line views/templates/layouts/head.qtpl:84
+//line views/templates/layouts/head.qtpl:86
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	head.WriteHeadHTML(qb422016)
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	qs422016 := string(qb422016.B)
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/layouts/head.qtpl:84
+	//line views/templates/layouts/head.qtpl:86
 	return qs422016
-//line views/templates/layouts/head.qtpl:84
+//line views/templates/layouts/head.qtpl:86
 }
