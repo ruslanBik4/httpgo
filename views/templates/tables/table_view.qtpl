@@ -26,22 +26,29 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 {% code
                         fieldStruct := query.fields[idx]
                         key, titleFull, titleLabel := fieldStruct.COLUMN_NAME, fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
+                        if fieldStruct.InputType == "" {
+                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
+                        }
+                        width, maxLen := forms.GetLengthFromType(fieldStruct.InputType)
 
-                        if len(titleFull) > 50 {
+                        if (fieldStruct.DATA_TYPE == "string") && (fieldStruct.CHARACTER_MAXIMUM_LENGTH == 255) {
+                            width, maxLen = 200, 100
+                        }
+                         fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
+                         query.widthTable += width
+                         filterFields     += inputFilterField(key,  query.Tables[0].Name, fieldStruct )
+                       if len(titleFull) > maxLen {
 
-                            titleLabel = titleFull[:strings.LastIndex(titleFull[:51], " ")] + "..."
+                            if pos := strings.LastIndex(titleFull[:maxLen+1], " "); pos > 0 {
+                                titleLabel = titleFull[:pos] + "..."
+                            } else {
+                                titleLabel = titleFull[:maxLen] + "..."
+                            }
                         }
 
                         if titleLabel == "" {
                             titleLabel = fieldName
                         }
-                        if fieldStruct.InputType == "" {
-                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
-                        }
-                        width := forms.GetLengthFromType(fieldStruct.InputType)
-                        fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
-                        query.widthTable += width
-                        filterFields     += inputFilterField(key,  query.Tables[0].Name, fieldStruct )
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
                 {% if figure != fieldStruct.Figure %}

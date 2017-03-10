@@ -8,6 +8,12 @@ function formReset(thisForm) {
         return false;
 
 }
+function FormIsModified( event, this_form ) {
+    event = event || window.event;
+
+    $( 'input[type=image], input[type=submit], input[type=button]', this_form ).show();
+    this_form.State.value = '✎';
+}
 function formDelClick(thisButton) {
     $.post('/admin/row/del/', {table: $('input[name="table"]').val(), id: $('input[name="id"]').val() }, succesDelRecord);
 }

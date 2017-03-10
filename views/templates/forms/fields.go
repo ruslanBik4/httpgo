@@ -70,7 +70,7 @@ func StyleInput(dataType string) string{
 		return "date"
 	case "timestamp", "datetime":
 		return "datetime"
-	case "test":
+	case "text":
 		return "textarea"
 	case "blob":
 		return "file"
@@ -80,25 +80,25 @@ func StyleInput(dataType string) string{
 
 }
 // минимальный размер поля для разных типов полей
-func GetLengthFromType(dataType string) int{
+func GetLengthFromType(dataType string) (width int, size int) {
 	switch (dataType) {
 	case "select":
-		return 120
+		return 120, 50
 	case "checkbox":
-		return 50
+		return 50, 10
 	case "number":
-		return 70
+		return 70, 50
 	case "date":
-		return 110
+		return 110, 50
 	case "datetime":
-		return 140
+		return 140, 50
 	case "timestamp":
-		return 140
+		return 140, 50
 	case "textarea":
-		return 100
+		return 120, 50
 	}
 
-	return 100
+	return 120, 50
 
 }
 
