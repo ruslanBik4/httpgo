@@ -137,6 +137,13 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
 		return
+		// спецвойска
+	case "/polymer.html":
+		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer.html"))
+	case "polymer-mini.html":
+		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-mini.html"))
+	case "polymer-micro.html":
+		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-micro.html"))
 	case "/status","/ping","/pong":
 		h.fpm.ServeHTTP(w, r)
 		return
