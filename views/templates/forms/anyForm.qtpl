@@ -75,7 +75,7 @@
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
-        {%code field.getOptions(key[3:], val) %}
+        {%code field.GetOptions(key[3:], val) %}
         {%s= field.Html %}
     </select>
 {% endfunc %}
@@ -93,7 +93,7 @@
                 nameTable = field.TableName
             }
         %}
-        {%code field.getOptions(nameTable, val) %}
+        {%code field.GetOptions(nameTable, val) %}
         {%s= field.Html %}
     </select>
 {% endfunc %}

@@ -341,7 +341,7 @@ func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer
 	qw422016.N().S(`
         `)
 	//line views/templates/forms/anyForm.qtpl:78
-	field.getOptions(key[3:], val)
+	field.GetOptions(key[3:], val)
 
 	//line views/templates/forms/anyForm.qtpl:78
 	qw422016.N().S(`
@@ -442,7 +442,7 @@ func (field *FieldStructure) StreamRenderParentSelect(qw422016 *qt422016.Writer,
 	qw422016.N().S(`
         `)
 	//line views/templates/forms/anyForm.qtpl:96
-	field.getOptions(nameTable, val)
+	field.GetOptions(nameTable, val)
 
 	//line views/templates/forms/anyForm.qtpl:96
 	qw422016.N().S(`

@@ -57,7 +57,7 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
                 `)
 		//line views/templates/tables/table_view.qtpl:27
 		fieldStruct := query.fields[idx]
-		titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
+		key, titleFull, titleLabel := fieldStruct.COLUMN_NAME, fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
 
 		if len(titleFull) > 50 {
 
@@ -73,7 +73,7 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 		width := forms.GetLengthFromType(fieldStruct.InputType)
 		fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
 		query.widthTable += width
-		filterFields += fmt.Sprintf(`<div title="%s" class="td" style="%s"><input/></div>`, fieldName, fieldStruct.CSSStyle)
+		filterFields += inputFilterField(key, query.Tables[0].Name, fieldStruct)
 
 		//line views/templates/tables/table_view.qtpl:45
 		qw422016.N().S(`
@@ -107,8 +107,8 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 			if figure > "" {
 				//line views/templates/tables/table_view.qtpl:54
 				qw422016.N().S(`
-                            <div class='td-outer' style="border: 1px inset gray;">
-                                <div class='th' style="border-bottom: 1px outset gray; padding-top: 1px;"> `)
+                            <div class='td-outer' style="outline: 1px inset gray;">
+                                <div class='th' style="outline: 1px outset gray; padding-top: 1px;"> `)
 				//line views/templates/tables/table_view.qtpl:56
 				qw422016.E().S(figure)
 				//line views/templates/tables/table_view.qtpl:56
@@ -180,108 +180,109 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 	//line views/templates/tables/table_view.qtpl:68
 	qw422016.E().S(query.Href)
 	//line views/templates/tables/table_view.qtpl:68
-	qw422016.N().S(`/?filter'  method='post'  target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data' title='$title' oninput='return FormIsModified( event, this);'
-    onabort="alert('fFilter');">
+	qw422016.N().S(`/?filter' method='post'
+    target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data'
+    oninput='return FormIsModified(event, this);' onabort="alert('fFilter');">
         <input name="`)
-	//line views/templates/tables/table_view.qtpl:70
+	//line views/templates/tables/table_view.qtpl:71
 	qw422016.E().S(query.Tables[0].Name)
-	//line views/templates/tables/table_view.qtpl:70
+	//line views/templates/tables/table_view.qtpl:71
 	qw422016.N().S(`" hidden />
         `)
-	//line views/templates/tables/table_view.qtpl:71
+	//line views/templates/tables/table_view.qtpl:72
 	qw422016.N().S(filterFields)
-	//line views/templates/tables/table_view.qtpl:71
+	//line views/templates/tables/table_view.qtpl:72
 	qw422016.N().S(`
     </form>
 </div>
 `)
-//line views/templates/tables/table_view.qtpl:74
-}
-
-//line views/templates/tables/table_view.qtpl:74
-func (query *QueryStruct) writerenderHeadTables(qq422016 qtio422016.Writer) {
-	//line views/templates/tables/table_view.qtpl:74
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/tables/table_view.qtpl:74
-	query.streamrenderHeadTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:74
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/tables/table_view.qtpl:74
-}
-
-//line views/templates/tables/table_view.qtpl:74
-func (query *QueryStruct) renderHeadTables() string {
-	//line views/templates/tables/table_view.qtpl:74
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/tables/table_view.qtpl:74
-	query.writerenderHeadTables(qb422016)
-	//line views/templates/tables/table_view.qtpl:74
-	qs422016 := string(qb422016.B)
-	//line views/templates/tables/table_view.qtpl:74
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/tables/table_view.qtpl:74
-	return qs422016
-//line views/templates/tables/table_view.qtpl:74
+//line views/templates/tables/table_view.qtpl:75
 }
 
 //line views/templates/tables/table_view.qtpl:75
-func (query *QueryStruct) StreamRenderTable(qw422016 *qt422016.Writer) {
+func (query *QueryStruct) writerenderHeadTables(qq422016 qtio422016.Writer) {
 	//line views/templates/tables/table_view.qtpl:75
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/tables/table_view.qtpl:75
+	query.streamrenderHeadTables(qw422016)
+	//line views/templates/tables/table_view.qtpl:75
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/tables/table_view.qtpl:75
+}
+
+//line views/templates/tables/table_view.qtpl:75
+func (query *QueryStruct) renderHeadTables() string {
+	//line views/templates/tables/table_view.qtpl:75
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/tables/table_view.qtpl:75
+	query.writerenderHeadTables(qb422016)
+	//line views/templates/tables/table_view.qtpl:75
+	qs422016 := string(qb422016.B)
+	//line views/templates/tables/table_view.qtpl:75
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/tables/table_view.qtpl:75
+	return qs422016
+//line views/templates/tables/table_view.qtpl:75
+}
+
+//line views/templates/tables/table_view.qtpl:76
+func (query *QueryStruct) StreamRenderTable(qw422016 *qt422016.Writer) {
+	//line views/templates/tables/table_view.qtpl:76
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:77
+	//line views/templates/tables/table_view.qtpl:78
 	if err := query.beforeRender(); err != nil {
 		return
 	}
 
-	//line views/templates/tables/table_view.qtpl:80
+	//line views/templates/tables/table_view.qtpl:81
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:81
+	//line views/templates/tables/table_view.qtpl:82
 	query.streamrenderHeadTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:81
+	//line views/templates/tables/table_view.qtpl:82
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:82
+	//line views/templates/tables/table_view.qtpl:83
 	query.streamrenderBodyTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:82
+	//line views/templates/tables/table_view.qtpl:83
 	qw422016.N().S(`
 `)
-//line views/templates/tables/table_view.qtpl:83
-}
-
-//line views/templates/tables/table_view.qtpl:83
-func (query *QueryStruct) WriteRenderTable(qq422016 qtio422016.Writer) {
-	//line views/templates/tables/table_view.qtpl:83
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/tables/table_view.qtpl:83
-	query.StreamRenderTable(qw422016)
-	//line views/templates/tables/table_view.qtpl:83
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/tables/table_view.qtpl:83
-}
-
-//line views/templates/tables/table_view.qtpl:83
-func (query *QueryStruct) RenderTable() string {
-	//line views/templates/tables/table_view.qtpl:83
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/tables/table_view.qtpl:83
-	query.WriteRenderTable(qb422016)
-	//line views/templates/tables/table_view.qtpl:83
-	qs422016 := string(qb422016.B)
-	//line views/templates/tables/table_view.qtpl:83
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/tables/table_view.qtpl:83
-	return qs422016
-//line views/templates/tables/table_view.qtpl:83
+//line views/templates/tables/table_view.qtpl:84
 }
 
 //line views/templates/tables/table_view.qtpl:84
-func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
+func (query *QueryStruct) WriteRenderTable(qq422016 qtio422016.Writer) {
 	//line views/templates/tables/table_view.qtpl:84
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/tables/table_view.qtpl:84
+	query.StreamRenderTable(qw422016)
+	//line views/templates/tables/table_view.qtpl:84
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/tables/table_view.qtpl:84
+}
+
+//line views/templates/tables/table_view.qtpl:84
+func (query *QueryStruct) RenderTable() string {
+	//line views/templates/tables/table_view.qtpl:84
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/tables/table_view.qtpl:84
+	query.WriteRenderTable(qb422016)
+	//line views/templates/tables/table_view.qtpl:84
+	qs422016 := string(qb422016.B)
+	//line views/templates/tables/table_view.qtpl:84
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/tables/table_view.qtpl:84
+	return qs422016
+//line views/templates/tables/table_view.qtpl:84
+}
+
+//line views/templates/tables/table_view.qtpl:85
+func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
+	//line views/templates/tables/table_view.qtpl:85
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:86
+	//line views/templates/tables/table_view.qtpl:87
 	var query QueryStruct
 	query.Rows = rows
 	query.Href = "/admin/table/" + tableName
@@ -292,60 +293,60 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 		return
 	}
 
-	//line views/templates/tables/table_view.qtpl:95
+	//line views/templates/tables/table_view.qtpl:96
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:96
+	//line views/templates/tables/table_view.qtpl:97
 	query.streamrenderHeadTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:96
+	//line views/templates/tables/table_view.qtpl:97
 	qw422016.N().S(`
         `)
-	//line views/templates/tables/table_view.qtpl:97
+	//line views/templates/tables/table_view.qtpl:98
 	query.streamrenderBodyTables(qw422016)
-	//line views/templates/tables/table_view.qtpl:97
+	//line views/templates/tables/table_view.qtpl:98
 	qw422016.N().S(`
 `)
-//line views/templates/tables/table_view.qtpl:98
-}
-
-//line views/templates/tables/table_view.qtpl:98
-func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
-	//line views/templates/tables/table_view.qtpl:98
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/tables/table_view.qtpl:98
-	StreamShowTable(qw422016, tableName, fields, rows)
-	//line views/templates/tables/table_view.qtpl:98
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/tables/table_view.qtpl:98
-}
-
-//line views/templates/tables/table_view.qtpl:98
-func ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) string {
-	//line views/templates/tables/table_view.qtpl:98
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/tables/table_view.qtpl:98
-	WriteShowTable(qb422016, tableName, fields, rows)
-	//line views/templates/tables/table_view.qtpl:98
-	qs422016 := string(qb422016.B)
-	//line views/templates/tables/table_view.qtpl:98
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/tables/table_view.qtpl:98
-	return qs422016
-//line views/templates/tables/table_view.qtpl:98
+//line views/templates/tables/table_view.qtpl:99
 }
 
 //line views/templates/tables/table_view.qtpl:99
-func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
+func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
 	//line views/templates/tables/table_view.qtpl:99
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/tables/table_view.qtpl:99
+	StreamShowTable(qw422016, tableName, fields, rows)
+	//line views/templates/tables/table_view.qtpl:99
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/tables/table_view.qtpl:99
+}
+
+//line views/templates/tables/table_view.qtpl:99
+func ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) string {
+	//line views/templates/tables/table_view.qtpl:99
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/tables/table_view.qtpl:99
+	WriteShowTable(qb422016, tableName, fields, rows)
+	//line views/templates/tables/table_view.qtpl:99
+	qs422016 := string(qb422016.B)
+	//line views/templates/tables/table_view.qtpl:99
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/tables/table_view.qtpl:99
+	return qs422016
+//line views/templates/tables/table_view.qtpl:99
+}
+
+//line views/templates/tables/table_view.qtpl:100
+func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
+	//line views/templates/tables/table_view.qtpl:100
 	qw422016.N().S(`
 <div id="table_body" >
         `)
-	//line views/templates/tables/table_view.qtpl:101
+	//line views/templates/tables/table_view.qtpl:102
 	for query.Rows.Next() {
-		//line views/templates/tables/table_view.qtpl:101
+		//line views/templates/tables/table_view.qtpl:102
 		qw422016.N().S(`
             `)
-		//line views/templates/tables/table_view.qtpl:103
+		//line views/templates/tables/table_view.qtpl:104
 		if err := query.Rows.Scan(query.row...); err != nil {
 			log.Println(err)
 			continue
@@ -353,16 +354,16 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 
 		required, tablePrefix, titleLabel := "", "", ""
 
-		//line views/templates/tables/table_view.qtpl:109
+		//line views/templates/tables/table_view.qtpl:110
 		qw422016.N().S(`
         <div class='tr' style='$style_div'>
             `)
-		//line views/templates/tables/table_view.qtpl:111
+		//line views/templates/tables/table_view.qtpl:112
 		for idx, rawField := range query.row {
-			//line views/templates/tables/table_view.qtpl:111
+			//line views/templates/tables/table_view.qtpl:112
 			qw422016.N().S(`
                 `)
-			//line views/templates/tables/table_view.qtpl:113
+			//line views/templates/tables/table_view.qtpl:114
 			var fieldStruct *forms.FieldStructure
 
 			switch rawField.(type) {
@@ -384,263 +385,270 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 				events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
 			}
 
-			//line views/templates/tables/table_view.qtpl:133
-			qw422016.N().S(`
-                `)
 			//line views/templates/tables/table_view.qtpl:134
+			qw422016.N().S(`
+                <div name="`)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.E().S(key)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.N().S(`" class="td `)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.N().S(required)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.N().S(` field-`)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.E().S(nameInput)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.N().S(` `)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.E().S(fieldStruct.CSSClass)
+			//line views/templates/tables/table_view.qtpl:135
+			qw422016.N().S(`"
+                         style="`)
+			//line views/templates/tables/table_view.qtpl:136
+			qw422016.E().S(fieldStruct.CSSStyle)
+			//line views/templates/tables/table_view.qtpl:136
+			qw422016.N().S(`;margin:auto; height:auto;">
+                `)
+			//line views/templates/tables/table_view.qtpl:137
 			if idx == 0 {
-				//line views/templates/tables/table_view.qtpl:134
+				//line views/templates/tables/table_view.qtpl:137
 				qw422016.N().S(`
-                    <div name="`)
-				//line views/templates/tables/table_view.qtpl:135
-				qw422016.E().S(key)
-				//line views/templates/tables/table_view.qtpl:135
-				qw422016.N().S(`" class="td" style="`)
-				//line views/templates/tables/table_view.qtpl:135
-				qw422016.E().S(fieldStruct.CSSStyle)
-				//line views/templates/tables/table_view.qtpl:135
-				qw422016.N().S(`">
-                        <a href="`)
-				//line views/templates/tables/table_view.qtpl:136
+                    <a href="`)
+				//line views/templates/tables/table_view.qtpl:138
 				qw422016.N().S(query.HrefEdit)
-				//line views/templates/tables/table_view.qtpl:136
+				//line views/templates/tables/table_view.qtpl:138
 				qw422016.E().S(val)
-				//line views/templates/tables/table_view.qtpl:136
+				//line views/templates/tables/table_view.qtpl:138
 				qw422016.N().S(`" target="content">`)
-				//line views/templates/tables/table_view.qtpl:136
+				//line views/templates/tables/table_view.qtpl:138
 				qw422016.E().S(val)
-				//line views/templates/tables/table_view.qtpl:136
+				//line views/templates/tables/table_view.qtpl:138
 				qw422016.N().S(`</a>
-                    </div>
                     `)
-				//line views/templates/tables/table_view.qtpl:139
+				//line views/templates/tables/table_view.qtpl:140
 				tablePrefix = fields.Name
 				fields.ID, _ = strconv.Atoi(val)
 
-				//line views/templates/tables/table_view.qtpl:141
+				//line views/templates/tables/table_view.qtpl:142
 				qw422016.N().S(`
                 `)
-				//line views/templates/tables/table_view.qtpl:142
-			} else {
-				//line views/templates/tables/table_view.qtpl:142
+				//line views/templates/tables/table_view.qtpl:143
+			} else if fieldStruct.Html > "" {
+				//line views/templates/tables/table_view.qtpl:143
+				qw422016.N().S(`
+                    `)
+				//line views/templates/tables/table_view.qtpl:144
+				qw422016.N().S(fieldStruct.Html)
+				//line views/templates/tables/table_view.qtpl:144
 				qw422016.N().S(`
                 `)
 				//line views/templates/tables/table_view.qtpl:145
+			} else {
+				//line views/templates/tables/table_view.qtpl:145
 				qw422016.N().S(`
-                    <div name="`)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.E().S(key)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.N().S(`" class="td `)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.N().S(required)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.N().S(` field-`)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.E().S(nameInput)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.N().S(` `)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.E().S(fieldStruct.CSSClass)
-				//line views/templates/tables/table_view.qtpl:146
-				qw422016.N().S(`"
-                         style="`)
-				//line views/templates/tables/table_view.qtpl:147
-				qw422016.E().S(fieldStruct.CSSStyle)
-				//line views/templates/tables/table_view.qtpl:147
-				qw422016.N().S(`;margin:auto; height:auto;">
-                        `)
+                `)
 				//line views/templates/tables/table_view.qtpl:148
+				qw422016.N().S(`
+                        `)
+				//line views/templates/tables/table_view.qtpl:149
 				if key == "parent_id" {
-					//line views/templates/tables/table_view.qtpl:148
+					//line views/templates/tables/table_view.qtpl:149
 					qw422016.N().S(`
                             `)
-					//line views/templates/tables/table_view.qtpl:149
+					//line views/templates/tables/table_view.qtpl:150
 					fieldStruct.StreamRenderParentSelect(qw422016, fields.Name, key, val, titleLabel, required, events, dataJson)
-					//line views/templates/tables/table_view.qtpl:149
+					//line views/templates/tables/table_view.qtpl:150
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:150
+					//line views/templates/tables/table_view.qtpl:151
 				} else if strings.HasPrefix(key, "id_") {
-					//line views/templates/tables/table_view.qtpl:150
+					//line views/templates/tables/table_view.qtpl:151
 					qw422016.N().S(`
                             `)
-					//line views/templates/tables/table_view.qtpl:151
+					//line views/templates/tables/table_view.qtpl:152
 					fieldStruct.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required, events, dataJson)
-					//line views/templates/tables/table_view.qtpl:151
+					//line views/templates/tables/table_view.qtpl:152
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:152
+					//line views/templates/tables/table_view.qtpl:153
 				} else if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") {
-					//line views/templates/tables/table_view.qtpl:152
+					//line views/templates/tables/table_view.qtpl:153
 					qw422016.N().S(`
                             `)
-					//line views/templates/tables/table_view.qtpl:153
+					//line views/templates/tables/table_view.qtpl:154
 					fieldStruct.StreamRenderMultiSelect(qw422016, fields, tablePrefix, key, val, "См. ", required)
-					//line views/templates/tables/table_view.qtpl:153
+					//line views/templates/tables/table_view.qtpl:154
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:154
+					//line views/templates/tables/table_view.qtpl:155
 				} else if strings.HasPrefix(key, "tableid_") {
-					//line views/templates/tables/table_view.qtpl:154
+					//line views/templates/tables/table_view.qtpl:155
 					qw422016.N().S(`
                             `)
-					//line views/templates/tables/table_view.qtpl:155
+					//line views/templates/tables/table_view.qtpl:156
 					fieldStruct.StreamRenderTable(qw422016, fields, tablePrefix, key, val, "Табл", required)
-					//line views/templates/tables/table_view.qtpl:155
+					//line views/templates/tables/table_view.qtpl:156
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:156
+					//line views/templates/tables/table_view.qtpl:157
 				} else {
-					//line views/templates/tables/table_view.qtpl:156
+					//line views/templates/tables/table_view.qtpl:157
 					qw422016.N().S(`
                             `)
-					//line views/templates/tables/table_view.qtpl:157
-					switch fieldStruct.DATA_TYPE {
 					//line views/templates/tables/table_view.qtpl:158
+					switch fieldStruct.DATA_TYPE {
+					//line views/templates/tables/table_view.qtpl:159
 					case "tinyint":
-						//line views/templates/tables/table_view.qtpl:158
+						//line views/templates/tables/table_view.qtpl:159
 						qw422016.N().S(`
                                     `)
-						//line views/templates/tables/table_view.qtpl:160
+						//line views/templates/tables/table_view.qtpl:161
 						checked := ""
 						if val == "1" {
 							checked = "checked"
 						}
 
-						//line views/templates/tables/table_view.qtpl:164
+						//line views/templates/tables/table_view.qtpl:165
 						qw422016.N().S(`
                                     `)
-						//line views/templates/tables/table_view.qtpl:165
+						//line views/templates/tables/table_view.qtpl:166
 						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, required, events, dataJson)
-						//line views/templates/tables/table_view.qtpl:165
-						qw422016.N().S(`
-                            `)
-					//line views/templates/tables/table_view.qtpl:166
-					case "enum":
 						//line views/templates/tables/table_view.qtpl:166
 						qw422016.N().S(`
-                                `)
+                            `)
+					//line views/templates/tables/table_view.qtpl:167
+					case "enum":
 						//line views/templates/tables/table_view.qtpl:167
+						qw422016.N().S(`
+                                `)
+						//line views/templates/tables/table_view.qtpl:168
 						t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson)
 
-						//line views/templates/tables/table_view.qtpl:167
+						//line views/templates/tables/table_view.qtpl:168
 						qw422016.N().S(`
                                 `)
-						//line views/templates/tables/table_view.qtpl:168
+						//line views/templates/tables/table_view.qtpl:169
 						qw422016.N().S(t)
-						//line views/templates/tables/table_view.qtpl:168
-						qw422016.N().S(`
-                            `)
-					//line views/templates/tables/table_view.qtpl:169
-					case "set":
 						//line views/templates/tables/table_view.qtpl:169
 						qw422016.N().S(`
-                                `)
+                            `)
+					//line views/templates/tables/table_view.qtpl:170
+					case "set":
 						//line views/templates/tables/table_view.qtpl:170
+						qw422016.N().S(`
+                                `)
+						//line views/templates/tables/table_view.qtpl:171
 						t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson)
 
-						//line views/templates/tables/table_view.qtpl:170
+						//line views/templates/tables/table_view.qtpl:171
 						qw422016.N().S(`
                                 `)
-						//line views/templates/tables/table_view.qtpl:171
+						//line views/templates/tables/table_view.qtpl:172
 						qw422016.N().S(t)
-						//line views/templates/tables/table_view.qtpl:171
-						qw422016.N().S(`
-                            `)
-					//line views/templates/tables/table_view.qtpl:172
-					case "text":
 						//line views/templates/tables/table_view.qtpl:172
 						qw422016.N().S(`
-                                <textarea id="`)
+                            `)
+					//line views/templates/tables/table_view.qtpl:173
+					case "text":
 						//line views/templates/tables/table_view.qtpl:173
+						qw422016.N().S(`
+                                <p id="`)
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.E().S(key)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(`" name="`)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.E().S(nameInput)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(`" class="controls"  `)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(events)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(` `)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(dataJson)
-						//line views/templates/tables/table_view.qtpl:173
+						//line views/templates/tables/table_view.qtpl:174
 						qw422016.N().S(`>
                                     `)
-						//line views/templates/tables/table_view.qtpl:174
+						//line views/templates/tables/table_view.qtpl:175
 						qw422016.N().S(val)
-						//line views/templates/tables/table_view.qtpl:174
+						//line views/templates/tables/table_view.qtpl:175
 						qw422016.N().S(`
-                                </textarea>
+                                </p>
                             `)
-					//line views/templates/tables/table_view.qtpl:176
+					//line views/templates/tables/table_view.qtpl:177
 					case "blob":
-						//line views/templates/tables/table_view.qtpl:176
+						//line views/templates/tables/table_view.qtpl:177
 						qw422016.N().S(`
                                 <image src="/images/expand_hover.png" />
                             `)
-					//line views/templates/tables/table_view.qtpl:178
+					//line views/templates/tables/table_view.qtpl:179
 					default:
-						//line views/templates/tables/table_view.qtpl:178
+						//line views/templates/tables/table_view.qtpl:179
 						qw422016.N().S(`
                                 `)
-						//line views/templates/tables/table_view.qtpl:179
+						//line views/templates/tables/table_view.qtpl:180
 						if fieldStruct.LinkTD > "" {
-							//line views/templates/tables/table_view.qtpl:179
+							//line views/templates/tables/table_view.qtpl:180
 							qw422016.N().S(`
                                  <a href="`)
-							//line views/templates/tables/table_view.qtpl:180
-							qw422016.N().S(fieldStruct.LinkTD)
-							//line views/templates/tables/table_view.qtpl:180
-							qw422016.N().S(`?id=`)
-							//line views/templates/tables/table_view.qtpl:180
-							qw422016.N().D(fields.ID)
-							//line views/templates/tables/table_view.qtpl:180
-							qw422016.N().S(`" target="_blank"> !! </a>
-                                 `)
 							//line views/templates/tables/table_view.qtpl:181
+							qw422016.N().S(fieldStruct.LinkTD)
+							//line views/templates/tables/table_view.qtpl:181
+							qw422016.N().S(`?id=`)
+							//line views/templates/tables/table_view.qtpl:181
+							qw422016.N().D(fields.ID)
+							//line views/templates/tables/table_view.qtpl:181
+							qw422016.N().S(`" target="_blank">`)
+							//line views/templates/tables/table_view.qtpl:181
+							qw422016.E().S(val)
+							//line views/templates/tables/table_view.qtpl:181
+							qw422016.N().S(`</a>
+                                 `)
+							//line views/templates/tables/table_view.qtpl:182
+						} else {
+							//line views/templates/tables/table_view.qtpl:182
+							qw422016.N().S(`
+                                    `)
+							//line views/templates/tables/table_view.qtpl:183
+							qw422016.E().S(val)
+							//line views/templates/tables/table_view.qtpl:183
+							qw422016.N().S(`
+                                 `)
+							//line views/templates/tables/table_view.qtpl:184
 						}
-						//line views/templates/tables/table_view.qtpl:181
-						qw422016.N().S(`
-                                `)
-						//line views/templates/tables/table_view.qtpl:182
-						qw422016.E().S(val)
-						//line views/templates/tables/table_view.qtpl:182
+						//line views/templates/tables/table_view.qtpl:184
 						qw422016.N().S(`
                             `)
-						//line views/templates/tables/table_view.qtpl:183
+						//line views/templates/tables/table_view.qtpl:185
 					}
-					//line views/templates/tables/table_view.qtpl:183
+					//line views/templates/tables/table_view.qtpl:185
 					qw422016.N().S(`
                         `)
-					//line views/templates/tables/table_view.qtpl:184
+					//line views/templates/tables/table_view.qtpl:186
 				}
-				//line views/templates/tables/table_view.qtpl:184
-				qw422016.N().S(`
-                    </div>
-                `)
 				//line views/templates/tables/table_view.qtpl:186
+				qw422016.N().S(`
+                `)
+				//line views/templates/tables/table_view.qtpl:187
 			}
-			//line views/templates/tables/table_view.qtpl:186
-			qw422016.N().S(`
-            `)
 			//line views/templates/tables/table_view.qtpl:187
+			qw422016.N().S(`
+                </div>
+            `)
+			//line views/templates/tables/table_view.qtpl:189
 		}
-		//line views/templates/tables/table_view.qtpl:187
+		//line views/templates/tables/table_view.qtpl:189
 		qw422016.N().S(`
         </div>
         `)
-		//line views/templates/tables/table_view.qtpl:189
+		//line views/templates/tables/table_view.qtpl:191
 	}
-	//line views/templates/tables/table_view.qtpl:189
+	//line views/templates/tables/table_view.qtpl:191
 	qw422016.N().S(`
     </div>
 </div>
-<!--/table-->
-
 `)
 //line views/templates/tables/table_view.qtpl:194
 }
@@ -669,4 +677,214 @@ func (query *QueryStruct) renderBodyTables() string {
 	//line views/templates/tables/table_view.qtpl:194
 	return qs422016
 //line views/templates/tables/table_view.qtpl:194
+}
+
+//line views/templates/tables/table_view.qtpl:195
+func streamrenderFilterSelect(qw422016 *qt422016.Writer, key string, fieldStruct *forms.FieldStructure) {
+	//line views/templates/tables/table_view.qtpl:195
+	qw422016.N().S(`
+    <select id="`)
+	//line views/templates/tables/table_view.qtpl:196
+	qw422016.E().S(key)
+	//line views/templates/tables/table_view.qtpl:196
+	qw422016.N().S(`" name="`)
+	//line views/templates/tables/table_view.qtpl:196
+	qw422016.E().S(key)
+	//line views/templates/tables/table_view.qtpl:196
+	qw422016.N().S(`" >
+            <option selected>-</option>
+    </select>
+`)
+//line views/templates/tables/table_view.qtpl:199
+}
+
+//line views/templates/tables/table_view.qtpl:199
+func writerenderFilterSelect(qq422016 qtio422016.Writer, key string, fieldStruct *forms.FieldStructure) {
+	//line views/templates/tables/table_view.qtpl:199
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/tables/table_view.qtpl:199
+	streamrenderFilterSelect(qw422016, key, fieldStruct)
+	//line views/templates/tables/table_view.qtpl:199
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/tables/table_view.qtpl:199
+}
+
+//line views/templates/tables/table_view.qtpl:199
+func renderFilterSelect(key string, fieldStruct *forms.FieldStructure) string {
+	//line views/templates/tables/table_view.qtpl:199
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/tables/table_view.qtpl:199
+	writerenderFilterSelect(qb422016, key, fieldStruct)
+	//line views/templates/tables/table_view.qtpl:199
+	qs422016 := string(qb422016.B)
+	//line views/templates/tables/table_view.qtpl:199
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/tables/table_view.qtpl:199
+	return qs422016
+//line views/templates/tables/table_view.qtpl:199
+}
+
+//line views/templates/tables/table_view.qtpl:200
+func streaminputFilterField(qw422016 *qt422016.Writer, key, nameTable string, fieldStruct *forms.FieldStructure) {
+	//line views/templates/tables/table_view.qtpl:200
+	qw422016.N().S(`
+ <div title="`)
+	//line views/templates/tables/table_view.qtpl:201
+	qw422016.E().S(key)
+	//line views/templates/tables/table_view.qtpl:201
+	qw422016.N().S(`" class="td" style="`)
+	//line views/templates/tables/table_view.qtpl:201
+	qw422016.N().S(fieldStruct.CSSStyle)
+	//line views/templates/tables/table_view.qtpl:201
+	qw422016.N().S(`">
+                        `)
+	//line views/templates/tables/table_view.qtpl:202
+	if key == "parent_id" {
+		//line views/templates/tables/table_view.qtpl:202
+		qw422016.N().S(`
+                                `)
+		//line views/templates/tables/table_view.qtpl:203
+		fieldStruct.GetOptions(nameTable, "")
+
+		//line views/templates/tables/table_view.qtpl:203
+		qw422016.N().S(`
+                                `)
+		//line views/templates/tables/table_view.qtpl:204
+		streamrenderFilterSelect(qw422016, key, fieldStruct)
+		//line views/templates/tables/table_view.qtpl:204
+		qw422016.N().S(`
+                        `)
+		//line views/templates/tables/table_view.qtpl:205
+	} else if strings.HasPrefix(key, "id_") {
+		//line views/templates/tables/table_view.qtpl:205
+		qw422016.N().S(`
+                                `)
+		//line views/templates/tables/table_view.qtpl:206
+		fieldStruct.GetOptions(key[3:], "")
+
+		//line views/templates/tables/table_view.qtpl:206
+		qw422016.N().S(`
+                                `)
+		//line views/templates/tables/table_view.qtpl:207
+		streamrenderFilterSelect(qw422016, key, fieldStruct)
+		//line views/templates/tables/table_view.qtpl:207
+		qw422016.N().S(`
+                        `)
+		//line views/templates/tables/table_view.qtpl:208
+	} else if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") {
+		//line views/templates/tables/table_view.qtpl:208
+		qw422016.N().S(`
+                            `)
+		//line views/templates/tables/table_view.qtpl:209
+		fieldStruct.StreamRenderMultiSelect(qw422016, nil, nameTable, key, "", "См. ", "")
+		//line views/templates/tables/table_view.qtpl:209
+		qw422016.N().S(`
+                        `)
+		//line views/templates/tables/table_view.qtpl:210
+	} else if strings.HasPrefix(key, "tableid_") {
+		//line views/templates/tables/table_view.qtpl:210
+		qw422016.N().S(`
+                            `)
+		//line views/templates/tables/table_view.qtpl:211
+		fieldStruct.StreamRenderTable(qw422016, nil, nameTable, key, "", "Табл", "")
+		//line views/templates/tables/table_view.qtpl:211
+		qw422016.N().S(`
+                        `)
+		//line views/templates/tables/table_view.qtpl:212
+	} else {
+		//line views/templates/tables/table_view.qtpl:212
+		qw422016.N().S(`
+                            `)
+		//line views/templates/tables/table_view.qtpl:213
+		switch fieldStruct.DATA_TYPE {
+		//line views/templates/tables/table_view.qtpl:214
+		case "tinyint":
+			//line views/templates/tables/table_view.qtpl:214
+			qw422016.N().S(`
+                                    `)
+			//line views/templates/tables/table_view.qtpl:215
+			forms.StreamRenderCheckBox(qw422016, key, "1", "", 1, "", "", "", "")
+			//line views/templates/tables/table_view.qtpl:215
+			qw422016.N().S(`
+                            `)
+		//line views/templates/tables/table_view.qtpl:216
+		case "enum":
+			//line views/templates/tables/table_view.qtpl:216
+			qw422016.N().S(`
+                                `)
+			//line views/templates/tables/table_view.qtpl:217
+			t := fieldStruct.RenderEnum(key, "", "", "", "")
+
+			//line views/templates/tables/table_view.qtpl:217
+			qw422016.N().S(`
+                                `)
+			//line views/templates/tables/table_view.qtpl:218
+			qw422016.N().S(t)
+			//line views/templates/tables/table_view.qtpl:218
+			qw422016.N().S(`
+                            `)
+		//line views/templates/tables/table_view.qtpl:219
+		case "set":
+			//line views/templates/tables/table_view.qtpl:219
+			qw422016.N().S(`
+                                `)
+			//line views/templates/tables/table_view.qtpl:220
+			t := fieldStruct.RenderSet(key, "", "", "", "")
+
+			//line views/templates/tables/table_view.qtpl:220
+			qw422016.N().S(`
+                                `)
+			//line views/templates/tables/table_view.qtpl:221
+			qw422016.N().S(t)
+			//line views/templates/tables/table_view.qtpl:221
+			qw422016.N().S(`
+               `)
+		//line views/templates/tables/table_view.qtpl:222
+		default:
+			//line views/templates/tables/table_view.qtpl:222
+			qw422016.N().S(`
+                    `)
+			//line views/templates/tables/table_view.qtpl:223
+			fieldStruct.StreamRenderInputFromType(qw422016, key, "", "", "", "", "", "", "")
+			//line views/templates/tables/table_view.qtpl:223
+			qw422016.N().S(`
+               `)
+			//line views/templates/tables/table_view.qtpl:224
+		}
+		//line views/templates/tables/table_view.qtpl:224
+		qw422016.N().S(`
+        `)
+		//line views/templates/tables/table_view.qtpl:225
+	}
+	//line views/templates/tables/table_view.qtpl:225
+	qw422016.N().S(`
+  </div>
+`)
+//line views/templates/tables/table_view.qtpl:227
+}
+
+//line views/templates/tables/table_view.qtpl:227
+func writeinputFilterField(qq422016 qtio422016.Writer, key, nameTable string, fieldStruct *forms.FieldStructure) {
+	//line views/templates/tables/table_view.qtpl:227
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/tables/table_view.qtpl:227
+	streaminputFilterField(qw422016, key, nameTable, fieldStruct)
+	//line views/templates/tables/table_view.qtpl:227
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/tables/table_view.qtpl:227
+}
+
+//line views/templates/tables/table_view.qtpl:227
+func inputFilterField(key, nameTable string, fieldStruct *forms.FieldStructure) string {
+	//line views/templates/tables/table_view.qtpl:227
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/tables/table_view.qtpl:227
+	writeinputFilterField(qb422016, key, nameTable, fieldStruct)
+	//line views/templates/tables/table_view.qtpl:227
+	qs422016 := string(qb422016.B)
+	//line views/templates/tables/table_view.qtpl:227
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/tables/table_view.qtpl:227
+	return qs422016
+//line views/templates/tables/table_view.qtpl:227
 }

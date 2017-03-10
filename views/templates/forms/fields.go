@@ -243,7 +243,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 			html += fmt.Sprintf(`<input type="%s" name="%s:%s" value="%s"/>`, "hidden", tableProps, inputName, value)
 		}
 	} else if strings.HasPrefix(fieldName, "id_") {
-		fieldStruct.getOptions(fieldName[3:], value)
+		fieldStruct.GetOptions(fieldName[3:], value)
 		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html )
 	} else if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
 		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
@@ -368,7 +368,7 @@ func (field *FieldStructure) getForeignFields(tableName string)  string {
 		return db.GetParentFieldName(tableName)
 	}
 }
-func (field *FieldStructure) getOptions(tableName, val string) {
+func (field *FieldStructure) GetOptions(tableName, val string) {
 
 	var where string
 	ForeignFields := field.getForeignFields(tableName)
