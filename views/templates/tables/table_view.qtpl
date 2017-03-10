@@ -194,7 +194,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 {% func renderFilterSelect(key string, fieldStruct *forms.FieldStructure) %}
     <select id="{%s key %}" name="{%s key %}" >
-            <option selected>-</option>
+        <option selected>-</option>
+        {%s= fieldStruct.Html %}
     </select>
 {% endfunc %}
 {% func inputFilterField(key, nameTable string, fieldStruct *forms.FieldStructure) %}
