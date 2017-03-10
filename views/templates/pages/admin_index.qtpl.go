@@ -94,8 +94,7 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
   </template>
 
   <script>
- HTMLImports.whenReady(function () {
-   elem = Polymer({
+   Polymer({
       is: 'employee-list',
       ready: function() {
         this.employees = [
@@ -104,7 +103,6 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
         ];
       }
     });
-    })
  </script>
 
 </dom-module>
@@ -113,37 +111,37 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
 </div>
 
 `)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:65
 	layouts.StreamFooterHTML(qw422016)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:65
 	qw422016.N().S(`
 </body>
 `)
-//line views/templates/pages/admin_index.qtpl:69
+//line views/templates/pages/admin_index.qtpl:67
 }
 
-//line views/templates/pages/admin_index.qtpl:69
+//line views/templates/pages/admin_index.qtpl:67
 func (body *AdminPageBody) WriteShowAdminPage(qq422016 qtio422016.Writer, activePage string) {
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	body.StreamShowAdminPage(qw422016, activePage)
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/admin_index.qtpl:69
+//line views/templates/pages/admin_index.qtpl:67
 }
 
-//line views/templates/pages/admin_index.qtpl:69
+//line views/templates/pages/admin_index.qtpl:67
 func (body *AdminPageBody) ShowAdminPage(activePage string) string {
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	body.WriteShowAdminPage(qb422016, activePage)
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/admin_index.qtpl:69
+	//line views/templates/pages/admin_index.qtpl:67
 	return qs422016
-//line views/templates/pages/admin_index.qtpl:69
+//line views/templates/pages/admin_index.qtpl:67
 }

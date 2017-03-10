@@ -27,7 +27,6 @@ type HeadHTMLPage struct {
         {%s head.MetaTags[i] %}
     {% endfor %}
     <title>{%s head.Title %}</title>
-    <link rel="import" href="/polymer.html">
     <link rel="stylesheet" href="http://solution.allservice.in.ua/js/fancybox2/jquery.fancybox.css" type="text/css" media="screen">
     <!-- link rel="stylesheet" href="http://solution.allservice.in.ua/css/stog.css" type="text/css"  media="screen"-->
     <link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">
