@@ -76,6 +76,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     <form name='fFilter' id='fFilter' class='form-simple tr thead' role='form' action='{%s query.Href %}/?filter' method='post'
     target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data'
     oninput='return FormIsModified(event, this);' onabort="alert('fFilter');">
+        <output name="State" ></output>
         <input name="{%s query.Tables[0].Name %}" hidden />
         {%s= filterFields %}
     </form>
@@ -207,7 +208,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 </div>
 {% endfunc %}
 {% func renderFilterSelect(key string, fieldStruct *forms.FieldStructure) %}
-    <select id="{%s key %}" name="{%s key %}" onkeyup="return FilterIsModified( event, this);">
+    <select id="{%s key %}" name="{%s key %}" onchange="return FilterIsModified( event, this);">
         <option selected>-</option>
         {%s= fieldStruct.Html %}
     </select>
@@ -235,7 +236,26 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 {%code t := fieldStruct.RenderSet(key, "", "", "", "") %}
                                 {%s= t %}
                {% default %}
-                    {%= fieldStruct.RenderInputFromType(key, "", "", "", "", "", "onkeyup='return FilterIsModified( event, this);'", "") %}
+                        <input id="{%s key %}" name="{%s key %}" type=
+
+                        {% if fieldStruct.InputType > "" %}
+                            "{%s fieldStruct.InputType %}"
+                        {% elseif fieldStruct.DATA_TYPE=="int" || fieldStruct.DATA_TYPE=="double" %}
+                            "number" {% if strings.Contains(fieldStruct.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
+                        {% elseif fieldStruct.DATA_TYPE=="date" %}
+                            "date"  {%= fieldStruct.RenderDateAttributtes() %}
+                        {% elseif fieldStruct.DATA_TYPE=="datetime" %}
+                            "datetime" {%= fieldStruct.RenderDateAttributtes() %}
+                        {% elseif strings.Contains(key, "email") %}
+                            "email"
+                        {% else %}
+                            "text"
+                               {% if fieldStruct.CHARACTER_MAXIMUM_LENGTH>0 %}
+                                    maxlength="{%d fieldStruct.CHARACTER_MAXIMUM_LENGTH %}"
+                               {% endif %}
+                        {% endif %}
+                        onkeyup="return FilterIsModified( event, this);"
+                        />
                {% endswitch %}
         {% endif %}
   </div>

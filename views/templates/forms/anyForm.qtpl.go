@@ -1022,7 +1022,7 @@ func (ns *FieldsTable) ShowAnyForm(Action, Title string) string {
 }
 
 //line views/templates/forms/anyForm.qtpl:248
-func (fieldStrc *FieldStructure) streamrenderDateAttributtes(qw422016 *qt422016.Writer) {
+func (fieldStrc *FieldStructure) StreamRenderDateAttributtes(qw422016 *qt422016.Writer) {
 	//line views/templates/forms/anyForm.qtpl:248
 	qw422016.N().S(`
     `)
@@ -1067,22 +1067,22 @@ func (fieldStrc *FieldStructure) streamrenderDateAttributtes(qw422016 *qt422016.
 }
 
 //line views/templates/forms/anyForm.qtpl:257
-func (fieldStrc *FieldStructure) writerenderDateAttributtes(qq422016 qtio422016.Writer) {
+func (fieldStrc *FieldStructure) WriteRenderDateAttributtes(qq422016 qtio422016.Writer) {
 	//line views/templates/forms/anyForm.qtpl:257
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/anyForm.qtpl:257
-	fieldStrc.streamrenderDateAttributtes(qw422016)
+	fieldStrc.StreamRenderDateAttributtes(qw422016)
 	//line views/templates/forms/anyForm.qtpl:257
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/anyForm.qtpl:257
 }
 
 //line views/templates/forms/anyForm.qtpl:257
-func (fieldStrc *FieldStructure) renderDateAttributtes() string {
+func (fieldStrc *FieldStructure) RenderDateAttributtes() string {
 	//line views/templates/forms/anyForm.qtpl:257
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/anyForm.qtpl:257
-	fieldStrc.writerenderDateAttributtes(qb422016)
+	fieldStrc.WriteRenderDateAttributtes(qb422016)
 	//line views/templates/forms/anyForm.qtpl:257
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/anyForm.qtpl:257
@@ -1141,7 +1141,7 @@ func (fieldStrc *FieldStructure) StreamRenderInputFromType(qw422016 *qt422016.Wr
                             "date"
                             `)
 		//line views/templates/forms/anyForm.qtpl:270
-		fieldStrc.streamrenderDateAttributtes(qw422016)
+		fieldStrc.StreamRenderDateAttributtes(qw422016)
 		//line views/templates/forms/anyForm.qtpl:270
 		qw422016.N().S(`
                         `)
@@ -1152,7 +1152,7 @@ func (fieldStrc *FieldStructure) StreamRenderInputFromType(qw422016 *qt422016.Wr
                             "datetime"
                             `)
 		//line views/templates/forms/anyForm.qtpl:273
-		fieldStrc.streamrenderDateAttributtes(qw422016)
+		fieldStrc.StreamRenderDateAttributtes(qw422016)
 		//line views/templates/forms/anyForm.qtpl:273
 		qw422016.N().S(`
                         `)

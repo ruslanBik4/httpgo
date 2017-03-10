@@ -245,7 +245,7 @@
     </div>
 </form>
 {% endfunc %}
-{% func (fieldStrc *FieldStructure) renderDateAttributtes() %}
+{% func (fieldStrc *FieldStructure) RenderDateAttributtes() %}
     {% if maxDate, ok := fieldStrc.DataJSOM["maxDate"]; ok %}
         {% switch maxDate.(string) %}
         {% case "today" %}
@@ -267,10 +267,10 @@
                                {% if strings.Contains(fieldStrc.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
                         {% elseif fieldStrc.DATA_TYPE=="date" %}
                             "date"
-                            {%= fieldStrc.renderDateAttributtes() %}
+                            {%= fieldStrc.RenderDateAttributtes() %}
                         {% elseif fieldStrc.DATA_TYPE=="datetime" %}
                             "datetime"
-                            {%= fieldStrc.renderDateAttributtes() %}
+                            {%= fieldStrc.RenderDateAttributtes() %}
                         {% elseif strings.Contains(nameInput, "email") %}
                             "email"
                         {% else %}
