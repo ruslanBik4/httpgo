@@ -16,6 +16,7 @@ type QueryStruct struct {
 	Tables [] *forms.FieldsTable
 	widthTable int
 	Order   string
+	PostFields [] *forms.FieldStructure
 }
 
 func (query *QueryStruct) findField(fieldName string) *forms.FieldStructure {
