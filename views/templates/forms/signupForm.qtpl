@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 {% func ShowForm(placeholder string) %}
 <head>
+    <link rel="import" href="/components/paper-input/paper-input-container.html">
+    <link rel="import" href="/components/paper-input/paper-input-error.html">
+    <link rel="import" href="/components/paper-input/paper-input.html">
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
 </head>
@@ -24,6 +27,8 @@
         });
     </script>
     <label>E-mail, по которому мы зарегистрируем Вас в системе</label>
+
+    <paper-input label="text input"></paper-input>
     <input type="email" name="login" class="input-block-level" required placeholder="email для регистрации в системе">
     <input type="submit" value="Зарегистрироваться.">
     <input type="button" data-href="/user/oauth/" onclick="return getOauth(this);" value="Google">
