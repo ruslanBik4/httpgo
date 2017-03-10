@@ -63,7 +63,7 @@ var (
 		"/user/profile/": users.HandlerProfile,
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
-		//"/admin/add": handlerAddPage,
+		"/components/": handlerComponents,
 		//"/store/nav/": handlerStoreNav,
 		//"/admin/catalog/": handlerAddCatalog,
 		//"/admin/psd/add" : handlerAddPSD,
@@ -139,11 +139,11 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
 		// спецвойска
 	case "/polymer.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer.html"))
+		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer.html"))
 	case "/polymer-mini.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-mini.html"))
+		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer-mini.html"))
 	case "/polymer-micro.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "js/polymer/polymer/polymer-micro.html"))
+		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer-micro.html"))
 	case "/status","/ping","/pong":
 		h.fpm.ServeHTTP(w, r)
 	default:
@@ -163,6 +163,13 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		h.php.ServeHTTP(w, r)
 	}
+}
+func handlerComponents(w http.ResponseWriter, r *http.Request) {
+
+	filename := strings.TrimLeft(r.URL.Path,"/")
+
+	http.ServeFile(w, r, filepath.Join(*f_static + "/views", filename ))
+
 }
 // считываем файлы типа css/js ect в память и потом отдаем из нее
 func setCache(path string, data []byte) {

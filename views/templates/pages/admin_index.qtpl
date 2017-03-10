@@ -47,7 +47,7 @@ type AdminPageBody struct {
 
   <script>
  HTMLImports.whenReady(function () {
-   Polymer({
+   elem = Polymer({
       is: 'employee-list',
       ready: function() {
         this.employees = [

@@ -95,7 +95,7 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
 
   <script>
  HTMLImports.whenReady(function () {
-   Polymer({
+   elem = Polymer({
       is: 'employee-list',
       ready: function() {
         this.employees = [
