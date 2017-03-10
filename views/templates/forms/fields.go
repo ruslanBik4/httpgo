@@ -58,7 +58,7 @@ type FieldsTable struct {
 // стиль показа для разных типов полей
 func StyleInput(dataType string) string{
 	switch (dataType) {
-	case "string":
+	case "varchar":
 		return "search"
 	case "set", "enum":
 		return "select"
@@ -70,7 +70,7 @@ func StyleInput(dataType string) string{
 		return "date"
 	case "timestamp", "datetime":
 		return "datetime"
-	case "test":
+	case "text":
 		return "textarea"
 	case "blob":
 		return "file"
@@ -80,25 +80,25 @@ func StyleInput(dataType string) string{
 
 }
 // минимальный размер поля для разных типов полей
-func GetLengthFromType(dataType string) int{
+func GetLengthFromType(dataType string) (width int, size int) {
 	switch (dataType) {
 	case "select":
-		return 120
+		return 120, 50
 	case "checkbox":
-		return 50
+		return 50, 15
 	case "number":
-		return 70
+		return 70, 50
 	case "date":
-		return 110
+		return 110, 50
 	case "datetime":
-		return 140
+		return 140, 50
 	case "timestamp":
-		return 140
+		return 140, 50
 	case "textarea":
-		return 100
+		return 120, 50
 	}
 
-	return 100
+	return 120, 50
 
 }
 
@@ -243,7 +243,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 			html += fmt.Sprintf(`<input type="%s" name="%s:%s" value="%s"/>`, "hidden", tableProps, inputName, value)
 		}
 	} else if strings.HasPrefix(fieldName, "id_") {
-		fieldStruct.getOptions(fieldName[3:], value)
+		fieldStruct.GetOptions(fieldName[3:], value)
 		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html )
 	} else if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
 		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
@@ -368,7 +368,7 @@ func (field *FieldStructure) getForeignFields(tableName string)  string {
 		return db.GetParentFieldName(tableName)
 	}
 }
-func (field *FieldStructure) getOptions(tableName, val string) {
+func (field *FieldStructure) GetOptions(tableName, val string) {
 
 	var where string
 	ForeignFields := field.getForeignFields(tableName)

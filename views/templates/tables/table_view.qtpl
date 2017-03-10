@@ -13,6 +13,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
+<script src="/tables.js"></script>
 <div class="table">
 <div class='thead' >
     <div class='tr' >
@@ -25,23 +26,30 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             {% for idx, fieldName := range query.columns %}
                 {% code
                         fieldStruct := query.fields[idx]
-                        titleFull, titleLabel := fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
+                        key, titleFull, titleLabel := fieldStruct.COLUMN_NAME, fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
+                        if fieldStruct.InputType == "" {
+                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
+                        }
+                        width, maxLen := forms.GetLengthFromType(fieldStruct.InputType)
 
-                        if len(titleFull) > 50 {
+                        if (fieldStruct.DATA_TYPE == "varchar") && (fieldStruct.CHARACTER_MAXIMUM_LENGTH == 255) {
+                            width, maxLen = 200, 100
+                        }
+                         fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
+                         query.widthTable += width
+                         filterFields     += inputFilterField(key,  query.Tables[0].Name, fieldStruct )
+                       if len(titleFull) > maxLen {
 
-                            titleLabel = titleFull[:strings.LastIndex(titleFull[:51], " ")] + "..."
+                            if pos := strings.LastIndex(titleFull[:maxLen+1], " "); pos > 0 {
+                                titleLabel = titleFull[:pos] + "..."
+                            } else {
+                                titleLabel = titleFull[:maxLen] + "..."
+                            }
                         }
 
                         if titleLabel == "" {
                             titleLabel = fieldName
                         }
-                        if fieldStruct.InputType == "" {
-                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
-                        }
-                        width := forms.GetLengthFromType(fieldStruct.InputType)
-                        fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
-                        query.widthTable += width
-                        filterFields     += fmt.Sprintf(`<div title="%s" class="td" style="%s"><input/></div>`, fieldName, fieldStruct.CSSStyle )
                 %}
                 {% comment %} Здесь объединяем колонки в группы {% endcomment %}
                 {% if figure != fieldStruct.Figure %}
@@ -52,8 +60,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         figure = fieldStruct.Figure
                     %}
                     {% if figure > "" %}
-                            <div class='td-outer' style="border: 1px inset gray;">
-                                <div class='th' style="border-bottom: 1px outset gray; padding-top: 1px;"> {%s figure %}</div>
+                            <div class='td-outer' style="outline: 1px inset gray;">
+                                <div class='th' style="outline: 1px outset gray; padding-top: 1px;"> {%s figure %}</div>
                     {% endif %}
                 {% endif %}
                  <div title="{%s fieldName %}" class="td{% if fieldName == query.Order %} td-order{% endif %}"
@@ -65,8 +73,10 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 </div>
             {% endif %}
     </div>
-    <form name='fFilter' id='fFilter' class='form-simple tr thead' role='form' action='{%s query.Href %}/?filter'  method='post'  target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data' title='$title' oninput='return FormIsModified( event, this);'
-    onabort="alert('fFilter');">
+    <form name='fFilter' id='fFilter' class='form-simple tr thead' role='form' action='{%s query.Href %}/?filter' method='post'
+    target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data'
+    oninput='return FormIsModified(event, this);' onabort="alert('fFilter');">
+        <output name="State" ></output>
         <input name="{%s query.Tables[0].Name %}" hidden />
         {%s= filterFields %}
     </form>
@@ -131,20 +141,20 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
                     }
                 %}
+                <div name="{%s key %}" class="td {%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}"
+                         style="{%s fieldStruct.CSSStyle %};margin:auto; height:auto;">
                 {% if idx==0 %}
-                    <div name="{%s key %}" class="td" style="{%s fieldStruct.CSSStyle %}">
-                        <a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
-                    </div>
+                    <a href="{%s= query.HrefEdit %}{%s val %}" target="content">{%s val %}</a>
                     {%code
                         tablePrefix = fields.Name
                         fields.ID, _ = strconv.Atoi(val)
                     %}
+                {% elseif fieldStruct.Html > "" %}
+                    {%s= fieldStruct.Html %}
                 {% else %}
                 {% comment %}
                 // TODO: сменить показ селектов от формы на табличные виды
                 {% endcomment %}
-                    <div name="{%s key %}" class="td {%s= required %} field-{%s nameInput %} {%s fieldStruct.CSSClass %}"
-                         style="{%s fieldStruct.CSSStyle %};margin:auto; height:auto;">
                         {% if key=="parent_id" %}
                             {%= fieldStruct.RenderParentSelect(fields.Name, key, val, titleLabel, required, events, dataJson) %}
                         {% elseif strings.HasPrefix(key, "id_") %}
@@ -170,25 +180,83 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 {%code t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson) %}
                                 {%s= t %}
                             {% case "text" %}
-                                <textarea id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
+                                <p id="{%s key %}" name="{%s nameInput %}" class="controls"  {%s= events %} {%s= dataJson %}>
                                     {%s= val %}
-                                </textarea>
+                                </p>
                             {% case "blob" %}
                                 <image src="/images/expand_hover.png" />
                             {% default %}
                                 {% if fieldStruct.LinkTD > "" %}
-                                 <a href="{%s= fieldStruct.LinkTD %}?id={%d fields.ID %}" target="_blank"> !! </a>
+                                 <a href="{%s= fieldStruct.LinkTD %}?id={%d fields.ID %}" target="_blank">{%s val %}</a>
+                                 {% else %}
+                                    {%s val %}
                                  {% endif %}
-                                {%s val %}
                             {% endswitch %}
                         {% endif %}
-                    </div>
                 {% endif %}
+                </div> <!-- field -->
             {%  endfor %}
-        </div>
+            {% for _, fieldStruct := range query.PostFields %}
+                <div name="{%s fieldStruct.COLUMN_NAME %}" class="td {%s fieldStruct.CSSClass %}"
+                         style="{%s fieldStruct.CSSStyle %};margin:auto; height:auto;" >
+                    {%s= fieldStruct.Html %}
+                </div> <!-- field -->
+            {%  endfor %}
+        </div> <!-- tr -->
         {%  endfor %}
     </div>
 </div>
-<!--/table-->
+{% endfunc %}
+{% func renderFilterSelect(key string, fieldStruct *forms.FieldStructure) %}
+    <select id="{%s key %}" name="{%s key %}" onchange="return FilterIsModified( event, this);">
+        <option selected>-</option>
+        {%s= fieldStruct.Html %}
+    </select>
+{% endfunc %}
+{% func inputFilterField(key, nameTable string, fieldStruct *forms.FieldStructure) %}
+ <div title="{%s key %}" class="td" style="{%s= fieldStruct.CSSStyle %}">
+                        {% if key=="parent_id" %}
+                                {%code fieldStruct.GetOptions(nameTable, "") %}
+                                {%= renderFilterSelect(key, fieldStruct) %}
+                        {% elseif strings.HasPrefix(key, "id_") %}
+                                {%code fieldStruct.GetOptions(key[3:], "") %}
+                                {%= renderFilterSelect(key, fieldStruct) %}
+                        {% elseif strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") %}
+                            {%= fieldStruct.RenderMultiSelect(nil, nameTable, key, "", "См. ", "") %}
+                        {% elseif strings.HasPrefix(key, "tableid_") %}
+                            {%= fieldStruct.RenderTable(nil, nameTable, key, "", "Табл", "") %}
+                        {%  else %}
+                            {% switch fieldStruct.DATA_TYPE %}
+                            {% case "tinyint" %}
+                                    {%= forms.RenderCheckBox(key, "1", "", 1, "", "", "", "") %}
+                            {% case "enum" %}
+                                {%code t := fieldStruct.RenderEnum(key, "", "", "", "") %}
+                                {%s= t %}
+                            {% case "set" %}
+                                {%code t := fieldStruct.RenderSet(key, "", "", "", "") %}
+                                {%s= t %}
+               {% default %}
+                        <input id="{%s key %}" name="{%s key %}" type=
 
+                        {% if fieldStruct.InputType > "" %}
+                            "{%s fieldStruct.InputType %}"
+                        {% elseif fieldStruct.DATA_TYPE=="int" || fieldStruct.DATA_TYPE=="double" %}
+                            "number" {% if strings.Contains(fieldStruct.COLUMN_TYPE, "unsigned") %}min="0"{% endif %}
+                        {% elseif fieldStruct.DATA_TYPE=="date" %}
+                            "date"  {%= fieldStruct.RenderDateAttributtes() %}
+                        {% elseif fieldStruct.DATA_TYPE=="datetime" %}
+                            "datetime" {%= fieldStruct.RenderDateAttributtes() %}
+                        {% elseif strings.Contains(key, "email") %}
+                            "email"
+                        {% else %}
+                            "text"
+                               {% if fieldStruct.CHARACTER_MAXIMUM_LENGTH>0 %}
+                                    maxlength="{%d fieldStruct.CHARACTER_MAXIMUM_LENGTH %}"
+                               {% endif %}
+                        {% endif %}
+                        onkeyup="return FilterIsModified( event, this);"
+                        />
+               {% endswitch %}
+        {% endif %}
+  </div>
 {% endfunc %}
