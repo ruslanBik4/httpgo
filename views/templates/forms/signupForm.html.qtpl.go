@@ -26,6 +26,7 @@ func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
 <head>
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
+    <link rel="import" href="/components/paper-input/paper-input.html">
 </head>
 <form target="content" action="/user/signup/" method="post"  enctype="multipart/form-data"
       onsubmit="return saveForm(this, afterSignup);"  class="form-signin">
@@ -36,9 +37,9 @@ func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
     </select>
     <label for="fullname">Введите Ваше ФИО</label>
     <input id="fullname" name="fullname" class="input-block-level" type="text" size="100" required placeholder="`)
-	//line views/templates/forms/signupForm.html.qtpl:15
+	//line views/templates/forms/signupForm.html.qtpl:16
 	qw422016.E().S(placeholder)
-	//line views/templates/forms/signupForm.html.qtpl:15
+	//line views/templates/forms/signupForm.html.qtpl:16
 	qw422016.N().S(`"/>
     <script type="text/javascript">
         $("#fullname").suggestions({
@@ -51,45 +52,49 @@ func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
         });
     </script>
     <label>E-mail, по которому мы зарегистрируем Вас в системе</label>
-    <input type="email" name="login" class="input-block-level" required placeholder="email для регистрации в системе">
-    <input type="submit" value="Зарегистрироваться.">
-    <input type="button" data-href="/user/oauth/" onclick="return getOauth(this);" value="Google">
+    <demo-snippet>
+      <template>
+    <paper-input label="E-mail, по которому мы зарегистрируем Вас в системе"" type="email" name="login" class="input-block-level" required placeholder="email для регистрации в системе"> </paper-input>
+    <paper-input type="submit" value="Зарегистрироваться."></paper-input>
+    <paper-input type="button" data-href="/user/oauth/" onclick="return getOauth(this);" value="Google"></paper-input>
+      <template>
+    </demo-snippet>
     <output></output>
     <img class='loading' src='http://solution.allservice.in.ua/loading.gif' style='display:none;'>
     <progress value='0' max='100' hidden > </progress>
 </form>
 
 `)
-//line views/templates/forms/signupForm.html.qtpl:35
+//line views/templates/forms/signupForm.html.qtpl:40
 }
 
-//line views/templates/forms/signupForm.html.qtpl:35
+//line views/templates/forms/signupForm.html.qtpl:40
 func WriteShowForm(qq422016 qtio422016.Writer, placeholder string) {
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	StreamShowForm(qw422016, placeholder)
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/signupForm.html.qtpl:35
+//line views/templates/forms/signupForm.html.qtpl:40
 }
 
-//line views/templates/forms/signupForm.html.qtpl:35
+//line views/templates/forms/signupForm.html.qtpl:40
 func ShowForm(placeholder string) string {
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	WriteShowForm(qb422016, placeholder)
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/signupForm.html.qtpl:35
+	//line views/templates/forms/signupForm.html.qtpl:40
 	return qs422016
-//line views/templates/forms/signupForm.html.qtpl:35
+//line views/templates/forms/signupForm.html.qtpl:40
 }
 
-//line views/templates/forms/signupForm.html.qtpl:37
+//line views/templates/forms/signupForm.html.qtpl:42
 type MarshalRow struct {
 	Msg string
 	N   int
@@ -105,77 +110,77 @@ type PersonData struct {
 
 // JSON marshaling
 
-//line views/templates/forms/signupForm.html.qtpl:53
+//line views/templates/forms/signupForm.html.qtpl:58
 func (d *PersonData) StreamJSON(qw422016 *qt422016.Writer) {
-	//line views/templates/forms/signupForm.html.qtpl:53
+	//line views/templates/forms/signupForm.html.qtpl:58
 	qw422016.N().S(`{"login": "`)
-	//line views/templates/forms/signupForm.html.qtpl:55
+	//line views/templates/forms/signupForm.html.qtpl:60
 	qw422016.E().S(d.Login)
-	//line views/templates/forms/signupForm.html.qtpl:55
+	//line views/templates/forms/signupForm.html.qtpl:60
 	qw422016.N().S(`","email": "`)
-	//line views/templates/forms/signupForm.html.qtpl:56
+	//line views/templates/forms/signupForm.html.qtpl:61
 	qw422016.E().S(d.Email)
-	//line views/templates/forms/signupForm.html.qtpl:56
+	//line views/templates/forms/signupForm.html.qtpl:61
 	qw422016.N().S(`","sex": "`)
-	//line views/templates/forms/signupForm.html.qtpl:57
+	//line views/templates/forms/signupForm.html.qtpl:62
 	if d.Sex == 0 {
-		//line views/templates/forms/signupForm.html.qtpl:57
+		//line views/templates/forms/signupForm.html.qtpl:62
 		qw422016.N().S(`господин`)
-		//line views/templates/forms/signupForm.html.qtpl:57
+		//line views/templates/forms/signupForm.html.qtpl:62
 	} else {
-		//line views/templates/forms/signupForm.html.qtpl:57
+		//line views/templates/forms/signupForm.html.qtpl:62
 		qw422016.N().S(`госпожа`)
-		//line views/templates/forms/signupForm.html.qtpl:57
+		//line views/templates/forms/signupForm.html.qtpl:62
 	}
-	//line views/templates/forms/signupForm.html.qtpl:57
+	//line views/templates/forms/signupForm.html.qtpl:62
 	qw422016.N().S(`","Rows":[`)
-	//line views/templates/forms/signupForm.html.qtpl:59
+	//line views/templates/forms/signupForm.html.qtpl:64
 	for i, r := range d.Rows {
-		//line views/templates/forms/signupForm.html.qtpl:59
-		qw422016.N().S(`{"Msg":`)
-		//line views/templates/forms/signupForm.html.qtpl:61
-		qw422016.N().Q(r.Msg)
-		//line views/templates/forms/signupForm.html.qtpl:61
-		qw422016.N().S(`,"N":`)
-		//line views/templates/forms/signupForm.html.qtpl:62
-		qw422016.N().D(r.N)
-		//line views/templates/forms/signupForm.html.qtpl:62
-		qw422016.N().S(`}`)
 		//line views/templates/forms/signupForm.html.qtpl:64
+		qw422016.N().S(`{"Msg":`)
+		//line views/templates/forms/signupForm.html.qtpl:66
+		qw422016.N().Q(r.Msg)
+		//line views/templates/forms/signupForm.html.qtpl:66
+		qw422016.N().S(`,"N":`)
+		//line views/templates/forms/signupForm.html.qtpl:67
+		qw422016.N().D(r.N)
+		//line views/templates/forms/signupForm.html.qtpl:67
+		qw422016.N().S(`}`)
+		//line views/templates/forms/signupForm.html.qtpl:69
 		if i+1 < len(d.Rows) {
-			//line views/templates/forms/signupForm.html.qtpl:64
+			//line views/templates/forms/signupForm.html.qtpl:69
 			qw422016.N().S(`,`)
-			//line views/templates/forms/signupForm.html.qtpl:64
+			//line views/templates/forms/signupForm.html.qtpl:69
 		}
-		//line views/templates/forms/signupForm.html.qtpl:65
+		//line views/templates/forms/signupForm.html.qtpl:70
 	}
-	//line views/templates/forms/signupForm.html.qtpl:65
+	//line views/templates/forms/signupForm.html.qtpl:70
 	qw422016.N().S(`]}`)
-//line views/templates/forms/signupForm.html.qtpl:68
+//line views/templates/forms/signupForm.html.qtpl:73
 }
 
-//line views/templates/forms/signupForm.html.qtpl:68
+//line views/templates/forms/signupForm.html.qtpl:73
 func (d *PersonData) WriteJSON(qq422016 qtio422016.Writer) {
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	d.StreamJSON(qw422016)
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/signupForm.html.qtpl:68
+//line views/templates/forms/signupForm.html.qtpl:73
 }
 
-//line views/templates/forms/signupForm.html.qtpl:68
+//line views/templates/forms/signupForm.html.qtpl:73
 func (d *PersonData) JSON() string {
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	d.WriteJSON(qb422016)
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	qs422016 := string(qb422016.B)
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/forms/signupForm.html.qtpl:68
+	//line views/templates/forms/signupForm.html.qtpl:73
 	return qs422016
-//line views/templates/forms/signupForm.html.qtpl:68
+//line views/templates/forms/signupForm.html.qtpl:73
 }
