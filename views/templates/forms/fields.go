@@ -85,7 +85,7 @@ func GetLengthFromType(dataType string) (width int, size int) {
 	case "select":
 		return 120, 50
 	case "checkbox":
-		return 50, 10
+		return 50, 15
 	case "number":
 		return 70, 50
 	case "date":

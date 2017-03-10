@@ -729,7 +729,7 @@ func streamrenderFilterSelect(qw422016 *qt422016.Writer, key string, fieldStruct
 	//line views/templates/tables/table_view.qtpl:210
 	qw422016.E().S(key)
 	//line views/templates/tables/table_view.qtpl:210
-	qw422016.N().S(`" >
+	qw422016.N().S(`" onkeyup="return FilterIsModified( event, this);">
         <option selected>-</option>
         `)
 	//line views/templates/tables/table_view.qtpl:212
@@ -888,7 +888,7 @@ func streaminputFilterField(qw422016 *qt422016.Writer, key, nameTable string, fi
 			qw422016.N().S(`
                     `)
 			//line views/templates/tables/table_view.qtpl:238
-			fieldStruct.StreamRenderInputFromType(qw422016, key, "", "", "", "", "", "onkey='return FilterIsModified( event, this);'", "")
+			fieldStruct.StreamRenderInputFromType(qw422016, key, "", "", "", "", "", "onkeyup='return FilterIsModified( event, this);'", "")
 			//line views/templates/tables/table_view.qtpl:238
 			qw422016.N().S(`
                `)
