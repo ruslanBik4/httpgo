@@ -13,6 +13,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
+<script src="/tables.js"></script>
 <div class="table">
 <div class='thead' >
     <div class='tr' >
@@ -31,7 +32,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         }
                         width, maxLen := forms.GetLengthFromType(fieldStruct.InputType)
 
-                        if (fieldStruct.DATA_TYPE == "string") && (fieldStruct.CHARACTER_MAXIMUM_LENGTH == 255) {
+                        if (fieldStruct.DATA_TYPE == "varchar") && (fieldStruct.CHARACTER_MAXIMUM_LENGTH == 255) {
                             width, maxLen = 200, 100
                         }
                          fieldStruct.CSSStyle = fmt.Sprintf("width:%dpx;", width)
@@ -234,7 +235,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                                 {%code t := fieldStruct.RenderSet(key, "", "", "", "") %}
                                 {%s= t %}
                {% default %}
-                    {%= fieldStruct.RenderInputFromType(key, "", "", "", "", "", "", "") %}
+                    {%= fieldStruct.RenderInputFromType(key, "", "", "", "", "", "onkey='return FilterIsModified( event, this);'", "") %}
                {% endswitch %}
         {% endif %}
   </div>

@@ -58,7 +58,7 @@ type FieldsTable struct {
 // стиль показа для разных типов полей
 func StyleInput(dataType string) string{
 	switch (dataType) {
-	case "string":
+	case "varchar":
 		return "search"
 	case "set", "enum":
 		return "select"
