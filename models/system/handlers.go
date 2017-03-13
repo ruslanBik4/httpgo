@@ -16,7 +16,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)
-		fmt.Fprint(w, "Error during executing %v", err)
+		fmt.Fprintf(w, "Error during executing %v", err)
 	}
 }
 

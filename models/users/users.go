@@ -110,7 +110,7 @@ func IsLogin(r *http.Request) string {
 
 		return strconv.Itoa(userID.(int))
 	} else {
-		panic(&ErrNotLogin{message:"not login user!"})
+		panic(ErrNotLogin{message:"not login user!"})
 	}
 
 	return ""
