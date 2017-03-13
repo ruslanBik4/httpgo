@@ -221,10 +221,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         {% elseif strings.HasPrefix(key, "id_") %}
                                 {%code fieldStruct.GetOptions(key[3:], "") %}
                                 {%= renderFilterSelect(key, fieldStruct) %}
-                        {% elseif strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") %}
-                            {%= fieldStruct.RenderMultiSelect(nil, nameTable, key, "", "См. ", "") %}
-                        {% elseif strings.HasPrefix(key, "tableid_") %}
-                            {%= fieldStruct.RenderTable(nil, nameTable, key, "", "Табл", "") %}
                         {%  else %}
                             {% switch fieldStruct.DATA_TYPE %}
                             {% case "tinyint" %}
