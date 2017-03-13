@@ -35,7 +35,7 @@ var (
 
 	cacheMu sync.RWMutex
 	cache = map[string] []byte {}
-	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
+	routes = map[string] http.HandlerFunc  {
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
 		"/update/":  handleUpdate,
@@ -71,10 +71,16 @@ var (
 	}
 
 )
+func WrapCatchHandler(fnc http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer Catch(w,r)
+		fnc(w,r)
+	})
+}
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
-	for path, fnc := range routes {
-		http.HandleFunc(path, fnc)
+	for route, fnc := range routes {
+		http.HandleFunc(route, WrapCatchHandler(fnc) )
 	}
 	config.RegisterRoutes()
 }
@@ -133,7 +139,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	defer Catch(w)
+	defer Catch(w,r)
 	switch r.URL.Path {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
@@ -254,9 +260,14 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	}
 	views.RenderAnyPage(w, r, catalog + content)
 }
-func Catch(w http.ResponseWriter) {
+func Catch(w http.ResponseWriter, r *http.Request) {
 	err := recover()
-	if err != nil {
+
+	switch err.(type) {
+	case users.ErrNotLogin:
+		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
+	case nil:
+	default:
 		log.Print("panic runtime! ", err)
 		fmt.Fprint(w, "Error during executing %v", err)
 	}

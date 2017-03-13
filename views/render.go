@@ -75,7 +75,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		fmt.Fprint(w, p.IndexHTML())
 	case "signinForm":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
-		fmt.Fprint(w, forms.SigninForm(p.Title, "Введите пароль, полученный по почте"))
+		RenderAnyPage(w, r, forms.SigninForm(p.Title, "Введите пароль, полученный по почте") )
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
