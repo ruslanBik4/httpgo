@@ -416,11 +416,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 
 }
 func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
-	userID, ok := users.IsLogin(r)
-	if !ok {
-		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
-		return "", false
-	}
+	userID := users.IsLogin(r)
 
 	return userID, true
 
