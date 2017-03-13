@@ -71,16 +71,10 @@ var (
 	}
 
 )
-func WrapCatchHandler(fnc http.HandlerFunc) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer Catch(w,r)
-		fnc(w,r)
-	})
-}
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
 	for route, fnc := range routes {
-		http.HandleFunc(route, WrapCatchHandler(fnc) )
+		http.HandleFunc(route, system.WrapCatchHandler(fnc) )
 	}
 	config.RegisterRoutes()
 }
@@ -139,7 +133,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	defer Catch(w,r)
+	defer system.Catch(w,r)
 	switch r.URL.Path {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
@@ -259,18 +253,6 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
 	views.RenderAnyPage(w, r, catalog + content)
-}
-func Catch(w http.ResponseWriter, r *http.Request) {
-	err := recover()
-
-	switch err.(type) {
-	case users.ErrNotLogin:
-		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
-	case nil:
-	default:
-		log.Print("panic runtime! ", err)
-		fmt.Fprint(w, "Error during executing %v", err)
-	}
 }
 // считываю счасти из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
