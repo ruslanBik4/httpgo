@@ -107,7 +107,8 @@ function afterLogin(data)
 
     $('#sTitle').html( greetings );
     // $('#fTools > output').text( 'Можете добавить устройство из меню и перенести его в нужное Вам место.');
-    loginToggle();
+    // конфликтует с webcomponent.js
+    // loginToggle();
 
     // $('#dMyTools').load('/user/usertools/menu');
     // $('#dMyRooms').load('/user/rooms/menu');

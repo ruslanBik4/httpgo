@@ -54,11 +54,11 @@ type HeadHTMLPage struct {
     {% endfor %}
     <!--[if IE]><script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script><![endif]-->
     <!--[if !IE]--><script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script><!--[endif]-->
-    <script  src="http://yandex.st/jquery/fancybox/2.1.4/jquery.fancybox.min.js"></script>
-    <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
-    <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
-    <script  src="/stog.js"></script>
-    <script  src="http://solution.allservice.in.ua/js/jquery.nicescroll.js"></script>
+    <script  src="http://yandex.st/jquery/fancybox/2.1.4/jquery.fancybox.min.js" defer></script>
+    <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js" defer></script>
+    <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js" defer></script>
+    <script  src="/stog.js" defer ></script>
+    <script  src="http://solution.allservice.in.ua/js/jquery.nicescroll.js" defer></script>
     <script src="/bootstrap.min.js"></script>
     <!--[if lt IE 10]>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js"></script>
@@ -79,7 +79,7 @@ type HeadHTMLPage struct {
         {%s head.Scripts[i] %}
     {% endfor %}
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
     <script  src="/webcomponents.js"></script>
 
 </head>
