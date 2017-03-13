@@ -81,6 +81,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/style/jquery.jscrollpane.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.css">
     <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="/icon-style.css">
     <link rel="stylesheet" href="/travel.css">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -95,26 +96,26 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link rel="shortcut icon" href="/bootstrap/ico/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
     `)
-	//line head.qtpl:51
+	//line head.qtpl:52
 	for i := 0; i < len(head.LinkStyles); i++ {
-		//line head.qtpl:51
+		//line head.qtpl:52
 		qw422016.N().S(`
         `)
-		//line head.qtpl:52
+		//line head.qtpl:53
 		qw422016.E().S(head.LinkStyles[i])
-		//line head.qtpl:52
+		//line head.qtpl:53
 		qw422016.N().S(`
     `)
-		//line head.qtpl:53
+		//line head.qtpl:54
 	}
-	//line head.qtpl:53
+	//line head.qtpl:54
 	qw422016.N().S(`
     <!--[if IE]><script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script><![endif]-->
     <!--[if !IE]--><script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script><!--[endif]-->
     <script  src="http://yandex.st/jquery/fancybox/2.1.4/jquery.fancybox.min.js"></script>
     <script  src="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js"></script>
     <script  src="http://yandex.st/jquery/form/3.14/jquery.form.min.js"></script>
-    <script  src="http://solution.allservice.in.ua/js/stog.js"></script>
+    <script  src="/stog.js"></script>
     <script  src="http://solution.allservice.in.ua/js/jquery.nicescroll.js"></script>
     <script src="/bootstrap.min.js"></script>
     <!--[if lt IE 10]>
@@ -133,19 +134,19 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="/forms.js"></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     `)
-	//line head.qtpl:77
+	//line head.qtpl:78
 	for i := 0; i < len(head.Scripts); i++ {
-		//line head.qtpl:77
+		//line head.qtpl:78
 		qw422016.N().S(`
         `)
-		//line head.qtpl:78
+		//line head.qtpl:79
 		qw422016.E().S(head.Scripts[i])
-		//line head.qtpl:78
+		//line head.qtpl:79
 		qw422016.N().S(`
     `)
-		//line head.qtpl:79
+		//line head.qtpl:80
 	}
-	//line head.qtpl:79
+	//line head.qtpl:80
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
@@ -153,31 +154,31 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 
 </head>
 `)
-//line head.qtpl:85
+//line head.qtpl:86
 }
 
-//line head.qtpl:85
+//line head.qtpl:86
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line head.qtpl:85
+	//line head.qtpl:86
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line head.qtpl:85
+	//line head.qtpl:86
 	head.StreamHeadHTML(qw422016)
-	//line head.qtpl:85
+	//line head.qtpl:86
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:85
+//line head.qtpl:86
 }
 
-//line head.qtpl:85
+//line head.qtpl:86
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line head.qtpl:85
+	//line head.qtpl:86
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line head.qtpl:85
+	//line head.qtpl:86
 	head.WriteHeadHTML(qb422016)
-	//line head.qtpl:85
+	//line head.qtpl:86
 	qs422016 := string(qb422016.B)
-	//line head.qtpl:85
+	//line head.qtpl:86
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line head.qtpl:85
+	//line head.qtpl:86
 	return qs422016
-//line head.qtpl:85
+//line head.qtpl:86
 }
