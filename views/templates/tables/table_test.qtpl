@@ -1,80 +1,41 @@
 {% func TableTesting()%}
+<!DOCTYPE html>
+<html lang="">
+<head>
 
-    <link rel="import" href="/polymer.html">
+    <script  src="/webcomponents.js"></script>
 
-<dom-module id="juicy-table-repeat">
-    <template>
-        <style>
-            :host {
-                display: block;
-            }
-        </style>
-        <content></content>
-    </template>
-    <script>
-        Polymer({
-            is: "juicy-table-repeat",
-            properties: {
-                rows: { type: Array, value: [] },
-                item: { type: Object }
-            },
-            stampedRowTemplates: null,
-            attached: function () {
-                this.table = this.querySelector("table");
-                this.tbody = this.querySelector("table tbody")
-                this.rowTemplate = this.querySelector("template.row-template");
-                var that = this;
-                // Forward item's notification up to the root
-                this.rowTemplate._forwardInstancePath = function (inst, path, value) {
-                    var index = that.stampedRowTemplates.indexOf(inst);
-                    that.notifyPath('rows.' + index + path.substr(4), value);
-                };
+</head>
+<body>
+<link rel="import" href="/components/paper-datatable/paper-datatable.html">
+<template is="dom-bind" id="app">
 
-                this.isAttached = true;
-                this.generateRows();
-            },
-            observers: [
-                'rowsChanged(rows.length, rows.splices)',
-                'itemChanged(rows.*)'
-            ],
-            itemChanged: function (change) {
-                // TODO: watchout for keys
-                if (this.isAttached && change.path == "rows") {
-                    this.generateRows();
-                }
-                else {
-                    var path = change.path.match(/rows\.#(\d+)\.(.+)/);
-                    if (path) {
-                        this.propagateItemChanges(path, change.value);
-                    }
-                }
-            },
-            propagateItemChanges: function (path, value) {
-                // Make sure that elements were stamped
-                // workaround for Juicy/juicy-table-repeat/issues/4
-                this.stampedRowTemplates[path[1]] &&
-                // notify template
-                  this.stampedRowTemplates[path[1]].notifyPath('item.' + path[2], value);
-            },
-            generateRows: function () {
-                this.tbody.innerHTML = "";
-                this.stampedRowTemplates = [];
-                if (!this.rows || !this.rows.length) {
-                    return;
-                }
+<paper-datatable data="{{data}}">
+	<paper-datatable-column header="ID пользователя" property="id" type="Number"></paper-datatable-column>
+	<paper-datatable-column header="Че жрет" property="title" type="String"></paper-datatable-column>
+	<paper-datatable-column header="Скоько каллорий" property="calories" type="Number"></paper-datatable-column>
 
-                for (var i = 0; i < this.rows.length; i++) {
-                    var row = this.rowTemplate.stamp({ item: this.rows[i] });
-                    var tr = row.root.querySelector("tr");
-                    this.tbody.appendChild(tr);
-                    this.stampedRowTemplates.push(row);
-                }
-            },
-            rowsChanged: function (e) {
-                this.generateRows();
-            }
-        });
-    </script>
-</dom-module>
+</paper-datatable>
+
+<script>
+			var app = document.querySelector('#app');
+			app.data = [
+				{id: 0, title: 'Frozen yogurt', calories: 159, fat: 6, carbs: 24, protein: 4, sodium: 87, calcium:.14, iron: .01},
+				{id: 1, title: 'Ice cream sandwich', calories: 237, fat: 9, carbs: 37, protein: 4.3, sodium: 129, calcium:.08, iron: .01},
+				{id: 2, title: 'Eclair', calories: 262, fat: 16, carbs: 24, protein: 6, sodium: 337, calcium:.06, iron: .07},
+				{id: 3, title: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium:.03, iron: .08},
+				{id: 4, title: 'Gingerbread', calories: 356, fat: 16, carbs: 49, protein: 3.9, sodium: 327, calcium:.07, iron: .16},
+				{id: 5, title: 'Jelly bean', calories: 373, fat: 0, carbs: 94, protein: 0, sodium: 50, calcium:0, iron: 0}
+
+			];
+			app.toFixedOne = function(value){
+				return value.toFixed(1);
+			};
+			app.toPercentage = function(value){
+				return Math.round(value * 10000)/100 + '%';
+			};
+		</script>
+</body>
+</html>
 
 {% endfunc %}
