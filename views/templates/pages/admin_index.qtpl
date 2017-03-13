@@ -46,8 +46,7 @@ type AdminPageBody struct {
   </template>
 
   <script>
- HTMLImports.whenReady(function () {
-   elem = Polymer({
+   Polymer({
       is: 'employee-list',
       ready: function() {
         this.employees = [
@@ -56,7 +55,6 @@ type AdminPageBody struct {
         ];
       }
     });
-    })
  </script>
 
 </dom-module>

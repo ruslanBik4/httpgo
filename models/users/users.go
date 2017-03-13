@@ -95,18 +95,25 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
-func IsLogin(r *http.Request) (string, bool) {
+type ErrNotLogin struct {
+	message string
+}
+func (err *ErrNotLogin) Error() string{
+	return err.message
+}
+func IsLogin(r *http.Request) string {
 	session := GetSession(r, nameSession)
 	if session == nil {
-		return "", false
+		panic(http.ErrNotSupported)
 	}
 	if userID, ok := session.Values["id"]; ok {
 
-		return strconv.Itoa(userID.(int)), ok
+		return strconv.Itoa(userID.(int))
 	} else {
-		return "", ok
+		panic(&ErrNotLogin{message:"not login user!"})
 	}
 
+	return ""
 }
 func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	session := GetSession(r, nameSession )
@@ -154,11 +161,18 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
-	email := r.Form["login"][0]
-	password := r.Form["password"][0]
+	email := r.FormValue("login")
+	password := r.FormValue("password")
 
-	rows := db.DoQuery("select id, fullname, sex from users where login=? and hash=?", email, hashPassword(password) )
+	if (email == "") || (password == "") {
+		panic(&ErrNotLogin{message:"not enoug login parameters!"})
+	}
 
+	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", email, hashPassword(password) )
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	defer rows.Close()
 	var row UserRecord
 
@@ -289,11 +303,15 @@ func sendMail(email, password string)  {
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm();
 
-	//var args [] interface{}
+	if r.FormValue("email") == "" {
+		log.Println("activate user not has email")
+	}
+	if result, err := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0]); err != nil {
+		log.Println(err)
+	} else {
+		fmt.Fprint(w, result)
 
-	//args = append(args, r.Form["email"][0])
-	result, _ := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0])
-	fmt.Fprint(w, result)
+	}
 }
 
 

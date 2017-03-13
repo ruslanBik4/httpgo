@@ -35,7 +35,7 @@ var (
 
 	cacheMu sync.RWMutex
 	cache = map[string] []byte {}
-	routes = map[string] func(w http.ResponseWriter, r *http.Request) {
+	routes = map[string] http.HandlerFunc  {
 		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
 		"/update/":  handleUpdate,
@@ -73,8 +73,8 @@ var (
 )
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
-	for path, fnc := range routes {
-		http.HandleFunc(path, fnc)
+	for route, fnc := range routes {
+		http.HandleFunc(route, system.WrapCatchHandler(fnc) )
 	}
 	config.RegisterRoutes()
 }
@@ -133,7 +133,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	defer Catch(w)
+	defer system.Catch(w,r)
 	switch r.URL.Path {
 	case "/":
 		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
@@ -253,13 +253,6 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
 	views.RenderAnyPage(w, r, catalog + content)
-}
-func Catch(w http.ResponseWriter) {
-	err := recover()
-	if err != nil {
-		log.Print("panic runtime! ", err)
-		fmt.Fprint(w, "Error during executing %v", err)
-	}
 }
 // считываю счасти из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {

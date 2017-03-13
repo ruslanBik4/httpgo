@@ -1,5 +1,6 @@
 {% func TableTesting()%}
 
+    <link rel="import" href="/polymer.html">
 
 <dom-module id="juicy-table-repeat">
     <template>
