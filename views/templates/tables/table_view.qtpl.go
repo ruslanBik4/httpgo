@@ -173,11 +173,13 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 				//line views/templates/tables/table_view.qtpl:77
 				qw422016.N().S(`[`)
 				//line views/templates/tables/table_view.qtpl:79
-				for _, value := range fields {
+				for idx, value := range fields {
 					//line views/templates/tables/table_view.qtpl:80
 					qw422016.E().S(comma)
 					//line views/templates/tables/table_view.qtpl:80
-					qw422016.N().S(`'`)
+					qw422016.N().D(idx)
+					//line views/templates/tables/table_view.qtpl:80
+					qw422016.N().S(`:'`)
 					//line views/templates/tables/table_view.qtpl:80
 					qw422016.N().S(value[len(value)-1])
 					//line views/templates/tables/table_view.qtpl:80
