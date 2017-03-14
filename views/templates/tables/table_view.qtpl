@@ -11,6 +11,58 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    "strconv"
 )
 %}
+{% func (query *QueryStruct) FineTable() %}
+<link rel="import" href="/components/paper-datatable/paper-datatable-card.html">
+<link rel="import" href="/components/paper-datatable/paper-datatable.html">
+<template is="dom-bind" id="app">
+<paper-datatable data="{{data}}" >
+            {% for idx, fieldName := range query.columns %}
+                {% code
+                        fieldStruct := query.fields[idx]
+                        titleLabel  := fieldStruct.COLUMN_COMMENT
+                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
+                %}
+	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" type="{%s fieldStruct.InputType %}" sortable></paper-datatable-column>
+            {% endfor %}
+</paper-datatable>
+<script>
+        var app = document.querySelector('#app');
+        app.data = [
+        {% for query.Rows.Next() %}
+            {%  code
+                if err := query.Rows.Scan(query.row...); err != nil {
+                    log.Println(err)
+                    continue
+                }
+        %}
+				{,
+            {% for idx, rawField := range query.row %}
+                {% code
+                    var fieldStruct *forms.FieldStructure
+
+                    switch rawField.(type) {
+                        case *forms.FieldStructure:
+                            fieldStruct = rawField.(*forms.FieldStructure)
+                        default:
+                            fieldStruct = query.fields[idx]
+                    }
+                    key := fieldStruct.COLUMN_NAME
+                    val := fieldStruct.Value
+                %}
+				{%s key %}: "{%s val %}",
+            {% endfor %}
+                },
+        {% endfor %}
+			];
+			app.toFixedOne = function(value){
+				return value.toFixed(1);
+			};
+			app.toPercentage = function(value){
+				return Math.round(value * 10000)/100 + '%';
+			};
+		</script>
+{% endfunc %}
+
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
 <script src="/tables.js"></script>

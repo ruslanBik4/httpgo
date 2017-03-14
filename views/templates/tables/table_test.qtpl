@@ -13,7 +13,7 @@
 <paper-datatable data="{{data}}" >
 	<paper-datatable-column header="ID пользователя" property="id" type="Number" sortable></paper-datatable-column>
 	<paper-datatable-column header="Че жрет" property="title" type="String"></paper-datatable-column>
-	<paper-datatable-column header="Скоько каллорий" property="calories" type="Number"></paper-datatable-column>
+	<paper-datatable-column header="Сколько каллорий" property="calories" type="Number"></paper-datatable-column>
 	<paper-datatable-column header="Fat" property="fat" type="Number"></paper-datatable-column>
 	<paper-datatable-column header="Carbs" property="carbs" type="Number"></paper-datatable-column>
 	<paper-datatable-column header="Protein" property="protein" type="Number"></paper-datatable-column>
