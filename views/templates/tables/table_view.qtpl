@@ -12,6 +12,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 )
 %}
 {% func (query *QueryStruct) FineTable() %}
+        {%  code
+            if err := query.beforeRender(); err != nil {
+                return
+            }
+        %}
 <link rel="import" href="/components/paper-datatable/paper-datatable-card.html">
 <link rel="import" href="/components/paper-datatable/paper-datatable.html">
 <template is="dom-bind" id="app">
