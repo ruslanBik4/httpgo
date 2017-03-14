@@ -39,6 +39,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	            sortable></paper-datatable-column>
             {% endfor %}
 </paper-datatable>
+</template>
 <script>
         var app = document.querySelector('#app');
         app.data = [
