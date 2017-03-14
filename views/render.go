@@ -34,7 +34,7 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 		RenderTemplate(w, r, "index", p)
 	}
 }
-func RenderSignForm(w http.ResponseWriter, r *http.Request, Title string ) error {
+func RenderSignForm(w http.ResponseWriter, r *http.Request, Title string )  {
 
 	RenderAnyPage(w, r, forms.SigninForm(Title, "Введите пароль, полученный по почте") )
 
