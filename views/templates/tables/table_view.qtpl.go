@@ -196,7 +196,7 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 			//line views/templates/tables/table_view.qtpl:85
 			case "blob":
 				//line views/templates/tables/table_view.qtpl:85
-				qw422016.N().S(`<image src="/images/expand_hover.png" />`)
+				qw422016.N().S(`'<image src="/images/expand_hover.png" />'`)
 			//line views/templates/tables/table_view.qtpl:86
 			default:
 				//line views/templates/tables/table_view.qtpl:86

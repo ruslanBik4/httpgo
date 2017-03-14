@@ -82,7 +82,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             {% code comma = "," %}
                     {% endfor %}
                     ]
-	            {% case "blob" %} <image src="/images/expand_hover.png" />
+	            {% case "blob" %} '<image src="/images/expand_hover.png" />'
 	            {% default %} "{%s val %}"
 	            {% endswitch %},
             {% endfor %}
