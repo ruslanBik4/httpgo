@@ -37,7 +37,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	            {% case "set", "enum" %} "Array"
 	            {% default %}  "Number" align="right"
 	            {% endswitch %}
-	            sortable></paper-datatable-column>
+	            sortable {% if query.Order==fieldName %}sorted{% endif %}></paper-datatable-column>
             {% endfor %}
 </paper-datatable>
 </template>
@@ -88,12 +88,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             {% endfor %}
             },
         {% endfor %}
-        {% if query.Order > "" %}
-       "sort": {
-          "property": "{%s= query.Order %}",
-          "direction": "asc"
-         },
-         {% endif %}
         ];
 {% endstripspace %}
      {% endcollapsespace %}

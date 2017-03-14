@@ -52,7 +52,11 @@ func StreamTableTesting(qw422016 *qt422016.Writer) {
 				{id: 2, title: 'Eclair', calories: 262, fat: 16, carbs: 24, protein: 6, sodium: 337, calcium:.06, iron: .07},
 				{id: 3, title: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium:.03, iron: .08},
 				{id: 4, title: 'Gingerbread', calories: 356, fat: 16, carbs: 49, protein: 3.9, sodium: 327, calcium:.07, iron: .16},
-				{id: 5, title: 'Jelly bean', calories: 373, fat: 0, carbs: 94, protein: 0, sodium: 50, calcium:0, iron: 0}
+				{id: 5, title: 'Jelly bean', calories: 373, fat: 0, carbs: 94, protein: 0, sodium: 50, calcium:0, iron: 0},
+				{sort: {
+                          property: "id",
+                          direction: "asc"
+                         }
 			];
 			app.toFixedOne = function(value){
 				return value.toFixed(1);
@@ -65,31 +69,31 @@ func StreamTableTesting(qw422016 *qt422016.Writer) {
 </html>
 
 `)
-//line views/templates/tables/table_test.qtpl:45
+//line views/templates/tables/table_test.qtpl:49
 }
 
-//line views/templates/tables/table_test.qtpl:45
+//line views/templates/tables/table_test.qtpl:49
 func WriteTableTesting(qq422016 qtio422016.Writer) {
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	StreamTableTesting(qw422016)
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/tables/table_test.qtpl:45
+//line views/templates/tables/table_test.qtpl:49
 }
 
-//line views/templates/tables/table_test.qtpl:45
+//line views/templates/tables/table_test.qtpl:49
 func TableTesting() string {
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	WriteTableTesting(qb422016)
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	qs422016 := string(qb422016.B)
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/tables/table_test.qtpl:45
+	//line views/templates/tables/table_test.qtpl:49
 	return qs422016
-//line views/templates/tables/table_test.qtpl:45
+//line views/templates/tables/table_test.qtpl:49
 }
