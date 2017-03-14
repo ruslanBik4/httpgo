@@ -68,10 +68,10 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     val := fieldStruct.Value
                 %}{%s key %}:
 	            {% switch fieldStruct.DATA_TYPE %}
-	            {% case "varchar", "text" %} '{%s= val %}'
+	            {% case "varchar", "text", "set", "enum" %} '{%s= val %}'
 	            {% case "date", "datetime" %} '{%s= val %}'
 	            {% case "int", "tinyint" %}   '{%s= val %}'
-	            {% case "set", "enum" %}
+	            {% case "set enum" %}
                     {% code
                         fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
                         comma  := ""

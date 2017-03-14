@@ -149,7 +149,7 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 			//line views/templates/tables/table_view.qtpl:70
 			switch fieldStruct.DATA_TYPE {
 			//line views/templates/tables/table_view.qtpl:71
-			case "varchar", "text":
+			case "varchar", "text", "set", "enum":
 				//line views/templates/tables/table_view.qtpl:71
 				qw422016.N().S(`'`)
 				//line views/templates/tables/table_view.qtpl:71
@@ -173,7 +173,7 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 				//line views/templates/tables/table_view.qtpl:73
 				qw422016.N().S(`'`)
 			//line views/templates/tables/table_view.qtpl:74
-			case "set", "enum":
+			case "set enum":
 				//line views/templates/tables/table_view.qtpl:76
 				fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
 				comma := ""
