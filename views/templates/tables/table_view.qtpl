@@ -68,7 +68,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     val := fieldStruct.Value
                 %}{%s key %}:
 	            {% switch fieldStruct.DATA_TYPE %}
-	            {% case "varchar" %} '{%s= val %}'
+	            {% case "varchar", "text" %} '{%s= val %}'
 	            {% case "date", "datetime" %} '{%s= val %}'
 	            {% case "set", "enum" %}
                     {% code
@@ -81,6 +81,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                             {% code comma = "," %}
                     {% endfor %}
                     ]
+	            {% case "blob" %} <image src="/images/expand_hover.png" />
 	            {% default %} {%s val %}
 	            {% endswitch %},
             {% endfor %}
