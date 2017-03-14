@@ -30,7 +30,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         titleLabel  := fieldStruct.COLUMN_COMMENT
                             fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
                 %}
-	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" type="{%s fieldStruct.InputType %}" sortable></paper-datatable-column>
+	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" type=
+	            {% switch fieldStruct.DATA_TYPE %}
+	            {% case "varchar" %} "String"
+	            {% case "date" %} "Date"
+	            {% default %}  "Number"
+	            {% endswitch %}
+	            sortable></paper-datatable-column>
             {% endfor %}
 </paper-datatable>
 <script>
@@ -43,6 +49,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     continue
                 }
             %}
+{% collapsespace %}
 {% stripspace %}
 		    {
 		    {% for idx, rawField := range query.row %}
@@ -57,12 +64,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     }
                     key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
-                %} {%s key %}: '{%s= val %}',
+                %}{%s key %}:'{%s= val %}',
             {% endfor %}
             },
         {% endfor %}
         ];
 {% endstripspace %}
+     {% endcollapsespace %}
 			app.toFixedOne = function(value){
 				return value.toFixed(1);
 			};
