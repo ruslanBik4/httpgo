@@ -23,18 +23,19 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 <link rel="import" href="/components/paper-datatable/paper-datatable-card.html">
 <link rel="import" href="/components/paper-datatable/paper-datatable.html">
 <template is="dom-bind" id="app">
-<paper-datatable data="{{data}}" >
+<paper-datatable data="{{data}}" progress="True">
             {% for idx, fieldName := range query.columns %}
                 {% code
                         fieldStruct := query.fields[idx]
                         titleLabel  := fieldStruct.COLUMN_COMMENT
-                            fieldStruct.InputType = forms.StyleInput(fieldStruct.DATA_TYPE)
                 %}
-	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" type=
+	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" default="-"
+	            type=
 	            {% switch fieldStruct.DATA_TYPE %}
-	            {% case "varchar" %} "String"
+	            {% case "varchar" %} "String" align="left"
 	            {% case "date" %} "Date"
-	            {% default %}  "Number"
+	            {% case "set", "enum" %} "Array"
+	            {% default %}  "Number" align="right"
 	            {% endswitch %}
 	            sortable></paper-datatable-column>
             {% endfor %}
@@ -65,10 +66,28 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                     }
                     key := fieldStruct.COLUMN_NAME
                     val := fieldStruct.Value
-                %}{%s key %}:'{%s= val %}',
+                %}{%s key %}:
+	            {% switch fieldStruct.DATA_TYPE %}
+	            {% case "varchar" %} '{%s= val %}'
+	            {% case "date", "datetime" %} '{%s= val %}'
+	            {% case "set", "enum" %}
+                    {% code fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1) %}
+                    [
+                    {% for _, value := range fields %}
+                            {%s= value[len(value)-1] %},
+                    {% endfor %}
+                    ]
+	            {% default %} {%s val %}
+	            {% endswitch %},
             {% endfor %}
             },
         {% endfor %}
+        {% if query.Order > "" %}
+       "sort": {
+          "property": "{%s= query.Order %}",
+          "direction": "asc"
+         },
+         {% endif %}
         ];
 {% endstripspace %}
      {% endcollapsespace %}
