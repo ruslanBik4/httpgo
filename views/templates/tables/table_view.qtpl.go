@@ -120,11 +120,11 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 			//line views/templates/tables/table_view.qtpl:60
 			qw422016.E().S(key)
 			//line views/templates/tables/table_view.qtpl:60
-			qw422016.N().S(`: "`)
+			qw422016.N().S(`: '`)
 			//line views/templates/tables/table_view.qtpl:60
 			qw422016.N().S(val)
 			//line views/templates/tables/table_view.qtpl:60
-			qw422016.N().S(`",`)
+			qw422016.N().S(`',`)
 			//line views/templates/tables/table_view.qtpl:61
 		}
 		//line views/templates/tables/table_view.qtpl:61
