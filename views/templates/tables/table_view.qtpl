@@ -70,7 +70,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	            {% switch fieldStruct.DATA_TYPE %}
 	            {% case "varchar", "text" %} '{%s= val %}'
 	            {% case "date", "datetime" %} '{%s= val %}'
-	            {% case "int", "tinyint" %}   {%s= val %}
+	            {% case "int", "tinyint" %}   '{%s= val %}'
 	            {% case "set", "enum" %}
                     {% code
                         fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
