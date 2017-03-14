@@ -10,7 +10,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/models/users"
 )
 
 //noinspection GoInvalidConstType
@@ -34,6 +33,11 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 		p := &pages.IndexPageBody{ Content: strContent }
 		RenderTemplate(w, r, "index", p)
 	}
+}
+func RenderSignForm(w http.ResponseWriter, r *http.Request, Title string ) error {
+
+	RenderAnyPage(w, r, forms.SigninForm(Title, "Введите пароль, полученный по почте") )
+
 }
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 	var menu db.MenuItems
@@ -62,17 +66,12 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		if p.Content == "" {
 
 			//p.Title   = "Авторизация"
-			userID := users.IsLogin(r)
-			p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
 			headPage.Title = "Страничка управления миром - бета-версия"
 			p.Route = "/"
 		}
 
 		fmt.Fprint(w, headPage.HeadHTML())
 		fmt.Fprint(w, p.IndexHTML())
-	case "signinForm":
-		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
-		RenderAnyPage(w, r, forms.SigninForm(p.Title, "Введите пароль, полученный по почте") )
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)

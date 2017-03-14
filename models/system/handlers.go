@@ -5,6 +5,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 	"log"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 func Catch(w http.ResponseWriter, r *http.Request) {
@@ -12,7 +13,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 
 	switch err.(type) {
 	case users.ErrNotLogin:
-		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
+		views.RenderSignForm(w, r, "Для начала работы необходимо авторизоваться!")
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)
