@@ -1,6 +1,7 @@
 package users
 
 import (
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
@@ -203,7 +204,8 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	if err := deleteCurrentUser(w, r); err != nil {
 		log.Println(err)
 	}
-	http.Redirect(w, r, "/show/forms/?name=signin", http.StatusContinue)
+	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+	views.RenderSignForm(w, r, "")
 }
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random

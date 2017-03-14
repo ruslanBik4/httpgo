@@ -991,8 +991,8 @@ function VerifyIncludeFancyBox( AfterFancyLoad ) {
 
     if ( isFancyNotLoad && !isFancyLoaded ) // не загружен , загружаем немедленно
     {
-        $('head').append('<link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/jquery.fancybox.css" media="screen">');
-        $('head').append('<script src="http://solution.allservice.in.ua/js/fancybox2/jquery.fancybox.js" />');
+        $('head').append('<link rel="stylesheet" type="text/css" href="/fancybox2/jquery.fancybox.css" media="screen">');
+        $('head').append('<script src="/fancybox2/jquery.fancybox.js" />');
 //      , true, true, AfterFancyLoad );
 //       AfterFancyLoad();
         isFancyLoaded = true;
@@ -1007,8 +1007,8 @@ function VerifyIncludeFancyHelpers() {
 
     if ( ( $.fancybox.helpers === undefined ) || ( $.fancybox.helpers.buttons === undefined ) )
     {
-        $('head').append('<link rel="stylesheet" type="text/css" href="http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">');
-        LoadJScript("http://solution.allservice.in.ua/js/fancybox2/helpers/jquery.fancybox-buttons.js", true, true, PutSlideShow );
+        $('head').append('<link rel="stylesheet" type="text/css" href="/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">');
+        LoadJScript("/fancybox2/helpers/jquery.fancybox-buttons.js", true, true, PutSlideShow );
         return false;
     }
     else

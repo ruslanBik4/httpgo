@@ -136,7 +136,11 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer system.Catch(w,r)
 	switch r.URL.Path {
 	case "/":
-		views.RenderTemplate(w, r, "index", &pages.IndexPageBody{Title : "Главная страница"} )
+		userID := users.IsLogin(r)
+		p := &pages.IndexPageBody{Title : "Главная страница" }
+		//для авторизованного пользователя - сразу показать его данные на странице
+		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
+		views.RenderTemplate(w, r, "index", p )
 		// спецвойска
 	case "/polymer.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer.html"))

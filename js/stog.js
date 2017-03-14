@@ -21,7 +21,7 @@ $(function()   {
         {
             if (body_scrollcolor || scrollcolor)
             // подключаю продвинутые полосы прокрутки к окну или Содержимому
-                LoadJScript( "http://solution.allservice.in.ua/js/jquery.nicescroll.js", true, true,
+                LoadJScript( "/jquery.nicescroll.js", true, true,
                     function () {
                         if (scrollcolor)
                             DivContent.niceScroll( {cursorcolor: scrollcolor } );
@@ -30,7 +30,7 @@ $(function()   {
                     }
                 );
             LoadJScript( "/tools.js", true, true, FirstLoads );
-            LoadJScript( "http://solution.allservice.in.ua/js/scrollto/jquery.scrollTo-min.js", true, true );
+            LoadJScript( "/scrollto/jquery.scrollTo-min.js", true, true );
             $('body').addClass( 'complete' );
         }
 
@@ -229,7 +229,7 @@ function FirstLoads(data, textStatus) {
             else if ( default_edit_page && (default_edit_page.search('.php') > 0) )
                 ShowOkno( default_edit_page, '');
             else if ( window.CKEDITOR  === undefined )
-                LoadJScript( "http://solution.allservice.in.ua/js/ckeditor-full/ckeditor.js", true, true, InitEditor );
+                LoadJScript( "/ckeditor-full/ckeditor.js", true, true, InitEditor );
             else if ( !isPHP )
                 InitEditor();
         }  ).fail( function (success) {
@@ -265,7 +265,7 @@ function LoadJScript(url, asyncS, cacheS, successFunc) {
 
 }
 
-/* var CKEDITOR_BASEPATH = "http://solution.allservice.in.ua/js/ckeditor-full/"; */
+/* var CKEDITOR_BASEPATH = "/ckeditor-full/"; */
 
 function ShowOkno( id, zag, this_ref, file_ext ) {
     var Button, Button_name, DivRel = DivContent.attr( 'rel' ) || '',
