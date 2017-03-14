@@ -41,14 +41,14 @@ func StreamTableTesting(qw422016 *qt422016.Writer) {
 	<paper-datatable-column header="Protein" property="protein" type="Number"></paper-datatable-column>
 	<paper-datatable-column header="Sodium" property="sodium" type="Number"></paper-datatable-column>
 	<paper-datatable-column header="calcium" property="calcium" type="Number"></paper-datatable-column>
-	<paper-datatable-column header="iron" property="iron" type="Number"></paper-datatable-column>
+	<paper-datatable-column header="iron" property="iron" type="Array"></paper-datatable-column>
 </paper-datatable>
 
 <script>
 			var app = document.querySelector('#app');
 			app.data = [
-				{id: 0, title: 'Frozen yogurt', calories: 159, fat: 6, carbs: 24, protein: 4, sodium: 87, calcium:.14, iron: .01},
-				{id: 1, title: 'Ice cream sandwich', calories: 237, fat: 9, carbs: 37, protein: 4.3, sodium: 129, calcium:.08, iron: .01},
+				{id: 0, title: 'Frozen yogurt', calories: 159, fat: 6, carbs: 24, protein: 4, sodium: 87, calcium:.14, iron: ['Юридическое лицо','Индивидуальный предприниматель','Частное лицо']},
+				{id: 1, title: 'Ice cream sandwich', calories: 237, fat: 9, carbs: 37, protein: 4.3, sodium: 129, calcium:.08, iron: ['Устав','Приказ генерального директора','Приказ директора','Доверенность']},
 				{id: 2, title: 'Eclair', calories: 262, fat: 16, carbs: 24, protein: 6, sodium: 337, calcium:.06, iron: .07},
 				{id: 3, title: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3, sodium: 413, calcium:.03, iron: .08},
 				{id: 4, title: 'Gingerbread', calories: 356, fat: 16, carbs: 49, protein: 3.9, sodium: 327, calcium:.07, iron: .16},

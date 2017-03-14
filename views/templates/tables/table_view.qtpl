@@ -76,8 +76,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                         comma  := ""
                     %}
                     [
-                    {% for idx, value := range fields %}
-                            {%s comma %}{%d idx %}:'{%s= value[len(value)-1] %}'
+                    {% for _, value := range fields %}
+                            {%s comma %}'{%s= value[len(value)-1] %}'
                             {% code comma = "," %}
                     {% endfor %}
                     ]
