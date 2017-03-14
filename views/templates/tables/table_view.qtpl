@@ -71,10 +71,14 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	            {% case "varchar" %} '{%s= val %}'
 	            {% case "date", "datetime" %} '{%s= val %}'
 	            {% case "set", "enum" %}
-                    {% code fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1) %}
+                    {% code
+                        fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
+                        comma  := ""
+                    %}
                     [
                     {% for _, value := range fields %}
-                            '{%s= value[len(value)-1] %}',
+                            {%s comma %}'{%s= value[len(value)-1] %}'
+                            {% code comma = "," %}
                     {% endfor %}
                     ]
 	            {% default %} {%s val %}
