@@ -102,7 +102,7 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 		qw422016.N().S(`
 `)
 		//line views/templates/tables/table_view.qtpl:46
-		qw422016.N().S(`{,`)
+		qw422016.N().S(`{`)
 		//line views/templates/tables/table_view.qtpl:48
 		for idx, rawField := range query.row {
 			//line views/templates/tables/table_view.qtpl:50
