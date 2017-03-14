@@ -13,7 +13,8 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 
 	switch err.(type) {
 	case users.ErrNotLogin:
-		views.RenderSignForm(w, r, "Для начала работы необходимо авторизоваться!")
+		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+		views.RenderSignForm(w, r, "")
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)

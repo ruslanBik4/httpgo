@@ -204,7 +204,8 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	if err := deleteCurrentUser(w, r); err != nil {
 		log.Println(err)
 	}
-	views.RenderSignForm(w, r, "Для начала работы необходимо авторизоваться!")
+	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+	views.RenderSignForm(w, r, "")
 }
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random
