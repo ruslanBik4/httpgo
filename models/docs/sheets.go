@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"fmt"
 )
-const spreadsheetId = "1AZaTtLAlKZuh_zBASLj2rHA2ux0jqOVxBVwwRYMi7CE"
 const ClientID 	    = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
 const authCode  =  "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
 
@@ -115,12 +114,19 @@ func (sheet * SheetsGoogleDocs) Init() (err error){
 	return nil
 }
 
-func (sheet * SheetsGoogleDocs) Read() ( *sheets.ValueRange, error) {
-	sh := sheet.Service.Spreadsheets.Values
+func (sheet * SheetsGoogleDocs) Read(spreadsheetId, readRange string) ( *sheets.ValueRange, error) {
 
-	readRange := "A1:A1000"
-	doGet := sh.Get(spreadsheetId, readRange)
-	resp, err := doGet.Do();
+	resp, err := sheet.Service.Spreadsheets.Values.Get(spreadsheetId, readRange).Do();
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+func (sheet * SheetsGoogleDocs) Sheets(spreadsheetId, readRange string) ( *sheets.ValueRange, error) {
+	sh:= sheet.Service.Spreadsheets.Values
+
+
+	resp, err := sh.Get(spreadsheetId, readRange).Do();
 	if err != nil {
 		return nil, err
 	}
