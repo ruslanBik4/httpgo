@@ -11,6 +11,95 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    "strconv"
 )
 %}
+{% func (query *QueryStruct) FineTable() %}
+        {%  code
+            if err := query.beforeRender(); err != nil {
+                return
+            }
+        %}
+<link href="/tables.css" rel="stylesheet">
+<script src="/tables.js"></script>
+    <script  src="/webcomponents.js"></script>
+<link rel="import" href="/components/paper-datatable/paper-datatable-card.html">
+<link rel="import" href="/components/paper-datatable/paper-datatable.html">
+<template is="dom-bind" id="app">
+<paper-datatable data="{{data}}" progress="True">
+            {% for idx, fieldName := range query.columns %}
+                {% code
+                        fieldStruct := query.fields[idx]
+                        titleLabel  := fieldStruct.COLUMN_COMMENT
+                %}
+	            <paper-datatable-column header="{%s titleLabel %}" property="{%s fieldName %}" default="-"
+	            type=
+	            {% switch fieldStruct.DATA_TYPE %}
+	            {% case "varchar" %} "String" align="left"
+	            {% case "date" %} "Date"
+	            {% case "set", "enum" %} "Array"
+	            {% default %}  "Number" align="right"
+	            {% endswitch %}
+	            sortable {% if query.Order==fieldName %}sorted{% endif %}></paper-datatable-column>
+            {% endfor %}
+</paper-datatable>
+</template>
+<script>
+        var app = document.querySelector('#app');
+        app.data = [
+        {% for query.Rows.Next() %}
+            {%  code
+                if err := query.Rows.Scan(query.row...); err != nil {
+                    log.Println(err)
+                    continue
+                }
+            %}
+{% collapsespace %}
+{% stripspace %}
+		    {
+		    {% for idx, rawField := range query.row %}
+                {% code
+                    var fieldStruct *forms.FieldStructure
+
+                    switch rawField.(type) {
+                        case *forms.FieldStructure:
+                            fieldStruct = rawField.(*forms.FieldStructure)
+                        default:
+                            fieldStruct = query.fields[idx]
+                    }
+                    key := fieldStruct.COLUMN_NAME
+                    val := fieldStruct.Value
+                %}{%s key %}:
+	            {% switch fieldStruct.DATA_TYPE %}
+	            {% case "varchar", "text", "set", "enum" %} '{%s= val %}'
+	            {% case "date", "datetime" %} '{%s= val %}'
+	            {% case "int", "tinyint" %}   '{%s= val %}'
+	            {% case "set enum" %}
+                    {% code
+                        fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
+                        comma  := ""
+                    %}
+                    [
+                    {% for _, value := range fields %}
+                            {%s comma %}'{%s= value[len(value)-1] %}'
+                            {% code comma = "," %}
+                    {% endfor %}
+                    ]
+	            {% case "blob" %} '<image src="/images/expand_hover.png" />'
+	            {% default %} "{%s val %}"
+	            {% endswitch %},
+            {% endfor %}
+            },
+        {% endfor %}
+        ];
+{% endstripspace %}
+     {% endcollapsespace %}
+			app.toFixedOne = function(value){
+				return value.toFixed(1);
+			};
+			app.toPercentage = function(value){
+				return Math.round(value * 10000)/100 + '%';
+			};
+		</script>
+{% endfunc %}
+
 {% func (query *QueryStruct) renderHeadTables() %}
 <link href="/tables.css" rel="stylesheet">
 <script src="/tables.js"></script>

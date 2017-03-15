@@ -4,7 +4,10 @@ import (
 	"log"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"regexp"
 )
+
+var 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
 
 type QueryStruct struct {
 	HrefEdit string
