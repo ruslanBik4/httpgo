@@ -1,4 +1,4 @@
-package docx
+package docs
 
 import (
 	"github.com/nguyenthenguyen/docx"

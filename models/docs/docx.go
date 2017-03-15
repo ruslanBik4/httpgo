@@ -1,4 +1,4 @@
-package docx
+package docs
 
 import (
 	"archive/zip"
@@ -8,13 +8,13 @@ import (
 	"os"
 )
 
-// Docx struct that contains data from a docx
+// Docx struct that contains data from a docs
 type Docx struct {
 	zipReader *zip.ReadCloser
 	content   string
 }
 
-// ReadFile func reads a docx file
+// ReadFile func reads a docs file
 func (d *Docx) ReadFile(path string) error {
 	reader, err := zip.OpenReader(path)
 	if err != nil {
