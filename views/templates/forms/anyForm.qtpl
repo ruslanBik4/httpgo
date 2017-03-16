@@ -53,10 +53,17 @@
                 <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
             </div>
             <div class="modal-body">
+            {% if field.InputType > "" %}
+                <select id="{%s key %}" name="{%s tablePrefix+key %}" class="business-form-select" {%s required %}>
+                {%code field.GetOptions(ns.Name, val) %}
+                {%s= field.Html %}
+                </select>
+            {% else %}
                 <ul class="hor-menu" role="menu" aria-labelledby="dLabel">
                 {%code field.getMultiSelect(ns, key) %}
                 {%s= field.Html %}
                 </ul>
+            {% endif %}
             </div>
             <div class="modal-footer">
                 <input >
