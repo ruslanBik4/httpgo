@@ -242,7 +242,7 @@ func (field *FieldStructure) StreamRenderMultiSelect(qw422016 *qt422016.Writer, 
 		qw422016.N().S(`>
                 `)
 		//line views/templates/forms/anyForm.qtpl:58
-		field.GetOptions(ns.Name, val)
+		field.getOptionsNODEID(ns, val)
 
 		//line views/templates/forms/anyForm.qtpl:58
 		qw422016.N().S(`

@@ -55,7 +55,7 @@
             <div class="modal-body">
             {% if field.InputType > "" %}
                 <select id="{%s key %}" name="{%s tablePrefix+key %}" class="business-form-select" {%s required %}>
-                {%code field.GetOptions(ns.Name, val) %}
+                {%code field.getOptionsNODEID(ns, val) %}
                 {%s= field.Html %}
                 </select>
             {% else %}
