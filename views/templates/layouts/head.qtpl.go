@@ -150,35 +150,34 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
-    <script  src="/webcomponents.js"></script>
 
 </head>
 `)
-//line views/templates/layouts/head.qtpl:86
+//line views/templates/layouts/head.qtpl:85
 }
 
-//line views/templates/layouts/head.qtpl:86
+//line views/templates/layouts/head.qtpl:85
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	head.StreamHeadHTML(qw422016)
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:86
+//line views/templates/layouts/head.qtpl:85
 }
 
-//line views/templates/layouts/head.qtpl:86
+//line views/templates/layouts/head.qtpl:85
 func (head *HeadHTMLPage) HeadHTML() string {
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	head.WriteHeadHTML(qb422016)
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	qs422016 := string(qb422016.B)
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/layouts/head.qtpl:86
+	//line views/templates/layouts/head.qtpl:85
 	return qs422016
-//line views/templates/layouts/head.qtpl:86
+//line views/templates/layouts/head.qtpl:85
 }
