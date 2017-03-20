@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"encoding/json"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/system"
 )
 const ClientID 	    = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
 const authCode  =  "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
@@ -79,14 +80,17 @@ func saveToken(file string, token *oauth2.Token) {
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
 }
+var 	cacheFile = filepath.Join(system.ServerConfig.StaticPath, "config/.credentials" )
+var 	userFile = filepath.Join(system.ServerConfig.StaticPath, "config/oauth2.json" )
 
 func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
-	cacheFile, err := tokenCacheFile()
-	if err != nil {
-		log.Println("Unable to get path to cached credential file. %v", err)
-	}
+	//cacheFile, err := tokenCacheFile()
+	//if err != nil {
+	//	log.Println("Unable to get path to cached credential file. %v", err)
+	//}
 	tok, err := tokenFromFile(cacheFile)
 	if err != nil {
+		log.Println(cacheFile)
 		tok = getTokenFromWeb(config)
 		saveToken(cacheFile, tok)
 	}
@@ -96,7 +100,7 @@ func newClient() *http.Client{
 	ctx := context.Background()
 	// If modifying these scopes, delete your previously saved credentials
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
-	b, err := ioutil.ReadFile("config/oauth2.json")
+	b, err := ioutil.ReadFile(userFile)
 	if err != nil {
 		log.Println("Unable to read client secret file: %v", err)
 	}
