@@ -1,6 +1,16 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
-
+выводим массив массивов (основное назначение для таблиц БД)
+{% func WriteSliceJSON(mapJSON MapMultiDimension) %}
+{% stripspace %} {% collapsespace %}
+{ {% code comma := "" %}
+    {% for key, arrJSON := range  mapJSON %}
+         {%s comma %} "{%d key %}": {%= WriteAnyJSON(arrJSON)%} {% code  comma = "," %}
+   {% endfor %}
+}
+{% endcollapsespace %} {% endstripspace %}
+{% endfunc %}
+п
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func WriteAnyJSON(arrJSON MultiDimension) %}
      {% code comma := "" %}

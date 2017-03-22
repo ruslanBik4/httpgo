@@ -10,11 +10,10 @@ import (
 	"log"
 	"strings"
 	"strconv"
-	httpgoJson "github.com/ruslanBik4/httpgo/views/templates/json"
 )
 const dbName = "travel"
 const dbUser = "travel"
-const dbPass = "3216732167"
+const dbPass = "rjgbvktc"
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
@@ -160,31 +159,41 @@ type rowFields struct {
 //     return true
 //
 // }
+//подготовка для цикла чтения записей, формирует row для сканирования записи,rowField - для выборки значение и массив типов для последующей обработки
+func PrepareRowsToReading(rows *sql.Rows) (row [] interface {}, rowField map[string] *sql.NullString, columns [] string, colTypes [] *sql.ColumnType) {
+
+	columns, err := rows.Columns()
+
+	if err != nil {
+		panic(err)
+	}
+
+	colTypes, err = rows.ColumnTypes()
+	if err != nil {
+		panic(err)
+	}
+
+	rowField = make( map[string] *sql.NullString, len(columns) )
+
+	for _, val := range columns {
+
+		rowField[val] = new(sql.NullString)
+		row = append( row, rowField[val] )
+	}
+
+
+	return row, rowField, columns, colTypes
+
+}
 func GetResultToJSON (rows *sql.Rows) []byte{
 
-	var row [] interface {}
 	var rowOutput [] map[string] string
 
-	rowField := make( map[string] *sql.NullString )
-
-	if columns, err := rows.Columns(); err != nil {
-		return nil
-	} else {
-
-		for _, val := range columns {
-
-			rowField[val] = new(sql.NullString)
-			row = append( row, rowField[val] )
-		}
-	}
+	row, rowField, _, _ := PrepareRowsToReading(rows)
 
 	var result bytes.Buffer
 	w := io.Writer(&result)
 	Encode := json.NewEncoder(w)
-
-
-
-
 
 	defer rows.Close()
 	for rows.Next() {
@@ -351,52 +360,71 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 
 	return nil
 }
+func getValue(fieldValue *sql.NullString) string {
+	if fieldValue.Valid {
+		return fieldValue.String
+	}
 
-func SelectToMultidimension(sql string,args ...interface{}) map[int] httpgoJson.MultiDimension{
+	return "NULL"
+}
+func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
-	println(args)
+	rows, err := DoSelect(sql, args...)
 
-
-	rows, err := DoSelect(sql,args...)
+	if err != nil {
+		return nil, err
+	}
 
 	defer rows.Close()
-	if err != nil {
-		println(err)
-	}
 
-	columns, _ := rows.Columns()
-	count := len(columns)
-	values := make([]interface{}, count)
-	valuePtrs := make([]interface{}, count)
+	valuePtrs, rowValues, columns, colTypes := PrepareRowsToReading(rows)
 
-	final_result := map[int] httpgoJson.MultiDimension{}
-	result_id := 0
 	for rows.Next() {
-		for i, _ := range columns {
-			valuePtrs[i] = &values[i]
+		if err := rows.Scan(valuePtrs...); err != nil {
+			log.Println(err)
+			continue
 		}
-		rows.Scan(valuePtrs...)
 
-		tmp_struct := httpgoJson.MultiDimension{}
+		values := make(map[string] interface{}, len(columns) )
 
-		for i, col := range columns {
-			var v interface{}
-			val := values[i]
-			b, ok := val.([]byte)
-			if (ok) {
-				v = string(b)
-			} else {
-				v = val
+		for _, colType := range colTypes {
+
+			fieldName := colType.Name()
+			fieldValue, ok := rowValues[fieldName]
+			if !ok {
+				log.Println(err)
+				continue
 			}
-			tmp_struct[col] = fmt.Sprintf("%v",v)
+			log.Println(colType.Length())
+			switch colType.DatabaseTypeName() {
+			case "varchar", "date", "datetime":
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			case "tinyint":
+				if getValue(fieldValue) == "1" {
+					values[fieldName] = true
+
+				} else {
+					values[fieldName] = false
+
+				}
+			case "int", "int64", "float":
+				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
+			default:
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			}
 		}
 
-		final_result[ result_id ] = tmp_struct
-		result_id++
+		arrJSON = append(arrJSON, values)
 	}
 
-	return final_result
-
-
+	return arrJSON, nil
 
 }

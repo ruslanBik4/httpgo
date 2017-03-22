@@ -5,6 +5,7 @@ import (
 )
 
 type MultiDimension map[string] interface{}
+type MapMultiDimension [] map[string] interface{}
 type SimpleDimension [] interface{}
 type StringDimension [] string
 

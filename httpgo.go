@@ -125,7 +125,12 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprint(w, tables.TableTesting()  )
+	if arrJSON, err := db.SelectToMultidimension("select * from business"); err != nil {
+		panic(err)
+		fmt.Fprint(w, tables.TableTesting()  )
+	} else {
+		views.RenderArrayJSON(w, arrJSON)
+	}
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
