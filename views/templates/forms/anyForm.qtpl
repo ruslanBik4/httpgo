@@ -88,7 +88,7 @@
             <option disabled >Выберите значение из списка</option>
         {% endif %}
         {% if showForm, ok := field.DataJSOM["showForm"]; ok %}
-            <option data-show-form="{%s showForm %}" >Добавить нового</option>
+            <option data-show-form="{%s showForm.(string) %}" >Добавить нового</option>
         {% endif %}
         {%code field.GetOptions(key[3:], val) %}
         {%s= field.Html %}

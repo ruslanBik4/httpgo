@@ -10,6 +10,7 @@ import (
 	"log"
 	"strings"
 	"strconv"
+	httpgoJson "github.com/ruslanBik4/httpgo/views/templates/json"
 )
 const dbName = "travel"
 const dbUser = "travel"
@@ -351,12 +352,12 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 	return nil
 }
 
-func SelectToMultidimension(sql string,args ...interface{}) map[int]httpgoJson.MultiDimension{
+func SelectToMultidimension(sql string,args ...interface{}) map[int] httpgoJson.MultiDimension{
 
 	println(args)
 
 
-	rows, err := db.DoSelect(sql,args...)
+	rows, err := DoSelect(sql,args...)
 
 	defer rows.Close()
 	if err != nil {
@@ -368,7 +369,7 @@ func SelectToMultidimension(sql string,args ...interface{}) map[int]httpgoJson.M
 	values := make([]interface{}, count)
 	valuePtrs := make([]interface{}, count)
 
-	final_result := map[int]httpgoJson.MultiDimension{}
+	final_result := map[int] httpgoJson.MultiDimension{}
 	result_id := 0
 	for rows.Next() {
 		for i, _ := range columns {

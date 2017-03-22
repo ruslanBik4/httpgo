@@ -403,7 +403,7 @@ func (field *FieldStructure) StreamRenderForeignSelect(qw422016 *qt422016.Writer
 		qw422016.N().S(`
             <option data-show-form="`)
 		//line views/templates/forms/anyForm.qtpl:91
-		qw422016.E().S(showForm)
+		qw422016.E().S(showForm.(string))
 		//line views/templates/forms/anyForm.qtpl:91
 		qw422016.N().S(`" >Добавить нового</option>
         `)
