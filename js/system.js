@@ -35,11 +35,17 @@ function SitePostShow() {
     //TODO: сделать проверку или установить флаг на то, что модуль уже загружен и не загружать если так
         $("<head>").append('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>')
         dateInputs.each(function() {
-            var currDate = $(this).attr('maxdate');
-            if(currDate){
+            var maxDate = $(this).attr('maxdate');
+            var minDate = $(this).attr('mindate');
+            if(maxDate){
                 $(this).datetimepicker({
                     format: this.type == "datetime" ? 'Y-m-d H:i' : 'Y-m-d',
-                    maxDate: currDate
+                    maxDate: maxDate
+                });
+            } else if(minDate){
+                $(this).datetimepicker({
+                    format: this.type == "datetime" ? 'Y-m-d H:i' : 'Y-m-d',
+                    minDate: minDate
                 });
             } else {
                 $(this).datetimepicker({format:'Y-m-d'});
