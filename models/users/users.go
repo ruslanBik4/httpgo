@@ -21,6 +21,7 @@ import (
 	"hash/crc32"
 	"github.com/gorilla/sessions"
 	"gopkg.in/gomail.v2"
+	"github.com/ruslanBik4/httpgo/models/system"
 )
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
@@ -96,12 +97,6 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
-type ErrNotLogin struct {
-	message string
-}
-func (err *ErrNotLogin) Error() string{
-	return err.message
-}
 func IsLogin(r *http.Request) string {
 	session := GetSession(r, nameSession)
 	if session == nil {
@@ -111,7 +106,7 @@ func IsLogin(r *http.Request) string {
 
 		return strconv.Itoa(userID.(int))
 	} else {
-		panic(ErrNotLogin{message:"not login user!"})
+		panic(system.ErrNotLogin{Message:"not login user!"})
 	}
 
 	return ""
@@ -166,7 +161,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	if (email == "") || (password == "") {
-		panic(&ErrNotLogin{message:"not enoug login parameters!"})
+		panic(&system.ErrNotLogin{Message:"Not enoug login parameters!"})
 	}
 
 	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", email, hashPassword(password) )

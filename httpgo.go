@@ -145,6 +145,14 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		p := &pages.IndexPageBody{Title : "Главная страница" }
 		//для авторизованного пользователя - сразу показать его данные на странице
 		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
+		var menu db.MenuItems
+		menu.GetMenu("indexTop")
+
+		p.TopMenu = make( map[string] string, len(menu.Items))
+		for _, item := range menu.Items {
+			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
+
+		}
 		views.RenderTemplate(w, r, "index", p )
 		// спецвойска
 	case "/polymer.html":
@@ -266,7 +274,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 // считываю счасти из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
 	if (err != nil) || ( (info != nil) && info.IsDir() ) {
-		log.Println(err, info)
+		//log.Println(err, info)
 		return nil
 	}
 	ext := filepath.Ext(path)
@@ -283,7 +291,7 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 			return err
 		}
 		setCache(keyName, data)
-		log.Println(keyName)
+		//log.Println(keyName)
 	}
 	return  nil
 }
@@ -317,11 +325,13 @@ var (
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
 	F_debug    = flag.String("debug","false","debug mode")
-	db_user   = flag.String("dbUser","travel","user name for database")
 )
 func init() {
 	flag.Parse()
-	system.ServerConfig.Init(f_static, f_web, f_session)
+	ServerConfig := system.GetServerConfig()
+	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+		log.Println(err)
+	}
 }
 func main() {
 	users.SetSessionPath(*f_session)

@@ -80,8 +80,8 @@ func saveToken(file string, token *oauth2.Token) {
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
 }
-var 	cacheFile = filepath.Join(system.ServerConfig.StaticPath, "config/.credentials" )
-var 	userFile = filepath.Join(system.ServerConfig.StaticPath, "config/oauth2.json" )
+var 	cacheFile = "config/.credentials"
+var 	userFile = "config/oauth2.json"
 
 func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	//cacheFile, err := tokenCacheFile()
@@ -111,6 +111,11 @@ func newClient() *http.Client{
 	return getClient(ctx, config)
 }
 func (sheet * SheetsGoogleDocs) Init() (err error){
+
+	sConfig := system.GetServerConfig()
+	cacheFile = filepath.Join(sConfig.StaticPath, "config/.credentials" )
+	userFile = filepath.Join(sConfig.StaticPath, "config/oauth2.json" )
+
 	if sheet.Service, err = sheets.New(newClient()); err != nil {
 		return err
 	}

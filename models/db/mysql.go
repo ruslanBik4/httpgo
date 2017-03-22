@@ -10,10 +10,8 @@ import (
 	"log"
 	"strings"
 	"strconv"
+	"github.com/ruslanBik4/httpgo/models/system"
 )
-const dbName = "travel"
-const dbUser = "travel"
-const dbPass = "rjgbvktc"
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
@@ -29,7 +27,8 @@ func doConnect() error {
 	if dbConn != nil {
 		return nil
 	}
-	dbConn, err = sql.Open( "mysql", fmt.Sprintf("%s:%s@/%s?persistent", dbUser, dbPass, dbName) )
+	serverConfig := system.GetServerConfig()
+	dbConn, err = sql.Open( "mysql", serverConfig.DNSConnection() )
 	if err != nil {
 		log.Println(err)
 		return err
@@ -318,24 +317,13 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 	}
 
 
-	rows := DoQuery("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, " +
+	rows, err := DoSelect("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, " +
 		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
 		"FROM INFORMATION_SCHEMA.COLUMNS C " +
 		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION" + limiter,
-		dbName, table_name);
-	//, form.html_name AS form_html_name, form.html_id AS form_html_id, form.js_func_onsubmit, field.db_table_name, field.db_field_name, field.label, field.html_type, field.html_class, field.html_name, field.html_id, field.html_value, c.name AS constraint_name, rc.value AS constraint_value, rc.relative_html_input_name
-
-	//left join  ui_input_forms form
-	//JOIN ui_input_fields field ON form.id=field.id_ui_input_forms AND form.html_name='client_registration'
-	//LEFT JOIN ui_input_fields_rules rule ON rule.id=field.id_ui_input_fields_rules
-	//LEFT JOIN ui_input_fields_rules_constraints rc ON rule.id=rc.id_ui_input_fields_rules
-	//LEFT JOIN ui_input_fields_constraints c ON c.id = rc.id_ui_input_fields_constraints
-
-
-	// 	select IFNULL(F_N.title, ''), IFNULL(F_N.type_input, ''), IFNULL(F_N.is_view, ''), COLUMN_NAME, DATA_TYPE, IFNULL( COLUMN_DEFAULT, ''), IS_NULLABLE, IFNULL(CHARACTER_SET_NAME, ''), IFNULL( C.COLUMN_COMMENT, '') from INFORMATION_SCHEMA.COLUMNS C left join allservi.field_names F_N on (F_N.field_name = C.COLUMN_NAME) where C.TABLE_NAME = ?
-
-	if(rows == nil) {
-		return sql.ErrNoRows
+		system.GetServerConfig().DBName(), table_name)
+	if err != nil {
+		return err
 	}
 
 	if ns.Rows == nil {

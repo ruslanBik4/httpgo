@@ -6,7 +6,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"fmt"
 	"net/http"
-	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
@@ -40,7 +39,6 @@ func RenderSignForm(w http.ResponseWriter, r *http.Request, email string )  {
 
 }
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
-	var menu db.MenuItems
 
 	WriteHeaders(w)
 
@@ -54,15 +52,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "index":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
 
-
-		p.TopMenu = make( map[string] string, 0)
-
-		menu.GetMenu("indexTop")
-
-		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
-
-		}
 		if p.Content == "" {
 
 			//p.Title   = "Авторизация"
@@ -76,13 +65,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		p.TopMenu = make( map[string] string, 0)
-		menu.GetMenu("indexTop")
-
-		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
-
-		}
 		fmt.Fprint(w, headPage.HeadHTML())
 		fmt.Fprint(w, p.ShowAdminPage(""))
 	default:

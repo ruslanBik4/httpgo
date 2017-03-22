@@ -173,6 +173,13 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 			p.Content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link )
 		}
 
+		p.TopMenu = make( map[string] string, 0)
+		menu.GetMenu("indexTop")
+
+		for _, item := range menu.Items {
+			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
+
+		}
 		if err := views.RenderTemplate(w, r, "adminPage", p); err != nil {
 			log.Println(err)
 			return
