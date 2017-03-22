@@ -87,6 +87,9 @@
         {% else %}
             <option disabled >Выберите значение из списка</option>
         {% endif %}
+        {% if showForm, ok := field.DataJSOM["showForm"]; ok %}
+            <option data-show-form="{%s showForm %}" >Добавить нового</option>
+        {% endif %}
         {%code field.GetOptions(key[3:], val) %}
         {%s= field.Html %}
     </select>
@@ -319,7 +322,7 @@
     </label>
 {% endfunc %}
 {% func renderSelect(key, options, required, events, dataJson string) %}
-    <select id="{%s key %}" name="{%s key %}" class="business-form-select" {%s= required %} {%s= events %} {%s= dataJson %}>
+    <select id="{%s key %}" name="{%s key %}" class="business-form-select" {%s= required %} {%s= events %} {%s= dataJson %} >
         {%s= options %}
     </select>
 {% endfunc %}
