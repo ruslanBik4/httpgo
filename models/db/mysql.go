@@ -13,7 +13,7 @@ import (
 )
 const dbName = "travel"
 const dbUser = "travel"
-const dbPass = "rjgbvktc"
+const dbPass = "3216732167"
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
@@ -349,4 +349,53 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 	}
 
 	return nil
+}
+
+func selectToMultidimension(sql string,args ...interface{}) map[int]httpgoJson.MultiDimension{
+
+	println(args)
+
+
+	rows, err := db.DoSelect(sql,args...)
+
+	defer rows.Close()
+	if err != nil {
+		println(err)
+	}
+
+	columns, _ := rows.Columns()
+	count := len(columns)
+	values := make([]interface{}, count)
+	valuePtrs := make([]interface{}, count)
+
+	final_result := map[int]httpgoJson.MultiDimension{}
+	result_id := 0
+	for rows.Next() {
+		for i, _ := range columns {
+			valuePtrs[i] = &values[i]
+		}
+		rows.Scan(valuePtrs...)
+
+		tmp_struct := httpgoJson.MultiDimension{}
+
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if (ok) {
+				v = string(b)
+			} else {
+				v = val
+			}
+			tmp_struct[col] = fmt.Sprintf("%v",v)
+		}
+
+		final_result[ result_id ] = tmp_struct
+		result_id++
+	}
+
+	return final_result
+
+
+
 }
