@@ -80,7 +80,6 @@ type HeadHTMLPage struct {
     {% endfor %}
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
-    <script  src="/webcomponents.js"></script>
 
 </head>
 {% endfunc %}

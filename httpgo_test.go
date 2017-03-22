@@ -9,6 +9,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/docs"
 	"fmt"
 )
+const spreadsheetId = "1EvNM788L-CC7N1kYIieQZEuinpmI7yVzu_mV75DF3cM"
+
 func TestReadGoogleSheets(t *testing.T) {
 	var sheet docs.SheetsGoogleDocs
 	fileName := ""
@@ -18,13 +20,17 @@ func TestReadGoogleSheets(t *testing.T) {
 	}
 
 	fmt.Printf("before read")
-	if resp, err := sheet.Read(); err != nil {
+	readRange := "Шаблон!1:50"
+	if resp, err := sheet.Read(spreadsheetId, readRange); err != nil {
 		t.Errorf("Error during reading sheet %v", err)
 	} else {
 		fmt.Printf("%v", resp)
-		for _, row := range resp.Values {
+		for idx,  row := range resp.Values {
 			// Print columns A and E, which correspond to indices 0 and 4.
-			fmt.Printf("%s, %s\n", row[0], row[4])
+			for idx := range row {
+				fmt.Printf("%s | ", row[idx])
+			}
+			fmt.Printf(", %s\n", idx)
 		}
 
 	}

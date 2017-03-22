@@ -313,6 +313,53 @@ func getSQLFromNodeID(key, parentTable string) string{
 		tableProps, tableValue)
 
 }
+func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
+	var sqlCommand string
+
+	if strings.HasPrefix(key, "setid_") {
+		sqlCommand = field.getSQLFromSETID(key, ns.Name)
+	} else if strings.HasPrefix(key, "nodeid_"){
+
+		sqlCommand = getSQLFromNodeID(key, ns.Name)
+
+	}
+
+	if sqlCommand == "" {
+		field.Html += "<option disabled>Нет значений связанной таблицы!</option>"
+		return
+	}
+
+	where := field.whereFromSet(ns)
+
+	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
+	if err != nil {
+		log.Println(sqlCommand, err)
+		return
+	}
+	defer rows.Close()
+	idx := 0
+
+	field.Html = ""
+	for rows.Next() {
+		var id string
+		var title, selected string
+		var idParent sql.NullInt64
+
+		if err := rows.Scan(&id, &title, &idParent); err != nil {
+			log.Println(err)
+			continue
+		}
+		if idParent.Valid {
+			selected = "selected"
+		}
+		idx++
+
+
+		field.Html += renderOption(id, title, selected)
+	}
+
+}
+
 func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 	var sqlCommand string
 
@@ -388,8 +435,10 @@ func (field *FieldStructure) GetOptions(tableName, val string) {
 			if j = strings.IndexAny(param, ", )"); j > 0 {
 				param = param[:j]
 			}
-			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-			if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
+			// мы добавим условие со значением поля текущей записи, если это поле найдено и в нем установлено значение
+			if param == "currentUser"{
+				where += enumVal[:i] + fmt.Sprintf("%s", "users.IsLogin(nil)")
+			} else if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
 			/// попозже перепроверить

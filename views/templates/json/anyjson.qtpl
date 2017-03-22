@@ -4,62 +4,47 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func WriteAnyJSON(arrJSON MultiDimension) %}
      {% code comma := "" %}
-{% stripspace %}
-        {% collapsespace %}
+{% stripspace %} {% collapsespace %}
 {
     {% for key, value := range  arrJSON %}
-         {%s comma %} "{%s key %}": {%= WriteElement(value)%}
-     {% code  comma = ","   %}
+         {%s comma %} "{%s key %}": {%= WriteElement(value)%} {% code  comma = "," %}
    {% endfor %}
- }
-        {% endcollapsespace %}
-{% endstripspace %}
+}
+{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
 пишем элемент массива в зависемости от типа
 {% func WriteElement(value interface{}) %}
-{% stripspace %}
-{% collapsespace %}
+{% stripspace %} {% collapsespace %}
      {% switch vv := value.(type) %}
       {% case string %} "{%s= vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
-      {% case float64 %}
-             {%f vv %}
-      {% case nil %}
-             NULL
-      {% case StringDimension %}
-             {%= WriteStringDimension(vv) %}
-      {% case SimpleDimension %}
-             {%= WriteSimpleDimension(vv) %}
-      {% case MultiDimension %}
-             {%= WriteAnyJSON(vv) %}
-      {% default %}
-            {%v vv %}
+      {% case float64 %} {%f vv %}
+      {% case nil %}  NULL
+      {% case StringDimension %}  {%= WriteStringDimension(vv) %}
+      {% case SimpleDimension %} {%= WriteSimpleDimension(vv) %}
+      {% case MultiDimension %} {%s WriteAnyJSON(vv) %}
+      {% default %}  {%v vv %}
      {% endswitch %}
-     {% endcollapsespace %}
-{% endstripspace %}
+{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
 
 {% func WriteArrJSON(arrJSON []interface{} ) %}
-{% stripspace %}
-{% collapsespace %}
- [
     {% code comma := "" %}
+{% stripspace %} {% collapsespace %}
+ [
     {% for key, value := range  arrJSON %}
-         {%s comma %} {%d key %}:{%= WriteElement(value)%}
-         {% code  comma = ","   %}
+         {%s comma %} {%d key %}:{%= WriteElement(value) %} {% code  comma = ","   %}
     {% endfor %}
  ]
-     {% endcollapsespace %}
-{% endstripspace %}
+{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
 {% func WriteSimpleDimension(arrJSON SimpleDimension ) %}
  {% stripspace %}
 [
     {% code comma := "" %}
     {% for key, value := range  arrJSON %}
-         {%s comma %} {%d key %}:{%= WriteElement(value)%}
-         {% code  comma = ","   %}
+         {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endstripspace %}
@@ -69,8 +54,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  [
     {% code comma := "" %}
     {% for key, value := range  arrJSON %}
-         {%s comma %} {%d key %}:{%= WriteElement(value)%}
-         {% code  comma = ","   %}
+         {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endstripspace %}

@@ -53,10 +53,22 @@
                 <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
             </div>
             <div class="modal-body">
+            {% if field.InputType == "select" %}
+                <select id="{%s key %}" name="{%s tablePrefix+key %}" class="business-form-select" {%s required %}>
+                {%code field.getOptionsNODEID(ns, key) %}
+                {% if field.IS_NULLABLE=="YES" && val=="" %}
+                        <option disabled selected>Значение можно не указывать</option>
+                    {% else %}
+                        <option disabled >Выберите значение из списка</option>
+                {% endif %}
+                {%s= field.Html %}
+                </select>
+            {% else %}
                 <ul class="hor-menu" role="menu" aria-labelledby="dLabel">
                 {%code field.getMultiSelect(ns, key) %}
                 {%s= field.Html %}
                 </ul>
+            {% endif %}
             </div>
             <div class="modal-footer">
                 <input >
@@ -74,6 +86,9 @@
             <option disabled selected>Значение можно не указывать</option>
         {% else %}
             <option disabled >Выберите значение из списка</option>
+        {% endif %}
+        {% if showForm, ok := field.DataJSOM["showForm"]; ok %}
+            <option data-show-form="{%s showForm %}" >Добавить нового</option>
         {% endif %}
         {%code field.GetOptions(key[3:], val) %}
         {%s= field.Html %}
@@ -307,7 +322,7 @@
     </label>
 {% endfunc %}
 {% func renderSelect(key, options, required, events, dataJson string) %}
-    <select id="{%s key %}" name="{%s key %}" class="business-form-select" {%s= required %} {%s= events %} {%s= dataJson %}>
+    <select id="{%s key %}" name="{%s key %}" class="business-form-select" {%s= required %} {%s= events %} {%s= dataJson %} >
         {%s= options %}
     </select>
 {% endfunc %}

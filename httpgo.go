@@ -314,9 +314,11 @@ var (
 	F_debug    = flag.String("debug","false","debug mode")
 	db_user   = flag.String("dbUser","travel","user name for database")
 )
-
-func main() {
+func init() {
 	flag.Parse()
+	system.ServerConfig.Init(f_static, f_web, f_session)
+}
+func main() {
 	users.SetSessionPath(*f_session)
 	go cacheFiles()
 
