@@ -351,7 +351,7 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 	return nil
 }
 
-func selectToMultidimension(sql string,args ...interface{}) map[int]httpgoJson.MultiDimension{
+func SelectToMultidimension(sql string,args ...interface{}) map[int]httpgoJson.MultiDimension{
 
 	println(args)
 
