@@ -24,6 +24,7 @@ import (
 	"models/config"
 	"github.com/ruslanBik4/httpgo/views/fonts"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
+	"github.com/ruslanBik4/httpgo/models/server"
 )
 //go:generate qtc -dir=views/templates
 
@@ -245,7 +246,15 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	idx := strings.LastIndex(r.URL.Path, "menu/") + 5
 	idMenu := r.URL.Path[idx:len(r.URL.Path)-1]
 
-	//log.Println(idMenu)
+	//отдаем полный список меню для фронтового фреймворка
+	if idMenu == "all" {
+		if arrJSON, err := db.SelectToMultidimension("select * from menu_items"); err != nil {
+			log.Println(err)
+		} else {
+			views.RenderArrayJSON(w, arrJSON)
+		}
+		return
+	}
 
 
 	var catalog, content string
@@ -328,7 +337,7 @@ var (
 )
 func init() {
 	flag.Parse()
-	ServerConfig := system.GetServerConfig()
+	ServerConfig := server.GetServerConfig()
 	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
 		log.Println(err)
 	}

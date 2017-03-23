@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 // назначение модуля - читать и одавать конфигурационные настройки
 
-package system
+package server
 
 import (
 	"fmt"

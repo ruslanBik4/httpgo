@@ -10,7 +10,7 @@ import (
 	"log"
 	"strings"
 	"strconv"
-	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/server"
 )
 var (
 	dbConn *sql.DB
@@ -27,7 +27,7 @@ func doConnect() error {
 	if dbConn != nil {
 		return nil
 	}
-	serverConfig := system.GetServerConfig()
+	serverConfig := server.GetServerConfig()
 	dbConn, err = sql.Open( "mysql", serverConfig.DNSConnection() )
 	if err != nil {
 		log.Println(err)
@@ -321,7 +321,7 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
 		"FROM INFORMATION_SCHEMA.COLUMNS C " +
 		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION" + limiter,
-		system.GetServerConfig().DBName(), table_name)
+		server.GetServerConfig().DBName(), table_name)
 	if err != nil {
 		return err
 	}
