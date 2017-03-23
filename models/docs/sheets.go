@@ -18,7 +18,7 @@ import (
 	"net/url"
 	"encoding/json"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/server"
 )
 const ClientID 	    = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
 const authCode  =  "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
@@ -112,7 +112,7 @@ func newClient() *http.Client{
 }
 func (sheet * SheetsGoogleDocs) Init() (err error){
 
-	sConfig := system.GetServerConfig()
+	sConfig := server.GetServerConfig()
 	cacheFile = filepath.Join(sConfig.StaticPath, "config/.credentials" )
 	userFile = filepath.Join(sConfig.StaticPath, "config/oauth2.json" )
 

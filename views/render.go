@@ -29,7 +29,7 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
 		fmt.Fprint(w, strContent)
 	} else {
-		p := &pages.IndexPageBody{ Content: strContent }
+		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path }
 		RenderTemplate(w, r, "index", p)
 	}
 }

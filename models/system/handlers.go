@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"log"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 type ErrNotLogin struct {
@@ -19,7 +20,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	switch err.(type) {
 	case ErrNotLogin:
 		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
-		http.Redirect(w, r, "/show/forms/?name=signin", http.StatusSeeOther)
+		views.RenderSignForm(w, r, "")
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)
