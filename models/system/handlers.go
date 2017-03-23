@@ -19,7 +19,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	switch err.(type) {
 	case ErrNotLogin:
 		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
-		http.Redirect(w, r, "/show/forms/?name=signForm", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/show/forms/?name=signin", http.StatusSeeOther)
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)
