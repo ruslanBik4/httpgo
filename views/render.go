@@ -36,8 +36,12 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string )  {
 
 	RenderAnyPage(w, r, forms.SigninForm(email, "Введите пароль, полученный по почте") )
-
 }
+func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string )  {
+
+	RenderAnyPage(w, r, forms.SignUpForm(placeholder) )
+}
+
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 
 	WriteHeaders(w)
@@ -62,8 +66,9 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		fmt.Fprint(w, headPage.HeadHTML())
 		fmt.Fprint(w, p.IndexHTML())
 	case "signinForm":
-		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
-		RenderAnyPage(w, r, forms.SigninForm(p.Title, "Введите пароль, полученный по почте") )
+		RenderSignForm(w, r, "Введите пароль, полученный по почте")
+	case "signupForm":
+		RenderSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)

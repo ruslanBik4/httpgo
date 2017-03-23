@@ -20,7 +20,7 @@ var (
 )
 
 //line views/templates/forms/signupForm.qtpl:2
-func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
+func StreamSignUpForm(qw422016 *qt422016.Writer, placeholder string) {
 	//line views/templates/forms/signupForm.qtpl:2
 	qw422016.N().S(`
 <head>
@@ -69,22 +69,22 @@ func StreamShowForm(qw422016 *qt422016.Writer, placeholder string) {
 }
 
 //line views/templates/forms/signupForm.qtpl:40
-func WriteShowForm(qq422016 qtio422016.Writer, placeholder string) {
+func WriteSignUpForm(qq422016 qtio422016.Writer, placeholder string) {
 	//line views/templates/forms/signupForm.qtpl:40
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/signupForm.qtpl:40
-	StreamShowForm(qw422016, placeholder)
+	StreamSignUpForm(qw422016, placeholder)
 	//line views/templates/forms/signupForm.qtpl:40
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/signupForm.qtpl:40
 }
 
 //line views/templates/forms/signupForm.qtpl:40
-func ShowForm(placeholder string) string {
+func SignUpForm(placeholder string) string {
 	//line views/templates/forms/signupForm.qtpl:40
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/signupForm.qtpl:40
-	WriteShowForm(qb422016, placeholder)
+	WriteSignUpForm(qb422016, placeholder)
 	//line views/templates/forms/signupForm.qtpl:40
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/signupForm.qtpl:40

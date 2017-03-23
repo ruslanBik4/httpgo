@@ -22,6 +22,7 @@ _testmain.go
 
 *.exe
 *.test
+*_test.*
 *.prof
 .idea/
 bootstrap/
@@ -31,5 +32,6 @@ test.html
 config/php-fpm.conf
 Would skip repository
 thetravel/
+test/
 db.yml
 db.yml.devel

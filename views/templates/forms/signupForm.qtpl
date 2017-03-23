@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% func ShowForm(placeholder string) %}
+{% func SignUpForm(placeholder string) %}
 <head>
     <link rel="import" href="/components/paper-input/paper-input-container.html">
     <link rel="import" href="/components/paper-input/paper-input-error.html">
