@@ -31,3 +31,5 @@ test.html
 config/php-fpm.conf
 Would skip repository
 thetravel/
+db.yml
+db.yml.devel
