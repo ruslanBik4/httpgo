@@ -248,18 +248,19 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	} else if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
 		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
 	} else {
+		fullInputName := tableProps + ":" + inputName
 		switch fieldStruct.DATA_TYPE {
 		case "enum":
-			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderEnum(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderEnum(fullInputName, value, required, events, dataJson) + "</td>"
 		case "set":
-			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderSet(inputName, value, required, events, dataJson) + "</td>"
+			html += "<td class='" + fieldStruct.CSSClass + "'>" + fieldStruct.RenderSet(fullInputName, value, required, events, dataJson) + "</td>"
 		case "tinyint":
 			checked := ""
 			if value == "1" {
 				checked = "checked"
 			}
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
-					RenderCheckBox(inputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
+					RenderCheckBox(fullInputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, StyleInput(fieldStruct.DATA_TYPE), tableProps, inputName, value)
 		}

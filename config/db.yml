@@ -1,1 +1,3 @@
-db.yml.master
+ dbName: travel
+ dbUser: travel
+ dbPass: rjgbvktc
