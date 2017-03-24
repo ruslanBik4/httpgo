@@ -25,6 +25,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/fonts"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	"github.com/ruslanBik4/httpgo/models/server"
+	_ "net/http/pprof"
 )
 //go:generate qtc -dir=views/templates
 
@@ -135,7 +136,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
-
+ 
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -232,7 +233,7 @@ func sockCatch() {
 
 func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, "text index page %s ", "filename" )
+	w.Write( []byte( "text index page filename" ) )
 }
 func handlerForms(w http.ResponseWriter, r *http.Request){
 	views.RenderTemplate(w, r, r.FormValue("name") + "Form", &pages.IndexPageBody{Title : r.FormValue("email") } )
@@ -323,7 +324,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 
 	emptyCache()
 	cacheFiles()
-	fmt.Fprintf(w, "recache succesfull!")
+	w.Write( []byte( "recache succesfull!" ) )
 }
 
 var (

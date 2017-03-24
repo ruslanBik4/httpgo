@@ -4,7 +4,6 @@ package views
 
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"fmt"
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
@@ -27,7 +26,7 @@ func IsAJAXRequest(r *http.Request) bool {
 }
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
-		fmt.Fprint(w, strContent)
+		w.Write( []byte( strContent ) )
 	} else {
 		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path }
 		RenderTemplate(w, r, "index", p)
@@ -63,8 +62,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 			p.Route = "/"
 		}
 
-		fmt.Fprint(w, headPage.HeadHTML())
-		fmt.Fprint(w, p.IndexHTML())
+		w.Write( []byte( headPage.HeadHTML() + p.IndexHTML() ) )
 	case "signinForm":
 		RenderSignForm(w, r, "Введите пароль, полученный по почте")
 	case "signupForm":
@@ -73,10 +71,9 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		fmt.Fprint(w, headPage.HeadHTML())
-		fmt.Fprint(w, p.ShowAdminPage(""))
+		w.Write( []byte( headPage.HeadHTML() + p.ShowAdminPage("")) )
 	default:
-		fmt.Fprint(w, "no rendering with page %s with data %v", tmplName, Content)
+		w.Write( []byte( "no rendering with page " + tmplName ) )
 	}
 	return nil
 }
@@ -98,11 +95,11 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Fprintf(w, json.WriteAnyJSON(arrJSON) )
+	w.Write( []byte( json.WriteAnyJSON(arrJSON) ) )
 }
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	fmt.Fprintf(w, json.WriteSliceJSON(arrJSON))
+	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }

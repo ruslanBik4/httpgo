@@ -54,7 +54,7 @@ function SitePostShow() {
         });
     }
 
-
+$('.get-json[data-href]').each( function() {this.data('href')})
 
     //TODO: сделать подключение остальных полей (без maxDate) и, других своств - minDate, например
 
@@ -131,12 +131,8 @@ function logOut(thisElem) {
     loginToggle();
     $('#sTitle').html( 'Для начала работы Вам необходимо ' );
     $.get( thisElem.href, function (data) {
-        if (data.substr(0,5) == '<form') {
             showFormModal(data);
-        } else {
-            alert(data);
-        }
-    } );
+    });
 
     return false;
 }
