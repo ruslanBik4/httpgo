@@ -127,7 +127,7 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	views.RenderAnyPage(w, r, layouts.ObjectLayout())
+	w.Write( []byte(layouts.ObjectLayout()) )
 	return
 
 	if arrJSON, err := db.SelectToMultidimension("select * from business"); err != nil {
