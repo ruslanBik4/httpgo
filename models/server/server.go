@@ -56,7 +56,6 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
 	if err := yaml.Unmarshal(b, &sConfig.dbParams); err != nil {
 		return err
 	}
-		log.Println(sConfig.dbParams)
 
 
 	return nil
