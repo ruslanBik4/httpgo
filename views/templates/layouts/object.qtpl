@@ -5,22 +5,22 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="css/jquery.formstyler.css">
+	<link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="/jquery.formstyler.css">
 	<link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<link rel="stylesheet" type="text/css" href="/main.css">
 
 	<title>theTravel</title>
 </head>
 <body>
 	<header>
 		<div class="navbar navbar-default navbar-fixed-top">
-			<div class="side_logo_wrapper pull-left"><a href=""><img src="images/header-logo.png"></a></div>
+			<div class="side_logo_wrapper pull-left"><a href=""><img src="/images/header-logo.png"></a></div>
 			<div class="dropdown pull-right c-user-top-menu">
 				<button data-toggle="dropdown" class="dropdown-toggle text-left">
-					<img alt="" src="images/aside_left_1.png">
+					<img alt="" src="/images/aside_left_1.png">
 					<span>Александра Якимчук</span>
 					<b class="caret"></b>
 				</button>
@@ -36,9 +36,9 @@
 	<div class="pull-left aside">
 		<div class="pull-left aside_left">
 			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#aside1"><img alt="" src="images/aside_left_1.png"></a></li>
-				<li><a data-toggle="tab" href="#aside2"><img alt="" src="images/aside_left_1.png"></a></li>
-				<li><a href=""><img alt="" src="images/left-add-button.png"></a></li>
+				<li class="active"><a data-toggle="tab" href="#aside1"><img alt="" src="/images/aside_left_1.png"></a></li>
+				<li><a data-toggle="tab" href="#aside2"><img alt="" src="/images/aside_left_1.png"></a></li>
+				<li><a href=""><img alt="" src="/images/left-add-button.png"></a></li>
 			</ul>
 		</div>
 		<div class="pull-left aside_right">
@@ -57,7 +57,7 @@
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse1"><img src="images/aside_left_1.png">ЧАО «Президент-отель»</a>
+													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse1"><img src="/images/aside_left_1.png">ЧАО «Президент-отель»</a>
 												</h4>
 											</div>
 											<div id="collapse1" class="panel-collapse collapse">
@@ -69,7 +69,7 @@
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse2"><img src="images/aside_left_1.png">Президент отель «Николаевский»</a>
+													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse2"><img src="/images/aside_left_1.png">Президент отель «Николаевский»</a>
 												</h4>
 											</div>
 											<div id="collapse2" class="panel-collapse collapse">
@@ -81,7 +81,7 @@
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="" href="#collapse3"><img src="images/aside_left_1.png">Президент отель «Госпитальная»</a>
+													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="" href="#collapse3"><img src="/images/aside_left_1.png">Президент отель «Госпитальная»</a>
 												</h4>
 											</div>
 											<div id="collapse3" class="panel-collapse collapse in">
@@ -101,7 +101,7 @@
 										<div class="panel panel-default">
 											<div class="panel-heading">
 												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse4"><img src="images/aside_left_1.png">Президент отель «Киевский»</a>
+													<a data-toggle="collapse" data-parent="#accordion_aside_1" class="collapsed" href="#collapse4"><img src="/images/aside_left_1.png">Президент отель «Киевский»</a>
 												</h4>
 											</div>
 											<div id="collapse4" class="panel-collapse collapse">
@@ -356,7 +356,7 @@
 										<div class="clearfix">
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/fb.png" alt="facebook" >
+													<img src="/images/fb.png" alt="facebook" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -364,25 +364,7 @@
 											</div>
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/insta.png" alt="instagram" >
-												</div>
-												<div class="input-social pull-left">
-													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
-												</div>
-											</div>
-										</div>
-										<div class="clearfix">
-											<div class="col-xs-6 clearfix">
-												<div class="img-social pull-left">
-													<img src="images/vk.png" alt="vkontakte" >
-												</div>
-												<div class="input-social pull-left">
-													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
-												</div>
-											</div>
-											<div class="col-xs-6 clearfix">
-												<div class="img-social pull-left">
-													<img src="images/linkedin.png" alt="linkedin" >
+													<img src="/images/insta.png" alt="instagram" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -392,7 +374,7 @@
 										<div class="clearfix">
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/fb.png" alt="facebook" >
+													<img src="/images/vk.png" alt="vkontakte" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -400,7 +382,7 @@
 											</div>
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/youtube.png" alt="youtube" >
+													<img src="/images/linkedin.png" alt="linkedin" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -410,7 +392,7 @@
 										<div class="clearfix">
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/twitter.png" alt="twitter" >
+													<img src="/images/fb.png" alt="facebook" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -418,7 +400,25 @@
 											</div>
 											<div class="col-xs-6 clearfix">
 												<div class="img-social pull-left">
-													<img src="images/fb.png" alt="facebook" >
+													<img src="/images/youtube.png" alt="youtube" >
+												</div>
+												<div class="input-social pull-left">
+													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
+												</div>
+											</div>
+										</div>
+										<div class="clearfix">
+											<div class="col-xs-6 clearfix">
+												<div class="img-social pull-left">
+													<img src="/images/twitter.png" alt="twitter" >
+												</div>
+												<div class="input-social pull-left">
+													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
+												</div>
+											</div>
+											<div class="col-xs-6 clearfix">
+												<div class="img-social pull-left">
+													<img src="/images/fb.png" alt="facebook" >
 												</div>
 												<div class="input-social pull-left">
 													<input type="text" name="value" class="c-input" placeholder="facebook.com/">
@@ -1120,9 +1120,9 @@
 	</footer>
 
 		<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/jquery.formstyler.min.js"></script>
-		<script src="js/main.js"></script>
+		<script src="/bootstrap1.min.js"></script>
+		<script src="/jquery.formstyler.min.js"></script>
+		<script src="/main.js"></script>
 	</body>
 	</html>
 {% endfunc %}
