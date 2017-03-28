@@ -416,3 +416,155 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	return arrJSON, nil
 
 }
+
+//GetDataPrepareRowsToReading - function get rows with structure field
+func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
+							columns [] string, colTypes [] *sql.ColumnType, err error )  {
+	rows, err = DoSelect(sql, args...)
+
+	if err != nil {
+		log.Println(err)
+		return nil, nil, nil, nil, nil, err
+	}
+
+	row, rowField, columns, colTypes = PrepareRowsToReading(rows)
+	return rows, row, rowField, columns, colTypes, nil
+}
+
+//ConvertPrepareRowsToJson convert many rows to json
+func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
+			columns [] string, colTypes [] *sql.ColumnType) ( arrJSON [] map[string] interface {}, err error ) {
+
+	log.Println("\n", rows)
+
+	for rows.Next() {
+		if err := rows.Scan(row...); err != nil {
+			log.Println(err)
+			continue
+		}
+		log.Println("\n")
+		log.Println("row=")
+		log.Println(row...)
+
+		values := make(map[string] interface{}, len(columns) )
+
+		for _, colType := range colTypes {
+
+			fieldName := colType.Name()
+			fieldValue, ok := rowField[fieldName]
+			if !ok {
+				log.Println(err)
+				continue
+			}
+			//log.Println(colType.Length())
+			switch colType.DatabaseTypeName() {
+			case "varchar", "date", "datetime":
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			case "tinyint":
+				if getValue(fieldValue) == "1" {
+					values[fieldName] = true
+
+				} else {
+					values[fieldName] = false
+
+				}
+			case "int", "int64", "float":
+				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
+			default:
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			}
+		}
+
+		arrJSON = append(arrJSON, values)
+	}
+
+	return arrJSON, nil
+}
+
+
+//ConvertPrepareRowToJson convert one row to json
+func ConvertPrepareRowToJson(row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
+		colTypes [] *sql.ColumnType) (id int, arrJSON map[string] interface {},   err error ) {
+		id = 0;
+		values := make(map[string] interface{}, len(columns) )
+
+		for _, colType := range colTypes {
+
+			fieldName := colType.Name()
+			fieldValue, ok := rowField[fieldName]
+			if (fieldName == "id"){
+				id, _ = strconv.Atoi(getValue(fieldValue))
+			}
+			if !ok {
+				log.Println(err)
+				continue
+			}
+			//log.Println(colType.Length())
+			switch colType.DatabaseTypeName() {
+			case "varchar", "date", "datetime":
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			case "tinyint":
+				if getValue(fieldValue) == "1" {
+					values[fieldName] = true
+
+				} else {
+					values[fieldName] = false
+
+				}
+			case "int", "int64", "float":
+				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
+
+			default:
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			}
+		}
+
+		arrJSON = values
+
+
+	return id, arrJSON, nil
+}
+
+
+//GetDataCustom get data with custom sql
+func GetDataCustom(tableName string, begSql string, endSql string, args ...interface{}) (rows *sql.Rows,
+		row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
+		colTypes [] *sql.ColumnType, err error ){
+
+	if(begSql == ""){
+		begSql = "SELECT * FROM "
+	}
+
+	if(endSql == ""){
+		endSql = " WHERE id=?"
+	}
+
+	sql:= begSql + tableName + endSql
+
+	rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sql, args...)
+
+
+	if err != nil {
+		log.Println(err)
+		return nil, nil, nil, nil, nil, err
+	}
+
+	return rows, row, rowField, columns, colTypes, nil
+
+}
