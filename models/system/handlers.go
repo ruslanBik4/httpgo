@@ -13,6 +13,21 @@ type ErrNotLogin struct {
 func (err *ErrNotLogin) Error() string{
 	return err.Message
 }
+//Структура для ошибок базы данных
+type ErrDb struct {
+	Message string
+}
+//Функция для обработк структуры ошибок базы данных
+func (err *ErrDb) Error() string{
+	return err.Message
+}
+
+type ErrNotPermission struct {
+	Message string
+}
+func (err *ErrNotPermission) Error() string{
+	return err.Message
+}
 
 func Catch(w http.ResponseWriter, r *http.Request) {
 	err := recover()
@@ -20,6 +35,9 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	switch err.(type) {
 	case ErrNotLogin:
 		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+		views.RenderSignForm(w, r, "")
+	case ErrNotPermission:
+		fmt.Fprintf(w, "<title>%s</title>", "Доступ закрыт" )
 		views.RenderSignForm(w, r, "")
 	case nil:
 	default:
