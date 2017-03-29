@@ -188,6 +188,20 @@ func GetNameTableProps(tableValue, parentTable string) string{
 
 	return ""
 }
+var isArrayPostParam = regexp.MustCompile(`/\[\S*\]/`)
+//получает имя таблицы свойств для суррогатных полей типа
+func getTableProps(key, typeField string) string {
+	if strings.HasSuffix(key, "[]") {
+		return key[len(typeField):len(key)-2]
+	} else if isArrayPostParam.MatchString(key){
+		return isArrayPostParam.ReplaceAllString(key, "")[len(typeField):]
+
+	}
+	return key[len(typeField):]
+}
+//выполняет запрос согласно переданным данным в POST,
+//для суррогатных полей готовит запросы для изменения связанных полей
+//возвращает id новой записи
 func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err error) {
 
 	r.ParseForm()
@@ -212,14 +226,16 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 		if key == "table" {
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
+			tableProps := getTableProps(key,"setid_" )
 			defer func(tableName, tableProps string, values []string) {
 				if err == nil {
 					err = insertMultiSet(tableName,  tableProps,
 						tableName + "_" + tableProps + "_has", userID, values, lastInsertId)
 				}
-			} (tableName, key[len("setid_"):len(key)-2], val)
+			} (tableName, tableProps, val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
+			tableProps := getTableProps(key,"nodeid_" )
 			defer func(tableName, tableValues string, values []string) {
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
@@ -228,7 +244,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 					}
 					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
-			} (tableName, key[len("nodeid_"):len(key)-2], val)
+			} (tableName, tableProps, val)
 			continue
 		} else if key == "id_users" {
 
@@ -268,6 +284,9 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 	return DoInsert(sqlCommand + ") " + values + ")", row ... )
 
 }
+//выполняет запрос согласно переданным данным в POST,
+//для суррогатных полей готовит запросы для изменения связанных полей
+//возвращает количество измененных записей
 func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err error) {
 
 	r.ParseForm()
@@ -295,6 +314,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 			id, _ = strconv.Atoi(val[0])
 			continue
 		} else if strings.HasPrefix(key, "setid_"){
+			tableProps := getTableProps(key,"setid_" )
 			defer func(tableProps string, values []string) {
 				if err == nil {
 					err = insertMultiSet(tableName,  tableProps,
@@ -302,9 +322,10 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 				} else {
 					log.Println(err)
 				}
-			} (key[len("setid_"):len(key)-2], val)
+			} (tableProps, val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_"){
+			tableProps := getTableProps(key,"nodeid_" )
 			defer func(tableValues string, values []string) {
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
@@ -315,7 +336,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 				} else {
 					log.Println(err)
 				}
-			} (key[len("nodeid_"):len(key)-2], val)
+			} (tableProps, val)
 			continue
 		} else if key == "id_users" {
 

@@ -95,7 +95,7 @@ func NewDefaultHandler() *DefaultHandler {
 			".svg",".css",".js",".map",".ico",
 		},
 		whitelist: []string{
-			".jpg",".jpeg",".png",".gif",".ttf",".pdf", ".json", ".htm", ".html",
+			".jpg",".jpeg",".png",".gif",".ttf",".pdf", ".json", ".htm", ".html", ".txt",
 		},
 	}
 	// read from flags
