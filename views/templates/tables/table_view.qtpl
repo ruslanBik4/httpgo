@@ -106,7 +106,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 <link href="/tables.css" rel="stylesheet">
 <script src="/tables.js"></script>
 <div class="table">
-<div class='thead' >
+<div class='thead' id='thead' >
     <div class='tr' >
         {% code
             var figure, filterFields string
