@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
+	"github.com/ruslanBik4/httpgo/models/system"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -140,30 +141,16 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
 		return false, "", ""
 	}
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", pair[0], users.HashPassword(pair[1]) )
-	if err != nil {
-		log.Println(err)
-		return false, "", ""
-	}
-	defer rows.Close()
-	var row UserRecord
+	result, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
-	for rows.Next() {
-
-		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
-
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		// session save BEFORE write page
-		users.SaveSession(w, r, row.Id, pair[0])
-
-		return true, row.Name, pair[1]
+	if !result {
+		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
 	}
 
-	return false, "", ""
+	// session save BEFORE write page
+	users.SaveSession(w, r, userId, pair[0])
+
+	return true, userName, pair[1]
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {

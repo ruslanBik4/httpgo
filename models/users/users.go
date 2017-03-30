@@ -164,29 +164,17 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		panic(&system.ErrNotLogin{Message:"Not enoug login parameters!"})
 	}
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", email, HashPassword(password) )
-	if err != nil {
-		log.Println(err)
-		return
+	result, userId, userName := CheckUserCredentials(email, password)
+
+	if !result {
+		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
 	}
-	defer rows.Close()
-	var row UserRecord
 
-	for rows.Next() {
+	// session save BEFORE write page
+	SaveSession(w, r, userId, email)
 
-		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
-
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		// session save BEFORE write page
-		SaveSession(w, r, row.Id, email)
-
-		p := &forms.PersonData{ Id: row.Id, Login: row.Name, Email: email }
-		fmt.Fprint(w, p.JSON())
-	}
+	p := &forms.PersonData{ Id: userId, Login: userName, Email: email }
+	fmt.Fprint(w, p.JSON())
 }
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 
@@ -313,6 +301,31 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, result)
 
 	}
+}
+
+func CheckUserCredentials(login string, password string) (bool, int, string) {
+
+	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password) )
+	if err != nil {
+		log.Println(err)
+		return false, 0, ""
+	}
+	defer rows.Close()
+	var row UserRecord
+
+	for rows.Next() {
+
+		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		return true, row.Id, row.Name
+	}
+
+	return false, 0, ""
 }
 
 
