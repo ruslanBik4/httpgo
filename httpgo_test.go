@@ -20,7 +20,7 @@ func TestReadGoogleSheets(t *testing.T) {
 	}
 
 	fmt.Printf("before read")
-	readRange := "Шаблон!1:50"
+	readRange := "Шаблон!"
 	if resp, err := sheet.Read(spreadsheetId, readRange); err != nil {
 		t.Errorf("Error during reading sheet %v", err)
 	} else {
