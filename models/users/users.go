@@ -35,11 +35,11 @@ var (
 		Endpoint:     google.Endpoint,
 	}
 	oauthStateString = "random"
-	store = sessions.NewFilesystemStore("/var/lib/php/session",[]byte("travel.com.ua"))
+	Store = sessions.NewFilesystemStore("/var/lib/php/session",[]byte("travel.com.ua"))
 
 )
 func SetSessionPath(f_session string) {
-	store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
+	Store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
 }
 //func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
 //
@@ -90,7 +90,7 @@ var greetings = [] string {"господин", "госпожа"}
 func GetSession(r *http.Request, name string) *sessions.Session {
 	// Get a session. We're ignoring the error resulted from decoding an
 	// existing session: Get() always returns a session, even if empty.
-	session, err := store.Get(r, name)
+	session, err := Store.Get(r, name)
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -164,7 +164,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		panic(&system.ErrNotLogin{Message:"Not enoug login parameters!"})
 	}
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", email, hashPassword(password) )
+	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", email, HashPassword(password) )
 	if err != nil {
 		log.Println(err)
 		return
@@ -182,13 +182,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// session save BEFORE write page
-		session := sessions.NewSession(store, nameSession)
-		session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
-		session.Values["id"] = row.Id
-		session.Values["email"] = email
-		if err := session.Save(r, w); err != nil {
-			log.Println(err)
-		}
+		SaveSession(w, r, row.Id, email)
 
 		p := &forms.PersonData{ Id: row.Id, Login: row.Name, Email: email }
 		fmt.Fprint(w, p.JSON())
@@ -201,6 +195,16 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
 	views.RenderSignForm(w, r, "")
+}
+
+func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
+	session := sessions.NewSession(Store, nameSession)
+	session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
+	session.Values["id"] = id
+	session.Values["email"] = email
+	if err := session.Save(r, w); err != nil {
+		log.Println(err)
+	}
 }
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random
@@ -232,7 +236,7 @@ func generatePassword(email string) (string, error) {
 	return GenerateRandomString(16)
 
 }
-func hashPassword(password string) interface{} {
+func HashPassword(password string) interface{} {
 	// crypto password
 	crc32q := crc32.MakeTable(0xD5828281)
 return 	crc32.Checksum([]byte(password), crc32q)
@@ -257,7 +261,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	sql += comma + "hash"
 	values += comma + "?"
 
-	args = append(args, hashPassword(password) )
+	args = append(args, HashPassword(password) )
 	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
 	if err != nil {
 

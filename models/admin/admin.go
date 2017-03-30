@@ -18,8 +18,14 @@ import (
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
 const userDir  = "../store/nav/"
-var username = []byte("admin")
-var password = []byte("password")
+const nameSession = "PHPSESSID"
+var store = users.Store
+
+type UserRecord struct {
+	Id int
+	Name string
+	Sex int
+}
 
 func correctURL(url string) string {
 
@@ -118,23 +124,46 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request, user, pass []byte) bool {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false
+		return false, "", ""
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false
+		return false, "", ""
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false
+		return false, "", ""
 	}
 
-	return pair[0] == string(user) && pair[1] == string(pass)
+	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", pair[0], users.HashPassword(pair[1]) )
+	if err != nil {
+		log.Println(err)
+		return false, "", ""
+	}
+	defer rows.Close()
+	var row UserRecord
+
+	for rows.Next() {
+
+		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		// session save BEFORE write page
+		users.SaveSession(w, r, row.Id, pair[0])
+
+		return true, row.Name, pair[1]
+	}
+
+	return false, "", ""
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
@@ -156,9 +185,10 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
-	if basicAuth(w, r, username, password) {
+	result, username, password := basicAuth(w, r)
+	if  result{
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
+		p := &pages.AdminPageBody{ Name: []byte(username), Pass : []byte(password), Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems
 
 		if menu.GetMenu("admin") > 0 {
