@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
-	"github.com/ruslanBik4/httpgo/models/system"
+//	"github.com/ruslanBik4/httpgo/models/system"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -141,10 +141,10 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
 		return false, "", ""
 	}
 
-	result, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
+	err, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
-	if !result {
-		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
+	if err != nil {
+		return false, "", ""
 	}
 
 	// session save BEFORE write page
@@ -173,7 +173,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
 	result, username, password := basicAuth(w, r)
-	if  result{
+	if  result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		p := &pages.AdminPageBody{ Name: []byte(username), Pass : []byte(password), Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems

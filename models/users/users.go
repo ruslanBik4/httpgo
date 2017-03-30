@@ -164,9 +164,9 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		panic(&system.ErrNotLogin{Message:"Not enoug login parameters!"})
 	}
 
-	result, userId, userName := CheckUserCredentials(email, password)
+	err, userId, userName := CheckUserCredentials(email, password)
 
-	if !result {
+	if err != nil {
 		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
 	}
 
@@ -303,12 +303,12 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func CheckUserCredentials(login string, password string) (bool, int, string) {
+func CheckUserCredentials(login string, password string) (error, int, string) {
 
 	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password) )
 	if err != nil {
 		log.Println(err)
-		return false, 0, ""
+		return err, 0, ""
 	}
 	defer rows.Close()
 	var row UserRecord
@@ -322,10 +322,10 @@ func CheckUserCredentials(login string, password string) (bool, int, string) {
 			continue
 		}
 
-		return true, row.Id, row.Name
+		return nil, row.Id, row.Name
 	}
 
-	return false, 0, ""
+	return &system.ErrNotLogin{Message:"Wrong email or password"}, 0, ""
 }
 
 
