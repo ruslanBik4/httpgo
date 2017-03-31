@@ -18,7 +18,6 @@ import (
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
-const userDir  = "../store/nav/"
 const nameSession = "PHPSESSID"
 var store = users.Store
 
@@ -125,26 +124,26 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false, "", ""
+		return false, nil, nil
 	}
 
-	result, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
+	err, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
 	if err != nil {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	// session save BEFORE write page
