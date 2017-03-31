@@ -21,6 +21,7 @@ type serverConfig struct {
 		DB   string `yaml:"dbName"`
 		User string `yaml:"dbUser"`
 		Pass string `yaml:"dbPass"`
+		Prot string `yaml:"dbProt"`
 	}
 }
 
@@ -69,7 +70,7 @@ func  writeto(v interface{}) error {
 //
 //[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 func (sConfig *serverConfig) DNSConnection() string {
-	return fmt.Sprintf("%s:%s@/%s?persistent", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.DB)
+	return fmt.Sprintf("%s:%s@%s/%s?persistent", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot, sConfig.dbParams.DB )
 }
 func (sConfig *serverConfig) DBName() string {
 	return sConfig.dbParams.DB

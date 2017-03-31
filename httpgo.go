@@ -26,6 +26,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "net/http/pprof"
+	"github.com/ruslanBik4/httpgo/models/services"
 )
 //go:generate qtc -dir=views/templates
 
@@ -345,6 +346,7 @@ func init() {
 	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
 		log.Println(err)
 	}
+	services.InitServices()
 }
 func main() {
 	users.SetSessionPath(*f_session)

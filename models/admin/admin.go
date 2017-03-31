@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
-	"github.com/ruslanBik4/httpgo/models/system"
+	_ "github.com/ruslanBik4/httpgo/models/system"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -125,32 +125,33 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool,[]byte,[]byte) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false, "", ""
+		return false, nil, nil
 	}
 
 	result, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
 	if !result {
-		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
+		return false, nil, nil
+		//panic(&system.ErrNotLogin{Message:"Wrong email or password"})
 	}
 
 	// session save BEFORE write page
 	users.SaveSession(w, r, userId, pair[0])
 
-	return true, userName, pair[1]
+	return true, []byte( userName), []byte (pair[1])
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
@@ -175,7 +176,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	result, username, password := basicAuth(w, r)
 	if  result{
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		p := &pages.AdminPageBody{ Name: []byte(username), Pass : []byte(password), Content : "", Catalog: make(map[string] *pages.ItemMenu) }
+		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems
 
 		if menu.GetMenu("admin") > 0 {

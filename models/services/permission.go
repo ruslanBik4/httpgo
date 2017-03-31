@@ -6,19 +6,26 @@ package services
 
 import "github.com/ruslanBik4/httpgo/models/db"
 
-type permission struct {
+type pService struct {
 	name string
 	region string
+	roles [] string
 }
-type pService struct {
+var permission *pService
 
-}
+func (*pService) init() error{
 
-func (* pService) init() {
-
-	rows, _ := db.DoSelect("select * from permission")
+	rows, err := db.DoSelect("select * from permission")
+	if err != nil {
+		return err
+	}
 
 	for rows.Next() {
 
 	}
+
+	return nil
+}
+func init() {
+	AddService("permission", permission)
 }
