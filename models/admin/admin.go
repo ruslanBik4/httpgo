@@ -125,27 +125,26 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request) (bool,[]byte,[]byte) {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool,string,string) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false, nil, nil
+		return false, "", ""
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false, nil, nil
+		return false, "", ""
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false, nil, nil
+		return false, "", ""
 	}
 
 	result, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
-	if !result {
-		return false, nil, nil
-		//panic(&system.ErrNotLogin{Message:"Wrong email or password"})
+	if err != nil {
+		return false, "", ""
 	}
 
 	// session save BEFORE write page
@@ -174,7 +173,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
 	result, username, password := basicAuth(w, r)
-	if  result{
+	if  result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems
