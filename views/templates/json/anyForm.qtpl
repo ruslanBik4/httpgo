@@ -62,15 +62,15 @@
                     {% case "today" %}
                         "{%s= time.Now().Format("2006.01.02") %}",
                     {% default %}
-                        "{%s= minDate.(string) %}".
+                        "{%s= minDate.(string) %}",
                     {% endswitch %}
                 {% endif %}
             {% endif %}
             {% if len(field.Events) > 0 %}
-                "Events": [{% for name, funcName := range field.Events %} "{%s name %}": "{%s funcName %}",{% endfor %}]
+                "Events": [{% for name, funcName := range field.Events %} "{%s name %}": "{%s funcName %}",{% endfor %}],
             {% endif %}
             {% if len(field.EnumValues) > 0 %}
-                "EnumValues": [{% for _, val := range field.EnumValues %} "{%s val %}",{% endfor %}]
+                "EnumValues": [{% for _, val := range field.EnumValues %} "{%s val %}",{% endfor %}],
             {% endif %}
             {% if field.COLUMN_DEFAULT > "" %}"COLUMN_DEFAULT": "{%s field.COLUMN_DEFAULT %}",{% endif %}
             {% if field.CHARACTER_SET_NAME > "" %}"CHARACTER_SET_NAME": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
