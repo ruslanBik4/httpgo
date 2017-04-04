@@ -12,11 +12,12 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	json "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/system"
-	//"github.com/ruslanBik4/httpgo/models/docs"
+	_ "github.com/ruslanBik4/httpgo/models/docs"
 	"path"
 	"sync"
 	"bytes"
@@ -128,6 +129,12 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
+	tableName := "business"
+	fields := admin.GetFields(tableName)
+
+	w.Write( []byte(json.JSONAnyForm(&fields)) )
+
+	return
 	w.Write( []byte(layouts.ObjectLayout()) )
 	return
 

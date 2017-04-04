@@ -121,9 +121,6 @@
     if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
         ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
     }
-    if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
-        ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
-    }
 
     if onload, ok := ns.DataJSOM["onload"]; ok {
              invalid = fmt.Sprintf(`oninvalid="%s"`, onload.(string) )
@@ -267,6 +264,14 @@
             maxDate="{%s= time.Now().Format("2006.01.02") %}"
         {% default %}
             maxDate="{%s= maxDate.(string) %}"
+        {% endswitch %}
+    {% endif %}
+    {% if minDate, ok := fieldStrc.DataJSOM["minDate"]; ok %}
+        {% switch minDate.(string) %}
+        {% case "today" %}
+            minDate="{%s= time.Now().Format("2006.01.02") %}"
+        {% default %}
+            minDate="{%s= minDate.(string) %}"
         {% endswitch %}
     {% endif %}
 {% endfunc %}

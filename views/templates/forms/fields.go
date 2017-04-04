@@ -12,6 +12,7 @@ import (
 	"log"
 	"database/sql"
 	"encoding/json"
+	_ "strconv"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -44,6 +45,7 @@ type FieldStructure struct {
 	ForeignFields	string
 	LinkTD		string
 	DataJSOM        map[string] interface{}
+	EnumValues 	[]string
 }
 type FieldsTable struct {
 	Name string
@@ -55,7 +57,67 @@ type FieldsTable struct {
 	SaveFormEvents 	map[string] string
 	DataJSOM        map[string] interface{}
 }
+func (field *FieldStructure) setEnumValues() {
+	if len(field.EnumValues) > 0 {
+		return
+	}
+	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
+	for _, title := range fields {
+		field.EnumValues = append(field.EnumValues, title[len(title)-1])
+	}
+}
 // стиль показа для разных типов полей
+// новый метод, еще обдумываю
+func (field *FieldStructure) TypeInput() string{
+	if (field.COLUMN_NAME == "id") || (field.COLUMN_NAME == "date_sys") {
+		//ns.ID, _ = strconv.Atoi(val)
+		//возможно, тут стоит предусмотреть некоторые действия
+		return "hidden"
+	}
+	if field.COLUMN_NAME == "isDel" {
+		return "button"
+	}
+	if strings.HasPrefix(field.COLUMN_NAME, "id_") {
+		return "ForeignSelect"
+	}
+	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
+		return "multiselect"
+	}
+	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
+		return "table"
+	}
+	if field.InputType == "" {
+		switch (field.DATA_TYPE) {
+		case "varchar":
+			field.InputType = "search"
+		case "set":
+			field.InputType = "checkboxpanel"
+		case "enum":
+			field.setEnumValues()
+			if len(field.EnumValues) > 2 {
+				field.InputType = "select"
+			} else {
+				field.InputType = "radiopanel"
+			}
+		case "tinyint":
+			field.InputType = "checkbox"
+		case "int", "double":
+			field.InputType = "number"
+		case "date":
+			field.InputType = "date"
+		case "timestamp", "datetime":
+			field.InputType = "datetime"
+		case "text":
+			field.InputType = "textarea"
+		case "blob":
+			field.InputType = "file"
+		}
+	}
+
+	return field.InputType
+
+}
+//старый метод, обсолете, буду избавляться
 func StyleInput(dataType string) string{
 	switch (dataType) {
 	case "varchar":

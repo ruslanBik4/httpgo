@@ -1,0 +1,87 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+{% import (
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
+    "strings"
+    "time"
+) %}
+
+{% func JSONAnyForm(ns *forms.FieldsTable) %}
+{% stripspace %} {% collapsespace %}
+{%code
+    if ns.SaveFormEvents == nil {
+        ns.SaveFormEvents = make(map[string] string, 1)
+    }
+    if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
+        ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
+    }
+    if _, ok := ns.SaveFormEvents["errorFunction"]; !ok {
+        ns.SaveFormEvents["errorFunction"] = ""
+    }
+
+    onload, ok := ns.DataJSOM["onload"]
+    if !ok {
+             onload = ""
+    }
+%}
+{
+ "fields": {
+    {% for _, field := range ns.Rows %}
+         {% code
+            titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
+            typeInput := field.TypeInput()
+        %}
+       "{%s field.COLUMN_NAME %}": {
+            {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
+            {% if titleFull > "" %} "title": "{%s titleFull %}", {% endif %}
+            {% if titleLabel > "" %} "label": "{%s titleLabel %}", {% endif %}
+            {% if placeholder > "" %} "placeholder": "{%s placeholder %}", {% endif %}
+            {% if pattern > "" %} "pattern": "{%s pattern %}", {% endif %}
+            {% if dataJson > "" %} "json": "{%v dataJson %}", {% endif %}
+            {% if field.Value > "" %} "value": "{%s field.Value %}", {% endif %}
+            {% if field.CSSClass > "" %}"CSSClass": "{%s field.CSSClass %}",{% endif %}
+            {% if field.CSSStyle > "" %}"CSSStyle": "{%s field.CSSStyle %}",{% endif %}
+            {% if field.Figure > "" %}"Figure": "{%s field.Figure %}",      {% endif %}
+            {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxlength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
+            {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
+            {% if strings.HasPrefix(typeInput, "date") %}
+                {% if maxDate, ok := field.DataJSOM["maxDate"]; ok %}
+                    "maxDate":
+                    {% switch maxDate.(string) %}
+                    {% case "today" %}
+                        "{%s= time.Now().Format("2006.01.02") %}",
+                    {% default %}
+                        "{%s= maxDate.(string) %}",
+                    {% endswitch %}
+                {% endif %}
+                {% if minDate, ok := field.DataJSOM["minDate"]; ok %}
+                    "minDate":
+                    {% switch minDate.(string) %}
+                    {% case "today" %}
+                        "{%s= time.Now().Format("2006.01.02") %}",
+                    {% default %}
+                        "{%s= minDate.(string) %}".
+                    {% endswitch %}
+                {% endif %}
+            {% endif %}
+            {% if len(field.Events) > 0 %}
+                "Events": [{% for name, funcName := range field.Events %} "{%s name %}": "{%s funcName %}",{% endfor %}]
+            {% endif %}
+            {% if len(field.EnumValues) > 0 %}
+                "EnumValues": [{% for _, val := range field.EnumValues %} "{%s val %}",{% endfor %}]
+            {% endif %}
+            {% if field.COLUMN_DEFAULT > "" %}"COLUMN_DEFAULT": "{%s field.COLUMN_DEFAULT %}",{% endif %}
+            {% if field.CHARACTER_SET_NAME > "" %}"CHARACTER_SET_NAME": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
+            "type": "{%s typeInput %}"
+        },
+    {% endfor %}
+}, "form": { "onsubmit": "return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});",
+               {% if onload.(string) > "" %} "onload": "{%s= onload.(string) %}", {% endif %}
+               {% if ns.Name > "" %} "name": "{%s ns.Name %}", {% endif %}
+               "oninput": "formInput(this);", "onreset": "formReset(this);"
+   }
+{% endcollapsespace %} {% endstripspace %}
+{% endfunc %}
+
