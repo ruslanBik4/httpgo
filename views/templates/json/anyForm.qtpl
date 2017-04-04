@@ -66,11 +66,13 @@
                     {% endswitch %}
                 {% endif %}
             {% endif %}
-            {% if len(field.Events) > 0 %}
-                "Events": [{% for name, funcName := range field.Events %} "{%s name %}": "{%s funcName %}",{% endfor %}],
+            {% if len(field.Events) > 0 %} {% code comma := "" %}
+                "Events": [{% for name, funcName := range field.Events %}
+                                {%s comma %}"{%s name %}": "{%s funcName %}"{% code comma="," %}
+                            {% endfor %}],
             {% endif %}
             {% if len(field.EnumValues) > 0 %}
-                "EnumValues": [{% for _, val := range field.EnumValues %} "{%s val %}",{% endfor %}],
+                "EnumValues": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
             {% endif %}
             {% if field.COLUMN_DEFAULT > "" %}"COLUMN_DEFAULT": "{%s field.COLUMN_DEFAULT %}",{% endif %}
             {% if field.CHARACTER_SET_NAME > "" %}"CHARACTER_SET_NAME": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
