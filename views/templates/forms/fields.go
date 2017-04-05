@@ -13,6 +13,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	_ "strconv"
+	"time"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -39,6 +40,8 @@ type FieldStructure struct {
 	Figure 		string
 	Placeholder	string
 	Pattern		string
+	MinDate		string
+	MaxDate		string
 	BeforeHtml	string
 	Html		string
 	AfterHtml	string
@@ -673,6 +676,17 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 	}
 
 }
+func convertDatePattern(strDate string) string {
+	switch strDate {
+	case "today":
+		return time.Now().Format("2006.01.02")
+	case "tomorrow":
+		return time.Now().Format("2006.01.02")
+	case "yestoday":
+		return time.Now().Format("2006.01.02")
+	}
+	return strDate
+}
 func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	if ! field.COLUMN_COMMENT.Valid {
@@ -715,6 +729,10 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 					fieldStrc.LinkTD   = val.(string)
 				case "where":
 					fieldStrc.parseWhere(field, val)
+				case "maxDate":
+					fieldStrc.MaxDate = convertDatePattern(val.(string))
+				case "minDate":
+					fieldStrc.MinDate = convertDatePattern(val.(string))
 				case "events":
 					fieldStrc.Events = make(map[string] string, 0)
 					for name, event := range val.(map[string] interface{}) {

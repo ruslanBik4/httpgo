@@ -100,7 +100,7 @@ func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 
-	//w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 

@@ -5,7 +5,6 @@
 {% import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
     "strings"
-    "time"
 ) %}
 
 Формируем JSON, который затем будет использован в форме на клиенте
@@ -50,26 +49,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
             {% if field.Figure > "" %}"Figure": "{%s field.Figure %}",      {% endif %}
             {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxlength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
             {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
-            {% if strings.HasPrefix(typeInput, "date") %}
-                {% if maxDate, ok := field.DataJSOM["maxDate"]; ok %}
-                    "maxDate":
-                    {% switch maxDate.(string) %}
-                    {% case "today" %}
-                        "{%s time.Now().Format("2006.01.02") %}",
-                    {% default %}
-                        "{%s maxDate.(string) %}",
-                    {% endswitch %}
-                {% endif %}
-                {% if minDate, ok := field.DataJSOM["minDate"]; ok %}
-                    "minDate":
-                    {% switch minDate.(string) %}
-                    {% case "today" %}
-                        "{%s time.Now().Format("2006.01.02") %}",
-                    {% default %}
-                        "{%s minDate.(string) %}",
-                    {% endswitch %}
-                {% endif %}
-            {% endif %}
+            {% if field.MinDate > "" %} "minDate": "{%s field.MinDate %}",  {% endif %}
+            {% if field.MaxDate > "" %} "maxDate": "{%s field.MaxDate %}",  {% endif %}
             {% if len(field.Events) > 0 %}
                 "Events": {
                             {% for name, funcName := range field.Events %}
