@@ -12,7 +12,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	json "github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
@@ -24,7 +24,6 @@ import (
 	"flag"
 	"models/config"
 	"github.com/ruslanBik4/httpgo/views/fonts"
-	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "net/http/pprof"
 	"github.com/ruslanBik4/httpgo/models/services"
@@ -132,18 +131,15 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	tableName := "business"
 	fields := admin.GetFields(tableName)
 
-	w.Write( []byte(json.JSONAnyForm(&fields)) )
-
-	return
-	w.Write( []byte(layouts.ObjectLayout()) )
-	return
-
-	if arrJSON, err := db.SelectToMultidimension("select * from business"); err != nil {
+	arrJSON, err := db.SelectToMultidimension("select * from business")
+	if err != nil {
 		panic(err)
-		fmt.Fprint(w, tables.TableTesting()  )
-	} else {
-		views.RenderArrayJSON(w, arrJSON)
 	}
+	addJSON := make(map[string]string, 1)
+	addJSON["data"] = json.WriteSliceJSON(arrJSON)
+
+	views.RenderJSONAnyForm(w, r, &fields, addJSON)
+	return
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {

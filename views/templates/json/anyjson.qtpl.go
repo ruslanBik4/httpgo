@@ -15,390 +15,354 @@ import (
 // i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 // выводим массив массивов (основное назначение для таблиц БД)
 
-//line views/templates/json/anyjson.qtpl:4
+//line views/templates/json/anyjson.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/json/anyjson.qtpl:4
+//line views/templates/json/anyjson.qtpl:5
 func StreamWriteSliceJSON(qw422016 *qt422016.Writer, mapJSON MapMultiDimension) {
-	//line views/templates/json/anyjson.qtpl:4
-	qw422016.N().S(`
-`)
-	//line views/templates/json/anyjson.qtpl:5
-	qw422016.N().S(`[`)
 	//line views/templates/json/anyjson.qtpl:6
+	qw422016.N().S(`[`)
+	//line views/templates/json/anyjson.qtpl:7
 	comma := ""
 
-	//line views/templates/json/anyjson.qtpl:7
+	//line views/templates/json/anyjson.qtpl:8
 	for key, arrJSON := range mapJSON {
-		//line views/templates/json/anyjson.qtpl:7
+		//line views/templates/json/anyjson.qtpl:8
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:7
+		//line views/templates/json/anyjson.qtpl:8
 		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:7
+		//line views/templates/json/anyjson.qtpl:8
 		qw422016.N().S(`:`)
-		//line views/templates/json/anyjson.qtpl:7
+		//line views/templates/json/anyjson.qtpl:8
 		StreamWriteAnyJSON(qw422016, arrJSON)
-		//line views/templates/json/anyjson.qtpl:7
+		//line views/templates/json/anyjson.qtpl:8
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:8
+		//line views/templates/json/anyjson.qtpl:9
 	}
-	//line views/templates/json/anyjson.qtpl:8
-	qw422016.N().S(`]`)
 	//line views/templates/json/anyjson.qtpl:9
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:10
+	qw422016.N().S(`]`)
+//line views/templates/json/anyjson.qtpl:11
 }
 
-//line views/templates/json/anyjson.qtpl:10
+//line views/templates/json/anyjson.qtpl:11
 func WriteWriteSliceJSON(qq422016 qtio422016.Writer, mapJSON MapMultiDimension) {
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	StreamWriteSliceJSON(qw422016, mapJSON)
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:10
+//line views/templates/json/anyjson.qtpl:11
 }
 
-//line views/templates/json/anyjson.qtpl:10
+//line views/templates/json/anyjson.qtpl:11
 func WriteSliceJSON(mapJSON MapMultiDimension) string {
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	WriteWriteSliceJSON(qb422016, mapJSON)
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:10
+	//line views/templates/json/anyjson.qtpl:11
 	return qs422016
-//line views/templates/json/anyjson.qtpl:10
+//line views/templates/json/anyjson.qtpl:11
 }
 
 // получаем объект произвольной формы и возвращаем JSON текстом
 
-//line views/templates/json/anyjson.qtpl:12
+//line views/templates/json/anyjson.qtpl:13
 func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON MultiDimension) {
-	//line views/templates/json/anyjson.qtpl:12
-	qw422016.N().S(`
-`)
-	//line views/templates/json/anyjson.qtpl:13
-	qw422016.N().S(`{`)
 	//line views/templates/json/anyjson.qtpl:14
+	qw422016.N().S(`{`)
+	//line views/templates/json/anyjson.qtpl:15
 	comma := ""
 
-	//line views/templates/json/anyjson.qtpl:15
+	//line views/templates/json/anyjson.qtpl:16
 	for key, value := range arrJSON {
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		qw422016.N().S(`"`)
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		qw422016.E().S(key)
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		qw422016.N().S(`":`)
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		StreamWriteElement(qw422016, value)
-		//line views/templates/json/anyjson.qtpl:15
+		//line views/templates/json/anyjson.qtpl:16
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:16
+		//line views/templates/json/anyjson.qtpl:17
 	}
-	//line views/templates/json/anyjson.qtpl:16
-	qw422016.N().S(`}`)
 	//line views/templates/json/anyjson.qtpl:17
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:18
+	qw422016.N().S(`}`)
+//line views/templates/json/anyjson.qtpl:19
 }
 
-//line views/templates/json/anyjson.qtpl:18
+//line views/templates/json/anyjson.qtpl:19
 func WriteWriteAnyJSON(qq422016 qtio422016.Writer, arrJSON MultiDimension) {
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	StreamWriteAnyJSON(qw422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:18
+//line views/templates/json/anyjson.qtpl:19
 }
 
-//line views/templates/json/anyjson.qtpl:18
+//line views/templates/json/anyjson.qtpl:19
 func WriteAnyJSON(arrJSON MultiDimension) string {
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	WriteWriteAnyJSON(qb422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:18
+	//line views/templates/json/anyjson.qtpl:19
 	return qs422016
-//line views/templates/json/anyjson.qtpl:18
+//line views/templates/json/anyjson.qtpl:19
 }
 
 // пишем элемент массива в зависемости от типа
 
-//line views/templates/json/anyjson.qtpl:20
+//line views/templates/json/anyjson.qtpl:21
 func StreamWriteElement(qw422016 *qt422016.Writer, value interface{}) {
-	//line views/templates/json/anyjson.qtpl:20
-	qw422016.N().S(`
-`)
-	//line views/templates/json/anyjson.qtpl:22
-	switch vv := value.(type) {
 	//line views/templates/json/anyjson.qtpl:23
-	case string:
-		//line views/templates/json/anyjson.qtpl:23
-		qw422016.N().S(`"`)
-		//line views/templates/json/anyjson.qtpl:23
-		qw422016.N().S(vv)
-		//line views/templates/json/anyjson.qtpl:23
-		qw422016.N().S(`"`)
+	switch vv := value.(type) {
 	//line views/templates/json/anyjson.qtpl:24
-	case bool:
+	case string:
 		//line views/templates/json/anyjson.qtpl:24
-		qw422016.E().V(vv)
+		qw422016.N().S(`"`)
+		//line views/templates/json/anyjson.qtpl:24
+		qw422016.N().S(vv)
+		//line views/templates/json/anyjson.qtpl:24
+		qw422016.N().S(`"`)
 	//line views/templates/json/anyjson.qtpl:25
-	case int, uint, int32, int64:
+	case bool:
 		//line views/templates/json/anyjson.qtpl:25
-		qw422016.N().D(vv.(int))
-	//line views/templates/json/anyjson.qtpl:26
-	case float64:
-		//line views/templates/json/anyjson.qtpl:26
-		qw422016.N().F(vv)
-	//line views/templates/json/anyjson.qtpl:27
-	case nil:
-		//line views/templates/json/anyjson.qtpl:27
-		qw422016.N().S(`NULL`)
-	//line views/templates/json/anyjson.qtpl:28
-	case StringDimension:
-		//line views/templates/json/anyjson.qtpl:28
-		StreamWriteStringDimension(qw422016, vv)
-	//line views/templates/json/anyjson.qtpl:29
-	case SimpleDimension:
-		//line views/templates/json/anyjson.qtpl:29
-		StreamWriteSimpleDimension(qw422016, vv)
-	//line views/templates/json/anyjson.qtpl:30
-	case MultiDimension:
-		//line views/templates/json/anyjson.qtpl:30
-		qw422016.E().S(WriteAnyJSON(vv))
-	//line views/templates/json/anyjson.qtpl:31
-	default:
-		//line views/templates/json/anyjson.qtpl:31
 		qw422016.E().V(vv)
+	//line views/templates/json/anyjson.qtpl:26
+	case int, uint, int32, int64:
+		//line views/templates/json/anyjson.qtpl:26
+		qw422016.N().D(vv.(int))
+	//line views/templates/json/anyjson.qtpl:27
+	case float64:
+		//line views/templates/json/anyjson.qtpl:27
+		qw422016.N().F(vv)
+	//line views/templates/json/anyjson.qtpl:28
+	case nil:
+		//line views/templates/json/anyjson.qtpl:28
+		qw422016.N().S(`NULL`)
+	//line views/templates/json/anyjson.qtpl:29
+	case StringDimension:
+		//line views/templates/json/anyjson.qtpl:29
+		StreamWriteStringDimension(qw422016, vv)
+	//line views/templates/json/anyjson.qtpl:30
+	case SimpleDimension:
+		//line views/templates/json/anyjson.qtpl:30
+		StreamWriteSimpleDimension(qw422016, vv)
+	//line views/templates/json/anyjson.qtpl:31
+	case MultiDimension:
+		//line views/templates/json/anyjson.qtpl:31
+		qw422016.E().S(WriteAnyJSON(vv))
+	//line views/templates/json/anyjson.qtpl:32
+	default:
 		//line views/templates/json/anyjson.qtpl:32
+		qw422016.E().V(vv)
+		//line views/templates/json/anyjson.qtpl:33
 	}
-	//line views/templates/json/anyjson.qtpl:33
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:34
+//line views/templates/json/anyjson.qtpl:35
 }
 
-//line views/templates/json/anyjson.qtpl:34
+//line views/templates/json/anyjson.qtpl:35
 func WriteWriteElement(qq422016 qtio422016.Writer, value interface{}) {
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	StreamWriteElement(qw422016, value)
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:34
+//line views/templates/json/anyjson.qtpl:35
 }
 
-//line views/templates/json/anyjson.qtpl:34
+//line views/templates/json/anyjson.qtpl:35
 func WriteElement(value interface{}) string {
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	WriteWriteElement(qb422016, value)
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:34
+	//line views/templates/json/anyjson.qtpl:35
 	return qs422016
-//line views/templates/json/anyjson.qtpl:34
+//line views/templates/json/anyjson.qtpl:35
 }
 
-//line views/templates/json/anyjson.qtpl:36
+//line views/templates/json/anyjson.qtpl:37
 func StreamWriteArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
-	//line views/templates/json/anyjson.qtpl:36
-	qw422016.N().S(`
-`)
-	//line views/templates/json/anyjson.qtpl:37
-	qw422016.N().S(`[`)
 	//line views/templates/json/anyjson.qtpl:38
+	qw422016.N().S(`[`)
+	//line views/templates/json/anyjson.qtpl:39
 	comma := ""
 
-	//line views/templates/json/anyjson.qtpl:39
+	//line views/templates/json/anyjson.qtpl:40
 	for key, value := range arrJSON {
-		//line views/templates/json/anyjson.qtpl:39
+		//line views/templates/json/anyjson.qtpl:40
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:39
+		//line views/templates/json/anyjson.qtpl:40
 		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:39
+		//line views/templates/json/anyjson.qtpl:40
 		qw422016.N().S(`:`)
-		//line views/templates/json/anyjson.qtpl:39
+		//line views/templates/json/anyjson.qtpl:40
 		StreamWriteElement(qw422016, value)
-		//line views/templates/json/anyjson.qtpl:39
+		//line views/templates/json/anyjson.qtpl:40
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:40
+		//line views/templates/json/anyjson.qtpl:41
 	}
-	//line views/templates/json/anyjson.qtpl:40
+	//line views/templates/json/anyjson.qtpl:41
 	qw422016.N().S(`]`)
-	//line views/templates/json/anyjson.qtpl:42
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:43
-}
-
-//line views/templates/json/anyjson.qtpl:43
-func WriteWriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
-	//line views/templates/json/anyjson.qtpl:43
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:43
-	StreamWriteArrJSON(qw422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:43
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:43
-}
-
-//line views/templates/json/anyjson.qtpl:43
-func WriteArrJSON(arrJSON []interface{}) string {
-	//line views/templates/json/anyjson.qtpl:43
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:43
-	WriteWriteArrJSON(qb422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:43
-	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:43
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:43
-	return qs422016
-//line views/templates/json/anyjson.qtpl:43
+//line views/templates/json/anyjson.qtpl:44
 }
 
 //line views/templates/json/anyjson.qtpl:44
-func StreamWriteSimpleDimension(qw422016 *qt422016.Writer, arrJSON SimpleDimension) {
+func WriteWriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
 	//line views/templates/json/anyjson.qtpl:44
-	qw422016.N().S(`
- `)
-	//line views/templates/json/anyjson.qtpl:45
-	qw422016.N().S(`[`)
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/json/anyjson.qtpl:44
+	StreamWriteArrJSON(qw422016, arrJSON)
+	//line views/templates/json/anyjson.qtpl:44
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/json/anyjson.qtpl:44
+}
+
+//line views/templates/json/anyjson.qtpl:44
+func WriteArrJSON(arrJSON []interface{}) string {
+	//line views/templates/json/anyjson.qtpl:44
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/json/anyjson.qtpl:44
+	WriteWriteArrJSON(qb422016, arrJSON)
+	//line views/templates/json/anyjson.qtpl:44
+	qs422016 := string(qb422016.B)
+	//line views/templates/json/anyjson.qtpl:44
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/json/anyjson.qtpl:44
+	return qs422016
+//line views/templates/json/anyjson.qtpl:44
+}
+
+//line views/templates/json/anyjson.qtpl:45
+func StreamWriteSimpleDimension(qw422016 *qt422016.Writer, arrJSON SimpleDimension) {
 	//line views/templates/json/anyjson.qtpl:46
+	qw422016.N().S(`[`)
+	//line views/templates/json/anyjson.qtpl:47
 	comma := ""
 
-	//line views/templates/json/anyjson.qtpl:47
+	//line views/templates/json/anyjson.qtpl:48
 	for key, value := range arrJSON {
-		//line views/templates/json/anyjson.qtpl:47
+		//line views/templates/json/anyjson.qtpl:48
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:47
+		//line views/templates/json/anyjson.qtpl:48
 		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:47
+		//line views/templates/json/anyjson.qtpl:48
 		qw422016.N().S(`:`)
-		//line views/templates/json/anyjson.qtpl:47
+		//line views/templates/json/anyjson.qtpl:48
 		StreamWriteElement(qw422016, value)
-		//line views/templates/json/anyjson.qtpl:47
+		//line views/templates/json/anyjson.qtpl:48
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:48
+		//line views/templates/json/anyjson.qtpl:49
 	}
-	//line views/templates/json/anyjson.qtpl:48
+	//line views/templates/json/anyjson.qtpl:49
 	qw422016.N().S(`]`)
-	//line views/templates/json/anyjson.qtpl:50
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:51
-}
-
-//line views/templates/json/anyjson.qtpl:51
-func WriteWriteSimpleDimension(qq422016 qtio422016.Writer, arrJSON SimpleDimension) {
-	//line views/templates/json/anyjson.qtpl:51
-	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:51
-	StreamWriteSimpleDimension(qw422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:51
-	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:51
-}
-
-//line views/templates/json/anyjson.qtpl:51
-func WriteSimpleDimension(arrJSON SimpleDimension) string {
-	//line views/templates/json/anyjson.qtpl:51
-	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:51
-	WriteWriteSimpleDimension(qb422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:51
-	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:51
-	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:51
-	return qs422016
-//line views/templates/json/anyjson.qtpl:51
+//line views/templates/json/anyjson.qtpl:52
 }
 
 //line views/templates/json/anyjson.qtpl:52
-func StreamWriteStringDimension(qw422016 *qt422016.Writer, arrJSON StringDimension) {
+func WriteWriteSimpleDimension(qq422016 qtio422016.Writer, arrJSON SimpleDimension) {
 	//line views/templates/json/anyjson.qtpl:52
-	qw422016.N().S(`
-`)
-	//line views/templates/json/anyjson.qtpl:53
-	qw422016.N().S(`[`)
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/json/anyjson.qtpl:52
+	StreamWriteSimpleDimension(qw422016, arrJSON)
+	//line views/templates/json/anyjson.qtpl:52
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/json/anyjson.qtpl:52
+}
+
+//line views/templates/json/anyjson.qtpl:52
+func WriteSimpleDimension(arrJSON SimpleDimension) string {
+	//line views/templates/json/anyjson.qtpl:52
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/json/anyjson.qtpl:52
+	WriteWriteSimpleDimension(qb422016, arrJSON)
+	//line views/templates/json/anyjson.qtpl:52
+	qs422016 := string(qb422016.B)
+	//line views/templates/json/anyjson.qtpl:52
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/json/anyjson.qtpl:52
+	return qs422016
+//line views/templates/json/anyjson.qtpl:52
+}
+
+//line views/templates/json/anyjson.qtpl:53
+func StreamWriteStringDimension(qw422016 *qt422016.Writer, arrJSON StringDimension) {
 	//line views/templates/json/anyjson.qtpl:54
+	qw422016.N().S(`[`)
+	//line views/templates/json/anyjson.qtpl:55
 	comma := ""
 
-	//line views/templates/json/anyjson.qtpl:55
+	//line views/templates/json/anyjson.qtpl:56
 	for key, value := range arrJSON {
-		//line views/templates/json/anyjson.qtpl:55
+		//line views/templates/json/anyjson.qtpl:56
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:55
+		//line views/templates/json/anyjson.qtpl:56
 		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:55
+		//line views/templates/json/anyjson.qtpl:56
 		qw422016.N().S(`:`)
-		//line views/templates/json/anyjson.qtpl:55
+		//line views/templates/json/anyjson.qtpl:56
 		StreamWriteElement(qw422016, value)
-		//line views/templates/json/anyjson.qtpl:55
+		//line views/templates/json/anyjson.qtpl:56
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:56
+		//line views/templates/json/anyjson.qtpl:57
 	}
-	//line views/templates/json/anyjson.qtpl:56
+	//line views/templates/json/anyjson.qtpl:57
 	qw422016.N().S(`]`)
-	//line views/templates/json/anyjson.qtpl:58
-	qw422016.N().S(`
-`)
-//line views/templates/json/anyjson.qtpl:59
+//line views/templates/json/anyjson.qtpl:60
 }
 
-//line views/templates/json/anyjson.qtpl:59
+//line views/templates/json/anyjson.qtpl:60
 func WriteWriteStringDimension(qq422016 qtio422016.Writer, arrJSON StringDimension) {
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	StreamWriteStringDimension(qw422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyjson.qtpl:59
+//line views/templates/json/anyjson.qtpl:60
 }
 
-//line views/templates/json/anyjson.qtpl:59
+//line views/templates/json/anyjson.qtpl:60
 func WriteStringDimension(arrJSON StringDimension) string {
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	WriteWriteStringDimension(qb422016, arrJSON)
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyjson.qtpl:59
+	//line views/templates/json/anyjson.qtpl:60
 	return qs422016
-//line views/templates/json/anyjson.qtpl:59
+//line views/templates/json/anyjson.qtpl:60
 }

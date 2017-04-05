@@ -8,9 +8,10 @@
     "time"
 ) %}
 
-{% func JSONAnyForm(ns *forms.FieldsTable) %}
-{% stripspace %} {% collapsespace %}
+{% stripspace %}
+{% func JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
 {%code
+   var onload string
     if ns.SaveFormEvents == nil {
         ns.SaveFormEvents = make(map[string] string, 1)
     }
@@ -21,8 +22,9 @@
         ns.SaveFormEvents["errorFunction"] = ""
     }
 
-    onload, ok := ns.DataJSOM["onload"]
-    if !ok {
+    if str, ok := ns.DataJSOM["onload"]; ok {
+             onload = str.(string)
+    } else {
              onload = ""
     }
 %}
@@ -35,10 +37,10 @@
         %}
        "{%s field.COLUMN_NAME %}": {
             {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
-            {% if titleFull > "" %} "title": "{%s titleFull %}", {% endif %}
-            {% if titleLabel > "" %} "label": "{%s titleLabel %}", {% endif %}
+            {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
+            {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
             {% if placeholder > "" %} "placeholder": "{%s placeholder %}", {% endif %}
-            {% if pattern > "" %} "pattern": "{%s pattern %}", {% endif %}
+            {% if pattern > "" %} "pattern": "{%j pattern %}", {% endif %}
             {% if dataJson > "" %} "json": "{%v dataJson %}", {% endif %}
             {% if field.Value > "" %} "value": "{%s field.Value %}", {% endif %}
             {% if field.CSSClass > "" %}"CSSClass": "{%s field.CSSClass %}",{% endif %}
@@ -51,25 +53,28 @@
                     "maxDate":
                     {% switch maxDate.(string) %}
                     {% case "today" %}
-                        "{%s= time.Now().Format("2006.01.02") %}",
+                        "{%s time.Now().Format("2006.01.02") %}",
                     {% default %}
-                        "{%s= maxDate.(string) %}",
+                        "{%s maxDate.(string) %}",
                     {% endswitch %}
                 {% endif %}
                 {% if minDate, ok := field.DataJSOM["minDate"]; ok %}
                     "minDate":
                     {% switch minDate.(string) %}
                     {% case "today" %}
-                        "{%s= time.Now().Format("2006.01.02") %}",
+                        "{%s time.Now().Format("2006.01.02") %}",
                     {% default %}
-                        "{%s= minDate.(string) %}",
+                        "{%s minDate.(string) %}",
                     {% endswitch %}
                 {% endif %}
             {% endif %}
-            {% if len(field.Events) > 0 %} {% code comma := "" %}
-                "Events": [{% for name, funcName := range field.Events %}
-                                {%s comma %}"{%s name %}": "{%s funcName %}"{% code comma="," %}
-                            {% endfor %}],
+            {% if len(field.Events) > 0 %}
+                "Events": {
+                            {% for name, funcName := range field.Events %}
+                                "{%s name %}": "{%s funcName %}",
+                            {% endfor %}
+                            "count": {%d len(field.Events) %}
+                            },
             {% endif %}
             {% if len(field.EnumValues) > 0 %}
                 "EnumValues": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
@@ -79,11 +84,16 @@
             "type": "{%s typeInput %}"
         },
     {% endfor %}
-}, "form": { "onsubmit": "return saveForm(this, {%s= ns.SaveFormEvents["successSaveForm"] %});",
-               {% if onload.(string) > "" %} "onload": "{%s= onload.(string) %}", {% endif %}
+    "count": {%d len(ns.Rows) %}
+}, "form": { "onsubmit": "return saveForm(this, {%s= ns.SaveFormEvents[`successSaveForm`] %});",
+               {% if onload != "" %} "onload": "{%s onload %}", {% endif %}
                {% if ns.Name > "" %} "name": "{%s ns.Name %}", {% endif %}
                "oninput": "formInput(this);", "onreset": "formReset(this);"
    }
-{% endcollapsespace %} {% endstripspace %}
-{% endfunc %}
+    {% for name, val := range AddJson %}
+        ,"{%s name %}": {%s= val %}
+    {% endfor %}
 
+}
+{% endfunc %}
+{% endstripspace %}

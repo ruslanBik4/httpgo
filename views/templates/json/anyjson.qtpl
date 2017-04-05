@@ -1,6 +1,7 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
+{% stripspace %}
 {% func WriteSliceJSON(mapJSON MapMultiDimension) %}
 {% stripspace %} {% collapsespace %}
 [ {% code comma := "" %}
@@ -57,4 +58,4 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  ]
 {% endstripspace %}
 {% endfunc %}
-
+{% endstripspace %}

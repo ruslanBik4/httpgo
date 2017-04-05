@@ -103,3 +103,11 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
+
+func RenderJSONAnyForm(w http.ResponseWriter, r *http.Request, fields *forms.FieldsTable,
+	AddJson map[string] string ) error {
+
+	//w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write( []byte(json.JSONAnyForm(fields, AddJson)) )
+	return nil
+}
