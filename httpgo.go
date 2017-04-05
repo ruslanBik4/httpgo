@@ -131,6 +131,9 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	tableName := "business"
 	fields := admin.GetFields(tableName)
 
+	views.RenderJSONAnyForm(w, r, &fields, nil)
+	return
+
 	arrJSON, err := db.SelectToMultidimension("select * from business")
 	if err != nil {
 		panic(err)
@@ -138,8 +141,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	addJSON := make(map[string]string, 1)
 	addJSON["data"] = json.WriteSliceJSON(arrJSON)
 
-	views.RenderJSONAnyForm(w, r, &fields, addJSON)
-	return
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {

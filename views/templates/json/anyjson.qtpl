@@ -9,19 +9,21 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
    {% endfor %} ]
 {% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
+
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func WriteAnyJSON(arrJSON MultiDimension) %}
 {% stripspace %} {% collapsespace %}
 { {% code comma := "" %}
     {% for key, value := range  arrJSON %} {%s comma %} "{%s key %}":{%= WriteElement(value)%} {% code  comma = "," %}
-   {% endfor %} }
+   {% endfor %}
+ }
 {% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
 пишем элемент массива в зависемости от типа
 {% func WriteElement(value interface{}) %}
 {% stripspace %} {% collapsespace %}
     {% switch vv := value.(type) %}
-      {% case string %} "{%s= vv %}"
+      {% case string %} "{%q vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}

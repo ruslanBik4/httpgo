@@ -8,6 +8,8 @@
     "time"
 ) %}
 
+Формируем JSON, который затем будет использован в форме на клиенте
+dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 {% stripspace %}
 {% func JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
 {%code
@@ -41,7 +43,7 @@
             {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
             {% if placeholder > "" %} "placeholder": "{%s placeholder %}", {% endif %}
             {% if pattern > "" %} "pattern": "{%j pattern %}", {% endif %}
-            {% if dataJson > "" %} "json": "{%v dataJson %}", {% endif %}
+            {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
             {% if field.Value > "" %} "value": "{%s field.Value %}", {% endif %}
             {% if field.CSSClass > "" %}"CSSClass": "{%s field.CSSClass %}",{% endif %}
             {% if field.CSSStyle > "" %}"CSSStyle": "{%s field.CSSStyle %}",{% endif %}
@@ -86,8 +88,8 @@
     {% endfor %}
     "count": {%d len(ns.Rows) %}
 }, "form": { "onsubmit": "return saveForm(this, {%s= ns.SaveFormEvents[`successSaveForm`] %});",
-               {% if onload != "" %} "onload": "{%s onload %}", {% endif %}
-               {% if ns.Name > "" %} "name": "{%s ns.Name %}", {% endif %}
+               {% if onload != "" %} "onload": "{%s= onload %}", {% endif %}
+               {% if ns.Name > "" %} "name": "{%s= ns.Name %}", {% endif %}
                "oninput": "formInput(this);", "onreset": "formReset(this);"
    }
     {% for name, val := range AddJson %}
