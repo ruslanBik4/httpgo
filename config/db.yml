@@ -1,4 +1,8 @@
  dbName: travel
  dbUser: travel
  dbPass: rjgbvktc
+<<<<<<< HEAD
  dbProt: unix(/var/lib/mysql/mysql.sock)
+=======
+ dbProt: unix
+>>>>>>> 3b354094589d2f387e4d28295b58e0781699de8c

@@ -383,7 +383,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				log.Println(err)
 				continue
 			}
-			log.Println(colType.Length())
+
 			switch colType.DatabaseTypeName() {
 			case "varchar", "date", "datetime":
 				if fieldValue.Valid {

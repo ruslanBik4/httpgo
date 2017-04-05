@@ -2,6 +2,7 @@ package json
 
 import (
 	"log"
+	"strings"
 )
 
 type MultiDimension map[string] interface{}
@@ -44,4 +45,9 @@ return "array"
 	default:
 		return value.(string)
 	}
+}
+
+func PrepareString(str string) string{
+	replacer := strings.NewReplacer(str)
+	return replacer.Replace(str)
 }

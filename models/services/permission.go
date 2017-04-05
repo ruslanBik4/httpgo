@@ -15,7 +15,7 @@ var permission *pService
 
 func (*pService) init() error{
 
-	rows, err := db.DoSelect("select * from permission")
+	rows, err := db.DoSelect("SELECT * FROM permissions")
 	if err != nil {
 		return err
 	}
