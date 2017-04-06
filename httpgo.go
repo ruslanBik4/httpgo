@@ -180,16 +180,15 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if strings.HasPrefix(ext, ".php") {
 			h.php.ServeHTTP(w, r)
-			return
-		}
-		if h.toCache(ext) {
+		} else if h.toCache(ext) {
 			serveAndCache(filename, w, r)
-			return
 		} else if h.toServe(ext) {
 			http.ServeFile(w, r, filepath.Join(*f_web, filename))
-			return
+		} else if fileName := filepath.Join(*f_web, filename); ext == "" {
+			http.ServeFile(w, r, fileName)
+		} else {
+			h.php.ServeHTTP(w, r)
 		}
-		h.php.ServeHTTP(w, r)
 	}
 }
 func handlerComponents(w http.ResponseWriter, r *http.Request) {
