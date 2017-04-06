@@ -251,6 +251,11 @@ func isAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
+
+	if !admin.CheckAdminPermissions(w, r, 8) {
+		return
+	}
+
 	var menu db.MenuItems
 
 	idx := strings.LastIndex(r.URL.Path, "menu/") + 5

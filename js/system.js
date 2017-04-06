@@ -22,11 +22,11 @@ $(function() {
 function SitePostShow() {
 
     //красивый скроллинг, потом проработать что бы он применялся ко всем элементам со скроллом
-    $(".main-form-wrap").niceScroll();
+    // $(".main-form-wrap").niceScroll();
     var dateInputs = $("input[type=date],input[type=datetime]");
 
     //стилизация селектов и инпутов, смена бг
-    $(".business-form-select").styler();
+    //$(".business-form-select").styler();
     changeBg();
     moveLabel();
 
