@@ -40,6 +40,18 @@ func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string
 
 	RenderAnyPage(w, r, forms.SignUpForm(placeholder) )
 }
+func RenderNoPermissionPage(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusForbidden)
+}
+func RenderBadRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+}
+func RenderUnAuthorized(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusUnauthorized)
+}
+func RenderNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+}
 
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 
