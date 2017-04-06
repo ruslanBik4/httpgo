@@ -37,6 +37,8 @@ func correctURL(url string) string {
 }
 func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 
+	getUserPermissionForPageByUserId(w, r, 8, r.URL.Path, "View")
+
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
 	ns.Rows = make([] db.TableOptions, 0)
@@ -124,35 +126,39 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte) {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, int) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	err, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
 	if err != nil {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	// session save BEFORE write page
 	users.SaveSession(w, r, userId, pair[0])
 
-	return true, []byte( userName), []byte (pair[1])
+	return true, []byte( userName), []byte (pair[1]), userId
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
+
+	if !CheckAdminPermissions(w, r, 8) {
+		return
+	}
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -171,14 +177,13 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
-	result, username, password := basicAuth(w, r)
+	result, username, password, userId := basicAuth(w, r)
 	if  result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
 		var menu db.MenuItems
 
-		if menu.GetMenu("admin") > 0 {
-
+		if menu.GetMenuByUserId(userId) > 0 {
 
 			for _, item := range menu.Items {
 				p.Catalog[item.Title] = &pages.ItemMenu{ Link: "/menu/" + item.Name + "/" }
@@ -208,6 +213,8 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("401 Unauthorized\n"))
 }
 func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
+
+	getUserPermissionForPageByUserId(w, r, 8, r.URL.Path, "View")
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -343,7 +350,6 @@ func GetFields(tableName string) (fields forms.FieldsTable){
 
 }
 func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	tableName := r.URL.Path[ len("/admin/row/new/") : len(r.URL.Path)-1]
@@ -476,11 +482,9 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
 	views.RenderAnyJSON(w, arrJSON)
 }
 func HandlerAddRecord(w http.ResponseWriter, r *http.Request) {
-
 	HandlerRecord(w, r, "id" )
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
-
 	HandlerRecord(w, r, "rowAffected" )
 
 }
@@ -588,4 +592,107 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
 		views.RenderAnyJSON(w, arrJSON)
 	}
+}
+
+//проверка прав пользователя на доступ по url с учётом проверки на права администратора (доступны все области)
+func getUserPermissionForPageByUserId(w http.ResponseWriter, r *http.Request, userId int, url, action string) {
+
+	var rows *sql.Rows
+	var err error
+	switch action {
+	case "Create":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM roles_list_has_users " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
+			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_create`=1", userId, getMenuNameFromUrl(url), url)
+
+	case "Edit":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM roles_list_has_users " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
+			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_edit`=1", userId, getMenuNameFromUrl(url), url)
+
+	case "Delete":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM roles_list_has_users " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
+			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_delete`=1", userId, getMenuNameFromUrl(url), url)
+
+	default:
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM roles_list_has_users " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
+			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1)", userId, getMenuNameFromUrl(url), url)
+
+	}
+
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/admin/", 301)
+		return
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		return
+	}
+
+	http.Redirect(w, r, "/admin/", 301)
+	return
+}
+
+//проверка пользователя на права администратора в екстранете
+func CheckAdminPermissions(w http.ResponseWriter, r *http.Request, userId int) bool {
+
+	rows, err := db.DoSelect("SELECT roles_list_has_users.`id_users` " +
+		"FROM roles_list_has_users " +
+		"LEFT JOIN roles_list ON `roles_list`.`id`=roles_list_has_users.id_roles_list " +
+		"WHERE roles_list_has_users.id_users=? AND roles_list.is_general=1", userId)
+
+	if err != nil {
+		log.Println(err)
+		http.Redirect(w, r, "/admin/", 301)
+		return false
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		return true
+	}
+
+	http.Redirect(w, r, "/admin/", 301)
+	return false
+}
+
+//получить действие по урл (для таблиц)
+func getActionByUrl(url string) string {
+	urlParts := strings.Split(url, ",")
+
+	var result string
+	switch urlParts[2] {
+	case "new":
+		result = "Create"
+	case "edit":
+		result = "Edit"
+	case "del":
+		result = "Delete"
+	default:
+		result = "Undefined action"
+	}
+	return result
+}
+
+//получить имя пункта меню исходя из урл
+func getMenuNameFromUrl(url string) string {
+	urlParts := strings.Split(url, "/")
+
+	return urlParts[2]
 }

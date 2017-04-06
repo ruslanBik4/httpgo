@@ -494,6 +494,59 @@ func (menu *MenuItems) GetMenu(id string) int {
 
 	return len(menu.Items)
 }
+
+//получаем пункты мену по id_user (если пользователь является администратором то показываем меню администратора)
+func (menu *MenuItems) GetMenuByUserId(user_id int) int {
+
+	isAdmin, err := DoSelect("SELECT is_general FROM roles_list " +
+				  "INNER JOIN roles_list_has_users ON roles_list_has_users.id_roles_list=roles_list.id " +
+				  "WHERE roles_list_has_users.id_users=?", user_id)
+
+	if err != nil {
+		log.Println(err)
+		return 0
+	}
+
+	defer isAdmin.Close()
+	for isAdmin.Next() {
+		is_admin := 0
+		if err := isAdmin.Scan(&is_admin); err != nil {
+			log.Println(err)
+			continue
+		}
+		if is_admin > 0 {
+			return menu.GetMenu("admin")
+		}
+
+	}
+
+	extranetMenuId := "admin"
+
+	rows, err := DoSelect("SELECT menu_items.`id`, menu_items.`name`, menu_items.`parent_id`, menu_items.`title`, menu_items.`sql`, menu_items.`link` " +
+			      "FROM roles_list_has_users " +
+			      "LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
+			      "INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			      "WHERE roles_list_has_users.id_users=? AND menu_items.parent_id=?", user_id, menu.Init(extranetMenuId))
+
+	if err != nil {
+		log.Println(err)
+		return 0
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+
+		item := &menuItem{}
+		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
+			log.Println(err)
+			continue
+		}
+		menu.Items = append(menu.Items, item)
+	}
+
+	return len(menu.Items)
+}
+
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 
