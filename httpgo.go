@@ -27,6 +27,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "net/http/pprof"
 	"github.com/ruslanBik4/httpgo/models/services"
+	"strconv"
 )
 //go:generate qtc -dir=views/templates
 
@@ -180,16 +181,15 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if strings.HasPrefix(ext, ".php") {
 			h.php.ServeHTTP(w, r)
-			return
-		}
-		if h.toCache(ext) {
+		} else if h.toCache(ext) {
 			serveAndCache(filename, w, r)
-			return
 		} else if h.toServe(ext) {
 			http.ServeFile(w, r, filepath.Join(*f_web, filename))
-			return
+		} else if fileName := filepath.Join(*f_web, filename); ext == "" {
+			http.ServeFile(w, r, fileName)
+		} else {
+			h.php.ServeHTTP(w, r)
 		}
-		h.php.ServeHTTP(w, r)
 	}
 }
 func handlerComponents(w http.ResponseWriter, r *http.Request) {
@@ -252,8 +252,14 @@ func isAJAXRequest(r *http.Request) bool {
 }
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
-	if !admin.CheckAdminPermissions(w, r, 8) {
-		return
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
 	}
 
 	var menu db.MenuItems

@@ -37,7 +37,15 @@ func correctURL(url string) string {
 }
 func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 
-	getUserPermissionForPageByUserId(w, r, 8, r.URL.Path, "View")
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -156,8 +164,14 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
-	if !CheckAdminPermissions(w, r, 8) {
-		return
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !CheckAdminPermissions(resultId) {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
 	}
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
@@ -214,7 +228,16 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 }
 func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
-	getUserPermissionForPageByUserId(w, r, 8, r.URL.Path, "View")
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}
+
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
@@ -595,7 +618,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 }
 
 //проверка прав пользователя на доступ по url с учётом проверки на права администратора (доступны все области)
-func getUserPermissionForPageByUserId(w http.ResponseWriter, r *http.Request, userId int, url, action string) {
+func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 
 	var rows *sql.Rows
 	var err error
@@ -636,30 +659,6 @@ func getUserPermissionForPageByUserId(w http.ResponseWriter, r *http.Request, us
 
 	if err != nil {
 		log.Println(err)
-		http.Redirect(w, r, "/admin/", 301)
-		return
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-		return
-	}
-
-	http.Redirect(w, r, "/admin/", 301)
-	return
-}
-
-//проверка пользователя на права администратора в екстранете
-func CheckAdminPermissions(w http.ResponseWriter, r *http.Request, userId int) bool {
-
-	rows, err := db.DoSelect("SELECT roles_list_has_users.`id_users` " +
-		"FROM roles_list_has_users " +
-		"LEFT JOIN roles_list ON `roles_list`.`id`=roles_list_has_users.id_roles_list " +
-		"WHERE roles_list_has_users.id_users=? AND roles_list.is_general=1", userId)
-
-	if err != nil {
-		log.Println(err)
-		http.Redirect(w, r, "/admin/", 301)
 		return false
 	}
 
@@ -668,7 +667,27 @@ func CheckAdminPermissions(w http.ResponseWriter, r *http.Request, userId int) b
 		return true
 	}
 
-	http.Redirect(w, r, "/admin/", 301)
+	return false
+}
+
+//проверка пользователя на права администратора в екстранете
+func CheckAdminPermissions(userId int) bool {
+
+	rows, err := db.DoSelect("SELECT roles_list_has_users.`id_users` " +
+		"FROM roles_list_has_users " +
+		"LEFT JOIN roles_list ON `roles_list`.`id`=roles_list_has_users.id_roles_list " +
+		"WHERE roles_list_has_users.id_users=? AND roles_list.is_general=1", userId)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		return true
+	}
+
 	return false
 }
 
