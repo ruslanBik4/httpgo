@@ -27,6 +27,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "net/http/pprof"
 	"github.com/ruslanBik4/httpgo/models/services"
+	"strconv"
 )
 //go:generate qtc -dir=views/templates
 
@@ -252,8 +253,14 @@ func isAJAXRequest(r *http.Request) bool {
 }
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
-	if !admin.CheckAdminPermissions(w, r, 8) {
-		return
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
 	}
 
 	var menu db.MenuItems
