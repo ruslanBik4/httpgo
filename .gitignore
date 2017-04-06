@@ -33,5 +33,5 @@ config/php-fpm.conf
 Would skip repository
 thetravel/
 test/
-db.yml
+config/db.yml
 db.yml.devel
