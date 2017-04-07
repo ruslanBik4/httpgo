@@ -289,15 +289,21 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *
 	//line anyForm.qtpl:75
 	qw422016.N().S(thisForm.Action)
 	//line anyForm.qtpl:75
-	qw422016.N().S(`","class" : "`)
-	//line anyForm.qtpl:76
-	qw422016.N().S(thisForm.ClassCSS)
-	//line anyForm.qtpl:76
 	qw422016.N().S(`","id" : "`)
-	//line anyForm.qtpl:77
+	//line anyForm.qtpl:76
 	qw422016.N().S(thisForm.IdCSS)
-	//line anyForm.qtpl:77
+	//line anyForm.qtpl:76
 	qw422016.N().S(`",`)
+	//line anyForm.qtpl:77
+	if thisForm.ClassCSS != "" {
+		//line anyForm.qtpl:77
+		qw422016.N().S(`"class" : "`)
+		//line anyForm.qtpl:77
+		qw422016.N().S(thisForm.ClassCSS)
+		//line anyForm.qtpl:77
+		qw422016.N().S(`",`)
+		//line anyForm.qtpl:77
+	}
 	//line anyForm.qtpl:78
 	if onload != "" {
 		//line anyForm.qtpl:78
@@ -369,6 +375,9 @@ func (thisForm *FormStructure) streamsetFormDefaults(qw422016 *qt422016.Writer, 
 	if thisForm.Action == "" {
 		thisForm.Action = "/admin/exec/"
 	}
+	if thisForm.IdCSS == "" {
+		thisForm.IdCSS = "f" + ns.Name
+	}
 	if thisForm.Events != nil {
 
 		if _, ok := thisForm.Events["successSaveForm"]; !ok {
@@ -393,31 +402,31 @@ func (thisForm *FormStructure) streamsetFormDefaults(qw422016 *qt422016.Writer, 
 		}
 	}
 
-//line anyForm.qtpl:117
+//line anyForm.qtpl:120
 }
 
-//line anyForm.qtpl:117
+//line anyForm.qtpl:120
 func (thisForm *FormStructure) writesetFormDefaults(qq422016 qtio422016.Writer, ns *forms.FieldsTable) {
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	thisForm.streamsetFormDefaults(qw422016, ns)
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	qt422016.ReleaseWriter(qw422016)
-//line anyForm.qtpl:117
+//line anyForm.qtpl:120
 }
 
-//line anyForm.qtpl:117
+//line anyForm.qtpl:120
 func (thisForm *FormStructure) setFormDefaults(ns *forms.FieldsTable) string {
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	thisForm.writesetFormDefaults(qb422016, ns)
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	qs422016 := string(qb422016.B)
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyForm.qtpl:117
+	//line anyForm.qtpl:120
 	return qs422016
-//line anyForm.qtpl:117
+//line anyForm.qtpl:120
 }

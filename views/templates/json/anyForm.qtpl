@@ -72,9 +72,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% endfor %}
     "count": {%d len(ns.Rows) %}
 }, "form": { "onsubmit": "return saveForm(this, {%s= thisForm.Events[`successSaveForm`] %});",
-            "action" : "{%s= thisForm.Action %}",
-            "class" : "{%s= thisForm.ClassCSS %}",
-            "id" : "{%s= thisForm.IdCSS %}",
+               "action" : "{%s= thisForm.Action %}",
+               "id" : "{%s= thisForm.IdCSS %}",
+               {% if thisForm.ClassCSS != "" %} "class" : "{%s= thisForm.ClassCSS %}", {% endif %}
                {% if onload != "" %} "onload": "{%s= onload %}", {% endif %}
                {% if ns.Name > "" %} "name": "{%s= ns.Name %}", {% endif %}
                "oninput": "formInput(this);", "onreset": "formReset(this);"
@@ -90,6 +90,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     if thisForm.Action == "" {
         thisForm.Action = "/admin/exec/"
     }
+    if thisForm.IdCSS == "" {
+            thisForm.IdCSS = "f" + ns.Name
+        }
     if thisForm.Events != nil {
 
         if _, ok := thisForm.Events["successSaveForm"]; !ok {
