@@ -27,7 +27,7 @@ function SitePostShow() {
     
 
     //стилизация селектов и инпутов, смена бг
-    //$(".business-form-select").styler();
+    $(".business-form-select").styler();
     changeBg();
     moveLabel();
 

@@ -15,8 +15,7 @@
             </a>
     {% endif %}
             <div class="{% if field.CSSClass == "" %}modal{% else %}{%s field.CSSClass %}{% endif %}"
-                id="div{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel"
-                aria-hidden="true">
+                id="div{%s tablePrefix+key %}" tabindex="-1" role="dialog" aria-labelledby="{%s tablePrefix+key %}ModalLabel">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
                      <h3 id="{%s tablePrefix+key %}ModalLabel">{%s titleLabel %}</h3>
