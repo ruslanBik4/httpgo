@@ -262,14 +262,14 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 		p.TopMenu["Добавить"] = &layouts.ItemMenu{Link: "/admin/row/new/" + tableName + "/" }
 	}
 
-	fmt.Fprint(w, p.MenuOwner() )
+	w.Write( []byte(p.MenuOwner()) )
 
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(tableName)
 
 	fields := GetFields(tableName)
 
-	fmt.Fprint(w, fields.Comment )
+	w.Write( []byte(fields.Comment) )
 
 	sqlCommand := "select * from " + tableName
 
@@ -294,7 +294,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	query.Tables = append(query.Tables, &fields)
 
 	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-	fmt.Fprint(w, query.RenderTable() )
+	w.Write( []byte(query.RenderTable()) )
 
 
 }
@@ -625,35 +625,35 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 	switch action {
 	case "Create":
 		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM roles_list_has_users " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
-			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
 			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
-			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_create`=1", userId, getMenuNameFromUrl(url), url)
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_create`=1", userId, getMenuNameFromUrl(url), url)
 
 	case "Edit":
 		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM roles_list_has_users " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
-			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
 			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
-			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_edit`=1", userId, getMenuNameFromUrl(url), url)
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_edit`=1", userId, getMenuNameFromUrl(url), url)
 
 	case "Delete":
 		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM roles_list_has_users " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
-			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
 			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
-			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_delete`=1", userId, getMenuNameFromUrl(url), url)
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_delete`=1", userId, getMenuNameFromUrl(url), url)
 
 	default:
 		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM roles_list_has_users " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=roles_list_has_users.id_roles_list " +
-			"INNER JOIN roles_list ON roles_list_has_users.`id_roles_list`=`roles_list`.id " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
 			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
-			"WHERE roles_list_has_users.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1)", userId, getMenuNameFromUrl(url), url)
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1)", userId, getMenuNameFromUrl(url), url)
 
 	}
 
@@ -673,10 +673,10 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 //проверка пользователя на права администратора в екстранете
 func CheckAdminPermissions(userId int) bool {
 
-	rows, err := db.DoSelect("SELECT roles_list_has_users.`id_users` " +
-		"FROM roles_list_has_users " +
-		"LEFT JOIN roles_list ON `roles_list`.`id`=roles_list_has_users.id_roles_list " +
-		"WHERE roles_list_has_users.id_users=? AND roles_list.is_general=1", userId)
+	rows, err := db.DoSelect("SELECT users_roles_list_has.`id_users` " +
+		"FROM users_roles_list_has " +
+		"LEFT JOIN roles_list ON `roles_list`.`id`=users_roles_list_has.id_roles_list " +
+		"WHERE users_roles_list_has.id_users=? AND roles_list.is_general=1", userId)
 
 	if err != nil {
 		log.Println(err)
