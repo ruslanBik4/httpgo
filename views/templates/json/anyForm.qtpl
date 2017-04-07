@@ -6,19 +6,22 @@
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
     "strings"
 ) %}
+{%code
+type FormStructure struct {
+    Action          string
+    ClassCSS        string
+    IdCSS           string
+    Events          map[string] string
+}
+%}
 
 Формируем JSON, который затем будет использован в форме на клиенте
 dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 {% stripspace %}
-{% func JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
+{% func (thisForm *FormStructure) JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
 {%code
+   thisForm.setFormDefaults(ns)
    var onload string
-    if ns.SaveFormEvents == nil {
-        ns.SaveFormEvents = make(map[string] string, 1)
-    }
-    if _, ok := ns.SaveFormEvents["successSaveForm"]; !ok {
-        ns.SaveFormEvents["successSaveForm"] = "afterSaveAnyForm"
-    }
     if _, ok := ns.SaveFormEvents["errorFunction"]; !ok {
         ns.SaveFormEvents["errorFunction"] = ""
     }
@@ -68,7 +71,10 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         },
     {% endfor %}
     "count": {%d len(ns.Rows) %}
-}, "form": { "onsubmit": "return saveForm(this, {%s= ns.SaveFormEvents[`successSaveForm`] %});",
+}, "form": { "onsubmit": "return saveForm(this, {%s= thisForm.Events[`successSaveForm`] %});",
+            "action" : "{%s= thisForm.Action %}",
+            "class" : "{%s= thisForm.ClassCSS %}",
+            "id" : "{%s= thisForm.IdCSS %}",
                {% if onload != "" %} "onload": "{%s= onload %}", {% endif %}
                {% if ns.Name > "" %} "name": "{%s= ns.Name %}", {% endif %}
                "oninput": "formInput(this);", "onreset": "formReset(this);"
@@ -78,5 +84,35 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% endfor %}
 
 }
+{% endfunc %}
+{% func (thisForm *FormStructure) setFormDefaults(ns *forms.FieldsTable) %}
+{%code
+    if thisForm.Action == "" {
+        thisForm.Action = "/admin/exec/"
+    }
+    if thisForm.Events != nil {
+
+        if _, ok := thisForm.Events["successSaveForm"]; !ok {
+
+            if ns.SaveFormEvents != nil {
+                if val, ok1 := ns.SaveFormEvents["successSaveForm"]; ok1 {
+                        thisForm.Events["successSaveForm"] = val
+                }
+            } else {
+                thisForm.Events["successSaveForm"] = "afterSaveAnyForm"
+            }
+        }
+    } else {
+
+        thisForm.Events = make(map[string]string, 0)
+        if ns.SaveFormEvents != nil {
+            if val, ok := ns.SaveFormEvents["successSaveForm"]; ok {
+                    thisForm.Events["successSaveForm"] = val
+            }
+        } else {
+            thisForm.Events["successSaveForm"] = "afterSaveAnyForm"
+        }
+    }
+%}
 {% endfunc %}
 {% endstripspace %}
