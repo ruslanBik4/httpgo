@@ -11,6 +11,8 @@ type FormStructure struct {
     Action          string
     ClassCSS        string
     IdCSS           string
+    Onload          string
+    Name            string
     Events          map[string] string
 }
 %}
@@ -21,15 +23,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 {% func (thisForm *FormStructure) JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
 {%code
    thisForm.setFormDefaults(ns)
-   var onload string
     if _, ok := ns.SaveFormEvents["errorFunction"]; !ok {
         ns.SaveFormEvents["errorFunction"] = ""
-    }
-
-    if str, ok := ns.DataJSOM["onload"]; ok {
-             onload = str.(string)
-    } else {
-             onload = ""
     }
 %}
 {
@@ -74,9 +69,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 }, "form": { "onsubmit": "return saveForm(this, {%s= thisForm.Events[`successSaveForm`] %});",
                "action" : "{%s= thisForm.Action %}",
                "id" : "{%s= thisForm.IdCSS %}",
+               "onload": "{%s= thisForm.Onload %}",
+               "name": "{%s= thisForm.Name %}",
                {% if thisForm.ClassCSS != "" %} "class" : "{%s= thisForm.ClassCSS %}", {% endif %}
-               {% if onload != "" %} "onload": "{%s= onload %}", {% endif %}
-               {% if ns.Name > "" %} "name": "{%s= ns.Name %}", {% endif %}
                "oninput": "formInput(this);", "onreset": "formReset(this);"
    }
     {% for name, val := range AddJson %}
@@ -92,7 +87,16 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     }
     if thisForm.IdCSS == "" {
             thisForm.IdCSS = "f" + ns.Name
+    }
+    if thisForm.Name == "" {
+            thisForm.Name = ns.Name
         }
+    if thisForm.Onload == "" {
+        if str, ok := ns.DataJSOM["onload"]; ok {
+                     thisForm.Onload = str.(string)
+            }
+    }
+
     if thisForm.Events != nil {
 
         if _, ok := thisForm.Events["successSaveForm"]; !ok {
