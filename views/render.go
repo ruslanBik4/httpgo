@@ -1,7 +1,5 @@
 package views
 
-//go:generate /Users/rus/go/bin/qtc -dir=views/templates
-
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"net/http"
