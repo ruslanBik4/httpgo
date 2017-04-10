@@ -130,17 +130,21 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	tableName := "business"
+	if r.FormValue("table") > "" {
+		tableName = r.FormValue("table")
+	}
 	fields := admin.GetFields(tableName)
 
 
-	arrJSON, err := db.SelectToMultidimension("select * from business")
+	arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=1")
 	if err != nil {
 		panic(err)
 	}
 	addJSON := make(map[string]string, 1)
 	addJSON["data"] = json.WriteSliceJSON(arrJSON)
+	log.Println(addJSON["data"])
 
-	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), nil)
+	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 	return
 
 }

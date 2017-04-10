@@ -150,7 +150,7 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *
 		//line views/templates/json/anyForm.qtpl:38
 		if field.CHARACTER_MAXIMUM_LENGTH > 0 {
 			//line views/templates/json/anyForm.qtpl:38
-			qw422016.N().S(`"maxlength":`)
+			qw422016.N().S(`"maxLength":`)
 			//line views/templates/json/anyForm.qtpl:38
 			qw422016.N().D(field.CHARACTER_MAXIMUM_LENGTH)
 			//line views/templates/json/anyForm.qtpl:38
@@ -236,7 +236,7 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *
 		//line views/templates/json/anyForm.qtpl:53
 		if field.COLUMN_DEFAULT > "" {
 			//line views/templates/json/anyForm.qtpl:53
-			qw422016.N().S(`"COLUMN_DEFAULT": "`)
+			qw422016.N().S(`"default": "`)
 			//line views/templates/json/anyForm.qtpl:53
 			qw422016.E().S(field.COLUMN_DEFAULT)
 			//line views/templates/json/anyForm.qtpl:53
@@ -246,7 +246,7 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *
 		//line views/templates/json/anyForm.qtpl:54
 		if field.CHARACTER_SET_NAME > "" {
 			//line views/templates/json/anyForm.qtpl:54
-			qw422016.N().S(`"CHARACTER_SET_NAME": "`)
+			qw422016.N().S(`"charSet": "`)
 			//line views/templates/json/anyForm.qtpl:54
 			qw422016.E().S(field.CHARACTER_SET_NAME)
 			//line views/templates/json/anyForm.qtpl:54
