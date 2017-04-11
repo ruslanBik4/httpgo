@@ -7,6 +7,8 @@ $(function() {
 
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
+    AddClickShowOkno( $("body") );
+    getData();
 
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
@@ -15,8 +17,38 @@ $(function() {
     //         afterLogin( JSON.parse(data) );
     //     }
     // });
+    function getData() {
+        var arrJSON;
+        $.get('/test/?table=hotels').always(function (data) {
+            arrJSON = data.fields;
+                $.each(arrJSON, function(key){
+                    var Inputs = $('input[name]');
+                    for (var i = 0; i < Inputs.length; i++){
+                    if(Inputs[i].name = key){
+                        console.log(Inputs[i].name + " : " +  key);
+                    }
+                    }
+                });
 
+
+
+        });
+
+    }
 });
+function AddClickShowOkno( parent_this ) {
+    $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
+        .each( function () {
+            this.onclick = function () {
+                divContent.load(this.href,
+                    function () {
+                        document.title = this.title;
+                        AddClickShowOkno(divContent);
+                    });
+                return false;
+            }
+        });
+}
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
