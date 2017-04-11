@@ -17,29 +17,6 @@ $(function() {
     //         afterLogin( JSON.parse(data) );
     //     }
     // });
-    function getData() {
-        var arrJSON;
-        $.get('/test/?table=hotels').always(function (data) {
-            arrJSON = data.fields;
-            console.log(arrJSON);
-                $.each(arrJSON, function(key){
-                   // var inputs = ;
-                    console.log($('input')[0].name);
-                    if ($('input') != []) {
-                        // console.log(key);
-                    }
-
-                    //console.log("input[name=\'"+key+"\']");
-                    // if(Inputs[i].name == key){
-                    //     console.log(Inputs[i].name + " : " +  key);
-                    // }
-                });
-
-
-
-        });
-
-    }
 });
 function AddClickShowOkno( parent_this ) {
     $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
@@ -242,4 +219,28 @@ function failAjax(data, status) {
     console.Log(data);
     alert(status);
 }
+function getData() {
+    var arrJSON;
+    $.get('/test/?table=hotels').always(function (data) {
+        arrJSON = data.fields;
+        console.log(arrJSON);
+        $.each(arrJSON, function(key,object){
+            getAllInputs(key,object);
+        });
+    });
+}
 
+function getAllInputs(name, object) {
+    var thisElem = $('input[name=' + name + ']');
+    thisElem.addClass(object.CSSClass);
+    thisElem.attr({
+        type: object.type,
+        placeholder: object.title,
+        title : object.title,
+        maxlenght : object.maxLenght,
+    });
+    if(object.required ){
+        thisElem.attr('required', true);
+    }
+
+}
