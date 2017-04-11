@@ -46,18 +46,6 @@ var (
 		"/test/":  handleTest,
 		"/fonts/":  fonts.HandleGetFont,
 		"/query/": db.HandlerDBQuery,
-		"/admin/": admin.HandlerAdmin,
-		"/admin/table/": admin.HandlerAdminTable,
-		"/admin/lists/": admin.HandlerAdminLists,
-		"/admin/row/new/": admin.HandlerNewRecord,
-		"/admin/row/edit/": admin.HandlerEditRecord,
-		"/admin/row/add/": admin.HandlerAddRecord,
-		"/admin/row/update/": admin.HandlerUpdateRecord,
-		"/admin/row/show/": admin.HandlerShowRecord,
-		"/admin/row/del/" : admin.HandlerDeleteRecord,
-		"/admin/exec/": admin.HandlerExec,
-		"/admin/schema/": admin.HandlerSchema,
-		"/admin/umutable/": admin.HandlerUMUTables,
 		"/menu/" : handlerMenu,
 		"/show/forms/": handlerForms,
 		"/user/signup/": users.HandlerSignUp,
@@ -80,6 +68,7 @@ func registerRoutes() {
 	for route, fnc := range routes {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc) )
 	}
+	admin.RegisterRoutes()
 	config.RegisterRoutes()
 }
 // работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php

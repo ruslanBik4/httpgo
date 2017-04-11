@@ -6,6 +6,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+//	"views/templates/layouts/common"
 )
 
 //noinspection GoInvalidConstType
@@ -81,7 +82,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		w.Write( []byte( headPage.HeadHTML() + p.ShowAdminPage("")) )
+		w.Write( []byte(p.ShowAdminPage("")) )
 	default:
 		w.Write( []byte( "no rendering with page " + tmplName ) )
 	}

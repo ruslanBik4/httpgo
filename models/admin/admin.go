@@ -37,7 +37,7 @@ func correctURL(url string) string {
 }
 func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 
-	userID  := users.IsLogin(r)
+	/*userID  := users.IsLogin(r)
 	resultId,_ := strconv.Atoi(userID)
 	if resultId > 0 {
 		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
@@ -45,7 +45,7 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		views.RenderNoPermissionPage(w, r)
-	}
+	}*/
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -194,7 +194,13 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	result, username, password, userId := basicAuth(w, r)
 	if  result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
+
+		headPage  := &layouts.HeadHTMLPage{
+			Charset: "charset=utf-8",
+			Language: "ru",
+			Title: "Заголовок новой страницы",
+		}
+		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu), Head: headPage }
 		var menu db.MenuItems
 
 		if menu.GetMenuByUserId(userId) > 0 {
@@ -228,7 +234,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 }
 func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
-	userID  := users.IsLogin(r)
+	/*userID  := users.IsLogin(r)
 	resultId,_ := strconv.Atoi(userID)
 	if resultId > 0 {
 		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
@@ -236,7 +242,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		views.RenderNoPermissionPage(w, r)
-	}
+	}*/
 
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

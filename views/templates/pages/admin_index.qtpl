@@ -14,12 +14,13 @@ type AdminPageBody struct {
     Catalog map[string] *ItemMenu
     TopMenu map[string] string
     Title string
+    Head *layouts.HeadHTMLPage
 }
 %}
 {% func (body *AdminPageBody) ShowAdminPage(activePage string) %}
+{%= body.Head.HeadHTML() %}
 <body>
 <div class="content-wrap">
-{%= layouts.HeaderHTML(body.TopMenu) %}
 <div id="container-fluid">
 
     <div class="row-fluid">
