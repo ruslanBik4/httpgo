@@ -18,53 +18,37 @@ var (
 )
 
 //line views/templates/common/input.qtpl:2
-func StreamRenderInput(qw422016 *qt422016.Writer, InputType, name, class, value, placeholder string) {
+func StreamRenderInput(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/input.qtpl:2
 	qw422016.N().S(`
 
-<input type="`)
-	//line views/templates/common/input.qtpl:4
-	qw422016.E().S(InputType)
-	//line views/templates/common/input.qtpl:4
-	qw422016.N().S(`" name="`)
+<input type="text" name="`)
 	//line views/templates/common/input.qtpl:4
 	qw422016.E().S(name)
 	//line views/templates/common/input.qtpl:4
-	qw422016.N().S(`" class="`)
-	//line views/templates/common/input.qtpl:4
-	qw422016.E().S(class)
-	//line views/templates/common/input.qtpl:4
-	qw422016.N().S(`" value="`)
-	//line views/templates/common/input.qtpl:4
-	qw422016.E().S(value)
-	//line views/templates/common/input.qtpl:4
-	qw422016.N().S(`" placeholder="`)
-	//line views/templates/common/input.qtpl:4
-	qw422016.E().S(placeholder)
-	//line views/templates/common/input.qtpl:4
-	qw422016.N().S(`">
+	qw422016.N().S(`" class="c-input" placeholder="text">
 
 `)
 //line views/templates/common/input.qtpl:6
 }
 
 //line views/templates/common/input.qtpl:6
-func WriteRenderInput(qq422016 qtio422016.Writer, InputType, name, class, value, placeholder string) {
+func WriteRenderInput(qq422016 qtio422016.Writer, name string) {
 	//line views/templates/common/input.qtpl:6
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/common/input.qtpl:6
-	StreamRenderInput(qw422016, InputType, name, class, value, placeholder)
+	StreamRenderInput(qw422016, name)
 	//line views/templates/common/input.qtpl:6
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/common/input.qtpl:6
 }
 
 //line views/templates/common/input.qtpl:6
-func RenderInput(InputType, name, class, value, placeholder string) string {
+func RenderInput(name string) string {
 	//line views/templates/common/input.qtpl:6
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/common/input.qtpl:6
-	WriteRenderInput(qb422016, InputType, name, class, value, placeholder)
+	WriteRenderInput(qb422016, name)
 	//line views/templates/common/input.qtpl:6
 	qs422016 := string(qb422016.B)
 	//line views/templates/common/input.qtpl:6

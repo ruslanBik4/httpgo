@@ -1,6 +1,6 @@
 
-{% func RenderInput(InputType, name, class, value, placeholder string) %}
+{% func RenderInput(name string) %}
 
-<input type="{%s InputType %}" name="{%s name %}" class="{%s class %}" value="{%s value %}" placeholder="{%s placeholder %}">
+<input type="text" name="{%s name %}" class="c-input" placeholder="text">
 
 {% endfunc %}

@@ -1,0 +1,6 @@
+
+{% func RenderRadio(InputType, name, class, id, value string) %}
+
+<label class="c-radio-label"><input name="{%s name %}" value="{%s value %}" id="{%s id %}" class="{%s class %}" type="radio"><span>{%s value %}</span></label>
+
+{% endfunc %}
