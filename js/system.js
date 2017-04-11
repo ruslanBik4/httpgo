@@ -21,13 +21,18 @@ $(function() {
         var arrJSON;
         $.get('/test/?table=hotels').always(function (data) {
             arrJSON = data.fields;
+            console.log(arrJSON);
                 $.each(arrJSON, function(key){
-                    var Inputs = $('input[name]');
-                    for (var i = 0; i < Inputs.length; i++){
-                    if(Inputs[i].name = key){
-                        console.log(Inputs[i].name + " : " +  key);
+                   // var inputs = ;
+                    console.log($('input')[0].name);
+                    if ($('input') != []) {
+                        // console.log(key);
                     }
-                    }
+
+                    //console.log("input[name=\'"+key+"\']");
+                    // if(Inputs[i].name == key){
+                    //     console.log(Inputs[i].name + " : " +  key);
+                    // }
                 });
 
 
