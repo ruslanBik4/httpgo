@@ -35,7 +35,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
             {% if field.CSSClass > "" %}"CSSClass": "{%s field.CSSClass %}",{% endif %}
             {% if field.CSSStyle > "" %}"CSSStyle": "{%s field.CSSStyle %}",{% endif %}
             {% if field.Figure > "" %}"Figure": "{%s field.Figure %}",      {% endif %}
-            {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxlength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
+            {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
             {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
             {% if field.MinDate > "" %} "minDate": "{%s field.MinDate %}",  {% endif %}
             {% if field.MaxDate > "" %} "maxDate": "{%s field.MaxDate %}",  {% endif %}
@@ -50,8 +50,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
             {% if len(field.EnumValues) > 0 %}
                 "EnumValues": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
             {% endif %}
-            {% if field.COLUMN_DEFAULT > "" %}"COLUMN_DEFAULT": "{%s field.COLUMN_DEFAULT %}",{% endif %}
-            {% if field.CHARACTER_SET_NAME > "" %}"CHARACTER_SET_NAME": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
+            {% if field.COLUMN_DEFAULT > "" %}"default": "{%s field.COLUMN_DEFAULT %}",{% endif %}
+            {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
             "type": "{%s typeInput %}"
         },
     {% endfor %}
