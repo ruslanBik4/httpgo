@@ -129,11 +129,10 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	tableName := "business"
+	tableName := "hotels"
 	fields := admin.GetFields(tableName)
 
-
-	arrJSON, err := db.SelectToMultidimension("select * from business")
+	arrJSON, err := db.SelectToMultidimension("select * from hotels")
 	if err != nil {
 		panic(err)
 	}
