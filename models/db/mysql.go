@@ -1,4 +1,8 @@
+//GetDataCustom get data with custom sql query
+//Give  begSQL + tableName + endSQL, split, run sql
+//DoUpdateFromMap - function generate sql query from data map
 package db
+
 import (
 	"fmt"
 	"regexp"
@@ -17,6 +21,8 @@ var (
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
 
 )
+
+
 func prepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)
 }
@@ -126,24 +132,6 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 	rows, err :=  dbConn.Query( sql, args ...)
 
 	if err != nil {
-		notTable, error := regexp.MatchString( "'phpacademy.category' doesn't exist", err.Error() )
-		if notTable {
-			rowsAffected, err := dbConn.Exec("create table `category` (  `key_category` int(11) unsigned NOT NULL AUTO_INCREMENT,  `name` varchar(255) NOT NULL,  `key_parent` int(11) NOT NULL DEFAULT '-1',  `short_text` mediumtext,  `long_text` longtext,  `text_task` mediumtext,  `reg_expr` varchar(255) NOT NULL COMMENT 'проверочное выражение для задания',  `is_view` int(11) NOT NULL DEFAULT '1',  `video` varchar(255) NOT NULL,  `date_sys` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,  `leaf` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'Признак элемента, завершающего ветку (лист)',  PRIMARY KEY (`key_category`),  KEY `name` (`name`) ) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8" )
-			if err != nil {
-				Encode.Encode(err)
-			} else {
-				//                  fmt.Printf( "#%d %s ", rowsAffected, "Not table category, i create!" )
-				lastInsertId, _:= rowsAffected.LastInsertId()
-				Encode.Encode(lastInsertId)
-			}
-		} else {
-			Encode.Encode(sql)
-			Encode.Encode(err)
-			if error != nil {
-				Encode.Encode(error)
-			}
-
-		}
 		log.Print( result.String() )
 		return nil
 	}
@@ -435,14 +423,13 @@ func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Ro
 func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
 			columns [] string, colTypes [] *sql.ColumnType) ( arrJSON [] map[string] interface {}, err error ) {
 
-	log.Println("\n", rows)
+    log.Println( rows)
 
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
 			log.Println(err)
 			continue
 		}
-		log.Println("\n")
 		log.Println("row=")
 		log.Println(row...)
 
@@ -491,7 +478,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 
 
 //ConvertPrepareRowToJson convert one row to json
-func ConvertPrepareRowToJson(row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
+func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType) (id int, arrJSON map[string] interface {},   err error ) {
 		id = 0;
 		values := make(map[string] interface{}, len(columns) )
@@ -542,7 +529,10 @@ func ConvertPrepareRowToJson(row [] interface {}, rowField map[string] *sql.Null
 }
 
 
-//GetDataCustom get data with custom sql
+//GetDataCustom get data with custom sql query
+//Give  begSQL + tableName + endSQL, split, run sql
+//@version 1.00 2017-04-11
+//@aurhor Sergey Litvionov
 func GetDataCustom(tableName string, begSql string, endSql string, args ...interface{}) (rows *sql.Rows,
 		row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType, err error ){
@@ -555,9 +545,9 @@ func GetDataCustom(tableName string, begSql string, endSql string, args ...inter
 		endSql = " WHERE id=?"
 	}
 
-	sql:= begSql + tableName + endSql
+	sql1 := begSql + tableName + endSql
 
-	rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sql, args...)
+	rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sql1, args...)
 
 
 	if err != nil {
@@ -566,5 +556,35 @@ func GetDataCustom(tableName string, begSql string, endSql string, args ...inter
 	}
 
 	return rows, row, rowField, columns, colTypes, nil
+}
+
+
+//DoUpdateFromMap - function generate sql query from data map
+//@version 1.00 2017-04-11
+//@aurhor Sergey Litvinov
+func DoUpdateFromMap(tableName string, mapData map[string] interface{}) (RowsAffected int, err error) {
+
+	var row argsRAW
+	var id int
+	var tableIDQueryes MultiQuery
+	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
+
+	comma, sqlCommand, where := "", "UPDATE " + tableName + " SET ", " WHERE id="
+
+	for key, val := range mapData {
+		if key == "id" {
+			where += val.(string)
+			id, _ = strconv.Atoi(val.(string))
+			continue
+		}  else {
+			sqlCommand += comma + "`" + key + "`=?"
+			row = append( row, val )
+		}
+		comma = ", "
+
+	}
+	row = append( row, id )
+    RowsAffected, err = DoUpdate(sqlCommand + where, row ... )
+	return RowsAffected, err
 
 }
