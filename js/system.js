@@ -8,7 +8,6 @@ $(function() {
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
     AddClickShowOkno( $("body") );
-    getData();
 
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
