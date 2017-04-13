@@ -8,8 +8,8 @@ $(function() {
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
     AddClickShowOkno( $("body") );
-    getData();
-
+    var requestWrap = $('#requestWrap');
+    getData(requestWrap);
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
     //         showFormModal(data);
@@ -219,25 +219,39 @@ function failAjax(data, status) {
     console.Log(data);
     alert(status);
 }
-function getData() {
-    var arrJSON;
-    $.get('/test/?table=hotels').always(function (data) {
-        arrJSON = data.fields;
-        console.log(arrJSON);
-        $.each(arrJSON, function(key,object){
-            getAllInputs(key,object);
+function getData(element) {
+    var url = element.attr('data-href');
+    if(url){
+        console.log(url);
+        $.get(url).done(function (data) {
+            var fields = data.fields;
+            var form = data.form;
+            console.log(fields);
+            $.each(fields, function(key,object){
+                getAllInputs(key,object,element,form);
+            });
         });
-    });
+        
+    }
+
 }
 
-function getAllInputs(name, object) {
+function getAllInputs(name, object, parent,form) {
+    parent.find('form').attr({
+        action   : form.action,
+        id       : form.id,
+        name     : form.name,
+        onload   : form.onload,
+        onsubmit : form.onsubmit,
+        oninput  : form.oninput,
+        onreset  : form.onreset
+    });
     var thisElem = $('input[name=' + name + ']');
-    thisElem.addClass(object.CSSClass);
-    thisElem.attr({
-        type: object.type,
+    parent.find(thisElem).addClass(object.CSSClass).attr({
+        type       : object.type,
         placeholder: object.title,
-        title : object.title,
-        maxlenght : object.maxLenght,
+        title      : object.title,
+        maxlenght  : object.maxLenght,
     });
     if(object.required ){
         thisElem.attr('required', true);
