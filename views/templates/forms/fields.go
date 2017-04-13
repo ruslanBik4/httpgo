@@ -802,3 +802,65 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 
 }
 
+func (field *FieldStructure) GetOptionsJson(tableName string) {
+
+	var where string
+	ForeignFields := field.getForeignFields(tableName)
+
+	if ForeignFields == "" {
+		field.Html += "\"0\": \"Нет значений связанной таблицы!\""
+		return
+	}
+
+	if field.Where > "" {
+		where = " WHERE "
+		enumVal := field.Where
+		i, j := strings.Index(enumVal, ":"), 0
+
+		for i > 0 {
+			param := enumVal[i+1: ]
+			if j = strings.IndexAny(param, ", )"); j > 0 {
+				param = param[:j]
+			}
+			// мы добавим условие со значением поля текущей записи, если это поле найдено и в нем установлено значение
+			if param == "currentUser"{
+				where += enumVal[:i] + fmt.Sprintf("%s", "users.IsLogin(nil)")
+			} else if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
+				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
+			}
+			/// попозже перепроверить
+			enumVal = enumVal[i + len(param) + 1 : ]
+			i = strings.Index(enumVal, ":")
+		}
+
+		where += enumVal
+
+		log.Println(where)
+	}
+
+	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
+	rows, err := db.DoSelect(sqlCommand)
+	if err != nil {
+		log.Println(err, sqlCommand)
+		return
+	}
+	defer rows.Close()
+	idx := 0
+
+	field.Html = ""
+	comma := ""
+	for rows.Next() {
+
+		var id, title string
+
+		if err := rows.Scan(&id, &title); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		idx++
+		title = strings.Replace(title, "\"", "'", -1)
+		field.Html += comma + "\"" + id + "\"" + ": \"" + title + "\""
+		comma = ","
+	}
+}

@@ -39,6 +39,10 @@ func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string
 
 	RenderAnyPage(w, r, forms.SignUpForm(placeholder) )
 }
+func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string )  {
+
+	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder) )
+}
 func RenderNoPermissionPage(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusForbidden)
 }
@@ -78,6 +82,8 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		RenderSignForm(w, r, "Введите пароль, полученный по почте")
 	case "signupForm":
 		RenderSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
+	case "anothersignupForm":
+		RenderAnotherSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)

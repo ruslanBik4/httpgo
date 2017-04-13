@@ -23,6 +23,7 @@ var (
 		"/admin/exec/": HandlerExec,
 		"/admin/schema/": HandlerSchema,
 		"/admin/umutable/": HandlerUMUTables,
+		"/admin/anothersignup/": HandlerSignUpAnotherUser,
 	}
 )
 

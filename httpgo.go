@@ -135,7 +135,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 	return
-
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
