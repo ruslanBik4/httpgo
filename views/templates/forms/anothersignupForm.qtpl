@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% func AnotherSignUpForm(placeholder string) %}
+<head>
+    <link rel="import" href="/components/paper-input/paper-input-container.html">
+    <link rel="import" href="/components/paper-input/paper-input-error.html">
+    <link rel="import" href="/components/paper-input/paper-input.html">
+    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
+</head>
+<form target="content" action="/admin/anothersignup/" method="post"  enctype="multipart/form-data"
+      onsubmit="return saveForm(this, afterSignup);"  class="form-signin">
+    <h2 class="form-signin-heading">Регистрация</h2>
+    <select id="sex" name="sex" style="display: none;">
+        <option value="0">Господин</option>
+        <option value="1">Госпожа</option>
+    </select>
+    <label for="fullname">Введите Ваше ФИО</label>
+    <input id="fullname" name="fullname" class="input-block-level" type="text" size="100" required placeholder="{%s placeholder %}"/>
+    <script type="text/javascript">
+        $("#fullname").suggestions({
+            serviceUrl: "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
+            token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
+            type: "NAME",
+            count: 5,
+            /* Вызывается, когда пользователь выбирает одну из подсказок */
+            onSelect: signSuggestion,
+        });
+    </script>
+    <label>E-mail, по которому мы зарегистрируем Вас в системе</label>
+
+    <paper-input label="text input"></paper-input>
+    <input type="email" name="login" class="input-block-level" required placeholder="email для регистрации в системе">
+    <input type="submit" value="Зарегистрироваться.">
+    <img class='loading' src='http://solution.allservice.in.ua/loading.gif' style='display:none;'>
+    <progress value='0' max='100' hidden > </progress>
+</form>
+
+{% endfunc %}
+{% code
+type AnotherMarshalRow struct {
+Msg string
+N int
+}
+
+type AnotherPersonData struct {
+Id int
+Login string
+Email string
+Sex int
+Rows []MarshalRow
+}
+%}
+
+// JSON marshaling
+{% stripspace %}
+{% func (d *AnotherPersonData) JSON() %}
+{
+"login": "{%s d.Login %}",
+"email": "{%s d.Email %}",
+"sex": "{% if d.Sex == 0 %}господин {% else %}госпожа{% endif %}",
+"Rows":[
+{% for i, r := range d.Rows %}
+    {
+    "Msg": {%q= r.Msg %},
+    "N": {%d r.N %}
+    }
+    {% if i + 1 < len(d.Rows) %},{% endif %}
+{% endfor %}
+]
+}
+{% endfunc %}
+{% endstripspace %}

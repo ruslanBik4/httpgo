@@ -218,7 +218,7 @@ func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
 }
-func generatePassword(email string) (string, error) {
+func GeneratePassword(email string) (string, error) {
 
 	log.Println(email)
 	return GenerateRandomString(16)
@@ -242,7 +242,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 		comma = ","
 	}
 	email := r.MultipartForm.Value["login"][0]
-	password, err := generatePassword(email)
+	password, err := GeneratePassword(email)
 	if err != nil {
 		log.Println(err)
 	}
@@ -270,9 +270,9 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 		Rows: []forms.MarshalRow{mRow}, Email: email }
 	fmt.Fprint(w, p.JSON())
 
-	go sendMail(email, password)
+	go SendMail(email, password)
 }
-func sendMail(email, password string)  {
+func SendMail(email, password string)  {
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", "ruslan-bik@yandex.ru")

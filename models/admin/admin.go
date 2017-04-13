@@ -15,6 +15,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	_ "github.com/ruslanBik4/httpgo/models/system"
+	"net/mail"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -720,4 +721,49 @@ func getMenuNameFromUrl(url string) string {
 	urlParts := strings.Split(url, "/")
 
 	return urlParts[2]
+}
+
+
+func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(32000)
+
+	var args [] interface{}
+	sql, comma, values := "insert into users (", "", ") values ("
+
+	for key, val := range r.MultipartForm.Value {
+		args = append(args, val[0])
+		sql += comma + key
+		values += comma + "?"
+		comma = ","
+	}
+	email := r.MultipartForm.Value["login"][0]
+	password, err := users.GeneratePassword(email)
+	if err != nil {
+		log.Println(err)
+	}
+	sql += comma + "hash"
+	values += comma + "?"
+
+	args = append(args, users.HashPassword(password) )
+	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
+	if err != nil {
+
+		fmt.Fprintf(w, "%v", err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/json; charset=utf-8")
+
+	mRow := forms.MarshalRow{Msg: "Append row", N: lastInsertId}
+	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
+
+	if _, err := mail.ParseAddress(email); err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
+		return
+	}
+	p := &forms.PersonData{ Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
+		Rows: []forms.MarshalRow{mRow}, Email: email }
+	fmt.Fprint(w, p.JSON())
+
+	go users.SendMail(email, password)
 }
