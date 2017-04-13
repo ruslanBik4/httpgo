@@ -17,12 +17,14 @@ type rowsRoles [] *pRoles
 type pService struct {
 	name string
 	region string
+	status string
 	Rows map[string] rowsRoles
 	roles [] string
 }
-var permissions *pService
+var permissions *pService = &pService{name:"permission"}
 
-func (*pService) init() error{
+//реализация обязательных методов интерейса
+func (permissions *pService) Init() error{
 
 	permissions.Rows = make(map[string] rowsRoles, 0)
 	rows, err := db.DoSelect("SELECT * FROM permissions")
@@ -31,12 +33,62 @@ func (*pService) init() error{
 	}
 
 	for rows.Next() {
+		var row pRoles
+		if err := rows.Scan(&row); err != nil {
+
+		}
 
 	}
 
+	permissions.status = "ready"
 	return nil
 }
-func (*pService) RegPermission(name, tableName string) error {
+func (permissions *pService) Send(messages ...interface{}) error {
+
+	for _, message := range messages {
+		switch mess := message.(type) {
+		case string:
+			log.Println(mess)
+		default:
+			log.Println(mess)
+		}
+	}
+
+	return nil
+
+}
+func (permissions *pService) Get(messages ... interface{}) (responce interface{}, err error) {
+
+	return responce, nil
+}
+func (permissions *pService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+	out = make(chan interface{})
+
+	go func() {
+		out<-"open"
+		for {
+			select {
+			case v := <-in:
+				if v.(string) == "close" {
+					permissions.Close(out)
+				} else {
+					out <- v
+				}
+			}
+		}
+	}()
+	return out, nil
+}
+func (permissions *pService) Close(out chan <- interface{}) error {
+	close(out)
+	return nil
+
+}
+func (permissions *pService) Status() string {
+	return permissions.status
+}
+
+func (permissions *pService) RegPermission(name, tableName string) error {
 	_, ok := permissions.Rows[name]
 	if !ok {
 		temp := make(rowsRoles,0)
@@ -56,7 +108,7 @@ func (*pService) RegPermission(name, tableName string) error {
 
 	return nil
 }
-func (*pService) GetPermission(name string, idUser int) error {
+func (permissions *pService) GetPermission(name string, idUser int) error {
 	perm, ok := permissions.Rows[name]
 	if ok {
 		for i, val := range perm {
@@ -68,5 +120,5 @@ log.Println(i,val)
 	return nil
 }
 func init() {
-	AddService("permission", permissions)
+	AddService(permissions.name, permissions)
 }
