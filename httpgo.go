@@ -342,7 +342,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 var (
 	f_port   = flag.String("port",":80","host address to listen on")
 	f_static = flag.String("path","./","path to static files")
-	f_web    = flag.String("web","/home/travel/thetravel/web/","path to web files")
+	f_web    = flag.String("web","/home/travel/web/","path to web files")
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
