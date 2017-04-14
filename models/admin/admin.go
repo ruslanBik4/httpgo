@@ -15,6 +15,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	_ "github.com/ruslanBik4/httpgo/models/system"
+	"net/mail"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -36,6 +37,16 @@ func correctURL(url string) string {
 	return url
 }
 func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
+
+	/*userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}*/
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -124,35 +135,45 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 //		return
 //	}
 //}
-func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte) {
+func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, int) {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	b, err := base64.StdEncoding.DecodeString(s[1])
 	if err != nil {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	pair := strings.SplitN(string(b), ":", 2)
 	if len(pair) != 2 {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	err, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
 
 	if err != nil {
-		return false, nil, nil
+		return false, nil, nil, 0
 	}
 
 	// session save BEFORE write page
 	users.SaveSession(w, r, userId, pair[0])
 
-	return true, []byte( userName), []byte (pair[1])
+	return true, []byte( userName), []byte (pair[1]), userId
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
+
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !CheckAdminPermissions(resultId) {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}
 
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
@@ -171,14 +192,19 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
-	result, username, password := basicAuth(w, r)
+	result, username, password, userId := basicAuth(w, r)
 	if  result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu) }
+
+		headPage  := &layouts.HeadHTMLPage{
+			Charset: "charset=utf-8",
+			Language: "ru",
+			Title: "Заголовок новой страницы",
+		}
+		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu), Head: headPage }
 		var menu db.MenuItems
 
-		if menu.GetMenu("admin") > 0 {
-
+		if menu.GetMenuByUserId(userId) > 0 {
 
 			for _, item := range menu.Items {
 				p.Catalog[item.Title] = &pages.ItemMenu{ Link: "/menu/" + item.Name + "/" }
@@ -209,6 +235,17 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 }
 func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 
+	/*userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}*/
+
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	tableName := strings.Trim( r.URL.Path[ len("/admin/table/") : ], "/" )
@@ -232,14 +269,14 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 		p.TopMenu["Добавить"] = &layouts.ItemMenu{Link: "/admin/row/new/" + tableName + "/" }
 	}
 
-	fmt.Fprint(w, p.MenuOwner() )
+	w.Write( []byte(p.MenuOwner()) )
 
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(tableName)
 
 	fields := GetFields(tableName)
 
-	fmt.Fprint(w, fields.Comment )
+	w.Write( []byte(fields.Comment) )
 
 	sqlCommand := "select * from " + tableName
 
@@ -264,7 +301,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	query.Tables = append(query.Tables, &fields)
 
 	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-	fmt.Fprint(w, query.RenderTable() )
+	w.Write( []byte(query.RenderTable()) )
 
 
 }
@@ -343,7 +380,6 @@ func GetFields(tableName string) (fields forms.FieldsTable){
 
 }
 func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
-
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	tableName := r.URL.Path[ len("/admin/row/new/") : len(r.URL.Path)-1]
@@ -476,11 +512,9 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
 	views.RenderAnyJSON(w, arrJSON)
 }
 func HandlerAddRecord(w http.ResponseWriter, r *http.Request) {
-
 	HandlerRecord(w, r, "id" )
 }
 func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
-
 	HandlerRecord(w, r, "rowAffected" )
 
 }
@@ -588,4 +622,148 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
 		views.RenderAnyJSON(w, arrJSON)
 	}
+}
+
+//проверка прав пользователя на доступ по url с учётом проверки на права администратора (доступны все области)
+func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
+
+	var rows *sql.Rows
+	var err error
+	switch action {
+	case "Create":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_create`=1", userId, getMenuNameFromUrl(url), url)
+
+	case "Edit":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_edit`=1", userId, getMenuNameFromUrl(url), url)
+
+	case "Delete":
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_delete`=1", userId, getMenuNameFromUrl(url), url)
+
+	default:
+		rows, err = db.DoSelect("SELECT menu_items.`id` " +
+			"FROM users_roles_list_has " +
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1)", userId, getMenuNameFromUrl(url), url)
+
+	}
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		return true
+	}
+
+	return false
+}
+
+//проверка пользователя на права администратора в екстранете
+func CheckAdminPermissions(userId int) bool {
+
+	rows, err := db.DoSelect("SELECT users_roles_list_has.`id_users` " +
+		"FROM users_roles_list_has " +
+		"LEFT JOIN roles_list ON `roles_list`.`id`=users_roles_list_has.id_roles_list " +
+		"WHERE users_roles_list_has.id_users=? AND roles_list.is_general=1", userId)
+
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		return true
+	}
+
+	return false
+}
+
+//получить действие по урл (для таблиц)
+func getActionByUrl(url string) string {
+	urlParts := strings.Split(url, ",")
+
+	var result string
+	switch urlParts[2] {
+	case "new":
+		result = "Create"
+	case "edit":
+		result = "Edit"
+	case "del":
+		result = "Delete"
+	default:
+		result = "Undefined action"
+	}
+	return result
+}
+
+//получить имя пункта меню исходя из урл
+func getMenuNameFromUrl(url string) string {
+	urlParts := strings.Split(url, "/")
+
+	return urlParts[2]
+}
+
+
+func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(32000)
+
+	var args [] interface{}
+	sql, comma, values := "insert into users (", "", ") values ("
+
+	for key, val := range r.MultipartForm.Value {
+		args = append(args, val[0])
+		sql += comma + key
+		values += comma + "?"
+		comma = ","
+	}
+	email := r.MultipartForm.Value["login"][0]
+	password, err := users.GeneratePassword(email)
+	if err != nil {
+		log.Println(err)
+	}
+	sql += comma + "hash"
+	values += comma + "?"
+
+	args = append(args, users.HashPassword(password) )
+	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
+	if err != nil {
+
+		fmt.Fprintf(w, "%v", err)
+		return
+	}
+	w.Header().Set("Content-Type", "text/json; charset=utf-8")
+
+	mRow := forms.MarshalRow{Msg: "Append row", N: lastInsertId}
+	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
+
+	if _, err := mail.ParseAddress(email); err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
+		return
+	}
+	p := &forms.PersonData{ Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
+		Rows: []forms.MarshalRow{mRow}, Email: email }
+	fmt.Fprint(w, p.JSON())
+
+	go users.SendMail(email, password)
 }

@@ -22,16 +22,19 @@ _testmain.go
 
 *.exe
 *.test
-*_test.*
 *.prof
 .idea/
 bootstrap/
 css/
 dadata.go
 test.html
-config/php-fpm.conf
 Would skip repository
 thetravel/
 test/
-db.yml
+config/db.yml
 db.yml.devel
+config/.credentials
+httpgo
+tests/
+views/components/polymer/LICENSE.txt~Stashed changes
+views/components/polymer/LICENSE.txt~Updated upstream

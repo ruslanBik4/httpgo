@@ -2,3 +2,4 @@ dbName: DATABASE_NAME
 dbUser: DATABSE_USER
 dbPass: PASSWORD
 dbProt: protocol(parameters)
+-- see more https://dev.mysql.com/doc/refman/5.5/en/connecting.html

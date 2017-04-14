@@ -27,6 +27,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "net/http/pprof"
 	"github.com/ruslanBik4/httpgo/models/services"
+	"strconv"
 )
 //go:generate qtc -dir=views/templates
 
@@ -45,18 +46,6 @@ var (
 		"/test/":  handleTest,
 		"/fonts/":  fonts.HandleGetFont,
 		"/query/": db.HandlerDBQuery,
-		"/admin/": admin.HandlerAdmin,
-		"/admin/table/": admin.HandlerAdminTable,
-		"/admin/lists/": admin.HandlerAdminLists,
-		"/admin/row/new/": admin.HandlerNewRecord,
-		"/admin/row/edit/": admin.HandlerEditRecord,
-		"/admin/row/add/": admin.HandlerAddRecord,
-		"/admin/row/update/": admin.HandlerUpdateRecord,
-		"/admin/row/show/": admin.HandlerShowRecord,
-		"/admin/row/del/" : admin.HandlerDeleteRecord,
-		"/admin/exec/": admin.HandlerExec,
-		"/admin/schema/": admin.HandlerSchema,
-		"/admin/umutable/": admin.HandlerUMUTables,
 		"/menu/" : handlerMenu,
 		"/show/forms/": handlerForms,
 		"/user/signup/": users.HandlerSignUp,
@@ -79,6 +68,7 @@ func registerRoutes() {
 	for route, fnc := range routes {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc) )
 	}
+	admin.RegisterRoutes()
 	config.RegisterRoutes()
 }
 // работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
@@ -129,19 +119,22 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	tableName := "business"
+	if r.FormValue("table") > "" {
+		tableName = r.FormValue("table")
+	}
 	fields := admin.GetFields(tableName)
 
 
-	arrJSON, err := db.SelectToMultidimension("select * from business")
+	arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=1")
 	if err != nil {
 		panic(err)
 	}
 	addJSON := make(map[string]string, 1)
 	addJSON["data"] = json.WriteSliceJSON(arrJSON)
+	log.Println(addJSON["data"])
 
-	views.RenderJSONAnyForm(w, r, &fields, nil)
+	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 	return
-
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
@@ -180,16 +173,15 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if strings.HasPrefix(ext, ".php") {
 			h.php.ServeHTTP(w, r)
-			return
-		}
-		if h.toCache(ext) {
+		} else if h.toCache(ext) {
 			serveAndCache(filename, w, r)
-			return
 		} else if h.toServe(ext) {
 			http.ServeFile(w, r, filepath.Join(*f_web, filename))
-			return
+		} else if fileName := filepath.Join(*f_web, filename); ext == "" {
+			http.ServeFile(w, r, fileName)
+		} else {
+			h.php.ServeHTTP(w, r)
 		}
-		h.php.ServeHTTP(w, r)
 	}
 }
 func handlerComponents(w http.ResponseWriter, r *http.Request) {
@@ -251,6 +243,17 @@ func isAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
+
+	userID  := users.IsLogin(r)
+	resultId,_ := strconv.Atoi(userID)
+	if resultId > 0 {
+		if !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+			views.RenderNoPermissionPage(w, r)
+		}
+	} else {
+		views.RenderNoPermissionPage(w, r)
+	}
+
 	var menu db.MenuItems
 
 	idx := strings.LastIndex(r.URL.Path, "menu/") + 5

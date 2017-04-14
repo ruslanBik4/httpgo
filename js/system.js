@@ -7,7 +7,9 @@ $(function() {
 
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
-
+    AddClickShowOkno( $("body") );
+    var requestWrap = $('#requestWrap');
+    getData(requestWrap);
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
     //         showFormModal(data);
@@ -15,15 +17,28 @@ $(function() {
     //         afterLogin( JSON.parse(data) );
     //     }
     // });
-
 });
+function AddClickShowOkno( parent_this ) {
+    $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
+        .each( function () {
+            this.onclick = function () {
+                divContent.load(this.href,
+                    function () {
+                        document.title = this.title;
+                        AddClickShowOkno(divContent);
+                    });
+                return false;
+            }
+        });
+}
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
 
     //красивый скроллинг, потом проработать что бы он применялся ко всем элементам со скроллом
-    $(".main-form-wrap").niceScroll();
+    // $(".main-form-wrap").niceScroll();
     var dateInputs = $("input[type=date],input[type=datetime]");
+    
 
     //стилизация селектов и инпутов, смена бг
     $(".business-form-select").styler();
@@ -204,4 +219,42 @@ function failAjax(data, status) {
     console.Log(data);
     alert(status);
 }
+function getData(element) {
+    var url = element.attr('data-href');
+    if(url){
+        console.log(url);
+        $.get(url).done(function (data) {
+            var fields = data.fields;
+            var form = data.form;
+            console.log(fields);
+            $.each(fields, function(key,object){
+                getAllInputs(key,object,element,form);
+            });
+        });
+        
+    }
 
+}
+
+function getAllInputs(name, object, parent,form) {
+    parent.find('form').attr({
+        action   : form.action,
+        id       : form.id,
+        name     : form.name,
+        onload   : form.onload,
+        onsubmit : form.onsubmit,
+        oninput  : form.oninput,
+        onreset  : form.onreset
+    });
+    var thisElem = $('input[name=' + name + ']');
+    parent.find(thisElem).addClass(object.CSSClass).attr({
+        type       : object.type,
+        placeholder: object.title,
+        title      : object.title,
+        maxlenght  : object.maxLenght,
+    });
+    if(object.required ){
+        thisElem.attr('required', true);
+    }
+
+}

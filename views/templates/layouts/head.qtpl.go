@@ -124,7 +124,6 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="//cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/latest/all/gauge.min.js"></script>
     <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
     <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js"></script>
@@ -134,24 +133,25 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="/forms.js"></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     `)
-	//line views/templates/layouts/head.qtpl:78
+	//line views/templates/layouts/head.qtpl:77
 	for i := 0; i < len(head.Scripts); i++ {
-		//line views/templates/layouts/head.qtpl:78
+		//line views/templates/layouts/head.qtpl:77
 		qw422016.N().S(`
         `)
-		//line views/templates/layouts/head.qtpl:79
+		//line views/templates/layouts/head.qtpl:78
 		qw422016.E().S(head.Scripts[i])
-		//line views/templates/layouts/head.qtpl:79
+		//line views/templates/layouts/head.qtpl:78
 		qw422016.N().S(`
     `)
-		//line views/templates/layouts/head.qtpl:80
+		//line views/templates/layouts/head.qtpl:79
 	}
-	//line views/templates/layouts/head.qtpl:80
+	//line views/templates/layouts/head.qtpl:79
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
 
 </head>
+
 `)
 //line views/templates/layouts/head.qtpl:85
 }
@@ -180,4 +180,52 @@ func (head *HeadHTMLPage) HeadHTML() string {
 	//line views/templates/layouts/head.qtpl:85
 	return qs422016
 //line views/templates/layouts/head.qtpl:85
+}
+
+//line views/templates/layouts/head.qtpl:90
+func StreamAdminHead(qw422016 *qt422016.Writer) {
+	//line views/templates/layouts/head.qtpl:90
+	qw422016.N().S(`
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="/jquery.formstyler.css">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/main.css">
+    <title>Admin</title>
+</head>
+
+`)
+//line views/templates/layouts/head.qtpl:105
+}
+
+//line views/templates/layouts/head.qtpl:105
+func WriteAdminHead(qq422016 qtio422016.Writer) {
+	//line views/templates/layouts/head.qtpl:105
+	qw422016 := qt422016.AcquireWriter(qq422016)
+	//line views/templates/layouts/head.qtpl:105
+	StreamAdminHead(qw422016)
+	//line views/templates/layouts/head.qtpl:105
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/layouts/head.qtpl:105
+}
+
+//line views/templates/layouts/head.qtpl:105
+func AdminHead() string {
+	//line views/templates/layouts/head.qtpl:105
+	qb422016 := qt422016.AcquireByteBuffer()
+	//line views/templates/layouts/head.qtpl:105
+	WriteAdminHead(qb422016)
+	//line views/templates/layouts/head.qtpl:105
+	qs422016 := string(qb422016.B)
+	//line views/templates/layouts/head.qtpl:105
+	qt422016.ReleaseByteBuffer(qb422016)
+	//line views/templates/layouts/head.qtpl:105
+	return qs422016
+//line views/templates/layouts/head.qtpl:105
 }

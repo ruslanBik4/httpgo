@@ -2,62 +2,58 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
 {% stripspace %}
+{% collapsespace %}
 {% func WriteSliceJSON(mapJSON MapMultiDimension) %}
-{% stripspace %} {% collapsespace %}
-[ {% code comma := "" %}
-    {% for key, arrJSON := range  mapJSON %} {%s comma %} {%d key %}:{%= WriteAnyJSON(arrJSON)%} {% code  comma = "," %}
-   {% endfor %} ]
-{% endcollapsespace %} {% endstripspace %}
+[
+   {% for key, arrJSON := range mapJSON %}
+        {% if key>0 %}","{% endif %} {%= WriteAnyJSON(arrJSON)%}
+   {% endfor %}
+]
 {% endfunc %}
 
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func WriteAnyJSON(arrJSON MultiDimension) %}
-{% stripspace %} {% collapsespace %}
 { {% code comma := "" %}
-    {% for key, value := range  arrJSON %} {%s comma %} "{%s key %}":{%= WriteElement(value)%} {% code  comma = "," %}
+   {% for key, value := range  arrJSON %}
+        {%s comma %} "{%s key %}":{%= WriteElement(value)%} {% code  comma = "," %}
    {% endfor %}
  }
-{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
 пишем элемент массива в зависемости от типа
 {% func WriteElement(value interface{}) %}
-{% stripspace %} {% collapsespace %}
     {% switch vv := value.(type) %}
-      {% case string %} "{%q vv %}"
+      {% case string %} "{%s vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}
-      {% case nil %}  NULL
+      {% case nil %}  null
       {% case StringDimension %}  {%= WriteStringDimension(vv) %}
       {% case SimpleDimension %} {%= WriteSimpleDimension(vv) %}
-      {% case MultiDimension %} {%s WriteAnyJSON(vv) %}
+      {% case MultiDimension %} {%= WriteAnyJSON(vv) %}
       {% default %}  {%v vv %}
      {% endswitch %}
-{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
-
+получаем массив произвольной формы и возвращаем JSON текстом
 {% func WriteArrJSON(arrJSON []interface{} ) %}
-{% stripspace %} {% collapsespace %}
  [ {% code comma := "" %}
     {% for key, value := range  arrJSON %} {%s comma %} {%d key %}:{%= WriteElement(value) %} {% code  comma = ","   %}
     {% endfor %}
  ]
-{% endcollapsespace %} {% endstripspace %}
 {% endfunc %}
+получаем массив объектов произвольной формы и возвращаем JSON текстом
 {% func WriteSimpleDimension(arrJSON SimpleDimension ) %}
- {% stripspace %}
 [  {% code comma := "" %}
     {% for key, value := range  arrJSON %} {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
-{% endstripspace %}
 {% endfunc %}
+получаем массив строк и возвращаем JSON текстом
 {% func WriteStringDimension(arrJSON StringDimension) %}
-{% stripspace %}
  [ {% code comma := "" %}
     {% for key, value := range  arrJSON %} {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
-{% endstripspace %}
 {% endfunc %}
 {% endstripspace %}
+{% endcollapsespace %}
+

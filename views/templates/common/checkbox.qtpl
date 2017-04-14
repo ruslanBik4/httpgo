@@ -1,0 +1,9 @@
+
+{% func RenderCheckbox(name string) %}
+
+<label class="c-checkbox-label" for="checkbox2">
+    <input class="c-checkbox" type="checkbox" id="checkbox2">
+    <span>text</span>
+</label>
+
+{% endfunc %}

@@ -1,13 +1,12 @@
 package views
 
-//go:generate /Users/rus/go/bin/qtc -dir=views/templates
-
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+//	"views/templates/layouts/common"
 )
 
 //noinspection GoInvalidConstType
@@ -40,6 +39,22 @@ func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string
 
 	RenderAnyPage(w, r, forms.SignUpForm(placeholder) )
 }
+func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string )  {
+
+	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder) )
+}
+func RenderNoPermissionPage(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusForbidden)
+}
+func RenderBadRequest(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadRequest)
+}
+func RenderUnAuthorized(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusUnauthorized)
+}
+func RenderNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+}
 
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 
@@ -67,11 +82,13 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 		RenderSignForm(w, r, "Введите пароль, полученный по почте")
 	case "signupForm":
 		RenderSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
+	case "anothersignupForm":
+		RenderAnotherSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		w.Write( []byte( headPage.HeadHTML() + p.ShowAdminPage("")) )
+		w.Write( []byte(p.ShowAdminPage("")) )
 	default:
 		w.Write( []byte( "no rendering with page " + tmplName ) )
 	}
@@ -104,10 +121,10 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 
-func RenderJSONAnyForm(w http.ResponseWriter, r *http.Request, fields *forms.FieldsTable,
-	AddJson map[string] string ) error {
+func RenderJSONAnyForm(w http.ResponseWriter, fields *forms.FieldsTable, form *json.FormStructure,
+	AddJson map[string] string) error {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Write( []byte(json.JSONAnyForm(fields, AddJson)) )
+	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )
 	return nil
 }

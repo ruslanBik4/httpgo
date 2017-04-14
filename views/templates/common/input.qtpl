@@ -1,0 +1,6 @@
+
+{% func RenderInput(name string) %}
+
+<input type="text" name="{%s name %}" class="c-input" placeholder="text">
+
+{% endfunc %}

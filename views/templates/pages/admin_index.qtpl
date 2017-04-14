@@ -14,12 +14,13 @@ type AdminPageBody struct {
     Catalog map[string] *ItemMenu
     TopMenu map[string] string
     Title string
+    Head *layouts.HeadHTMLPage
 }
 %}
 {% func (body *AdminPageBody) ShowAdminPage(activePage string) %}
+{%= body.Head.HeadHTML() %}
 <body>
 <div class="content-wrap">
-{%= layouts.HeaderHTML(body.TopMenu) %}
 <div id="container-fluid">
 
     <div class="row-fluid">
@@ -33,31 +34,6 @@ type AdminPageBody struct {
         </div>
         <div id="content" rel="/admin/" class="content-section">{%s= body.Content %}</div>
 
-<dom-module id="employee-list">
-
-  <template>
-
-    <div> Employee list: </div>
-    <template is="dom-repeat" items="{{employees}}">
-        <div>First name: <span>{{item.first}}</span></div>
-        <div>Last name: <span>{{item.last}}</span></div>
-    </template>
-
-  </template>
-
-  <script>
-   Polymer({
-      is: 'employee-list',
-      ready: function() {
-        this.employees = [
-            {first: 'Bob', last: 'Smith'},
-            {first: 'Sally', last: 'Johnson'},
-        ];
-      }
-    });
- </script>
-
-</dom-module>
     </div>
 </div>
 </div>

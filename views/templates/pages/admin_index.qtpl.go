@@ -35,113 +35,89 @@ type AdminPageBody struct {
 	Catalog map[string]*ItemMenu
 	TopMenu map[string]string
 	Title   string
+	Head    *layouts.HeadHTMLPage
 }
 
-//line views/templates/pages/admin_index.qtpl:19
+//line views/templates/pages/admin_index.qtpl:20
 func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, activePage string) {
-	//line views/templates/pages/admin_index.qtpl:19
+	//line views/templates/pages/admin_index.qtpl:20
+	qw422016.N().S(`
+`)
+	//line views/templates/pages/admin_index.qtpl:21
+	body.Head.StreamHeadHTML(qw422016)
+	//line views/templates/pages/admin_index.qtpl:21
 	qw422016.N().S(`
 <body>
 <div class="content-wrap">
-`)
-	//line views/templates/pages/admin_index.qtpl:22
-	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
-	//line views/templates/pages/admin_index.qtpl:22
-	qw422016.N().S(`
 <div id="container-fluid">
 
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
-	//line views/templates/pages/admin_index.qtpl:28
+	//line views/templates/pages/admin_index.qtpl:29
 	for name, item := range body.Catalog {
-		//line views/templates/pages/admin_index.qtpl:28
+		//line views/templates/pages/admin_index.qtpl:29
 		qw422016.N().S(`
                     <li><a href="`)
-		//line views/templates/pages/admin_index.qtpl:29
+		//line views/templates/pages/admin_index.qtpl:30
 		qw422016.E().S(item.Link)
-		//line views/templates/pages/admin_index.qtpl:29
+		//line views/templates/pages/admin_index.qtpl:30
 		qw422016.N().S(`">`)
-		//line views/templates/pages/admin_index.qtpl:29
+		//line views/templates/pages/admin_index.qtpl:30
 		qw422016.E().S(name)
-		//line views/templates/pages/admin_index.qtpl:29
+		//line views/templates/pages/admin_index.qtpl:30
 		qw422016.N().S(`</a></li>
                 `)
-		//line views/templates/pages/admin_index.qtpl:30
+		//line views/templates/pages/admin_index.qtpl:31
 	}
-	//line views/templates/pages/admin_index.qtpl:30
+	//line views/templates/pages/admin_index.qtpl:31
 	qw422016.N().S(`
 
             </div>
         </div>
         <div id="content" rel="/admin/" class="content-section">`)
-	//line views/templates/pages/admin_index.qtpl:34
+	//line views/templates/pages/admin_index.qtpl:35
 	qw422016.N().S(body.Content)
-	//line views/templates/pages/admin_index.qtpl:34
+	//line views/templates/pages/admin_index.qtpl:35
 	qw422016.N().S(`</div>
 
-<dom-module id="employee-list">
-
-  <template>
-
-    <div> Employee list: </div>
-    <template is="dom-repeat" items="{{employees}}">
-        <div>First name: <span>{{item.first}}</span></div>
-        <div>Last name: <span>{{item.last}}</span></div>
-    </template>
-
-  </template>
-
-  <script>
-   Polymer({
-      is: 'employee-list',
-      ready: function() {
-        this.employees = [
-            {first: 'Bob', last: 'Smith'},
-            {first: 'Sally', last: 'Johnson'},
-        ];
-      }
-    });
- </script>
-
-</dom-module>
     </div>
 </div>
 </div>
 
 `)
-	//line views/templates/pages/admin_index.qtpl:65
+	//line views/templates/pages/admin_index.qtpl:41
 	layouts.StreamFooterHTML(qw422016)
-	//line views/templates/pages/admin_index.qtpl:65
+	//line views/templates/pages/admin_index.qtpl:41
 	qw422016.N().S(`
 </body>
 `)
-//line views/templates/pages/admin_index.qtpl:67
+//line views/templates/pages/admin_index.qtpl:43
 }
 
-//line views/templates/pages/admin_index.qtpl:67
+//line views/templates/pages/admin_index.qtpl:43
 func (body *AdminPageBody) WriteShowAdminPage(qq422016 qtio422016.Writer, activePage string) {
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	body.StreamShowAdminPage(qw422016, activePage)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/admin_index.qtpl:67
+//line views/templates/pages/admin_index.qtpl:43
 }
 
-//line views/templates/pages/admin_index.qtpl:67
+//line views/templates/pages/admin_index.qtpl:43
 func (body *AdminPageBody) ShowAdminPage(activePage string) string {
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	body.WriteShowAdminPage(qb422016, activePage)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/admin_index.qtpl:67
+	//line views/templates/pages/admin_index.qtpl:43
 	return qs422016
-//line views/templates/pages/admin_index.qtpl:67
+//line views/templates/pages/admin_index.qtpl:43
 }
