@@ -11,7 +11,7 @@ import (
 
 type pRoles struct {
 	idUser int
-	idRoles int
+	idRoles string
 }
 type rowsRoles [] *pRoles
 type pService struct {
@@ -27,18 +27,22 @@ var permissions *pService = &pService{name:"permission"}
 func (permissions *pService) Init() error{
 
 	permissions.Rows = make(map[string] rowsRoles, 0)
-	rows, err := db.DoSelect("SELECT * FROM permissions")
+	rows, err := db.DoSelect("SELECT p.id_users, g.title FROM permissions p JOIN permission_group_list g ")
 	if err != nil {
 		return err
 	}
 
+	roles := make(rowsRoles, 0)
 	for rows.Next() {
-		var row pRoles
+		var row *pRoles
 		if err := rows.Scan(&row); err != nil {
-
+			continue
 		}
 
+		roles = append(roles, row)
 	}
+
+	permissions.Rows["system"] = roles
 
 	permissions.status = "ready"
 	return nil
@@ -58,6 +62,33 @@ func (permissions *pService) Send(messages ...interface{}) error {
 
 }
 func (permissions *pService) Get(messages ... interface{}) (responce interface{}, err error) {
+
+	for _, message := range messages {
+		for _, mess1 := range message.([] interface{}) {
+			switch mess := mess1.(type) {
+			case map[string]string:
+				for key, val := range mess {
+					pRoles, ok := permissions.Rows[key]
+					if ok {
+						responce = true
+						return responce, nil
+					} else {
+						responce = false
+					}
+					log.Println(val, pRoles)
+				}
+			case []interface{}:
+				log.Println(mess)
+				continue
+			case string:
+				responce = mess
+			default:
+				log.Println(mess)
+				responce = "Unknow type"
+
+			}
+		}
+	}
 
 	return responce, nil
 }
@@ -88,26 +119,26 @@ func (permissions *pService) Status() string {
 	return permissions.status
 }
 
-func (permissions *pService) RegPermission(name, tableName string) error {
-	_, ok := permissions.Rows[name]
-	if !ok {
-		temp := make(rowsRoles,0)
-		rows, err := db.DoSelect("SELECT * FROM " + tableName)
-		if err != nil {
-			return err
-		}
-		for rows.Next() {
-			var User, Roles int
-
-			rows.Scan(&User, &Roles)
-			temp = append(temp, &pRoles{idUser:User, idRoles:Roles})
-
-		}
-		permissions.Rows[name] = temp
-	}
-
-	return nil
-}
+//func (permissions *pService) RegPermission(name, tableName string) error {
+//	_, ok := permissions.Rows[name]
+//	if !ok {
+//		temp := make(rowsRoles,0)
+//		rows, err := db.DoSelect("SELECT * FROM " + tableName)
+//		if err != nil {
+//			return err
+//		}
+//		for rows.Next() {
+//			var User int, Roles string
+//
+//			rows.Scan(&User, &Roles)
+//			temp = append(temp, &pRoles{idUser:User, idRoles:Roles})
+//
+//		}
+//		permissions.Rows[name] = temp
+//	}
+//
+//	return nil
+//}
 func (permissions *pService) GetPermission(name string, idUser int) error {
 	perm, ok := permissions.Rows[name]
 	if ok {

@@ -20,7 +20,7 @@ func TestConnect(t *testing.T) {
 		t.Errorf("error initialization: filename=%s, error=%q", nameServ, err)
 		return
 	}
-t.Log(out)
+
 	for {
 		select {
 		case v := <-out:
@@ -37,8 +37,8 @@ t.Log(out)
 				t.Log(v)
 			}
 			t.Log(v)
-		default:
-			t.Log("-")
+		//default:
+		//	t.Log("-")
 		}
 	}
 
@@ -47,9 +47,24 @@ t.Log(out)
 }
 func TestSend(t *testing.T) {
 	nameServ := "permission"
-	err :=Send(nameServ, "close")
+	err := Send(nameServ, "open")
 	if err != nil {
 		t.Error(err)
+	}
+	t.Skipped()
+}
+func TestGet(t *testing.T) {
+	nameServ := "permission"
+	messages := make(map[string] string, 0)
+	messages["system"] = "10"
+	responce, err := Get(nameServ, messages, "stress")
+	if err != nil {
+		t.Error(err)
+	} else if responce == nil {
+		t.Errorf("Get return nil !")
+	} else {
+		t.Log(responce)
+
 	}
 	t.Skipped()
 }
