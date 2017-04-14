@@ -61,30 +61,26 @@ func (permissions *pService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (permissions *pService) Get(messages ... interface{}) (responce interface{}, err error) {
+func (permissions *pService) Get(messages ... interface{}) ( interface{}, error) {
 
+	responce := make(map[string] bool)
 	for _, message := range messages {
 		for _, mess1 := range message.([] interface{}) {
 			switch mess := mess1.(type) {
 			case map[string]string:
 				for key, val := range mess {
-					pRoles, ok := permissions.Rows[key]
-					if ok {
-						responce = true
-						return responce, nil
-					} else {
-						responce = false
-					}
-					log.Println(val, pRoles)
+					pRole, ok := permissions.Rows[key]
+					responce[key] = ok
+					log.Println(val, pRole)
 				}
 			case []interface{}:
 				log.Println(mess)
 				continue
 			case string:
-				responce = mess
+				responce[mess] = true
 			default:
 				log.Println(mess)
-				responce = "Unknow type"
+				responce["Unknow type"] = false
 
 			}
 		}
