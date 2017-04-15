@@ -282,12 +282,13 @@ func SendMail(email, password string)  {
 	m.SetBody("text/html", mails.InviteEmail(email, password) )
 	m.Attach("/home/travel/bootstrap/ico/favicon.png")
 
-	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconF99")
+	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconSwallow")
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
 		log.Println(err)
 	}
+	log.Println(email, password)
 }
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm();
