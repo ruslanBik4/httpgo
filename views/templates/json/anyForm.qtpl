@@ -81,15 +81,14 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         fields.PutDataFrom(nx)
 
             for childKey, childFields := range fields.Rows {
-            if strings.HasPrefix(childFields.COLUMN_NAME, "id_") {
+            if strings.HasPrefix(childFields.COLUMN_NAME, "id_") && childFields.COLUMN_NAME[3:] == field.Table.Name {
 
             fields.Rows = append(fields.Rows[:childKey], fields.Rows[childKey+1:]...)
             break
             }
         }
         %}
-        "children":{  {%= CheckFields(&fields) %}
-        }
+        "children": {{%= CheckFields(&fields) %}}
     {% endif %}
 
             },
