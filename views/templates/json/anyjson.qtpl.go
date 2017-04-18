@@ -14,355 +14,367 @@ import (
 // All the text outside function templates is treated as comments,
 // i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 // выводим массив массивов (основное назначение для таблиц БД)
+//
 
-//line anyjson.qtpl:6
+//line anyjson.qtpl:5
+import (
+	"strconv"
+)
+
+//line anyjson.qtpl:11
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line anyjson.qtpl:6
+//line anyjson.qtpl:11
 func StreamWriteSliceJSON(qw422016 *qt422016.Writer, mapJSON MapMultiDimension) {
-	//line anyjson.qtpl:6
-	qw422016.N().S(`[`)
-	//line anyjson.qtpl:8
+	//line anyjson.qtpl:11
+	qw422016.N().S(`{`)
+	//line anyjson.qtpl:13
 	for key, arrJSON := range mapJSON {
-		//line anyjson.qtpl:9
+		//line anyjson.qtpl:14
 		if key > 0 {
-			//line anyjson.qtpl:9
-			qw422016.N().S(`","`)
-			//line anyjson.qtpl:9
+			//line anyjson.qtpl:14
+			qw422016.N().S(`,`)
+			//line anyjson.qtpl:14
 		}
-		//line anyjson.qtpl:9
+		//line anyjson.qtpl:14
+		qw422016.N().S(`"`)
+		//line anyjson.qtpl:14
+		qw422016.E().S(strconv.Itoa(key))
+		//line anyjson.qtpl:14
+		qw422016.N().S(`":`)
+		//line anyjson.qtpl:14
 		StreamWriteAnyJSON(qw422016, arrJSON)
-		//line anyjson.qtpl:10
+		//line anyjson.qtpl:15
 	}
-	//line anyjson.qtpl:10
-	qw422016.N().S(`]`)
-//line anyjson.qtpl:12
+	//line anyjson.qtpl:15
+	qw422016.N().S(`}`)
+//line anyjson.qtpl:17
 }
 
-//line anyjson.qtpl:12
+//line anyjson.qtpl:17
 func WriteWriteSliceJSON(qq422016 qtio422016.Writer, mapJSON MapMultiDimension) {
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	StreamWriteSliceJSON(qw422016, mapJSON)
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:12
+//line anyjson.qtpl:17
 }
 
-//line anyjson.qtpl:12
+//line anyjson.qtpl:17
 func WriteSliceJSON(mapJSON MapMultiDimension) string {
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	WriteWriteSliceJSON(qb422016, mapJSON)
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:12
+	//line anyjson.qtpl:17
 	return qs422016
-//line anyjson.qtpl:12
+//line anyjson.qtpl:17
 }
 
 // получаем объект произвольной формы и возвращаем JSON текстом
 
-//line anyjson.qtpl:15
+//line anyjson.qtpl:20
 func StreamWriteAnyJSON(qw422016 *qt422016.Writer, arrJSON MultiDimension) {
-	//line anyjson.qtpl:15
+	//line anyjson.qtpl:20
 	qw422016.N().S(`{`)
-	//line anyjson.qtpl:16
+	//line anyjson.qtpl:21
 	comma := ""
 
-	//line anyjson.qtpl:17
+	//line anyjson.qtpl:22
 	for key, value := range arrJSON {
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		qw422016.E().S(comma)
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		qw422016.N().S(`"`)
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		qw422016.E().S(key)
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		qw422016.N().S(`":`)
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		StreamWriteElement(qw422016, value)
-		//line anyjson.qtpl:18
+		//line anyjson.qtpl:23
 		comma = ","
 
-		//line anyjson.qtpl:19
+		//line anyjson.qtpl:24
 	}
-	//line anyjson.qtpl:19
+	//line anyjson.qtpl:24
 	qw422016.N().S(`}`)
-//line anyjson.qtpl:21
+//line anyjson.qtpl:26
 }
 
-//line anyjson.qtpl:21
+//line anyjson.qtpl:26
 func WriteWriteAnyJSON(qq422016 qtio422016.Writer, arrJSON MultiDimension) {
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	StreamWriteAnyJSON(qw422016, arrJSON)
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:21
+//line anyjson.qtpl:26
 }
 
-//line anyjson.qtpl:21
+//line anyjson.qtpl:26
 func WriteAnyJSON(arrJSON MultiDimension) string {
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	WriteWriteAnyJSON(qb422016, arrJSON)
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:21
+	//line anyjson.qtpl:26
 	return qs422016
-//line anyjson.qtpl:21
+//line anyjson.qtpl:26
 }
 
 // пишем элемент массива в зависемости от типа
 
-//line anyjson.qtpl:23
+//line anyjson.qtpl:28
 func StreamWriteElement(qw422016 *qt422016.Writer, value interface{}) {
-	//line anyjson.qtpl:24
-	switch vv := value.(type) {
-	//line anyjson.qtpl:25
-	case string:
-		//line anyjson.qtpl:25
-		qw422016.N().S(`"`)
-		//line anyjson.qtpl:25
-		qw422016.E().S(vv)
-		//line anyjson.qtpl:25
-		qw422016.N().S(`"`)
-	//line anyjson.qtpl:26
-	case bool:
-		//line anyjson.qtpl:26
-		qw422016.E().V(vv)
-	//line anyjson.qtpl:27
-	case int, uint, int32, int64:
-		//line anyjson.qtpl:27
-		qw422016.N().D(vv.(int))
-	//line anyjson.qtpl:28
-	case float64:
-		//line anyjson.qtpl:28
-		qw422016.N().F(vv)
 	//line anyjson.qtpl:29
-	case nil:
-		//line anyjson.qtpl:29
-		qw422016.N().S(`null`)
+	switch vv := value.(type) {
 	//line anyjson.qtpl:30
-	case StringDimension:
+	case string:
 		//line anyjson.qtpl:30
-		StreamWriteStringDimension(qw422016, vv)
+		qw422016.N().S(`"`)
+		//line anyjson.qtpl:30
+		qw422016.E().S(vv)
+		//line anyjson.qtpl:30
+		qw422016.N().S(`"`)
 	//line anyjson.qtpl:31
-	case SimpleDimension:
+	case bool:
 		//line anyjson.qtpl:31
-		StreamWriteSimpleDimension(qw422016, vv)
-	//line anyjson.qtpl:32
-	case MultiDimension:
-		//line anyjson.qtpl:32
-		StreamWriteAnyJSON(qw422016, vv)
-	//line anyjson.qtpl:33
-	default:
-		//line anyjson.qtpl:33
 		qw422016.E().V(vv)
+	//line anyjson.qtpl:32
+	case int, uint, int32, int64:
+		//line anyjson.qtpl:32
+		qw422016.N().D(vv.(int))
+	//line anyjson.qtpl:33
+	case float64:
+		//line anyjson.qtpl:33
+		qw422016.N().F(vv)
+	//line anyjson.qtpl:34
+	case nil:
 		//line anyjson.qtpl:34
+		qw422016.N().S(`null`)
+	//line anyjson.qtpl:35
+	case StringDimension:
+		//line anyjson.qtpl:35
+		StreamWriteStringDimension(qw422016, vv)
+	//line anyjson.qtpl:36
+	case SimpleDimension:
+		//line anyjson.qtpl:36
+		StreamWriteSimpleDimension(qw422016, vv)
+	//line anyjson.qtpl:37
+	case MultiDimension:
+		//line anyjson.qtpl:37
+		StreamWriteAnyJSON(qw422016, vv)
+	//line anyjson.qtpl:38
+	default:
+		//line anyjson.qtpl:38
+		qw422016.E().V(vv)
+		//line anyjson.qtpl:39
 	}
-//line anyjson.qtpl:35
+//line anyjson.qtpl:40
 }
 
-//line anyjson.qtpl:35
+//line anyjson.qtpl:40
 func WriteWriteElement(qq422016 qtio422016.Writer, value interface{}) {
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	StreamWriteElement(qw422016, value)
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:35
+//line anyjson.qtpl:40
 }
 
-//line anyjson.qtpl:35
+//line anyjson.qtpl:40
 func WriteElement(value interface{}) string {
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	WriteWriteElement(qb422016, value)
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:35
+	//line anyjson.qtpl:40
 	return qs422016
-//line anyjson.qtpl:35
+//line anyjson.qtpl:40
 }
 
 // получаем массив произвольной формы и возвращаем JSON текстом
 
-//line anyjson.qtpl:37
+//line anyjson.qtpl:42
 func StreamWriteArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
-	//line anyjson.qtpl:37
+	//line anyjson.qtpl:42
 	qw422016.N().S(`[`)
-	//line anyjson.qtpl:38
+	//line anyjson.qtpl:43
 	comma := ""
 
-	//line anyjson.qtpl:39
+	//line anyjson.qtpl:44
 	for key, value := range arrJSON {
-		//line anyjson.qtpl:39
+		//line anyjson.qtpl:44
 		qw422016.E().S(comma)
-		//line anyjson.qtpl:39
+		//line anyjson.qtpl:44
 		qw422016.N().D(key)
-		//line anyjson.qtpl:39
+		//line anyjson.qtpl:44
 		qw422016.N().S(`:`)
-		//line anyjson.qtpl:39
+		//line anyjson.qtpl:44
 		StreamWriteElement(qw422016, value)
-		//line anyjson.qtpl:39
+		//line anyjson.qtpl:44
 		comma = ","
 
-		//line anyjson.qtpl:40
+		//line anyjson.qtpl:45
 	}
-	//line anyjson.qtpl:40
+	//line anyjson.qtpl:45
 	qw422016.N().S(`]`)
-//line anyjson.qtpl:42
+//line anyjson.qtpl:47
 }
 
-//line anyjson.qtpl:42
+//line anyjson.qtpl:47
 func WriteWriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	StreamWriteArrJSON(qw422016, arrJSON)
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:42
+//line anyjson.qtpl:47
 }
 
-//line anyjson.qtpl:42
+//line anyjson.qtpl:47
 func WriteArrJSON(arrJSON []interface{}) string {
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	WriteWriteArrJSON(qb422016, arrJSON)
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:42
+	//line anyjson.qtpl:47
 	return qs422016
-//line anyjson.qtpl:42
+//line anyjson.qtpl:47
 }
 
 // получаем массив объектов произвольной формы и возвращаем JSON текстом
 
-//line anyjson.qtpl:44
+//line anyjson.qtpl:49
 func StreamWriteSimpleDimension(qw422016 *qt422016.Writer, arrJSON SimpleDimension) {
-	//line anyjson.qtpl:44
+	//line anyjson.qtpl:49
 	qw422016.N().S(`[`)
-	//line anyjson.qtpl:45
+	//line anyjson.qtpl:50
 	comma := ""
 
-	//line anyjson.qtpl:46
+	//line anyjson.qtpl:51
 	for key, value := range arrJSON {
-		//line anyjson.qtpl:46
+		//line anyjson.qtpl:51
 		qw422016.E().S(comma)
-		//line anyjson.qtpl:46
+		//line anyjson.qtpl:51
 		qw422016.N().D(key)
-		//line anyjson.qtpl:46
+		//line anyjson.qtpl:51
 		qw422016.N().S(`:`)
-		//line anyjson.qtpl:46
+		//line anyjson.qtpl:51
 		StreamWriteElement(qw422016, value)
-		//line anyjson.qtpl:46
+		//line anyjson.qtpl:51
 		comma = ","
 
-		//line anyjson.qtpl:47
+		//line anyjson.qtpl:52
 	}
-	//line anyjson.qtpl:47
+	//line anyjson.qtpl:52
 	qw422016.N().S(`]`)
-//line anyjson.qtpl:49
+//line anyjson.qtpl:54
 }
 
-//line anyjson.qtpl:49
+//line anyjson.qtpl:54
 func WriteWriteSimpleDimension(qq422016 qtio422016.Writer, arrJSON SimpleDimension) {
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	StreamWriteSimpleDimension(qw422016, arrJSON)
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:49
+//line anyjson.qtpl:54
 }
 
-//line anyjson.qtpl:49
+//line anyjson.qtpl:54
 func WriteSimpleDimension(arrJSON SimpleDimension) string {
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	WriteWriteSimpleDimension(qb422016, arrJSON)
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:49
+	//line anyjson.qtpl:54
 	return qs422016
-//line anyjson.qtpl:49
+//line anyjson.qtpl:54
 }
 
 // получаем массив строк и возвращаем JSON текстом
 
-//line anyjson.qtpl:51
+//line anyjson.qtpl:56
 func StreamWriteStringDimension(qw422016 *qt422016.Writer, arrJSON StringDimension) {
-	//line anyjson.qtpl:51
+	//line anyjson.qtpl:56
 	qw422016.N().S(`[`)
-	//line anyjson.qtpl:52
+	//line anyjson.qtpl:57
 	comma := ""
 
-	//line anyjson.qtpl:53
+	//line anyjson.qtpl:58
 	for key, value := range arrJSON {
-		//line anyjson.qtpl:53
+		//line anyjson.qtpl:58
 		qw422016.E().S(comma)
-		//line anyjson.qtpl:53
+		//line anyjson.qtpl:58
 		qw422016.N().D(key)
-		//line anyjson.qtpl:53
+		//line anyjson.qtpl:58
 		qw422016.N().S(`:`)
-		//line anyjson.qtpl:53
+		//line anyjson.qtpl:58
 		StreamWriteElement(qw422016, value)
-		//line anyjson.qtpl:53
+		//line anyjson.qtpl:58
 		comma = ","
 
-		//line anyjson.qtpl:54
+		//line anyjson.qtpl:59
 	}
-	//line anyjson.qtpl:54
+	//line anyjson.qtpl:59
 	qw422016.N().S(`]`)
-//line anyjson.qtpl:56
+//line anyjson.qtpl:61
 }
 
-//line anyjson.qtpl:56
+//line anyjson.qtpl:61
 func WriteWriteStringDimension(qq422016 qtio422016.Writer, arrJSON StringDimension) {
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	StreamWriteStringDimension(qw422016, arrJSON)
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	qt422016.ReleaseWriter(qw422016)
-//line anyjson.qtpl:56
+//line anyjson.qtpl:61
 }
 
-//line anyjson.qtpl:56
+//line anyjson.qtpl:61
 func WriteStringDimension(arrJSON StringDimension) string {
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	WriteWriteStringDimension(qb422016, arrJSON)
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	qs422016 := string(qb422016.B)
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line anyjson.qtpl:56
+	//line anyjson.qtpl:61
 	return qs422016
-//line anyjson.qtpl:56
+//line anyjson.qtpl:61
 }
