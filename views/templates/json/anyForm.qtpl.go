@@ -306,8 +306,12 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *forms.FieldsTable) {
 				}
 			}
 
+			//line anyForm.qtpl:90
+			qw422016.N().S(`"children": {`)
 			//line anyForm.qtpl:91
 			StreamCheckFields(qw422016, &fields)
+			//line anyForm.qtpl:91
+			qw422016.N().S(`}`)
 			//line anyForm.qtpl:92
 		}
 		//line anyForm.qtpl:92

@@ -88,7 +88,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
             }
         }
         %}
-        {%= CheckFields(&fields) %}
+        "children": {{%= CheckFields(&fields) %}}
     {% endif %}
 
             },
