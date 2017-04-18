@@ -226,9 +226,9 @@ function getData(element) {
         $.get(url).done(function (data) {
             var fields = data.fields;
             var form = data.form;
-            console.log(fields);
+            console.log(data);
             $.each(fields, function(key,object){
-                getAllInputs(key,object,element,form);
+                renderFormElements(key,object,element,form);
             });
         });
         
@@ -236,7 +236,7 @@ function getData(element) {
 
 }
 
-function getAllInputs(name, object, parent,form) {
+function renderFormElements(name, object, parent,form) {
     parent.find('form').attr({
         action   : form.action,
         id       : form.id,
