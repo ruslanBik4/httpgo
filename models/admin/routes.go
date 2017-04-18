@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
-	"github.com/ruslanBik4/httpgo/views"
+//	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 )
 
@@ -36,11 +36,10 @@ func RegisterRoutes() {
 
 func CheckPermissions(fnc http.HandlerFunc, route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		user_id,_ := strconv.Atoi(users.IsLogin(r))
 
 		if !GetUserPermissionForPageByUserId(user_id, route, "View") {
-			views.RenderNoPermissionPage(w, r)
+//			views.RenderNoPermissionPage(w, r)
 
 		}
 	})
