@@ -8,8 +8,7 @@ $(function() {
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
     AddClickShowOkno( $("body") );
-    var requestWrap = $('#requestWrap');
-    getData(requestWrap);
+
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
     //         showFormModal(data);
@@ -19,15 +18,20 @@ $(function() {
     // });
 });
 function AddClickShowOkno( parent_this ) {
-    $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
+    $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"],a[data-toggle="modal"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
         .each( function () {
             this.onclick = function () {
+                // document.URL = this.href;
+                history.pushState(this.pathname, '', this.pathname);
                 divContent.load(this.href,
                     function () {
                         document.title = this.title;
                         AddClickShowOkno(divContent);
+                        var requestWrap = $('#requestWrap');
+                        getData(requestWrap);
                     });
                 return false;
+
             }
         });
 }
