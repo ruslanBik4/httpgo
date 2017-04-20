@@ -429,8 +429,9 @@ function GetBodyBackground(data) {
      */
 //     Именяем селектор для фона страницы на селектор для Содержимого
 
-    data = data.replace(/(<style[\s\S]*>\s*)(body)(?=\s+\{[^<]+<\/style>)/mg, '$1.body-pane');
-
+    if (typeof data === 'string')
+        data = data.replace(/(<style[\s\S]*>\s*)(body)(?=\s+\{[^<]+<\/style>)/mg, '$1.body-pane');
+    else return JSON.stringify(data);
     data = GetPageParts(data);
 
     if (isNoSitecraft || isNewSitecraft)
@@ -523,9 +524,9 @@ function PostLoadOkno( ) {
     $('div.autoload').each( function () {
         var pane = $(this),
             URL  = pane.data('href') ? pane.data('href') : this.id + ( this.id.search('.php') > 0 ? '' : '.php' );
-        if ( this.id == 'show_tovar') //пока временно специально для обработки выборки лотов
+        /*if ( this.id == 'show_tovar') //пока временно специально для обработки выборки лотов
             $.get( 'show_tovar.php', function (data, success) { pane.html( GetBodyBackground(data) ); AddClickShowOkno( pane ); } );
-        else
+        else*/
             $.get( URL, function (data, success) { pane.html( GetBodyBackground(data) ); AddClickShowOkno( pane ); } );
     });
 

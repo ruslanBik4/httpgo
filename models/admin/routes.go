@@ -6,6 +6,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 //	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
+	"models/crm/business"
 )
 
 var (
@@ -24,6 +25,12 @@ var (
 		"/admin/schema/": HandlerSchema,
 		"/admin/umutable/": HandlerUMUTables,
 		"/admin/anothersignup/": HandlerSignUpAnotherUser,
+		"/admin/business/": 	business.HandlerBusiness,
+		"/admin/leads/": 	business.HandlerLeads,
+		"/admin/partners/": 	business.HandlerPartners,
+		"/admin/business/edit/": business.HandlerEditBusiness,
+		"/admin/business/save-comment/": business.HandlerSaveComment,
+		"/admin/business/save-changes/": business.HandlerSaveChanges,
 	}
 )
 

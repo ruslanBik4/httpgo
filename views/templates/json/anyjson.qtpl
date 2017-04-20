@@ -20,8 +20,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func WriteAnyJSON(arrJSON MultiDimension) %}
 { {% code comma := "" %}
-   {% for key, value := range  arrJSON %}
-        {%s comma %} "{%s key %}":{%= WriteElement(value)%} {% code  comma = "," %}
+   {% for key, value := range arrJSON %}
+        {%s comma %} "{%s key %}": {%= WriteElement(value)%} {% code  comma = "," %}
    {% endfor %}
  }
 {% endfunc %}
@@ -36,7 +36,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case StringDimension %}  {%= WriteStringDimension(vv) %}
       {% case SimpleDimension %} {%= WriteSimpleDimension(vv) %}
       {% case MultiDimension %} {%= WriteAnyJSON(vv) %}
-      {% default %}  {%v vv %}
+      {% case MapMultiDimension %} {%= WriteSliceJSON(vv) %}
+      {% default %} {%v vv %}
      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
