@@ -248,7 +248,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	resultId,_ := strconv.Atoi(userID)
 	if resultId > 0 {
 		if !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
-			views.RenderNoPermissionPage(w, r)
+	//		views.RenderNoPermissionPage(w, r)
 		}
 	} else {
 		views.RenderNoPermissionPage(w, r)
