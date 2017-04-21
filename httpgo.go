@@ -28,6 +28,7 @@ import (
 	_ "net/http/pprof"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"strconv"
+	"github.com/ruslanBik4/httpgo/models/api/v1"
 )
 //go:generate qtc -dir=views/templates
 
@@ -56,6 +57,8 @@ var (
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/": handlerComponents,
+		"/api/v1/table/form/": api.HandleFieldsJSON,
+		"/api/v1/table/row/":  api.HandleRowJSON,
 		//"/store/nav/": handlerStoreNav,
 		//"/admin/catalog/": handlerAddCatalog,
 		//"/admin/psd/add" : handlerAddPSD,
@@ -249,15 +252,11 @@ func isAJAXRequest(r *http.Request) bool {
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
 	userID  := users.IsLogin(r)
-	resultId,_ := strconv.Atoi(userID)
-	if resultId > 0 {
-		if !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
-			views.RenderNoPermissionPage(w, r)
-		}
-	} else {
-		views.RenderNoPermissionPage(w, r)
+	resultId, err := strconv.Atoi(userID)
+	if err != nil ||  !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+		views.RenderNoPermissionPage(w)
+		return
 	}
-
 	var menu db.MenuItems
 
 	idx := strings.LastIndex(r.URL.Path, "menu/") + 5

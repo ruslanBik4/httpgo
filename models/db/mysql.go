@@ -15,12 +15,19 @@ import (
 	"strings"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"errors"
 )
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-
 )
+//SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
+type SqlCustom struct {
+    Table  string;
+    SqlBeg string;
+    SqlEnd string;
+    Sql    string;
+}
 
 
 func prepareQuery(sql string) (*sql.Stmt, error){
@@ -406,6 +413,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 }
 
 //GetDataPrepareRowsToReading - function get rows with structure field
+//@aurhor Sergey Litvinov
 func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
 							columns [] string, colTypes [] *sql.ColumnType, err error )  {
 	rows, err = DoSelect(sql, args...)
@@ -420,6 +428,7 @@ func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Ro
 }
 
 //ConvertPrepareRowsToJson convert many rows to json
+//@aurhor Sergey Litvinov
 func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
 			columns [] string, colTypes [] *sql.ColumnType) ( arrJSON [] map[string] interface {}, err error ) {
 
@@ -478,6 +487,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 
 
 //ConvertPrepareRowToJson convert one row to json
+//@aurhor Sergey Litvinov
 func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType) (id int, arrJSON map[string] interface {},   err error ) {
 		id = 0;
@@ -531,45 +541,52 @@ func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] st
 
 //GetDataCustom get data with custom sql query
 //Give  begSQL + tableName + endSQL, split, run sql
-//@version 1.00 2017-04-11
-//@aurhor Sergey Litvionov
-func GetDataCustom(tableName string, begSql string, endSql string, args ...interface{}) (rows *sql.Rows,
+//@version 2.00 2017-04-20
+//@aurhor Sergey Litvinov
+func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 		row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType, err error ){
 
-	if(begSql == ""){
-		begSql = "SELECT * FROM "
+	if(sqlParam.SqlBeg == ""){
+		sqlParam.SqlBeg = "SELECT * FROM "
 	}
 
-	if(endSql == ""){
-		endSql = " WHERE id=?"
+	if(sqlParam.SqlEnd == ""){
+		sqlParam.SqlEnd = " WHERE id=?"
 	}
+	if (sqlParam.Sql == "" &&  sqlParam.Table !=""){
+		sqlParam.Sql = sqlParam.SqlBeg + sqlParam.Table + sqlParam.SqlEnd
+	}
+	if (sqlParam.Sql != ""){
+        log.Print("sqlParam.Sql=", sqlParam.Sql)
+		rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sqlParam.Sql, args...)
 
-	sql1 := begSql + tableName + endSql
+		if err != nil {
+			log.Println(err)
+			return nil, nil, nil, nil, nil, err
+		}
 
-	rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sql1, args...)
-
-
-	if err != nil {
-		log.Println(err)
+		return rows, row, rowField, columns, colTypes, nil
+	} else{
+		err = errors.New("Error. Not enough parameters for the function GetDataCustom")
 		return nil, nil, nil, nil, nil, err
 	}
 
-	return rows, row, rowField, columns, colTypes, nil
+
 }
 
 
 //DoUpdateFromMap - function generate sql query from data map
 //@version 1.00 2017-04-11
 //@aurhor Sergey Litvinov
-func DoUpdateFromMap(tableName string, mapData map[string] interface{}) (RowsAffected int, err error) {
+func DoUpdateFromMap(table string, mapData map[string] interface{}) (RowsAffected int, err error) {
 
 	var row argsRAW
 	var id int
 	var tableIDQueryes MultiQuery
 	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
 
-	comma, sqlCommand, where := "", "UPDATE " + tableName + " SET ", " WHERE id="
+	comma, sqlCommand, where := "", "UPDATE " + table + " SET ", " WHERE id="
 
 	for key, val := range mapData {
 		if key == "id" {

@@ -29,12 +29,12 @@ var (
 
 func RegisterRoutes() {
 	for route, fnc := range routes {
-		CheckPermissions(fnc, route)
+		CheckPermissions(route)
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 }
 
-func CheckPermissions(fnc http.HandlerFunc, route string) http.HandlerFunc {
+func CheckPermissions(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user_id,_ := strconv.Atoi(users.IsLogin(r))
 

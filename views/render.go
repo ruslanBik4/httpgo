@@ -43,16 +43,16 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 
 	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder) )
 }
-func RenderNoPermissionPage(w http.ResponseWriter, r *http.Request) {
+func RenderNoPermissionPage(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusForbidden)
 }
-func RenderBadRequest(w http.ResponseWriter, r *http.Request) {
+func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
-func RenderUnAuthorized(w http.ResponseWriter, r *http.Request) {
+func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
-func RenderNotFound(w http.ResponseWriter, r *http.Request) {
+func RenderNotFound(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
