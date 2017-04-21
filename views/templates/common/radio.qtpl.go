@@ -22,54 +22,57 @@ func StreamRenderRadio(qw422016 *qt422016.Writer, InputType, name, class, id, va
 	//line views/templates/common/radio.qtpl:2
 	qw422016.N().S(`
 
-<label class="c-radio-label"><input name="`)
-	//line views/templates/common/radio.qtpl:4
+<label class="c-radio-label">
+    <input name="`)
+	//line views/templates/common/radio.qtpl:5
 	qw422016.E().S(name)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.N().S(`" value="`)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.E().S(value)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.N().S(`" id="`)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.E().S(id)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.N().S(`" class="`)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
 	qw422016.E().S(class)
-	//line views/templates/common/radio.qtpl:4
-	qw422016.N().S(`" type="radio"><span>`)
-	//line views/templates/common/radio.qtpl:4
+	//line views/templates/common/radio.qtpl:5
+	qw422016.N().S(`" type="radio">
+    <span>`)
+	//line views/templates/common/radio.qtpl:6
 	qw422016.E().S(value)
-	//line views/templates/common/radio.qtpl:4
-	qw422016.N().S(`</span></label>
+	//line views/templates/common/radio.qtpl:6
+	qw422016.N().S(`</span>
+</label>
 
 `)
-//line views/templates/common/radio.qtpl:6
+//line views/templates/common/radio.qtpl:9
 }
 
-//line views/templates/common/radio.qtpl:6
+//line views/templates/common/radio.qtpl:9
 func WriteRenderRadio(qq422016 qtio422016.Writer, InputType, name, class, id, value string) {
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	StreamRenderRadio(qw422016, InputType, name, class, id, value)
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/radio.qtpl:6
+//line views/templates/common/radio.qtpl:9
 }
 
-//line views/templates/common/radio.qtpl:6
+//line views/templates/common/radio.qtpl:9
 func RenderRadio(InputType, name, class, id, value string) string {
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	WriteRenderRadio(qb422016, InputType, name, class, id, value)
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/radio.qtpl:6
+	//line views/templates/common/radio.qtpl:9
 	return qs422016
-//line views/templates/common/radio.qtpl:6
+//line views/templates/common/radio.qtpl:9
 }
