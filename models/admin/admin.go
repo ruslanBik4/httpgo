@@ -166,15 +166,11 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
 	userID  := users.IsLogin(r)
-	resultId,_ := strconv.Atoi(userID)
-	if resultId > 0 {
-		if !CheckAdminPermissions(resultId) {
-			views.RenderNoPermissionPage(w, r)
-		}
-	} else {
-		views.RenderNoPermissionPage(w, r)
+	resultId, err := strconv.Atoi(userID)
+	if err != nil || !CheckAdminPermissions(resultId) {
+		views.RenderNoPermissionPage(w)
+		return
 	}
-
 	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
 	ns.Rows = make([] db.TableOptions, 0)
