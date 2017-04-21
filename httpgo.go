@@ -255,7 +255,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	//		views.RenderNoPermissionPage(w, r)
 		}
 	} else {
-		views.RenderNoPermissionPage(w, r)
+	//	views.RenderNoPermissionPage(w, r)
 	}
 
 	var menu db.MenuItems
