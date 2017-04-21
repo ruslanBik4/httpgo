@@ -7,7 +7,7 @@ $(function() {
 
     // возможно, это можно сделать прямо в заголовке, а не тут
     divContent = $('#content');
-    AddClickShowOkno( $("body") );
+   // AddClickShowOkno( $("body") );
 
     // $.get('/user/login/', function (data) {
     //     if (data.substr(0,5) == '<form') {
@@ -17,7 +17,7 @@ $(function() {
     //     }
     // });
 });
-function AddClickShowOkno( parent_this ) {
+/*function AddClickShowOkno( parent_this ) {
     $( 'a[href]:not( a[target="_blank"], a.fancybox-button, a:has(img.fancybox-button), a[href="#"], a[data-toggle="tab"],a[data-toggle="modal"], a[onclick], a[href*="skype:"], a.referal )', parent_this ) //referal и title*=\'(переход) означает ссылки, которые не надо менять [target!=_blank]  (откроется в новом окне)
         .each( function () {
             this.onclick = function () {
@@ -34,7 +34,7 @@ function AddClickShowOkno( parent_this ) {
 
             }
         });
-}
+}*/
 // после загрузки новой страницы
 // тут можно отрабатывать события, например, на расстановку евентов для элементов и так далее
 function SitePostShow() {
@@ -45,7 +45,7 @@ function SitePostShow() {
     
 
     //стилизация селектов и инпутов, смена бг
-    $(".business-form-select").styler();
+    //$(".business-form-select").styler();
     changeBg();
     moveLabel();
 
