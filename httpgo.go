@@ -124,8 +124,12 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	}
 	fields := admin.GetFields(tableName)
 
+	id := "1"
+	if r.FormValue("id") > "" {
+		id = r.FormValue("id")
+	}
 
-	arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=1")
+	arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=?", id)
 	if err != nil {
 		panic(err)
 	}
