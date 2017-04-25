@@ -94,8 +94,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	}
 
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
-		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") ||
-		setData.Data == nil {
+		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
 		panic("Wrong data values")
 	}
