@@ -33,14 +33,13 @@ func (moderation *mService) Init() error{
 	if err != nil {
 		panic(err)
 	}
-	//defer session.Close()
+
 	session.SetMode(mongo.Monotonic, true)
 
 	moderation.connect = session
 	moderation.status = "ready"
 	return nil
 }
-
 
 func (moderation *mService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
