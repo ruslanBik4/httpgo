@@ -8,7 +8,7 @@ const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
 const nameMainContent = 'app-main';
-const paramsJSONAttr = 'attr';
+const scriptApp = 'app-script';
 
 
 // JSON const
@@ -20,6 +20,7 @@ const paramsJSONAdded = 'data-api-added';
 // Observer
 const responseToRequest = 'responseToRequest';
 const documentIsReady = 'documentIsReady';
+const reChangeDomDynamically = 'reChangeDomDynamically';
 
 export class Variables {
 
@@ -57,6 +58,14 @@ export class Variables {
 
   static get paramsJSONAdded() {
     return paramsJSONAdded;
+  }
+
+  static get scriptApp() {
+    return scriptApp;
+  }
+
+  static get reChangeDomDynamically() {
+    return reChangeDomDynamically;
   }
 
 

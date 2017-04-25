@@ -7,7 +7,6 @@ let isFunction = function(obj) {
 };
 
 let listeners = new Map();
-let listenersRemoving = new Map();
 
 export class Observer {
 
@@ -18,17 +17,9 @@ export class Observer {
     return listeners;
   }
 
-  static get listenersRemoving() {
-    return listenersRemoving;
-  }
-
-  static addListener(eventName, callback, isRemoveListenerAfterComplete = false) {
+  static addListener(eventName, callback) {
     this.listeners.has(eventName) || this.listeners.set(eventName, []);
     this.listeners.get(eventName).push(callback);
-    if (isRemoveListenerAfterComplete) {
-      this.listenersRemoving.has(eventName) || this.listenersRemoving.set(eventName, []);
-      this.listenersRemoving.get(eventName).push(callback);
-    }
   }
 
   static removeListener(eventName, callback) {
@@ -51,20 +42,12 @@ export class Observer {
   static emit(eventName, ...args) {
     let result = false;
     let listeners = this.listeners.get(eventName);
-    let listenersRemoving = this.listenersRemoving.get(eventName);
 
     if (listeners && listeners.length) {
       for (let listener of listeners) {
-        listener(...args);
-        if (listenersRemoving) {
-          for (let i = 0; i < listenersRemoving.length; i++) {
-            if (listener === listenersRemoving[i]) {
-              this.removeListener(eventName, listenersRemoving[i]);
-              listenersRemoving.splice(i, 1);
-              this.listenersRemoving.set(eventName, listenersRemoving);
-              break;
-            }
-          }
+        const isRemove = listener(...args);
+        if (isRemove) {
+          this.removeListener(eventName, listener);
         }
       }
       result = true;

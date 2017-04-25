@@ -48,14 +48,6 @@ export class Native {
   // }
 
 
-  /*
-   *  Func for render HTML
-  */
-
-  _reChangedDomHTML() {
-    Observer.emit(Variables.responseToRequest, this);
-  }
-
 
   /*
    * set Value Data By Attribute to Dom
@@ -199,7 +191,7 @@ export class Native {
     this.requestOn = true;
 
     xhr.onload = (response) => {
-      Observer.emit(Variables.responseToRequest, response.currentTarget.responseText);
+      Observer.emit(Variables.responseToRequest, response.currentTarget.responseText, url);
     };
 
     xhr.onerror = function () {
