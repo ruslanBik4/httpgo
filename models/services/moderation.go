@@ -7,7 +7,6 @@ import (mongo "gopkg.in/mgo.v2"
 	"encoding/base64"
 	"net/url"
 	"fmt"
-	"log"
 )
 
 var (moderation *mService = &mService{name:"moderation"})
@@ -24,7 +23,7 @@ type Struct struct {
 
 type mService struct {
 	name string
-	connect interface{}
+	connect *mongo.Session
 	status string
 }
 
@@ -34,7 +33,7 @@ func (moderation *mService) Init() error{
 	if err != nil {
 		panic(err)
 	}
-	defer session.Close()
+	//defer session.Close()
 	session.SetMode(mongo.Monotonic, true)
 
 	moderation.connect = session
@@ -73,13 +72,6 @@ func (moderation *mService) Status() string {
 
 func (moderation *mService) Send(messages ...interface{}) error {
 
-	session, err := mongo.Dial("localhost:27017")
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mongo.Monotonic, true)
-
 	setData := Record {
 		Config: make(map[string]string),
 		Data: make(map[string] [] string),
@@ -102,11 +94,6 @@ func (moderation *mService) Send(messages ...interface{}) error {
 		}
 	}
 
-	log.Println(setData.Config["table"])
-	log.Println(setData.Config["key"])
-	log.Println(setData.Config["action"])
-	log.Println(setData.Data)
-
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") ||
 		setData.Data == nil {
@@ -114,10 +101,10 @@ func (moderation *mService) Send(messages ...interface{}) error {
 		panic("Wrong data values")
 	}
 
-	cConnect := session.DB("newDB").C(setData.Config["table"])
+	cConnect := moderation.connect.DB("newDB").C(setData.Config["table"])
 
 	if setData.Config["action"] == "delete" {
-		err = cConnect.Remove(bson.M{"key": setData.Config["key"]})
+		err := cConnect.Remove(bson.M{"key": setData.Config["key"]})
 
 		if err != nil {
 			return err
@@ -127,7 +114,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	}
 
 	checkRow := Struct{}
-	err = cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
+	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
 		panic("row with key " + setData.Config["key"] + ". Dublicate key is not allowed")
@@ -146,13 +133,6 @@ func (moderation *mService) Send(messages ...interface{}) error {
 
 func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 
-	session, err := mongo.Dial("localhost:27017")
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	session.SetMode(mongo.Monotonic, true)
-
 	getData := Record {
 		Config: make(map[string]string),
 		Data: make(map[string] [] string),
@@ -168,12 +148,11 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 		}
 	}
 
-	//connection := moderation.connect
-	cConnect := session.DB("newDB").C(getData.Config["table"])
+	cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])
 
 	responce := Struct{}
 
-	err = cConnect.Find(bson.M{"key": getData.Config["key"]}).One(&responce)
+	err := cConnect.Find(bson.M{"key": getData.Config["key"]}).One(&responce)
 
 	if err != nil {
 		return nil, err
@@ -187,14 +166,6 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 func init() {
 	AddService(moderation.name, moderation)
 }
-
-/*func encodeData([]interface{}) string {
-	
-}
-
-func decodeData(string)  {
-
-}*/
 
 func ToGOB64(m url.Values) string {
 
