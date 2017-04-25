@@ -22,10 +22,18 @@ func StreamRenderCheckbox(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/checkbox.qtpl:2
 	qw422016.N().S(`
 
-<label class="c-checkbox-label" for="checkbox2">
-    <input class="c-checkbox" type="checkbox" id="checkbox2">
-    <span>text</span>
-</label>
+<div class="c-app-checkbox">
+    <input class="c-checkbox" type="checkbox" id="`)
+	//line views/templates/common/checkbox.qtpl:5
+	qw422016.E().S(name)
+	//line views/templates/common/checkbox.qtpl:5
+	qw422016.N().S(`" name="`)
+	//line views/templates/common/checkbox.qtpl:5
+	qw422016.E().S(name)
+	//line views/templates/common/checkbox.qtpl:5
+	qw422016.N().S(`">
+    <span></span>
+</div>
 
 `)
 //line views/templates/common/checkbox.qtpl:9
