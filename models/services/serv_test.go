@@ -68,3 +68,90 @@ func TestGet(t *testing.T) {
 	}
 	t.Skipped()
 }
+
+func TestModConnect(t *testing.T) {
+
+	nameServ := "moderation"
+
+	t.Log("before connect")
+	in := make(chan interface{})
+	out, err := Connect(nameServ, in)
+
+	if err != nil {
+		t.Errorf("error initialization: filename=%s, error=%q", nameServ, err)
+		return
+	}
+
+	for {
+		select {
+		case v := <-out:
+			switch v.(string) {
+			case "open":
+				in <- "first"
+			case "first":
+				in <- "second"
+			case "second":
+				in <- "close"
+				//close(in)
+				return
+			default:
+				t.Log(v)
+			}
+			t.Log(v)
+		//default:
+		//	t.Log("-")
+		}
+	}
+
+	t.Skipped()
+
+}
+
+func TestModSendInsert(t *testing.T)  {
+	var config = make(map[string]string, 0)
+	config["table"] = "test2"
+	config["key"] = "3333"
+	config["action"] = "insert"
+	var a = make(map[string] [] string, 0)
+
+	a["key"] = append(a["key"], "value1", "value2")
+
+	result := make([] interface{}, 0)
+
+	result = append(result, config)
+	result = append(result, a)
+
+	Send("moderation", result)
+	t.Skipped()
+}
+
+func TestModSendDelete(t *testing.T)  {
+	var config = make(map[string]string, 0)
+	config["table"] = "test2"
+	config["key"] = "72"
+	config["action"] = "delete"
+
+	result := make([] interface{}, 0)
+
+	result = append(result, config)
+
+	Send("moderation", result)
+	t.Skipped()
+}
+
+func TestModGet(t *testing.T)  {
+	var config = make(map[string]string, 0)
+	config["table"] = "test2"
+	config["key"] = "72"
+
+	responce, err  := Get("moderation", config)
+
+	if err != nil {
+		t.Error(err)
+	} else if responce == nil {
+		t.Errorf("Get return nil !")
+	} else {
+		t.Log(responce)
+
+	}
+}

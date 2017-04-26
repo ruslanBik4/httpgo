@@ -38,3 +38,5 @@ httpgo
 tests/
 views/components/polymer/LICENSE.txt~Stashed changes
 views/components/polymer/LICENSE.txt~Updated upstream
+
+node_modules

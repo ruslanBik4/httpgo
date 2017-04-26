@@ -1,6 +1,9 @@
 
 {% func RenderInput(name string) %}
 
-<input type="text" name="{%s name %}" class="c-input" placeholder="text">
+    <label class="c-input">
+        <input id="{%s name %}" type="text" name="{%s name %}">
+        <span>{%s name %}</span>
+    </label>
 
 {% endfunc %}
