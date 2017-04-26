@@ -379,6 +379,10 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				continue
 			}
 
+			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
+				values[fieldName] = "SelectToMultidimension()"
+			}
+
 			switch colType.DatabaseTypeName() {
 			case "varchar", "date", "datetime":
 				if fieldValue.Valid {

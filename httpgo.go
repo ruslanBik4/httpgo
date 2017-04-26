@@ -126,6 +126,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 		tableName = r.FormValue("table")
 	}
 	fields := admin.GetFields(tableName)
+	log.Println(fields)
 
 	id := "1"
 	if r.FormValue("id") > "" {
@@ -138,7 +139,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	}
 	addJSON := make(map[string]string, 1)
 	addJSON["data"] = json.WriteSliceJSON(arrJSON)
-	log.Println(addJSON["data"])
 
 	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 	return
