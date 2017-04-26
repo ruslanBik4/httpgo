@@ -84,7 +84,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 					setData.Config["table"] = mess["table"]
 					setData.Config["key"] = mess["key"]
 					setData.Config["action"] = mess["action"]
-			case map[string][]string:
+			case url.Values:
 				setData.Data = mess
 			default:
 				panic("Wrong data types")
