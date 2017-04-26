@@ -49,7 +49,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *forms.FieldsTable) {
 		//line views/templates/json/anyForm.qtpl:24
 		if (field.COLUMN_NAME == "id") || field.IsHidden {
 			//line views/templates/json/anyForm.qtpl:24
-			qw422016.N().S(`"hidden": "true" }`)
+			qw422016.N().S(`"type": "hidden" },`)
 			//line views/templates/json/anyForm.qtpl:26
 			continue
 			//line views/templates/json/anyForm.qtpl:27

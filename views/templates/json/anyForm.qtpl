@@ -22,7 +22,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     %}
     "{%s field.COLUMN_NAME %}": {
             {% if (field.COLUMN_NAME=="id") || field.IsHidden  %}
-                "hidden": "true" },
+                "type": "hidden" },
                 {% continue %}
             {% endif %}
 
