@@ -13,7 +13,7 @@ var (moderation *mService = &mService{name:"moderation"})
 
 type Record struct {
 	Config map[string]string
-	Data map[string] [] string
+	Data url.Values
 }
 
 type Struct struct {
@@ -73,7 +73,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 
 	setData := Record {
 		Config: make(map[string]string),
-		Data: make(map[string] [] string),
+		Data: make(url.Values),
 	}
 
 	for _, message := range messages {
@@ -133,7 +133,7 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 
 	getData := Record {
 		Config: make(map[string]string),
-		Data: make(map[string] [] string),
+		Data: make(url.Values),
 	}
 
 	for _, message := range messages {
