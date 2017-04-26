@@ -53,45 +53,6 @@ export class Native {
    * set Value Data By Attribute to Dom
   */
 
-  static _setValueDataByAttr(dom, data = {}) {
-    debugger;
-    for (let key in data) {
-
-      // json have key fields
-      if (key === Variables.paramsJSON.fields.name) {
-
-        const fieldsConst = Variables.paramsJSON.fields;
-
-        // unique field in component
-        for (let fieldsID in data[key]) {
-
-          const uniqueField = data[key][fieldsID];
-          const element = dom.getAttribute(fieldsID);
-          debugger;
-          // all params in unique field
-          for (let param in uniqueField) {
-
-            switch (uniqueField[param]) {
-              case fieldsConst.text:
-                element.innerHTML = fields[fieldsID];
-                break;
-
-              default:
-                console.log(`Don't key in Native: ${ fieldsID }`);
-                break;
-            }
-
-          }
-
-        }
-      }
-
-      element.setAttribute(key, data[key]);
-    }
-  }
-
-
-
   static setValueDataByAttr(data = {}) {
 
     // if (data[Variables.paramsJSONId] === 'test') {
@@ -102,22 +63,32 @@ export class Native {
     //   }
     // } else {
 
-      for (let key in data) {
+    //TODO: refactoring hardcode
+      for (let key in data['fields']) {
         const element = document.getElementById(key);
-
-        if (element && !element.hasAttribute(Variables.paramsJSONAdded)) {
-          this._setValueAttrByComponent(element, data[key]);
-          break;
-        } else if (typeof data[key] === 'object') {
-          this.setValueDataByAttr(data[key]);
-        }
-
+        if (element)
+          this._setValueAttrByComponent(element, data['fields'][key]);
       }
+
+    const element = document.getElementById(data['form']['id']);
+    if (element) {
+      for (let key in data['form']) {
+        element.setAttribute(key, data['form'][key]);
+      }
+    }
+
+    for (let key in data['data']) {
+      for (let id in data['data'][key]) {
+        const element = document.getElementById(id);
+        if (element)
+          element.setAttribute('value', data['form'][key]);
+      }
+    }
     // }
 
   }
 
-  static _setValueAttrByComponent(element, params) {
+  static _setValueAttrByComponent(element, params = {}) {
     for (let attr in params) {
       if (attr !== Variables.paramsJSONChildren) {
         element.setAttribute(attr, params[attr]);
@@ -125,6 +96,8 @@ export class Native {
     }
     if (params[Variables.paramsJSONChildren]) {
       this._addChildrenToComponent(element, params[Variables.paramsJSONChildren]);
+    } else {
+      this._addChildrenToComponent(element, params);
     }
     element.setAttribute(Variables.paramsJSONAdded, '');
   }
@@ -147,7 +120,16 @@ export class Native {
       }
       component.innerHTML = template.innerHTML;
     } else if (component.tagName === 'INPUT') {
-
+      switch (component.getAttribute('type')) {
+        case 'search':
+        case 'text':
+          let title = component.getAttribute('title');
+          if (title) {
+            component.parentElement.lastElementChild.textContent = title;
+          }
+          break;
+        default:
+      }
     }
   }
 
