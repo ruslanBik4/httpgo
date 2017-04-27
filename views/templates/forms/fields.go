@@ -95,15 +95,15 @@ func (field *FieldStructure) TypeInput() string{
 	if field.InputType == "" {
 		switch (field.DATA_TYPE) {
 		case "varchar":
-			field.InputType = "search"
+			field.InputType = "text"
 		case "set":
-			field.InputType = "checkboxpanel"
+			field.InputType = "checkbox"
 		case "enum":
 			field.setEnumValues()
 			if len(field.EnumValues) > 2 {
 				field.InputType = "select"
 			} else {
-				field.InputType = "radiopanel"
+				field.InputType = "radio"
 			}
 		case "tinyint":
 			field.InputType = "checkbox"

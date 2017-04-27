@@ -32,7 +32,11 @@ func StreamRenderRadio(qw422016 *qt422016.Writer, name string) {
 	qw422016.E().S(name)
 	//line views/templates/common/radio.qtpl:5
 	qw422016.N().S(`" type="radio">
-        <span></span>
+        <span>`)
+	//line views/templates/common/radio.qtpl:6
+	qw422016.E().S(name)
+	//line views/templates/common/radio.qtpl:6
+	qw422016.N().S(`</span>
     </label>
 
 `)

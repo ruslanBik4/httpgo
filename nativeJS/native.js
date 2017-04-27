@@ -120,16 +120,24 @@ export class Native {
       }
       component.innerHTML = template.innerHTML;
     } else if (component.tagName === 'INPUT') {
+      let title = component.getAttribute('title');
+
       switch (component.getAttribute('type')) {
         case 'search':
         case 'text':
-          let title = component.getAttribute('title');
           if (title) {
             component.parentElement.lastElementChild.textContent = title;
           }
           break;
+        case 'checkbox':
+
+          break;
+        case 'radio':
+          debugger;
+          break;
         default:
       }
+
     }
   }
 

@@ -17,10 +17,15 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 
     {% code
 
-    titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
-    typeInput := field.TypeInput()
+        titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
+        typeInput := field.TypeInput()
     %}
     "{%s field.COLUMN_NAME %}": {
+            {% if (field.COLUMN_NAME=="id") || field.IsHidden  %}
+                "type": "hidden" },
+                {% continue %}
+            {% endif %}
+
     {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
     {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
     {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
@@ -28,9 +33,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% if pattern > "" %} "pattern": "{%j pattern %}", {% endif %}
     {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
     {% if field.Value > "" %} "value": "{%s field.Value %}", {% endif %}
-    {% if field.CSSClass > "" %}"CSSClass": "{%s field.CSSClass %}",{% endif %}
-    {% if field.CSSStyle > "" %}"CSSStyle": "{%s field.CSSStyle %}",{% endif %}
-    {% if field.Figure > "" %}"Figure": "{%s field.Figure %}",      {% endif %}
+    {% if field.CSSClass > "" %} "CSSClass": "{%s field.CSSClass %}",{% endif %}
+    {% if field.CSSStyle > "" %} "CSSStyle": "{%s field.CSSStyle %}",{% endif %}
+    {% if field.Figure > "" %}   "Figure": "{%s field.Figure %}",      {% endif %}
     {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
     {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
     {% if field.MinDate > "" %} "minDate": "{%s field.MinDate %}",  {% endif %}
@@ -44,7 +49,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         },
     {% endif %}
     {% if len(field.EnumValues) > 0 %}
-        "EnumValues": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
+        "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
     {% endif %}
     {% if field.COLUMN_DEFAULT > "" %}"default": "{%s field.COLUMN_DEFAULT %}",{% endif %}
     {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
@@ -53,11 +58,10 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% if strings.HasPrefix(field.COLUMN_NAME, "id_") %}
         ,
         {% code
-        resultTable := field.COLUMN_NAME[3:]
-
-        field.GetOptionsJson(resultTable)
+            resultTable := field.COLUMN_NAME[3:]
+            field.GetOptionsJson(resultTable)
         %}
-        "children":{ {%s= field.Html %} }
+        "list":{ {%s= field.Html %} }
 
         {% elseif strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_") %}
         ,
@@ -65,7 +69,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 
         field.GetOptionsJson(resultTable)
         %}
-        "children":{ {%s= field.Html %} }
+        "list":{ {%s= field.Html %} }
 
     {% elseif strings.HasPrefix(field.COLUMN_NAME, "tableid_")%}
         ,
@@ -88,7 +92,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
             }
         }
         %}
-        "children": {{%= CheckFields(&fields) %}}
+        "list": {{%= CheckFields(&fields) %}}
     {% endif %}
 
             },
