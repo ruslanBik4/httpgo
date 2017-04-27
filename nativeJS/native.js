@@ -80,7 +80,7 @@ export class Native {
     for (let key in data['data']) {
       for (let id in data['data'][key]) {
         const element = document.getElementById(id);
-        if (element)
+        if (element && data['form'][key])
           element.setAttribute('value', data['form'][key]);
       }
     }

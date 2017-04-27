@@ -55,8 +55,16 @@ export class Parse {
       component.removeAttribute(Variables.routerAPIGET);
 
       Observer.addListener(Variables.responseToRequest, (response, url) => {
+
+        //TODO: need try catch response => JSON.parse()
         if (urlAPIGET === url) {
-          Native.setValueDataByAttr(JSON.parse(response));
+          if(response) {
+            try {
+              Native.setValueDataByAttr(JSON.parse(response));
+            } catch(e) {
+              alert(e); // error in the above string (in this case, yes)!
+            }
+          }
           Observer.emit(Variables.documentIsReady, component);
           return true;
         }
