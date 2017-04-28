@@ -148,7 +148,7 @@ func StreamWriteElement(qw422016 *qt422016.Writer, value interface{}) {
 		//line views/templates/json/anyjson.qtpl:34
 		qw422016.N().S(`"`)
 		//line views/templates/json/anyjson.qtpl:34
-		qw422016.E().Q(vv)
+		qw422016.E().J(vv)
 		//line views/templates/json/anyjson.qtpl:34
 		qw422016.N().S(`"`)
 	//line views/templates/json/anyjson.qtpl:35
