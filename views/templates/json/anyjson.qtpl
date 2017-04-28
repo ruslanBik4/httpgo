@@ -2,19 +2,15 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
 
-{% import (
-    "strconv"
-) %}
-
 {% stripspace %}
 {% collapsespace %}
 
 {% func WriteSliceJSON(mapJSON MapMultiDimension) %}
-{
+[
 {% for key, arrJSON := range mapJSON %}
-    {% if key>0 %}, {% endif %} "{%s strconv.Itoa(key) %}": {%= WriteAnyJSON(arrJSON)%}
+    {% if key>0 %}, {% endif %} {%= WriteAnyJSON(arrJSON)%}
 {% endfor %}
-}
+]
 {% endfunc %}
 
 получаем объект произвольной формы и возвращаем JSON текстом
@@ -29,7 +25,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 пишем элемент массива в зависемости от типа
 {% func WriteElement(value interface{}) %}
     {% switch vv := value.(type) %}
-      {% case string %} "{%j vv %}"
+      {% case string %} "{%j= vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}
@@ -38,7 +34,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case SimpleDimension %} {%= WriteSimpleDimension(vv) %}
       {% case MultiDimension %} {%= WriteAnyJSON(vv) %}
       {% case MapMultiDimension %} {%= WriteSliceJSON(vv) %}
-      {% default %} {%v vv %}
+      {% default %} "{%v vv %}"
      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
