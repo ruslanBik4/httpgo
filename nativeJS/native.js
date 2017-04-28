@@ -95,8 +95,9 @@ export class Native {
               if (parseInt(data['data'][key][id]) < element.children.length) {
                 element.children[data['data'][key][id]].setAttribute('selected', '');
               }
+              break;
             case 'TEXTAREA':
-              element.setAttribute('value', data['data'][key][id]);
+              element.value = data['data'][key][id];
               break;
             default:
               break;
