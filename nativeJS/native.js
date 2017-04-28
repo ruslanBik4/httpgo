@@ -120,16 +120,17 @@ export class Native {
       }
       component.innerHTML = template.innerHTML;
     } else if (component.tagName === 'INPUT') {
+
       let title = component.getAttribute('title');
 
       switch (component.getAttribute('type')) {
         case 'search':
         case 'text':
+        case 'number':
+        case 'checkbox':
           if (title) {
             component.parentElement.lastElementChild.textContent = title;
           }
-          break;
-        case 'checkbox':
 
           break;
         case 'radio':
@@ -138,6 +139,8 @@ export class Native {
         default:
       }
 
+    } else if (component.tagName === 'TEXTAREA') {
+      component.parentElement.lastElementChild.textContent = component.getAttribute('title');
     }
   }
 
@@ -170,11 +173,7 @@ export class Native {
     const xhr = new XHR();
     xhr.open(method, url, true);
 
-    if (method === 'GET') {
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-    } else if (method === 'POST') {
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    }
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
     xhr.send(params);
 
