@@ -27,11 +27,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа
-
-
 {% func WriteElement(value interface{}) %}
     {% switch vv := value.(type) %}
-      {% case string %} "{%q vv %}"
+      {% case string %} "{%j vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}

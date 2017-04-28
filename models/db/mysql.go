@@ -380,7 +380,20 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			}
 
 			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
-				values[fieldName] = "SelectToMultidimension()"
+				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("setid_") : ])
+				if err != nil {
+					log.Println(err)
+					values[fieldName] = err.Error()
+				}
+				continue
+			} else if strings.HasPrefix(fieldName, "tableid_"){
+				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("tableid_") : ])
+				if err != nil {
+					log.Println(err)
+					values[fieldName] = err.Error()
+				}
+				continue
+
 			}
 
 			switch colType.DatabaseTypeName() {

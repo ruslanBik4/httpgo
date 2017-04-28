@@ -1,19 +1,23 @@
-package forms
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package schema
 
 //todo необходима вариативность вывода в input select значений из енумов и справочников,пример - есть енум из 9-ти позиций а вывести нужно только 1,5,6(соответственно и юзер может что либо делать только с ними а не со всем списком 1-9)
 
 
 
 import (
-	"strings"
+"strings"
+"regexp"
+"fmt"
+"log"
+"database/sql"
+"encoding/json"
+_ "strconv"
+"time"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"regexp"
-	"fmt"
-	"log"
-	"database/sql"
-	"encoding/json"
-	_ "strconv"
-	"time"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -97,13 +101,13 @@ func (field *FieldStructure) TypeInput() string{
 		case "varchar":
 			field.InputType = "text"
 		case "set":
-			field.InputType = "set"
+			field.InputType = "checkbox"
 		case "enum":
 			field.setEnumValues()
 			if len(field.EnumValues) > 2 {
 				field.InputType = "select"
 			} else {
-				field.InputType = "enum"
+				field.InputType = "radio"
 			}
 		case "tinyint":
 			field.InputType = "checkbox"
@@ -111,16 +115,12 @@ func (field *FieldStructure) TypeInput() string{
 			field.InputType = "number"
 		case "date":
 			field.InputType = "date"
-		case "time":
-			field.InputType = "time"
 		case "timestamp", "datetime":
 			field.InputType = "datetime"
 		case "text":
 			field.InputType = "textarea"
 		case "blob":
 			field.InputType = "file"
-		default:
-			field.InputType = "text"
 		}
 	}
 
@@ -332,7 +332,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 				checked = "checked"
 			}
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
-					RenderCheckBox(fullInputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
+				RenderCheckBox(fullInputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, StyleInput(fieldStruct.DATA_TYPE), tableProps, inputName, value)
 		}
@@ -466,8 +466,8 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		var idParent sql.NullInt64
 
 		if err := rows.Scan(&id, &title, &idParent); err != nil {
-				log.Println(err)
-				continue
+			log.Println(err)
+			continue
 		}
 		if idParent.Valid {
 			checked = "checked"
@@ -498,7 +498,7 @@ func (field *FieldStructure) GetOptions(tableName, val string) {
 		return
 	}
 
-        if field.Where > "" {
+	if field.Where > "" {
 		where = " WHERE "
 		enumVal := field.Where
 		i, j := strings.Index(enumVal, ":"), 0

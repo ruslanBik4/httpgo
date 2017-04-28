@@ -126,7 +126,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 		tableName = r.FormValue("table")
 	}
 	fields := admin.GetFields(tableName)
-	log.Println(fields)
 
 	id := "1"
 	if r.FormValue("id") > "" {
