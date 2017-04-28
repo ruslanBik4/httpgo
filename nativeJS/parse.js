@@ -90,7 +90,6 @@ export class Parse {
 
         //TODO: need try catch response => JSON.parse()
         if (urlAPIPOST === url) {
-          debugger;
           if(response) {
             try {
               Native.setValueDataByAttr(JSON.parse(response));
