@@ -87,7 +87,7 @@ export class Native {
                 if (data['data'][key][id] !== "0") {
                   element.setAttribute('checked', 'true');
                 }
-              } else if (element.getAttribute('type') === 'text') {
+              } else if (element.getAttribute('type') === 'text' || element.getAttribute('type') === 'number') {
                 element.setAttribute('value', data['data'][key][id]);
               }
               break;
