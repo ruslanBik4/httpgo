@@ -380,7 +380,6 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			}
 
 			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
-				values[fieldName] =  &{[] map[string] interface {}}
 				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("setid_") : ])
 				if err != nil {
 					log.Println(err)
