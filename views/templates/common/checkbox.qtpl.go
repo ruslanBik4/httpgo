@@ -32,7 +32,11 @@ func StreamRenderCheckbox(qw422016 *qt422016.Writer, name string) {
 	qw422016.E().S(name)
 	//line src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:5
 	qw422016.N().S(`">
-    <span></span>
+    <label for="`)
+	//line views/templates/common/checkbox.qtpl:6
+	qw422016.E().S(name)
+	//line views/templates/common/checkbox.qtpl:6
+	qw422016.N().S(`"></label>
 </div>
 
 `)
