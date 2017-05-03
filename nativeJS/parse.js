@@ -39,7 +39,6 @@ export class Parse {
         Native.request(urlAPIGET);
         Observer.addListener(Variables.responseToRequest, (component, url) => {
           if (urlAPIGET === url) {
-            debugger;
             self._changeComponentDom(component, jsonID);
           }
         });
@@ -81,9 +80,10 @@ export class Parse {
 
       isRequestAPIGET = true;
 
-      const urlAPIPOST = component.getAttribute(Variables.routerAPIPOST);
+      // TODO: refactoring to POST request
+      const urlAPIPOST = component.getAttribute(Variables.routerAPIPOST) + '?id=' + jsonID;
 
-      Native.request(urlAPIPOST, 'POST', jsonID);
+      Native.request(urlAPIPOST);
       component.removeAttribute(Variables.routerAPIPOST);
 
       Observer.addListener(Variables.responseToRequest, (response, url) => {

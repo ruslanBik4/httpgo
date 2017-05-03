@@ -80,8 +80,29 @@ export class Native {
     for (let key in data['data']) {
       for (let id in data['data'][key]) {
         const element = document.getElementById(id);
-        if (element && data['form'][key])
-          element.setAttribute('value', data['form'][key]);
+        if (element && data['data'][key][id]) {
+          switch (element.tagName) {
+            case 'INPUT':
+              if (element.getAttribute('type') === 'checkbox') {
+                if (data['data'][key][id] !== "0") {
+                  element.setAttribute('checked', 'true');
+                }
+              } else if (element.getAttribute('type') === 'text' || element.getAttribute('type') === 'number') {
+                element.setAttribute('value', data['data'][key][id]);
+              }
+              break;
+            case 'SELECT':
+              if (parseInt(data['data'][key][id]) < element.children.length) {
+                element.children[data['data'][key][id]].setAttribute('selected', '');
+              }
+              break;
+            case 'TEXTAREA':
+              element.value = data['data'][key][id];
+              break;
+            default:
+              break;
+          }
+        }
       }
     }
     // }
