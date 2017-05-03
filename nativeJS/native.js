@@ -126,6 +126,7 @@ export class Native {
       switch (component.getAttribute('type')) {
         case 'search':
         case 'text':
+        case 'time':
         case 'number':
         case 'checkbox':
           if (title) {
