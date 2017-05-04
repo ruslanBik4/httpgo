@@ -13,9 +13,11 @@ const nameMainContent = 'app-main';
 
 // JSON
 const paramsJSONId = 'data-api-post-id';
-const paramsJSONChildren = 'list';
-const paramsJSONAdded = 'data-api-added';
+const paramsJSONSetText = 'data-set-text';
+const paramsJSONList = 'list';
 const paramsJSONTable = 'tableid_';
+const paramsJSONUnknown = 'set';
+const paramsJSONForPost = 'value';
 
 
 // Observer
@@ -58,16 +60,24 @@ export class Variables {
     return paramsJSONId;
   }
 
-  static get paramsJSONChildren() {
-    return paramsJSONChildren;
+  static get paramsJSONSetText() {
+    return paramsJSONSetText;
   }
 
-  static get paramsJSONAdded() {
-    return paramsJSONAdded;
+  static get paramsJSONList() {
+    return paramsJSONList;
   }
 
   static get paramsJSONTable() {
     return paramsJSONTable;
+  }
+
+  static get paramsJSONUnknown() {
+    return paramsJSONUnknown;
+  }
+
+  static get paramsJSONForPost() {
+    return paramsJSONForPost;
   }
 
 
