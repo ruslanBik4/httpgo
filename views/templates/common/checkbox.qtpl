@@ -3,7 +3,7 @@
 
 <div class="c-app-checkbox">
     <input class="c-checkbox" type="checkbox" id="{%s name %}" name="{%s name %}">
-    <span></span>
+    <label for="{%s name %}"></label>
 </div>
 
 {% endfunc %}

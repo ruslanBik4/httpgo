@@ -80,8 +80,29 @@ export class Native {
     for (let key in data['data']) {
       for (let id in data['data'][key]) {
         const element = document.getElementById(id);
-        if (element && data['form'][key])
-          element.setAttribute('value', data['form'][key]);
+        if (element && data['data'][key][id]) {
+          switch (element.tagName) {
+            case 'INPUT':
+              if (element.getAttribute('type') === 'checkbox') {
+                if (data['data'][key][id] !== "0") {
+                  element.setAttribute('checked', 'true');
+                }
+              } else if (element.getAttribute('type') === 'text' || element.getAttribute('type') === 'number') {
+                element.setAttribute('value', data['data'][key][id]);
+              }
+              break;
+            case 'SELECT':
+              if (parseInt(data['data'][key][id]) < element.children.length) {
+                element.children[data['data'][key][id]].setAttribute('selected', '');
+              }
+              break;
+            case 'TEXTAREA':
+              element.value = data['data'][key][id];
+              break;
+            default:
+              break;
+          }
+        }
       }
     }
     // }
@@ -120,16 +141,18 @@ export class Native {
       }
       component.innerHTML = template.innerHTML;
     } else if (component.tagName === 'INPUT') {
+
       let title = component.getAttribute('title');
 
       switch (component.getAttribute('type')) {
         case 'search':
         case 'text':
+        case 'time':
+        case 'number':
+        case 'checkbox':
           if (title) {
             component.parentElement.lastElementChild.textContent = title;
           }
-          break;
-        case 'checkbox':
 
           break;
         case 'radio':
@@ -138,6 +161,8 @@ export class Native {
         default:
       }
 
+    } else if (component.tagName === 'TEXTAREA') {
+      component.parentElement.lastElementChild.textContent = component.getAttribute('title');
     }
   }
 
@@ -170,11 +195,7 @@ export class Native {
     const xhr = new XHR();
     xhr.open(method, url, true);
 
-    if (method === 'GET') {
-      xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-    } else if (method === 'POST') {
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    }
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
     xhr.send(params);
 

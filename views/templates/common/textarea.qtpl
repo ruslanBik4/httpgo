@@ -1,6 +1,9 @@
 
 {% func RenderTextarea(name string) %}
 
+<label class="c-app-textarea">
     <textarea class="c-textarea" id="{%s name %}" name="{%s name %}"></textarea>
+    <span>{%s name %}</span>
+</label>
 
 {% endfunc %}

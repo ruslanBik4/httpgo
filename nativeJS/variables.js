@@ -12,7 +12,7 @@ const scriptApp = 'app-script';
 
 
 // JSON const
-const paramsJSONId = 'id';
+const paramsJSONId = 'data-api-post-id';
 const paramsJSONChildren = 'list';
 const paramsJSONAdded = 'data-api-added';
 
