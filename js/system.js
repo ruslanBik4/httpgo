@@ -232,46 +232,46 @@ window.onload = function() {
     console.Log(data);
     alert(status);
   }
-
-  function getData(element) {
-    var url = element.attr('data-href');
-    if (url) {
-      console.log(url);
-      $.get(url).done(function (data) {
-        var fields = data.fields;
-        var form = data.form;
-        console.log(data);
-        $.each(fields, function (key, object) {
-          renderFormElements(key, object, element, form);
-        });
-      });
-
-    }
-
-  }
-
-  function renderFormElements(name, object, parent, form) {
-    parent.find('form').attr({
-      action: form.action,
-      id: form.id,
-      name: form.name,
-      onload: form.onload,
-      onsubmit: form.onsubmit,
-      oninput: form.oninput,
-      onreset: form.onreset
-    });
-    var thisElem = $('input[name=' + name + ']');
-    parent.find(thisElem).addClass(object.CSSClass).attr({
-      type: object.type,
-      placeholder: object.title,
-      title: object.title,
-      maxlenght: object.maxLenght,
-    });
-    if (object.required) {
-      thisElem.attr('required', true);
-    }
-
-  }
+  //
+  // function getData(element) {
+  //   var url = element.attr('data-href');
+  //   if (url) {
+  //     console.log(url);
+  //     $.get(url).done(function (data) {
+  //       var fields = data.fields;
+  //       var form = data.form;
+  //       console.log(data);
+  //       $.each(fields, function (key, object) {
+  //         renderFormElements(key, object, element, form);
+  //       });
+  //     });
+  //
+  //   }
+  //
+  // }
+  //
+  // function renderFormElements(name, object, parent, form) {
+  //   parent.find('form').attr({
+  //     action: form.action,
+  //     id: form.id,
+  //     name: form.name,
+  //     onload: form.onload,
+  //     onsubmit: form.onsubmit,
+  //     oninput: form.oninput,
+  //     onreset: form.onreset
+  //   });
+  //   var thisElem = $('input[name=' + name + ']');
+  //   parent.find(thisElem).addClass(object.CSSClass).attr({
+  //     type: object.type,
+  //     placeholder: object.title,
+  //     title: object.title,
+  //     maxlenght: object.maxLenght,
+  //   });
+  //   if (object.required) {
+  //     thisElem.attr('required', true);
+  //   }
+  //
+  // }
 }
 
 

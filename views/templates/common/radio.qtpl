@@ -3,7 +3,7 @@
 
     <label class="c-app-radio">
         <input class="c-radio" id="{%s name %}" name="{%s name %}" type="radio">
-        <span></span>
+        <span>{%s name %}</span>
     </label>
 
 {% endfunc %}

@@ -138,7 +138,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	}
 	addJSON := make(map[string]string, 1)
 	addJSON["data"] = json.WriteSliceJSON(arrJSON)
-	log.Println(addJSON["data"])
 
 	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 	return
