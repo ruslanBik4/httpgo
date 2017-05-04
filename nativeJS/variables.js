@@ -2,19 +2,20 @@
 // variables.js
 //
 
-const nameApp = 'app';
+
+// common
 const routerAPIGET = 'data-api-get';
 const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
 const nameMainContent = 'app-main';
-const scriptApp = 'app-script';
 
 
-// JSON const
+// JSON
 const paramsJSONId = 'data-api-post-id';
 const paramsJSONChildren = 'list';
 const paramsJSONAdded = 'data-api-added';
+const paramsJSONTable = 'tableid_';
 
 
 // Observer
@@ -24,9 +25,9 @@ const reChangeDomDynamically = 'reChangeDomDynamically';
 
 export class Variables {
 
-  static get nameApp() {
-    return nameApp;
-  }
+  /*
+   *  Common
+  */
 
   static get routerAPIGET() {
     return routerAPIGET;
@@ -48,6 +49,11 @@ export class Variables {
     return nameMainContent;
   }
 
+
+  /*
+   * JSON
+  */
+
   static get paramsJSONId() {
     return paramsJSONId;
   }
@@ -60,14 +66,14 @@ export class Variables {
     return paramsJSONAdded;
   }
 
-  static get scriptApp() {
-    return scriptApp;
+  static get paramsJSONTable() {
+    return paramsJSONTable;
   }
 
-  static get reChangeDomDynamically() {
-    return reChangeDomDynamically;
-  }
 
+  /*
+   * Observer
+  */
 
   static get responseToRequest() {
     return responseToRequest;
@@ -75,6 +81,10 @@ export class Variables {
 
   static get documentIsReady() {
     return documentIsReady;
+  }
+
+  static get reChangeDomDynamically() {
+    return reChangeDomDynamically;
   }
   
 }
