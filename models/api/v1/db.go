@@ -68,6 +68,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
+		views.WriteHeaders(w)
 		w.Write(stdoutStderr)
 	}
 
@@ -82,6 +83,21 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
+		views.WriteHeaders(w)
+		w.Write(stdoutStderr)
+	}
+}
+func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "restart")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		views.WriteHeaders(w)
 		w.Write(stdoutStderr)
 	}
 }
