@@ -63,6 +63,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 
 	cmd := exec.Command("webserver", "update")
 	cmd.Dir = ServerConfig.SystemPath()
+
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		w.Write([]byte(err.Error()))
