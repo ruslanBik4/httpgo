@@ -14,8 +14,8 @@ import (
 )
 
 type serverConfig struct {
-	StaticPath string
-	WWWPath string
+	systemPath  string
+	WWWPath     string
 	SessionPath string
 	dbParams struct {
 		DB   string `yaml:"dbName"`
@@ -38,11 +38,11 @@ func GetServerConfig() *serverConfig {
 	return sConfig
 }
 func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
-	sConfig.StaticPath  = *f_static
+	sConfig.systemPath = *f_static
 	sConfig.WWWPath     = *f_web
 	sConfig.SessionPath = *f_session
 
-	f, err := os.Open(filepath.Join(sConfig.StaticPath, "config/db.yml" ))
+	f, err := os.Open(filepath.Join(sConfig.systemPath, "config/db.yml" ))
 	if err != nil {
 		return err
 	}
@@ -74,4 +74,7 @@ func (sConfig *serverConfig) DNSConnection() string {
 }
 func (sConfig *serverConfig) DBName() string {
 	return sConfig.dbParams.DB
+}
+func (sConfig *serverConfig) SystemPath() string {
+	return sConfig.systemPath
 }

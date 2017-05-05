@@ -11,6 +11,9 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/ruslanBik4/httpgo/models/server"
+	_ "io"
+	"os/exec"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -54,4 +57,17 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	views.RenderBadRequest(w)
+}
+func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("webserver", "update")
+	cmd.Dir = ServerConfig.SystemPath()
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		w.Write(stdoutStderr)
+	}
+
 }
