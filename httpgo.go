@@ -60,6 +60,7 @@ var (
 		"/api/v1/table/form/": api.HandleFieldsJSON,
 		"/api/v1/table/row/":  api.HandleRowJSON,
 		"/api/v1/update/":  api.HandleUpdateServer,
+		"/api/v1/restart/":  api.HandleRestartServer,
 		"/api/v1/log/":  api.HandleLogServer,
 		//"/store/nav/": handlerStoreNav,
 		//"/admin/catalog/": handlerAddCatalog,
