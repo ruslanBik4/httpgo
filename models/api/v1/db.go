@@ -61,7 +61,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("webserver", "update")
+	cmd := exec.Command("webserver.sh", "update")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -71,4 +71,6 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		w.Write(stdoutStderr)
 	}
 
+}
+func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 }
