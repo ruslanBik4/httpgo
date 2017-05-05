@@ -16,27 +16,27 @@ import (
 	"strings"
 )
 
-type txConnect struct {
+type TxConnect struct {
 	tx *sql.Tx
 }
 
-func StartTransaction() (*txConnect, error) {
+func StartTransaction() (*TxConnect, error) {
 	tx, err := dbConn.Begin()
 	if err != nil {
 		return nil, err
 	}
-	return &txConnect{tx:tx}, nil
+	return &TxConnect{tx:tx}, nil
 }
-func (conn *txConnect) CommitTransaction() {
+func (conn *TxConnect) CommitTransaction() {
 	conn.tx.Commit()
 }
-func (conn *txConnect) RollbackTransaction() {
+func (conn *TxConnect) RollbackTransaction() {
 	conn.tx.Rollback()
 }
-func (conn *txConnect) prepareQuery(sql string) (*sql.Stmt, error) {
+func (conn *TxConnect) prepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
-func (conn *txConnect) DoInsert(sql string, args ...interface{}) (int, error) {
+func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 
 	resultSQL, err := conn.tx.Exec(sql, args ...)
 
@@ -49,7 +49,7 @@ func (conn *txConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 	}
 }
 
-func (conn *txConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
+func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := conn.tx.Exec(sql, args ...)
 
 	if err != nil {
@@ -59,14 +59,14 @@ func (conn *txConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 		return int(RowsAffected), err
 	}
 }
-func (conn *txConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
+func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return conn.tx.Query(sql, args ...)
 	} else {
 		return nil, mysql.ErrMalformPkt
 	}
 }
-func (conn *txConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
+func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	var result bytes.Buffer
 
 	w := io.Writer(&result)
