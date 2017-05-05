@@ -73,4 +73,15 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 
 }
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "status")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		w.Write(stdoutStderr)
+	}
 }
