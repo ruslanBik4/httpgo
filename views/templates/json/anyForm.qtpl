@@ -58,37 +58,35 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% if strings.HasPrefix(field.COLUMN_NAME, "id_") %}
         ,
         {% code
-            resultTable := field.COLUMN_NAME[3:]
-            field.GetOptionsJson(resultTable)
+            field.GetOptionsJson(field.COLUMN_NAME[3:])
         %}
         "list":{ {%s= field.Html %} }
 
-        {% elseif strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_") %}
+    {% elseif strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_") %}
         ,
-        {% code resultTable := field.COLUMN_NAME[6:]
-
-        field.GetOptionsJson(resultTable)
+        {% code
+            field.GetOptionsJson(field.COLUMN_NAME[6:])
         %}
         "list":{ {%s= field.Html %} }
 
     {% elseif strings.HasPrefix(field.COLUMN_NAME, "tableid_")%}
         ,
-        {% code resultTable := field.COLUMN_NAME[8:]
+        {% code
 
         var fields forms.FieldsTable
         var nx db.FieldsTable
-        nx.Options.GetTableProp(resultTable)
-        nx.GetColumnsProp(resultTable)
 
-        fields.Name = resultTable
+        fields.Name = field.COLUMN_NAME[8:]
+        nx.Options.GetTableProp(fields.Name)
+        nx.GetColumnsProp(fields.Name)
 
         fields.PutDataFrom(nx)
 
-            for childKey, childFields := range fields.Rows {
+        for childKey, childFields := range fields.Rows {
             if strings.HasPrefix(childFields.COLUMN_NAME, "id_") && childFields.COLUMN_NAME[3:] == field.Table.Name {
 
-            fields.Rows = append(fields.Rows[:childKey], fields.Rows[childKey+1:]...)
-            break
+                fields.Rows = append(fields.Rows[:childKey], fields.Rows[childKey+1:]...)
+                break
             }
         }
         %}

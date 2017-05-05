@@ -59,6 +59,7 @@ var (
 		"/components/": handlerComponents,
 		"/api/v1/table/form/": api.HandleFieldsJSON,
 		"/api/v1/table/row/":  api.HandleRowJSON,
+		"/api/v1/update/":  api.HandleUpdateServer,
 		//"/store/nav/": handlerStoreNav,
 		//"/admin/catalog/": handlerAddCatalog,
 		//"/admin/psd/add" : handlerAddPSD,

@@ -97,6 +97,7 @@ func (field *FieldStructure) TypeInput() string{
 		case "varchar":
 			field.InputType = "text"
 		case "set":
+			field.setEnumValues()
 			field.InputType = "set"
 		case "enum":
 			field.setEnumValues()
@@ -802,6 +803,22 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 		fields.DataJSOM["onload"] = tableOpt.TABLE_COMMENT[pos + len("onload:"): ]
 	} else {
 		fields.Comment = tableOpt.TABLE_COMMENT
+	}
+
+}
+func (field *FieldStructure) GetListJSON(key, val, required, events, dataJson string) {
+
+	field.Html = ""
+
+	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
+
+	for idx, title := range fields {
+		enumVal := title[len(title)-1]
+		checked := ""
+		if strings.Contains(val, enumVal) {
+			checked = "checked"
+		}
+		field.Html += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, required, events, dataJson)
 	}
 
 }
