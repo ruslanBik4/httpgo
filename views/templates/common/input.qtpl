@@ -2,7 +2,7 @@
 {% func RenderInput(name string) %}
 
     <label class="c-app-input">
-        <input class="c-input" id="{%s name %}" type="text" name="{%s name %}">
+        <input class="c-input" type="text" id="{%s name %}" name="{%s name %}">
         <span data-set-text></span>
     </label>
 

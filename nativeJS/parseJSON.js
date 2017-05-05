@@ -1,11 +1,13 @@
 
-const components = {
-  'SELECT'  : Select,
-  'INPUT'   : Input
-};
-
-
 export class ParseJSON {
+
+  static get components() {
+    return {
+      'SELECT'    : Select,
+      'INPUT'     : Input,
+      'TEXTAREA'  : TextArea
+    };
+  }
 
 
   /*
@@ -16,129 +18,99 @@ export class ParseJSON {
 
     for (let id in data) {
 
-      let dom;
+      if (typeof id === 'string') {
+        let component;
 
-      if (strForTable.length !== 0) {
-        dom = document.getElementById(id);
-      } else {
-        dom = document.getElementById(`${ strForTable }:${ id }`);
+        if (strForTable.length === 0) {
+          component = document.getElementById(id);
+        } else {
+          component = document.getElementById(`${ strForTable }:${ id }`);
+        }
+
+        if (component) {
+          callback(component, data[id]);
+        }
+
+        // has prefix "tableid_" for recursion
+        else if (id.startsWith(Variables.paramsJSONTable)) {
+          this.parseData(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''));
+        }
       }
 
-      if (dom) {
-        callback(dom, data[id]);
-      }
-
-      // has prefix "tableid_" for recursion
-      else if (typeof id === 'string' && id.startsWith(Variables.paramsJSONTable)) {
-        debugger;
-        this._insertDataToDom(data[id], callback, id.replace(/^Variables.paramsJSONTable/, ''));
-      }
-
-    }
-
-  }
-
-
-  static setAttrToComponent(component, params = {}) {
-
-    for (let attr in params) {
-      if (attr !== Variables.paramsJSONList && attr !== Variables.paramsJSONUnknown) {
-        component.setAttribute(attr, params[attr]);
-      }
-    }
-
-    if (params[Variables.paramsJSONList]) {
-      const func = components[component.tagName];
-      func.createList(component, params[Variables.paramsJSONList]);
-    } else {
-      // this._addListToComponent(component, params);
     }
 
   }
 
 
   /*
-   *   func for add list to Component
-   */
+  *   set attributes to component
+  */
 
-  static addListToComponent(component, params) {
-    let template = document.createElement('template');
+  static setAttrToComponent(component, params = {}) {
 
-    if (component.tagName === 'INPUT') {
+    for (let attr in params) {
 
-      let title = component.getAttribute('title');
-
-      switch (component.getAttribute('type')) {
-        case 'search':
-        case 'text':
-        case 'time':
-        case 'number':
-        case 'checkbox':
-          if (title) {
-            component.parentElement.lastElementChild.textContent = title;
-          }
-
-          break;
-        case 'radio':
-          debugger;
-          break;
-        default:
+      // if attr === type
+      if (attr === Variables.paramsJSONType) {
+        if (params[attr] !== Variables.paramsJSONSet
+          && params[attr] !== Variables.paramsJSONEnum) {
+          component.setAttribute(attr, params[attr]);
+        }
       }
 
-    } else if (component.tagName === 'TEXTAREA') {
-      component.parentElement.lastElementChild.textContent = component.getAttribute('title');
-    }
-  }
+      // if attr !== list
+      else if (attr !== Variables.paramsJSONList
+        && attr !== Variables.paramsJSONTitle) {
+        component.setAttribute(attr, params[attr]);
+      }
 
+    }
+
+    const func = this.components[component.tagName];
+
+    if (func) {
+
+      // if has attr in params 'list'
+      if (params[Variables.paramsJSONList] && func.createList) {
+        func.createList(component, params[Variables.paramsJSONList], (params[Variables.paramsJSONType] === Variables.paramsJSONSet));
+      }
+
+      // if has attr in params 'title'
+      else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
+        func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
+      }
+
+    } else {
+      console.log(`Not found: ${ component.tagName }`);
+    }
+
+  }
 
 
   /*
    *   Insert data after create component
    */
 
-  static insertValueToComponent(element, attr = '') {
-
-    if (this.isElement(element) && attr != null) {
-      switch (element.tagName) {
-
-        // input
-
-        case 'INPUT':
-          switch (element.getAttribute('type')) {
-            case 'text':
-            case 'number':
-              element.setAttribute('value', attr);
-              break;
-            case 'checkbox':
-              if (attr !== "0") {
-                element.setAttribute('checked', 'true');
-              }
-              break;
-            default:
-              break;
-          }
-          break;
-
-
-        // select
-
-        case 'SELECT':
-          let number = parseInt(attr) - 1;
-          if (0 <= number && number < element.children.length) {
-            element.children[number].setAttribute('selected', '');
-          }
-          break;
-
-
-        // textarea
-
-        case 'TEXTAREA':
-          element.value = attr;
-          break;
-
-        default:
-          break;
+  static insertValueToComponent(component, attr = '') {
+    if (typeof attr === 'string' && attr.length !== 0) {
+      const func = this.components[component.tagName];
+      if (func && func.addAttrToComponent) {
+        func.addAttrToComponent(component, attr);
+      } else {
+        console.log(`Not found: ${ component.tagName }`);
       }
+    }
+  }
+
+
+  static insertDataToAttrSetText(component, textContent = '') {
+    if (component.children.length !== 0) {
+      for (let child of component.children) {
+        this.insertDataToAttrSetText(child, textContent);
+      }
+    }
+    if (component.hasAttribute(Variables.paramsJSONSetText)) {
+      component.textContent = textContent;
     }
   }
 

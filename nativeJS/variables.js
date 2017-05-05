@@ -14,10 +14,16 @@ const nameMainContent = 'app-main';
 // JSON
 const paramsJSONId = 'data-api-post-id';
 const paramsJSONSetText = 'data-set-text';
-const paramsJSONList = 'list';
 const paramsJSONTable = 'tableid_';
-const paramsJSONUnknown = 'set';
 const paramsJSONForPost = 'value';
+
+
+// JSON reserved words
+const paramsJSONList = 'list';
+const paramsJSONTitle = 'title';
+const paramsJSONSet = 'set';
+const paramsJSONEnum = 'enum';
+const paramsJSONType = 'type';
 
 
 // Observer
@@ -64,20 +70,38 @@ export class Variables {
     return paramsJSONSetText;
   }
 
-  static get paramsJSONList() {
-    return paramsJSONList;
-  }
-
   static get paramsJSONTable() {
     return paramsJSONTable;
   }
 
-  static get paramsJSONUnknown() {
-    return paramsJSONUnknown;
-  }
-
   static get paramsJSONForPost() {
     return paramsJSONForPost;
+  }
+
+
+  /*
+   *  JSON reserved words
+  */
+
+  static get paramsJSONList() {
+    return paramsJSONList;
+  }
+
+  static get paramsJSONTitle() {
+    return paramsJSONTitle;
+  }
+
+  static get paramsJSONSet() {
+    return paramsJSONSet;
+  }
+
+  static get paramsJSONEnum() {
+    return paramsJSONEnum;
+  }
+
+  static get paramsJSONType() {
+    return paramsJSONType;
+
   }
 
 

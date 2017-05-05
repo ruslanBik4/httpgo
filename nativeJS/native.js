@@ -12,10 +12,11 @@ export class Native {
   static setValueDataByAttr(data = {}) {
 
     let obj = data['fields'];
-    ParseJSON.parseData(obj, ParseJSON.setAttrToComponent);
+    ParseJSON.parseData(obj, ParseJSON.setAttrToComponent.bind(ParseJSON));
 
     obj = data['form'];
     const element = document.getElementById(obj['id']);
+
     if (this.isElement(element)) {
       for (let key in obj) {
         element.setAttribute(key, obj[key]);
@@ -24,7 +25,7 @@ export class Native {
 
     obj = data['data'];
     for (let key in obj) {
-      ParseJSON.parseData(obj[key], ParseJSON.insertValueToComponent);
+      ParseJSON.parseData(obj[key], ParseJSON.insertValueToComponent.bind(ParseJSON));
     }
 
   }
