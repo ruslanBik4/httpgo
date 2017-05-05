@@ -113,8 +113,8 @@ func newClient() *http.Client{
 func (sheet * SheetsGoogleDocs) Init() (err error){
 
 	sConfig := server.GetServerConfig()
-	cacheFile = filepath.Join(sConfig.StaticPath, "config/.credentials" )
-	userFile = filepath.Join(sConfig.StaticPath, "config/oauth2.json" )
+	cacheFile = filepath.Join(sConfig.SystemPath(), "config/.credentials" )
+	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json" )
 
 	if sheet.Service, err = sheets.New(newClient()); err != nil {
 		return err

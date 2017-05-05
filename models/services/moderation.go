@@ -165,6 +165,10 @@ func init() {
 	AddService(moderation.name, moderation)
 }
 
+func GetMongoConnection() *mongo.Session {
+	return moderation.connect
+}
+
 func ToGOB64(m url.Values) string {
 
 	b := bytes.Buffer{}
