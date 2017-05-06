@@ -2,19 +2,28 @@
 // variables.js
 //
 
-const nameApp = 'app';
+
+// common
 const routerAPIGET = 'data-api-get';
 const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
 const nameMainContent = 'app-main';
-const scriptApp = 'app-script';
 
 
-// JSON const
+// JSON
 const paramsJSONId = 'data-api-post-id';
-const paramsJSONChildren = 'list';
-const paramsJSONAdded = 'data-api-added';
+const paramsJSONSetText = 'data-set-text';
+const paramsJSONTable = 'tableid_';
+const paramsJSONForPost = 'value';
+
+
+// JSON reserved words
+const paramsJSONList = 'list';
+const paramsJSONTitle = 'title';
+const paramsJSONSet = 'set';
+const paramsJSONEnum = 'enum';
+const paramsJSONType = 'type';
 
 
 // Observer
@@ -24,9 +33,9 @@ const reChangeDomDynamically = 'reChangeDomDynamically';
 
 export class Variables {
 
-  static get nameApp() {
-    return nameApp;
-  }
+  /*
+   *  Common
+  */
 
   static get routerAPIGET() {
     return routerAPIGET;
@@ -48,26 +57,57 @@ export class Variables {
     return nameMainContent;
   }
 
+
+  /*
+   * JSON
+  */
+
   static get paramsJSONId() {
     return paramsJSONId;
   }
 
-  static get paramsJSONChildren() {
-    return paramsJSONChildren;
+  static get paramsJSONSetText() {
+    return paramsJSONSetText;
   }
 
-  static get paramsJSONAdded() {
-    return paramsJSONAdded;
+  static get paramsJSONTable() {
+    return paramsJSONTable;
   }
 
-  static get scriptApp() {
-    return scriptApp;
+  static get paramsJSONForPost() {
+    return paramsJSONForPost;
   }
 
-  static get reChangeDomDynamically() {
-    return reChangeDomDynamically;
+
+  /*
+   *  JSON reserved words
+  */
+
+  static get paramsJSONList() {
+    return paramsJSONList;
   }
 
+  static get paramsJSONTitle() {
+    return paramsJSONTitle;
+  }
+
+  static get paramsJSONSet() {
+    return paramsJSONSet;
+  }
+
+  static get paramsJSONEnum() {
+    return paramsJSONEnum;
+  }
+
+  static get paramsJSONType() {
+    return paramsJSONType;
+
+  }
+
+
+  /*
+   * Observer
+  */
 
   static get responseToRequest() {
     return responseToRequest;
@@ -75,6 +115,10 @@ export class Variables {
 
   static get documentIsReady() {
     return documentIsReady;
+  }
+
+  static get reChangeDomDynamically() {
+    return reChangeDomDynamically;
   }
   
 }

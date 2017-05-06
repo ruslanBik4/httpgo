@@ -22,49 +22,51 @@ func StreamRenderRadio(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/radio.qtpl:2
 	qw422016.N().S(`
 
-    <label class="c-app-radio">
-        <input class="c-radio" id="`)
+    <div class="c-app-radio">
+        <label for="`)
 	//line views/templates/common/radio.qtpl:5
 	qw422016.E().S(name)
 	//line views/templates/common/radio.qtpl:5
+	qw422016.N().S(`">
+            <input class="c-radio" type="radio" id="`)
+	//line views/templates/common/radio.qtpl:6
+	qw422016.E().S(name)
+	//line views/templates/common/radio.qtpl:6
 	qw422016.N().S(`" name="`)
-	//line views/templates/common/radio.qtpl:5
-	qw422016.E().S(name)
-	//line views/templates/common/radio.qtpl:5
-	qw422016.N().S(`" type="radio">
-        <span>`)
 	//line views/templates/common/radio.qtpl:6
 	qw422016.E().S(name)
 	//line views/templates/common/radio.qtpl:6
-	qw422016.N().S(`</span>
-    </label>
+	qw422016.N().S(`">
+            <span data-set-text></span>
+        </label>
+    </div>
 
 `)
-//line views/templates/common/radio.qtpl:9
+//line views/templates/common/radio.qtpl:11
 }
 
-//line views/templates/common/radio.qtpl:9
+//line views/templates/common/radio.qtpl:11
 func WriteRenderRadio(qq422016 qtio422016.Writer, name string) {
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	StreamRenderRadio(qw422016, name)
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/radio.qtpl:9
+//line views/templates/common/radio.qtpl:11
 }
 
-//line views/templates/common/radio.qtpl:9
+//line views/templates/common/radio.qtpl:11
 func RenderRadio(name string) string {
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	WriteRenderRadio(qb422016, name)
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/radio.qtpl:9
+	//line views/templates/common/radio.qtpl:11
 	return qs422016
-//line views/templates/common/radio.qtpl:9
+//line views/templates/common/radio.qtpl:11
 }

@@ -22,8 +22,8 @@ func StreamRenderTextarea(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/textarea.qtpl:2
 	qw422016.N().S(`
 
-<label class="c-app-textarea">
-    <textarea class="c-textarea" id="`)
+    <label class="c-app-textarea">
+        <textarea class="c-textarea" id="`)
 	//line views/templates/common/textarea.qtpl:5
 	qw422016.E().S(name)
 	//line views/templates/common/textarea.qtpl:5
@@ -32,12 +32,8 @@ func StreamRenderTextarea(qw422016 *qt422016.Writer, name string) {
 	qw422016.E().S(name)
 	//line views/templates/common/textarea.qtpl:5
 	qw422016.N().S(`"></textarea>
-    <span>`)
-	//line views/templates/common/textarea.qtpl:6
-	qw422016.E().S(name)
-	//line views/templates/common/textarea.qtpl:6
-	qw422016.N().S(`</span>
-</label>
+        <span data-set-text></span>
+    </label>
 
 `)
 //line views/templates/common/textarea.qtpl:9
