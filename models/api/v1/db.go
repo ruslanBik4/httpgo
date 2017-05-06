@@ -74,7 +74,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	} else {
 		views.WriteHeaders(w)
 log.Println(stdoutStderr)
-		w.Write(bytes.Replace(stdoutStderr, []byte("/n"), []byte("<br>"), 0))
+		w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
 	}
 
 }
