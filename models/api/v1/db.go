@@ -14,6 +14,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	_ "io"
 	"os/exec"
+	"bytes"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +71,8 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 	} else {
 		views.WriteHeaders(w)
-		w.Write(stdoutStderr)
+
+		w.Write(bytes.Replace(stdoutStderr, []byte("/n"), []byte("<br>"), 0))
 	}
 
 }
