@@ -64,7 +64,9 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 
 	cmd := exec.Command("./webserver.sh", "update")
 	cmd.Dir = ServerConfig.SystemPath()
-	cmd.Env = nil
+	if r.FormValue("branch") > "" {
+		cmd.Args =append(cmd.Args, r.FormValue("branch"))
+	}
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
