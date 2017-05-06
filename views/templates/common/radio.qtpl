@@ -1,9 +1,11 @@
 
 {% func RenderRadio(name string) %}
 
-    <label class="c-app-radio">
-        <input class="c-radio" id="{%s name %}" name="{%s name %}" type="radio">
-        <span>{%s name %}</span>
-    </label>
+    <div class="c-app-radio">
+        <label for="{%s name %}">
+            <input class="c-radio" type="radio" id="{%s name %}" name="{%s name %}">
+            <span data-set-text></span>
+        </label>
+    </div>
 
 {% endfunc %}

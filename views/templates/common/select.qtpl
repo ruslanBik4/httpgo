@@ -1,8 +1,6 @@
 
 {% func RenderSelect(name string) %}
 
-    <select class='c-select' id='{%s name %}' name='{%s name %}'>
-        <option value=""></option>
-    </select>
+    <select class='c-app-select c-select' id='{%s name %}' name='{%s name %}'></select>
 
 {% endfunc %}

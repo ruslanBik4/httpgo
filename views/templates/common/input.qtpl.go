@@ -22,21 +22,17 @@ func StreamRenderInput(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/input.qtpl:2
 	qw422016.N().S(`
 
-    <label class="c-input">
-        <input id="`)
+    <label class="c-app-input">
+        <input class="c-input" type="text" id="`)
 	//line views/templates/common/input.qtpl:5
 	qw422016.E().S(name)
 	//line views/templates/common/input.qtpl:5
-	qw422016.N().S(`" type="text" name="`)
+	qw422016.N().S(`" name="`)
 	//line views/templates/common/input.qtpl:5
 	qw422016.E().S(name)
 	//line views/templates/common/input.qtpl:5
 	qw422016.N().S(`">
-        <span>`)
-	//line views/templates/common/input.qtpl:6
-	qw422016.E().S(name)
-	//line views/templates/common/input.qtpl:6
-	qw422016.N().S(`</span>
+        <span data-set-text></span>
     </label>
 
 `)

@@ -22,7 +22,7 @@ func StreamRenderSelect(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/select.qtpl:2
 	qw422016.N().S(`
 
-    <select class='c-select' id='`)
+    <select class='c-app-select c-select' id='`)
 	//line views/templates/common/select.qtpl:4
 	qw422016.E().S(name)
 	//line views/templates/common/select.qtpl:4
@@ -30,36 +30,34 @@ func StreamRenderSelect(qw422016 *qt422016.Writer, name string) {
 	//line views/templates/common/select.qtpl:4
 	qw422016.E().S(name)
 	//line views/templates/common/select.qtpl:4
-	qw422016.N().S(`'>
-        <option value=""></option>
-    </select>
+	qw422016.N().S(`'></select>
 
 `)
-//line views/templates/common/select.qtpl:8
+//line views/templates/common/select.qtpl:6
 }
 
-//line views/templates/common/select.qtpl:8
+//line views/templates/common/select.qtpl:6
 func WriteRenderSelect(qq422016 qtio422016.Writer, name string) {
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	StreamRenderSelect(qw422016, name)
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/select.qtpl:8
+//line views/templates/common/select.qtpl:6
 }
 
-//line views/templates/common/select.qtpl:8
+//line views/templates/common/select.qtpl:6
 func RenderSelect(name string) string {
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	WriteRenderSelect(qb422016, name)
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/select.qtpl:8
+	//line views/templates/common/select.qtpl:6
 	return qs422016
-//line views/templates/common/select.qtpl:8
+//line views/templates/common/select.qtpl:6
 }
