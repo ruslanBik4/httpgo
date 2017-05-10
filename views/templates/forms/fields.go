@@ -87,7 +87,7 @@ func (field *FieldStructure) TypeInput() string{
 		return "ForeignSelect"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
-		return "multiselect"
+		return "set"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
 		return "table"
