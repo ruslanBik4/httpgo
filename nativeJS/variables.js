@@ -9,6 +9,7 @@ const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
 const nameMainContent = 'app-main';
+const dynamicallyScript = 'app-script';
 
 
 // JSON
@@ -55,6 +56,10 @@ export class Variables {
 
   static get nameMainContent() {
     return nameMainContent;
+  }
+
+  static get dynamicallyScript() {
+    return dynamicallyScript;
   }
 
 

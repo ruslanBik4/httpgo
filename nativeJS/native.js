@@ -4,6 +4,44 @@
 
 export class Native {
 
+  static getHTMLDom(component, data) {
+    let temp = document.createElement('template');
+    if (temp.content && this.isElement(component)) {
+      temp.innerHTML = eval('`' + component.innerHTML + '`');
+      component.parentElement.appendChild(temp.content);
+      component.parentNode.removeChild(component);
+    } else {
+      console.log(`It's not dom component: ${ component }`);
+    }
+  }
+
+
+  /*
+   *  get and post request with callback
+   */
+
+  static request(url, method = 'GET', params = {}) {
+
+    const XHR = ('onload' in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
+    const xhr = new XHR();
+    xhr.open(method, url, true);
+
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+    xhr.send(params);
+
+    this.requestOn = true;
+
+    xhr.onload = (response) => {
+      Observer.emit(Variables.responseToRequest, response.currentTarget.responseText, url);
+    };
+
+    xhr.onerror = function () {
+      console.log(`Error API to url ${ url } : ${ this }`);
+    };
+
+  }
+
 
   /*
   *   Set Value Data By Attribute to Dom
@@ -12,7 +50,7 @@ export class Native {
   static setValueDataByAttr(data = {}) {
 
     let obj = data['fields'];
-    ParseJSON.parseData(obj, ParseJSON.setAttrToComponent.bind(ParseJSON));
+    ParseJSON.parseDataGet(obj, ParseJSON.setAttrToComponent.bind(ParseJSON));
 
     obj = data['form'];
     const element = document.getElementById(obj['id']);
@@ -25,12 +63,24 @@ export class Native {
 
     obj = data['data'];
     for (let key in obj) {
-      ParseJSON.parseData(obj[key], ParseJSON.insertValueToComponent.bind(ParseJSON));
+      ParseJSON.parseDataGet(obj[key], ParseJSON.insertValueToComponent.bind(ParseJSON));
     }
 
   }
 
 
+  /*
+   *  get Value Data By Attributes from Dom
+   */
+
+  static getValueDataByAttributes(dom, attr = '', data = {}) {
+    const elements = dom.getAttribute(attr);
+    for (let element of elements) {
+      for (let key in data) {
+        element.setAttribute(key, data[key]);
+      }
+    }
+  }
 
 
   /*
@@ -57,51 +107,5 @@ export class Native {
   }
 
 
-  /*
-   *  get Value Data By Attribute to Dom
-  */
-
-  static getValueDataByAttr(dom, attr = '', data = {}) {
-    const elements = dom.getAttribute(attr);
-    for (let element of elements) {
-      for (let key in data) {
-        element.setAttribute(key, data[key]);
-      }
-    }
-  }
-
-  /*
-   *  When type="table" => recursion get id (name)
-  */
-
-
-
-
-
-  /* 
-   *  get and post request with callback
-  */
-
-  static request(url, method = 'GET', params = {}) {
-
-    const XHR = ('onload' in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
-    const xhr = new XHR();
-    xhr.open(method, url, true);
-
-    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-
-    xhr.send(params);
-
-    this.requestOn = true;
-
-    xhr.onload = (response) => {
-      Observer.emit(Variables.responseToRequest, response.currentTarget.responseText, url);
-    };
-
-    xhr.onerror = function () {
-      console.log(`Error API to url ${ url } : ${ this }`);
-    };
-
-  }
 
 }
