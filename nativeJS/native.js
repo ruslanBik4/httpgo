@@ -4,12 +4,14 @@
 
 export class Native {
 
-  static getHTMLDom(component, data) {
+  static getHTMLDom(component, data, remove = false) {
     let temp = document.createElement('template');
     if (temp.content && this.isElement(component)) {
       temp.innerHTML = eval('`' + component.innerHTML + '`');
       component.parentElement.appendChild(temp.content);
-      component.parentNode.removeChild(component);
+      if (remove) {
+        component.parentNode.removeChild(component);
+      }
     } else {
       console.log(`It's not dom component: ${ component }`);
     }
