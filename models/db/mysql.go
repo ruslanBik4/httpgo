@@ -21,7 +21,7 @@ import (
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-	tableNameFromSQL = regexp.MustCompile(`from\s+([^\s]+)\s*`)
+	tableNameFromSQL = regexp.MustCompile(`(?:>from\s+)([^\s]+)`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
