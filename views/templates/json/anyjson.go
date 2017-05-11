@@ -10,18 +10,31 @@ type MapMultiDimension [] map[string] interface{}
 type SimpleDimension [] interface{}
 type StringDimension [] string
 
-func isSimpleDimension(value interface{}) bool {
-	switch value.(type) {
-	case []string:
-		return true
-	case []int:
-		return true
+func isSimpleDimension(value interface{}) ([] interface{}, bool) {
+	switch vv := value.(type) {
 	case [] interface{}:
-		return true
+		return vv, true
 	}
 
-	return false
+	return nil, false
 }
+func isMultiDimension(value interface{}) (map[string] interface{}, bool) {
+	switch vv := value.(type) {
+	case map[string] interface{}:
+		return vv, true
+	}
+
+	return nil, false
+}
+func isMapMultiDimension(value interface{}) ([] map[string] interface{}, bool) {
+	switch vv := value.(type) {
+	case [] map[string] interface{}:
+		return vv, true
+	}
+
+	return nil, false
+}
+
 func writeElement(value interface {} ) string {
 	log.Println(value)
 	switch value.(type) {
@@ -40,8 +53,7 @@ func writeElement(value interface {} ) string {
 	case []interface{}:
 		return "array"
 	case []string:
-return "array"
-
+		return "array"
 	default:
 		return value.(string)
 	}

@@ -350,11 +350,58 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
+func getSQLFromSETID(key, parentTable string) string{
+	tableProps := strings.TrimPrefix(key, "setid_")
+	tableValue := parentTable + "_" + tableProps + "_has"
+
+	titleField := "title" //field.getForeignFields(tableProps)
+	if titleField == "" {
+		return ""
+	}
+
+	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
+		titleField, parentTable,
+		tableProps, tableValue)
+
+}
+//func getSQLFromNodeID(key, parentTable string) string{
+//	var tableProps, titleField string
+//
+//	tableValue := strings.TrimPrefix(key, "nodeid_")
+//
+//	var ns FieldsTable
+//	ns.GetColumnsProp(tableValue)
+//
+//	var fields FieldsTable
+//
+//	fields.PutDataFrom(ns)
+//
+//	for _, field := range fields.Rows {
+//		if (field.COLUMN_NAME != "id_" + parentTable) && strings.HasPrefix(field.COLUMN_NAME, "id_") {
+//			tableProps = field.COLUMN_NAME[3:]
+//			titleField = field.getForeignFields(tableProps)
+//			break
+//		}
+//	}
+//
+//	if titleField == "" {
+//		return ""
+//	}
+//
+//	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+//	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
+//		titleField, parentTable,
+//		tableProps, tableValue)
+//
+//}
+
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
 	rows, err := DoSelect(sql, args...)
 
 	if err != nil {
+		log.Println(err, sql)
 		return nil, err
 	}
 
@@ -370,6 +417,12 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 		values := make(map[string] interface{}, len(columns) )
 
+		id, ok := rowValues["id"]
+
+		if !ok {
+			log.Println("not id")
+		}
+
 		for _, colType := range colTypes {
 
 			fieldName := colType.Name()
@@ -383,7 +436,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
-				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("setid_") : ])
+				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, "rooms"), id )
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()
