@@ -441,6 +441,8 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			if !ok {
 				log.Println(err)
 				continue
+			} else if fieldName == "id"{
+				id = fieldValue
 			}
 			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
