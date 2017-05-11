@@ -30,11 +30,24 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}
       {% case nil %}  null
-      {% case StringDimension %}  {%= WriteStringDimension(vv) %}
-      {% case SimpleDimension %} {%= WriteSimpleDimension(vv) %}
-      {% case MultiDimension %} {%= WriteAnyJSON(vv) %}
-      {% case MapMultiDimension %} {%= WriteSliceJSON(vv) %}
-      {% default %} "{%v vv %}"
+      {% case StringDimension %}
+            {%= WriteStringDimension(vv) %}
+      {% case SimpleDimension %}
+            {%= WriteSimpleDimension(vv) %}
+      {% case MultiDimension %}
+            {%= WriteAnyJSON(vv) %}
+      {% case MapMultiDimension %}
+            {%= WriteSliceJSON(vv) %}
+      {% default %}
+            {% if vSimple, ok := isSimpleDimension(vv); ok %}
+                {%= WriteSimpleDimension(vSimple) %}
+            {% elseif arrJSON, ok := isMultiDimension(vv); ok %}
+                {%= WriteAnyJSON(arrJSON) %}
+            {% elseif mapArrJSON, ok := isMapMultiDimension(vv); ok %}
+                {%= WriteSliceJSON(mapArrJSON) %}
+            {% else %}
+                "{%v vv %}"
+            {% endif %}
      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом

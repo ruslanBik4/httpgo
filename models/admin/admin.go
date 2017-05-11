@@ -386,6 +386,7 @@ func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 
+	//TODO научить данную функцию получать значения из полей типа tableid_ setid_ nodeid_
 	fields = GetFields(tableName)
 	rows, err := db.DoSelect("select * from "+tableName+" where id=?", id)
 	if (err != nil) {

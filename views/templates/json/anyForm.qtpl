@@ -103,9 +103,6 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 {% func (thisForm *FormStructure) JSONAnyForm(ns *forms.FieldsTable, AddJson map[string] string) %}
 {%code
    thisForm.setFormDefaults(ns)
-    if _, ok := ns.SaveFormEvents["errorFunction"]; !ok {
-        ns.SaveFormEvents["errorFunction"] = ""
-    }
 %}
 {
  "fields": {
