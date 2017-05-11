@@ -15,6 +15,7 @@ import (
 	_ "io"
 	"os/exec"
 	"bytes"
+	"strings"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -35,12 +36,35 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
+
+		// значение приходит в виде строки. Для агрегатных полей нужно формировать вложеность
+		for sKey, sValue := range arrJSON {
+
+			for key, value := range sValue {
+
+				if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") || strings.HasPrefix(key, "tableid_") {
+
+					switch vv := value.(type) {
+					case []map[string]interface{} :
+						arrJSON[sKey][key] = convertToMultiDimension(vv)
+					}
+				}
+			}
+		}
+
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}
 
-	log.Println(addJSON["data"])
-
 	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
+}
+
+func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {
+
+	var mapToDem = json.MapMultiDimension{}
+	for _,val := range array {
+		mapToDem = append(mapToDem, val)
+	}
+	return mapToDem
 }
 
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {

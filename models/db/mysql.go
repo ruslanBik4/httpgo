@@ -378,7 +378,10 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				log.Println(err)
 				continue
 			}
-
+			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
+			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
+			//TODO для полей типа setid_ формировать название таблицы
+			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
 				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("setid_") : ])
 				if err != nil {
