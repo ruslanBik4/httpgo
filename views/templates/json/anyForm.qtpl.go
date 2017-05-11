@@ -357,95 +357,92 @@ func CheckFields(ns *forms.FieldsTable) string {
 func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *forms.FieldsTable, AddJson map[string]string) {
 	//line views/templates/json/anyForm.qtpl:105
 	thisForm.setFormDefaults(ns)
-	if _, ok := ns.SaveFormEvents["errorFunction"]; !ok {
-		ns.SaveFormEvents["errorFunction"] = ""
-	}
 
-	//line views/templates/json/anyForm.qtpl:109
+	//line views/templates/json/anyForm.qtpl:106
 	qw422016.N().S(`{"fields": {`)
-	//line views/templates/json/anyForm.qtpl:112
+	//line views/templates/json/anyForm.qtpl:109
 	StreamCheckFields(qw422016, ns)
-	//line views/templates/json/anyForm.qtpl:112
+	//line views/templates/json/anyForm.qtpl:109
 	qw422016.N().S(`},"form": {`)
-	//line views/templates/json/anyForm.qtpl:116
+	//line views/templates/json/anyForm.qtpl:113
 	if thisForm.ClassCSS != "" {
-		//line views/templates/json/anyForm.qtpl:116
+		//line views/templates/json/anyForm.qtpl:113
 		qw422016.N().S(`"class" : "`)
-		//line views/templates/json/anyForm.qtpl:116
+		//line views/templates/json/anyForm.qtpl:113
 		qw422016.N().S(thisForm.ClassCSS)
-		//line views/templates/json/anyForm.qtpl:116
+		//line views/templates/json/anyForm.qtpl:113
 		qw422016.N().S(`",`)
-		//line views/templates/json/anyForm.qtpl:116
+		//line views/templates/json/anyForm.qtpl:113
 	}
-	//line views/templates/json/anyForm.qtpl:116
+	//line views/templates/json/anyForm.qtpl:113
 	qw422016.N().S(`"action" : "`)
-	//line views/templates/json/anyForm.qtpl:117
+	//line views/templates/json/anyForm.qtpl:114
 	qw422016.N().S(thisForm.Action)
-	//line views/templates/json/anyForm.qtpl:117
+	//line views/templates/json/anyForm.qtpl:114
 	qw422016.N().S(`","id" : "`)
-	//line views/templates/json/anyForm.qtpl:118
+	//line views/templates/json/anyForm.qtpl:115
 	qw422016.N().S(thisForm.IdCSS)
-	//line views/templates/json/anyForm.qtpl:118
+	//line views/templates/json/anyForm.qtpl:115
 	qw422016.N().S(`","name": "`)
-	//line views/templates/json/anyForm.qtpl:119
+	//line views/templates/json/anyForm.qtpl:116
 	qw422016.N().S(thisForm.Name)
-	//line views/templates/json/anyForm.qtpl:119
+	//line views/templates/json/anyForm.qtpl:116
 	qw422016.N().S(`"`)
-	//line views/templates/json/anyForm.qtpl:120
+	//line views/templates/json/anyForm.qtpl:117
 	for name, event := range thisForm.Events {
-		//line views/templates/json/anyForm.qtpl:120
+		//line views/templates/json/anyForm.qtpl:117
 		qw422016.N().S(`,"`)
-		//line views/templates/json/anyForm.qtpl:121
+		//line views/templates/json/anyForm.qtpl:118
 		qw422016.E().S(name)
-		//line views/templates/json/anyForm.qtpl:121
+		//line views/templates/json/anyForm.qtpl:118
 		qw422016.N().S(`": "`)
-		//line views/templates/json/anyForm.qtpl:121
+		//line views/templates/json/anyForm.qtpl:118
 		qw422016.N().S(event)
-		//line views/templates/json/anyForm.qtpl:121
+		//line views/templates/json/anyForm.qtpl:118
 		qw422016.N().S(`"`)
-		//line views/templates/json/anyForm.qtpl:122
+		//line views/templates/json/anyForm.qtpl:119
 	}
-	//line views/templates/json/anyForm.qtpl:122
+	//line views/templates/json/anyForm.qtpl:119
 	qw422016.N().S(`}`)
-	//line views/templates/json/anyForm.qtpl:124
+	//line views/templates/json/anyForm.qtpl:121
 	for name, val := range AddJson {
-		//line views/templates/json/anyForm.qtpl:124
+		//line views/templates/json/anyForm.qtpl:121
 		qw422016.N().S(`,"`)
-		//line views/templates/json/anyForm.qtpl:125
+		//line views/templates/json/anyForm.qtpl:122
 		qw422016.E().S(name)
-		//line views/templates/json/anyForm.qtpl:125
+		//line views/templates/json/anyForm.qtpl:122
 		qw422016.N().S(`":`)
-		//line views/templates/json/anyForm.qtpl:125
+		//line views/templates/json/anyForm.qtpl:122
 		qw422016.N().S(val)
-		//line views/templates/json/anyForm.qtpl:126
+		//line views/templates/json/anyForm.qtpl:123
 	}
-	//line views/templates/json/anyForm.qtpl:126
+	//line views/templates/json/anyForm.qtpl:123
 	qw422016.N().S(`}`)
-//line views/templates/json/anyForm.qtpl:129
+//line views/templates/json/anyForm.qtpl:126
 }
 
-//line views/templates/json/anyForm.qtpl:129
+//line views/templates/json/anyForm.qtpl:126
 func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, ns *forms.FieldsTable, AddJson map[string]string) {
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	thisForm.StreamJSONAnyForm(qw422016, ns, AddJson)
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyForm.qtpl:129
+//line views/templates/json/anyForm.qtpl:126
 }
 
-//line views/templates/json/anyForm.qtpl:129
+//line views/templates/json/anyForm.qtpl:126
 func (thisForm *FormStructure) JSONAnyForm(ns *forms.FieldsTable, AddJson map[string]string) string {
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	thisForm.WriteJSONAnyForm(qb422016, ns, AddJson)
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyForm.qtpl:129
+	//line views/templates/json/anyForm.qtpl:126
 	return qs422016
-//line views/templates/json/anyForm.qtpl:129
+//line views/templates/json/anyForm.qtpl:126
 }

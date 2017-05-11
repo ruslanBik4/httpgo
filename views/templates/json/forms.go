@@ -26,33 +26,22 @@ func (thisForm *FormStructure) setFormDefaults(ns *forms.FieldsTable) {
 		thisForm.Name = ns.Name
 	}
 
-	if thisForm.Events != nil {
+	if thisForm.Events == nil {
+
+		thisForm.Events = make(map[string]string, 0)
+		thisForm.Events["successSaveForm"] = "afterSaveAnyForm"
+	}
 
 	if _, ok := thisForm.Events["successSaveForm"]; !ok {
 
 		if ns.SaveFormEvents != nil {
 			if val, ok1 := ns.SaveFormEvents["successSaveForm"]; ok1 {
-			thisForm.Events["successSaveForm"] = val
+				thisForm.Events["successSaveForm"] = val
 			}
-		} else {
-			thisForm.Events["successSaveForm"] = "afterSaveAnyForm"
 		}
 	}
-	} else {
 
-		thisForm.Events = make(map[string]string, 0)
-		if str, ok := ns.DataJSOM["onload"]; ok {
-			thisForm.Events["onload"] = str.(string)
-		}
-		thisForm.Events["onsubmit"] = "saveForm"
-		thisForm.Events["oninput"] = "formInput(this);"
-		thisForm.Events["onreset"] = "formReset(this);"
-		if ns.SaveFormEvents != nil {
-			if val, ok := ns.SaveFormEvents["successSaveForm"]; ok {
-			thisForm.Events["successSaveForm"] = val
-			}
-		} else {
-			thisForm.Events["successSaveForm"] = "afterSaveAnyForm"
-		}
+	if str, ok := ns.DataJSOM["onload"]; ok {
+		thisForm.Events["onload"] = str.(string)
 	}
 }
