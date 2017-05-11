@@ -30,13 +30,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}
       {% case nil %}  null
-      {% case StringDimension %} "type" : "StringDimension",
+      {% case StringDimension %}
             {%= WriteStringDimension(vv) %}
-      {% case SimpleDimension %} "type" : "SimpleDimension",
+      {% case SimpleDimension %}
             {%= WriteSimpleDimension(vv) %}
-      {% case MultiDimension %} "type" : "MultiDimension",
+      {% case MultiDimension %}
             {%= WriteAnyJSON(vv) %}
-      {% case MapMultiDimension %} "type" : "MultiDimension",
+      {% case MapMultiDimension %}
             {%= WriteSliceJSON(vv) %}
       {% default %}
             {% if vSimple, ok := isSimpleDimension(vv); ok %}

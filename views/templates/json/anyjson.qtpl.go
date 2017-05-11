@@ -158,26 +158,18 @@ func StreamWriteElement(qw422016 *qt422016.Writer, value interface{}) {
 		qw422016.N().S(`null`)
 	//line views/templates/json/anyjson.qtpl:33
 	case StringDimension:
-		//line views/templates/json/anyjson.qtpl:33
-		qw422016.N().S(`"type" : "StringDimension",`)
 		//line views/templates/json/anyjson.qtpl:34
 		StreamWriteStringDimension(qw422016, vv)
 	//line views/templates/json/anyjson.qtpl:35
 	case SimpleDimension:
-		//line views/templates/json/anyjson.qtpl:35
-		qw422016.N().S(`"type" : "SimpleDimension",`)
 		//line views/templates/json/anyjson.qtpl:36
 		StreamWriteSimpleDimension(qw422016, vv)
 	//line views/templates/json/anyjson.qtpl:37
 	case MultiDimension:
-		//line views/templates/json/anyjson.qtpl:37
-		qw422016.N().S(`"type" : "MultiDimension",`)
 		//line views/templates/json/anyjson.qtpl:38
 		StreamWriteAnyJSON(qw422016, vv)
 	//line views/templates/json/anyjson.qtpl:39
 	case MapMultiDimension:
-		//line views/templates/json/anyjson.qtpl:39
-		qw422016.N().S(`"type" : "MultiDimension",`)
 		//line views/templates/json/anyjson.qtpl:40
 		StreamWriteSliceJSON(qw422016, vv)
 	//line views/templates/json/anyjson.qtpl:41
