@@ -14,7 +14,7 @@ export class ParseJSON {
    *   When need recursion for table
    */
 
-  static parseData(data, callback, strForTable = '') {
+  static parseDataGet(data, callback, strForTable = '') {
 
     for (let id in data) {
 
@@ -33,7 +33,7 @@ export class ParseJSON {
 
         // has prefix "tableid_" for recursion
         else if (id.startsWith(Variables.paramsJSONTable)) {
-          this.parseData(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''));
+          this.parseDataGet(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''));
         }
       }
 

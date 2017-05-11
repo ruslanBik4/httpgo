@@ -1,5 +1,6 @@
 
 let isRequestAPIGET = false;
+let isStartPage = true;
 
 export class Parse {
 
@@ -14,6 +15,8 @@ export class Parse {
     if (!isRequestAPIGET) {
       Observer.emit(Variables.documentIsReady, this.page);
     }
+
+    isStartPage = false;
 
   }
 
@@ -44,6 +47,32 @@ export class Parse {
         });
         return false;
       };
+    });
+
+    // if tag have a link to router
+    componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
+
+      console.log(scriptComponent)
+
+      const head = document.getElementsByTagName('head')[0];
+      const downloadedScriptInHead = head.querySelectorAll('script');
+      const src = scriptComponent.getAttribute('src');
+
+      let isScriptInHead = false;
+
+      for (let scriptInHead of downloadedScriptInHead) {
+        if (scriptInHead.getAttribute('src') === src) {
+          isScriptInHead = true;
+          break;
+        }
+      }
+
+      if (!isScriptInHead) {
+        const script = document.createElement('script');
+        script.src = src;
+        script.type = 'text/javascript';
+        head.appendChild(script);
+      }
     });
 
 
