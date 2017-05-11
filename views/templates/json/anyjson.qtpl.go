@@ -292,22 +292,14 @@ func StreamWriteSimpleDimension(qw422016 *qt422016.Writer, arrJSON SimpleDimensi
 	comma := ""
 
 	//line views/templates/json/anyjson.qtpl:63
-	for key, value := range arrJSON {
+	for _, value := range arrJSON {
 		//line views/templates/json/anyjson.qtpl:63
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:63
-		qw422016.N().S(`{ "`)
-		//line views/templates/json/anyjson.qtpl:63
-		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:63
-		qw422016.N().S(`":`)
 		//line views/templates/json/anyjson.qtpl:63
 		StreamWriteElement(qw422016, value)
 		//line views/templates/json/anyjson.qtpl:63
 		comma = ","
 
-		//line views/templates/json/anyjson.qtpl:63
-		qw422016.N().S(`}`)
 		//line views/templates/json/anyjson.qtpl:64
 	}
 	//line views/templates/json/anyjson.qtpl:64
