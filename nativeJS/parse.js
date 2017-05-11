@@ -49,10 +49,20 @@ export class Parse {
       };
     });
 
-    // if tag have a link to router
+    // for form TODO: need refactoring
+    componentDom.querySelectorAll(`${ Variables.nameForm }`).forEach((component) => {
+      const elements = component.querySelectorAll(`button, input[type=button]`);
+      for (let element of elements) {
+        element.onclick = function () {
+          saveForm(component, () => { alert('Ваша форма сохранена') }, () => { alert('Произошла ошибка, повторите попытку') });
+        };
+      }
+    });
+
+    // if tag have a app-script
     componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
 
-      console.log(scriptComponent)
+      console.log(scriptComponent);
 
       const head = document.getElementsByTagName('head')[0];
       const downloadedScriptInHead = head.querySelectorAll('script');

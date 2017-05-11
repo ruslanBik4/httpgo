@@ -8,6 +8,7 @@ const routerAPIGET = 'data-api-get';
 const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
+const nameForm = 'form';
 const nameMainContent = 'app-main';
 const dynamicallyScript = 'app-script';
 
@@ -52,6 +53,10 @@ export class Variables {
 
   static get routerAttr() {
     return routerAttr;
+  }
+
+  static get nameForm() {
+    return nameForm;
   }
 
   static get nameMainContent() {
