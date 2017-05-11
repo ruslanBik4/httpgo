@@ -16,10 +16,12 @@ import (
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"errors"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
+	tableNameFromSQL = regexp.MustCompile(`from\s+([^\s]+)\s*`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
@@ -359,46 +361,55 @@ func getSQLFromSETID(key, parentTable string) string{
 		return ""
 	}
 
+	//var fieldStruct schema.FieldStructure
+	//fieldStruct.GetTitle(field.COLUMN_COMMENT)
+
 	return fmt.Sprintf( `SELECT p.id, %s, id_%s
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
 		titleField, parentTable,
 		tableProps, tableValue)
 
 }
-//func getSQLFromNodeID(key, parentTable string) string{
-//	var tableProps, titleField string
-//
-//	tableValue := strings.TrimPrefix(key, "nodeid_")
-//
-//	var ns FieldsTable
-//	ns.GetColumnsProp(tableValue)
-//
-//	var fields FieldsTable
-//
-//	fields.PutDataFrom(ns)
-//
-//	for _, field := range fields.Rows {
-//		if (field.COLUMN_NAME != "id_" + parentTable) && strings.HasPrefix(field.COLUMN_NAME, "id_") {
-//			tableProps = field.COLUMN_NAME[3:]
-//			titleField = field.getForeignFields(tableProps)
-//			break
-//		}
-//	}
-//
-//	if titleField == "" {
-//		return ""
-//	}
-//
-//	return fmt.Sprintf( `SELECT p.id, %s, id_%s
-//	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
-//		titleField, parentTable,
-//		tableProps, tableValue)
-//
-//}
+func getSQLFromNodeID(key, parentTable string) string{
+	var tableProps, titleField string
+
+	tableValue := strings.TrimPrefix(key, "nodeid_")
+
+	var ns FieldsTable
+	ns.GetColumnsProp(tableValue)
+
+	for _, field := range ns.Rows {
+		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
+			tableProps = field.COLUMN_NAME[3:]
+			var fieldStruct schema.FieldStructure
+			fieldStruct.GetTitle(field.COLUMN_COMMENT.String)
+			titleField = fieldStruct.GetForeignFields(tableProps)
+			break
+		}
+	}
+
+	if titleField == "" {
+		return ""
+	}
+
+	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
+		titleField, parentTable,
+		tableProps, tableValue)
+
+}
 
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
 	rows, err := DoSelect(sql, args...)
+
+	arrSTR := tableNameFromSQL.FindAllString(sql, -1)
+	tableName := "rooms"
+	if len(arrSTR) < 1 {
+		log.Println(arrSTR)
+	} else {
+		tableName = arrSTR[0]
+	}
 
 	if err != nil {
 		log.Println(err, sql)
@@ -417,7 +428,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 		values := make(map[string] interface{}, len(columns) )
 
-		id, ok := rowValues["id"]
+		id, ok := rowValues["ID"]
 
 		if !ok {
 			log.Println("not id")
@@ -435,8 +446,15 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
-			if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
-				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, "rooms"), id )
+			if strings.HasPrefix(fieldName, "setid_")  {
+				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, tableName), id )
+				if err != nil {
+					log.Println(err)
+					values[fieldName] = err.Error()
+				}
+				continue
+			} else if strings.HasPrefix(fieldName, "nodeid_"){
+				values[fieldName], err = SelectToMultidimension( getSQLFromNodeID(fieldName, tableName), id )
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()
