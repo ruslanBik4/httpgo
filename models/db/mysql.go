@@ -364,10 +364,12 @@ func getSQLFromSETID(key, parentTable string) string{
 	//var fieldStruct schema.FieldStructure
 	//fieldStruct.GetTitle(field.COLUMN_COMMENT)
 
-	return fmt.Sprintf( `SELECT p.id, %s, id_%s
-	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
-		titleField, parentTable,
-		tableProps, tableValue)
+	return fmt.Sprintf(`SELECT p.id, p.%s, v.id_%s
+		FROM %s v
+		JOIN %s p
+		ON p.id = v.id_%[4]s AND id_%[2]s = ?
+		ORDER BY p.id `,
+		titleField, parentTable, tableValue, tableProps)
 
 }
 func getSQLFromNodeID(key, parentTable string) string{
@@ -392,10 +394,12 @@ func getSQLFromNodeID(key, parentTable string) string{
 		return ""
 	}
 
-	return fmt.Sprintf( `SELECT p.id, %s, id_%s
-	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
-		titleField, parentTable,
-		tableProps, tableValue)
+	return fmt.Sprintf(`SELECT p.id, p.%s, v.id_%s
+		FROM %s v
+		JOIN %s p
+		ON p.id = v.id_%[4]s AND id_%[2]s = ?
+		ORDER BY p.id `,
+		titleField, parentTable, tableValue, tableProps)
 
 }
 
@@ -429,10 +433,11 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 		values := make(map[string] interface{}, len(columns) )
 
-		id, ok := rowValues["ID"]
+		//TODO предусмотреть ситуацию, когда в таблице нету поля id - для рекурсии
+		id, ok := rowValues["id"]
 
-		if !ok {
-			//log.Println("not id")
+		if !ok || !id.Valid {
+			log.Println("record ID not found")
 		}
 
 		for _, colType := range colTypes {
@@ -448,14 +453,14 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(fieldName, "setid_")  {
-				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, tableName), id )
+				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, tableName), id.String )
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(fieldName, "nodeid_"){
-				values[fieldName], err = SelectToMultidimension( getSQLFromNodeID(fieldName, tableName), id )
+				values[fieldName], err = SelectToMultidimension( getSQLFromNodeID(fieldName, tableName), id.String )
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()
