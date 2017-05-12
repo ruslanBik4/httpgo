@@ -60,14 +60,14 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 получаем массив объектов произвольной формы и возвращаем JSON текстом
 {% func WriteSimpleDimension(arrJSON SimpleDimension ) %}
 [  {% code comma := "" %}
-    {% for key, value := range  arrJSON %} {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
+    {% for _, value := range  arrJSON %} {%s comma %} {%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив строк и возвращаем JSON текстом
 {% func WriteStringDimension(arrJSON StringDimension) %}
  [ {% code comma := "" %}
-    {% for key, value := range  arrJSON %} {%s comma %} {%d key %}:{%= WriteElement(value)%} {% code  comma = ","   %}
+    {% for _, value := range  arrJSON %} {%s comma %} {%= WriteElement(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}

@@ -21,7 +21,7 @@ import (
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-	tableNameFromSQL = regexp.MustCompile(`(?:>from\s+)([^\s]+)`)
+	tableNameFromSQL = regexp.MustCompile(`(?i)\bfrom\b\s*\W?(\w+)`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
@@ -403,12 +403,13 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 	rows, err := DoSelect(sql, args...)
 
-	arrSTR := tableNameFromSQL.FindAllString(sql, -1)
+	arrSTR := tableNameFromSQL.FindStringSubmatch(sql)
+
 	tableName := "rooms"
 	if len(arrSTR) < 1 {
 		log.Println(arrSTR)
 	} else {
-		tableName = arrSTR[0]
+		tableName = arrSTR[1]
 	}
 
 	if err != nil {
@@ -431,7 +432,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 		id, ok := rowValues["ID"]
 
 		if !ok {
-			log.Println("not id")
+			//log.Println("not id")
 		}
 
 		for _, colType := range colTypes {
@@ -441,8 +442,6 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			if !ok {
 				log.Println(err)
 				continue
-			} else if fieldName == "id"{
-				id = fieldValue
 			}
 			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
