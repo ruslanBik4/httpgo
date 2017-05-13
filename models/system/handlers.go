@@ -45,11 +45,11 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 		log.Print("panic runtime! ", err)
 		i := 0
 		for {
-			_, fn, line, ok := runtime.Caller(i)
+			pc, fn, line, ok := runtime.Caller(i)
 			if !ok {
 				break
 			}
-			log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, err)
+			log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, pc)
 			i++
 		}
 		views.RenderInternalError(w)

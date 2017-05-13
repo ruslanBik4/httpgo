@@ -6,6 +6,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 //	"views/templates/layouts/common"
 )
 

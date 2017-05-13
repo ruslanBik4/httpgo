@@ -11,13 +11,16 @@ import (
 
 type schemaService struct {
 	name string
+	status string
 }
 
 var (schema *schemaService = &schemaService{name:"schema"})
 
 func (schema *schemaService) Init() error{
 
+	schema.status = "starting"
 	db.InitSchema()
+	schema.status = "ready"
 	return nil
 }
 func (schema *schemaService) Send(messages ...interface{}) error{
@@ -26,16 +29,11 @@ func (schema *schemaService) Send(messages ...interface{}) error{
 }
 func (schema *schemaService) Get(messages ... interface{}) (responce interface{}, err error) {
 
-	for _, message := range messages {
-		switch args := message.(type) {
-		case [] interface{}:
-			switch tableName := args[0].(type) {
-			case string:
-					return DBschema.GetFieldsTable(tableName), nil
-			default:
-				return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: args[0]}
-			}
-		}
+	switch tableName := messages[0].(type) {
+	case string:
+			return DBschema.GetFieldsTable(tableName), nil
+	default:
+		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
 	}
 
 	return nil, nil
@@ -51,7 +49,7 @@ func (schema *schemaService) Close(out chan <- interface{}) error {
 }
 func (schema *schemaService) Status() string {
 
-	return ""
+	return schema.status
 }
 
 func init() {

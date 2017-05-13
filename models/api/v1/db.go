@@ -18,7 +18,7 @@ import (
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"fmt"
+	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -75,9 +75,7 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		views.RenderInternalError(w)
 	} else {
-		for _,v := range table.(*schema.FieldsTable).Rows {
-			fmt.Fprintf(w, "%v", v)
-		}
+		w.Write([]byte(viewsSystem.ShowSchema(table.(*schema.FieldsTable) )))
 	}
 
 }
@@ -111,7 +109,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 	} else {
 		views.WriteHeaders(w)
-log.Println(stdoutStderr)
+		log.Println(stdoutStderr)
 		w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
 	}
 
