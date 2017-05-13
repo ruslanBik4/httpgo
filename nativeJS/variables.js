@@ -18,6 +18,7 @@ const paramsJSONId = 'data-api-post-id';
 const paramsJSONSetText = 'data-set-text';
 const paramsJSONTable = 'tableid_';
 const paramsJSONForPost = 'value';
+const paramsJSONIdForTable = 'native-table-id';
 
 
 // JSON reserved words
@@ -86,6 +87,10 @@ export class Variables {
 
   static get paramsJSONForPost() {
     return paramsJSONForPost;
+  }
+
+  static get paramsJSONIdForTable() {
+    return paramsJSONIdForTable;
   }
 
 

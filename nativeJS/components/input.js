@@ -39,7 +39,7 @@ export class Input {
    *   create inputs
    */
 
-  static createList(component, list, isSet = false) {
+  static createList(component, list, isSet = false, isReturnDomString = false) {
 
     this.isSet = isSet;
 
@@ -63,8 +63,12 @@ export class Input {
           }
         }
 
-        component.innerHTML = template.innerHTML;
+        if (isReturnDomString) {
+          return template.innerHTML;
+        }
+
         component.id = idComponent;
+        component.innerHTML = template.innerHTML;
 
       }
     }
