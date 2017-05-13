@@ -53,6 +53,7 @@ type FieldStructure struct {
 	DataJSOM        map[string] interface{}
 	EnumValues 	[]string
 }
+
 type FieldsTable struct {
 	Name string
 	ID   int
@@ -63,6 +64,7 @@ type FieldsTable struct {
 	SaveFormEvents 	map[string] string
 	DataJSOM        map[string] interface{}
 }
+
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
 		return
@@ -72,6 +74,7 @@ func (field *FieldStructure) setEnumValues() {
 		field.EnumValues = append(field.EnumValues, title[len(title)-1])
 	}
 }
+
 // стиль показа для разных типов полей
 // новый метод, еще обдумываю
 func (field *FieldStructure) TypeInput() string{
@@ -128,7 +131,9 @@ func (field *FieldStructure) TypeInput() string{
 	return field.InputType
 
 }
+
 //старый метод, обсолете, буду избавляться
+//TODO старый метод, обсолете, буду избавляться
 func StyleInput(dataType string) string{
 	switch (dataType) {
 	case "varchar":
@@ -152,6 +157,7 @@ func StyleInput(dataType string) string{
 	return "text"
 
 }
+
 // минимальный размер поля для разных типов полей
 func GetLengthFromType(dataType string) (width int, size int) {
 	switch (dataType) {
@@ -209,6 +215,7 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
+
 // create where for  query from SETID_ / NODEID_ fields
 func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
@@ -231,6 +238,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 
 	return result
 }
+
 //получаем связанную таблицу с полями для поля типа TABLEID_
 func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key string) {
 	//key := field.COLUMN_NAME
@@ -341,6 +349,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 
 	return html
 }
+
 func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
@@ -387,6 +396,7 @@ func getSQLFromNodeID(key, parentTable string) string{
 		tableProps, tableValue)
 
 }
+
 func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
 	var sqlCommand string
 
@@ -480,6 +490,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 	}
 
 }
+
 func (field *FieldStructure) getForeignFields(tableName string)  string {
 
 
@@ -489,6 +500,7 @@ func (field *FieldStructure) getForeignFields(tableName string)  string {
 		return db.GetParentFieldName(tableName)
 	}
 }
+
 func (field *FieldStructure) GetOptions(tableName, val string) {
 
 	var where string
@@ -568,6 +580,7 @@ func (field *FieldStructure) RenderSet(key, val, required, events, dataJson stri
 
 	return result
 }
+
 func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson string) (result string) {
 
 
@@ -620,6 +633,7 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 
 	return titleFull, titlePart
 }
+
 func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
 
 	counter := 1
@@ -632,6 +646,7 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 	}
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
+
 func getPattern(name string) string {
 	rows, err := db.DoSelect("select pattern from patterns_list where name=?", name)
 	if err != nil {
@@ -654,6 +669,7 @@ func getPattern(name string) string {
 
 	return ""
 }
+
 func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON interface{}) {
 	switch whereJSON.(type) {
 	case map[string] interface{}:
@@ -684,6 +700,7 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 	}
 
 }
+
 func convertDatePattern(strDate string) string {
 	switch strDate {
 	case "today":
@@ -695,6 +712,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
+
 func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	if ! field.COLUMN_COMMENT.Valid {
@@ -759,6 +777,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 	return fieldStrc.COLUMN_COMMENT
 }
+
 // заполняет структуру для формы данными, взятыми из структуры БД
 func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 
@@ -804,8 +823,25 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 	} else {
 		fields.Comment = tableOpt.TABLE_COMMENT
 	}
-
 }
+
+//AppendNewFieldRows - Добаляет в fields поля из других таблиц
+//@version 1.00 2017-05-13
+//@author Serg Litvinov
+func (fields *FieldsTable) AppendNewFieldRows (fields1 FieldsTable,  args ...interface{}){
+	for _, row := range fields1.Rows{
+        log.Println(row)
+		for _, arg := range args {
+			log.Println(arg)
+			if row.COLUMN_NAME == arg {
+				fields.Rows = append(fields.Rows,row)
+				log.Println("New values ", arg, "append to rows Source")
+			}
+		}
+	}
+}
+
+
 func (field *FieldStructure) GetListJSON(key, val, required, events, dataJson string) {
 
 	field.Html = ""
@@ -849,7 +885,7 @@ func (field *FieldStructure) GetOptionsJson(tableName string) {
 			} else if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
-			/// попозже перепроверить
+			///TODO попозже перепроверить
 			enumVal = enumVal[i + len(param) + 1 : ]
 			i = strings.Index(enumVal, ":")
 		}
