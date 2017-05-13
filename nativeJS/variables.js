@@ -17,6 +17,7 @@ const dynamicallyScript = 'app-script';
 const paramsJSONId = 'data-api-post-id';
 const paramsJSONSetText = 'data-set-text';
 const paramsJSONTable = 'tableid_';
+const paramsJSONPhotos = 'photoid_photos';
 const paramsJSONForPost = 'value';
 const paramsJSONIdForTable = 'native-table-id';
 
@@ -83,6 +84,10 @@ export class Variables {
 
   static get paramsJSONTable() {
     return paramsJSONTable;
+  }
+
+  static get paramsJSONPhotos() {
+    return paramsJSONPhotos;
   }
 
   static get paramsJSONForPost() {
