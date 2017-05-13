@@ -7,7 +7,6 @@ import (mongo "gopkg.in/mgo.v2"
 	"encoding/base64"
 	"net/url"
 	"fmt"
-	"log"
 )
 
 var (moderation *mService = &mService{name:"moderation"})
@@ -86,7 +85,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			case url.Values:
 				setData.Data = mess
 			default:
-				return ErrServiceNotCorrectParamType {
+				return &ErrServiceNotCorrectParamType {
 					Name: moderation.name,
 				}
 
@@ -97,7 +96,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
-		return ErrServiceNotCorrectParamType {
+		return &ErrServiceNotCorrectParamType {
 			Name: moderation.name,
 		}
 	}
@@ -118,7 +117,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
-		return ErrServiceNotCorrectParamType {
+		return &ErrServiceNotCorrectParamType {
 			Name: moderation.name,
 		}
 	}
