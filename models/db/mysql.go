@@ -226,34 +226,29 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
-func getSQLFromSETID(key, parentTable string) string{
-	tableProps := strings.TrimPrefix(key, "setid_")
+func getSQLFromSETID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string{
+	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
-	fields := schema.GetFieldsTable(parentTable)
-	field  := fields.FindField(key)
-
 	titleField := field.GetForeignFields()
-	if titleField == "" {
-		return ""
-	}
 
-	return fmt.Sprintf(`SELECT p.id, p.%s, v.id_%s
+	where := field.WhereFromSet(fields)
+
+	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v
 		JOIN %s p
-		ON p.id = v.id_%[4]s AND id_%[2]s = ?
-		ORDER BY p.id `,
+		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
 		titleField, parentTable, tableValue, tableProps)
 
 }
-func getSQLFromNodeID(key, parentTable string) string{
+func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,parentTable string) string{
 	var tableProps, titleField string
 
-	tableValue := strings.TrimPrefix(key, "nodeid_")
+	tableValue := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
 
-	fields := schema.GetFieldsTable(tableValue)
+	fieldsValues := schema.GetFieldsTable(tableValue)
 
-	for _, field := range fields.Rows {
+	for _, field := range fieldsValues.Rows {
 		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
 			tableProps = field.COLUMN_NAME[3:]
 			titleField = field.GetForeignFields()
@@ -261,24 +256,21 @@ func getSQLFromNodeID(key, parentTable string) string{
 		}
 	}
 
-	if titleField == "" {
-		return ""
-	}
+	where := field.WhereFromSet(fields)
 
-	return fmt.Sprintf(`SELECT p.id, p.%s, v.id_%s
+	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v
 		JOIN %s p
-		ON p.id = v.id_%[4]s AND id_%[2]s = ?
-		ORDER BY p.id `,
+		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
 		titleField, parentTable, tableValue, tableProps)
 
 }
 
-func getSQLFromTableID(key, parentTable string) string {
+func getSQLFromTableID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string {
 
-	tableProps := strings.TrimPrefix(key, "setid_")
-	fields := schema.GetFieldsTable(parentTable)
-	field  := fields.FindField(key)
+
+	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
+	//TODO структуру таблдицы вынести в ф-цию selectToMulti.. и также поле
 
 	where := field.WhereFromSet(fields)
 	if where > "" {
@@ -308,84 +300,84 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 		return nil, err
 	}
 
+	fields := schema.GetFieldsTable(tableName)
 	defer rows.Close()
 
-	valuePtrs, rowValues, columns, colTypes := PrepareRowsToReading(rows)
+	//_, rowValues, columns, colTypes := PrepareRowsToReading(rows)
 
+	columns, err := rows.Columns()
+
+	var valuePtrs []interface{}
+	for i, _ := range fields.Rows {
+		valuePtrs = append(valuePtrs, &fields.Rows[i] )
+	}
+
+	values := make(map[string] interface{}, len(columns) )
 	for rows.Next() {
 		if err := rows.Scan(valuePtrs...); err != nil {
 			log.Println(err)
 			continue
 		}
 
-		values := make(map[string] interface{}, len(columns) )
 
 		//TODO предусмотреть ситуацию, когда в таблице нету поля id - для рекурсии
-		id, ok := rowValues["id"]
+		fieldID := fields.FindField("id")
 
-		if !ok || !id.Valid {
-			log.Println("record ID not found")
+		if fieldID != nil {
+			fields.ID, _ = strconv.Atoi( fieldID.Value )
 		}
 
-		for _, colType := range colTypes {
+		for _, field := range fields.Rows {
 
-			fieldName := colType.Name()
-			fieldValue, ok := rowValues[fieldName]
-			if !ok {
-				log.Println(err)
-				continue
-			}
+			values[field.COLUMN_NAME] = field.Value
 			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
-			if strings.HasPrefix(fieldName, "setid_")  {
-				values[fieldName], err = SelectToMultidimension( getSQLFromSETID(fieldName, tableName), id.String )
+			if strings.HasPrefix(field.COLUMN_NAME, "setid_")  {
+				sqlCommand := getSQLFromSETID(fields, field, tableName)
+				log.Println(sqlCommand)
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
 				if err != nil {
 					log.Println(err)
-					values[fieldName] = err.Error()
+					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
-			} else if strings.HasPrefix(fieldName, "nodeid_"){
-				values[fieldName], err = SelectToMultidimension( getSQLFromNodeID(fieldName, tableName), id.String )
+			} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
+				sqlCommand := getSQLFromNodeID(fields, field, tableName)
+				log.Println(sqlCommand)
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
 				if err != nil {
 					log.Println(err)
-					values[fieldName] = err.Error()
+					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
-			} else if strings.HasPrefix(fieldName, "tableid_"){
-				values[fieldName], err = SelectToMultidimension( getSQLFromTableID(fieldName, tableName), id.String)
+			} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
+				sqlCommand := getSQLFromTableID(fields, field, tableName)
+				log.Println(sqlCommand)
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID)
 				if err != nil {
 					log.Println(err)
-					values[fieldName] = err.Error()
+					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
 
 			}
 
-			switch colType.DatabaseTypeName() {
+			switch field.COLUMN_TYPE {
 			case "varchar", "date", "datetime":
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
+				values[field.COLUMN_NAME] = field.Value
 			case "tinyint":
-				if getValue(fieldValue) == "1" {
-					values[fieldName] = true
-
+				if field.Value == "1" {
+					values[field.COLUMN_NAME] = true
 				} else {
-					values[fieldName] = false
+					values[field.COLUMN_NAME] = false
 
 				}
 			case "int", "int64", "float":
-				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
+				values[field.COLUMN_NAME], _ = strconv.Atoi(field.Value)
 			default:
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
+				values[field.COLUMN_NAME] = field.Value
 			}
 		}
 
