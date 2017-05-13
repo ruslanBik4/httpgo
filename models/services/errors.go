@@ -12,3 +12,34 @@ func (err *ErrServiceNotFound) Error() string{
 	return err.Name + MessServNotFound
 }
 
+const photosNotCorrectOperation = " operation name is incorrect or not string type - "
+
+type ErrServiceNotCorrectOperation struct {
+	Name string
+	OperName string
+	Message string
+}
+func (err *ErrServiceNotCorrectOperation) Error() string{
+	err.Message = err.Name + photosNotCorrectOperation + err.OperName
+	return err.Message
+}
+
+const photosNotCorrectParameterType = " Wrong params type "
+
+type ErrServiceNotCorrectParamType struct {
+	Name string
+	Param interface{}
+}
+func (err *ErrServiceNotCorrectParamType) Error() string{
+	return err.Name + photosNotCorrectParameterType
+}
+
+const photosNotEnougnParameter = " not enougn parameters "
+
+type ErrServiceNotEnougnParameter struct {
+	Name string
+	Param interface{}
+}
+func (err *ErrServiceNotEnougnParameter) Error() string{
+	return err.Name + photosNotEnougnParameter
+}

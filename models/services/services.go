@@ -26,7 +26,6 @@ var sServices = &rootServices{ services : make(map[string]IService, 0) }
 func InitServices() *rootServices {
 	for name, service := range sServices.services {
 		go startService(name, service)
-		log.Println(name)
 	}
 
 	return sServices
@@ -44,6 +43,8 @@ func startService(name string, pService IService) {
 	defer catch(name)
 	if err := pService.Init(); err != nil {
 		log.Println(err, name)
+	} else {
+		log.Println(name + " starting, status - " + pService.Status())
 	}
 }
 func catch(name string) {
@@ -59,7 +60,6 @@ func catch(name string) {
 }
 func AddService(name string, pService IService) {
 	sServices.services[name] = pService
-	log.Println(name, pService)
 }
 func Send(name string, messages ...interface{}) (err error) {
 
@@ -68,7 +68,7 @@ func Send(name string, messages ...interface{}) (err error) {
 		return 	&ErrServiceNotFound{Name: name}
 	}
 
-	return pService.Send(messages)
+	return pService.Send(messages...)
 }
 func Get(name string, messages ... interface{}) (responce interface{}, err error) {
 
@@ -77,7 +77,7 @@ func Get(name string, messages ... interface{}) (responce interface{}, err error
 		return 	nil, &ErrServiceNotFound{Name: name}
 	}
 
-	return pService.Get(messages)
+	return pService.Get(messages...)
 }
 func Connect(name string, in <- chan interface{}) (out chan  interface{}, err error) {
 	pService := getService(name)

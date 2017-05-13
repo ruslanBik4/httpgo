@@ -5,6 +5,7 @@ import (
 	"log"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/views"
+	"runtime"
 )
 
 type ErrNotLogin struct {
@@ -42,7 +43,16 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	case nil:
 	default:
 		log.Print("panic runtime! ", err)
-		fmt.Fprintf(w, "Error during executing %v", err)
+		i := 0
+		for {
+			pc, fn, line, ok := runtime.Caller(i)
+			if !ok {
+				break
+			}
+			log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, pc)
+			i++
+		}
+		views.RenderInternalError(w, err.(error))
 	}
 }
 

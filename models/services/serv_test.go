@@ -121,6 +121,10 @@ func TestModSendInsert(t *testing.T)  {
 	result = append(result, config)
 	result = append(result, a)
 
+	defer func() {
+		err := recover()
+		t.Error(err)
+	}()
 	Send("moderation", result)
 	t.Skipped()
 }
@@ -152,6 +156,7 @@ func TestModGet(t *testing.T)  {
 		t.Errorf("Get return nil !")
 	} else {
 		t.Log(responce)
+		t.Skipped()
 
 	}
 }
