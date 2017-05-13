@@ -78,8 +78,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	}
 
 	for _, message := range messages {
-		for _, mess1 := range message.([] interface{}) {
-			switch mess := mess1.(type) {
+			switch mess := message.(type) {
 			case map[string]string:
 					setData.Config["table"] = mess["table"]
 					setData.Config["key"] = mess["key"]
@@ -89,9 +88,9 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			default:
 				log.Println(messages)
 				panic("Wrong data types")
-			}
 		}
 	}
+
 
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
