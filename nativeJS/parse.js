@@ -1,6 +1,5 @@
 
 let isRequestAPIGET = false;
-let isStartPage = true;
 
 export class Parse {
 
@@ -11,12 +10,11 @@ export class Parse {
     this._parsComponents(this.page);
 
     Observer.addListener(Variables.reChangeDomDynamically, (component) => this._parsComponents(component));
+    Observer.addListener(Variables.documentIsReady, () => isRequestAPIGET = false);
 
     if (!isRequestAPIGET) {
       Observer.emit(Variables.documentIsReady, this.page);
     }
-
-    isStartPage = false;
 
   }
 
@@ -49,30 +47,19 @@ export class Parse {
       };
     });
 
-    // if tag have a link to router
+    // for form TODO: need refactoring
+    componentDom.querySelectorAll(`${ Variables.nameForm }`).forEach((component) => {
+      const elements = component.querySelectorAll(`button, input[type=button]`);
+      for (let element of elements) {
+        element.onclick = function () {
+          saveForm(component, () => { alert('Ваша форма сохранена') }, () => { alert('Произошла ошибка, повторите попытку') });
+        };
+      }
+    });
+
+    // if tag have a app-script
     componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
-
-      console.log(scriptComponent)
-
-      const head = document.getElementsByTagName('head')[0];
-      const downloadedScriptInHead = head.querySelectorAll('script');
-      const src = scriptComponent.getAttribute('src');
-
-      let isScriptInHead = false;
-
-      for (let scriptInHead of downloadedScriptInHead) {
-        if (scriptInHead.getAttribute('src') === src) {
-          isScriptInHead = true;
-          break;
-        }
-      }
-
-      if (!isScriptInHead) {
-        const script = document.createElement('script');
-        script.src = src;
-        script.type = 'text/javascript';
-        head.appendChild(script);
-      }
+      System.import(scriptComponent.getAttribute('src')).then();
     });
 
 

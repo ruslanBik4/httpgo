@@ -159,7 +159,6 @@ function validateFields(thisForm) {
 // стандарт созранения форм, требуется расширить количество обработчиков (callback) типа ошибок записи и т.П.
 function saveForm(thisForm, successFunction, errorFunction)
 {
-    debugger;
     // TODO: create element form for output form result
     var $out = $('output', thisForm),
         $loading = $('.loading', thisForm),
