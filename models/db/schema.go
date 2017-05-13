@@ -167,7 +167,6 @@ func (ns *FieldsTable) PutDataFrom() (fields *schema.FieldsTable) {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
 
-
 		if field.COLUMN_COMMENT.Valid {
 			fieldStrc.GetTitle(field.COLUMN_COMMENT.String)
 		}
@@ -198,6 +197,7 @@ func InitSchema() {
 			fields.GetColumnsProp(table.TABLE_NAME)
 
 			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom()
+			log.Println(schema.SchemaCache[table.TABLE_NAME].Name)
 		}
 
 	}()
