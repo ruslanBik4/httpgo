@@ -133,7 +133,7 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 func (photos *photosService) readFile(catalog, id string) ( io.Reader, error) {
 
 	fullPath := filepath.Join(photos.path, catalog, id)
-	files, err := filepath.Glob( fullPath + "*.*")
+	files, err := filepath.Glob( fullPath + "/*.*")
 	if err != nil {
 		log.Println(err)
 		return nil, err

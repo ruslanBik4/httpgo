@@ -48,6 +48,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		} else if num < FileStat.Size() {
 			log.Println(num, FileStat.Size())
 		}
+		log.Println("dfdf")
 	}
 
 }
