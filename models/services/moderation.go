@@ -86,8 +86,10 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			case url.Values:
 				setData.Data = mess
 			default:
-				log.Println(messages)
-				panic("Wrong data types")
+				return ErrServiceNotCorrectParamType {
+					Name: moderation.name,
+				}
+
 		}
 	}
 
@@ -95,7 +97,9 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
-		panic("Wrong data values")
+		return ErrServiceNotCorrectParamType {
+			Name: moderation.name,
+		}
 	}
 
 	cConnect := moderation.connect.DB("newDB").C(setData.Config["table"])
@@ -114,7 +118,9 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
-		panic("row with key " + setData.Config["key"] + ". Dublicate key is not allowed")
+		return ErrServiceNotCorrectParamType {
+			Name: moderation.name,
+		}
 	}
 
 	data := ToGOB64(setData.Data)

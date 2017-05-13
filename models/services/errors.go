@@ -24,7 +24,7 @@ func (err *ErrServiceNotCorrectOperation) Error() string{
 	return err.Message
 }
 
-const photosNotCorrectParameterType = " operation name is not string type - "
+const photosNotCorrectParameterType = " Wrong params type "
 
 type ErrServiceNotCorrectParamType struct {
 	Name string
