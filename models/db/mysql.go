@@ -274,6 +274,22 @@ func getSQLFromNodeID(key, parentTable string) string{
 
 }
 
+func getSQLFromTableID(key, parentTable string) string {
+
+	tableProps := strings.TrimPrefix(key, "setid_")
+	fields := schema.GetFieldsTable(parentTable)
+	field  := fields.FindField(key)
+
+	where := field.WhereFromSet(fields)
+	if where > "" {
+		where += " AND (id_%s=?)"
+	} else {
+		where = " WHERE (id_%s=?)"
+	}
+
+	 return fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
+
+}
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
 	rows, err := DoSelect(sql, args...)
@@ -338,7 +354,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				}
 				continue
 			} else if strings.HasPrefix(fieldName, "tableid_"){
-				values[fieldName], err = SelectToMultidimension( "SELECT * FROM " + fieldName[ len("tableid_") : ])
+				values[fieldName], err = SelectToMultidimension( getSQLFromTableID(fieldName, tableName), id.String)
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()

@@ -52,7 +52,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 			log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, pc)
 			i++
 		}
-		views.RenderInternalError(w)
+		views.RenderInternalError(w, err.(error))
 	}
 }
 

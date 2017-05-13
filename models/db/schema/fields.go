@@ -173,8 +173,9 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
-// create where for  query from SETID_ / NODEID_ fields
-func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
+// todo: проверить работу
+// create where for  query from SETID_ / NODEID_ / TABLEID_ fields
+func (field *FieldStructure) WhereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE "
 	for _, title := range fields {
@@ -351,3 +352,4 @@ func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
 
 	return fieldStrc.COLUMN_COMMENT
 }
+

@@ -6,15 +6,10 @@ package api
 
 import (
 	"net/http"
-	"log"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/models/server"
-	_ "io"
-	"os/exec"
-	"bytes"
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
@@ -23,12 +18,12 @@ import (
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
-	if r.FormValue("table") == "" {
+	tableName := r.FormValue("table")
+
+	if tableName == "" {
 		views.RenderBadRequest(w)
 		return
 	}
-
-	tableName := r.FormValue("table")
 
 	fields := admin.GetFields(tableName)
 
@@ -72,8 +67,7 @@ func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimen
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	if table, err := services.Get("schema", tableName); err != nil {
-		log.Println(err)
-		views.RenderInternalError(w)
+		views.RenderInternalError(w, err)
 	} else {
 		w.Write([]byte(viewsSystem.ShowSchema(table.(*schema.FieldsTable) )))
 	}
@@ -86,59 +80,13 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	if (tableName > "") && (id > "") {
 		arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=?", id)
 		if err != nil {
-			panic(err)
+			views.RenderInternalError(w, err)
 		}
 		if len(arrJSON) > 0 {
 			views.RenderAnyJSON(w, arrJSON[0])
 			return
 		}
-	}
-	views.RenderBadRequest(w)
-}
-func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("./webserver.sh", "update")
-	cmd.Dir = ServerConfig.SystemPath()
-	if r.FormValue("branch") > "" {
-		cmd.Args =append(cmd.Args, r.FormValue("branch"))
-	}
-
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		w.Write([]byte(err.Error()))
 	} else {
-		views.WriteHeaders(w)
-		log.Println(stdoutStderr)
-		w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
-	}
-
-}
-func HandleLogServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("./webserver.sh", "status")
-	cmd.Dir = ServerConfig.SystemPath()
-
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		w.Write([]byte(err.Error()))
-	} else {
-		views.WriteHeaders(w)
-		w.Write(stdoutStderr)
-	}
-}
-func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("./webserver.sh", "restart")
-	cmd.Dir = ServerConfig.SystemPath()
-
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		w.Write([]byte(err.Error()))
-	} else {
-		views.WriteHeaders(w)
-		w.Write(stdoutStderr)
+		views.RenderBadRequest(w)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
+	"log"
 //	"views/templates/layouts/common"
 )
 
@@ -51,7 +52,8 @@ func RenderNoPermissionPage(w http.ResponseWriter) {
 func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
-func RenderInternalError(w http.ResponseWriter) {
+func RenderInternalError(w http.ResponseWriter, err error) {
+	log.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
