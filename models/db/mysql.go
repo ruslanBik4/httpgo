@@ -226,22 +226,22 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
-func getSQLFromSETID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string{
+func getSQLFromSETID(fields *schema.FieldsTable, field *schema.FieldStructure, parentTable string) string{
 	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
-	titleField := field.GetForeignFields()
+	//titleField := field.GetForeignFields()
 
 	where := field.WhereFromSet(fields)
 
-	return fmt.Sprintf(`SELECT p.id, %s, id_%s
-		FROM %s v
-		JOIN %s p
-		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
-		titleField, parentTable, tableValue, tableProps)
+	return fmt.Sprintf(`SELECT p.id
+		FROM  %s p
+		JOIN	%s v
+		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
+		tableProps, tableValue, parentTable)
 
 }
-func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,parentTable string) string{
+func getSQLFromNodeID(fields *schema.FieldsTable, field *schema.FieldStructure,parentTable string) string{
 	var tableProps, titleField string
 
 	tableValue := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
@@ -266,7 +266,7 @@ func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,pa
 
 }
 
-func getSQLFromTableID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string {
+func getSQLFromTableID(fields *schema.FieldsTable, field *schema.FieldStructure, parentTable string) string {
 
 
 	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
@@ -308,12 +308,13 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	columns, err := rows.Columns()
 
 	var valuePtrs []interface{}
-	for i, _ := range fields.Rows {
-		valuePtrs = append(valuePtrs, &fields.Rows[i] )
+	for _, fieldName := range columns {
+		valuePtrs = append(valuePtrs, fields.FindField(fieldName) )
 	}
 
-	values := make(map[string] interface{}, len(columns) )
+
 	for rows.Next() {
+		values := make(map[string] interface{}, len(columns) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			log.Println(err)
 			continue
@@ -327,8 +328,12 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			fields.ID, _ = strconv.Atoi( fieldID.Value )
 		}
 
-		for _, field := range fields.Rows {
+		for _, fieldName := range columns {
 
+			field := fields.FindField(fieldName)
+			//if field == nil {
+			//	values[fieldName] =
+			//}
 			values[field.COLUMN_NAME] = field.Value
 			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
