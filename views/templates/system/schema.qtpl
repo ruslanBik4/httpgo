@@ -1,0 +1,46 @@
+{% import (
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+)
+%}
+Показ схемы определенной таблицы.
+{% func ShowSchema(fields *schema.FieldsTable) %}
+    <div>
+    {% for idx, field := range fields.Rows %}
+        <div id="divField{%d idx %}" class="input-wrap {%s field.CSSClass %}" >
+        <div> COLUMN_NAME   <b>	{%s field.COLUMN_NAME %} </b> </div>
+        <div> DATA_TYPE 	<b> {%s field.DATA_TYPE %} </b></div>
+        <div> COLUMN_DEFAULT 	<b> {%s field.COLUMN_DEFAULT %} </b></div>
+        <div> IS_NULLABLE 	<b> {%s field.IS_NULLABLE %} </b></div>
+        <div> CHARACTER_SET_NAME <b> {%s field.CHARACTER_SET_NAME%} </b></div>
+        <div> COLUMN_COMMENT 	<b> {%s field.COLUMN_COMMENT %} </b></div>
+        <div> COLUMN_TYPE 	<b> {%s field.COLUMN_TYPE %} </b></div>
+        <div> CHARACTER_MAXIMUM_LENGTH <b> {%d field.CHARACTER_MAXIMUM_LENGTH%} </b></div>
+        <div> Value 		<b> {%s field.Value 	%} </b></div>
+        <div> IsHidden 	<b> {%v field.IsHidden %} </b></div>
+        <div> InputType	<b> {%s field.InputType%} </b></div>
+        <div> CSSClass  	<b> {%s field.CSSClass  %} </b></div>
+        <div> CSSStyle    <b> {%s field.CSSStyle   %} </b></div>
+        <div> TableName 	<b> {%s field.TableName %} </b></div>
+        <div> Where 		<b> {%s field.Where 	%} </b></div>
+        <div> Figure 		<b> {%s field.Figure 	%} </b></div>
+        <div> Placeholder	<b> {%s field.Placeholder%} </b></div>
+        <div> Pattern		<b> {%s field.Pattern	%} </b></div>
+        <div> MinDate		<b> {%s field.MinDate	%} </b></div>
+        <div> MaxDate		<b> {%s field.MaxDate	%} </b></div>
+        <div> BeforeHtml	<b> {%s field.BeforeHtml%} </b></div>
+        <div> Html		<b> {%s field.Html	%} </b></div>
+        <div> AfterHtml	<b> {%s field.AfterHtml%} </b></div>
+        <div> ForeignFields	<b> {%s field.ForeignFields%} </b></div>
+        <div> LinkTD		<b> {%s field.LinkTD	%} </b></div>
+        {% for name, value := range field.Events %}
+            <div>   {%s name %} <b>{%s value %} </b>  </div>
+        {% endfor %}
+        {% for name, value := range field.DataJSOM %}
+         <div>  {%s name %} <b>{%s value.(string) %} </b> </div>
+        {% endfor %}
+        {% for i, value := range field.EnumValues %}
+       <div>  {%d i %} <b>{%s value %} </b> </div>
+        {% endfor %}
+    {% endfor %}
+    </div>
+{% endfunc %}

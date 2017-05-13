@@ -65,8 +65,7 @@ func (permissions *pService) Get(messages ... interface{}) ( interface{}, error)
 
 	responce := make(map[string] bool)
 	for _, message := range messages {
-		for _, mess1 := range message.([] interface{}) {
-			switch mess := mess1.(type) {
+			switch mess := message.(type) {
 			case map[string]string:
 				for key, val := range mess {
 					pRole, ok := permissions.Rows[key]
@@ -83,7 +82,7 @@ func (permissions *pService) Get(messages ... interface{}) ( interface{}, error)
 				responce["Unknow type"] = false
 
 			}
-		}
+
 	}
 
 	return responce, nil
