@@ -4,12 +4,18 @@
 
 export class Native {
 
-  static getHTMLDom(component, data) {
+  static getHTMLDom(component, data, remove = false, parent) {
     let temp = document.createElement('template');
     if (temp.content && this.isElement(component)) {
       temp.innerHTML = eval('`' + component.innerHTML + '`');
-      component.parentElement.appendChild(temp.content);
-      component.parentNode.removeChild(component);
+      if (this.isElement(parent)) {
+        parent.appendChild(temp.content);
+      } else {
+        component.parentElement.appendChild(temp.content);
+      }
+      if (remove) {
+        component.parentNode.removeChild(component);
+      }
     } else {
       console.log(`It's not dom component: ${ component }`);
     }
@@ -63,7 +69,7 @@ export class Native {
 
     obj = data['data'];
     for (let key in obj) {
-      ParseJSON.parseDataGet(obj[key], ParseJSON.insertValueToComponent.bind(ParseJSON));
+      ParseJSON.parseDataGet(obj[key], ParseJSON.insertValueToComponent.bind(ParseJSON), '', true);
     }
 
   }
