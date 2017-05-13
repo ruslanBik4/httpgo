@@ -21,7 +21,7 @@ import (
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-	tableNameFromSQL = regexp.MustCompile(`(?i)\bfrom\b\s*\W?(\w+)`)
+	tableNameFromSQL = regexp.MustCompile(`(?is)\b(?:from|into|update|join)\s+(\w+)`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
@@ -226,26 +226,26 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
-func getSQLFromSETID(fields *schema.FieldsTable, field *schema.FieldStructure, parentTable string) string{
-	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
-	tableValue := parentTable + "_" + tableProps + "_has"
+func getSQLFromSETID(field *schema.FieldStructure) string{
 
-	//titleField := field.GetForeignFields()
+	parentTable := field.Table.Name
+	tableProps  := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
+	tableValue  := parentTable + "_" + tableProps + "_has"
 
-	where := field.WhereFromSet(fields)
+	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id
-		FROM  %s p
-		JOIN	%s v
+		FROM %s p
+		JOIN %s v
 		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
 		tableProps, tableValue, parentTable)
 
 }
-func getSQLFromNodeID(fields *schema.FieldsTable, field *schema.FieldStructure,parentTable string) string{
+func getSQLFromNodeID(field *schema.FieldStructure) string{
 	var tableProps, titleField string
 
-	tableValue := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
-
+	parentTable := field.Table.Name
+	tableValue  := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
 	fieldsValues := schema.GetFieldsTable(tableValue)
 
 	for _, field := range fieldsValues.Rows {
@@ -256,7 +256,7 @@ func getSQLFromNodeID(fields *schema.FieldsTable, field *schema.FieldStructure,p
 		}
 	}
 
-	where := field.WhereFromSet(fields)
+	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v
@@ -266,13 +266,13 @@ func getSQLFromNodeID(fields *schema.FieldsTable, field *schema.FieldStructure,p
 
 }
 
-func getSQLFromTableID(fields *schema.FieldsTable, field *schema.FieldStructure, parentTable string) string {
+func getSQLFromTableID(field *schema.FieldStructure) string {
 
 
+	parentTable := field.Table.Name
 	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
-	//TODO структуру таблдицы вынести в ф-цию selectToMulti.. и также поле
 
-	where := field.WhereFromSet(fields)
+	where := field.WhereFromSet(field.Table)
 	if where > "" {
 		where += " AND (id_%s=?)"
 	} else {
@@ -284,15 +284,19 @@ func getSQLFromTableID(fields *schema.FieldsTable, field *schema.FieldStructure,
 }
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
+	var tables [] *schema.FieldsTable
+
 	rows, err := DoSelect(sql, args...)
 
-	arrSTR := tableNameFromSQL.FindStringSubmatch(sql)
+	arrTables := tableNameFromSQL.FindStringSubmatch(sql)
 
-	tableName := "rooms"
-	if len(arrSTR) < 1 {
-		log.Println(arrSTR)
-	} else {
-		tableName = arrSTR[1]
+	for _, tableName := range arrTables {
+
+		fields := schema.GetFieldsTable(tableName)
+		if fields != nil {
+			tables = append(tables, fields)
+			log.Println(fields.Name)
+		}
 	}
 
 	if err != nil {
@@ -300,7 +304,6 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 		return nil, err
 	}
 
-	fields := schema.GetFieldsTable(tableName)
 	defer rows.Close()
 
 	//_, rowValues, columns, colTypes := PrepareRowsToReading(rows)
@@ -308,8 +311,20 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	columns, err := rows.Columns()
 
 	var valuePtrs []interface{}
+	var fieldID *schema.FieldStructure
+
 	for _, fieldName := range columns {
-		valuePtrs = append(valuePtrs, fields.FindField(fieldName) )
+		for _, fields := range tables {
+
+			field := fields.FindField(fieldName)
+			if field != nil {
+				valuePtrs = append(valuePtrs, field )
+				if fieldName == "id" {
+					fieldID = field
+				}
+				break
+			}
+		}
 	}
 
 
@@ -321,16 +336,17 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 		}
 
 
-		//TODO предусмотреть ситуацию, когда в таблице нету поля id - для рекурсии
-		fieldID := fields.FindField("id")
-
-		if fieldID != nil {
-			fields.ID, _ = strconv.Atoi( fieldID.Value )
-		}
-
 		for _, fieldName := range columns {
 
-			field := fields.FindField(fieldName)
+			var field *schema.FieldStructure
+
+			for _, fields := range tables {
+
+				field = fields.FindField(fieldName)
+				if field != nil {
+					break
+				}
+			}
 			//if field == nil {
 			//	values[fieldName] =
 			//}
@@ -340,27 +356,27 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(field.COLUMN_NAME, "setid_")  {
-				sqlCommand := getSQLFromSETID(fields, field, tableName)
+				sqlCommand := getSQLFromSETID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
-				sqlCommand := getSQLFromNodeID(fields, field, tableName)
+				sqlCommand := getSQLFromNodeID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
-				sqlCommand := getSQLFromTableID(fields, field, tableName)
+				sqlCommand := getSQLFromTableID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID)
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value)
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
