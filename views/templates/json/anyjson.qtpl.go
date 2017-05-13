@@ -343,13 +343,9 @@ func StreamWriteStringDimension(qw422016 *qt422016.Writer, arrJSON StringDimensi
 	comma := ""
 
 	//line views/templates/json/anyjson.qtpl:70
-	for key, value := range arrJSON {
+	for _, value := range arrJSON {
 		//line views/templates/json/anyjson.qtpl:70
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:70
-		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:70
-		qw422016.N().S(`:`)
 		//line views/templates/json/anyjson.qtpl:70
 		StreamWriteElement(qw422016, value)
 		//line views/templates/json/anyjson.qtpl:70

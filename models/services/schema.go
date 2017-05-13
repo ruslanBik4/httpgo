@@ -4,13 +4,23 @@
 
 package services
 
+import (
+	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/db"
+)
+
 type schemaService struct {
 	name string
+	status string
 }
 
 var (schema *schemaService = &schemaService{name:"schema"})
 
 func (schema *schemaService) Init() error{
+
+	schema.status = "starting"
+	db.InitSchema()
+	schema.status = "ready"
 	return nil
 }
 func (schema *schemaService) Send(messages ...interface{}) error{
@@ -18,6 +28,14 @@ func (schema *schemaService) Send(messages ...interface{}) error{
 
 }
 func (schema *schemaService) Get(messages ... interface{}) (responce interface{}, err error) {
+
+	switch tableName := messages[0].(type) {
+	case string:
+			return DBschema.GetFieldsTable(tableName), nil
+	default:
+		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
+	}
+
 	return nil, nil
 
 }
@@ -31,7 +49,7 @@ func (schema *schemaService) Close(out chan <- interface{}) error {
 }
 func (schema *schemaService) Status() string {
 
-	return ""
+	return schema.status
 }
 
 func init() {
