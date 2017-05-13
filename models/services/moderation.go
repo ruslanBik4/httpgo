@@ -7,7 +7,6 @@ import (mongo "gopkg.in/mgo.v2"
 	"encoding/base64"
 	"net/url"
 	"fmt"
-	"log"
 )
 
 var (moderation *mService = &mService{name:"moderation"})
@@ -78,8 +77,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	}
 
 	for _, message := range messages {
-		for _, mess1 := range message.([] interface{}) {
-			switch mess := mess1.(type) {
+			switch mess := message.(type) {
 			case map[string]string:
 					setData.Config["table"] = mess["table"]
 					setData.Config["key"] = mess["key"]
@@ -87,16 +85,20 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			case url.Values:
 				setData.Data = mess
 			default:
-				log.Println(messages)
-				panic("Wrong data types")
-			}
+				return &ErrServiceNotCorrectParamType {
+					Name: moderation.name,
+				}
+
 		}
 	}
+
 
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
-		panic("Wrong data values")
+		return &ErrServiceNotCorrectParamType {
+			Name: moderation.name,
+		}
 	}
 
 	cConnect := moderation.connect.DB("newDB").C(setData.Config["table"])
@@ -115,7 +117,9 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
-		panic("row with key " + setData.Config["key"] + ". Dublicate key is not allowed")
+		return &ErrServiceNotCorrectParamType {
+			Name: moderation.name,
+		}
 	}
 
 	data := ToGOB64(setData.Data)
