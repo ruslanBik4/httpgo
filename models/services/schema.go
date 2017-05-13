@@ -4,6 +4,11 @@
 
 package services
 
+import (
+	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/db"
+)
+
 type schemaService struct {
 	name string
 }
@@ -11,6 +16,8 @@ type schemaService struct {
 var (schema *schemaService = &schemaService{name:"schema"})
 
 func (schema *schemaService) Init() error{
+
+	db.InitSchema()
 	return nil
 }
 func (schema *schemaService) Send(messages ...interface{}) error{
@@ -18,6 +25,19 @@ func (schema *schemaService) Send(messages ...interface{}) error{
 
 }
 func (schema *schemaService) Get(messages ... interface{}) (responce interface{}, err error) {
+
+	for _, message := range messages {
+		switch args := message.(type) {
+		case [] interface{}:
+			switch tableName := args[0].(type) {
+			case string:
+					return DBschema.GetFieldsTable(tableName), nil
+			default:
+				return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: args[0]}
+			}
+		}
+	}
+
 	return nil, nil
 
 }

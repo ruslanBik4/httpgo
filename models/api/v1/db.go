@@ -16,6 +16,9 @@ import (
 	"os/exec"
 	"bytes"
 	"strings"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"fmt"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +69,18 @@ func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimen
 	}
 	return mapToDem
 }
+func HandleSchema(w http.ResponseWriter, r *http.Request) {
+	tableName := r.FormValue("table")
+	if table, err := services.Get("schema", tableName); err != nil {
+		log.Println(err)
+		views.RenderInternalError(w)
+	} else {
+		for _,v := range table.(*schema.FieldsTable).Rows {
+			fmt.Fprintf(w, "%v", v)
+		}
+	}
 
+}
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")

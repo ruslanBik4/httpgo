@@ -150,28 +150,6 @@ func StyleInput(dataType string) string{
 	return "text"
 
 }
-// минимальный размер поля для разных типов полей
-func GetLengthFromType(dataType string) (width int, size int) {
-	switch (dataType) {
-	case "select":
-		return 120, 50
-	case "checkbox":
-		return 50, 15
-	case "number":
-		return 70, 50
-	case "date":
-		return 110, 50
-	case "datetime":
-		return 140, 50
-	case "timestamp":
-		return 140, 50
-	case "textarea":
-		return 120, 50
-	}
-
-	return 120, 50
-
-}
 
 // Scan implements the Scanner interface.
 func (field *FieldStructure) Scan(value interface{}) error {
@@ -221,7 +199,7 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
-	titleField := field.GetForeignFields(tableProps)
+	titleField := field.GetForeignFields()
 	if titleField == "" {
 		return ""
 	}
@@ -233,7 +211,7 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 
 }
 
-func (field *FieldStructure) GetForeignFields(tableName string)  string {
+func (field *FieldStructure) GetForeignFields()  string {
 
 
 	if field.ForeignFields > "" {

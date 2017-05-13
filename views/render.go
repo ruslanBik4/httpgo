@@ -46,8 +46,12 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 func RenderNoPermissionPage(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusForbidden)
 }
+// render errors
 func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
+}
+func RenderInternalError(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusInternalServerError)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)
@@ -55,7 +59,7 @@ func RenderUnAuthorized(w http.ResponseWriter) {
 func RenderNotFound(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
 }
-
+// render from template
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{} ) error {
 
 	WriteHeaders(w)
@@ -109,10 +113,16 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 	return nil
 
 }
+// render JSON from any data type
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte( json.WriteAnyJSON(arrJSON) ) )
+}
+func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write( []byte( json.WriteArrJSON(arrJSON) ) )
 }
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
@@ -120,7 +130,7 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
-
+// render JSON for form by fields map
 func RenderJSONAnyForm(w http.ResponseWriter, fields *forms.FieldsTable, form *json.FormStructure,
 	AddJson map[string] string) error {
 

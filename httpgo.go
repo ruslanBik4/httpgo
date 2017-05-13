@@ -12,7 +12,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/admin"
@@ -59,6 +58,7 @@ var (
 		"/components/": handlerComponents,
 		"/api/v1/table/form/": api.HandleFieldsJSON,
 		"/api/v1/table/row/":  api.HandleRowJSON,
+		"/api/v1/table/schema/":  api.HandleSchema,
 		"/api/v1/update/":  api.HandleUpdateServer,
 		"/api/v1/restart/":  api.HandleRestartServer,
 		"/api/v1/log/":  api.HandleLogServer,
@@ -124,26 +124,28 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	tableName := "business"
-	if r.FormValue("table") > "" {
-		tableName = r.FormValue("table")
-	}
-	fields := admin.GetFields(tableName)
+	log.Println(r)
+	const _24K = (1 << 10) * 24
+	r.ParseMultipartForm(_24K)
+	for _, headers := range r.MultipartForm.File {
+		for _, header := range headers {
+			var err interface{}
+			inFile, _ := header.Open()
 
-	id := "1"
-	if r.FormValue("id") > "" {
-		id = r.FormValue("id")
-	}
+			err = services.Send("photos", "save", header.Filename, inFile)
+			if err != nil {
+				switch err.(type) {
+				case services.ErrServiceNotCorrectOperation:
+					log.Println(err)
+				}
+				w.Write([]byte(err.(error).Error()))
 
-	arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=?", id)
-	if err != nil {
-		panic(err)
+			} else {
+				w.Write([]byte("Succesfull"))
+			}
+		}
 	}
-	addJSON := make(map[string]string, 1)
-	addJSON["data"] = json.WriteSliceJSON(arrJSON)
-
-	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
-	return
+	
 }
 
 func handleUpdate(w http.ResponseWriter, r *http.Request) {

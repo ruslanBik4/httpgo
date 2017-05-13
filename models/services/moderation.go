@@ -7,6 +7,7 @@ import (mongo "gopkg.in/mgo.v2"
 	"encoding/base64"
 	"net/url"
 	"fmt"
+	"log"
 )
 
 var (moderation *mService = &mService{name:"moderation"})
@@ -78,8 +79,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 
 	for _, message := range messages {
 		for _, mess1 := range message.([] interface{}) {
-		for _, mess2 := range mess1.([] interface{}) {
-			switch mess := mess2.(type) {
+			switch mess := mess1.(type) {
 			case map[string]string:
 					setData.Config["table"] = mess["table"]
 					setData.Config["key"] = mess["key"]
@@ -87,9 +87,9 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			case url.Values:
 				setData.Data = mess
 			default:
+				log.Println(messages)
 				panic("Wrong data types")
 			}
-		}
 		}
 	}
 
@@ -137,13 +137,11 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 	}
 
 	for _, message := range messages {
-		for _, mess1 := range message.([] interface{}) {
-			switch mess := mess1.(type) {
+			switch mess := message.(type) {
 			case map[string]string:
 				getData.Config["table"] = mess["table"]
 				getData.Config["key"] = mess["key"]
 			}
-		}
 	}
 
 	cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])

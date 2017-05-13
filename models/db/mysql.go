@@ -219,132 +219,6 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 
 	return result.Bytes();
 }
-type TableOptions struct {
-	TABLE_NAME   string
-	TABLE_TYPE string
-	ENGINE string
-	TABLE_COMMENT string
-}
-type RecordsTables struct {
-	Rows [] TableOptions
-}
-// получение данных для одной таблицы
-func (ns *TableOptions) GetTableProp(tableName string) error {
-
-	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, " +
-		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) " +
-		"FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? order by TABLE_COMMENT", tableName)
-
-	for rows.Next() {
-
-		err := rows.Scan( &ns.TABLE_NAME, &ns.TABLE_TYPE, &ns.ENGINE, &ns.TABLE_COMMENT)
-
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-
-	}
-
-	return nil
-}
-// получение таблиц
-func (ns *RecordsTables) GetTablesProp(bd_name string)  error {
-
-	return ns.GetSelectTablesProp( "TABLE_SCHEMA='" + bd_name + "'")
-
-}
-func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
-
-	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, " +
-		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) " +
-		"FROM INFORMATION_SCHEMA.TABLES WHERE " + where + " order by TABLE_COMMENT")
-
-	for rows.Next() {
-
-		var row TableOptions
-		err := rows.Scan( &row.TABLE_NAME, &row.TABLE_TYPE, &row.ENGINE, &row.TABLE_COMMENT)
-
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		ns.Rows = append(ns.Rows, row)
-
-	}
-
-	return nil
-
-}
-type FieldStructure struct {
-	COLUMN_NAME   string
-	DATA_TYPE string
-	COLUMN_DEFAULT sql.NullString
-	IS_NULLABLE string
-	CHARACTER_SET_NAME sql.NullString
-	COLUMN_COMMENT sql.NullString
-	COLUMN_TYPE string
-	CHARACTER_MAXIMUM_LENGTH sql.NullInt64
-	//TITLE string
-	//TYPE_INPUT string
-	//IS_VIEW []uint8
-
-}
-type FieldsTable struct {
-	Rows [] FieldStructure
-	Options TableOptions
-}
-
-// получение значений полей для форматирования данных
-// получение значений полей для таблицы
-// @param args []int{} - можно передавать ограничения выводимых полей.
-// Действует как LIMIT a или LIMIT a, b
-//
-func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
-
-	valuesText := []string{}
-	for _, arg := range args {
-		valuesText = append(valuesText, strconv.Itoa(arg))
-	}
-
-	limiter := strings.Join(valuesText, ", ")
-	if limiter != "" {
-		limiter = " LIMIT " + limiter
-	}
-
-
-	rows, err := DoSelect("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, " +
-		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
-		"FROM INFORMATION_SCHEMA.COLUMNS C " +
-		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION" + limiter,
-		server.GetServerConfig().DBName(), table_name)
-	if err != nil {
-		return err
-	}
-
-	if ns.Rows == nil {
-		ns.Rows = make([] FieldStructure, 0)
-	}
-	for rows.Next() {
-		var row FieldStructure
-
-		err := rows.Scan( &row.COLUMN_NAME, &row.DATA_TYPE, &row.COLUMN_DEFAULT, &row.IS_NULLABLE,
-					&row.CHARACTER_SET_NAME, &row.COLUMN_COMMENT, &row.COLUMN_TYPE,
-					&row.CHARACTER_MAXIMUM_LENGTH )
-			//&row.TITLE, &row.TYPE_INPUT, &row.IS_VIEW,
-
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		ns.Rows = append(ns.Rows, row)
-
-	}
-
-	return nil
-}
 func getValue(fieldValue *sql.NullString) string {
 	if fieldValue.Valid {
 		return fieldValue.String
@@ -356,13 +230,13 @@ func getSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
-	titleField := "title" //field.getForeignFields(tableProps)
+	fields := schema.GetFieldsTable(parentTable)
+	field  := fields.FindField(key)
+
+	titleField := field.GetForeignFields()
 	if titleField == "" {
 		return ""
 	}
-
-	//var fieldStruct schema.FieldStructure
-	//fieldStruct.GetTitle(field.COLUMN_COMMENT)
 
 	return fmt.Sprintf(`SELECT p.id, p.%s, v.id_%s
 		FROM %s v
@@ -377,15 +251,12 @@ func getSQLFromNodeID(key, parentTable string) string{
 
 	tableValue := strings.TrimPrefix(key, "nodeid_")
 
-	var ns FieldsTable
-	ns.GetColumnsProp(tableValue)
+	fields := schema.GetFieldsTable(tableValue)
 
-	for _, field := range ns.Rows {
+	for _, field := range fields.Rows {
 		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
 			tableProps = field.COLUMN_NAME[3:]
-			var fieldStruct schema.FieldStructure
-			fieldStruct.GetTitle(field.COLUMN_COMMENT.String)
-			titleField = fieldStruct.GetForeignFields(tableProps)
+			titleField = field.GetForeignFields()
 			break
 		}
 	}
