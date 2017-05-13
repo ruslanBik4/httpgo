@@ -830,12 +830,9 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 //@author Serg Litvinov
 func (fields *FieldsTable) AppendNewFieldRows (fields1 FieldsTable,  args ...interface{}){
 	for _, row := range fields1.Rows{
-        log.Println(row)
 		for _, arg := range args {
-			log.Println(arg)
 			if row.COLUMN_NAME == arg {
 				fields.Rows = append(fields.Rows,row)
-				log.Println("New values ", arg, "append to rows Source")
 			}
 		}
 	}
