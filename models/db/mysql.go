@@ -274,12 +274,13 @@ func getSQLFromNodeID(key, parentTable string) string{
 
 }
 
-func getSQLFromTableID(key, parentTable string) string {
+func getSQLFromTableID(fields *schema.FieldsTable, key, parentTable string) string {
 
-	tableProps := strings.TrimPrefix(key, "setid_")
-	fields := schema.GetFieldsTable(parentTable)
-	field  := fields.FindField(key)
 
+	tableProps := strings.TrimPrefix(key, "tableid_")
+	//TODO структуру таблдицы вынести в ф-цию selectToMulti.. и также поле
+
+	field := fields.FindField(key)
 	where := field.WhereFromSet(fields)
 	if where > "" {
 		where += " AND (id_%s=?)"
@@ -311,11 +312,26 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	defer rows.Close()
 
 	valuePtrs, rowValues, columns, colTypes := PrepareRowsToReading(rows)
+	fields := schema.GetFieldsTable(tableName)
 
 	for rows.Next() {
 		if err := rows.Scan(valuePtrs...); err != nil {
 			log.Println(err)
 			continue
+		}
+		//заполняем структуру занчениями
+		for _, colType := range colTypes {
+			fieldName := colType.Name()
+			fieldValue, ok := rowValues[fieldName]
+			if !ok {
+				log.Println(err)
+				continue
+			}
+			if fieldValue.Valid {
+				fields.FindField(fieldName).Value = fieldValue.String
+			} else {
+				fields.FindField(fieldName).Value = ""
+			}
 		}
 
 		values := make(map[string] interface{}, len(columns) )
@@ -354,7 +370,8 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				}
 				continue
 			} else if strings.HasPrefix(fieldName, "tableid_"){
-				values[fieldName], err = SelectToMultidimension( getSQLFromTableID(fieldName, tableName), id.String)
+				log.Println(getSQLFromTableID(fields, fieldName, tableName))
+				values[fieldName], err = SelectToMultidimension( getSQLFromTableID(fields, fieldName, tableName), id.String)
 				if err != nil {
 					log.Println(err)
 					values[fieldName] = err.Error()
