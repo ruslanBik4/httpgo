@@ -21,7 +21,9 @@ import (
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-	tableNameFromSQL = regexp.MustCompile(`(?is)\b(?:from|into|update|join)\s+(\w+)`)
+	//регулярное выражение вытаскивающее имя таблицы из запроса
+	//TODO не отрабатывает конструкцию FROM table1, table2
+	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
@@ -35,6 +37,8 @@ type SqlCustom struct {
 func prepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)
 }
+
+//doConnect() error
 func doConnect() error {
 	var DriveName mysql.MySQLDriver
 	var err error
@@ -55,6 +59,8 @@ func doConnect() error {
 	return nil
 
 }
+
+//DoInsert(sql string, args ...interface
 func DoInsert(sql string, args ...interface{}) (int, error) {
 
 	if err := doConnect(); err != nil {
@@ -71,6 +77,8 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 		return int(lastInsertId), err
 	}
 }
+
+//DoUpdate(sql string, args ...interface
 func DoUpdate(sql string, args ...interface{}) (int, error) {
 
 	if err := doConnect(); err != nil {
@@ -86,6 +94,8 @@ func DoUpdate(sql string, args ...interface{}) (int, error) {
 		return int(RowsAffected), err
 	}
 }
+
+//DoSelect(sql string, args ...interface
 func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
 
 	if err := doConnect(); err != nil {
@@ -181,6 +191,8 @@ func PrepareRowsToReading(rows *sql.Rows) (row [] interface {}, rowField map[str
 	return row, rowField, columns, colTypes
 
 }
+
+//GetResultToJSON (rows *sql.Rows) []byte
 func GetResultToJSON (rows *sql.Rows) []byte{
 
 	var rowOutput [] map[string] string
@@ -219,6 +231,8 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 
 	return result.Bytes();
 }
+
+//getValue(fieldValue *sql.NullString) string
 func getValue(fieldValue *sql.NullString) string {
 	if fieldValue.Valid {
 		return fieldValue.String
@@ -226,6 +240,8 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
+
+//getSQLFromSETID(field *schema.FieldStructure) string
 func getSQLFromSETID(field *schema.FieldStructure) string{
 
 	parentTable := field.Table.Name
@@ -237,10 +253,13 @@ func getSQLFromSETID(field *schema.FieldStructure) string{
 	return fmt.Sprintf(`SELECT p.id
 		FROM %s p
 		JOIN %s v
-		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
+		ON (p.id = v.id_%[1]s
+		AND id_%[3]s = ?) ` + where,
 		tableProps, tableValue, parentTable)
 
 }
+
+//getSQLFromNodeID(field *schema.FieldStructure) string
 func getSQLFromNodeID(field *schema.FieldStructure) string{
 	var tableProps, titleField string
 
@@ -282,25 +301,29 @@ func getSQLFromTableID(field *schema.FieldStructure) string {
 	 return fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
 
 }
+
+//SelectToMultidimension(sql string, args ...interface
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
 	var tables [] *schema.FieldsTable
 
 	rows, err := DoSelect(sql, args...)
 
-	arrTables := tableNameFromSQL.FindStringSubmatch(sql)
+	arrTables := tableNameFromSQL.FindAllStringSubmatch(sql, -1)
+	for _, tablePart := range arrTables {
 
-	for _, tableName := range arrTables {
+		for _, tableName := range tablePart {
 
-		fields := schema.GetFieldsTable(tableName)
-		if fields != nil {
-			tables = append(tables, fields)
-			log.Println(fields.Name)
+			fields := schema.GetFieldsTable(tableName)
+			if fields != nil {
+				tables = append(tables, fields)
+			}
+			log.Println("mysql.go,","string 301,", tableName)
 		}
 	}
 
 	if err != nil {
-		log.Println(err, sql)
+		log.Println("mysql.go,","string 306,", err, sql)
 		return nil, err
 	}
 
