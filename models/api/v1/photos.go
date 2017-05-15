@@ -27,7 +27,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	number, err := strconv.Atoi(num)
 	if err != nil {
-		number = 0
+		number = -1
 	}
 	result, err := services.Get("photos", tableName, id, number)
 	if err != nil {
@@ -35,7 +35,8 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch ioReader := result.(type) {
-
+	case []string:
+		views.RenderStringSliceJSON(w, ioReader)
 	case *os.File:
 		//Get the file size
 		FileStat, _ := ioReader.Stat()                     //Get info from file

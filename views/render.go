@@ -127,6 +127,11 @@ func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte( json.WriteArrJSON(arrJSON) ) )
 }
+func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write( []byte( json.WriteStringDimension(arrJSON) ) )
+}
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 

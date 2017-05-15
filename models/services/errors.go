@@ -8,7 +8,7 @@ const MessServNotFound = " service not found in list services"
 type ErrServiceNotFound struct {
 	Name string
 }
-func (err *ErrServiceNotFound) Error() string{
+func (err ErrServiceNotFound) Error() string{
 	return err.Name + MessServNotFound
 }
 
@@ -19,7 +19,7 @@ type ErrServiceNotCorrectOperation struct {
 	OperName string
 	Message string
 }
-func (err *ErrServiceNotCorrectOperation) Error() string{
+func (err ErrServiceNotCorrectOperation) Error() string{
 	err.Message = err.Name + photosNotCorrectOperation + err.OperName
 	return err.Message
 }
@@ -28,9 +28,10 @@ const photosNotCorrectParameterType = " Wrong params type "
 
 type ErrServiceNotCorrectParamType struct {
 	Name string
+	Number int
 	Param interface{}
 }
-func (err *ErrServiceNotCorrectParamType) Error() string{
+func (err ErrServiceNotCorrectParamType) Error() string{
 	return err.Name + photosNotCorrectParameterType
 }
 
@@ -40,6 +41,14 @@ type ErrServiceNotEnougnParameter struct {
 	Name string
 	Param interface{}
 }
-func (err *ErrServiceNotEnougnParameter) Error() string{
+func (err ErrServiceNotEnougnParameter) Error() string{
+	return err.Name + photosNotEnougnParameter
+}
+
+type ErrServiceWrongIndex struct {
+	Name string
+	Index int
+}
+func (err ErrServiceWrongIndex) Error() string{
 	return err.Name + photosNotEnougnParameter
 }
