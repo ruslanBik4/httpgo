@@ -14,11 +14,11 @@ export class ParseJSON {
    *   When need recursion for table
    */
 
-  static parseDataGet(data, callback, strForTable = '') {
+  static parseDataGet(data, callback, strForTable = '', isDataTable = false) {
 
     for (let id in data) {
 
-      if (typeof id === 'string') {
+      if (data[id] !== null) {
         let component;
 
         if (strForTable.length === 0) {
@@ -33,7 +33,11 @@ export class ParseJSON {
 
         // has prefix "tableid_" for recursion
         else if (id.startsWith(Variables.paramsJSONTable)) {
-          this.parseDataGet(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''));
+          if (isDataTable) {
+            // callback(component, data[id],  id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+          } else {
+            this.parseDataGet(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''), isDataTable);
+          }
         }
       }
 
@@ -91,14 +95,86 @@ export class ParseJSON {
    *   Insert data after create component
    */
 
-  static insertValueToComponent(component, attr = '') {
-    if (typeof attr === 'string' && attr.length !== 0) {
+  static insertValueToComponent(component, attr = '', strForTable = '') {
+
+    const insertValueCurrentComponent = (component, attr) => {
       const func = this.components[component.tagName];
       if (func && func.addAttrToComponent) {
-        func.addAttrToComponent(component, attr);
+        return func.addAttrToComponent(component, attr);
       } else {
         console.log(`Not found: ${ component.tagName }`);
       }
+    };
+
+    function setNewAttrIdAndName(component, id, index) {
+      component.setAttribute('name', `${ id }${ index }`);
+      component.setAttribute('id', `${ id }${ index }`);
+    }
+
+    if (attr != null) {
+
+      if (strForTable.length !== 0 &&  Object.prototype.toString.call(attr) === '[object Array]' && attr.length !== 0) {
+
+        let isFirstComponent = true;
+        let newComponents;
+        let parent;
+
+        attr.forEach((element, index) => {
+
+          let addComponent;
+
+          if (newComponents) {
+            addComponent = newComponents.cloneNode(true);
+          }
+
+          for (let id in element) {
+
+            let component;
+            let idComponent = `${ strForTable }:${ id }`;
+
+            if (isFirstComponent) {
+              component = document.getElementById(idComponent);
+
+              if (component) {
+                if (!parent) {
+                  parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
+                  const temp = document.createElement('template');
+                  temp.innerHTML = parent.innerHTML;
+                  newComponents = temp;
+                } else {
+                  insertValueCurrentComponent(component, element[id]);
+                  setNewAttrIdAndName(component, idComponent, index);
+                }
+              }
+
+            } else if (newComponents && parent) {
+              try {
+                const newComponent = addComponent.content.querySelector(`[name="${ strForTable }:${ id }"]`);
+                if (newComponent) {
+                  insertValueCurrentComponent(newComponent, element[id]);
+                  setNewAttrIdAndName(newComponent, idComponent, index);
+                }
+              } catch(e) {
+                console.log(e);
+                alert(e);
+              }
+            }
+
+          }
+
+          if (parent && addComponent) {
+            parent.appendChild(addComponent.content);
+          }
+
+          isFirstComponent = false;
+
+        });
+        // const component = document.getElementById(`${ strForTable }:${ attr[id] }`);
+
+      } else if (Native.isElement(component) && attr.length !== 0) {
+        insertValueCurrentComponent(component, attr);
+      }
+
     }
   }
 

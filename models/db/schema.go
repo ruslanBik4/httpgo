@@ -140,9 +140,9 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 }
 
 // заполняет структуру для формы данными, взятыми из структуры БД
-func (ns *FieldsTable) PutDataFrom() (fields *schema.FieldsTable) {
+func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable) {
 
-	fields = &schema.FieldsTable{Name: ns.Options.TABLE_NAME}
+	fields = &schema.FieldsTable{Name: tableName}
 	fields.Rows = make([] schema.FieldStructure, len(ns.Rows) )
 	for i, field := range ns.Rows {
 		fieldStrc := &schema.FieldStructure{
@@ -166,7 +166,6 @@ func (ns *FieldsTable) PutDataFrom() (fields *schema.FieldsTable) {
 		if field.COLUMN_DEFAULT.Valid {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
-
 
 		if field.COLUMN_COMMENT.Valid {
 			fieldStrc.GetTitle(field.COLUMN_COMMENT.String)
@@ -197,7 +196,8 @@ func InitSchema() {
 			var fields FieldsTable
 			fields.GetColumnsProp(table.TABLE_NAME)
 
-			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom()
+			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
+			log.Println(schema.SchemaCache[table.TABLE_NAME].Name)
 		}
 
 	}()

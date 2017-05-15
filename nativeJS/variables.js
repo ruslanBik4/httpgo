@@ -17,7 +17,9 @@ const dynamicallyScript = 'app-script';
 const paramsJSONId = 'data-api-post-id';
 const paramsJSONSetText = 'data-set-text';
 const paramsJSONTable = 'tableid_';
+const paramsJSONPhotos = 'photoid_photos';
 const paramsJSONForPost = 'value';
+const paramsJSONIdForTable = 'native-table-id';
 
 
 // JSON reserved words
@@ -84,8 +86,16 @@ export class Variables {
     return paramsJSONTable;
   }
 
+  static get paramsJSONPhotos() {
+    return paramsJSONPhotos;
+  }
+
   static get paramsJSONForPost() {
     return paramsJSONForPost;
+  }
+
+  static get paramsJSONIdForTable() {
+    return paramsJSONIdForTable;
   }
 
 

@@ -21,7 +21,9 @@ import (
 var (
 	dbConn *sql.DB
 	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
-	tableNameFromSQL = regexp.MustCompile(`(?i)\bfrom\b\s*\W?(\w+)`)
+	//регулярное выражение вытаскивающее имя таблицы из запроса
+	//TODO не отрабатывает конструкцию FROM table1, table2
+	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
 )
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
@@ -35,6 +37,8 @@ type SqlCustom struct {
 func prepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)
 }
+
+//doConnect() error
 func doConnect() error {
 	var DriveName mysql.MySQLDriver
 	var err error
@@ -55,6 +59,8 @@ func doConnect() error {
 	return nil
 
 }
+
+//DoInsert(sql string, args ...interface
 func DoInsert(sql string, args ...interface{}) (int, error) {
 
 	if err := doConnect(); err != nil {
@@ -71,6 +77,8 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 		return int(lastInsertId), err
 	}
 }
+
+//DoUpdate(sql string, args ...interface
 func DoUpdate(sql string, args ...interface{}) (int, error) {
 
 	if err := doConnect(); err != nil {
@@ -86,6 +94,8 @@ func DoUpdate(sql string, args ...interface{}) (int, error) {
 		return int(RowsAffected), err
 	}
 }
+
+//DoSelect(sql string, args ...interface
 func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
 
 	if err := doConnect(); err != nil {
@@ -181,6 +191,8 @@ func PrepareRowsToReading(rows *sql.Rows) (row [] interface {}, rowField map[str
 	return row, rowField, columns, colTypes
 
 }
+
+//GetResultToJSON (rows *sql.Rows) []byte
 func GetResultToJSON (rows *sql.Rows) []byte{
 
 	var rowOutput [] map[string] string
@@ -219,6 +231,8 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 
 	return result.Bytes();
 }
+
+//getValue(fieldValue *sql.NullString) string
 func getValue(fieldValue *sql.NullString) string {
 	if fieldValue.Valid {
 		return fieldValue.String
@@ -226,26 +240,31 @@ func getValue(fieldValue *sql.NullString) string {
 
 	return "NULL"
 }
-func getSQLFromSETID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string{
-	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
-	tableValue := parentTable + "_" + tableProps + "_has"
 
-	titleField := field.GetForeignFields()
+//getSQLFromSETID(field *schema.FieldStructure) string
+func getSQLFromSETID(field *schema.FieldStructure) string{
 
-	where := field.WhereFromSet(fields)
+	parentTable := field.Table.Name
+	tableProps  := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
+	tableValue  := parentTable + "_" + tableProps + "_has"
 
-	return fmt.Sprintf(`SELECT p.id, %s, id_%s
-		FROM %s v
-		JOIN %s p
-		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
-		titleField, parentTable, tableValue, tableProps)
+	where := field.WhereFromSet(field.Table)
+
+	return fmt.Sprintf(`SELECT p.id
+		FROM %s p
+		JOIN %s v
+		ON (p.id = v.id_%[1]s
+		AND id_%[3]s = ?) ` + where,
+		tableProps, tableValue, parentTable)
 
 }
-func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,parentTable string) string{
+
+//getSQLFromNodeID(field *schema.FieldStructure) string
+func getSQLFromNodeID(field *schema.FieldStructure) string{
 	var tableProps, titleField string
 
-	tableValue := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
-
+	parentTable := field.Table.Name
+	tableValue  := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
 	fieldsValues := schema.GetFieldsTable(tableValue)
 
 	for _, field := range fieldsValues.Rows {
@@ -256,7 +275,7 @@ func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,pa
 		}
 	}
 
-	where := field.WhereFromSet(fields)
+	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v
@@ -266,13 +285,13 @@ func getSQLFromNodeID(fields *schema.FieldsTable, field schema.FieldStructure,pa
 
 }
 
-func getSQLFromTableID(fields *schema.FieldsTable, field schema.FieldStructure, parentTable string) string {
+func getSQLFromTableID(field *schema.FieldStructure) string {
 
 
+	parentTable := field.Table.Name
 	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
-	//TODO структуру таблдицы вынести в ф-цию selectToMulti.. и также поле
 
-	where := field.WhereFromSet(fields)
+	where := field.WhereFromSet(field.Table)
 	if where > "" {
 		where += " AND (id_%s=?)"
 	} else {
@@ -282,25 +301,32 @@ func getSQLFromTableID(fields *schema.FieldsTable, field schema.FieldStructure, 
 	 return fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
 
 }
+
+//SelectToMultidimension(sql string, args ...interface
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+
+	var tables [] *schema.FieldsTable
 
 	rows, err := DoSelect(sql, args...)
 
-	arrSTR := tableNameFromSQL.FindStringSubmatch(sql)
+	arrTables := tableNameFromSQL.FindAllStringSubmatch(sql, -1)
+	for _, tablePart := range arrTables {
 
-	tableName := "rooms"
-	if len(arrSTR) < 1 {
-		log.Println(arrSTR)
-	} else {
-		tableName = arrSTR[1]
+		for _, tableName := range tablePart {
+
+			fields := schema.GetFieldsTable(tableName)
+			if fields != nil {
+				tables = append(tables, fields)
+			}
+			log.Println("mysql.go,","string 301,", tableName)
+		}
 	}
 
 	if err != nil {
-		log.Println(err, sql)
+		log.Println("mysql.go,","string 306,", err, sql)
 		return nil, err
 	}
 
-	fields := schema.GetFieldsTable(tableName)
 	defer rows.Close()
 
 	//_, rowValues, columns, colTypes := PrepareRowsToReading(rows)
@@ -308,54 +334,72 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	columns, err := rows.Columns()
 
 	var valuePtrs []interface{}
-	for i, _ := range fields.Rows {
-		valuePtrs = append(valuePtrs, &fields.Rows[i] )
+	var fieldID *schema.FieldStructure
+
+	for _, fieldName := range columns {
+		for _, fields := range tables {
+
+			field := fields.FindField(fieldName)
+			if field != nil {
+				valuePtrs = append(valuePtrs, field )
+				if fieldName == "id" {
+					fieldID = field
+				}
+				break
+			}
+		}
 	}
 
-	values := make(map[string] interface{}, len(columns) )
+
 	for rows.Next() {
+		values := make(map[string] interface{}, len(columns) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			log.Println(err)
 			continue
 		}
 
 
-		//TODO предусмотреть ситуацию, когда в таблице нету поля id - для рекурсии
-		fieldID := fields.FindField("id")
+		for _, fieldName := range columns {
 
-		if fieldID != nil {
-			fields.ID, _ = strconv.Atoi( fieldID.Value )
-		}
+			var field *schema.FieldStructure
 
-		for _, field := range fields.Rows {
+			for _, fields := range tables {
 
+				field = fields.FindField(fieldName)
+				if field != nil {
+					break
+				}
+			}
+			//if field == nil {
+			//	values[fieldName] =
+			//}
 			values[field.COLUMN_NAME] = field.Value
 			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
 			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
 			//TODO для полей типа setid_ формировать название таблицы
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(field.COLUMN_NAME, "setid_")  {
-				sqlCommand := getSQLFromSETID(fields, field, tableName)
+				sqlCommand := getSQLFromSETID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
-				sqlCommand := getSQLFromNodeID(fields, field, tableName)
+				sqlCommand := getSQLFromNodeID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID )
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
-				sqlCommand := getSQLFromTableID(fields, field, tableName)
+				sqlCommand := getSQLFromTableID(field)
 				log.Println(sqlCommand)
-				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fields.ID)
+				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value)
 				if err != nil {
 					log.Println(err)
 					values[field.COLUMN_NAME] = err.Error()
