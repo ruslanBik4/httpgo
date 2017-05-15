@@ -28,6 +28,7 @@ const photosNotCorrectParameterType = " Wrong params type "
 
 type ErrServiceNotCorrectParamType struct {
 	Name string
+	Number int
 	Param interface{}
 }
 func (err *ErrServiceNotCorrectParamType) Error() string{
@@ -41,5 +42,13 @@ type ErrServiceNotEnougnParameter struct {
 	Param interface{}
 }
 func (err *ErrServiceNotEnougnParameter) Error() string{
+	return err.Name + photosNotEnougnParameter
+}
+
+type ErrServiceWrongIndex struct {
+	Name string
+	Index int
+}
+func (err *ErrServiceWrongIndex) Error() string{
 	return err.Name + photosNotEnougnParameter
 }

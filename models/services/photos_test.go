@@ -6,6 +6,7 @@ package services
 
 import (
 	"testing"
+	"log"
 )
 
 const serviceName = "photos"
@@ -19,12 +20,37 @@ func TestPhotosSend(t *testing.T) {
 	}
 	switch err := result.(type){
 
-	case ErrServiceNotCorrectOperation:
+	case *ErrServiceNotCorrectOperation:
+		t.Log(err.Error())
 		t.Skipped()
 	case error:
 		t.Error("Not correct error type - " + err.Error())
 	default:
 		t.Error("Not correct error type - " )
+	}
+}
+
+func TestPhotosGetList(t *testing.T) {
+
+	var iErr interface{}
+	result, iErr := Get(serviceName, "rooms", "1", 1)
+
+	switch err := iErr.(type){
+
+	case *ErrServiceNotCorrectOperation:
+		t.Skipped()
+	case *ErrServiceNotCorrectParamType:
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+	case *ErrServiceWrongIndex:
+		t.Errorf("Index ",err.Index)
+	case nil:
+		t.Skipped()
+		log.Println(result)
+		return
+
+	default:
+		t.Error("Not correct error type - " )
+		log.Println(err.(ErrServiceNotCorrectParamType).Param)
 	}
 }
 

@@ -48,7 +48,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 		oper = message
 		log.Println(oper)
 	default:
-		return &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+		return &ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 1}
 	}
 
 	if oper == "save" {
@@ -56,7 +56,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 		case string:
 			photos.fileName = message
 		default:
-			return &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+			return &ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 2}
 		}
 		if len(args) < 3 {
 			return &ErrServiceNotEnougnParameter{Name: photos.name, Param: args}
@@ -79,7 +79,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 //1 - имя таблицы, view или сервиса
 //2 - id записи
 //3 - порядковый номер файла файла
-// (-1 означает, что нужно вернуть список файлов)
+// (0 означает, что нужно вернуть список файлов)
 func (photos *photosService) Get(args ... interface{}) (responce interface{}, err error) {
 
 	var catalog, id string
@@ -91,24 +91,27 @@ func (photos *photosService) Get(args ... interface{}) (responce interface{}, er
 	case string:
 		catalog = message
 	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 1}
 	}
 
 	switch message := args[1].(type) {
 	case string:
 		id = message
 	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 2}
 	}
 
 	switch message := args[2].(type) {
 	case int:
 		num = message
+	case int32, int64:
+		num = message.(int)
 	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+		log.Println(message)
+		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 3}
 	}
 
-	if num == 0 {
+	if num == -1 {
 
 		return photos.listFiles(catalog, id)
 	} else {
@@ -155,7 +158,7 @@ func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, 
 	}
 
 	if num > len(files)-1 {
-		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: num}
+		return nil, &ErrServiceWrongIndex{Name:"Number not in files array range", Index: num }
 	}
 	outFile, err := os.Open(files[num])
 	if err != nil {
@@ -174,13 +177,13 @@ func (photos *photosService) listFiles(catalog, id string) ( list string, err er
 		log.Println(err)
 		return "", err
 	}
-
+log.Println(files)
 	comma := ""
 	for _, fileName := range files {
 		list += comma + fileName
 		comma = ";"
 	}
-
+log.Println(list)
 	return list, nil
 
 }
