@@ -315,12 +315,12 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			if fields != nil {
 				tables = append(tables, fields)
 			}
-			log.Println("mysql.go,","string 301,", tableName)
+			//log.Println("mysql.go,","string 301,", tableName)
 		}
 	}
 
 	if err != nil {
-		log.Println("mysql.go,","string 306,", err, sql)
+		//log.Println("mysql.go,","string 306,", err, sql)
 		return nil, err
 	}
 
