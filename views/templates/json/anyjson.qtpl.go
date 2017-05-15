@@ -237,13 +237,9 @@ func StreamWriteArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
 	comma := ""
 
 	//line views/templates/json/anyjson.qtpl:56
-	for key, value := range arrJSON {
+	for _, value := range arrJSON {
 		//line views/templates/json/anyjson.qtpl:56
 		qw422016.E().S(comma)
-		//line views/templates/json/anyjson.qtpl:56
-		qw422016.N().D(key)
-		//line views/templates/json/anyjson.qtpl:56
-		qw422016.N().S(`:`)
 		//line views/templates/json/anyjson.qtpl:56
 		StreamWriteElement(qw422016, value)
 		//line views/templates/json/anyjson.qtpl:56
