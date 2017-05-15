@@ -36,9 +36,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	switch ioReader := result.(type) {
 	case []string:
-		for _, filename := range ioReader {
-			w.Write([]byte(filename))
-		}
+		views.RenderStringSliceJSON(w, ioReader)
 	case *os.File:
 		//Get the file size
 		FileStat, _ := ioReader.Stat()                     //Get info from file

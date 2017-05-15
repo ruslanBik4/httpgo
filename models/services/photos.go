@@ -10,6 +10,7 @@ import (
 	"log"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"io"
+	"fmt"
 )
 
 type photosService struct {
@@ -79,7 +80,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 //1 - имя таблицы, view или сервиса
 //2 - id записи
 //3 - порядковый номер файла файла
-// (0 означает, что нужно вернуть список файлов)
+// (0 означает, что нужно вернуть массив со списком файлов)
 func (photos *photosService) Get(args ... interface{}) (responce interface{}, err error) {
 
 	var catalog, id string
@@ -113,7 +114,7 @@ func (photos *photosService) Get(args ... interface{}) (responce interface{}, er
 
 	if num == -1 {
 
-		return photos.listFiles(catalog, id)
+		return photos.listLinks(catalog, id)
 	} else {
 
 		return photos.readFile(catalog, id, num)
@@ -173,6 +174,18 @@ func (photos *photosService) listFiles(catalog, id string) ( files []string, err
 	fullPath := filepath.Join(photos.path, catalog, id)
 	return filepath.Glob( fullPath + "/*.*")
 
+}
+func (photos *photosService) listLinks(catalog, id string) ( list []string, err error) {
+	list, err = photos.listFiles(catalog, id)
+	if err != nil {
+		return nil, err
+	}
+
+	for num, _ := range list {
+		list[num] = fmt.Sprintf("/api/v1/photos/?table=%s&id=%s&num=%d", catalog, id, num)
+	}
+
+	return list, nil
 }
 func init() {
 	AddService(photos.name, photos)
