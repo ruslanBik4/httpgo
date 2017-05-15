@@ -150,8 +150,7 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 }
 func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, error) {
 
-	fullPath := filepath.Join(photos.path, catalog, id)
-	files, err := filepath.Glob( fullPath + "/*.*")
+	files, err := photos.listFiles(catalog, id )
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -169,22 +168,10 @@ func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, 
 	return outFile, nil
 
 }
-func (photos *photosService) listFiles(catalog, id string) ( list string, err error) {
+func (photos *photosService) listFiles(catalog, id string) ( files []string, err error) {
 
 	fullPath := filepath.Join(photos.path, catalog, id)
-	files, err := filepath.Glob( fullPath + "/*.*")
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-log.Println(files)
-	comma := ""
-	for _, fileName := range files {
-		list += comma + fileName
-		comma = ";"
-	}
-log.Println(list)
-	return list, nil
+	return filepath.Glob( fullPath + "/*.*")
 
 }
 func init() {

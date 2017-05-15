@@ -35,8 +35,10 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch ioReader := result.(type) {
-	case string:
-		w.Write([]byte(ioReader))
+	case []string:
+		for _, filename := range ioReader {
+			w.Write([]byte(filename))
+		}
 	case *os.File:
 		//Get the file size
 		FileStat, _ := ioReader.Stat()                     //Get info from file
