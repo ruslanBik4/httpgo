@@ -20,7 +20,7 @@ func TestPhotosSend(t *testing.T) {
 	}
 	switch err := result.(type){
 
-	case *ErrServiceNotCorrectOperation:
+	case ErrServiceNotCorrectOperation:
 		t.Log(err.Error())
 		t.Skipped()
 	case error:
@@ -32,17 +32,17 @@ func TestPhotosSend(t *testing.T) {
 
 func TestPhotosGetList(t *testing.T) {
 
-	var iErr interface{}
+	//var iErr interface{}
 	result, iErr := Get(serviceName, "rooms", "1", 1)
 
 	switch err := iErr.(type){
 
-	case *ErrServiceNotCorrectOperation:
+	case ErrServiceNotCorrectOperation:
 		t.Skipped()
-	case *ErrServiceNotCorrectParamType:
+	case ErrServiceNotCorrectParamType:
 		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
-	case *ErrServiceWrongIndex:
-		t.Errorf("Index ",err.Index)
+	case ErrServiceWrongIndex:
+		t.Errorf("Wrong index %d",err.Index)
 	case nil:
 		t.Skipped()
 		log.Println(result)

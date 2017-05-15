@@ -11,7 +11,7 @@ import (
 type ErrNotLogin struct {
 	Message string
 }
-func (err *ErrNotLogin) Error() string{
+func (err ErrNotLogin) Error() string{
 	return err.Message
 }
 //Структура для ошибок базы данных
@@ -19,14 +19,14 @@ type ErrDb struct {
 	Message string
 }
 //Функция для обработк структуры ошибок базы данных
-func (err *ErrDb) Error() string{
+func (err ErrDb) Error() string{
 	return err.Message
 }
 
 type ErrNotPermission struct {
 	Message string
 }
-func (err *ErrNotPermission) Error() string{
+func (err ErrNotPermission) Error() string{
 	return err.Message
 }
 
