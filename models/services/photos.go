@@ -78,16 +78,18 @@ func (photos *photosService) Send(args ...interface{}) error{
 //согласно параметрам:
 //1 - имя таблицы, view или сервиса
 //2 - id записи
-//3 - порядковый номер файла
+//3 - порядковый номер файла файла
+// (-1 означает, что нужно вернуть список файлов)
 func (photos *photosService) Get(args ... interface{}) (responce interface{}, err error) {
 
-	var name, id string
-	if len(args) < 2 {
+	var catalog, id string
+	var num int
+	if len(args) < 3 {
 		return nil, &ErrServiceNotEnougnParameter{Name: photos.name, Param: args}
 	}
 	switch message := args[0].(type) {
 	case string:
-		name = message
+		catalog = message
 	default:
 		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
 	}
@@ -99,7 +101,20 @@ func (photos *photosService) Get(args ... interface{}) (responce interface{}, er
 		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
 	}
 
-	return photos.readFile(name, id)
+	switch message := args[2].(type) {
+	case int:
+		num = message
+	default:
+		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: message}
+	}
+
+	if num == 0 {
+
+		return photos.listFiles(catalog, id)
+	} else {
+
+		return photos.readFile(catalog, id, num)
+	}
 }
 func (photos *photosService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
 
@@ -130,7 +145,7 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 	return nil
 
 }
-func (photos *photosService) readFile(catalog, id string) ( io.Reader, error) {
+func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, error) {
 
 	fullPath := filepath.Join(photos.path, catalog, id)
 	files, err := filepath.Glob( fullPath + "/*.*")
@@ -139,13 +154,34 @@ func (photos *photosService) readFile(catalog, id string) ( io.Reader, error) {
 		return nil, err
 	}
 
-	outFile, err := os.Open(files[0])
+	if num > len(files)-1 {
+		return nil, &ErrServiceNotCorrectParamType{Name: photos.name, Param: num}
+	}
+	outFile, err := os.Open(files[num])
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
 	return outFile, nil
+
+}
+func (photos *photosService) listFiles(catalog, id string) ( list string, err error) {
+
+	fullPath := filepath.Join(photos.path, catalog, id)
+	files, err := filepath.Glob( fullPath + "/*.*")
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	comma := ""
+	for _, fileName := range files {
+		list += comma + fileName
+		comma = ";"
+	}
+
+	return list, nil
 
 }
 func init() {
