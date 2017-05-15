@@ -18,8 +18,24 @@ export class Observer {
   }
 
   static addListener(eventName, callback) {
-    this.listeners.has(eventName) || this.listeners.set(eventName, []);
-    this.listeners.get(eventName).push(callback);
+
+    const listeners = this.listeners.get(eventName);
+    let isListener = false;
+
+    if (listeners && listeners.length) {
+      for (let listener of listeners) {
+        if (listener === callback) {
+          isListener = true;
+          break;
+        }
+      }
+    }
+
+    if (!isListener) {
+      this.listeners.has(eventName) || this.listeners.set(eventName, []);
+      this.listeners.get(eventName).push(callback);
+    }
+
   }
 
   static removeListener(eventName, callback) {

@@ -8,7 +8,7 @@ export class Router {
   static start() {
 
     this.urls = urls;
-    this.parse = new Parse(document.body);
+    Parse.start(document.body);
     this.routing(window.location.pathname, true);
 
     window.onpopstate = (obj) => {
@@ -38,17 +38,6 @@ export class Router {
       }
 
     }
-  }
-
-
-
-  /*
-   * TODO: need for bicycle, later it's removed
-  */
-
-  static _bicycle(url) {
-    $('div.autoload').each( function () {
-    });
   }
 
 
