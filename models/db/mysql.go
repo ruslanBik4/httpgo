@@ -251,10 +251,8 @@ func getSQLFromSETID(field *schema.FieldStructure) string{
 	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id
-		FROM %s p
-		JOIN %s v
-		ON (p.id = v.id_%[1]s
-		AND id_%[3]s = ?) ` + where,
+		FROM %s p JOIN %s v
+		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
 		tableProps, tableValue, parentTable)
 
 }
@@ -278,8 +276,7 @@ func getSQLFromNodeID(field *schema.FieldStructure) string{
 	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id, %s, id_%s
-		FROM %s v
-		JOIN %s p
+		JOIN %s p FROM %s v
 		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
 		titleField, parentTable, tableValue, tableProps)
 
@@ -318,12 +315,12 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			if fields != nil {
 				tables = append(tables, fields)
 			}
-			log.Println("mysql.go,","string 301,", tableName)
+			//log.Println("mysql.go,","string 301,", tableName)
 		}
 	}
 
 	if err != nil {
-		log.Println("mysql.go,","string 306,", err, sql)
+		//log.Println("mysql.go,","string 306,", err, sql)
 		return nil, err
 	}
 

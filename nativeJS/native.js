@@ -4,20 +4,68 @@
 
 export class Native {
 
-  static getHTMLDom(component, data, remove = false, parent) {
+  /*
+  *   get HTML bu template string
+  */
+
+  static getHTMLDom(component, data, parent, isRemove = false) {
     let temp = document.createElement('template');
+    let result;
+
     if (temp.content && this.isElement(component)) {
       temp.innerHTML = eval('`' + component.innerHTML + '`');
+
       if (this.isElement(parent)) {
         parent.appendChild(temp.content);
+        result = parent.parentElement.lastElementChild;
       } else {
         component.parentElement.appendChild(temp.content);
+        result = component.parentElement.lastElementChild;
       }
-      if (remove) {
+
+      if (isRemove) {
         component.parentNode.removeChild(component);
       }
+
     } else {
       console.log(`It's not dom component: ${ component }`);
+    }
+    return result;
+  }
+
+
+  /*
+  *   add parse to Dynamic Component
+  */
+
+  static reChangeDomDynamically(component) {
+    if (this.isElement(component)) {
+      Parse.parsComponents(component);
+    } else {
+      console.log(`This component is not dom: `, component);
+    }
+  }
+
+
+  /*
+  *   current Id dynamically page
+  */
+
+  static get getIdCurrentPage() {
+    return Parse.idCurrentPage;
+  }
+
+
+  /*
+  *   parse JSON is safely
+  */
+
+  static jsonParse(response) {
+    try {
+      return JSON.parse(response);
+    } catch(e) {
+      console.log(e);
+      alert(e); // error in the above string (in this case, yes)!
     }
   }
 
@@ -26,7 +74,13 @@ export class Native {
    *  get and post request with callback
    */
 
-  static request(url, method = 'GET', params = {}) {
+  static request(url, callback, params = {}) {
+
+    let method = 'GET';
+
+    if (params) {
+      method = 'POST';
+    }
 
     const XHR = ('onload' in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
     const xhr = new XHR();
@@ -36,10 +90,12 @@ export class Native {
 
     xhr.send(params);
 
-    this.requestOn = true;
-
     xhr.onload = (response) => {
-      Observer.emit(Variables.responseToRequest, response.currentTarget.responseText, url);
+      if (callback) {
+        callback(response.currentTarget.responseText, url);
+      } else {
+        Observer.emit(Variables.responseToRequest, response.currentTarget.responseText, url);
+      }
     };
 
     xhr.onerror = function () {

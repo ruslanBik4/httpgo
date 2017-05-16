@@ -18,19 +18,25 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
+	num:= r.FormValue("num")
 
-	if (tableName == "") || (id == "id") {
+	if (tableName == "") || (id == "") {
 		views.RenderBadRequest(w)
 		return
 	}
 
-	result, err := services.Get("photos", tableName, id)
+	number, err := strconv.Atoi(num)
+	if err != nil {
+		number = -1
+	}
+	result, err := services.Get("photos", tableName, id, number)
 	if err != nil {
 		views.RenderInternalError(w, err)
 	}
 
 	switch ioReader := result.(type) {
-
+	case []string:
+		views.RenderStringSliceJSON(w, ioReader)
 	case *os.File:
 		//Get the file size
 		FileStat, _ := ioReader.Stat()                     //Get info from file
@@ -48,7 +54,6 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		} else if num < FileStat.Size() {
 			log.Println(num, FileStat.Size())
 		}
-		log.Println("dfdf")
 	}
 
 }

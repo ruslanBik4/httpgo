@@ -197,7 +197,6 @@ func InitSchema() {
 			fields.GetColumnsProp(table.TABLE_NAME)
 
 			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
-			log.Println(schema.SchemaCache[table.TABLE_NAME].Name)
 		}
 
 	}()
