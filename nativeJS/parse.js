@@ -90,7 +90,14 @@ export class Parse {
 
       ++isRequestAPI;
 
-      Native.request(component.getAttribute(Variables.routerAPIGET) + '?id=' + idCurrentPage, (response) => {
+      let src = component.getAttribute(Variables.routerAPIPOST);
+
+      if (idCurrentPage) {
+        src += '?id=' + idCurrentPage;
+      }
+
+
+      Native.request(src, (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
         --isRequestAPI;
         this._documentIsReady(component);
@@ -112,7 +119,13 @@ export class Parse {
 
       ++isRequestAPI;
 
-      Native.request(component.getAttribute(Variables.routerAPIPOST) + '?id=' + idCurrentPage, (response) => {
+      let src = component.getAttribute(Variables.routerAPIPOST);
+
+      if (idCurrentPage) {
+        src += '?id=' + idCurrentPage;
+      }
+
+      Native.request(src, (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
         --isRequestAPI;
         this._documentIsReady(component);
