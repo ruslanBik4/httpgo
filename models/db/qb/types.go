@@ -5,18 +5,18 @@
 
 package qb
 
-type qbFields struct {
+type QBFields struct {
 	Name  string
 	Alias string
 
 }
-type qbTables struct {
+type QBTables struct {
 	Name string
 	Join string
-	Fields map[string] *qbFields
+	Fields map[string] *QBFields
 }
 type QueryBuilder struct {
-	Tables map[string] *qbTables
+	Tables map[string] *QBTables
 	Where   string
 	Args [] interface{}
 	GroupBy string

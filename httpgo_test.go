@@ -6,39 +6,20 @@ package main
 
 import (
 	"testing"
-	"github.com/ruslanBik4/httpgo/models/docs"
+	"flag"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services"
 	"fmt"
 )
-const spreadsheetId = "1EvNM788L-CC7N1kYIieQZEuinpmI7yVzu_mV75DF3cM"
 
-func TestReadGoogleSheets(t *testing.T) {
-	var sheet docs.SheetsGoogleDocs
-	fileName := ""
-
-	defer func() {
-		err := recover()
-		if err != nil {
-			t.Error(err)
-		}
-	}()
-	if err := sheet.Init(); err != nil {
-		t.Errorf("error initialization: filename=%s, error=%q", fileName, err)
-	}
-
-	fmt.Printf("before read")
-	readRange := "шаблон!A1:F10"
-	if resp, err := sheet.Read(spreadsheetId, readRange); err != nil {
-		t.Errorf("Error during reading sheet %v", err)
-	} else {
-		fmt.Printf("%v", resp)
-		for idx,  row := range resp.Values {
-			// Print columns A and E, which correspond to indices 0 and 4.
-			for idx := range row {
-				fmt.Printf("%s | ", row[idx])
-			}
-			fmt.Printf(", %s\n", idx)
-		}
-
-	}
+func TestMain(t *testing.T) {
+	t.Skipped()
 }
-
+func init() {
+	flag.Parse()
+	ServerConfig := server.GetServerConfig()
+	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+		fmt.Println(err)
+	}
+	services.InitServices()
+}

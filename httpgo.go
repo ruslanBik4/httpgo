@@ -14,6 +14,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/system"
 	_ "github.com/ruslanBik4/httpgo/models/docs"
@@ -125,6 +126,28 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
+	qBuilder := &qb.QueryBuilder{OrderBy:"name"}
+
+	table := &qb.QBTables{Name:"rooms"}
+	table.Fields = make(map[string] *qb.QBFields, 2)
+	table.Fields["name"] = &qb.QBFields{Name: "title" }
+	table.Fields["num"]  = &qb.QBFields{Name: "id"}
+	table.Fields["num"]  = &qb.QBFields{Name: "id_users"}
+	table.Fields["sret"] = &qb.QBFields{Name: `"retro"`}
+
+
+
+	qBuilder.Tables = make( map[string] *qb.QBTables, 2)
+	qBuilder.Tables["a"] = table
+
+	arrJSON, err := qBuilder.SelectToMultidimension()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	views.RenderArrayJSON(w, arrJSON)
+	return
 	log.Println(r)
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)

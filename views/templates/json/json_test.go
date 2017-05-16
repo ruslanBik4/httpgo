@@ -23,6 +23,8 @@ func TestWriteAnyJSON(t *testing.T) {
 	} else if !equalMaps(input, result) {
 		t.Errorf("WriteAnyJSON=%v, result=%v", input, result)
 	}
+
+	t.Skipped()
 }
 
 func equalMaps(input, result map[string] interface{}) bool {

@@ -12,31 +12,37 @@ import (
 	"log"
 )
 
-func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
+func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
 
-	var fields [] schema.FieldStructure
-	var qFields, sql, qFrom string
+	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
-	for alias, table := range qb.Tables {
+	for aliasTable, table := range qb.Tables {
 		tableStrc := schema.GetFieldsTable(table.Name)
-		if fields == nil {
-			panic("Not table in schema")
+		if tableStrc == nil {
+			panic( &schema.ErrNotFoundTable{ Table:table.Name} )
 		}
 		// temporary not validate first table on  having JOIN property
 		// TODO: add checking join if first table as error!!!
 		if table.Join > "" {
 			commaTbl = " JOIN "
 		}
-		qFrom += commaTbl + table.Name + " " + alias + table.Join
+		qFrom += commaTbl + table.Name + " " + aliasTable + table.Join
 		commaTbl = ", "
 		for alias, field := range table.Fields {
+			var queryName string
 			fieldStrc := tableStrc.FindField(field.Name)
+			if alias > "" {
+				queryName = ` as "` + alias + `"`
+			}
 			if fieldStrc == nil {
-				panic("not field in table " + qFrom)
+				fieldStrc = &schema.FieldStructure{COLUMN_NAME:alias}
+				qFields += commaFld + field.Name + queryName
+			} else {
+
+				qFields += commaFld + aliasTable + "." + field.Name + queryName
 			}
 			fields = append(fields, *fieldStrc)
-			qFields += commaFld + field.Name + " " + alias
 			commaFld = ", "
 		}
 	}
@@ -45,10 +51,18 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 		sql += " group by " + qb.GroupBy
 	}
 	if qb.OrderBy > "" {
-		sql += " group by " + qb.OrderBy
+		sql += " order by " + qb.OrderBy
 	}
 
-	rows, err := db.DoSelect("select " + qFields + " from " + qFrom + sql, qb.Args...)
+	return "select " + qFields + " from " + qFrom + sql, fields, nil
+
+}
+func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
+
+	sql, fields, err := qb.createSQL()
+
+	log.Println(sql)
+	rows, err := db.DoSelect(sql, qb.Args...)
 
 
 	if err != nil {
@@ -61,8 +75,8 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 	var valuePtrs []interface{}
 	var fieldID *schema.FieldStructure
 
-	for _, field := range fields {
-		valuePtrs = append(valuePtrs, &field )
+	for ind, _ := range fields {
+		valuePtrs = append(valuePtrs, &fields[ind] )
 	}
 
 
@@ -77,10 +91,6 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 		for _, field := range fields {
 
 			values[field.COLUMN_NAME] = field.Value
-			//TODO для полей типа tableid_, setid_, nodeid_ придумать механизм для блока WHERE
-			// (по ключу родительской таблицы и патетрну из свойств поля для полей типа set)
-			//TODO для полей типа setid_ формировать название таблицы
-			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(field.COLUMN_NAME, "setid_")  {
 				values[field.COLUMN_NAME], err = db.SelectToMultidimension( field.SQLforSelect, fieldID.Value )
 				if err != nil {
