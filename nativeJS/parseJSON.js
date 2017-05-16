@@ -34,7 +34,7 @@ export class ParseJSON {
         // has prefix "tableid_" for recursion
         else if (id.startsWith(Variables.paramsJSONTable)) {
           if (isDataTable) {
-            // callback(component, data[id],  id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+            callback(component, data[id],  id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
           } else {
             this.parseDataGet(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''), isDataTable);
           }
