@@ -55,6 +55,7 @@ type FieldStructure struct {
 	LinkTD		string
 	DataJSOM        map[string] interface{}
 	EnumValues 	[]string
+	SQLforSelect    string
 }
 type FieldsTable struct {
 	Name string
@@ -351,5 +352,64 @@ func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
 	}
 
 	return fieldStrc.COLUMN_COMMENT
+}
+func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
+	parentTable := fieldStrc.Table.Name
+	tableProps  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
+	tableValue  := parentTable + "_" + tableProps + "_has"
+
+	where := fieldStrc.WhereFromSet(fieldStrc.Table)
+
+	fieldStrc.SQLforSelect = fmt.Sprintf(`SELECT p.id
+		FROM %s p JOIN %s v
+		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
+		tableProps, tableValue, parentTable)
+	return nil
+}
+//getSQLFromNodeID(field *schema.FieldStructure) string
+func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
+	var tableProps, titleField string
+
+	parentTable := fieldStrc.Table.Name
+	tableValue  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
+	fieldsValues := GetFieldsTable(tableValue)
+
+	if fieldsValues == nil {
+		return *new(error)
+	}
+	for _, field := range fieldsValues.Rows {
+		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
+			tableProps = field.COLUMN_NAME[3:]
+			titleField = field.GetForeignFields()
+			break
+		}
+	}
+
+	where := fieldStrc.WhereFromSet(fieldStrc.Table)
+
+	fieldStrc.SQLforSelect =  fmt.Sprintf(`SELECT p.id, %s, id_%s
+		JOIN %s p FROM %s v
+		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
+		titleField, parentTable, tableValue, tableProps)
+
+	return nil
+}
+
+func (fieldStrc *FieldStructure) WriteSQLByTableID() error {
+
+
+	parentTable := fieldStrc.Table.Name
+	tableProps := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
+
+	where := fieldStrc.WhereFromSet(fieldStrc.Table)
+	if where > "" {
+		where += " AND (id_%s=?)"
+	} else {
+		where = " WHERE (id_%s=?)"
+	}
+
+	fieldStrc.SQLforSelect =  fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
+
+	return nil
 }
 

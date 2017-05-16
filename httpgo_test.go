@@ -15,6 +15,12 @@ func TestReadGoogleSheets(t *testing.T) {
 	var sheet docs.SheetsGoogleDocs
 	fileName := ""
 
+	defer func() {
+		err := recover()
+		if err != nil {
+			t.Error(err)
+		}
+	}()
 	if err := sheet.Init(); err != nil {
 		t.Errorf("error initialization: filename=%s, error=%q", fileName, err)
 	}
