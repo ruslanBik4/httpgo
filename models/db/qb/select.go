@@ -112,21 +112,21 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 			if strings.HasPrefix(fieldName, "setid_")  {
 				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID )
 				if err != nil {
-					log.Println(err)
+					log.Println(err, field.SQLforSelect)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(fieldName, "nodeid_"){
 				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID )
 				if err != nil {
-					log.Println(err)
+					log.Println(err, field.SQLforSelect)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if strings.HasPrefix(fieldName, "tableid_"){
 				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID)
 				if err != nil {
-					log.Println(err)
+					log.Println(err, field.SQLforSelect)
 					values[fieldName] = err.Error()
 				}
 				continue

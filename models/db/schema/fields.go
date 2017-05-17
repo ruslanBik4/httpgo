@@ -197,7 +197,12 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
-	return result +")"
+	if result > "" {
+
+		return result + ")"
+	}
+
+	return ""
 }
 func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")

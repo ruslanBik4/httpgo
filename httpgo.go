@@ -59,6 +59,7 @@ var (
 		"/components/": handlerComponents,
 		"/api/v1/table/form/": api.HandleFieldsJSON,
 		"/api/v1/table/row/":  api.HandleRowJSON,
+		"/api/v1/table/rows/":  api.HandleAllRowsJSON,
 		"/api/v1/table/schema/":  api.HandleSchema,
 		"/api/v1/update/":  api.HandleUpdateServer,
 		"/api/v1/restart/":  api.HandleRestartServer,

@@ -94,3 +94,21 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderBadRequest(w)
 	}
 }
+func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
+	tableName := r.FormValue("table")
+
+	if (tableName > "") {
+		qBuilder := qb.Create("", "", "")
+		qBuilder.AddTable("a", tableName)
+		arrJSON, err := qBuilder.SelectToMultidimension()
+		if err != nil {
+			views.RenderInternalError(w, err)
+		}
+		if len(arrJSON) > 0 {
+			views.RenderAnyJSON(w, arrJSON[0])
+			return
+		}
+	} else {
+		views.RenderBadRequest(w)
+	}
+}
