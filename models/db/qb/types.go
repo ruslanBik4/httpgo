@@ -47,7 +47,7 @@ func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
 //add Table, returns object table
 func (qb *QueryBuilder) AddTable(alias, name string) *QBTables {
 
-	table := &QBTables{Name: name}
+	table := &QBTables{Name: name, Alias: alias}
 	table.Fields = make(map[string] *QBFields, 0)
 	qb.Tables    = append(qb.Tables, table)
 
@@ -56,11 +56,10 @@ func (qb *QueryBuilder) AddTable(alias, name string) *QBTables {
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTables {
 
-	table := &QBTables{Name: name}
-	table.Fields = make(map[string] *QBFields, 0)
+	table := qb.AddTable(alias, name)
 	table.Join   = join
 	table.Using  = usingOrOn
-	qb.Tables    = append(qb.Tables, table)
+	//qb.Tables    = append(qb.Tables, table)
 
 	return table
 }

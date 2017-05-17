@@ -218,7 +218,39 @@ func sockCatch() {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	qBuilder := qb.Create("", "", "")
+	qBuilder := qb.Create("b.is_del=false", "b.id", "")
+
+	qBuilder.AddTable("b", "business").AddFields( map[string] string{
+		"id": "id",
+		"name":  "name",
+		"phone": "phone",
+		"email": "email",
+		"pe_registration_certificate_date": "pe_registration_certificate_date",
+	})
+	qBuilder.JoinTable("h", "hotels","LEFT JOIN","ON b.id=h.`id_business`").AddFields( map[string] string{
+		"count_objects": "COUNT(h.`id`)",
+	})
+	qBuilder.JoinTable("u","users","INNER JOIN", "ON b.id_users=u.`id`").AddFields( map[string] string{
+		"fullname": "fullname",
+	})
+	qBuilder.JoinTable("cl","currency_list","INNER JOIN", "ON b.id_currency_list=cl.id").AddFields( map[string] string{
+		"currency_title": "title",
+	})
+	qBuilder.JoinTable("t","towns_list","LEFT JOIN", "ON b.id_towns_list=t.id").AddFields( map[string] string{
+		"town_title": "title",
+	})
+
+
+	arrJSON, err := qBuilder.SelectToMultidimension()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	views.RenderArrayJSON(w, arrJSON)
+	return
+	//qBuilder := qb.Create("", "", "")
 
 	qBuilder.AddTable("a", "rooms").AddFields( map[string] string{
 
@@ -228,7 +260,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	})
 
 
-	arrJSON, err := qBuilder.SelectToMultidimension()
+	arrJSON, err = qBuilder.SelectToMultidimension()
 
 	if err != nil {
 		log.Println(err)
