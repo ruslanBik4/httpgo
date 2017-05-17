@@ -17,8 +17,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
-	for aliasTable, table := range qb.Tables {
+	for _, table := range qb.Tables {
 		tableStrc := schema.GetFieldsTable(table.Name)
+		aliasTable:= table.Alias
 		if tableStrc == nil {
 			panic( &schema.ErrNotFoundTable{ Table:table.Name} )
 		}
