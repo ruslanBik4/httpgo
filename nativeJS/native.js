@@ -17,7 +17,7 @@ export class Native {
 
       if (this.isElement(parent)) {
         parent.appendChild(temp.content);
-        result = parent.parentElement.lastElementChild;
+        result = parent.lastElementChild;
       } else {
         component.parentElement.appendChild(temp.content);
         result = component.parentElement.lastElementChild;
@@ -74,21 +74,36 @@ export class Native {
    *  get and post request with callback
    */
 
-  static request(url, callback, params = {}) {
+  static request(url, callback, data) {
 
     let method = 'GET';
-
-    if (params) {
-      method = 'POST';
-    }
+    let body = ['\r\n'];
 
     const XHR = ('onload' in new XMLHttpRequest()) ? XMLHttpRequest : XDomainRequest;
     const xhr = new XHR();
+
+    if (data) {
+      method = 'POST';
+    }
+
     xhr.open(method, url, true);
 
-    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    if (data) {
+      let boundary = String(Math.random()).slice(2);
+      let boundaryMiddle = '--' + boundary + '\r\n';
+      let boundaryLast = '--' + boundary + '--\r\n';
 
-    xhr.send(params);
+      for (let key in data) {
+        body.push('Content-Disposition: form-data; name="' + key + '"\r\n\r\n' + data[key] + '\r\n');
+      }
+
+      body = body.join(boundaryMiddle) + boundaryLast;
+      xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+
+    }
+
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.send(body);
 
     xhr.onload = (response) => {
       if (callback) {

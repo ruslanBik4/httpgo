@@ -1,5 +1,6 @@
 
 let isRequestAPI = 0;
+let scriptObject = [];
 let idCurrentPage;
 
 export class Parse {
@@ -33,9 +34,7 @@ export class Parse {
 
     // if tag have a app-script
     componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
-      ++isRequestAPI;
-      System.import(scriptComponent.getAttribute('src')).then(--isRequestAPI);
-
+      scriptObject.push(scriptComponent.getAttribute('src'));
     });
 
 
@@ -53,6 +52,7 @@ export class Parse {
 
   static _changeComponentDom(component) {
     isRequestAPI = 0;
+    scriptObject = [];
     this.mainContent.innerHTML = component;
     this.parsComponents(this.mainContent);
     this._documentIsReady(component);
@@ -136,9 +136,32 @@ export class Parse {
     });
   }
 
+
+  /*
+  *   import script dynamically
+  */
+
+  static _importScript(component) {
+    let arrayScript = component.querySelectorAll(Variables.dynamicallyScript);
+    debugger;
+    arrayScript.filter(function(item) {
+      debugger;
+      return item.getAttribute('src');
+    });
+    for (let script of scriptObject) {
+      const normalized = System.normalizeSync(script);
+      debugger;
+      if (System.has(normalized) && arrayScript.includes(script)) {
+        System.delete(normalized);
+      }
+      System.import(script);
+    }
+  }
+
   static _documentIsReady(component) {
     if (isRequestAPI === 0) {
       Observer.emit(Variables.documentIsReady, component);
+      this._importScript(component);
     }
   }
 
