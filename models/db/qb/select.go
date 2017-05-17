@@ -25,9 +25,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 		// temporary not validate first table on  having JOIN property
 		// TODO: add checking join if first table as error!!!
 		if table.Join > "" {
-			commaTbl = " JOIN "
+			qFrom += table.Join + table.Name + " " + aliasTable + table.Using
+		} else {
+			qFrom += commaTbl + table.Name + " " + aliasTable + table.Join
 		}
-		qFrom += commaTbl + table.Name + " " + aliasTable + table.Join
 		commaTbl = ", "
 		if len(table.Fields) == 0 {
 			qFields += commaFld + aliasTable + ".*"

@@ -13,6 +13,7 @@ type QBFields struct {
 type QBTables struct {
 	Name string
 	Join string
+	Using string
 	Fields map[string] *QBFields
 }
 type QueryBuilder struct {
@@ -48,6 +49,17 @@ func (qb *QueryBuilder) AddTable(alias, name string) *QBTables {
 
 	table := &QBTables{Name: name}
 	table.Fields = make(map[string] *QBFields, 0)
+	qb.Tables[alias] = table
+
+	return table
+}
+// add table with join
+func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTables {
+
+	table := &QBTables{Name: name}
+	table.Fields = make(map[string] *QBFields, 0)
+	table.Join   = join
+	table.Using  = usingOrOn
 	qb.Tables[alias] = table
 
 	return table

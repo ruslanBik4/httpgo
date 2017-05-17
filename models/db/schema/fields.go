@@ -176,9 +176,11 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 }
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
+// условия вынимаем из определения поля типа SET
+// и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще усло
 func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := " WHERE "
+	comma  := " WHERE ("
 	for _, title := range enumValues {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
@@ -195,7 +197,7 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
-	return result
+	return result +")"
 }
 func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")
