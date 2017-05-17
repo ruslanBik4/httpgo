@@ -33,7 +33,12 @@ type SqlCustom struct {
     Sql    string;
 }
 
-
+type ErrBadSelectQuery struct {
+	Sql string
+}
+func (err ErrBadSelectQuery) Error() string {
+	return "Bad query for select - " + err.Sql
+}
 func prepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)
 }
@@ -104,7 +109,7 @@ func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return dbConn.Query(sql, args ...)
 	} else {
-		return nil, mysql.ErrMalformPkt
+		return nil, &ErrBadSelectQuery{Sql:sql}
 	}
 }
 func DoQuery(sql string, args ...interface{})  *sql.Rows {
@@ -276,7 +281,7 @@ func getSQLFromNodeID(field *schema.FieldStructure) string{
 	where := field.WhereFromSet(field.Table)
 
 	return fmt.Sprintf(`SELECT p.id, %s, id_%s
-		JOIN %s p FROM %s v
+		FROM %s v JOIN %s p
 		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
 		titleField, parentTable, tableValue, tableProps)
 

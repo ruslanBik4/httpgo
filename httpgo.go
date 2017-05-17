@@ -124,57 +124,6 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
-func handleTest(w http.ResponseWriter, r *http.Request) {
-
-	qBuilder := &qb.QueryBuilder{OrderBy:"name"}
-
-	table := &qb.QBTables{Name:"rooms"}
-	table.Fields = make(map[string] *qb.QBFields, 2)
-	table.Fields["name"] = &qb.QBFields{Name: "title" }
-	table.Fields["num"]  = &qb.QBFields{Name: "id"}
-	table.Fields["num"]  = &qb.QBFields{Name: "id_users"}
-	table.Fields["sret"] = &qb.QBFields{Name: `"retro"`}
-
-
-
-	qBuilder.Tables = make( map[string] *qb.QBTables, 2)
-	qBuilder.Tables["a"] = table
-
-	arrJSON, err := qBuilder.SelectToMultidimension()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	views.RenderArrayJSON(w, arrJSON)
-	return
-	log.Println(r)
-	const _24K = (1 << 10) * 24
-	r.ParseMultipartForm(_24K)
-	for _, headers := range r.MultipartForm.File {
-		for _, header := range headers {
-			var err interface{}
-			inFile, _ := header.Open()
-
-			err = services.Send("photos", "save", header.Filename, inFile)
-			if err != nil {
-				switch err.(type) {
-				case services.ErrServiceNotCorrectOperation:
-					log.Println(err)
-				}
-				w.Write([]byte(err.(error).Error()))
-
-			} else {
-				w.Write([]byte("Succesfull"))
-			}
-		}
-	}
-	
-}
-
-func handleUpdate(w http.ResponseWriter, r *http.Request) {
- 
-}
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer system.Catch(w,r)
@@ -266,6 +215,53 @@ func sockCatch() {
 	log.Println(err)
 }
 
+func handleTest(w http.ResponseWriter, r *http.Request) {
+
+	qBuilder := qb.Create("", "", "")
+
+	qBuilder.AddTable("a", "rooms").AddFields( map[string] string{
+
+		"name": "title",
+		"num":  "id",
+		"title": "CONCAT('t', title)",
+	})
+
+
+	arrJSON, err := qBuilder.SelectToMultidimension()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	views.RenderArrayJSON(w, arrJSON)
+	return
+	log.Println(r)
+	const _24K = (1 << 10) * 24
+	r.ParseMultipartForm(_24K)
+	for _, headers := range r.MultipartForm.File {
+		for _, header := range headers {
+			var err interface{}
+			inFile, _ := header.Open()
+
+			err = services.Send("photos", "save", header.Filename, inFile)
+			if err != nil {
+				switch err.(type) {
+				case services.ErrServiceNotCorrectOperation:
+					log.Println(err)
+				}
+				w.Write([]byte(err.(error).Error()))
+
+			} else {
+				w.Write([]byte("Succesfull"))
+			}
+		}
+	}
+
+}
+
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")

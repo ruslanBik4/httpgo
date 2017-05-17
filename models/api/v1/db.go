@@ -14,6 +14,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
 )
 
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -78,7 +79,10 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 
 	if (tableName > "") && (id > "") {
-		arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=?", id)
+		qBuilder := qb.Create("id=?", "", "")
+		qBuilder.AddTable("a", tableName)
+		qBuilder.AddArgs(id)
+		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
 		}

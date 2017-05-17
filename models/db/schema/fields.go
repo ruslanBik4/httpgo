@@ -388,7 +388,7 @@ func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
 	fieldStrc.SQLforSelect =  fmt.Sprintf(`SELECT p.id, %s, id_%s
-		JOIN %s p FROM %s v
+		FROM %s v JOIN %s p
 		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
 		titleField, parentTable, tableValue, tableProps)
 
