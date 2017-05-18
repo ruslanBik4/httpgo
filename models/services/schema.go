@@ -14,7 +14,7 @@ type schemaService struct {
 	status string
 }
 
-var (schema *schemaService = &schemaService{name:"schema"})
+var (schema *schemaService = &schemaService{name:"schema", status: "create"})
 
 func (schema *schemaService) Init() error{
 
