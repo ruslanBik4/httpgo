@@ -1,6 +1,6 @@
 
 let isRequestAPI = 0;
-let scriptObject = [];
+let scriptIncludes = [];
 let idCurrentPage;
 
 export class Parse {
@@ -34,7 +34,7 @@ export class Parse {
 
     // if tag have a app-script
     componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
-      scriptObject.push(scriptComponent.getAttribute('src'));
+      scriptIncludes.push(scriptComponent.getAttribute('src'));
     });
 
 
@@ -52,7 +52,6 @@ export class Parse {
 
   static _changeComponentDom(component) {
     isRequestAPI = 0;
-    scriptObject = [];
     this.mainContent.innerHTML = component;
     this.parsComponents(this.mainContent);
     this._documentIsReady(component);
@@ -90,12 +89,11 @@ export class Parse {
 
       ++isRequestAPI;
 
-      let src = component.getAttribute(Variables.routerAPIPOST);
+      let src = component.getAttribute(Variables.routerAPIGET);
 
       if (idCurrentPage) {
         src += '?id=' + idCurrentPage;
       }
-
 
       Native.request(src, (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
@@ -119,17 +117,17 @@ export class Parse {
 
       ++isRequestAPI;
 
-      let src = component.getAttribute(Variables.routerAPIPOST);
+      let data = {};
 
       if (idCurrentPage) {
-        src += '?id=' + idCurrentPage;
+        data.id = idCurrentPage
       }
 
-      Native.request(src, (response) => {
+      Native.request(component.getAttribute(Variables.routerAPIPOST), (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
         --isRequestAPI;
         this._documentIsReady(component);
-      });
+      }, data);
 
       component.removeAttribute(Variables.routerAPIPOST);
 
@@ -142,16 +140,15 @@ export class Parse {
   */
 
   static _importScript(component) {
-    let arrayScript = component.querySelectorAll(Variables.dynamicallyScript);
-    debugger;
-    arrayScript.filter(function(item) {
-      debugger;
-      return item.getAttribute('src');
+    let scriptsComponent = [];
+
+    component.querySelectorAll(Variables.dynamicallyScript).forEach((dom) => {
+      scriptsComponent.push(dom.getAttribute('src'));
     });
-    for (let script of scriptObject) {
+
+    for (let script of scriptIncludes) {
       const normalized = System.normalizeSync(script);
-      debugger;
-      if (System.has(normalized) && arrayScript.includes(script)) {
+      if (System.has(normalized) && scriptsComponent.includes(script)) {
         System.delete(normalized);
       }
       System.import(script);

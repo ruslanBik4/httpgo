@@ -12,7 +12,8 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.1",
-    "gulp-jsmin": "^0.1.5"
+    "gulp-jsmin": "^0.1.5",
+    "gulp-notify": "^3.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
