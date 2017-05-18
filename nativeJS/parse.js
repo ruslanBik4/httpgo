@@ -54,7 +54,7 @@ export class Parse {
     isRequestAPI = 0;
     this.mainContent.innerHTML = component;
     this.parsComponents(this.mainContent);
-    this._documentIsReady(component);
+    this._documentIsReady(this.mainContent);
   };
 
 
