@@ -170,6 +170,16 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		if field.COLUMN_COMMENT.Valid {
 			fieldStrc.GetTitle(field.COLUMN_COMMENT.String)
 		}
+
+		if strings.HasPrefix(field.COLUMN_NAME, "setid_") {
+			fieldStrc.WriteSQLbySETID()
+		} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_") {
+			fieldStrc.WriteSQLByNodeID()
+		} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
+			fieldStrc.WriteSQLByTableID()
+		}
+
+
 		fields.Rows[i] = *fieldStrc
 	}
 

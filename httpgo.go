@@ -14,6 +14,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/system"
 	_ "github.com/ruslanBik4/httpgo/models/docs"
@@ -58,6 +59,7 @@ var (
 		"/components/": handlerComponents,
 		"/api/v1/table/form/": api.HandleFieldsJSON,
 		"/api/v1/table/row/":  api.HandleRowJSON,
+		"/api/v1/table/rows/":  api.HandleAllRowsJSON,
 		"/api/v1/table/schema/":  api.HandleSchema,
 		"/api/v1/update/":  api.HandleUpdateServer,
 		"/api/v1/restart/":  api.HandleRestartServer,
@@ -122,35 +124,6 @@ func (h *DefaultHandler) toServe(ext string) bool {
 		}
 	}
 	return false
-}
-func handleTest(w http.ResponseWriter, r *http.Request) {
-
-	log.Println(r)
-	const _24K = (1 << 10) * 24
-	r.ParseMultipartForm(_24K)
-	for _, headers := range r.MultipartForm.File {
-		for _, header := range headers {
-			var err interface{}
-			inFile, _ := header.Open()
-
-			err = services.Send("photos", "save", header.Filename, inFile)
-			if err != nil {
-				switch err.(type) {
-				case services.ErrServiceNotCorrectOperation:
-					log.Println(err)
-				}
-				w.Write([]byte(err.(error).Error()))
-
-			} else {
-				w.Write([]byte("Succesfull"))
-			}
-		}
-	}
-	
-}
-
-func handleUpdate(w http.ResponseWriter, r *http.Request) {
- 
 }
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -243,6 +216,85 @@ func sockCatch() {
 	log.Println(err)
 }
 
+func handleTest(w http.ResponseWriter, r *http.Request) {
+
+	qBuilder := qb.Create("b.is_del=false", "b.id", "")
+
+	qBuilder.AddTable("b", "business").AddFields( map[string] string{
+		"id": "id",
+		"name":  "name",
+		"phone": "phone",
+		"email": "email",
+		"pe_registration_certificate_date": "pe_registration_certificate_date",
+	})
+	qBuilder.JoinTable("h", "hotels","LEFT JOIN","ON b.id=h.`id_business`").AddFields( map[string] string{
+		"count_objects": "COUNT(h.`id`)",
+	})
+	qBuilder.JoinTable("u","users","INNER JOIN", "ON b.id_users=u.`id`").AddFields( map[string] string{
+		"fullname": "fullname",
+	})
+	qBuilder.JoinTable("cl","currency_list","INNER JOIN", "ON b.id_currency_list=cl.id").AddFields( map[string] string{
+		"currency_title": "title",
+	})
+	qBuilder.JoinTable("t","towns_list","LEFT JOIN", "ON b.id_towns_list=t.id").AddFields( map[string] string{
+		"town_title": "title",
+	})
+
+
+	arrJSON, err := qBuilder.SelectToMultidimension()
+
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	views.RenderArrayJSON(w, arrJSON)
+	return
+	//qBuilder := qb.Create("", "", "")
+
+	qBuilder.AddTable("a", "rooms").AddFields( map[string] string{
+
+		"name": "title",
+		"num":  "id",
+		"title": "CONCAT('t', title)",
+	})
+
+
+	arrJSON, err = qBuilder.SelectToMultidimension()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	views.RenderArrayJSON(w, arrJSON)
+	return
+	log.Println(r)
+	const _24K = (1 << 10) * 24
+	r.ParseMultipartForm(_24K)
+	for _, headers := range r.MultipartForm.File {
+		for _, header := range headers {
+			var err interface{}
+			inFile, _ := header.Open()
+
+			err = services.Send("photos", "save", header.Filename, inFile)
+			if err != nil {
+				switch err.(type) {
+				case services.ErrServiceNotCorrectOperation:
+					log.Println(err)
+				}
+				w.Write([]byte(err.(error).Error()))
+
+			} else {
+				w.Write([]byte("Succesfull"))
+			}
+		}
+	}
+
+}
+
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
+
+}
 
 func handlerMainContent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
