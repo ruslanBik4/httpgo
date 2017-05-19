@@ -181,12 +181,12 @@ export class Native {
         let nameField;
 
         if (strTable.length !== 0) {
-          nameField = `name="${ strTable }:${ name }"`;
+          nameField = `${ strTable }:${ name }`;
         } else {
-          nameField = `name="${ name }"`;
+          nameField = `${ name }`;
         }
 
-        const dom = component.querySelector(`[${ nameField }]`);
+        const dom = component.querySelector(`[name="${ nameField }"]`);
 
         if (name.startsWith(Variables.paramsJSONTable)) {
           this.setDefaultFields(component, name[id], index, str, id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
