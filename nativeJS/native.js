@@ -174,11 +174,31 @@ export class Native {
    *   set default data for Fields
    */
 
-  static setDefaultFields(component, fields) {
+  static setDefaultFields(component, fields, index = '', str = '', strTable = '') {
     if (this.isElement(component)) {
+
       for (let name in fields) {
-        ParseJSON.setAttrToComponent(component.querySelector(`#${ name }`), fields[name]);
+        let dom;
+        let nameField;
+
+        if (strTable.length !== 0) {
+          nameField = `[name="${ strTable }:${ name }"`;
+          dom = component.querySelector(nameField);
+        } else {
+          nameField = `[name="${ name }"`;
+          dom = component.querySelector(nameField);
+        }
+
+        if (name.startsWith(Variables.paramsJSONTable)) {
+          this.setDefaultFields(component, name[id], index, str, id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+        } else if (dom) {
+          dom.setAttribute('name', `${ nameField }${ str }[${ index }]`);
+          dom.setAttribute('id', `${ nameField }${ str }[${ index }]`);
+          ParseJSON.setAttrToComponent(dom, fields[name]);
+        }
+
       }
+
     }
   }
 
@@ -193,7 +213,10 @@ export class Native {
         if (typeof data[name] === 'object') {
           this.insertData(component, data[name]);
         } else {
-          ParseJSON.insertValueToComponent(component.querySelector(`#${ name }`), data[name]);
+          const dom = component.querySelector(`#${ name }`);
+          if (dom) {
+            ParseJSON.insertValueToComponent(dom, data[name]);
+          }
         }
       }
     }

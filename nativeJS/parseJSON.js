@@ -108,8 +108,8 @@ export class ParseJSON {
     };
 
     function setNewAttrIdAndName(component, id, index) {
-      component.setAttribute('name', `${ id }${ index }`);
-      component.setAttribute('id', `${ id }${ index }`);
+      component.setAttribute('name', `${ id }[${ index }]`);
+      component.setAttribute('id', `${ id }[${ index }]`);
     }
 
     if (attr != null) {
