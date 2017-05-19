@@ -1,5 +1,6 @@
 
 let isRequestAPI = 0;
+let scriptIncludes = [];
 let idCurrentPage;
 
 export class Parse {
@@ -33,9 +34,7 @@ export class Parse {
 
     // if tag have a app-script
     componentDom.querySelectorAll(Variables.dynamicallyScript).forEach((scriptComponent) => {
-      ++isRequestAPI;
-      System.import(scriptComponent.getAttribute('src')).then(--isRequestAPI);
-
+      scriptIncludes.push(scriptComponent.getAttribute('src'));
     });
 
 
@@ -55,7 +54,7 @@ export class Parse {
     isRequestAPI = 0;
     this.mainContent.innerHTML = component;
     this.parsComponents(this.mainContent);
-    this._documentIsReady(component);
+    this._documentIsReady(this.mainContent);
   };
 
 
@@ -90,7 +89,13 @@ export class Parse {
 
       ++isRequestAPI;
 
-      Native.request(component.getAttribute(Variables.routerAPIGET) + '?id=' + idCurrentPage, (response) => {
+      let src = component.getAttribute(Variables.routerAPIGET);
+
+      if (idCurrentPage) {
+        src += '?id=' + idCurrentPage;
+      }
+
+      Native.request(src, (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
         --isRequestAPI;
         this._documentIsReady(component);
@@ -112,20 +117,48 @@ export class Parse {
 
       ++isRequestAPI;
 
-      Native.request(component.getAttribute(Variables.routerAPIPOST) + '?id=' + idCurrentPage, (response) => {
+      let data = {};
+
+      if (idCurrentPage) {
+        data.id = idCurrentPage
+      }
+
+      Native.request(component.getAttribute(Variables.routerAPIPOST), (response) => {
         Native.setValueDataByAttr(Native.jsonParse(response));
         --isRequestAPI;
         this._documentIsReady(component);
-      });
+      }, data);
 
       component.removeAttribute(Variables.routerAPIPOST);
 
     });
   }
 
+
+  /*
+  *   import script dynamically
+  */
+
+  static _importScript(component) {
+    let scriptsComponent = [];
+
+    component.querySelectorAll(Variables.dynamicallyScript).forEach((dom) => {
+      scriptsComponent.push(dom.getAttribute('src'));
+    });
+
+    for (let script of scriptIncludes) {
+      const normalized = System.normalizeSync(script);
+      if (System.has(normalized) && scriptsComponent.includes(script)) {
+        System.delete(normalized);
+      }
+      System.import(script);
+    }
+  }
+
   static _documentIsReady(component) {
     if (isRequestAPI === 0) {
       Observer.emit(Variables.documentIsReady, component);
+      this._importScript(component);
     }
   }
 
