@@ -158,7 +158,6 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
-		fieldStrc.GetTitle(field.COLUMN_NAME)
 
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
 			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
@@ -168,14 +167,20 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		}
 
 		if field.COLUMN_COMMENT.Valid {
-			fieldStrc.GetTitle(field.COLUMN_COMMENT.String)
+			fieldStrc.ParseComment(field.COLUMN_COMMENT.String)
 		}
-
+		// TODO: refatoring this later
 		if strings.HasPrefix(field.COLUMN_NAME, "setid_") {
+			fieldStrc.SETID = true
 			fieldStrc.WriteSQLbySETID()
+			if fieldStrc.ForeignFields == "" {
+
+			}
 		} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_") {
+			fieldStrc.NODEID = true
 			fieldStrc.WriteSQLByNodeID()
 		} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
+			fieldStrc.TABLEID = true
 			fieldStrc.WriteSQLByTableID()
 		}
 
@@ -198,6 +203,7 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 }
 
 func InitSchema() {
+	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
 	go func() {
 		var tables RecordsTables
 		tables.GetTablesProp(server.GetServerConfig().DBName() )

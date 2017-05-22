@@ -9,6 +9,7 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 	"log"
 //	"views/templates/layouts/common"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 //noinspection GoInvalidConstType
@@ -117,32 +118,41 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 
 }
 // render JSON from any data type
+var jsonHEADERS = map[string] string {
+	"Content-Type": "application/json; charset=utf-8",
+	"author":	"uStudio",
+}
+func WriteJSONHeaders(w http.ResponseWriter) {
+	// выдаем стандартные заголовки страницы
+	for key, value := range jsonHEADERS {
+		w.Header().Set(key, value)
+	}
+}
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	WriteJSONHeaders(w)
 	w.Write( []byte( json.WriteAnyJSON(arrJSON) ) )
 }
 func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	WriteJSONHeaders(w)
 	w.Write( []byte( json.WriteArrJSON(arrJSON) ) )
 }
 func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	WriteJSONHeaders(w)
 	w.Write( []byte( json.WriteStringDimension(arrJSON) ) )
 }
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	WriteJSONHeaders(w)
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 // render JSON for form by fields map
-func RenderJSONAnyForm(w http.ResponseWriter, fields *forms.FieldsTable, form *json.FormStructure,
-	AddJson map[string] string) error {
+func RenderJSONAnyForm(w http.ResponseWriter, fields *schema.FieldsTable, form *json.FormStructure,
+	AddJson map[string] string) {
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	WriteJSONHeaders(w)
 	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )
-	return nil
 }
