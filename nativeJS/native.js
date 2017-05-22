@@ -174,11 +174,9 @@ export class Native {
    *   set default data for Fields
    */
 
-  static setDefaultFields(component, fields) {
-    if (this.isElement(component)) {
-      for (let name in fields) {
-        ParseJSON.setAttrToComponent(component.querySelector(`#${ name }`), fields[name]);
-      }
+  static setDefaultFields(component, fields, str) {
+    if (this.isElement(component) && fields) {
+      ParseJSON.setValue(component, fields, ParseJSON.setAttrToComponent.bind(ParseJSON), str, true);
     }
   }
 
@@ -187,15 +185,9 @@ export class Native {
    *   insert data for data
    */
 
-  static insertData(component, data) {
-    if (this.isElement(component)) {
-      for (let name in data) {
-        if (typeof data[name] === 'object') {
-          this.insertData(component, data[name]);
-        } else {
-          ParseJSON.insertValueToComponent(component.querySelector(`#${ name }`), data[name]);
-        }
-      }
+  static insertData(component, data, str) {
+    if (this.isElement(component) && data) {
+      ParseJSON.setValue(component, data, ParseJSON.insertValueToComponent.bind(ParseJSON), str);
     }
   }
 
