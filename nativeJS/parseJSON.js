@@ -27,7 +27,7 @@ export class ParseJSON {
           component = document.getElementById(`${ strForTable }:${ id }`);
         }
 
-        if (component) {
+        if (Native.isElement(component)) {
           callback(component, data[id]);
         }
 
@@ -95,13 +95,14 @@ export class ParseJSON {
    *   Insert data after create component
    */
 
-  static insertValueToComponent(component, attr = '', strForTable = '') {
+  static insertValueToComponent(component, attr, strForTable = '') {
 
     const insertValueCurrentComponent = (component, attr) => {
       const func = this.components[component.tagName];
       if (func && func.addAttrToComponent) {
         return func.addAttrToComponent(component, attr);
       } else {
+        component.textContent = attr;
         console.log(`Not found: ${ component.tagName }`);
       }
     };

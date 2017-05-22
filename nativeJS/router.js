@@ -24,7 +24,6 @@ export class Router {
 
       currentLink = url;
       const curURL = this.urls[url];
-
       if (curURL) {
         document.title = curURL.title;
         console.log(curURL);

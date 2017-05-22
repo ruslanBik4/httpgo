@@ -126,10 +126,9 @@ export class Native {
 
   static setValueDataByAttr(data = {}) {
 
-    let obj = data['fields'];
-    ParseJSON.parseDataGet(obj, ParseJSON.setAttrToComponent.bind(ParseJSON));
+    ParseJSON.parseDataGet(data['fields'], ParseJSON.setAttrToComponent.bind(ParseJSON));
 
-    obj = data['form'];
+    let obj = data['form'];
     const element = document.getElementById(obj['id']);
 
     if (this.isElement(element)) {
@@ -145,19 +144,6 @@ export class Native {
 
   }
 
-
-  /*
-   *  get Value Data By Attributes from Dom
-   */
-
-  static getValueDataByAttributes(dom, attr = '', data = {}) {
-    const elements = dom.getAttribute(attr);
-    for (let element of elements) {
-      for (let key in data) {
-        element.setAttribute(key, data[key]);
-      }
-    }
-  }
 
 
   /*
@@ -184,5 +170,33 @@ export class Native {
   }
 
 
+  /*
+   *   set default data for Fields
+   */
+
+  static setDefaultFields(component, fields) {
+    if (this.isElement(component)) {
+      for (let name in fields) {
+        ParseJSON.setAttrToComponent(component.querySelector(`#${ name }`), fields[name]);
+      }
+    }
+  }
+
+
+  /*
+   *   insert data for data
+   */
+
+  static insertData(component, data) {
+    if (this.isElement(component)) {
+      for (let name in data) {
+        if (typeof data[name] === 'object') {
+          this.insertData(component, data[name]);
+        } else {
+          ParseJSON.insertValueToComponent(component.querySelector(`#${ name }`), data[name]);
+        }
+      }
+    }
+  }
 
 }
