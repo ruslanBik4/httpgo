@@ -81,7 +81,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, fields, err := qb.createSQL()
 
-	log.Println(sql)
+	//log.Println(sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"strings"
+	_ "strings"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
@@ -21,6 +21,12 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	if tableName == "" {
 		views.RenderBadRequest(w)
+		return
+	}
+	fields := schema.GetFieldsTable(tableName)
+
+	if fields == nil {
+		views.RenderInternalError(w, schema.ErrNotFoundTable{Table: tableName})
 		return
 	}
 
@@ -36,24 +42,24 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// значение приходит в виде строки. Для агрегатных полей нужно формировать вложеность
-		for sKey, sValue := range arrJSON {
-
-			for key, value := range sValue {
-
-				if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") || strings.HasPrefix(key, "tableid_") {
-
-					switch vv := value.(type) {
-					case []map[string]interface{} :
-						arrJSON[sKey][key] = convertToMultiDimension(vv)
-					}
-				}
-			}
-		}
+		//for sKey, sValue := range arrJSON {
+		//
+		//	for key, value := range sValue {
+		//
+		//		if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") || strings.HasPrefix(key, "tableid_") {
+		//
+		//			switch vv := value.(type) {
+		//			case []map[string]interface{} :
+		//				arrJSON[sKey][key] = convertToMultiDimension(vv)
+		//			}
+		//		}
+		//	}
+		//}
 
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}
 
-	views.RenderJSONAnyForm(w, schema.GetFieldsTable(tableName), new (json.FormStructure), addJSON)
+	views.RenderJSONAnyForm(w, fields, new (json.FormStructure), addJSON)
 }
 
 func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {
