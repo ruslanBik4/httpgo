@@ -67,13 +67,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
          tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
          fields := schema.GetFieldsTable(tableProps)
 
-
         %}
-        {% if fields == nil %}
-            "list" : "нет связанной таблицы - {%s tableProps %}",
-        {% else %}
-            "list": {{%= CheckFields(fields) %}},
-        {% endif %}
+        "list": {{%= CheckFields(&fields) %}},
     {% endif %}
 
     "type": "{%s typeInput %}"

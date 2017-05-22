@@ -20,12 +20,12 @@ func (err ErrNotFoundField) Error() string{
 	return "Not table in schema " + err.Table + err.FieldName
 }
 
-func GetFieldsTable(tableName string) *FieldsTable {
+func GetFieldsTable(tableName string) FieldsTable {
 	table, ok := SchemaCache[tableName]
 	if !ok {
-		return nil
+		panic(ErrNotFoundTable{Table: tableName})
 	}
-	return table
+	return *table
 }
 func init() {
 	SchemaCache = make(map[string] *FieldsTable, 0)

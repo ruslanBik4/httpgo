@@ -181,6 +181,11 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 // условия вынимаем из определения поля типа SET
 // и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще усло
 func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
+
+	defer func() {
+		err:= recover()
+		log.Println(err)
+	}()
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE ("
 	for _, title := range enumValues {
@@ -245,11 +250,20 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 		tableName = strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
 	}
 
-	if fields := GetFieldsTable(tableName); fields == nil {
-		name = ""
-		//panic(ErrNotFoundTable{Table: tableName})
-	} else {
-		for _, list := range fields.Rows {
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case ErrNotFoundTable:
+			name = ""
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+
+	fields := GetFieldsTable(tableName)
+
+	for _, list := range fields.Rows {
 			switch list.COLUMN_NAME {
 			case "name":
 				return "name"
@@ -258,7 +272,6 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 			case "fullname":
 				return "fullname"
 			}
-		}
 	}
 
 	return name
@@ -408,15 +421,24 @@ func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
 	return nil
 }
 //getSQLFromNodeID(field *schema.FieldStructure) string
-func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
+func (fieldStrc *FieldStructure) WriteSQLByNodeID() (err error){
 	var tableProps, titleField string
 
 	tableValue  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
+
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case ErrNotFoundTable:
+			err = ErrNotFoundTable{Table:tableValue}
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+
 	fieldsValues := GetFieldsTable(tableValue)
 
-	if fieldsValues == nil {
-		return ErrNotFoundTable{Table:tableValue}
-	}
 	for _, field := range fieldsValues.Rows {
 		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + fieldStrc.Table.Name) {
 			tableProps = field.COLUMN_NAME[3:]

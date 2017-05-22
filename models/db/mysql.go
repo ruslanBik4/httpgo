@@ -17,6 +17,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"errors"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"runtime"
 )
 var (
 	dbConn *sql.DB
@@ -304,25 +305,44 @@ func getSQLFromTableID(field *schema.FieldStructure) string {
 
 }
 
-//SelectToMultidimension(sql string, args ...interface
-func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+func getTableFromSchema(tableName string) schema.FieldsTable{
 
-	var tables [] *schema.FieldsTable
-
-	rows, err := DoSelect(sql, args...)
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case schema.ErrNotFoundTable:
+			_, fn, line, _ := runtime.Caller(0)
+			log.Println("mysql.go,", fn, " line ",line,  tableName)
+			//err = schema.ErrNotFoundTable{Table:tablePart[1]}
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+	return schema.GetFieldsTable(tableName)
+}
+// get table names from sql-query
+func getTablesFromSQL(sql string) (tables [] schema.FieldsTable) {
 
 	arrTables := tableNameFromSQL.FindAllStringSubmatch(sql, -1)
 	for _, tablePart := range arrTables {
 
-		for _, tableName := range tablePart {
+		//for _, tableName := range tablePart {
 
-			fields := schema.GetFieldsTable(tableName)
-			if fields != nil {
-				tables = append(tables, fields)
-			}
-			//log.Println("mysql.go,","string 301,", tableName)
-		}
+		fields := getTableFromSchema(tablePart[1])
+		tables = append(tables, fields)
+		//}
 	}
+
+	return tables
+}
+//SelectToMultidimension(sql string, args ...interface
+func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+
+	tables := getTablesFromSQL(sql)
+
+	rows, err := DoSelect(sql, args...)
+
 
 	if err != nil {
 		//log.Println("mysql.go,","string 306,", err, sql)
