@@ -9,6 +9,7 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 	"log"
 //	"views/templates/layouts/common"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 //noinspection GoInvalidConstType
@@ -139,10 +140,9 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 // render JSON for form by fields map
-func RenderJSONAnyForm(w http.ResponseWriter, fields *forms.FieldsTable, form *json.FormStructure,
+func RenderJSONAnyForm(w http.ResponseWriter, fields *schema.FieldsTable, form *json.FormStructure,
 	AddJson map[string] string) error {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )
-	return nil
 }
