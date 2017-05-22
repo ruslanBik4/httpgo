@@ -141,7 +141,7 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 }
 // render JSON for form by fields map
 func RenderJSONAnyForm(w http.ResponseWriter, fields *schema.FieldsTable, form *json.FormStructure,
-	AddJson map[string] string) error {
+	AddJson map[string] string) {
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )

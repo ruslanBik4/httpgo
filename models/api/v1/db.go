@@ -6,9 +6,7 @@ package api
 
 import (
 	"net/http"
-	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/services"
@@ -16,7 +14,7 @@ import (
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 )
-
+// prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
@@ -26,14 +24,15 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fields := admin.GetFields(tableName)
-
 	addJSON := make(map[string]string, 0)
-	if r.FormValue("id") > "" {
-		id := r.FormValue("id")
-		arrJSON, err := db.SelectToMultidimension("select * from " + tableName + " where id=?", id)
+	if id := r.FormValue("id"); id > "" {
+		qBuilder := qb.Create("id=?", "", "")
+		qBuilder.AddTable("a", tableName)
+		qBuilder.AddArgs(id)
+		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
-			panic(err)
+			views.RenderInternalError(w, err)
+			return
 		}
 
 		// значение приходит в виде строки. Для агрегатных полей нужно формировать вложеность
@@ -54,7 +53,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}
 
-	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
+	views.RenderJSONAnyForm(w, schema.GetFieldsTable(tableName), new (json.FormStructure), addJSON)
 }
 
 func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {
@@ -103,6 +102,7 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
+			return
 		}
 		if len(arrJSON) > 0 {
 			views.RenderAnyJSON(w, arrJSON[0])

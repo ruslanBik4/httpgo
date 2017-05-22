@@ -9,14 +9,14 @@ package schema
 
 
 import (
-"strings"
-"regexp"
-"fmt"
-"log"
-"database/sql"
-"encoding/json"
-_ "strconv"
-"time"
+	"strings"
+	"regexp"
+	"fmt"
+	"log"
+	"database/sql"
+	"encoding/json"
+	_ "strconv"
+	"time"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -31,31 +31,33 @@ type FieldStructure struct {
 	DATA_TYPE 	string
 	COLUMN_DEFAULT 	string
 	IS_NULLABLE 	string
-	CHARACTER_SET_NAME string
-	COLUMN_COMMENT 	string
-	COLUMN_TYPE 	string
+	CHARACTER_SET_NAME       string
+	COLUMN_COMMENT           string
+	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	Value 		string
-	IsHidden 	bool
-	InputType	string
-	CSSClass  	string
-	CSSStyle        string
-	TableName 	string
-	Events 		map[string] string
-	Where 		string
-	Figure 		string
-	Placeholder	string
-	Pattern		string
-	MinDate		string
-	MaxDate		string
-	BeforeHtml	string
-	Html		string
-	AfterHtml	string
-	ForeignFields	string
-	LinkTD		string
-	DataJSOM        map[string] interface{}
-	EnumValues 	[]string
-	SQLforSelect    string
+	Value                    string
+	IsHidden                 bool
+	InputType                string
+	CSSClass                 string
+	CSSStyle                 string
+	TableName              string
+	Events                 map[string] string
+	Where                  string
+	Figure                 string
+	Placeholder            string
+	Pattern                string
+	MinDate                string
+	MaxDate                string
+	BeforeHtml             string
+	Html                   string
+	AfterHtml              string
+	ForeignFields          string
+	LinkTD                 string
+	DataJSOM               map[string] interface{}
+	EnumValues             []string
+	SQLforChieldList       string
+	SETID, NODEID, TABLEID bool
+	SelectValues           map[int] string
 }
 type FieldsTable struct {
 	Name string
@@ -219,17 +221,49 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 		tableProps, tableValue)
 
 }
-
+// возвращает поле в связанной таблице, которое будет отдано пользователю
+//например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
 func (field *FieldStructure) GetForeignFields()  string {
 
 
 	if field.ForeignFields > "" {
 		return field.ForeignFields
 	} else {
-		return "title"
+		return field.GetParentFieldName()
 	}
 }
 
+func (field *FieldStructure) GetParentFieldName() (name string) {
+
+	// получаем имя связанной таблицы
+	var tableName string
+	if field.SETID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "setid_")
+	} else if field.NODEID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
+	} else if field.TABLEID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
+	}
+
+	if fields := GetFieldsTable(tableName); fields == nil {
+		name = ""
+		//panic(ErrNotFoundTable{Table: tableName})
+	} else {
+		for _, list := range fields.Rows {
+			switch list.COLUMN_NAME {
+			case "name":
+				return "name"
+			case "title":
+				return "title"
+			case "fullname":
+				return "fullname"
+			}
+		}
+	}
+
+	return name
+
+}
 
 func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
 	titleFull = title
@@ -299,7 +333,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
-func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
+func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 	titleFull := COLUMN_COMMENT
 	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
@@ -361,31 +395,30 @@ func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
 	return fieldStrc.COLUMN_COMMENT
 }
 func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
-	parentTable := fieldStrc.Table.Name
+
 	tableProps  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
-	tableValue  := parentTable + "_" + tableProps + "_has"
+	tableValue  := fieldStrc.Table.Name + "_" + tableProps + "_has"
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforSelect = fmt.Sprintf(`SELECT p.id
+	fieldStrc.SQLforChieldList = fmt.Sprintf(`SELECT p.id
 		FROM %s p JOIN %s v
 		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
-		tableProps, tableValue, parentTable)
+		tableProps, tableValue, fieldStrc.Table.Name)
 	return nil
 }
 //getSQLFromNodeID(field *schema.FieldStructure) string
 func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
 	var tableProps, titleField string
 
-	parentTable := fieldStrc.Table.Name
 	tableValue  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
 	fieldsValues := GetFieldsTable(tableValue)
 
 	if fieldsValues == nil {
-		return *new(error)
+		return ErrNotFoundTable{Table:tableValue}
 	}
 	for _, field := range fieldsValues.Rows {
-		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
+		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + fieldStrc.Table.Name) {
 			tableProps = field.COLUMN_NAME[3:]
 			titleField = field.GetForeignFields()
 			break
@@ -394,10 +427,10 @@ func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforSelect =  fmt.Sprintf(`SELECT p.id, %s, id_%s
+	fieldStrc.SQLforChieldList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v JOIN %s p
 		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
-		titleField, parentTable, tableValue, tableProps)
+		titleField, fieldStrc.Table.Name, tableValue, tableProps)
 
 	return nil
 }
@@ -405,7 +438,6 @@ func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
 func (fieldStrc *FieldStructure) WriteSQLByTableID() error {
 
 
-	parentTable := fieldStrc.Table.Name
 	tableProps := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
@@ -415,7 +447,7 @@ func (fieldStrc *FieldStructure) WriteSQLByTableID() error {
 		where = " WHERE (id_%s=?)"
 	}
 
-	fieldStrc.SQLforSelect =  fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
+	fieldStrc.SQLforChieldList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, fieldStrc.Table.Name )
 
 	return nil
 }
