@@ -50,7 +50,6 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% endif %}
     {% if field.COLUMN_DEFAULT > "" %}"default": "{%s field.COLUMN_DEFAULT %}",{% endif %}
     {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
-    "type": "{%s typeInput %}"
     {% if len(field.EnumValues) > 0 %}
         "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
     {% elseif len(field.SelectValues) > 0 %}
@@ -63,7 +62,6 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% endif %}
 
     {% if field.TABLEID %}
-        ,
         {% code
 
          tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
@@ -72,12 +70,13 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 
         %}
         {% if fields == nil %}
-            "list" : "нет связанной таблицы " {%s tableProps %}
+            "list" : "нет связанной таблицы - {%s tableProps %}",
         {% else %}
-            "list": {{%= CheckFields(fields) %}}
+            "list": {{%= CheckFields(fields) %}},
         {% endif %}
     {% endif %}
 
+    "type": "{%s typeInput %}"
             },
 {% endfor %}
 "count": {%d len(ns.Rows) %}
