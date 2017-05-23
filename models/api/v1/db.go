@@ -46,17 +46,18 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			rows, err := db.DoSelect(field.SQLforFORMList)
 			if err != nil {
 				log.Println(err, field.SQLforFORMList)
-			}
+			} else {
 
-			defer rows.Close()
-			for rows.Next() {
-				var key int
-				var title string
-				if err := rows.Scan(&key, &title); err != nil {
-					log.Println(err)
+				defer rows.Close()
+				for rows.Next() {
+					var key int
+					var title string
+					if err := rows.Scan(&key, &title); err != nil {
+						log.Println(err)
+					}
+
+					fields.Rows[idx].SelectValues[key] = title
 				}
-
-				fields.Rows[idx].SelectValues[key] = title
 			}
 
 		}

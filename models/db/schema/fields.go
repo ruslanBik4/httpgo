@@ -401,7 +401,7 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 	return fieldStrc.COLUMN_COMMENT
 }
-func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
+func (fieldStrc *FieldStructure) writeSQLbySETID() error {
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
@@ -412,7 +412,7 @@ func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
 
 	fieldStrc.SQLforDATAList = fmt.Sprintf(`SELECT p.id, %s
 		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[2]s AND v.id_%[4]s = >) ` + where, fieldStrc.GetForeignFields(),
+		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?)` + where, fieldStrc.GetForeignFields(),
 		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
 	return nil
 }
@@ -445,10 +445,15 @@ func (fieldStrc *FieldStructure) writeSQLByNodeID() (err error){
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforFORMList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
-		FROM %s v JOIN %s p
-		ON (p.id = v.id_%[4]s) ` + where,
-		titleField, fieldStrc.Table.Name, fieldStrc.TableValues, fieldStrc.TableProps)
+	fieldStrc.SQLforFORMList =  fmt.Sprintf(`SELECT p.id, %s
+		FROM %s p LEFT JOIN %s v
+		ON (p.id = v.id_%[2]s) ` + where,
+		titleField,  fieldStrc.TableProps, fieldStrc.TableValues)
+
+	fieldStrc.SQLforDATAList =  fmt.Sprintf(`SELECT p.id, %s
+		FROM %s p JOIN %s v
+		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?) ` + where,
+		titleField, fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
 
 	return nil
 }
