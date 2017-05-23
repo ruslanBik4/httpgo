@@ -2,6 +2,8 @@
 let isRequestAPI = 0;
 let scriptIncludes = [];
 let idCurrentPage;
+let stateHistoryComponents = [];
+let firstComponent;
 
 export class Parse {
 
@@ -9,9 +11,26 @@ export class Parse {
     return idCurrentPage;
   }
 
+  static setMainContent(index = 0) {
+    if (index < stateHistoryComponents.length) {
+      this.mainContent.innerHTML = stateHistoryComponents[index];
+    } else {
+      console.log(`don't find component in stateHistory`);
+    }
+  }
+
+  static setComponent(component, isFirst = false) {
+    if (isFirst) {
+      this.mainContent.innerHTML = firstComponent;
+    } else {
+      this.mainContent.innerHTML = component;
+    }
+  }
+
   static start(page) {
     this.page = page;
     this.mainContent = page.getElementsByTagName(Variables.nameMainContent)[0];
+    firstComponent = this.mainContent.innerHTML;
     this.parsComponents(this.page);
     this._documentIsReady(this.page);
   }
@@ -53,6 +72,7 @@ export class Parse {
   static _changeComponentDom(component) {
     isRequestAPI = 0;
     this.mainContent.innerHTML = component;
+    stateHistoryComponents.push(this.mainContent.innerHTML);
     this.parsComponents(this.mainContent);
     this._documentIsReady(this.mainContent);
   };
