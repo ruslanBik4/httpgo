@@ -73,7 +73,7 @@ export class ParseJSON {
     const func = this.components[component.tagName];
 
     try {
-      if (typeof func !== 'undefined') {
+      if (func) {
 
         // if has attr in params 'list'
         if (typeof params[Variables.paramsJSONList] === 'object' && func.createList) {
@@ -82,11 +82,7 @@ export class ParseJSON {
 
         // if has attr in params 'title'
         else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
-          try {
-            func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
-          } catch (e) {
-            console.log(e);
-          }
+          func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
 
       } else {
@@ -159,7 +155,7 @@ export class ParseJSON {
 
             } else if (newComponents && parent) {
               try {
-                debugger;
+                // debugger;
                 const newComponent = addComponent.content.querySelector(`[name="${ strForTable }:${ id }"]`);
                 if (newComponent) {
                   insertValueCurrentComponent(newComponent, element[id]);
