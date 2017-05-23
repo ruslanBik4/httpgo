@@ -58,16 +58,7 @@ type FieldStructure struct {
 	SQLforChieldList       string
 	SETID, NODEID, TABLEID bool
 	SelectValues           map[int] string
-}
-type FieldsTable struct {
-	Name string
-	ID   int
-	Comment string
-	IsDadata bool
-	Rows [] FieldStructure
-	Hiddens map[string] string
-	SaveFormEvents 	map[string] string
-	DataJSOM        map[string] interface{}
+	TableProps, TableValues string
 }
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
@@ -167,15 +158,7 @@ func (field *FieldStructure) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *FieldsTable) FindField(name string) *FieldStructure {
-	for idx, field := range ns.Rows {
-		if field.COLUMN_NAME == name {
-			return &ns.Rows[idx]
-		}
-	}
 
-	return nil
-}
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
 // условия вынимаем из определения поля типа SET
@@ -248,6 +231,8 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 		tableName = strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
 	} else if field.TABLEID {
 		tableName = strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
+	} else if strings.HasPrefix(field.COLUMN_NAME, "id_") {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "id_")
 	}
 
 	defer func() {
@@ -409,41 +394,38 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 }
 func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
 
-	tableProps  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
-	tableValue  := fieldStrc.Table.Name + "_" + tableProps + "_has"
-
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforChieldList = fmt.Sprintf(`SELECT p.id
+	fieldStrc.SQLforChieldList = fmt.Sprintf(`SELECT p.id, %s
 		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
-		tableProps, tableValue, fieldStrc.Table.Name)
+		ON (p.id = v.id_%[2]s) ` + where, fieldStrc.GetForeignFields(),
+		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
 	return nil
 }
 //getSQLFromNodeID(field *schema.FieldStructure) string
-func (fieldStrc *FieldStructure) WriteSQLByNodeID() (err error){
-	var tableProps, titleField string
+func (fieldStrc *FieldStructure) writeSQLByNodeID() (err error){
+	var titleField string
 
-	tableValue  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
 
 	defer func() {
 		err := recover()
 		switch err.(type) {
 		case ErrNotFoundTable:
-			err = ErrNotFoundTable{Table:tableValue}
+			err = ErrNotFoundTable{Table:fieldStrc.TableProps}
 		case nil:
 		default:
 			panic(err)
 		}
 	}()
+	if fieldStrc.TableProps == "" {
+		fieldsValues := GetFieldsTable(fieldStrc.TableValues)
 
-	fieldsValues := GetFieldsTable(tableValue)
-
-	for _, field := range fieldsValues.Rows {
-		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + fieldStrc.Table.Name) {
-			tableProps = field.COLUMN_NAME[3:]
-			titleField = field.GetForeignFields()
-			break
+		for _, field := range fieldsValues.Rows {
+			if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+fieldStrc.Table.Name) {
+				fieldStrc.TableProps = field.COLUMN_NAME[3:]
+				titleField = field.GetForeignFields()
+				break
+			}
 		}
 	}
 
@@ -451,25 +433,23 @@ func (fieldStrc *FieldStructure) WriteSQLByNodeID() (err error){
 
 	fieldStrc.SQLforChieldList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v JOIN %s p
-		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
-		titleField, fieldStrc.Table.Name, tableValue, tableProps)
+		ON (p.id = v.id_%[4]s) ` + where,
+		titleField, fieldStrc.Table.Name, fieldStrc.TableValues, fieldStrc.TableProps)
 
 	return nil
 }
 
-func (fieldStrc *FieldStructure) WriteSQLByTableID() error {
+func (fieldStrc *FieldStructure) writeSQLByTableID() error {
 
-
-	tableProps := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 	if where > "" {
-		where += " AND (id_%s=?)"
+		where += " OR (id_%s=?)"
 	} else {
 		where = " WHERE (id_%s=?)"
 	}
 
-	fieldStrc.SQLforChieldList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, fieldStrc.Table.Name )
+	fieldStrc.SQLforChieldList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, fieldStrc.TableProps, fieldStrc.Table.Name )
 
 	return nil
 }

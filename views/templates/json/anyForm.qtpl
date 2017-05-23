@@ -57,7 +57,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
                 {% for key, val := range field.SelectValues %}
                     "{%d key %}":"{%j= val %}",
                 {% endfor %}
-                "count": {%d len(ns.Rows) %}
+                "count": {%d len(field.SelectValues) %}
             },
         {% endif %}
 
@@ -81,7 +81,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 
 {% func (thisForm *FormStructure) JSONAnyForm(ns schema.FieldsTable, AddJson map[string] string) %}
 {%code
-   thisForm.setFormDefaults(ns)
+   thisForm.setFormDefaults(&ns)
 %}
 {
  "fields": {

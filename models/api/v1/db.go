@@ -13,6 +13,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"github.com/ruslanBik4/httpgo/models/db"
+	"log"
 )
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -36,18 +38,32 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	fields := schema.GetFieldsTable(tableName)
-	//for idx, field := range fields.Rows {
-	//	if field.SETID || field.NODEID {
-	//		fields.Rows[idx].SelectValues = make(map[int] string, 3)
-	//		fields.Rows[idx].SelectValues[1] = "test"
-	//		fields.Rows[idx].SelectValues[2] = "test2"
-	//		fields.Rows[idx].SelectValues[3] = "test3"
-	//
-	//	}
-	//}
+	for idx, field := range fields.Rows {
+
+		if field.SETID || field.NODEID {
+
+			rows, err := db.DoSelect(field.SQLforChieldList)
+			if err != nil {
+				log.Println(err, field.SQLforChieldList)
+			}
+
+			defer rows.Close()
+			for rows.Next() {
+				var key int
+				var title string
+				if err := rows.Scan(&key, &title); err != nil {
+					log.Println(err)
+				}
+
+				fields.Rows[idx].SelectValues[key] = title
+			}
+
+		}
+	}
 
 	addJSON := make(map[string]string, 0)
 	if id := r.FormValue("id"); id > "" {
+		// получаем данные для суррогатных полей
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.AddTable("a", tableName)
 		qBuilder.AddArgs(id)

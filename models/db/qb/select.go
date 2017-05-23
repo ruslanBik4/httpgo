@@ -90,14 +90,12 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 }
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 	gChild := Create(field.WhereFromSet(field.Table),"", "")
-	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "setid_")
 	titleField := field.GetForeignFields()
 
-	gChild.AddTable( "p", tableProps ).AddField("", "id").AddField("", titleField)
+	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
 
-	tableValue  := field.Table.Name + "_" + tableProps + "_has"
-	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", tableProps, field.Table.Name )
-	gChild.JoinTable ( "v", tableValue, "JOIN", onJoin )
+	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, field.Table.Name )
+	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin )
 
 	gChild.AddArgs(fieldID)
 
@@ -112,18 +110,17 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 
 	var tableProps, titleField string
 
-	tableValue  := strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
 	defer func() {
 		err := recover()
 		switch err.(type) {
 		case schema.ErrNotFoundTable:
-			log.Println("select.go,","string 301,", tableValue)
+			log.Println("select.go,","string 301,", field.TableValues)
 		case nil:
 		default:
 			panic(err)
 		}
 	}()
-	fieldsValues := schema.GetFieldsTable(tableValue)
+	fieldsValues := schema.GetFieldsTable(field.TableValues)
 
 	//TODO: later refactoring - store values in field propertyes
 	for _, field := range fieldsValues.Rows {
@@ -135,20 +132,19 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	}
 
 	if (tableProps == "") || (titleField == "") {
-		return nil, schema.ErrNotFoundTable{Table: tableValue}
+		return nil, schema.ErrNotFoundTable{Table: field.TableValues}
 	}
 
 	gChild.AddTable( "p", tableProps ).AddField("", "id").AddField("", titleField)
 
-	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", tableProps, fieldTableName )
-	gChild.JoinTable ( "v", tableValue, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
+	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, fieldTableName )
+	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
 	gChild.AddArgs(fieldID)
 
 	return gChild.SelectToMultidimension()
 
 }
 func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-	tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
 
 	where := field.WhereFromSet(field.Table)
 	if where > "" {
@@ -157,7 +153,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
 	gChild := Create(where,"", "")
-	gChild.AddTable( "p", tableProps )
+	gChild.AddTable( "p", field.TableProps )
 
 	gChild.AddArgs(fieldID)
 
@@ -168,7 +164,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, fields, err := qb.createSQL()
 
-	log.Println("SelectToMultidimension", sql)
+	//log.Println("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 

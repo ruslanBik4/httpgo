@@ -32,7 +32,7 @@ var (
 )
 
 //line views/templates/json/anyForm.qtpl:13
-func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
+func StreamCheckFields(qw422016 *qt422016.Writer, ns schema.FieldsTable) {
 	//line views/templates/json/anyForm.qtpl:15
 	for _, field := range ns.Rows {
 		//line views/templates/json/anyForm.qtpl:19
@@ -272,7 +272,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:59
 			qw422016.N().S(`"count":`)
 			//line views/templates/json/anyForm.qtpl:60
-			qw422016.N().D(len(ns.Rows))
+			qw422016.N().D(len(field.SelectValues))
 			//line views/templates/json/anyForm.qtpl:60
 			qw422016.N().S(`},`)
 			//line views/templates/json/anyForm.qtpl:62
@@ -286,7 +286,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:70
 			qw422016.N().S(`"list": {`)
 			//line views/templates/json/anyForm.qtpl:71
-			StreamCheckFields(qw422016, &fields)
+			StreamCheckFields(qw422016, fields)
 			//line views/templates/json/anyForm.qtpl:71
 			qw422016.N().S(`},`)
 			//line views/templates/json/anyForm.qtpl:72
@@ -307,7 +307,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 }
 
 //line views/templates/json/anyForm.qtpl:79
-func WriteCheckFields(qq422016 qtio422016.Writer, ns *schema.FieldsTable) {
+func WriteCheckFields(qq422016 qtio422016.Writer, ns schema.FieldsTable) {
 	//line views/templates/json/anyForm.qtpl:79
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/json/anyForm.qtpl:79
@@ -318,7 +318,7 @@ func WriteCheckFields(qq422016 qtio422016.Writer, ns *schema.FieldsTable) {
 }
 
 //line views/templates/json/anyForm.qtpl:79
-func CheckFields(ns *schema.FieldsTable) string {
+func CheckFields(ns schema.FieldsTable) string {
 	//line views/templates/json/anyForm.qtpl:79
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/json/anyForm.qtpl:79
@@ -333,9 +333,9 @@ func CheckFields(ns *schema.FieldsTable) string {
 }
 
 //line views/templates/json/anyForm.qtpl:82
-func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *schema.FieldsTable, AddJson map[string]string) {
+func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns schema.FieldsTable, AddJson map[string]string) {
 	//line views/templates/json/anyForm.qtpl:84
-	thisForm.setFormDefaults(ns)
+	thisForm.setFormDefaults(&ns)
 
 	//line views/templates/json/anyForm.qtpl:85
 	qw422016.N().S(`{"fields": {`)
@@ -401,7 +401,7 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *
 }
 
 //line views/templates/json/anyForm.qtpl:105
-func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, ns *schema.FieldsTable, AddJson map[string]string) {
+func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, ns schema.FieldsTable, AddJson map[string]string) {
 	//line views/templates/json/anyForm.qtpl:105
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/json/anyForm.qtpl:105
@@ -412,7 +412,7 @@ func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, ns *
 }
 
 //line views/templates/json/anyForm.qtpl:105
-func (thisForm *FormStructure) JSONAnyForm(ns *schema.FieldsTable, AddJson map[string]string) string {
+func (thisForm *FormStructure) JSONAnyForm(ns schema.FieldsTable, AddJson map[string]string) string {
 	//line views/templates/json/anyForm.qtpl:105
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/json/anyForm.qtpl:105
