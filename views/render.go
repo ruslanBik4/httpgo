@@ -152,7 +152,7 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 // render JSON for form by fields map
-func RenderJSONAnyForm(w http.ResponseWriter, fields *schema.FieldsTable, form *json.FormStructure,
+func RenderJSONAnyForm(w http.ResponseWriter, fields schema.FieldsTable, form *json.FormStructure,
 	AddJson map[string] string) {
 
 	WriteJSONHeaders(w)

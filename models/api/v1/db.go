@@ -75,7 +75,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}
 
-	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
+	views.RenderJSONAnyForm(w, fields, new (json.FormStructure), addJSON)
 }
 
 func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {

@@ -152,7 +152,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	where := field.WhereFromSet(field.Table)
 	if where > "" {
-		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
+		where += fmt.Sprintf( " OR (id_%s=?)", field.Table.Name )
 	} else {
 		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
