@@ -187,7 +187,7 @@ export class ParseJSON {
 
 
   static insertDataToAttrSetText(component, textContent = '') {
-    if (component.children && component.children.length !== 0) {
+    if (component && component.children && component.children.length !== 0) {
       for (let child of component.children) {
         this.insertDataToAttrSetText(child, textContent);
       }
