@@ -123,7 +123,6 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 // render JSON from any data type
 var jsonHEADERS = map[string] string {
 	"Content-Type": "application/json; charset=utf-8",
-	"author":	"uStudio",
 }
 func WriteJSONHeaders(w http.ResponseWriter) {
 	// выдаем стандартные заголовки страницы

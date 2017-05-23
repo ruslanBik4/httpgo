@@ -4,7 +4,6 @@
 
 {% import (
     "strings"
-    _ "github.com/ruslanBik4/httpgo/models/db"
     "github.com/ruslanBik4/httpgo/models/db/schema"
 ) %}
 
@@ -21,57 +20,58 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         typeInput := field.TypeInput()
     %}
     "{%s field.COLUMN_NAME %}": {
-            {% if (field.COLUMN_NAME=="id") || field.IsHidden  %}
-                "type": "hidden" },
-                {% continue %}
-            {% endif %}
+        {% if field.Value > "" %} "value": "{%j= field.Value %}", {% endif %}
 
-    {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
-    {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
-    {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
-    {% if placeholder > "" %} "placeholder": "{%s placeholder %}", {% endif %}
-    {% if pattern > "" %} "pattern": "{%j= pattern %}", {% endif %}
-    {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
-    {% if field.Value > "" %} "value": "{%j= field.Value %}", {% endif %}
-    {% if field.CSSClass > "" %} "CSSClass": "{%s field.CSSClass %}",{% endif %}
-    {% if field.CSSStyle > "" %} "CSSStyle": "{%s field.CSSStyle %}",{% endif %}
-    {% if field.Figure > "" %}   "Figure": "{%s field.Figure %}",      {% endif %}
-    {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
-    {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
-    {% if field.MinDate > "" %} "minDate": "{%s field.MinDate %}",  {% endif %}
-    {% if field.MaxDate > "" %} "maxDate": "{%s field.MaxDate %}",  {% endif %}
-    {% if len(field.Events) > 0 %}
+                {% if (field.COLUMN_NAME=="id") || field.IsHidden  %}
+                    "type": "hidden" },
+                    {% continue %}
+                {% endif %}
+
+        {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
+        {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
+        {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
+        {% if placeholder > "" %} "placeholder": "{%j placeholder %}", {% endif %}
+        {% if pattern > "" %} "pattern": "{%j= pattern %}", {% endif %}
+        {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
+        {% if field.CSSClass > "" %} "CSSClass": "{%j field.CSSClass %}",{% endif %}
+        {% if field.CSSStyle > "" %} "CSSStyle": "{%j field.CSSStyle %}",{% endif %}
+        {% if field.Figure > "" %}   "Figure": "{%j field.Figure %}",      {% endif %}
+        {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
+        {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
+        {% if field.MinDate > "" %} "minDate": "{%j= field.MinDate %}",  {% endif %}
+        {% if field.MaxDate > "" %} "maxDate": "{%j= field.MaxDate %}",  {% endif %}
+        {% if len(field.Events) > 0 %}
         "Events": {
         {% for name, funcName := range field.Events %}
-            "{%s name %}": "{%s funcName %}",
+            "{%s name %}": "{%j= funcName %}",
         {% endfor %}
         "count": {%d len(field.Events) %}
         },
-    {% endif %}
-    {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
-    {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
-    {% if len(field.EnumValues) > 0 %}
-        "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%j= val %}"{% endfor %}],
-    {% elseif len(field.SelectValues) > 0 %}
-        "list": {
-            {% for key, val := range field.SelectValues %}
-                "{%d key %}":"{%j= val %}",
-            {% endfor %}
-            "count": {%d len(ns.Rows) %}
-        },
-    {% endif %}
+        {% endif %}
+        {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
+        {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
+        {% if len(field.EnumValues) > 0 %}
+            "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%j= val %}"{% endfor %}],
+        {% elseif len(field.SelectValues) > 0 %}
+            "list": {
+                {% for key, val := range field.SelectValues %}
+                    "{%d key %}":"{%j= val %}",
+                {% endfor %}
+                "count": {%d len(ns.Rows) %}
+            },
+        {% endif %}
 
-    {% if field.TABLEID %}
-        {% code
+        {% if field.TABLEID %}
+            {% code
 
-         tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
-         fields := schema.GetFieldsTable(tableProps)
+             tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
+             fields := schema.GetFieldsTable(tableProps)
 
-        %}
-        "list": {{%= CheckFields(&fields) %}},
-    {% endif %}
+            %}
+            "list": {{%= CheckFields(&fields) %}},
+        {% endif %}
 
-    "type": "{%s typeInput %}"
+        "type": "{%j= typeInput %}"
             },
 {% endfor %}
 "count": {%d len(ns.Rows) %}
@@ -89,12 +89,12 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 
 },
 "form": {
-               {% if thisForm.ClassCSS != "" %} "class" : "{%s= thisForm.ClassCSS %}", {% endif %}
-               "action" : "{%s= thisForm.Action %}",
-               "id" : "{%s= thisForm.IdCSS %}",
-               "name": "{%s= thisForm.Name %}"
+               {% if thisForm.ClassCSS != "" %} "class" : "{%j= thisForm.ClassCSS %}", {% endif %}
+               "action" : "{%j= thisForm.Action %}",
+               "id" : "{%j= thisForm.IdCSS %}",
+               "name": "{%j= thisForm.Name %}"
                 {% for name, event := range thisForm.Events %}
-                    ,"{%s name %}": "{%s= event %}"
+                    ,"{%s name %}": "{%j= event %}"
                 {% endfor %}
    }
     {% for name, val := range AddJson %}
