@@ -39,25 +39,26 @@ type FieldStructure struct {
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string
-	CSSStyle                 string
-	TableName              string
-	Events                 map[string] string
-	Where                  string
-	Figure                 string
-	Placeholder            string
-	Pattern                string
-	MinDate                string
-	MaxDate                string
-	BeforeHtml             string
-	Html                   string
-	AfterHtml              string
-	ForeignFields          string
-	LinkTD                 string
-	DataJSOM               map[string] interface{}
-	EnumValues             []string
-	SQLforChieldList       string
-	SETID, NODEID, TABLEID bool
-	SelectValues           map[int] string
+	CSSStyle                string
+	TableName               string
+	Events                  map[string] string
+	Where                   string
+	Figure                  string
+	Placeholder             string
+	Pattern                 string
+	MinDate                 string
+	MaxDate                 string
+	BeforeHtml              string
+	Html                    string
+	AfterHtml               string
+	ForeignFields           string
+	LinkTD                  string
+	DataJSOM                map[string] interface{}
+	EnumValues              []string
+	SQLforFORMList          string `отдаем в списках полей для формы`
+	SQLforDATAList          string `отдаем в составе данных`
+	SETID, NODEID, TABLEID  bool
+	SelectValues            map[int] string
 	TableProps, TableValues string
 }
 func (field *FieldStructure) setEnumValues() {
@@ -166,8 +167,16 @@ func (field *FieldStructure) Scan(value interface{}) error {
 func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 
 	defer func() {
-		err:= recover()
-		log.Println(err)
+		result := recover()
+		switch err := result.(type) {
+		case ErrNotFoundTable:
+			log.Println(err)
+		case nil:
+		case error:
+			panic(err)
+		default:
+			log.Println(err)
+		}
 	}()
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE ("
@@ -187,7 +196,7 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 		comma = " OR "
 	}
 
-	if result > "" {
+	if (result > "") && (result != "1") {
 
 		return result + ")"
 	}
@@ -202,7 +211,7 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 	if titleField == "" {
 		return ""
 	}
-
+	// LEFT JOIN for get all propertyes values
 	return fmt.Sprintf( `SELECT p.id, %s, id_%s
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
 		titleField, parentTable,
@@ -226,9 +235,9 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 	// получаем имя связанной таблицы
 	var tableName string
 	if field.SETID {
-		tableName = strings.TrimPrefix(field.COLUMN_NAME, "setid_")
+		tableName = field.TableProps
 	} else if field.NODEID {
-		tableName = strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
+		tableName = field.TableValues
 	} else if field.TABLEID {
 		tableName = strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
 	} else if strings.HasPrefix(field.COLUMN_NAME, "id_") {
@@ -396,9 +405,14 @@ func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforChieldList = fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p JOIN %s v
+	fieldStrc.SQLforFORMList = fmt.Sprintf(`SELECT p.id, %s
+		FROM %s p LEFT JOIN %s v
 		ON (p.id = v.id_%[2]s) ` + where, fieldStrc.GetForeignFields(),
+		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
+
+	fieldStrc.SQLforDATAList = fmt.Sprintf(`SELECT p.id, %s
+		FROM %s p JOIN %s v
+		ON (p.id = v.id_%[2]s AND v.id_%[4]s = >) ` + where, fieldStrc.GetForeignFields(),
 		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
 	return nil
 }
@@ -431,7 +445,7 @@ func (fieldStrc *FieldStructure) writeSQLByNodeID() (err error){
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforChieldList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
+	fieldStrc.SQLforFORMList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v JOIN %s p
 		ON (p.id = v.id_%[4]s) ` + where,
 		titleField, fieldStrc.Table.Name, fieldStrc.TableValues, fieldStrc.TableProps)
@@ -449,7 +463,7 @@ func (fieldStrc *FieldStructure) writeSQLByTableID() error {
 		where = " WHERE (id_%s=?)"
 	}
 
-	fieldStrc.SQLforChieldList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, fieldStrc.TableProps, fieldStrc.Table.Name )
+	fieldStrc.SQLforFORMList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, fieldStrc.TableProps, fieldStrc.Table.Name )
 
 	return nil
 }

@@ -42,9 +42,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% if field.MaxDate > "" %} "maxDate": "{%j= field.MaxDate %}",  {% endif %}
         {% if len(field.Events) > 0 %}
         "Events": {
-        {% for name, funcName := range field.Events %}
-            "{%s name %}": "{%j= funcName %}",
-        {% endfor %}
+            {% for name, funcName := range field.Events %}
+                "{%s name %}": "{%j= funcName %}",
+            {% endfor %}
         "count": {%d len(field.Events) %}
         },
         {% endif %}

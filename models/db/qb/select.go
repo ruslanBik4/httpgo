@@ -200,7 +200,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 			if field.SETID  {
 				values[fieldName], err = getSETID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
@@ -208,14 +208,14 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 				values[fieldName], err = getNODEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if field.TABLEID {
 				values[fieldName], err = getTABLEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue

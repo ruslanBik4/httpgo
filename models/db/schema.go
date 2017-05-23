@@ -170,14 +170,6 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			fieldStrc.ParseComment(field.COLUMN_COMMENT.String)
 		}
 
-		if strings.HasPrefix(field.COLUMN_NAME, "setid_") {
-			fieldStrc.SETID = true
-			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
-			fieldStrc.TableValues = fieldStrc.Table.Name + "_" + fieldStrc.TableProps + "_has"
-			fieldStrc.WriteSQLbySETID()
-			fieldStrc.SelectValues = make(map[int] string, 0)
-
-		}
 		fields.Rows[i] = *fieldStrc
 	}
 

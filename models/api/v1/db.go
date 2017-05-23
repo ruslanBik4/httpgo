@@ -42,9 +42,10 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 		if field.SETID || field.NODEID {
 
-			rows, err := db.DoSelect(field.SQLforChieldList)
+			log.Println(field.SQLforFORMList)
+			rows, err := db.DoSelect(field.SQLforFORMList)
 			if err != nil {
-				log.Println(err, field.SQLforChieldList)
+				log.Println(err, field.SQLforFORMList)
 			}
 
 			defer rows.Close()
