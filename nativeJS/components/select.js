@@ -26,7 +26,7 @@ export class Select {
 
       }
     } else {
-      console.log(`Not found component with className: ${ this.className }`);
+      throw new SyntaxError(`Данные некорректны, поле select`);
     }
 
   }

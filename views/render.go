@@ -10,6 +10,7 @@ import (
 	"log"
 //	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"runtime"
 )
 
 //noinspection GoInvalidConstType
@@ -54,6 +55,8 @@ func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
 func RenderInternalError(w http.ResponseWriter, err error) {
+	_, fn, line, _ := runtime.Caller(0)
+	log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, err)
 	log.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
 }
@@ -120,7 +123,6 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 // render JSON from any data type
 var jsonHEADERS = map[string] string {
 	"Content-Type": "application/json; charset=utf-8",
-	"author":	"uStudio",
 }
 func WriteJSONHeaders(w http.ResponseWriter) {
 	// выдаем стандартные заголовки страницы

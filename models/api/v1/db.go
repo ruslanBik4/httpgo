@@ -6,11 +6,11 @@ package api
 
 import (
 	"net/http"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	_ "strings"
 	"github.com/ruslanBik4/httpgo/models/services"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 )
@@ -23,12 +23,28 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderBadRequest(w)
 		return
 	}
-	fields := schema.GetFieldsTable(tableName)
 
-	if fields == nil {
-		views.RenderInternalError(w, schema.ErrNotFoundTable{Table: tableName})
-		return
-	}
+	defer func() {
+		err1 := recover()
+		switch err := err1.(type) {
+		case schema.ErrNotFoundTable:
+			views.RenderInternalError(w, err)
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+
+	fields := schema.GetFieldsTable(tableName)
+	//for idx, field := range fields.Rows {
+	//	if field.SETID || field.NODEID {
+	//		fields.Rows[idx].SelectValues = make(map[int] string, 3)
+	//		fields.Rows[idx].SelectValues[1] = "test"
+	//		fields.Rows[idx].SelectValues[2] = "test2"
+	//		fields.Rows[idx].SelectValues[3] = "test3"
+	//
+	//	}
+	//}
 
 	addJSON := make(map[string]string, 0)
 	if id := r.FormValue("id"); id > "" {
@@ -59,7 +75,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}
 
-	views.RenderJSONAnyForm(w, fields, new (json.FormStructure), addJSON)
+	views.RenderJSONAnyForm(w, &fields, new (json.FormStructure), addJSON)
 }
 
 func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {

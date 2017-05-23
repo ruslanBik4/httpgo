@@ -18,7 +18,6 @@ import (
 
 //line views/templates/json/anyForm.qtpl:5
 import (
-	_ "github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strings"
 )
@@ -26,96 +25,96 @@ import (
 // Формируем JSON, который затем будет использован в форме на клиенте
 // dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 
-//line views/templates/json/anyForm.qtpl:14
+//line views/templates/json/anyForm.qtpl:13
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/json/anyForm.qtpl:14
+//line views/templates/json/anyForm.qtpl:13
 func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
-	//line views/templates/json/anyForm.qtpl:16
+	//line views/templates/json/anyForm.qtpl:15
 	for _, field := range ns.Rows {
-		//line views/templates/json/anyForm.qtpl:20
+		//line views/templates/json/anyForm.qtpl:19
 		titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
 		typeInput := field.TypeInput()
 
-		//line views/templates/json/anyForm.qtpl:22
+		//line views/templates/json/anyForm.qtpl:21
 		qw422016.N().S(`"`)
-		//line views/templates/json/anyForm.qtpl:23
+		//line views/templates/json/anyForm.qtpl:22
 		qw422016.E().S(field.COLUMN_NAME)
-		//line views/templates/json/anyForm.qtpl:23
+		//line views/templates/json/anyForm.qtpl:22
 		qw422016.N().S(`": {`)
-		//line views/templates/json/anyForm.qtpl:24
-		if (field.COLUMN_NAME == "id") || field.IsHidden {
-			//line views/templates/json/anyForm.qtpl:24
-			qw422016.N().S(`"type": "hidden" },`)
-			//line views/templates/json/anyForm.qtpl:26
-			continue
-			//line views/templates/json/anyForm.qtpl:27
+		//line views/templates/json/anyForm.qtpl:23
+		if field.Value > "" {
+			//line views/templates/json/anyForm.qtpl:23
+			qw422016.N().S(`"value": "`)
+			//line views/templates/json/anyForm.qtpl:23
+			qw422016.N().J(field.Value)
+			//line views/templates/json/anyForm.qtpl:23
+			qw422016.N().S(`",`)
+			//line views/templates/json/anyForm.qtpl:23
 		}
-		//line views/templates/json/anyForm.qtpl:29
-		if field.IS_NULLABLE == "NO" {
-			//line views/templates/json/anyForm.qtpl:29
-			qw422016.N().S(`"required": true,`)
-			//line views/templates/json/anyForm.qtpl:29
+		//line views/templates/json/anyForm.qtpl:25
+		if (field.COLUMN_NAME == "id") || field.IsHidden {
+			//line views/templates/json/anyForm.qtpl:25
+			qw422016.N().S(`"type": "hidden" },`)
+			//line views/templates/json/anyForm.qtpl:27
+			continue
+			//line views/templates/json/anyForm.qtpl:28
 		}
 		//line views/templates/json/anyForm.qtpl:30
-		if titleFull > "" {
+		if field.IS_NULLABLE == "NO" {
 			//line views/templates/json/anyForm.qtpl:30
-			qw422016.N().S(`"title": "`)
-			//line views/templates/json/anyForm.qtpl:30
-			qw422016.E().J(titleFull)
-			//line views/templates/json/anyForm.qtpl:30
-			qw422016.N().S(`",`)
+			qw422016.N().S(`"required": true,`)
 			//line views/templates/json/anyForm.qtpl:30
 		}
 		//line views/templates/json/anyForm.qtpl:31
-		if titleLabel > "" {
+		if titleFull > "" {
 			//line views/templates/json/anyForm.qtpl:31
-			qw422016.N().S(`"label": "`)
+			qw422016.N().S(`"title": "`)
 			//line views/templates/json/anyForm.qtpl:31
-			qw422016.E().J(titleLabel)
+			qw422016.E().J(titleFull)
 			//line views/templates/json/anyForm.qtpl:31
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:31
 		}
 		//line views/templates/json/anyForm.qtpl:32
-		if placeholder > "" {
+		if titleLabel > "" {
 			//line views/templates/json/anyForm.qtpl:32
-			qw422016.N().S(`"placeholder": "`)
+			qw422016.N().S(`"label": "`)
 			//line views/templates/json/anyForm.qtpl:32
-			qw422016.E().S(placeholder)
+			qw422016.E().J(titleLabel)
 			//line views/templates/json/anyForm.qtpl:32
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:32
 		}
 		//line views/templates/json/anyForm.qtpl:33
-		if pattern > "" {
+		if placeholder > "" {
 			//line views/templates/json/anyForm.qtpl:33
-			qw422016.N().S(`"pattern": "`)
+			qw422016.N().S(`"placeholder": "`)
 			//line views/templates/json/anyForm.qtpl:33
-			qw422016.E().J(pattern)
+			qw422016.E().J(placeholder)
 			//line views/templates/json/anyForm.qtpl:33
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:33
 		}
 		//line views/templates/json/anyForm.qtpl:34
-		if dataJson > "" {
+		if pattern > "" {
 			//line views/templates/json/anyForm.qtpl:34
-			qw422016.N().S(dataJson)
+			qw422016.N().S(`"pattern": "`)
 			//line views/templates/json/anyForm.qtpl:34
-			qw422016.N().S(`,`)
+			qw422016.N().J(pattern)
+			//line views/templates/json/anyForm.qtpl:34
+			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:34
 		}
 		//line views/templates/json/anyForm.qtpl:35
-		if field.Value > "" {
+		if dataJson > "" {
 			//line views/templates/json/anyForm.qtpl:35
-			qw422016.N().S(`"value": "`)
+			qw422016.N().S(dataJson)
 			//line views/templates/json/anyForm.qtpl:35
-			qw422016.E().S(field.Value)
-			//line views/templates/json/anyForm.qtpl:35
-			qw422016.N().S(`",`)
+			qw422016.N().S(`,`)
 			//line views/templates/json/anyForm.qtpl:35
 		}
 		//line views/templates/json/anyForm.qtpl:36
@@ -123,7 +122,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:36
 			qw422016.N().S(`"CSSClass": "`)
 			//line views/templates/json/anyForm.qtpl:36
-			qw422016.E().S(field.CSSClass)
+			qw422016.E().J(field.CSSClass)
 			//line views/templates/json/anyForm.qtpl:36
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:36
@@ -133,7 +132,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:37
 			qw422016.N().S(`"CSSStyle": "`)
 			//line views/templates/json/anyForm.qtpl:37
-			qw422016.E().S(field.CSSStyle)
+			qw422016.E().J(field.CSSStyle)
 			//line views/templates/json/anyForm.qtpl:37
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:37
@@ -143,7 +142,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:38
 			qw422016.N().S(`"Figure": "`)
 			//line views/templates/json/anyForm.qtpl:38
-			qw422016.E().S(field.Figure)
+			qw422016.E().J(field.Figure)
 			//line views/templates/json/anyForm.qtpl:38
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:38
@@ -169,7 +168,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:41
 			qw422016.N().S(`"minDate": "`)
 			//line views/templates/json/anyForm.qtpl:41
-			qw422016.E().S(field.MinDate)
+			qw422016.N().J(field.MinDate)
 			//line views/templates/json/anyForm.qtpl:41
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:41
@@ -179,7 +178,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:42
 			qw422016.N().S(`"maxDate": "`)
 			//line views/templates/json/anyForm.qtpl:42
-			qw422016.E().S(field.MaxDate)
+			qw422016.N().J(field.MaxDate)
 			//line views/templates/json/anyForm.qtpl:42
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:42
@@ -197,7 +196,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 				//line views/templates/json/anyForm.qtpl:46
 				qw422016.N().S(`": "`)
 				//line views/templates/json/anyForm.qtpl:46
-				qw422016.E().S(funcName)
+				qw422016.N().J(funcName)
 				//line views/templates/json/anyForm.qtpl:46
 				qw422016.N().S(`",`)
 				//line views/templates/json/anyForm.qtpl:47
@@ -215,7 +214,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:51
 			qw422016.N().S(`"default": "`)
 			//line views/templates/json/anyForm.qtpl:51
-			qw422016.E().S(field.COLUMN_DEFAULT)
+			qw422016.N().J(field.COLUMN_DEFAULT)
 			//line views/templates/json/anyForm.qtpl:51
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:51
@@ -245,7 +244,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 				//line views/templates/json/anyForm.qtpl:54
 				qw422016.N().S(`"`)
 				//line views/templates/json/anyForm.qtpl:54
-				qw422016.E().S(val)
+				qw422016.N().J(val)
 				//line views/templates/json/anyForm.qtpl:54
 				qw422016.N().S(`"`)
 				//line views/templates/json/anyForm.qtpl:54
@@ -265,7 +264,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 				//line views/templates/json/anyForm.qtpl:58
 				qw422016.N().S(`":"`)
 				//line views/templates/json/anyForm.qtpl:58
-				qw422016.E().S(val)
+				qw422016.N().J(val)
 				//line views/templates/json/anyForm.qtpl:58
 				qw422016.N().S(`",`)
 				//line views/templates/json/anyForm.qtpl:59
@@ -284,157 +283,145 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
 			fields := schema.GetFieldsTable(tableProps)
 
+			//line views/templates/json/anyForm.qtpl:70
+			qw422016.N().S(`"list": {`)
+			//line views/templates/json/anyForm.qtpl:71
+			StreamCheckFields(qw422016, &fields)
+			//line views/templates/json/anyForm.qtpl:71
+			qw422016.N().S(`},`)
 			//line views/templates/json/anyForm.qtpl:72
-			if fields == nil {
-				//line views/templates/json/anyForm.qtpl:72
-				qw422016.N().S(`"list" : "нет связанной таблицы -`)
-				//line views/templates/json/anyForm.qtpl:73
-				qw422016.E().S(tableProps)
-				//line views/templates/json/anyForm.qtpl:73
-				qw422016.N().S(`",`)
-				//line views/templates/json/anyForm.qtpl:74
-			} else {
-				//line views/templates/json/anyForm.qtpl:74
-				qw422016.N().S(`"list": {`)
-				//line views/templates/json/anyForm.qtpl:75
-				StreamCheckFields(qw422016, fields)
-				//line views/templates/json/anyForm.qtpl:75
-				qw422016.N().S(`},`)
-				//line views/templates/json/anyForm.qtpl:76
-			}
-			//line views/templates/json/anyForm.qtpl:77
 		}
-		//line views/templates/json/anyForm.qtpl:77
+		//line views/templates/json/anyForm.qtpl:72
 		qw422016.N().S(`"type": "`)
-		//line views/templates/json/anyForm.qtpl:79
-		qw422016.E().S(typeInput)
-		//line views/templates/json/anyForm.qtpl:79
+		//line views/templates/json/anyForm.qtpl:74
+		qw422016.N().J(typeInput)
+		//line views/templates/json/anyForm.qtpl:74
 		qw422016.N().S(`"},`)
-		//line views/templates/json/anyForm.qtpl:81
+		//line views/templates/json/anyForm.qtpl:76
 	}
-	//line views/templates/json/anyForm.qtpl:81
+	//line views/templates/json/anyForm.qtpl:76
 	qw422016.N().S(`"count":`)
-	//line views/templates/json/anyForm.qtpl:82
+	//line views/templates/json/anyForm.qtpl:77
 	qw422016.N().D(len(ns.Rows))
-//line views/templates/json/anyForm.qtpl:84
+//line views/templates/json/anyForm.qtpl:79
 }
 
-//line views/templates/json/anyForm.qtpl:84
+//line views/templates/json/anyForm.qtpl:79
 func WriteCheckFields(qq422016 qtio422016.Writer, ns *schema.FieldsTable) {
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	StreamCheckFields(qw422016, ns)
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyForm.qtpl:84
+//line views/templates/json/anyForm.qtpl:79
 }
 
-//line views/templates/json/anyForm.qtpl:84
+//line views/templates/json/anyForm.qtpl:79
 func CheckFields(ns *schema.FieldsTable) string {
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	WriteCheckFields(qb422016, ns)
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyForm.qtpl:84
+	//line views/templates/json/anyForm.qtpl:79
 	return qs422016
-//line views/templates/json/anyForm.qtpl:84
+//line views/templates/json/anyForm.qtpl:79
 }
 
-//line views/templates/json/anyForm.qtpl:87
+//line views/templates/json/anyForm.qtpl:82
 func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, ns *schema.FieldsTable, AddJson map[string]string) {
-	//line views/templates/json/anyForm.qtpl:89
+	//line views/templates/json/anyForm.qtpl:84
 	thisForm.setFormDefaults(ns)
 
-	//line views/templates/json/anyForm.qtpl:90
+	//line views/templates/json/anyForm.qtpl:85
 	qw422016.N().S(`{"fields": {`)
-	//line views/templates/json/anyForm.qtpl:93
+	//line views/templates/json/anyForm.qtpl:88
 	StreamCheckFields(qw422016, ns)
-	//line views/templates/json/anyForm.qtpl:93
+	//line views/templates/json/anyForm.qtpl:88
 	qw422016.N().S(`},"form": {`)
-	//line views/templates/json/anyForm.qtpl:97
+	//line views/templates/json/anyForm.qtpl:92
 	if thisForm.ClassCSS != "" {
-		//line views/templates/json/anyForm.qtpl:97
+		//line views/templates/json/anyForm.qtpl:92
 		qw422016.N().S(`"class" : "`)
-		//line views/templates/json/anyForm.qtpl:97
-		qw422016.N().S(thisForm.ClassCSS)
-		//line views/templates/json/anyForm.qtpl:97
+		//line views/templates/json/anyForm.qtpl:92
+		qw422016.N().J(thisForm.ClassCSS)
+		//line views/templates/json/anyForm.qtpl:92
 		qw422016.N().S(`",`)
-		//line views/templates/json/anyForm.qtpl:97
+		//line views/templates/json/anyForm.qtpl:92
 	}
-	//line views/templates/json/anyForm.qtpl:97
+	//line views/templates/json/anyForm.qtpl:92
 	qw422016.N().S(`"action" : "`)
-	//line views/templates/json/anyForm.qtpl:98
-	qw422016.N().S(thisForm.Action)
-	//line views/templates/json/anyForm.qtpl:98
+	//line views/templates/json/anyForm.qtpl:93
+	qw422016.N().J(thisForm.Action)
+	//line views/templates/json/anyForm.qtpl:93
 	qw422016.N().S(`","id" : "`)
-	//line views/templates/json/anyForm.qtpl:99
-	qw422016.N().S(thisForm.IdCSS)
-	//line views/templates/json/anyForm.qtpl:99
+	//line views/templates/json/anyForm.qtpl:94
+	qw422016.N().J(thisForm.IdCSS)
+	//line views/templates/json/anyForm.qtpl:94
 	qw422016.N().S(`","name": "`)
-	//line views/templates/json/anyForm.qtpl:100
-	qw422016.N().S(thisForm.Name)
-	//line views/templates/json/anyForm.qtpl:100
+	//line views/templates/json/anyForm.qtpl:95
+	qw422016.N().J(thisForm.Name)
+	//line views/templates/json/anyForm.qtpl:95
 	qw422016.N().S(`"`)
-	//line views/templates/json/anyForm.qtpl:101
+	//line views/templates/json/anyForm.qtpl:96
 	for name, event := range thisForm.Events {
-		//line views/templates/json/anyForm.qtpl:101
+		//line views/templates/json/anyForm.qtpl:96
 		qw422016.N().S(`,"`)
-		//line views/templates/json/anyForm.qtpl:102
+		//line views/templates/json/anyForm.qtpl:97
 		qw422016.E().S(name)
-		//line views/templates/json/anyForm.qtpl:102
+		//line views/templates/json/anyForm.qtpl:97
 		qw422016.N().S(`": "`)
-		//line views/templates/json/anyForm.qtpl:102
-		qw422016.N().S(event)
-		//line views/templates/json/anyForm.qtpl:102
+		//line views/templates/json/anyForm.qtpl:97
+		qw422016.N().J(event)
+		//line views/templates/json/anyForm.qtpl:97
 		qw422016.N().S(`"`)
-		//line views/templates/json/anyForm.qtpl:103
+		//line views/templates/json/anyForm.qtpl:98
 	}
-	//line views/templates/json/anyForm.qtpl:103
+	//line views/templates/json/anyForm.qtpl:98
 	qw422016.N().S(`}`)
-	//line views/templates/json/anyForm.qtpl:105
+	//line views/templates/json/anyForm.qtpl:100
 	for name, val := range AddJson {
-		//line views/templates/json/anyForm.qtpl:105
+		//line views/templates/json/anyForm.qtpl:100
 		qw422016.N().S(`,"`)
-		//line views/templates/json/anyForm.qtpl:106
+		//line views/templates/json/anyForm.qtpl:101
 		qw422016.E().S(name)
-		//line views/templates/json/anyForm.qtpl:106
+		//line views/templates/json/anyForm.qtpl:101
 		qw422016.N().S(`":`)
-		//line views/templates/json/anyForm.qtpl:106
+		//line views/templates/json/anyForm.qtpl:101
 		qw422016.N().S(val)
-		//line views/templates/json/anyForm.qtpl:107
+		//line views/templates/json/anyForm.qtpl:102
 	}
-	//line views/templates/json/anyForm.qtpl:107
+	//line views/templates/json/anyForm.qtpl:102
 	qw422016.N().S(`}`)
-//line views/templates/json/anyForm.qtpl:110
+//line views/templates/json/anyForm.qtpl:105
 }
 
-//line views/templates/json/anyForm.qtpl:110
+//line views/templates/json/anyForm.qtpl:105
 func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, ns *schema.FieldsTable, AddJson map[string]string) {
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	thisForm.StreamJSONAnyForm(qw422016, ns, AddJson)
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/json/anyForm.qtpl:110
+//line views/templates/json/anyForm.qtpl:105
 }
 
-//line views/templates/json/anyForm.qtpl:110
+//line views/templates/json/anyForm.qtpl:105
 func (thisForm *FormStructure) JSONAnyForm(ns *schema.FieldsTable, AddJson map[string]string) string {
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	thisForm.WriteJSONAnyForm(qb422016, ns, AddJson)
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	qs422016 := string(qb422016.B)
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/json/anyForm.qtpl:110
+	//line views/templates/json/anyForm.qtpl:105
 	return qs422016
-//line views/templates/json/anyForm.qtpl:110
+//line views/templates/json/anyForm.qtpl:105
 }
