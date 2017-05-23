@@ -30,9 +30,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
     {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
     {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
     {% if placeholder > "" %} "placeholder": "{%s placeholder %}", {% endif %}
-    {% if pattern > "" %} "pattern": "{%j pattern %}", {% endif %}
+    {% if pattern > "" %} "pattern": "{%j= pattern %}", {% endif %}
     {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
-    {% if field.Value > "" %} "value": "{%s field.Value %}", {% endif %}
+    {% if field.Value > "" %} "value": "{%j= field.Value %}", {% endif %}
     {% if field.CSSClass > "" %} "CSSClass": "{%s field.CSSClass %}",{% endif %}
     {% if field.CSSStyle > "" %} "CSSStyle": "{%s field.CSSStyle %}",{% endif %}
     {% if field.Figure > "" %}   "Figure": "{%s field.Figure %}",      {% endif %}
@@ -48,14 +48,14 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         "count": {%d len(field.Events) %}
         },
     {% endif %}
-    {% if field.COLUMN_DEFAULT > "" %}"default": "{%s field.COLUMN_DEFAULT %}",{% endif %}
+    {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
     {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
     {% if len(field.EnumValues) > 0 %}
-        "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%s val %}"{% endfor %}],
+        "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%j= val %}"{% endfor %}],
     {% elseif len(field.SelectValues) > 0 %}
         "list": {
             {% for key, val := range field.SelectValues %}
-                "{%d key %}":"{%s val %}",
+                "{%d key %}":"{%j= val %}",
             {% endfor %}
             "count": {%d len(ns.Rows) %}
         },

@@ -95,7 +95,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:33
 			qw422016.N().S(`"pattern": "`)
 			//line views/templates/json/anyForm.qtpl:33
-			qw422016.E().J(pattern)
+			qw422016.N().J(pattern)
 			//line views/templates/json/anyForm.qtpl:33
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:33
@@ -113,7 +113,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:35
 			qw422016.N().S(`"value": "`)
 			//line views/templates/json/anyForm.qtpl:35
-			qw422016.E().S(field.Value)
+			qw422016.N().J(field.Value)
 			//line views/templates/json/anyForm.qtpl:35
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:35
@@ -215,7 +215,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 			//line views/templates/json/anyForm.qtpl:51
 			qw422016.N().S(`"default": "`)
 			//line views/templates/json/anyForm.qtpl:51
-			qw422016.E().S(field.COLUMN_DEFAULT)
+			qw422016.N().J(field.COLUMN_DEFAULT)
 			//line views/templates/json/anyForm.qtpl:51
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:51
@@ -245,7 +245,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 				//line views/templates/json/anyForm.qtpl:54
 				qw422016.N().S(`"`)
 				//line views/templates/json/anyForm.qtpl:54
-				qw422016.E().S(val)
+				qw422016.N().J(val)
 				//line views/templates/json/anyForm.qtpl:54
 				qw422016.N().S(`"`)
 				//line views/templates/json/anyForm.qtpl:54
@@ -265,7 +265,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, ns *schema.FieldsTable) {
 				//line views/templates/json/anyForm.qtpl:58
 				qw422016.N().S(`":"`)
 				//line views/templates/json/anyForm.qtpl:58
-				qw422016.E().S(val)
+				qw422016.N().J(val)
 				//line views/templates/json/anyForm.qtpl:58
 				qw422016.N().S(`",`)
 				//line views/templates/json/anyForm.qtpl:59
