@@ -73,7 +73,7 @@ export class ParseJSON {
     const func = this.components[component.tagName];
 
     try {
-      if (func) {
+      if (typeof func !== 'undefined') {
 
         // if has attr in params 'list'
         if (typeof params[Variables.paramsJSONList] === 'object' && func.createList) {
