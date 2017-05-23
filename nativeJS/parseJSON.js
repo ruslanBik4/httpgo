@@ -82,7 +82,11 @@ export class ParseJSON {
 
         // if has attr in params 'title'
         else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
-          func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
+          try {
+            func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
+          } catch (e) {
+            console.log(e);
+          }
         }
 
       } else {
