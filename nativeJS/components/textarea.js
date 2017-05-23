@@ -13,7 +13,12 @@ export class TextArea {
   static setDefaultAttr(component, attr) {
 
     component = Native.findAncestorByClass(component, this.className);
-    ParseJSON.insertDataToAttrSetText(component, attr);
+
+    if (component) {
+      ParseJSON.insertDataToAttrSetText(component, attr);
+    } else {
+      throw new SyntaxError(`Данные некорректны, поле textarea`);
+    }
 
   }
 

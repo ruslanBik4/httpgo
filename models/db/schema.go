@@ -158,7 +158,6 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
-		fieldStrc.GetTitle(field.COLUMN_NAME)
 
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
 			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
@@ -168,18 +167,17 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		}
 
 		if field.COLUMN_COMMENT.Valid {
-			fieldStrc.GetTitle(field.COLUMN_COMMENT.String)
+			fieldStrc.ParseComment(field.COLUMN_COMMENT.String)
 		}
 
 		if strings.HasPrefix(field.COLUMN_NAME, "setid_") {
+			fieldStrc.SETID = true
+			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
+			fieldStrc.TableValues = fieldStrc.Table.Name + "_" + fieldStrc.TableProps + "_has"
 			fieldStrc.WriteSQLbySETID()
-		} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_") {
-			fieldStrc.WriteSQLByNodeID()
-		} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
-			fieldStrc.WriteSQLByTableID()
+			fieldStrc.SelectValues = make(map[int] string, 0)
+
 		}
-
-
 		fields.Rows[i] = *fieldStrc
 	}
 
@@ -196,18 +194,29 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 
 	return fields
 }
-
+var Schema_ready bool
 func InitSchema() {
+	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
 	go func() {
 		var tables RecordsTables
 		tables.GetTablesProp(server.GetServerConfig().DBName() )
 
+		// первый проход заполняет в кешги данными полей первого уровня
 		for _, table := range tables.Rows {
 			var fields FieldsTable
 			fields.GetColumnsProp(table.TABLE_NAME)
 
 			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
 		}
+		// теперь заполняем данные второго уровня - которые зависят от других таблиц
+		for _, fields := range schema.SchemaCache {
+			fields.FillSurroggateFields()
+			//for _, field := range fields.Rows {
+			//
+			//}
+		}
+
+		Schema_ready = true
 
 	}()
 }

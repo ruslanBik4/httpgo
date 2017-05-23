@@ -19,7 +19,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	cmd := exec.Command("./webserver.sh", "update")
 	cmd.Dir = ServerConfig.SystemPath()
 	if r.FormValue("branch") > "" {
-		cmd.Args =append(cmd.Args, r.FormValue("branch"))
+		cmd.Args = append(cmd.Args, r.FormValue("branch"))
 	}
 
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -28,7 +28,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	} else {
 		views.WriteHeaders(w)
 		log.Println(stdoutStderr)
-		w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
+		w.Write(bytes.Replace(stdoutStderr, []byte("/n"), []byte("<br>"), 0))
 	}
 
 }

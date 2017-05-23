@@ -9,14 +9,14 @@ package schema
 
 
 import (
-"strings"
-"regexp"
-"fmt"
-"log"
-"database/sql"
-"encoding/json"
-_ "strconv"
-"time"
+	"strings"
+	"regexp"
+	"fmt"
+	"log"
+	"database/sql"
+	"encoding/json"
+	_ "strconv"
+	"time"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -31,41 +31,34 @@ type FieldStructure struct {
 	DATA_TYPE 	string
 	COLUMN_DEFAULT 	string
 	IS_NULLABLE 	string
-	CHARACTER_SET_NAME string
-	COLUMN_COMMENT 	string
-	COLUMN_TYPE 	string
+	CHARACTER_SET_NAME       string
+	COLUMN_COMMENT           string
+	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	Value 		string
-	IsHidden 	bool
-	InputType	string
-	CSSClass  	string
-	CSSStyle        string
-	TableName 	string
-	Events 		map[string] string
-	Where 		string
-	Figure 		string
-	Placeholder	string
-	Pattern		string
-	MinDate		string
-	MaxDate		string
-	BeforeHtml	string
-	Html		string
-	AfterHtml	string
-	ForeignFields	string
-	LinkTD		string
-	DataJSOM        map[string] interface{}
-	EnumValues 	[]string
-	SQLforSelect    string
-}
-type FieldsTable struct {
-	Name string
-	ID   int
-	Comment string
-	IsDadata bool
-	Rows [] FieldStructure
-	Hiddens map[string] string
-	SaveFormEvents 	map[string] string
-	DataJSOM        map[string] interface{}
+	Value                    string
+	IsHidden                 bool
+	InputType                string
+	CSSClass                 string
+	CSSStyle                 string
+	TableName              string
+	Events                 map[string] string
+	Where                  string
+	Figure                 string
+	Placeholder            string
+	Pattern                string
+	MinDate                string
+	MaxDate                string
+	BeforeHtml             string
+	Html                   string
+	AfterHtml              string
+	ForeignFields          string
+	LinkTD                 string
+	DataJSOM               map[string] interface{}
+	EnumValues             []string
+	SQLforChieldList       string
+	SETID, NODEID, TABLEID bool
+	SelectValues           map[int] string
+	TableProps, TableValues string
 }
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
@@ -91,7 +84,7 @@ func (field *FieldStructure) TypeInput() string{
 		return "ForeignSelect"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
-		return "multiselect"
+		return "set"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
 		return "table"
@@ -101,13 +94,13 @@ func (field *FieldStructure) TypeInput() string{
 		case "varchar":
 			field.InputType = "text"
 		case "set":
-			field.InputType = "checkbox"
+			field.InputType = "set"
 		case "enum":
 			field.setEnumValues()
 			if len(field.EnumValues) > 2 {
 				field.InputType = "select"
 			} else {
-				field.InputType = "radio"
+				field.InputType = "enum"
 			}
 		case "tinyint":
 			field.InputType = "checkbox"
@@ -165,20 +158,17 @@ func (field *FieldStructure) Scan(value interface{}) error {
 	return nil
 }
 
-func (ns *FieldsTable) FindField(name string) *FieldStructure {
-	for idx, field := range ns.Rows {
-		if field.COLUMN_NAME == name {
-			return &ns.Rows[idx]
-		}
-	}
 
-	return nil
-}
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
 // условия вынимаем из определения поля типа SET
 // и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще усло
 func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
+
+	defer func() {
+		err:= recover()
+		log.Println(err)
+	}()
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	comma  := " WHERE ("
 	for _, title := range enumValues {
@@ -219,17 +209,59 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 		tableProps, tableValue)
 
 }
-
+// возвращает поле в связанной таблице, которое будет отдано пользователю
+//например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
 func (field *FieldStructure) GetForeignFields()  string {
 
 
 	if field.ForeignFields > "" {
 		return field.ForeignFields
 	} else {
-		return "title"
+		return field.GetParentFieldName()
 	}
 }
 
+func (field *FieldStructure) GetParentFieldName() (name string) {
+
+	// получаем имя связанной таблицы
+	var tableName string
+	if field.SETID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "setid_")
+	} else if field.NODEID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "nodeid_")
+	} else if field.TABLEID {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
+	} else if strings.HasPrefix(field.COLUMN_NAME, "id_") {
+		tableName = strings.TrimPrefix(field.COLUMN_NAME, "id_")
+	}
+
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case ErrNotFoundTable:
+			name = ""
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+
+	fields := GetFieldsTable(tableName)
+
+	for _, list := range fields.Rows {
+			switch list.COLUMN_NAME {
+			case "name":
+				return "name"
+			case "title":
+				return "title"
+			case "fullname":
+				return "fullname"
+			}
+	}
+
+	return name
+
+}
 
 func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
 	titleFull = title
@@ -299,7 +331,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
-func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
+func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 	titleFull := COLUMN_COMMENT
 	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
@@ -361,61 +393,63 @@ func (fieldStrc *FieldStructure) GetTitle(COLUMN_COMMENT string) string{
 	return fieldStrc.COLUMN_COMMENT
 }
 func (fieldStrc *FieldStructure) WriteSQLbySETID() error {
-	parentTable := fieldStrc.Table.Name
-	tableProps  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
-	tableValue  := parentTable + "_" + tableProps + "_has"
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforSelect = fmt.Sprintf(`SELECT p.id
+	fieldStrc.SQLforChieldList = fmt.Sprintf(`SELECT p.id, %s
 		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[1]s AND id_%[3]s = ?) ` + where,
-		tableProps, tableValue, parentTable)
+		ON (p.id = v.id_%[2]s) ` + where, fieldStrc.GetForeignFields(),
+		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
 	return nil
 }
 //getSQLFromNodeID(field *schema.FieldStructure) string
-func (fieldStrc *FieldStructure) WriteSQLByNodeID() error{
-	var tableProps, titleField string
+func (fieldStrc *FieldStructure) writeSQLByNodeID() (err error){
+	var titleField string
 
-	parentTable := fieldStrc.Table.Name
-	tableValue  := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
-	fieldsValues := GetFieldsTable(tableValue)
 
-	if fieldsValues == nil {
-		return *new(error)
-	}
-	for _, field := range fieldsValues.Rows {
-		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + parentTable) {
-			tableProps = field.COLUMN_NAME[3:]
-			titleField = field.GetForeignFields()
-			break
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case ErrNotFoundTable:
+			err = ErrNotFoundTable{Table:fieldStrc.TableProps}
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+	if fieldStrc.TableProps == "" {
+		fieldsValues := GetFieldsTable(fieldStrc.TableValues)
+
+		for _, field := range fieldsValues.Rows {
+			if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+fieldStrc.Table.Name) {
+				fieldStrc.TableProps = field.COLUMN_NAME[3:]
+				titleField = field.GetForeignFields()
+				break
+			}
 		}
 	}
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 
-	fieldStrc.SQLforSelect =  fmt.Sprintf(`SELECT p.id, %s, id_%s
+	fieldStrc.SQLforChieldList =  fmt.Sprintf(`SELECT p.id, %s, id_%s
 		FROM %s v JOIN %s p
-		ON (p.id = v.id_%[4]s AND id_%[2]s = ?) ` + where,
-		titleField, parentTable, tableValue, tableProps)
+		ON (p.id = v.id_%[4]s) ` + where,
+		titleField, fieldStrc.Table.Name, fieldStrc.TableValues, fieldStrc.TableProps)
 
 	return nil
 }
 
-func (fieldStrc *FieldStructure) WriteSQLByTableID() error {
+func (fieldStrc *FieldStructure) writeSQLByTableID() error {
 
-
-	parentTable := fieldStrc.Table.Name
-	tableProps := strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 
 	where := fieldStrc.WhereFromSet(fieldStrc.Table)
 	if where > "" {
-		where += " AND (id_%s=?)"
+		where += " OR (id_%s=?)"
 	} else {
 		where = " WHERE (id_%s=?)"
 	}
 
-	fieldStrc.SQLforSelect =  fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, parentTable )
+	fieldStrc.SQLforChieldList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, fieldStrc.TableProps, fieldStrc.Table.Name )
 
 	return nil
 }

@@ -4,8 +4,9 @@
 
 package json
 
-import "github.com/ruslanBik4/httpgo/views/templates/forms"
-
+import (
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+)
 type FormStructure struct {
 	Action          string
 	ClassCSS        string
@@ -14,7 +15,7 @@ type FormStructure struct {
 	Events          map[string] string
 }
 
-func (thisForm *FormStructure) setFormDefaults(ns *forms.FieldsTable) {
+func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
 
 	if thisForm.Action == "" {
 		thisForm.Action = "/admin/exec/"

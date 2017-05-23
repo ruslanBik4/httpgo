@@ -7,9 +7,11 @@ package qb
 import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"strings"
 	"strconv"
 	"log"
+	"strings"
+	"fmt"
+	"runtime"
 )
 
 func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
@@ -18,33 +20,35 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 	commaTbl, commaFld := "", ""
 	for _, table := range qb.Tables {
+
+		defer func() {
+			err := recover()
+			switch err.(type) {
+			case schema.ErrNotFoundTable:
+				_, fn, line, _ := runtime.Caller(0)
+				log.Println("select.go,", fn, " line ", line, table.Name)
+				err = schema.ErrNotFoundTable{Table:table.Name}
+			case nil:
+			default:
+				panic(err)
+			}
+		}()
 		tableStrc := schema.GetFieldsTable(table.Name)
 		aliasTable:= table.Alias
-		if tableStrc == nil {
-			panic( &schema.ErrNotFoundTable{ Table:table.Name} )
-		}
 		// temporary not validate first table on  having JOIN property
 		// TODO: add checking join if first table as error!!!
 		if table.Join > "" {
 			qFrom += " " + table.Join + " " + table.Name + " " + aliasTable + " " + table.Using
 		} else {
-			qFrom += commaTbl + " " + table.Name + " " + aliasTable + " " + table.Join
+			qFrom += commaTbl + table.Name + " " + aliasTable
 		}
 		commaTbl = ", "
-		if len(table.Fields) == 0 {
-			qFields += commaFld + aliasTable + ".*"
-			commaFld = ", "
-
-			for _, fieldStrc := range tableStrc.Rows {
-
-				fields = append(fields, fieldStrc)
-			}
-		} else {
+		if len(table.Fields) > 0 {
 			for alias, field := range table.Fields {
 				var queryName string
 				fieldStrc := tableStrc.FindField(field.Name)
 				if alias > "" {
-					queryName = ` as "` + alias + `"`
+					queryName = ` AS "` + alias + `"`
 				}
 				if fieldStrc == nil {
 					fieldStrc = &schema.FieldStructure{COLUMN_NAME: alias}
@@ -56,42 +60,125 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 				fields = append(fields, *fieldStrc)
 				commaFld = ", "
 			}
+		} else if table.Join == ""{
+			qFields += commaFld + aliasTable + ".*"
+			commaFld = ", "
+
+			for _, fieldStrc := range tableStrc.Rows {
+
+				fields = append(fields, fieldStrc)
+			}
 		}
 	}
 
 	if qb.Where > "" {
-		sql += " where " + qb.Where
+		if strings.Contains(qb.Where, "WHERE") {
+			sql += qb.Where
+		} else {
+			sql += " WHERE " + qb.Where
+		}
 	}
 	if qb.GroupBy > "" {
-		sql += " group by " + qb.GroupBy
+		sql += " GROUP BY " + qb.GroupBy
 	}
 	if qb.OrderBy > "" {
-		sql += " order by " + qb.OrderBy
+		sql += " ORDER BY " + qb.OrderBy
 	}
 
-	return "select " + qFields + " from " + qFrom + sql, fields, nil
+	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
+
+}
+func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+	gChild := Create(field.WhereFromSet(field.Table),"", "")
+	titleField := field.GetForeignFields()
+
+	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
+
+	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, field.Table.Name )
+	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin )
+
+	gChild.AddArgs(fieldID)
+
+	return gChild.SelectToMultidimension()
+
+}
+func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
+
+	fieldTableName := field.Table.Name
+
+	gChild := Create(field.WhereFromSet(field.Table),"", "")
+
+	var tableProps, titleField string
+
+	defer func() {
+		err := recover()
+		switch err.(type) {
+		case schema.ErrNotFoundTable:
+			log.Println("select.go,","string 301,", field.TableValues)
+		case nil:
+		default:
+			panic(err)
+		}
+	}()
+	fieldsValues := schema.GetFieldsTable(field.TableValues)
+
+	//TODO: later refactoring - store values in field propertyes
+	for _, field := range fieldsValues.Rows {
+		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + fieldTableName) {
+			tableProps = field.COLUMN_NAME[3:]
+			titleField = field.GetForeignFields()
+			break
+		}
+	}
+
+	if (tableProps == "") || (titleField == "") {
+		return nil, schema.ErrNotFoundTable{Table: field.TableValues}
+	}
+
+	gChild.AddTable( "p", tableProps ).AddField("", "id").AddField("", titleField)
+
+	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, fieldTableName )
+	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
+	gChild.AddArgs(fieldID)
+
+	return gChild.SelectToMultidimension()
+
+}
+func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+
+	where := field.WhereFromSet(field.Table)
+	if where > "" {
+		where += fmt.Sprintf( " OR (id_%s=?)", field.Table.Name )
+	} else {
+		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
+	}
+	gChild := Create(where,"", "")
+	gChild.AddTable( "p", field.TableProps )
+
+	gChild.AddArgs(fieldID)
+
+	return gChild.SelectToMultidimension()
 
 }
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
 	sql, fields, err := qb.createSQL()
 
-	log.Println(sql)
+	//log.Println("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
 	if err != nil {
-		//log.Println("mysql.go,","string 306,", err, sql)
+		log.Println("mysql.go,","SelectToMultidimension", err, sql)
 		return nil, err
 	}
 
 	defer rows.Close()
 
 	var valuePtrs []interface{}
-	//var fieldID *schema.FieldStructure
 
-	for ind, _ := range fields {
-		valuePtrs = append(valuePtrs, &fields[ind] )
+	for idx, _ := range fields {
+		valuePtrs = append(valuePtrs, &fields[idx] )
 	}
 
 	columns, _ := rows.Columns()
@@ -110,24 +197,25 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 			if fieldName == "id" {
 				fieldID = field.Value
 			}
-			if strings.HasPrefix(fieldName, "setid_")  {
-				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID )
+			if field.SETID  {
+				values[fieldName], err = getSETID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforSelect)
+					log.Println(err, field.SQLforChieldList)
 					values[fieldName] = err.Error()
 				}
 				continue
-			} else if strings.HasPrefix(fieldName, "nodeid_"){
-				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID )
+			} else if field.NODEID {
+
+				values[fieldName], err = getNODEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforSelect)
+					log.Println(err, field.SQLforChieldList)
 					values[fieldName] = err.Error()
 				}
 				continue
-			} else if strings.HasPrefix(fieldName, "tableid_"){
-				values[fieldName], err = db.SelectToMultidimension( field.SQLforSelect, fieldID)
+			} else if field.TABLEID {
+				values[fieldName], err = getTABLEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforSelect)
+					log.Println(err, field.SQLforChieldList)
 					values[fieldName] = err.Error()
 				}
 				continue

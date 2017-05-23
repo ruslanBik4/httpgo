@@ -5,6 +5,8 @@
 
 package qb
 
+import "strings"
+
 type QBFields struct {
 	Name  string
 	Alias string
@@ -19,15 +21,22 @@ type QBTables struct {
 }
 type QueryBuilder struct {
 	Tables [] *QBTables
-	Where   string
 	Args [] interface{}
-	GroupBy string
-	OrderBy string
+	sql, Where, GroupBy, OrderBy string
 }
-// constructor
-func  Create(where, groupBy, orderBy string) *QueryBuilder{
+// constructors
+func Create(where, groupBy, orderBy string) *QueryBuilder{
 
 	qb := &QueryBuilder{Where: where, OrderBy: orderBy, GroupBy: groupBy}
+	return qb
+}
+func CreateEmpty() *QueryBuilder{
+
+	qb := &QueryBuilder{}
+	return qb
+}
+func CreateFromSQL(sqlCommand string) *QueryBuilder {
+	qb := &QueryBuilder{sql: sqlCommand}
 	return qb
 }
 // addding arguments
@@ -73,6 +82,14 @@ func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 }
 // add field and returns table object
 func (table *QBTables) AddField(alias, name string) *QBTables {
+
+	if strings.Contains(name, " AS ") {
+		pos := strings.Index(name, " AS ")
+		alias = name[ pos + 4 : ]
+		name  = name[: pos]
+	} else if alias == ""  {
+		alias = name
+	}
 
 	field := &QBFields{Name: name}
 	table.Fields[alias] = field

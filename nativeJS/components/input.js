@@ -25,12 +25,17 @@ export class Input {
   static setDefaultAttr(component, attr) {
 
     const className = this.classNameByTag(component.type);
+    let result;
 
     if (className) {
-      component = Native.findAncestorByClass(component, className);
+      result = Native.findAncestorByClass(component, className);
     }
 
-    ParseJSON.insertDataToAttrSetText(component, attr);
+    if (result) {
+      ParseJSON.insertDataToAttrSetText(result, attr);
+    } else {
+      throw new SyntaxError(`Данные некорректны, поле input`);
+    }
 
   }
 
@@ -104,7 +109,7 @@ export class Input {
 
   static _appendDomToComponent(component, parent, textContent = '') {
 
-    if (component.children.length !== 0) {
+    if (component && component.children && component.children.length !== 0) {
       for (let child of component.children) {
         this._appendDomToComponent(child, parent, textContent);
       }
@@ -112,12 +117,12 @@ export class Input {
 
     if (component.tagName === 'INPUT') {
       if (this.isSet) {
-        component.name += '[]';
+        component.name += `[${ parent.children.length }]`;
       }
-      component.id += parent.children.length;
+      component.id += `-${ parent.children.length }`;
     }
     else if (component.tagName === 'LABEL') {
-      component.htmlFor += parent.children.length;
+      component.htmlFor += `[${ parent.children.length }]`;
     }
     else if (component.hasAttribute(Variables.paramsJSONSetText)) {
       component.textContent = textContent;

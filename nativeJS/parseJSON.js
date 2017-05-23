@@ -72,20 +72,29 @@ export class ParseJSON {
 
     const func = this.components[component.tagName];
 
-    if (func) {
+    try {
+      if (typeof func !== 'undefined') {
 
-      // if has attr in params 'list'
-      if (params[Variables.paramsJSONList] && func.createList) {
-        func.createList(component, params[Variables.paramsJSONList], (params[Variables.paramsJSONType] === Variables.paramsJSONSet));
+        // if has attr in params 'list'
+        if (typeof params[Variables.paramsJSONList] === 'object' && func.createList) {
+          func.createList(component, params[Variables.paramsJSONList], (params[Variables.paramsJSONType] === Variables.paramsJSONSet));
+        }
+
+        // if has attr in params 'title'
+        else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
+          try {
+            func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+
+      } else {
+        console.log(`Not found in frame: ${ component.tagName }`);
       }
-
-      // if has attr in params 'title'
-      else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
-        func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
-      }
-
-    } else {
-      console.log(`Not found: ${ component.tagName }`);
+    }
+    catch (e) {
+      console.log(e, component, params);
     }
 
   }
@@ -108,8 +117,8 @@ export class ParseJSON {
     };
 
     function setNewAttrIdAndName(component, id, index) {
-      component.setAttribute('name', `${ id }${ index }`);
-      component.setAttribute('id', `${ id }${ index }`);
+      component.setAttribute('name', `${ id }[${ index }]`);
+      component.setAttribute('id', `${ id }-${ index }`);
     }
 
     if (attr != null) {
@@ -150,6 +159,7 @@ export class ParseJSON {
 
             } else if (newComponents && parent) {
               try {
+                debugger;
                 const newComponent = addComponent.content.querySelector(`[name="${ strForTable }:${ id }"]`);
                 if (newComponent) {
                   insertValueCurrentComponent(newComponent, element[id]);
@@ -181,13 +191,42 @@ export class ParseJSON {
 
 
   static insertDataToAttrSetText(component, textContent = '') {
-    if (component.children.length !== 0) {
+    if (component && component.children && component.children.length !== 0) {
       for (let child of component.children) {
         this.insertDataToAttrSetText(child, textContent);
       }
     }
     if (component.hasAttribute(Variables.paramsJSONSetText)) {
       component.textContent = textContent;
+    }
+  }
+
+
+
+  static setValue(component, attr, callback, str = '', isDefault = false, strTable = '') {
+
+    for (let name in attr) {
+      let nameField;
+
+      if (strTable.length !== 0) {
+        nameField = (isDefault) ? `${ strTable }:${ name }` : `${ strTable }:${ name }${ str }`;
+      } else {
+        nameField = (isDefault) ? `${ name }` : `${ name }${ str }`;
+      }
+
+      const dom = component.querySelector(`[name="${ nameField }"]`);
+
+      if (name.startsWith(Variables.paramsJSONTable)) {
+        this.setValue(component, attr[name], callback, str, isDefault, name.replace(new RegExp('^' + Variables.paramsJSONTable)));
+      } else if (dom) {
+        if (isDefault) {
+          const intArray = str.match(/\d+/g);
+          dom.setAttribute('name', `${ nameField }${ str }`);
+          dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+        }
+        callback(dom, attr[name]);
+      }
+
     }
   }
 
