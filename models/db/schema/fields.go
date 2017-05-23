@@ -93,7 +93,7 @@ func (field *FieldStructure) TypeInput() string{
 		return "ForeignSelect"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
-		return "multiselect"
+		return "set"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
 		return "table"
@@ -103,13 +103,13 @@ func (field *FieldStructure) TypeInput() string{
 		case "varchar":
 			field.InputType = "text"
 		case "set":
-			field.InputType = "checkbox"
+			field.InputType = "set"
 		case "enum":
 			field.setEnumValues()
 			if len(field.EnumValues) > 2 {
 				field.InputType = "select"
 			} else {
-				field.InputType = "radio"
+				field.InputType = "enum"
 			}
 		case "tinyint":
 			field.InputType = "checkbox"
