@@ -65,10 +65,7 @@ var (
 		"/api/v1/restart/":  api.HandleRestartServer,
 		"/api/v1/log/":  api.HandleLogServer,
 		"/api/v1/photos/":  api.HandlePhotos,
-		//"/store/nav/": handlerStoreNav,
-		//"/admin/catalog/": handlerAddCatalog,
-		//"/admin/psd/add" : handlerAddPSD,
-		//"/admin/psd/" : handlerShowPSD,
+		"/api/v1/photos/add/":  api.HandleAddPhoto,
 	}
 
 )

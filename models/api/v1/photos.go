@@ -8,12 +8,46 @@ import (
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/models/services"
-	"io"
 	"log"
 	"strconv"
 	"os"
+	"image/jpeg"
+	"image"
+	"path/filepath"
 )
+func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
+	tableName := r.FormValue("table")
+	id := r.FormValue("id")
 
+	if (tableName == "") || (id == "") {
+		views.RenderBadRequest(w)
+		return
+	}
+
+	const _24K = (1 << 10) * 24
+	r.ParseMultipartForm(_24K)
+	for _, headers := range r.MultipartForm.File {
+		for _, header := range headers {
+			//var err interface{}
+			inFile, _ := header.Open()
+
+			path :=  filepath.Join(tableName, id, header.Filename )
+			err := services.Send("photos", "save", path, inFile)
+			if err != nil {
+				switch err.(type) {
+				case services.ErrServiceNotCorrectOperation:
+					log.Println(err)
+				}
+				views.RenderInternalError(w, err)
+
+			} else {
+				w.Write([]byte("Succesfull - " + header.Filename))
+			}
+		}
+	}
+	w.Write([]byte("\nDone"))
+
+}
 func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
@@ -47,12 +81,19 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", "attachment; filename="+tableName+id+".jpg")
 		w.Header().Set("Content-Transfer-Encoding", "binary")
 		w.Header().Set("Cache-Control", "must-revalidate")
-		w.Header().Set("Content-Length", FileSize)
+		//w.Header().Set("Content-Length", FileSize)
 
-		if num, err := io.Copy(w, ioReader); err != nil {
-			log.Println(err)
-		} else if num < FileStat.Size() {
-			log.Println(num, FileStat.Size())
+		img, str, err := image.Decode(ioReader)
+		if err != nil {
+			views.RenderInternalError(w,err)
+
+		}
+
+
+		if err := jpeg.Encode(w, img, &jpeg.Options{Quality: 90} ); err != nil {
+			views.RenderInternalError(w,err)
+		} else {
+			log.Println(str, FileSize, img.Bounds())
 		}
 	}
 
