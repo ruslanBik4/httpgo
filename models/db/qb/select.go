@@ -225,7 +225,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 			}
 
-			switch field.COLUMN_TYPE {
+			switch field.DATA_TYPE {
 			case "varchar", "date", "datetime":
 				values[fieldName] = field.Value
 			case "tinyint":
