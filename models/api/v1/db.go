@@ -15,6 +15,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"log"
+	"strings"
+	"fmt"
 )
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -42,8 +44,26 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 		if field.SETID || field.NODEID || field.IdForeign {
 
-			log.Println(field.SQLforFORMList)
-			rows, err := db.DoSelect(field.SQLforFORMList)
+			sqlCommand := field.SQLforFORMList
+			for _, enumVal := range field.EnumValues {
+				if i := strings.Index(enumVal, ":"); i > 0 {
+					// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+					if paramValue := r.FormValue(enumVal[i+1:]); (paramValue > "")  {
+						enumVal = enumVal[:i] + fmt.Sprintf("%s", paramValue)
+						if strings.Contains(sqlCommand, "WHERE") {
+							sqlCommand += " OR " + enumVal
+						} else {
+							sqlCommand += " WHERE " + enumVal
+
+						}
+					} else {
+						continue
+					}
+				}
+
+			}
+			log.Println(sqlCommand)
+			rows, err := db.DoSelect(sqlCommand)
 			if err != nil {
 				log.Println(err, field.SQLforFORMList)
 			} else {
@@ -74,21 +94,6 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			views.RenderInternalError(w, err)
 			return
 		}
-
-		// значение приходит в виде строки. Для агрегатных полей нужно формировать вложеность
-		//for sKey, sValue := range arrJSON {
-		//
-		//	for key, value := range sValue {
-		//
-		//		if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") || strings.HasPrefix(key, "tableid_") {
-		//
-		//			switch vv := value.(type) {
-		//			case []map[string]interface{} :
-		//				arrJSON[sKey][key] = convertToMultiDimension(vv)
-		//			}
-		//		}
-		//	}
-		//}
 
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}

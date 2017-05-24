@@ -34,13 +34,15 @@ func (table *FieldsTable) FillSurroggateFields()  {
 			table.Rows[idx].SETID = true
 			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
 			table.Rows[idx].TableValues = fieldStrc.Table.Name + "_" + table.Rows[idx].TableProps + "_has"
-			table.Rows[idx].writeSQLbySETID()
 			table.Rows[idx].SelectValues = make(map[int] string, 0)
+			table.Rows[idx].setEnumValues()
+			table.Rows[idx].writeSQLbySETID()
 
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "nodeid_") {
 			table.Rows[idx].NODEID = true
 			table.Rows[idx].TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
 			table.Rows[idx].SelectValues = make(map[int] string, 0)
+			table.Rows[idx].setEnumValues()
 			table.Rows[idx].writeSQLByNodeID()
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_"){
 			table.Rows[idx].TABLEID = true
