@@ -62,6 +62,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 				}
 
 			}
+			//TODO: add where condition
 			log.Println(sqlCommand)
 			rows, err := db.DoSelect(sqlCommand)
 			if err != nil {
