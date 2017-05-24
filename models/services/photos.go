@@ -138,7 +138,7 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 	outFile, err := os.Create(fullName)
 	if err != nil {
 		if os.IsNotExist(err) {
-			dir := filepath.Dir(photos.fileName)
+			dir := filepath.Dir(fullName)
 			if err := os.MkdirAll(dir, os.ModeDir); err != nil{
 				log.Println(err)
 				return err

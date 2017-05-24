@@ -14,7 +14,7 @@ import (
 func InitLists() {
 	go func() {
 		var tables RecordsTables
-		where :="TABLE_SCHEMA='" + server.GetServerConfig().DBName() + "' AND (RIGHT(table_name, 5) =  '_list') ";
+		where :=`TABLE_SCHEMA="` + server.GetServerConfig().DBName() + `" AND (RIGHT(table_name, 5) =  "_list")`;
 		err := tables.GetSelectTablesProp(where )
 
 		if err != nil {
