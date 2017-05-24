@@ -84,6 +84,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 	if qb.OrderBy > "" {
 		sql += " ORDER BY " + qb.OrderBy
 	}
+	if qb.Limits > "" {
+		sql += " LIMIT " + qb.Limits
+	}
 
 	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
 
@@ -164,7 +167,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, fields, err := qb.createSQL()
 
-	//log.Println("SelectToMultidimension", sql)
+	log.Println("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
@@ -200,7 +203,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 			if field.SETID  {
 				values[fieldName], err = getSETID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
@@ -208,21 +211,21 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 				values[fieldName], err = getNODEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if field.TABLEID {
 				values[fieldName], err = getTABLEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforChieldList)
+					log.Println(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 
 			}
 
-			switch field.COLUMN_TYPE {
+			switch field.DATA_TYPE {
 			case "varchar", "date", "datetime":
 				values[fieldName] = field.Value
 			case "tinyint":

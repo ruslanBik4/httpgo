@@ -22,7 +22,7 @@ type QBTables struct {
 type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
-	sql, Where, GroupBy, OrderBy string
+	sql, Where, GroupBy, OrderBy, Limits string
 }
 // constructors
 func Create(where, groupBy, orderBy string) *QueryBuilder{

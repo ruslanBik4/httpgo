@@ -42,23 +42,27 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% if field.MaxDate > "" %} "maxDate": "{%j= field.MaxDate %}",  {% endif %}
         {% if len(field.Events) > 0 %}
         "Events": {
-        {% for name, funcName := range field.Events %}
-            "{%s name %}": "{%j= funcName %}",
-        {% endfor %}
+            {% for name, funcName := range field.Events %}
+                "{%s name %}": "{%j= funcName %}",
+            {% endfor %}
         "count": {%d len(field.Events) %}
         },
         {% endif %}
         {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
         {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
-        {% if len(field.EnumValues) > 0 %}
-            "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%j= val %}"{% endfor %}],
-        {% elseif len(field.SelectValues) > 0 %}
+        {% if len(field.SelectValues) > 0 %}
             "list": {
                 {% for key, val := range field.SelectValues %}
                     "{%d key %}":"{%j= val %}",
                 {% endfor %}
                 "count": {%d len(field.SelectValues) %}
             },
+            {% comment %}
+                это применяем только для полей, у которых нет SelectValues
+                исключаем SETID_, NODEID_
+            {% endcomment %}
+        {% elseif len(field.EnumValues) > 0 %}
+            "list": [{% for i, val := range field.EnumValues %}{% if i>0 %},{% endif %}"{%j= val %}"{% endfor %}],
         {% endif %}
 
         {% if field.TABLEID %}

@@ -135,9 +135,22 @@ func (photos *photosService) Status() string {
 func (photos *photosService) saveFile(inFile io.Reader) error {
 
 	fullName := filepath.Join(photos.path, photos.fileName)
-	if outFile, err := os.Create(fullName); err != nil {
-		log.Println(err)
-		return err
+	outFile, err := os.Create(fullName)
+	if err != nil {
+		if os.IsNotExist(err) {
+			dir := filepath.Dir(fullName)
+			if err := os.MkdirAll(dir, os.ModeDir); err != nil{
+				log.Println(err)
+				return err
+			}
+			if outFile, err = os.Create(fullName); err != nil {
+				log.Println(err)
+				return err
+			}
+		} else {
+			log.Println(err)
+			return err
+		}
 	} else {
 		defer outFile.Close()
 		_, err := io.Copy(outFile, inFile )

@@ -15,6 +15,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"log"
+	"strings"
+	"fmt"
 )
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -40,22 +42,42 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	fields := schema.GetFieldsTable(tableName)
 	for idx, field := range fields.Rows {
 
-		if field.SETID || field.NODEID {
+		if field.SETID || field.NODEID || field.IdForeign {
 
-			rows, err := db.DoSelect(field.SQLforChieldList)
-			if err != nil {
-				log.Println(err, field.SQLforChieldList)
-			}
+			sqlCommand := field.SQLforFORMList
+			for _, enumVal := range field.EnumValues {
+				if i := strings.Index(enumVal, ":"); i > 0 {
+					// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+					if paramValue := r.FormValue(enumVal[i+1:]); (paramValue > "")  {
+						enumVal = enumVal[:i] + fmt.Sprintf("%s", paramValue)
+						if strings.Contains(sqlCommand, "WHERE") {
+							sqlCommand += " OR " + enumVal
+						} else {
+							sqlCommand += " WHERE " + enumVal
 
-			defer rows.Close()
-			for rows.Next() {
-				var key int
-				var title string
-				if err := rows.Scan(&key, &title); err != nil {
-					log.Println(err)
+						}
+					} else {
+						continue
+					}
 				}
 
-				fields.Rows[idx].SelectValues[key] = title
+			}
+			log.Println(sqlCommand)
+			rows, err := db.DoSelect(sqlCommand)
+			if err != nil {
+				log.Println(err, field.SQLforFORMList)
+			} else {
+
+				defer rows.Close()
+				for rows.Next() {
+					var key int
+					var title string
+					if err := rows.Scan(&key, &title); err != nil {
+						log.Println(err)
+					}
+
+					fields.Rows[idx].SelectValues[key] = title
+				}
 			}
 
 		}
@@ -72,21 +94,6 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			views.RenderInternalError(w, err)
 			return
 		}
-
-		// значение приходит в виде строки. Для агрегатных полей нужно формировать вложеность
-		//for sKey, sValue := range arrJSON {
-		//
-		//	for key, value := range sValue {
-		//
-		//		if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") || strings.HasPrefix(key, "tableid_") {
-		//
-		//			switch vv := value.(type) {
-		//			case []map[string]interface{} :
-		//				arrJSON[sKey][key] = convertToMultiDimension(vv)
-		//			}
-		//		}
-		//	}
-		//}
 
 		addJSON["data"] = json.WriteSliceJSON(arrJSON)
 	}

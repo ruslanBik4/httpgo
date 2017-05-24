@@ -92,6 +92,7 @@ export class Input {
 
       case 'radio':
       case 'checkbox':
+        // debugger;
         component.checked = !(value === '0');
         break;
 
@@ -109,9 +110,9 @@ export class Input {
 
   static _appendDomToComponent(component, parent, textContent = '') {
 
-    if (component && component.children && component.children.length !== 0) {
-      for (let child of component.children) {
-        this._appendDomToComponent(child, parent, textContent);
+    if (component.children.length !== 0) {
+      for (let i = 0; i < component.children.length; i++) {
+        this._appendDomToComponent(component.children[i], parent, textContent);
       }
     }
 
