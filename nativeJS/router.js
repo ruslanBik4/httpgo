@@ -12,8 +12,13 @@ export class Router {
     this.routing(window.location.pathname, true);
 
     window.onpopstate = (obj) => {
-      console.log(obj.state);
+      if (obj && obj.state) {
+        Parse.setComponent(obj.state.component);
+      } else {
+        Parse.setComponent('', true);
+      }
       this.routing(document.location.pathname, true);
+      Observer.emit(Variables.documentIsReady);
     };
 
   }
@@ -33,7 +38,7 @@ export class Router {
       }
 
       if (!isHistoryBack) {
-        history.pushState({ url: url }, '', url);
+        history.pushState({ url: url, component: Parse.mainContent.innerHTML }, '', url);
       }
 
     }
