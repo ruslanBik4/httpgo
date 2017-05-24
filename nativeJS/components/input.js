@@ -110,9 +110,9 @@ export class Input {
 
   static _appendDomToComponent(component, parent, textContent = '') {
 
-    if (component && component.children && component.children.length !== 0) {
-      for (let child in component.children) {
-        this._appendDomToComponent(component.children[child], parent, textContent);
+    if (component.children.length !== 0) {
+      for (let i = 0; i < component.children.length; i++) {
+        this._appendDomToComponent(component.children[i], parent, textContent);
       }
     }
 

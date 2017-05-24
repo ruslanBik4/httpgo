@@ -187,12 +187,12 @@ export class ParseJSON {
 
 
   static insertDataToAttrSetText(component, textContent = '') {
-    if (component && component.children && component.children.length !== 0) {
-      for (let child in component.children) {
-        this.insertDataToAttrSetText(component.children[child], textContent);
+    if (component.children.length !== 0) {
+      for (let i = 0; i < component.children.length; i++) {
+        this.insertDataToAttrSetText(component.children[i], textContent);
       }
     }
-    if (component.hasAttribute(Variables.paramsJSONSetText)) {
+    if (component && component.hasAttribute(Variables.paramsJSONSetText)) {
       component.textContent = textContent;
     }
   }
