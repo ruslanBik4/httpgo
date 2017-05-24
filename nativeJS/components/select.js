@@ -38,9 +38,9 @@ export class Select {
   static addAttrToComponent(component, attr) {
 
     if (component && component.children) {
-      for (let option of component.children) {
-        if (option.getAttribute(Variables.paramsJSONForPost) === attr) {
-          option.setAttribute('selected', '');
+      for (let option in component.children) {
+        if (component.children[option].getAttribute(Variables.paramsJSONForPost) === attr) {
+          component.children[option].setAttribute('selected', '');
           break;
         }
       }
