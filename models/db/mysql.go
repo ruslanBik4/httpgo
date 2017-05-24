@@ -21,7 +21,7 @@ import (
 )
 var (
 	dbConn *sql.DB
-	SQLvalidator = regexp.MustCompile(`^select\s+.+\s*from\s+`)
+	SQLvalidator = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
 	//регулярное выражение вытаскивающее имя таблицы из запроса
 	//TODO не отрабатывает конструкцию FROM table1, table2
 	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
@@ -110,6 +110,7 @@ func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return dbConn.Query(sql, args ...)
 	} else {
+
 		return nil, &ErrBadSelectQuery{Sql:sql}
 	}
 }
