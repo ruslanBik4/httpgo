@@ -84,6 +84,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 	if qb.OrderBy > "" {
 		sql += " ORDER BY " + qb.OrderBy
 	}
+	if qb.Limits > "" {
+		sql += " LIMIT " + qb.Limits
+	}
 
 	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
 
@@ -164,7 +167,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, fields, err := qb.createSQL()
 
-	//log.Println("SelectToMultidimension", sql)
+	log.Println("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 

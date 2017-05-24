@@ -170,6 +170,9 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			fieldStrc.ParseComment(field.COLUMN_COMMENT.String)
 		}
 
+		//if (field.DATA_TYPE == "set") || (field.DATA_TYPE == "enum") {
+		//	fieldStrc.
+		//}
 		fields.Rows[i] = *fieldStrc
 	}
 
