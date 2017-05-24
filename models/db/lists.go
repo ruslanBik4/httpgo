@@ -6,16 +6,17 @@ package db
 
 import (
 	"github.com/ruslanBik4/httpgo/models/server"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 func InitLists() {
 	go func() {
 		var tables RecordsTables
-		err := tables.GetSelectTablesProp( "TABLE_SCHEMA='" + server.GetServerConfig().DBName() + " AND (RIGHT(table_name, 5) =  '_list') ")
+		where :="TABLE_SCHEMA='" + server.GetServerConfig().DBName() + "' AND (RIGHT(table_name, 5) =  '_list') ";
+		err := tables.GetSelectTablesProp(where )
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err, where)
 		}
 
 	}()
