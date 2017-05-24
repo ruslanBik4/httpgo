@@ -68,11 +68,34 @@ func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTables
 	table := qb.AddTable(alias, name)
 	table.Join   = join
 	table.Using  = usingOrOn
-	//qb.Tables    = append(qb.Tables, table)
+
+	return table
+}
+func (qb *QueryBuilder) Join(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) LeftJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " LEFT JOIN "
+	table.Using  = usingOrOn
 
 	return table
 }
 // add fields to table from map
+func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " RIGHT JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
 func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 	for alias, name := range fields {
 		table.AddField(alias, name)
