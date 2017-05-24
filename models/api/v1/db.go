@@ -40,7 +40,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	fields := schema.GetFieldsTable(tableName)
 	for idx, field := range fields.Rows {
 
-		if field.SETID || field.NODEID {
+		if field.SETID || field.NODEID || field.IdForeign {
 
 			log.Println(field.SQLforFORMList)
 			rows, err := db.DoSelect(field.SQLforFORMList)

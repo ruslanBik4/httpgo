@@ -58,6 +58,7 @@ type FieldStructure struct {
 	SQLforFORMList          string `отдаем в списках полей для формы`
 	SQLforDATAList          string `отдаем в составе данных`
 	SETID, NODEID, TABLEID  bool
+	IdForeign		bool
 	SelectValues            map[int] string
 	TableProps, TableValues string
 }

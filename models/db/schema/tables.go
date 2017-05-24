@@ -46,6 +46,11 @@ func (table *FieldsTable) FillSurroggateFields()  {
 			table.Rows[idx].TABLEID = true
 			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 			table.Rows[idx].writeSQLByTableID()
+		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "id_") {
+			table.Rows[idx].IdForeign = true
+			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
+			table.Rows[idx].SQLforFORMList = "SELECT id, " + fieldStrc.GetForeignFields() + " FROM " + table.Rows[idx].TableProps
+			table.Rows[idx].SelectValues = make(map[int] string, 0)
 		}
 
 	}
