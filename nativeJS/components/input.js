@@ -92,7 +92,7 @@ export class Input {
 
       case 'radio':
       case 'checkbox':
-        component.checked = !(value === '0');
+        component.checked = !!value;
         break;
 
 

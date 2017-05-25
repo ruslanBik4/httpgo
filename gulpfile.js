@@ -1,7 +1,6 @@
 'use strict';
 
-
-const recacheURL = 'localhost:8080/recache';
+const port = '8080';
 
 const gulp = require('gulp');
 const rename = require('gulp-rename');
@@ -28,13 +27,21 @@ gulp.task('native-js', () => {
     notifier.notify(`error JS: ${ e.message }`);
   });
 
-  return gulp.src(`./nativeJS/**/*.js`)
+  gulp.src(`./nativeJS/**/*.js`)
     .pipe(isBabel)
     .pipe(concat('native.min.js'))
     // .pipe(jsmin())
     .pipe(rename({dirname: ''}))
     .pipe(gulp.dest(`./js/`));
     // .pipe(open({uri: recacheURL}))
+
+
+  require('child_process').exec(`curl localhost:${ port }/recache`, function (err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
+    notifier.notify(`recache: ${ stdout }`)
+  });
+
 });
 
 

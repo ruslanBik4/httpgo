@@ -189,7 +189,7 @@ export class ParseJSON {
 
       if (strForTable.length !== 0 && Object.prototype.toString.call(attr) === '[object Array]' && attr.length !== 0) {
         tableIdParse(attr, strForTable);
-      } else if (attr.length !== 0) {
+      } else if (component && attr.length !== 0) {
         insertValueCurrentComponent(component, attr);
       }
     }
