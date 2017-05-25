@@ -338,6 +338,7 @@ func getTablesFromSQL(sql string) (tables [] schema.FieldsTable) {
 	return tables
 }
 //SelectToMultidimension(sql string, args ...interface
+//@version 1.10 Sergey Litvinov 2017-05-25 15:15
 func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
 
 	tables := getTablesFromSQL(sql)
@@ -431,20 +432,20 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 			}
 
-			switch field.COLUMN_TYPE {
+			switch field.DATA_TYPE {
 			case "varchar", "date", "datetime":
-				values[field.COLUMN_NAME] = field.Value
+				values[fieldName] = field.Value
 			case "tinyint":
 				if field.Value == "1" {
-					values[field.COLUMN_NAME] = true
+					values[fieldName] = true
 				} else {
-					values[field.COLUMN_NAME] = false
+					values[fieldName] = false
 
 				}
 			case "int", "int64", "float":
-				values[field.COLUMN_NAME], _ = strconv.Atoi(field.Value)
+				values[fieldName], _ = strconv.Atoi(field.Value)
 			default:
-				values[field.COLUMN_NAME] = field.Value
+				values[fieldName] = field.Value
 			}
 		}
 
