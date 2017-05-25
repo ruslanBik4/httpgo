@@ -8,10 +8,9 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strconv"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"strings"
 	"fmt"
-	"runtime"
 )
 
 func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
@@ -22,12 +21,11 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 	for _, table := range qb.Tables {
 
 		defer func() {
-			err := recover()
-			switch err.(type) {
+			result := recover()
+			switch err1 := result.(type) {
 			case schema.ErrNotFoundTable:
-				_, fn, line, _ := runtime.Caller(0)
-				log.Println("select.go,", fn, " line ", line, table.Name)
-				err = schema.ErrNotFoundTable{Table:table.Name}
+				logs.ErrorLog(err1, err1.Table)
+				err = err1
 			case nil:
 			default:
 				panic(err)
@@ -114,10 +112,11 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	var tableProps, titleField string
 
 	defer func() {
-		err := recover()
-		switch err.(type) {
+		result := recover()
+		switch err1 := result.(type) {
 		case schema.ErrNotFoundTable:
-			log.Println("select.go,","string 301,", field.TableValues)
+			logs.ErrorLog(err1, field.TableValues)
+			err = err1
 		case nil:
 		default:
 			panic(err)
@@ -151,7 +150,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	where := field.WhereFromSet(field.Table)
 	if where > "" {
-		where += fmt.Sprintf( " OR (id_%s=?)", field.Table.Name )
+		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	} else {
 		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
@@ -160,6 +159,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getTABLEID_Values", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -167,12 +167,12 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, fields, err := qb.createSQL()
 
-	log.Println("SelectToMultidimension", sql)
+	logs.DebugLog("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
 	if err != nil {
-		log.Println("mysql.go,","SelectToMultidimension", err, sql)
+		logs.ErrorLog(err, sql)
 		return nil, err
 	}
 
@@ -189,7 +189,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 		var fieldID string
 		values := make(map[string] interface{}, len(fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err, valuePtrs)
 			continue
 		}
 
@@ -203,7 +203,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 			if field.SETID  {
 				values[fieldName], err = getSETID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
@@ -211,21 +211,21 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 				values[fieldName], err = getNODEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if field.TABLEID {
 				values[fieldName], err = getTABLEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 
 			}
 
-			switch field.COLUMN_TYPE {
+			switch field.DATA_TYPE {
 			case "varchar", "date", "datetime":
 				values[fieldName] = field.Value
 			case "tinyint":

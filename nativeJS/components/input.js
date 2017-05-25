@@ -63,7 +63,7 @@ export class Input {
         for (let item in list) {
           if (typeof list[item] === 'string') {
             const newComponent = component.firstElementChild.cloneNode(true);
-            this._appendDomToComponent(newComponent, template.content, list[item]);
+            this._appendDomToComponent(newComponent, template.content, item, list[item]);
             template.content.appendChild(newComponent);
           }
         }
@@ -92,7 +92,6 @@ export class Input {
 
       case 'radio':
       case 'checkbox':
-        // debugger;
         component.checked = !(value === '0');
         break;
 
@@ -108,22 +107,23 @@ export class Input {
 
 
 
-  static _appendDomToComponent(component, parent, textContent = '') {
+  static _appendDomToComponent(component, parent, dataId, textContent = '') {
 
-    if (component && component.children && component.children.length !== 0) {
-      for (let child in component.children) {
-        this._appendDomToComponent(component.children[child], parent, textContent);
+    if (component.children.length !== 0) {
+      for (let i = 0; i < component.children.length; i++) {
+        this._appendDomToComponent(component.children[i], parent, dataId, textContent);
       }
     }
 
     if (component.tagName === 'INPUT') {
       if (this.isSet) {
-        component.name += `[${ parent.children.length }]`;
+        component.name += `[]`;
+        component.setAttribute(Variables.paramsJSONIdData, dataId);
       }
       component.id += `-${ parent.children.length }`;
     }
     else if (component.tagName === 'LABEL') {
-      component.htmlFor += `[${ parent.children.length }]`;
+      component.htmlFor += `-${ parent.children.length }`;
     }
     else if (component.hasAttribute(Variables.paramsJSONSetText)) {
       component.textContent = textContent;

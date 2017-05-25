@@ -20,6 +20,7 @@ const paramsJSONTable = 'tableid_';
 const paramsJSONPhotos = 'photoid_photos';
 const paramsJSONForPost = 'value';
 const paramsJSONIdForTable = 'native-table-id';
+const paramsJSONIdData = 'data-id';
 
 
 // JSON reserved words
@@ -96,6 +97,10 @@ export class Variables {
 
   static get paramsJSONIdForTable() {
     return paramsJSONIdForTable;
+  }
+
+  static get paramsJSONIdData() {
+    return paramsJSONIdData;
   }
 
 

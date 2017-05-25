@@ -13,7 +13,7 @@ var (moderation *mService = &mService{name:"moderation"})
 
 type Record struct {
 	Config map[string]string
-	Data url.Values
+	Data []url.Values
 }
 
 type Struct struct {
@@ -72,8 +72,8 @@ func (moderation *mService) Status() string {
 func (moderation *mService) Send(messages ...interface{}) error {
 
 	setData := Record {
-		Config: make(map[string]string),
-		Data: make(url.Values),
+		Config: make(map[string]string, 0),
+		Data: make([] url.Values, 0),
 	}
 
 	for _, message := range messages {
@@ -82,9 +82,10 @@ func (moderation *mService) Send(messages ...interface{}) error {
 					setData.Config["table"] = mess["table"]
 					setData.Config["key"] = mess["key"]
 					setData.Config["action"] = mess["action"]
-			case url.Values:
+			case []url.Values:
 				setData.Data = mess
 			default:
+
 				return &ErrServiceNotCorrectParamType {
 					Name: moderation.name,
 				}
@@ -137,7 +138,7 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 
 	getData := Record {
 		Config: make(map[string]string),
-		Data: make(url.Values),
+		Data: make([]url.Values, 0),
 	}
 
 	for _, message := range messages {
@@ -171,7 +172,7 @@ func GetMongoConnection() *mongo.Session {
 	return moderation.connect
 }
 
-func ToGOB64(m url.Values) string {
+func ToGOB64(m []url.Values) string {
 
 	b := bytes.Buffer{}
 	e := gob.NewEncoder(&b)
@@ -182,9 +183,9 @@ func ToGOB64(m url.Values) string {
 }
 
 // go binary decoder
-func FromGOB64(str string) url.Values {
+func FromGOB64(str string) []url.Values {
 
-	m := url.Values{}
+	var m []url.Values
 	by, err := base64.StdEncoding.DecodeString(str)
 	if err != nil {
 		fmt.Println(`failed base64 Decode`, err)
