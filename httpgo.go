@@ -41,7 +41,6 @@ var (
 	cacheMu sync.RWMutex
 	cache = map[string] []byte {}
 	routes = map[string] http.HandlerFunc  {
-		"/main/": handlerMainContent,
 		"/recache": handlerRecache,
 		"/update/":  handleUpdate,
 		"/test/":  handleTest,
@@ -65,6 +64,7 @@ var (
 		"/api/v1/restart/":  api.HandleRestartServer,
 		"/api/v1/log/":  api.HandleLogServer,
 		"/api/v1/photos/":  api.HandlePhotos,
+		"/api/v1/video/":  api.HandleVideos,
 		"/api/v1/photos/add/":  api.HandleAddPhoto,
 	}
 
@@ -92,7 +92,7 @@ func NewDefaultHandler() *DefaultHandler {
 			".svg",".css",".js",".map",".ico",
 		},
 		whitelist: []string{
-			".jpg",".jpeg",".png",".gif",".ttf",".pdf", ".json", ".htm", ".html", ".txt",
+			".jpg",".jpeg",".png",".gif",".ttf",".pdf", ".json", ".htm", ".html", ".txt", ".mp4",
 		},
 	}
 	// read from flags
@@ -293,10 +293,6 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlerMainContent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write( []byte( "text index page filename" ) )
-}
 func handlerForms(w http.ResponseWriter, r *http.Request){
 	views.RenderTemplate(w, r, r.FormValue("name") + "Form", &pages.IndexPageBody{Title : r.FormValue("email") } )
 }
@@ -403,7 +399,6 @@ var (
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
-	F_debug    = flag.String("debug","false","debug mode")
 )
 func init() {
 	flag.Parse()
