@@ -23,6 +23,7 @@ type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
 	sql, Where, GroupBy, OrderBy, Limits string
+	union string
 }
 // constructors
 func Create(where, groupBy, orderBy string) *QueryBuilder{
@@ -96,6 +97,12 @@ func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
 
 	return table
 }
+func (qb *QueryBuilder) Union(sql string) *QueryBuilder {
+	qb.union = sql
+
+	return qb
+}
+// adding fields
 func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 	for alias, name := range fields {
 		table.AddField(alias, name)

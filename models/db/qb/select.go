@@ -76,6 +76,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 			sql += " WHERE " + qb.Where
 		}
 	}
+
+	if qb.union > "" {
+		sql += " UNION " + qb.union
+	}
 	if qb.GroupBy > "" {
 		sql += " GROUP BY " + qb.GroupBy
 	}
