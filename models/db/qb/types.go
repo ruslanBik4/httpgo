@@ -88,11 +88,18 @@ func (qb *QueryBuilder) LeftJoin(alias, name, usingOrOn string) *QBTables {
 
 	return table
 }
-// add fields to table from map
 func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
 
 	table := qb.AddTable(alias, name)
 	table.Join   = " RIGHT JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) InnerJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " INNER JOIN "
 	table.Using  = usingOrOn
 
 	return table
