@@ -65,7 +65,7 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 					param = param[:j]
 				}
 				if paramValue, ok := qb.FieldsParams[param]; ok {
-					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue) + field.Where[j:]
+					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue) + field.Where[i+j+1:]
 				}
 			} else {
 				sqlCommand += comma + field.Where
