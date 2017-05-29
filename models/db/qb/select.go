@@ -13,11 +13,13 @@ import (
 	"fmt"
 )
 
-func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
+func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
+
+	qb.fields = make([] schema.FieldStructure, 0)
 	for _, table := range qb.Tables {
 
 		defer func() {
@@ -55,7 +57,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 					qFields += commaFld + aliasTable + "." + field.Name + queryName
 				}
-				fields = append(fields, *fieldStrc)
+				qb.fields = append(qb.fields, *fieldStrc)
 				commaFld = ", "
 			}
 		} else if table.Join == ""{
@@ -64,7 +66,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 			for _, fieldStrc := range tableStrc.Rows {
 
-				fields = append(fields, fieldStrc)
+				qb.fields = append(qb.fields, fieldStrc)
 			}
 		}
 	}
@@ -90,7 +92,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 		sql += " LIMIT " + qb.Limits
 	}
 
-	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
+	return "SELECT " + qFields + " FROM " + qFrom + sql, nil
 
 }
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
@@ -169,7 +171,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 }
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
-	sql, fields, err := qb.createSQL()
+	sql, err := qb.createSQL()
 
 	logs.DebugLog("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
@@ -184,14 +186,14 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	var valuePtrs []interface{}
 
-	for idx, _ := range fields {
-		valuePtrs = append(valuePtrs, &fields[idx] )
+	for idx, _ := range qb.fields {
+		valuePtrs = append(valuePtrs, &qb.fields[idx] )
 	}
 
 	columns, _ := rows.Columns()
 	for rows.Next() {
 		var fieldID string
-		values := make(map[string] interface{}, len(fields) )
+		values := make(map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs)
 			continue
@@ -200,7 +202,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 		for idx, fieldName := range columns {
 
-			field := fields[idx]
+			field := qb.fields[idx]
 			if fieldName == "id" {
 				fieldID = field.Value
 			}

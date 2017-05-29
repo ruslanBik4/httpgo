@@ -10,9 +10,9 @@
 Формируем JSON, который затем будет использован в форме на клиенте
 dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 {% stripspace %}
-{% func CheckFields(ns schema.FieldsTable) %}
+{% func CheckFields(fields [] schema.FieldStructure) %}
 
-{% for _, field := range ns.Rows %}
+{% for _, field := range fields %}
 
     {% code
 
@@ -72,24 +72,24 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
              fields := schema.GetFieldsTable(tableProps)
 
             %}
-            "list": {{%= CheckFields(fields) %}},
+            "list": {{%= CheckFields(fields.Rows) %}},
         {% endif %}
 
         "type": "{%j= typeInput %}"
             },
 {% endfor %}
-"count": {%d len(ns.Rows) %}
+"count": {%d len(fields) %}
 
 {% endfunc %}
 
 
 {% func (thisForm *FormStructure) JSONAnyForm(ns schema.FieldsTable, AddJson map[string] string) %}
 {%code
-   thisForm.setFormDefaults(&ns)
+   thisForm.setFormDefaults(ns)
 %}
 {
  "fields": {
-    {%= CheckFields(ns) %}
+    {%= CheckFields(ns.Rows) %}
 
 },
 "form": {

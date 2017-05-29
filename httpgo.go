@@ -234,22 +234,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	return
 	//qBuilder := qb.Create("", "", "")
 
-	qBuilder.AddTable("a", "rooms").AddFields( map[string] string{
-
-		"name": "title",
-		"num":  "id",
-		"title": "CONCAT('t', title)",
-	})
-
-
-	arrJSON, err = qBuilder.SelectToMultidimension()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	views.RenderArrayJSON(w, arrJSON)
-	return
 	log.Println(r)
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
