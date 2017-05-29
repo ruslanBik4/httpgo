@@ -6,7 +6,6 @@ package schema
 
 import (
 	"strings"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type FieldsTable struct {
