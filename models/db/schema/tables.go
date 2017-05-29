@@ -4,7 +4,10 @@
 
 package schema
 
-import "strings"
+import (
+	"strings"
+	"github.com/ruslanBik4/httpgo/models/logs"
+)
 
 type FieldsTable struct {
 	Name string
@@ -27,8 +30,14 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 	return nil
 }
 func (table *FieldsTable) FillSurroggateFields()  {
-	for idx, fieldStrc := range table.Rows {
+	for idx, _ := range table.Rows {
 
+		fieldStrc := &(table.Rows[idx])
+		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
+
+		if fieldStrc.COLUMN_NAME == "id_age_levels" {
+			logs.DebugLog(fieldStrc.COLUMN_COMMENT, fieldStrc.Where)
+		}
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {
 			table.Rows[idx].SETID = true

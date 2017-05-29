@@ -66,13 +66,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% endif %}
 
         {% if field.TABLEID %}
-            {% code
-
-             tableProps := strings.TrimPrefix(field.COLUMN_NAME, "tableid_")
-             fields := schema.GetFieldsTable(tableProps)
-
-            %}
-            "list": {{%= CheckFields(fields.Rows) %}},
+            "list": {{%= CheckFields(field.ChildrenFields.Rows) %}},
         {% endif %}
 
         "type": "{%j= typeInput %}"

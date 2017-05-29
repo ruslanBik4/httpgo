@@ -26,6 +26,7 @@ type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
 	fields [] schema.FieldStructure
+	FieldsParams map[string][]string
 	sql, Where, GroupBy, OrderBy, Limits string
 	union string
 }
@@ -113,18 +114,6 @@ func (qb *QueryBuilder) Union(sql string) *QueryBuilder {
 
 	return qb
 }
-// return schema for render stadart methods
-func (qb *QueryBuilder) GetFields() (schTable schema.FieldsTable) {
-
-	schTable.Rows = qb.fields
-
-	for _, table := range qb.Tables {
-		schTable.Name += " " + table.Join + table.Name
-	}
-
-	return schTable
-}
-
 // adding fields
 func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 	for alias, name := range fields {

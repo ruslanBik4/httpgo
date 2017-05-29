@@ -61,6 +61,7 @@ type FieldStructure struct {
 	IdForeign		bool
 	SelectValues            map[int] string
 	TableProps, TableValues string
+	ChildrenFields		FieldsTable
 }
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
@@ -306,6 +307,7 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 
 		comma := ""
 		fieldStrc.Where = ""
+
 		for key, value := range mapWhere {
 			enumVal := value.(string)
 			// отбираем параметры типы :имя_поля
@@ -322,7 +324,6 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 			}
 			fieldStrc.Where += comma + key + enumVal
 			comma = " OR "
-			log.Println(fieldStrc.Where)
 
 		}
 	default:
@@ -380,6 +381,7 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 					fieldStrc.LinkTD   = val.(string)
 				case "where":
 					fieldStrc.parseWhere(val)
+					log.Println(val, fieldStrc.Where)
 				case "maxDate":
 					fieldStrc.MaxDate = convertDatePattern(val.(string))
 				case "minDate":
