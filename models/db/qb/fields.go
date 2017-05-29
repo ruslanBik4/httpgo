@@ -65,6 +65,7 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 				sqlCommand += comma + field.Where
 			}
 
+			logs.DebugLog("where for field " + field.Where, sqlCommand)
 		}
 		//TODO: add where condition
 		logs.DebugLog("sql for field " + field.COLUMN_NAME, sqlCommand)

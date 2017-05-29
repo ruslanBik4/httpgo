@@ -96,7 +96,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 }
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-	gChild := Create(field.WhereFromSet(field.Table),"", "")
+
+	where := field.WhereFromSet(field.Table)
+	gChild := Create(where,"", "")
 	titleField := field.GetForeignFields()
 
 	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
@@ -106,14 +108,16 @@ func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] ma
 
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getSETID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
 func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
 
 	fieldTableName := field.Table.Name
+	where := field.WhereFromSet(field.Table)
 
-	gChild := Create(field.WhereFromSet(field.Table),"", "")
+	gChild := Create(where,"", "")
 
 	var tableProps, titleField string
 
@@ -149,6 +153,7 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getNODEI_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -165,7 +170,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	gChild.AddArgs(fieldID)
 
-	logs.DebugLog("getTABLEID_Values", where)
+	logs.DebugLog("getTABLEID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -173,7 +178,6 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	sql, err := qb.createSQL()
 
-	logs.DebugLog("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
