@@ -45,7 +45,7 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 			if i := strings.Index(enumVal, ":"); i > 0 {
 				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
 				if paramValue, ok := qb.FieldsParams[enumVal[i+1:]]; ok  {
-					enumVal = enumVal[:i] + fmt.Sprintf("%s", paramValue)
+					enumVal = enumVal[:i] + fmt.Sprintf("%s", paramValue[0])
 					sqlCommand += comma + enumVal
 					comma = " OR "
 				} else {
@@ -65,7 +65,7 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 					param = param[:j]
 				}
 				if paramValue, ok := qb.FieldsParams[param]; ok {
-					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue) + field.Where[i+j+1:]
+					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue[0]) + field.Where[i+j+1:]
 				}
 			} else {
 				sqlCommand += comma + field.Where
