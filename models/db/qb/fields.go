@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"log"
 )
 
 // return schema for render stadart methods
