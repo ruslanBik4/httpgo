@@ -33,7 +33,7 @@ func (table *FieldsTable) FillSurroggateFields()  {
 	for idx, _ := range table.Rows {
 
 		fieldStrc := &(table.Rows[idx])
-		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
+		table.Rows[idx].ParseComment(fieldStrc.COLUMN_COMMENT)
 
 		if fieldStrc.COLUMN_NAME == "id_age_levels" {
 			logs.DebugLog(fieldStrc.COLUMN_COMMENT, fieldStrc.Where)
