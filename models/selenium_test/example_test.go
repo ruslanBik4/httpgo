@@ -9,13 +9,13 @@ func ExampleFindElement() {
 	var webDriver selenium.WebDriver
 	var err error
 	caps := selenium.Capabilities(map[string]interface{}{"browserName": "firefox"})
-	if webDriver, err = selenium.NewRemote(caps, "http://localhost:4444/wd/hub"); err != nil {
+	if webDriver, err = selenium.NewRemote(caps, "http://localhost:1650/"); err != nil {
 		fmt.Printf("Failed to open session: %s\n", err)
 		return
 	}
 	defer webDriver.Quit()
 
-	err = webDriver.Get("https://sourcegraph.com/sourcegraph/go-selenium")
+	err = webDriver.Get("http://localhost:1650/hotels/services/list/")
 	if err != nil {
 		fmt.Printf("Failed to load page: %s\n", err)
 		return
