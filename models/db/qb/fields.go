@@ -55,7 +55,7 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 			}
 
 		}
-	log.Println(field)
+
 		if field.Where > "" {
 			if i := strings.Index(field.Where, ":"); i > 0 {
 				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
