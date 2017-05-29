@@ -58,8 +58,13 @@ func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) ma
 		if field.Where > "" {
 			if i := strings.Index(field.Where, ":"); i > 0 {
 				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				if paramValue, ok := qb.FieldsParams[field.Where[i+1:]]; ok {
-					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue)
+				param := field.Where[i+1:]
+				// считаем, что окончанием параметра могут быть символы ", )"
+				if j := strings.IndexAny(param, ", )"); j > 0 {
+					param = param[:j]
+				}
+				if paramValue, ok := qb.FieldsParams[param]; ok {
+					sqlCommand += comma + field.Where[:i] + fmt.Sprintf("%s", paramValue) + field.Where[j:]
 				}
 			} else {
 				sqlCommand += comma + field.Where
