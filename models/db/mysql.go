@@ -455,6 +455,68 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	return arrJSON, nil
 
 }
+// SelectToMultidimension в своем первозданном виде.
+func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+
+	rows, err := DoSelect(sql, args...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	valuePtrs, rowValues, columns, colTypes := PrepareRowsToReading(rows)
+
+	for rows.Next() {
+		if err := rows.Scan(valuePtrs...); err != nil {
+			log.Println(err)
+			continue
+		}
+
+		values := make(map[string] interface{}, len(columns) )
+
+		for _, colType := range colTypes {
+
+			fieldName := colType.Name()
+			fieldValue, ok := rowValues[fieldName]
+			if !ok {
+				log.Println(err)
+				continue
+			}
+			log.Println(colType.Length())
+			switch colType.DatabaseTypeName() {
+			case "varchar", "date", "datetime":
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			case "tinyint":
+				if getValue(fieldValue) == "1" {
+					values[fieldName] = true
+
+				} else {
+					values[fieldName] = false
+
+				}
+			case "int", "int64", "float":
+				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
+			default:
+				if fieldValue.Valid {
+					values[fieldName] = fieldValue.String
+				} else {
+					values[fieldName] = nil
+				}
+			}
+		}
+
+		arrJSON = append(arrJSON, values)
+	}
+
+	return arrJSON, nil
+
+}
 
 //GetDataPrepareRowsToReading - function get rows with structure field
 //@aurhor Sergey Litvinov
