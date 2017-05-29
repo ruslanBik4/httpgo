@@ -145,7 +145,7 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 	fields = &schema.FieldsTable{Name: tableName}
 	fields.Rows = make([] schema.FieldStructure, len(ns.Rows) )
 	for i, field := range ns.Rows {
-		fieldStrc := &schema.FieldStructure{
+		fields.Rows[i] = schema.FieldStructure{
 			COLUMN_NAME: field.COLUMN_NAME,
 			DATA_TYPE  : field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,
@@ -156,24 +156,24 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			IsHidden   : false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
-			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
+			fields.Rows[i].CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
 		}
 
 		if field.CHARACTER_MAXIMUM_LENGTH.Valid {
-			fieldStrc.CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
+			fields.Rows[i].CHARACTER_MAXIMUM_LENGTH = int(field.CHARACTER_MAXIMUM_LENGTH.Int64)
 		}
 		if field.COLUMN_DEFAULT.Valid {
-			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
+			fields.Rows[i].COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
 
 		if field.COLUMN_COMMENT.Valid {
-			fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+			fields.Rows[i].COLUMN_COMMENT = field.COLUMN_COMMENT.String
 		}
 
 		//if (field.DATA_TYPE == "set") || (field.DATA_TYPE == "enum") {
 		//	fieldStrc.
 		//}
-		fields.Rows[i] = *fieldStrc
+		//fields.Rows[i] = fieldStrc
 	}
 
 	fields.SaveFormEvents = make(map[string] string, 0)
