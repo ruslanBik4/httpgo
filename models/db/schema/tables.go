@@ -29,14 +29,15 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
-func (table *FieldsTable) FillSurroggateFields()  {
+func (table *FieldsTable) FillSurroggateFields(tableName string)  {
+
 	for idx, _ := range table.Rows {
 
 		fieldStrc := &(table.Rows[idx])
 		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
 
 		if fieldStrc.COLUMN_NAME == "id_age_levels" {
-			logs.DebugLog(table.Name + fieldStrc.COLUMN_COMMENT, fieldStrc.Where)
+			logs.DebugLog(fieldStrc.Table.Name + fieldStrc.COLUMN_COMMENT, fieldStrc.Where)
 		}
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {

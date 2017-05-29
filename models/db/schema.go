@@ -204,8 +204,8 @@ func InitSchema() {
 			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
 		}
 		// теперь заполняем данные второго уровня - которые зависят от других таблиц
-		for _, fields := range schema.SchemaCache {
-			fields.FillSurroggateFields()
+		for tableName, fields := range schema.SchemaCache {
+			fields.FillSurroggateFields(tableName)
 			//for _, field := range fields.Rows {
 			//
 			//}
