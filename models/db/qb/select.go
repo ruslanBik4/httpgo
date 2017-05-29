@@ -8,26 +8,26 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strconv"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"strings"
 	"fmt"
-	"runtime"
 )
 
-func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
+func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
+
+	qb.fields = make([] schema.FieldStructure, 0)
 	for _, table := range qb.Tables {
 
 		defer func() {
-			err := recover()
-			switch err.(type) {
+			result := recover()
+			switch err1 := result.(type) {
 			case schema.ErrNotFoundTable:
-				_, fn, line, _ := runtime.Caller(0)
-				log.Println("select.go,", fn, " line ", line, table.Name)
-				err = schema.ErrNotFoundTable{Table:table.Name}
+				logs.ErrorLog(err1, err1.Table)
+				err = err1
 			case nil:
 			default:
 				panic(err)
@@ -57,7 +57,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 					qFields += commaFld + aliasTable + "." + field.Name + queryName
 				}
-				fields = append(fields, *fieldStrc)
+				qb.fields = append(qb.fields, *fieldStrc)
 				commaFld = ", "
 			}
 		} else if table.Join == ""{
@@ -66,7 +66,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 			for _, fieldStrc := range tableStrc.Rows {
 
-				fields = append(fields, fieldStrc)
+				qb.fields = append(qb.fields, fieldStrc)
 			}
 		}
 	}
@@ -78,6 +78,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 			sql += " WHERE " + qb.Where
 		}
 	}
+
+	if qb.union > "" {
+		sql += " UNION " + qb.union
+	}
 	if qb.GroupBy > "" {
 		sql += " GROUP BY " + qb.GroupBy
 	}
@@ -88,7 +92,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 		sql += " LIMIT " + qb.Limits
 	}
 
-	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
+	return "SELECT " + qFields + " FROM " + qFrom + sql, nil
 
 }
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
@@ -114,10 +118,11 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	var tableProps, titleField string
 
 	defer func() {
-		err := recover()
-		switch err.(type) {
+		result := recover()
+		switch err1 := result.(type) {
 		case schema.ErrNotFoundTable:
-			log.Println("select.go,","string 301,", field.TableValues)
+			logs.ErrorLog(err1, field.TableValues)
+			err = err1
 		case nil:
 		default:
 			panic(err)
@@ -151,7 +156,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	where := field.WhereFromSet(field.Table)
 	if where > "" {
-		where += fmt.Sprintf( " OR (id_%s=?)", field.Table.Name )
+		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	} else {
 		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
@@ -160,19 +165,20 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getTABLEID_Values", where)
 	return gChild.SelectToMultidimension()
 
 }
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
-	sql, fields, err := qb.createSQL()
+	sql, err := qb.createSQL()
 
-	log.Println("SelectToMultidimension", sql)
+	logs.DebugLog("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
 	if err != nil {
-		log.Println("mysql.go,","SelectToMultidimension", err, sql)
+		logs.ErrorLog(err, sql)
 		return nil, err
 	}
 
@@ -180,30 +186,30 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	var valuePtrs []interface{}
 
-	for idx, _ := range fields {
-		valuePtrs = append(valuePtrs, &fields[idx] )
+	for idx, _ := range qb.fields {
+		valuePtrs = append(valuePtrs, &qb.fields[idx] )
 	}
 
 	columns, _ := rows.Columns()
 	for rows.Next() {
 		var fieldID string
-		values := make(map[string] interface{}, len(fields) )
+		values := make(map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err, valuePtrs)
 			continue
 		}
 
 
 		for idx, fieldName := range columns {
 
-			field := fields[idx]
+			field := qb.fields[idx]
 			if fieldName == "id" {
 				fieldID = field.Value
 			}
 			if field.SETID  {
 				values[fieldName], err = getSETID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
@@ -211,14 +217,14 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 				values[fieldName], err = getNODEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if field.TABLEID {
 				values[fieldName], err = getTABLEID_Values(field, fieldID)
 				if err != nil {
-					log.Println(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue

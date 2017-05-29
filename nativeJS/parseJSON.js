@@ -34,7 +34,7 @@ export class ParseJSON {
         // has prefix "tableid_" for recursion
         else if (id.startsWith(Variables.paramsJSONTable)) {
           if (isDataTable) {
-            callback(component, data[id],  id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+            callback(component, data[id], id.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
           } else {
             this.parseDataGet(data[id][Variables.paramsJSONList], callback, id.replace(new RegExp(`^${ Variables.paramsJSONTable }`), ''), isDataTable);
           }
@@ -103,86 +103,97 @@ export class ParseJSON {
   static insertValueToComponent(component, attr, strForTable = '') {
 
     const insertValueCurrentComponent = (component, attr) => {
-      const func = this.components[component.tagName];
+
+      let func = this.components[component.tagName];
       if (func && func.addAttrToComponent) {
-        return func.addAttrToComponent(component, attr);
+        func.addAttrToComponent(component, attr);
       } else {
-        component.textContent = attr;
-        console.log(`Not found: ${ component.tagName }`);
+        if (Object.prototype.toString.call(attr) === '[object Array]') {
+          for (let value of attr) {
+            const currentComponent = component.querySelector(`[${ Variables.paramsJSONIdData }="${ value.id }"]`);
+            if (!currentComponent) {
+              console.log(`component data-id not found for set value: ${ component.id }, ${ value }`);
+              continue;
+            }
+            if (!func) {
+              func = this.components[currentComponent.tagName];
+            }
+            if (func.addAttrToComponent) {
+              func.addAttrToComponent(currentComponent, "1");
+            }
+          }
+        } else {
+          component.textContent = attr;
+          console.log(`Not found in frame: ${ component }`);
+        }
       }
+
     };
 
-    function setNewAttrIdAndName(component, id, index) {
-      component.setAttribute('name', `${ id }[${ index }]`);
-      component.setAttribute('id', `${ id }-${ index }`);
+    function setNewAttrIdAndName(component, index) {
+      const nameAttr = component.getAttribute('name');
+      const idAttr = component.getAttribute('id');
+      component.setAttribute('name', `${ nameAttr }[${ index }]`);
+      component.setAttribute('id', `${ idAttr }-${ index }`);
     }
 
-    if (attr != null) {
+    const tableIdParse = (data, strForTable) => {
 
-      if (strForTable.length !== 0 &&  Object.prototype.toString.call(attr) === '[object Array]' && attr.length !== 0) {
+      /* first, get parent and default component */
+      let parent;
+      let defaultComponent;
+      let index = 0;
 
-        let isFirstComponent = true;
-        let newComponents;
-        let parent;
-
-        attr.forEach((element, index) => {
-
-          let addComponent;
-
-          if (newComponents) {
-            addComponent = newComponents.cloneNode(true);
+      for (let id in data[index]) {
+        const component = document.getElementById(`${ strForTable }:${ id }`) || document.getElementById(`${ strForTable }:${ id }[]`);
+        if (component) {
+          if (!parent) {
+            parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
+            const temp = document.createElement('template');
+            temp.innerHTML = parent.innerHTML;
+            defaultComponent = temp;
           }
-
-          for (let id in element) {
-
-            let component;
-            let idComponent = `${ strForTable }:${ id }`;
-
-            if (isFirstComponent) {
-              component = document.getElementById(idComponent);
-
-              if (component) {
-                if (!parent) {
-                  parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
-                  const temp = document.createElement('template');
-                  temp.innerHTML = parent.innerHTML;
-                  newComponents = temp;
-                } else {
-                  insertValueCurrentComponent(component, element[id]);
-                  setNewAttrIdAndName(component, idComponent, index);
-                }
-              }
-
-            } else if (newComponents && parent) {
-              try {
-                // debugger;
-                const newComponent = addComponent.content.querySelector(`[name="${ strForTable }:${ id }"]`);
-                if (newComponent) {
-                  insertValueCurrentComponent(newComponent, element[id]);
-                  setNewAttrIdAndName(newComponent, idComponent, index);
-                }
-              } catch(e) {
-                console.log(e);
-                alert(e);
-              }
-            }
-
+          if (data[index][id].length !== 0) {
+            insertValueCurrentComponent(component, data[index][id]);
           }
-
-          if (parent && addComponent) {
-            parent.appendChild(addComponent.content);
-          }
-
-          isFirstComponent = false;
-
-        });
-        // const component = document.getElementById(`${ strForTable }:${ attr[id] }`);
-
-      } else if (Native.isElement(component) && attr.length !== 0) {
-        insertValueCurrentComponent(component, attr);
+          setNewAttrIdAndName(component, index);
+        }
       }
 
+      if (!parent) {
+        return;
+      }
+
+      /* secondary components */
+
+      for (index++; index < data.length; index++) {
+        const newComponent = defaultComponent.cloneNode(true);
+
+        for (let id in data[index]) {
+
+          const component = document.querySelector(`[name="${ strForTable }:${ id }"]`) || document.querySelector(`[name="${ strForTable }:${ id }[]"]`);
+
+          if (component && data[index][id].length !== 0) {
+            insertValueCurrentComponent(component, data[index][id]);
+            setNewAttrIdAndName(component, index);
+          }
+
+        }
+
+        parent.appendChild(newComponent.content);
+      }
+
+    };
+
+    if (attr !== null) {
+
+      if (strForTable.length !== 0 && Object.prototype.toString.call(attr) === '[object Array]' && attr.length !== 0) {
+        tableIdParse(attr, strForTable);
+      } else if (component && attr.length !== 0) {
+        insertValueCurrentComponent(component, attr);
+      }
     }
+
   }
 
 

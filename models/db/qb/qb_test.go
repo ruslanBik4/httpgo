@@ -10,21 +10,24 @@ import (
 	"flag"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"fmt"
+	"time"
 )
 
 func TestQBCreate(t *testing.T) {
 
 	status := services.Status("schema")
+
+	i := 0
+	for (status != "ready") && (i < 1000) {
+		time.Sleep(5)
+		i++
+		status = services.Status("schema")
+	}
 	t.Log(status)
-	qb := &QueryBuilder{OrderBy:"name"}
+	qb := CreateEmpty()
 
-	table := &QBTables{Name: "rooms"}
-	fields := make(map[string] *QBFields, 2)
-	fields["name"] = &QBFields{Name: "title" }
-	fields["num"]  = &QBFields{Name: "id"}
 
-	qb.Tables = make( map[string] *QBTables, 2)
-	qb.Tables["a"] = table
+	qb.AddTable("a", "rooms" ).AddField("name", "title").AddField("num", "id")
 
 	v, err := qb.SelectToMultidimension()
 
@@ -43,7 +46,6 @@ var (
 	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
 	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
 	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
-	F_debug    = flag.String("debug","false","debug mode")
 )
 
 func init() {

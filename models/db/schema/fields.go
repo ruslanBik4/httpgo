@@ -180,7 +180,7 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 		}
 	}()
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := " WHERE ("
+	comma  := ""
 	for _, title := range enumValues {
 		enumVal := title[len(title) - 1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
@@ -199,7 +199,7 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 
 	if (result > "") && (result != "1") {
 
-		return result + ")"
+		return " WHERE (" + result + ")"
 	}
 
 	return ""
@@ -301,12 +301,12 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
 func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
-	switch whereJSON.(type) {
+	switch mapWhere := whereJSON.(type) {
 	case map[string] interface{}:
 
 		comma := ""
 		fieldStrc.Where = ""
-		for key, value := range whereJSON.(map[string]interface{}) {
+		for key, value := range mapWhere {
 			enumVal := value.(string)
 			// отбираем параметры типы :имя_поля
 			if i := strings.Index(enumVal, ":"); i > -1 {

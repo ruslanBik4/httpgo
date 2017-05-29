@@ -5,7 +5,10 @@
 
 package qb
 
-import "strings"
+import (
+	"strings"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+)
 
 type QBFields struct {
 	Name  string
@@ -22,7 +25,9 @@ type QBTables struct {
 type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
+	fields [] schema.FieldStructure
 	sql, Where, GroupBy, OrderBy, Limits string
+	union string
 }
 // constructors
 func Create(where, groupBy, orderBy string) *QueryBuilder{
@@ -68,11 +73,59 @@ func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTables
 	table := qb.AddTable(alias, name)
 	table.Join   = join
 	table.Using  = usingOrOn
-	//qb.Tables    = append(qb.Tables, table)
 
 	return table
 }
-// add fields to table from map
+func (qb *QueryBuilder) Join(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) LeftJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " LEFT JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " RIGHT JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) InnerJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " INNER JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) Union(sql string) *QueryBuilder {
+	qb.union = sql
+
+	return qb
+}
+// return schema for render stadart methods
+func (qb *QueryBuilder) GetFields() (schTable schema.FieldsTable) {
+
+	schTable.Rows = qb.fields
+
+	for _, table := range qb.Tables {
+		schTable.Name += " " + table.Join + table.Name
+	}
+
+	return schTable
+}
+
+// adding fields
 func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 	for alias, name := range fields {
 		table.AddField(alias, name)
