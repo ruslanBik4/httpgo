@@ -36,9 +36,6 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 		fieldStrc := &(table.Rows[idx])
 		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
 
-		if fieldStrc.COLUMN_NAME == "id_age_levels" {
-			logs.DebugLog(fieldStrc.Table.Name + fieldStrc.COLUMN_COMMENT, fieldStrc.Where)
-		}
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {
 			table.Rows[idx].SETID = true

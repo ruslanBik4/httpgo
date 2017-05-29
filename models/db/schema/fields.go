@@ -381,7 +381,6 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 					fieldStrc.LinkTD   = val.(string)
 				case "where":
 					fieldStrc.parseWhere(val)
-					log.Println(val, fieldStrc.Where)
 				case "maxDate":
 					fieldStrc.MaxDate = convertDatePattern(val.(string))
 				case "minDate":
