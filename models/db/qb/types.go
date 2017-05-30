@@ -26,9 +26,10 @@ type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
 	fields [] schema.FieldStructure
+	Aliases [] string
 	FieldsParams map[string][]string
 	sql, Where, GroupBy, OrderBy, Limits string
-	union string
+	union *QueryBuilder
 }
 // constructors
 func Create(where, groupBy, orderBy string) *QueryBuilder{
@@ -109,8 +110,8 @@ func (qb *QueryBuilder) InnerJoin(alias, name, usingOrOn string) *QBTables {
 
 	return table
 }
-func (qb *QueryBuilder) Union(sql string) *QueryBuilder {
-	qb.union = sql
+func (qb *QueryBuilder) AddUnion(union *QueryBuilder) *QueryBuilder {
+	qb.union = union
 
 	return qb
 }

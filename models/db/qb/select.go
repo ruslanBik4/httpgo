@@ -58,6 +58,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 					qFields += commaFld + aliasTable + "." + field.Name + queryName
 				}
 				qb.fields = append(qb.fields, *fieldStrc)
+				qb.Aliases = append(qb.Aliases, alias)
 				commaFld = ", "
 			}
 		} else if table.Join == ""{
@@ -71,16 +72,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 		}
 	}
 
-	if qb.Where > "" {
-		if strings.Contains(qb.Where, "WHERE") {
-			sql += qb.Where
-		} else {
-			sql += " WHERE " + qb.Where
-		}
-	}
+	sql += qb.getWhere()
 
-	if qb.union > "" {
-		sql += " UNION " + qb.union
+	if qb.union != nil {
+		sql += qb.unionSQL()
 	}
 	if qb.GroupBy > "" {
 		sql += " GROUP BY " + qb.GroupBy
@@ -94,6 +89,49 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 	return "SELECT " + qFields + " FROM " + qFrom + sql, nil
 
+}
+func (qb * QueryBuilder) getWhere() string {
+	if qb.Where > "" {
+		if strings.Contains(qb.Where, "WHERE") {
+			return qb.Where
+		} else {
+			return " WHERE " + qb.Where
+		}
+	}
+	return ""
+}
+func (qb * QueryBuilder) unionSQL() string {
+	var qFields, qFrom string
+
+	commaTbl, commaFld := "", ""
+	for _, table := range qb.union.Tables {
+		if table.Join > "" {
+			qFrom += " " + table.Join + " " + table.Name + " " + table.Alias + " " + table.Using
+		} else {
+			qFrom += commaTbl + table.Name + " " + table.Alias
+		}
+		commaTbl = ", "
+
+	}
+	for _, alias := range qb.Aliases {
+		for _, table := range qb.union.Tables {
+			if field, ok := table.Fields[alias]; ok {
+
+				tableStrc := schema.GetFieldsTable(table.Name)
+				fieldStrc := tableStrc.FindField(field.Name)
+				if fieldStrc != nil {
+					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
+				} else {
+					qFields += commaFld + field.Name + ` AS "` + field.Alias + `"`
+
+				}
+				commaFld = ", "
+				break
+			}
+		}
+	}
+
+	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 

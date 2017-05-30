@@ -80,7 +80,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 //1 - имя таблицы, view или сервиса
 //2 - id записи
 //3 - порядковый номер файла файла
-// (0 означает, что нужно вернуть массив со списком файлов)
+// (-1 означает, что нужно вернуть массив со списком файлов)
 func (photos *photosService) Get(args ... interface{}) (responce interface{}, err error) {
 
 	var catalog, id string
