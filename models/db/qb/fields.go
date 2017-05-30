@@ -39,6 +39,7 @@ func (qb *QueryBuilder) checkSurrogateFields(fields * [] schema.FieldStructure )
 }
 func (qb *QueryBuilder) putSelectValues(idx int, field schema.FieldStructure) map[int] string {
 
+	field.SelectValues = make(map[int] string, 0)
 		sqlCommand := field.SQLforFORMList
 		comma      := " WHERE "
 		for _, enumVal := range field.EnumValues {
