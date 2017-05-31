@@ -5,7 +5,10 @@
 
 package qb
 
-import "strings"
+import (
+	"strings"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+)
 
 type QBFields struct {
 	Name  string
@@ -22,7 +25,11 @@ type QBTables struct {
 type QueryBuilder struct {
 	Tables [] *QBTables
 	Args [] interface{}
+	fields [] schema.FieldStructure
+	Aliases [] string
+	FieldsParams map[string][]string
 	sql, Where, GroupBy, OrderBy, Limits string
+	union *QueryBuilder
 }
 // constructors
 func Create(where, groupBy, orderBy string) *QueryBuilder{
@@ -87,7 +94,6 @@ func (qb *QueryBuilder) LeftJoin(alias, name, usingOrOn string) *QBTables {
 
 	return table
 }
-// add fields to table from map
 func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
 
 	table := qb.AddTable(alias, name)
@@ -96,6 +102,20 @@ func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTables {
 
 	return table
 }
+func (qb *QueryBuilder) InnerJoin(alias, name, usingOrOn string) *QBTables {
+
+	table := qb.AddTable(alias, name)
+	table.Join   = " INNER JOIN "
+	table.Using  = usingOrOn
+
+	return table
+}
+func (qb *QueryBuilder) AddUnion(union *QueryBuilder) *QueryBuilder {
+	qb.union = union
+
+	return qb
+}
+// adding fields
 func (table *QBTables) AddFields(fields map[string] string) *QBTables {
 	for alias, name := range fields {
 		table.AddField(alias, name)

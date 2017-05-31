@@ -61,6 +61,7 @@ type FieldStructure struct {
 	IdForeign		bool
 	SelectValues            map[int] string
 	TableProps, TableValues string
+	ChildrenFields		FieldsTable
 }
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
@@ -306,6 +307,7 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 
 		comma := ""
 		fieldStrc.Where = ""
+
 		for key, value := range mapWhere {
 			enumVal := value.(string)
 			// отбираем параметры типы :имя_поля
@@ -316,13 +318,12 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 					param = param[:j]
 				}
 				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				if paramField := fieldStrc.Table.FindField(param); paramField == nil {
-					continue
-				}
+				//if paramField := fieldStrc.Table.FindField(param); paramField == nil {
+				//	continue
+				//}
 			}
 			fieldStrc.Where += comma + key + enumVal
 			comma = " OR "
-			log.Println(fieldStrc.Where)
 
 		}
 	default:

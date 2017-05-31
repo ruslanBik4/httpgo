@@ -15,7 +15,7 @@ type FormStructure struct {
 	Events          map[string] string
 }
 
-func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
+func (thisForm *FormStructure) setFormDefaults(ns schema.FieldsTable) {
 
 	if thisForm.Action == "" {
 		thisForm.Action = "/admin/exec/"

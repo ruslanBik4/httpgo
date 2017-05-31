@@ -13,11 +13,13 @@ import (
 	"fmt"
 )
 
-func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructure, err error ) {
+func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
+
+	qb.fields = make([] schema.FieldStructure, 0)
 	for _, table := range qb.Tables {
 
 		defer func() {
@@ -55,7 +57,8 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 					qFields += commaFld + aliasTable + "." + field.Name + queryName
 				}
-				fields = append(fields, *fieldStrc)
+				qb.fields = append(qb.fields, *fieldStrc)
+				qb.Aliases = append(qb.Aliases, alias)
 				commaFld = ", "
 			}
 		} else if table.Join == ""{
@@ -64,17 +67,15 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 
 			for _, fieldStrc := range tableStrc.Rows {
 
-				fields = append(fields, fieldStrc)
+				qb.fields = append(qb.fields, fieldStrc)
 			}
 		}
 	}
 
-	if qb.Where > "" {
-		if strings.Contains(qb.Where, "WHERE") {
-			sql += qb.Where
-		} else {
-			sql += " WHERE " + qb.Where
-		}
+	sql += qb.getWhere()
+
+	if qb.union != nil {
+		sql += qb.unionSQL()
 	}
 	if qb.GroupBy > "" {
 		sql += " GROUP BY " + qb.GroupBy
@@ -86,11 +87,56 @@ func (qb * QueryBuilder) createSQL() ( sql string, fields [] schema.FieldStructu
 		sql += " LIMIT " + qb.Limits
 	}
 
-	return "SELECT " + qFields + " FROM " + qFrom + sql, fields, nil
+	return "SELECT " + qFields + " FROM " + qFrom + sql, nil
 
 }
+func (qb * QueryBuilder) getWhere() string {
+	if qb.Where > "" {
+		if strings.Contains(qb.Where, "WHERE") {
+			return qb.Where
+		} else {
+			return " WHERE " + qb.Where
+		}
+	}
+	return ""
+}
+func (qb * QueryBuilder) unionSQL() string {
+	var qFields, qFrom string
+
+	commaTbl, commaFld := "", ""
+	for _, table := range qb.union.Tables {
+		if table.Join > "" {
+			qFrom += " " + table.Join + " " + table.Name + " " + table.Alias + " " + table.Using
+		} else {
+			qFrom += commaTbl + table.Name + " " + table.Alias
+		}
+		commaTbl = ", "
+
+	}
+	for _, alias := range qb.Aliases {
+		for _, table := range qb.union.Tables {
+			if field, ok := table.Fields[alias]; ok {
+
+				tableStrc := schema.GetFieldsTable(table.Name)
+				fieldStrc := tableStrc.FindField(field.Name)
+				if fieldStrc != nil {
+					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
+				} else {
+					qFields += commaFld + field.Name + ` AS "` + field.Alias + `"`
+
+				}
+				commaFld = ", "
+				break
+			}
+		}
+	}
+
+	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
+}
 func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-	gChild := Create(field.WhereFromSet(field.Table),"", "")
+
+	where := field.WhereFromSet(field.Table)
+	gChild := Create(where,"", "")
 	titleField := field.GetForeignFields()
 
 	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
@@ -100,14 +146,16 @@ func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] ma
 
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getSETID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
 func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
 
 	fieldTableName := field.Table.Name
+	where := field.WhereFromSet(field.Table)
 
-	gChild := Create(field.WhereFromSet(field.Table),"", "")
+	gChild := Create(where,"", "")
 
 	var tableProps, titleField string
 
@@ -143,6 +191,7 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
 	gChild.AddArgs(fieldID)
 
+	logs.DebugLog("getNODEI_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -159,15 +208,14 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	gChild.AddArgs(fieldID)
 
-	logs.DebugLog("getTABLEID_Values", where)
+	logs.DebugLog("getTABLEID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
-	sql, fields, err := qb.createSQL()
+	sql, err := qb.createSQL()
 
-	logs.DebugLog("SelectToMultidimension", sql)
 	rows, err := db.DoSelect(sql, qb.Args...)
 
 
@@ -180,14 +228,14 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	var valuePtrs []interface{}
 
-	for idx, _ := range fields {
-		valuePtrs = append(valuePtrs, &fields[idx] )
+	for idx, _ := range qb.fields {
+		valuePtrs = append(valuePtrs, &qb.fields[idx] )
 	}
 
 	columns, _ := rows.Columns()
 	for rows.Next() {
 		var fieldID string
-		values := make(map[string] interface{}, len(fields) )
+		values := make(map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs)
 			continue
@@ -196,7 +244,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 		for idx, fieldName := range columns {
 
-			field := fields[idx]
+			field := qb.fields[idx]
 			if fieldName == "id" {
 				fieldID = field.Value
 			}

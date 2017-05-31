@@ -215,29 +215,14 @@ func sockCatch() {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	qBuilder := qb.Create("b.is_del=false", "b.id", "")
+	qBuilder := qb.Create("hs.id_hotels=?", "", "")
 
-	qBuilder.AddTable("b", "business").AddFields( map[string] string{
-		"id": "id",
-		"name":  "name",
-		"phone": "phone",
-		"email": "email",
-		"pe_registration_certificate_date": "pe_registration_certificate_date",
-	})
-	qBuilder.JoinTable("h", "hotels","LEFT JOIN","ON b.id=h.`id_business`").AddFields( map[string] string{
-		"count_objects": "COUNT(h.`id`)",
-	})
-	qBuilder.JoinTable("u","users","INNER JOIN", "ON b.id_users=u.`id`").AddFields( map[string] string{
-		"fullname": "fullname",
-	})
-	qBuilder.JoinTable("cl","currency_list","INNER JOIN", "ON b.id_currency_list=cl.id").AddFields( map[string] string{
-		"currency_title": "title",
-	})
-	qBuilder.JoinTable("t","towns_list","LEFT JOIN", "ON b.id_towns_list=t.id").AddFields( map[string] string{
-		"town_title": "title",
-	})
+	qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list" ).AddField("", "id_hotels")
+	qBuilder.Join("sl","services_list","ON (sl.id = hs.id_services_list)").AddField( "", "id_services_category_list")
 
+	//qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
 
+	qBuilder.AddArgs(r.FormValue("id_hotels"))
 	arrJSON, err := qBuilder.SelectToMultidimension()
 
 	if err != nil {
@@ -249,22 +234,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	return
 	//qBuilder := qb.Create("", "", "")
 
-	qBuilder.AddTable("a", "rooms").AddFields( map[string] string{
-
-		"name": "title",
-		"num":  "id",
-		"title": "CONCAT('t', title)",
-	})
-
-
-	arrJSON, err = qBuilder.SelectToMultidimension()
-
-	if err != nil {
-		log.Println(err)
-	}
-
-	views.RenderArrayJSON(w, arrJSON)
-	return
 	log.Println(r)
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)

@@ -4,7 +4,9 @@
 
 package schema
 
-import "strings"
+import (
+	"strings"
+)
 
 type FieldsTable struct {
 	Name string
@@ -26,8 +28,12 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
-func (table *FieldsTable) FillSurroggateFields()  {
-	for idx, fieldStrc := range table.Rows {
+func (table *FieldsTable) FillSurroggateFields(tableName string)  {
+
+	for idx, _ := range table.Rows {
+
+		fieldStrc := &(table.Rows[idx])
+		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
 
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {
