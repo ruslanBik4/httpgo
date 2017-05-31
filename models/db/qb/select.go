@@ -144,7 +144,7 @@ func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] ma
 	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, field.Table.Name )
 	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin )
 
-	gChild.AddArgs(fieldID)
+	gChild.AddArg(fieldID)
 
 	logs.DebugLog("getSETID_Values ", where)
 	return gChild.SelectToMultidimension()
@@ -189,7 +189,7 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 
 	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, fieldTableName )
 	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
-	gChild.AddArgs(fieldID)
+	gChild.AddArg(fieldID)
 
 	logs.DebugLog("getNODEI_Values ", where)
 	return gChild.SelectToMultidimension()
@@ -206,7 +206,7 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 	gChild := Create(where,"", "")
 	gChild.AddTable( "p", field.TableProps )
 
-	gChild.AddArgs(fieldID)
+	gChild.AddArg(fieldID)
 
 	logs.DebugLog("getTABLEID_Values ", where)
 	return gChild.SelectToMultidimension()
