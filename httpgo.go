@@ -222,7 +222,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	//qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
 
-	qBuilder.AddArgs(r.FormValue("id_hotels"))
+	qBuilder.AddArg(r.FormValue("id_hotels"))
 	arrJSON, err := qBuilder.SelectToMultidimension()
 
 	if err != nil {
