@@ -29,6 +29,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/api/v1"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 //go:generate qtc -dir=views/templates
 
@@ -373,12 +374,12 @@ func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
 	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 
 	MongoConfig := server.GetMongodConfig()
 	if err := MongoConfig.Init(f_static, f_web, f_session); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	services.InitServices()
 }
@@ -390,10 +391,10 @@ func main() {
 
 	registerRoutes()
 
+	logs.StatusLog("Server starting")
+	logs.StatusLog("Static files found in ", *f_web)
+	logs.StatusLog("System files found in " + *f_static)
+	logs.Fatal(http.ListenAndServe(*f_port, nil))
 
-	log.Println("Server starting in " + time.Now().String() )
-	log.Println("Static files found in " + *f_web )
-	log.Println("System files found in " + *f_static )
-	log.Fatal( http.ListenAndServe(*f_port, nil) )
 
 }

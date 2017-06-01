@@ -5,7 +5,7 @@
 package services
 
 import (
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type IService interface {
@@ -42,9 +42,9 @@ func startService(name string, pService IService) {
 
 	defer catch(name)
 	if err := pService.Init(); err != nil {
-		log.Println(err, name)
+		logs.ErrorLog(err, name)
 	} else {
-		log.Println(name + " starting, status - " + pService.Status())
+		logs.StatusLog(name,   " starting ",", Status - ", pService.Status())
 	}
 }
 func catch(name string) {
@@ -52,10 +52,10 @@ func catch(name string) {
 
 	switch err.(type) {
 	case ErrServiceNotFound:
-		log.Println(err, name)
+		logs.ErrorLog(err.(error), name)
 	case nil:
 	default:
-		log.Println(err, name)
+		logs.ErrorLog(err.(error), name)
 	}
 }
 func AddService(name string, pService IService) {

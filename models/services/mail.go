@@ -22,7 +22,7 @@ var (
 )
 
 func (mail *mailService) Init() error {
-	schema.status = "ready"
+	mail.status = "ready"
 	return nil
 }
 
