@@ -11,6 +11,10 @@ export class Parse {
     return idCurrentPage;
   }
 
+  static setStateHistoryComponents() {
+    stateHistoryComponents.push(this.mainContent.innerHTML);
+  }
+
   static setMainContent(index = 0) {
     if (index < stateHistoryComponents.length) {
       this.mainContent.innerHTML = stateHistoryComponents[index];
@@ -72,7 +76,7 @@ export class Parse {
   static _changeComponentDom(component) {
     isRequestAPI = 0;
     this.mainContent.innerHTML = component;
-    stateHistoryComponents.push(this.mainContent.innerHTML);
+    // stateHistoryComponents.push(this.mainContent.innerHTML);
     this.parsComponents(this.mainContent);
     this._documentIsReady(this.mainContent);
   };
