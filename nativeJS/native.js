@@ -190,5 +190,23 @@ export class Native {
       ParseJSON.setValue(component, data, ParseJSON.insertValueToComponent.bind(ParseJSON), str);
     }
   }
+  
+  
+  /*
+  *     get data after submit form 
+  */
+  
+  static getDataAfterForm() {
+    return Parse.getDataAfterForm;
+  }
+
+
+  /*
+  *     custom handler
+  */
+
+  static customHadlerAfterForm(func) {
+    Parse.customHadlerAfterForm(func);
+  }
 
 }

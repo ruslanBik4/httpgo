@@ -12,6 +12,7 @@ export class Router {
     this.routing(window.location.pathname, true);
 
     window.onpopstate = (obj) => {
+      Parse.setStateHistoryComponents();
       if (obj && obj.state) {
         Parse.setComponent(obj.state.component);
       } else {
