@@ -22,10 +22,10 @@ var (
 )
 
 func (mail *mailService) Init() error {
-	schema.status = "starting"
-	return nil
 	schema.status = "ready"
+	return nil
 }
+
 //TODO: нужно методы ниже имплементировать сюда
 func (mail *mailService) Send(messages ...interface{}) error {
 	return nil
@@ -46,14 +46,14 @@ func SendMail(email, password, body string)  {
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
-		logs.ErrorLog((err, m)
+		logs.ErrorLog(err, m)
 	}
 	logs.DebugLog(email, password)
 }
 func VerifyMail(email, password string) {
 
 	if _, err := netMail.ParseAddress(email); err != nil {
-		logs.ErrorLog((err, email)
+		logs.ErrorLog(err, email)
 		logs.DebugLog( "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}

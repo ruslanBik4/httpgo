@@ -2,10 +2,12 @@ package system
 
 import (
 	"net/http"
-	"log"
+	//"log"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/views"
 	"runtime"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"errors"
 )
 
 type ErrNotLogin struct {
@@ -42,14 +44,16 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 		views.RenderSignForm(w, r, "")
 	case nil:
 	default:
-		log.Print("panic runtime! ", err)
+		err :=errors.New("Panic runtime!")
+		logs.ErrorLog(err)
 		i := 0
 		for {
-			pc, fn, line, ok := runtime.Caller(i)
+			pc, _, _, ok := runtime.Caller(i)
 			if !ok {
 				break
 			}
-			log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, pc)
+			err =errors.New("Panic stack. Process")
+			logs.ErrorLog(err, pc)
 			i++
 		}
 		views.RenderInternalError(w, err.(error))

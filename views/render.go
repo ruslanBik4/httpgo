@@ -4,13 +4,12 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
-	"log"
 //	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"runtime"
 )
 
 //noinspection GoInvalidConstType
@@ -55,9 +54,7 @@ func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
 func RenderInternalError(w http.ResponseWriter, err error) {
-	_, fn, line, _ := runtime.Caller(0)
-	log.Printf("[error] %s:  in line %d. Error -  %v", fn, line, err)
-	log.Println(err)
+	logs.ErrorLog(err)
 	w.WriteHeader(http.StatusInternalServerError)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
