@@ -5,6 +5,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 var 	PathWeb string
 func GetPath(path *string) {
@@ -35,7 +36,7 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if data, err := ioutil.ReadFile(PathWeb+r.URL.Path+ext); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	} else {
 		w.Write(data)
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"database/sql"
 	"strconv"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 type TableOptions struct {
 	TABLE_NAME   string
@@ -29,7 +29,7 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 		err := rows.Scan( &ns.TABLE_NAME, &ns.TABLE_TYPE, &ns.ENGINE, &ns.TABLE_COMMENT)
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return err
 		}
 
@@ -59,7 +59,7 @@ func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 		err := rows.Scan( &row.TABLE_NAME, &row.TABLE_TYPE, &row.ENGINE, &row.TABLE_COMMENT)
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 
@@ -128,7 +128,7 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		//&row.TITLE, &row.TYPE_INPUT, &row.IS_VIEW,
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 

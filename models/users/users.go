@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/sessions"
 	"gopkg.in/gomail.v2"
 	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
@@ -92,7 +93,7 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	// existing session: Get() always returns a session, even if empty.
 	session, err := Store.Get(r, name)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return nil
 	}
 	return session
@@ -137,7 +138,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 	}
@@ -179,7 +180,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 
 	if err := deleteCurrentUser(w, r); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
 	views.RenderSignForm(w, r, "")
@@ -191,7 +192,7 @@ func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
 	session.Values["id"] = id
 	session.Values["email"] = email
 	if err := session.Save(r, w); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 }
 // GenerateRandomBytes returns securely generated random bytes.
@@ -244,7 +245,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	email := r.MultipartForm.Value["login"][0]
 	password, err := GeneratePassword(email)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	sql += comma + "hash"
 	values += comma + "?"
@@ -262,7 +263,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
 
 	if _, err := mail.ParseAddress(email); err !=nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}
@@ -286,7 +287,7 @@ func SendMail(email, password string)  {
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	log.Println(email, password)
 }
@@ -297,7 +298,7 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 		log.Println("activate user not has email")
 	}
 	if result, err := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0]); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	} else {
 		fmt.Fprint(w, result)
 
@@ -308,7 +309,7 @@ func CheckUserCredentials(login string, password string) (error, int, string) {
 
 	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password) )
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err, 0, ""
 	}
 	defer rows.Close()
@@ -319,7 +320,7 @@ func CheckUserCredentials(login string, password string) (error, int, string) {
 		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 

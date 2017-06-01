@@ -17,6 +17,7 @@ import (
 	"log"
 	"strings"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +75,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 					var key int
 					var title string
 					if err := rows.Scan(&key, &title); err != nil {
-						log.Println(err)
+						logs.ErrorLog(err)
 					}
 
 					fields.Rows[idx].SelectValues[key] = title

@@ -11,13 +11,14 @@ import (
 	"fmt"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces map[string] string){
 
 	rows, err := db.DoSelect("select * from doc_keywords_list")
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 
 		return nil
 	}

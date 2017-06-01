@@ -2,13 +2,13 @@ package docs
 
 import (
 	"github.com/nguyenthenguyen/docx"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"net/http"
 )
 
  func ReplaceDocx(input, output string, replaces map[string] string) bool {
 	if r, err := docx.ReadDocxFile(input); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return false
 	} else {
 		docx1 := r.Editable()
@@ -19,7 +19,7 @@ import (
 		}
 
 		if err := docx1.WriteToFile(output); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return false
 		}
 
@@ -30,7 +30,7 @@ import (
 
 func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string] string)  error {
 	if r, err := docx.ReadDocxFile(templatesName); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	} else {
 		template := r.Editable()

@@ -9,6 +9,7 @@ package schema
 
 
 import (
+	"errors"
 	"strings"
 	"regexp"
 	"fmt"
@@ -17,6 +18,8 @@ import (
 	"encoding/json"
 	_ "strconv"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -172,12 +175,14 @@ func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
 		result := recover()
 		switch err := result.(type) {
 		case ErrNotFoundTable:
-			log.Println(err)
+			err1:=errors.New(err.Error())
+
+			logs.ErrorLog(err1)
 		case nil:
 		case error:
 			panic(err)
 		default:
-			log.Println(err)
+			logs.ErrorLog(err.(error))
 		}
 	}()
 	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
@@ -352,14 +357,14 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 		var properMap map[string] interface{}
 		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err.(error))
 			log.Println(dataJson)
 		} else {
 			for key, val := range properMap {
 
 				//buff, err := val.MarshalJSON()
 				if err != nil {
-					log.Println(err)
+					logs.ErrorLog(err.(error))
 					continue
 				}
 				switch key {

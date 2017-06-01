@@ -8,6 +8,7 @@ import (
 	"strings"
 	"strconv"
 	"regexp"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 type
 	argsRAW  [] interface {}
@@ -60,7 +61,7 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		tableValues, tableName, tableProps, id)
 	smtp, err := prepareQuery(sqlCommand)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	}
 	var params, comma string
@@ -72,13 +73,13 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		if !DigitsValidator.MatchString(value) {
 			newId, err := addNewItem(tableProps, value, userID)
 			if err != nil {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 			}
 			value =  strconv.Itoa(newId)
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			log.Println(sqlCommand)
 		} else {
 			log.Println(resultSQL)
@@ -91,12 +92,12 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		tableValues, tableName, id, tableProps, params)
 
 	if smtp, err = prepareQuery(sqlCommand); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	}
 
 	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		log.Println(sqlCommand)
 		return err
 	}else {
@@ -168,7 +169,7 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 			}
 		}
 		if id, err := DoInsert(fullCommand,  args ...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 		} else {
 			log.Println(fullCommand, id)
 		}
@@ -320,7 +321,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 					err = insertMultiSet(tableName,  tableProps,
 						tableName + "_" + tableProps + "_has", userID, values, id)
 				} else {
-					log.Println(err)
+					logs.ErrorLog(err)
 				}
 			} (tableProps, val)
 			continue
@@ -334,7 +335,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 					}
 					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				} else {
-					log.Println(err)
+					logs.ErrorLog(err)
 				}
 			} (tableProps, val)
 			continue
@@ -477,7 +478,7 @@ func (menu *MenuItems) GetMenu(id string) int {
 	rows, err := DoSelect("select * from menu_items where parent_id=?", menu.Init(id))
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return 0
 	}
 
@@ -486,7 +487,7 @@ func (menu *MenuItems) GetMenu(id string) int {
 
 		item := &menuItem{}
 		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		menu.Items = append(menu.Items, item)
@@ -503,7 +504,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 				  "WHERE users_roles_list_has.id_users=?", user_id)
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return 0
 	}
 
@@ -511,7 +512,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	for isAdmin.Next() {
 		is_admin := 0
 		if err := isAdmin.Scan(&is_admin); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		if is_admin > 0 {
@@ -529,7 +530,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 			      "WHERE users_roles_list_has.id_users=? AND menu_items.parent_id=?", user_id, menu.Init(extranetMenuId))
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return 0
 	}
 
@@ -538,7 +539,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 
 		item := &menuItem{}
 		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		menu.Items = append(menu.Items, item)
@@ -560,7 +561,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	rows, err := DoSelect(sqlQuery, id)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return -1
 	}
 
@@ -574,7 +575,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
 		&menu.Self.SQL, &menu.Self.Link); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return -1
 	}
 

@@ -55,7 +55,7 @@ func doConnect() error {
 	serverConfig := server.GetServerConfig()
 	dbConn, err = sql.Open( "mysql", serverConfig.DNSConnection() )
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	} else if dbConn == nil {
 		log.Println( DriveName )
@@ -406,7 +406,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				logs.DebugLog("sqlCommand",sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
-					log.Println(err)
+					logs.ErrorLog(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
@@ -415,7 +415,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				log.Println(sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
-					log.Println(err)
+					logs.ErrorLog(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
@@ -424,7 +424,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				log.Println(sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value)
 				if err != nil {
-					log.Println(err)
+					logs.ErrorLog(err)
 					values[field.COLUMN_NAME] = err.Error()
 				}
 				continue
@@ -469,7 +469,7 @@ func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string
 
 	for rows.Next() {
 		if err := rows.Scan(valuePtrs...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 
@@ -480,7 +480,7 @@ func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string
 			fieldName := colType.Name()
 			fieldValue, ok := rowValues[fieldName]
 			if !ok {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 			}
 			log.Println(colType.Length())
@@ -524,7 +524,7 @@ func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Ro
 	rows, err = DoSelect(sql, args...)
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return nil, nil, nil, nil, nil, err
 	}
 
@@ -541,7 +541,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		log.Println("row=")
@@ -554,7 +554,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 			fieldName := colType.Name()
 			fieldValue, ok := rowField[fieldName]
 			if !ok {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 			}
 			//log.Println(colType.Length())
@@ -606,7 +606,7 @@ func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] st
 				id, _ = strconv.Atoi(getValue(fieldValue))
 			}
 			if !ok {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 			}
 			//log.Println(colType.Length())
