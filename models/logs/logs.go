@@ -1,8 +1,9 @@
 // Copyright 2017 Author: Sergey Litvinov. All rights reserved.
 // Выдача логов с дополнительной информацией
-
 //ErrorLog - output formatted(function and line calls) error information
 //ErrorLog(err error, args ...interface{}) - output formatted(function and line calls) error information
+//FatalLog(err error, args ...interface{}) - output formatted (function and line calls) fatal information
+//StatusLog(err error, args ...interface{}) - output formatted information for status
 package logs
 
 import (
@@ -23,6 +24,8 @@ func DebugLog( args ...interface{}) {
     }
 }
 
+//StatusLog(err error, args ...interface{}) - output formatted information for status
+//@version 1.0 2017-05-31 Sergey Litvinov - Create
 func StatusLog( args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	if *F_status > "" {
@@ -37,6 +40,8 @@ func ErrorLog(err error, args ...interface{}) {
     log.Printf("[ERROR];%s;in line;%d;%v;%v", fn, line, err, args)
 }
 
+//FatalLog(err error, args ...interface{}) - output formatted (function and line calls) fatal information
+//@version 1.0 2017-05-31 Sergey Litvinov - Create
 func Fatal(err error, args ...interface{}) {
 	_, fn, line, _ := runtime.Caller(1)
 	log.Fatalf("[FATAL];%s;in line;%d;%v;%v", fn, line, err, args)
