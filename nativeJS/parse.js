@@ -5,10 +5,21 @@ let idCurrentPage;
 let stateHistoryComponents = [];
 let firstComponent;
 
+let dataAfterForm;
+let customHadlerAfterForm;
+
 export class Parse {
 
   static get idCurrentPage() {
     return idCurrentPage;
+  }
+  
+  static get getDataAfterForm() {
+    return dataAfterForm;
+  }
+
+  static customHadlerAfterForm(func) {
+    customHadlerAfterForm = func;
   }
 
   static setStateHistoryComponents() {
@@ -47,12 +58,32 @@ export class Parse {
 
     // for form TODO: need refactoring
     componentDom.querySelectorAll(`${ Variables.nameForm }`).forEach((component) => {
-      const elements = component.querySelectorAll(`button, input[type=button]`);
-      for (let element of elements) {
-        element.onclick = function () {
-          saveForm(component, () => { alert('Ваша форма сохранена') }, () => { alert('Произошла ошибка, повторите попытку') });
-        };
-      }
+      const self = this;
+      component.onsubmit = function() {
+
+        saveForm(this, (data, form) => {
+          let result = true;
+          dataAfterForm = data;
+
+          if (customHadlerAfterForm) {
+            result = customHadlerAfterForm(data, form);
+          }
+
+          if (result) {
+            const url = form.getAttribute(Variables.routerHref);
+
+            if (url) {
+              Native.request(url, (component) => {
+                self._changeComponentDom(component);
+                Router.routing(url);
+              });
+            }
+          }
+
+        }, () => { alert('Произошла ошибка, повторите попытку') });
+
+        return false;
+      };
     });
 
     // if tag have a app-script

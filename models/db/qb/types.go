@@ -47,8 +47,16 @@ func CreateFromSQL(sqlCommand string) *QueryBuilder {
 	return qb
 }
 // addding arguments
-func (qb *QueryBuilder) AddArgs(arg interface{}) *QueryBuilder{
+func (qb *QueryBuilder) AddArg(arg interface{}) *QueryBuilder{
 	qb.Args = append(qb.Args, arg)
+
+	return qb
+}
+func (qb *QueryBuilder) AddArgs(args ... interface{}) *QueryBuilder{
+
+	for _, arg := range args {
+		qb.Args = append(qb.Args, arg)
+	}
 
 	return qb
 }

@@ -89,7 +89,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		// получаем данные для суррогатных полей
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.AddTable("a", tableName)
-		qBuilder.AddArgs(id)
+		qBuilder.AddArg(id)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
@@ -126,7 +126,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.AddTable("a", tableName)
-		qBuilder.AddArgs(id)
+		qBuilder.AddArg(id)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
