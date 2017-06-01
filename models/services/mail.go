@@ -7,13 +7,14 @@ package services
 
 import (
 	"gopkg.in/gomail.v2"
-	"github.com/ruslanBik4/httpgo/views/templates/mails"
+	netMail "net/mail"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type mailService struct {
 	name   string
 	status string
-	email, password string
+	email, password, body string
 }
 
 var (
@@ -25,29 +26,37 @@ func (mail *mailService) Init() error {
 	return nil
 	schema.status = "ready"
 }
-//TODO: нужно метод ниже имплементировать сюда
+//TODO: нужно методы ниже имплементировать сюда
 func (mail *mailService) Send(messages ...interface{}) error {
 	return nil
 
 }
 //TODO: настройки отправки надо вынести в конфигфайл
-func SendMail(email, password string)  {
+func SendMail(email, password, body string)  {
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", "ruslan-bik@yandex.ru")
 	m.SetHeader("To", email )
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
-	m.SetBody("text/html", mails.InviteEmail(email, password) )
+	m.SetBody("text/html", body)
 	m.Attach("/home/travel/bootstrap/ico/favicon.png")
 
 	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconSwallow")
 
 	// Send the email to Bob, Cora and Dan.
 	if err := d.DialAndSend(m); err != nil {
-		log.Println(err)
+		logs.ErrorLog((err, m)
 	}
-	log.Println(email, password)
+	logs.DebugLog(email, password)
+}
+func VerifyMail(email, password string) {
+
+	if _, err := netMail.ParseAddress(email); err != nil {
+		logs.ErrorLog((err, email)
+		logs.DebugLog( "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
+		return
+	}
 }
 
 func (mail *mailService) Get(messages ... interface{}) (responce interface{}, err error) {
