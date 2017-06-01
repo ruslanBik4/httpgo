@@ -146,7 +146,6 @@ func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] ma
 
 	gChild.AddArg(fieldID)
 
-	logs.DebugLog("getSETID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -191,7 +190,6 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
 	gChild.AddArg(fieldID)
 
-	logs.DebugLog("getNODEI_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
@@ -208,7 +206,6 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 	gChild.AddArg(fieldID)
 
-	logs.DebugLog("getTABLEID_Values ", where)
 	return gChild.SelectToMultidimension()
 
 }
