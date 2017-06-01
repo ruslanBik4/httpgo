@@ -45,6 +45,17 @@ func (err ErrServiceNotEnougnParameter) Error() string{
 	return err.Name + photosNotEnougnParameter
 }
 
+const brokenStatus = " broken status "
+
+type ErrBrokenConnection struct {
+	Name string
+	Param interface{}
+}
+
+func (err ErrBrokenConnection) Error() string{
+	return err.Name + brokenStatus
+}
+
 type ErrServiceWrongIndex struct {
 	Name string
 	Index int

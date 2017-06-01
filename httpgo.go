@@ -375,6 +375,11 @@ func init() {
 	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
 		log.Println(err)
 	}
+
+	MongoConfig := server.GetMongodConfig()
+	if err := MongoConfig.Init(f_static, f_web, f_session); err != nil {
+		log.Println(err)
+	}
 	services.InitServices()
 }
 func main() {
