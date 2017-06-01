@@ -17,7 +17,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"errors"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"runtime"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 var (
 	dbConn *sql.DB
@@ -312,8 +312,7 @@ func getTableFromSchema(tableName string) schema.FieldsTable{
 		err := recover()
 		switch err.(type) {
 		case schema.ErrNotFoundTable:
-			_, fn, line, _ := runtime.Caller(0)
-			log.Println("mysql.go,", fn, " line ",line,  tableName)
+			logs.DebugLog("tableName",  tableName)
 			//err = schema.ErrNotFoundTable{Table:tablePart[1]}
 		case nil:
 		default:
@@ -378,7 +377,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 	for rows.Next() {
 		values := make(map[string] interface{}, len(columns) )
 		if err := rows.Scan(valuePtrs...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 
@@ -404,7 +403,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 			//TODO также на уровне функции продумать менанизм, который позволит выбирать НЕ ВСЕ поля из третей таблицы
 			if strings.HasPrefix(field.COLUMN_NAME, "setid_")  {
 				sqlCommand := getSQLFromSETID(field)
-				log.Println(sqlCommand)
+				logs.DebugLog("sqlCommand",sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					log.Println(err)
@@ -664,11 +663,11 @@ func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 		sqlParam.Sql = sqlParam.SqlBeg + sqlParam.Table + sqlParam.SqlEnd
 	}
 	if (sqlParam.Sql != ""){
-        log.Print("sqlParam.Sql=", sqlParam.Sql)
+        logs.DebugLog("sqlParam.Sql=", sqlParam.Sql)
 		rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sqlParam.Sql, args...)
 
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return nil, nil, nil, nil, nil, err
 		}
 
