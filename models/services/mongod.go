@@ -125,6 +125,9 @@ func (mongod *mdService) Send(args ...interface{}) error {
 		case "Update":
 			return updateRecord(cConnect, args)
 
+		case "Remove":
+			return removeRecord(cConnect, args)
+
 		default:
 			return ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 2}
 		}
@@ -209,6 +212,20 @@ func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
-/*func GetMongoConnection() *mongo.Session {
-	return mongod.connect
-}*/
+func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
+
+	if len(args) < 3 {
+		return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+	}
+	err := cConnect.Remove(args[2])
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetMongoCollectionConnect(collection string) *mongo.Collection {
+	return mongod.connect.DB(server.GetMongodConfig().MongoDBName()).C(collection)
+}

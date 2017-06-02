@@ -102,11 +102,11 @@ func (moderation *mService) Send(messages ...interface{}) error {
 		}
 	}
 
-	cConnect := moderation.connect.DB("newDB").C(setData.Config["table"])
+	cConnect := GetMongoCollectionConnect(setData.Config["table"])
 
 	if setData.Config["action"] == "delete" {
-		err := cConnect.Remove(bson.M{"key": setData.Config["key"]})
-
+		//err := cConnect.Remove(bson.M{"key": setData.Config["key"]})
+		err := Send("mongod", setData.Config["table"], "Remove", bson.M{"key": setData.Config["key"]})
 		if err != nil {
 			return err
 		}
@@ -149,7 +149,8 @@ func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
 			}
 	}
 
-	cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])
+	//cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])
+	cConnect := GetMongoCollectionConnect(getData.Config["table"])
 
 	responce := Struct{}
 
