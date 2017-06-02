@@ -1,9 +1,9 @@
 // Copyright 2017 Author: Sergey Litvinov. All rights reserved.
-// Выдача логов с дополнительной информацией
-//ErrorLog - output formatted(function and line calls) error information
-//ErrorLog(err error, args ...interface{}) - output formatted(function and line calls) error information
-//FatalLog(err error, args ...interface{}) - output formatted (function and line calls) fatal information
-//StatusLog(err error, args ...interface{}) - output formatted information for status
+//@package logs Output logs and advanced debug information
+//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
+//ErrorStack() - output formated(function and line calls) error runtime stack information
+//FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
+//StatusLog(err error, args ...interface{}) - output formated information for status
 package logs
 
 import (
@@ -15,7 +15,7 @@ import (
 var F_debug    = flag.String("debug","","debug mode")
 var F_status   = flag.String("status"," ","status mode")
 
-//DebugLog( args ...interface{}) - output formatted(function and line calls) debug information
+//DebugLog( args ...interface{}) - output formated(function and line calls) debug information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred args
 func DebugLog( args ...interface{}) {
     _, fn, line, _ := runtime.Caller(1)
@@ -24,7 +24,7 @@ func DebugLog( args ...interface{}) {
     }
 }
 
-//StatusLog(err error, args ...interface{}) - output formatted information for status
+//StatusLog(err error, args ...interface{}) - output formated information for status
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func StatusLog( args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
@@ -33,14 +33,30 @@ func StatusLog( args ...interface{}) {
 	}
 }
 
-//ErrorLog(err error, args ...interface{}) - output formatted(function and line calls) error information
+//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
 func ErrorLog(err error, args ...interface{}) {
     _, fn, line, _ := runtime.Caller(1)
     log.Printf("[ERROR];%s;in line;%d;%v;%v", fn, line, err, args)
 }
 
-//FatalLog(err error, args ...interface{}) - output formatted (function and line calls) fatal information
+
+//ErrorStack() - output formated(function and line calls) error runtime stack information
+//@version 1.00 2017-06-02 Sergey Litvinov - Create
+func ErrorStack() {
+	i:=0
+	for {
+		_, fn, line, ok := runtime.Caller(i)
+		if !ok {
+			break
+		}
+
+		log.Printf("[ERROR];%s;in line;%d; Runtime Stack", fn, line )
+		i++
+	}
+}
+
+//FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func Fatal(err error, args ...interface{}) {
 	_, fn, line, _ := runtime.Caller(1)
