@@ -2,12 +2,12 @@ package docs
 
 import (
  "github.com/sajari/docconv"
- "log"
+        "github.com/ruslanBik4/httpgo/models/logs"
 )
 
 func GetPlainText(fileName string) string{
   if responce, err := docconv.ConvertPath(fileName); err != nil {
-    log.Println(err)
+    logs.ErrorLog(err)
           return ""
   } else {
     return responce.Body

@@ -11,6 +11,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"io"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type photosService struct {
@@ -140,15 +141,15 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 		if os.IsNotExist(err) {
 			dir := filepath.Dir(fullName)
 			if err := os.MkdirAll(dir, os.ModeDir); err != nil{
-				log.Println(err)
+				logs.ErrorLog(err.(error))
 				return err
 			}
 			if outFile, err = os.Create(fullName); err != nil {
-				log.Println(err)
+				logs.ErrorLog(err.(error))
 				return err
 			}
 		} else {
-			log.Println(err)
+			logs.ErrorLog(err.(error))
 			return err
 		}
 	} else {
@@ -166,7 +167,7 @@ func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, 
 
 	files, err := photos.listFiles(catalog, id )
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err.(error))
 		return nil, err
 	}
 
@@ -175,7 +176,7 @@ func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, 
 	}
 	outFile, err := os.Open(files[num])
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err.(error))
 		return nil, err
 	}
 

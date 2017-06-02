@@ -8,6 +8,7 @@ import (
 	"strings"
 	"os"
 	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 const internalRewriteFieldName  = "travel"
 var (
@@ -154,6 +155,6 @@ func WriteError(w http.ResponseWriter, err error) bool {
 		return true
 	}
 	w.WriteHeader(http.StatusInternalServerError)
-	log.Println(err)
+	logs.ErrorLog(err.(error))
 	return true
 }

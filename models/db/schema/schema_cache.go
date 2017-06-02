@@ -10,6 +10,7 @@ type ErrNotFoundTable struct {
 	Table string
 }
 func (err ErrNotFoundTable) Error() string{
+
 	return "Not table in schema " + err.Table
 }
 type ErrNotFoundField struct {

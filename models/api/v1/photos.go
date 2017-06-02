@@ -14,6 +14,7 @@ import (
 	"image/jpeg"
 	"image"
 	"path/filepath"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
@@ -36,7 +37,8 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				switch err.(type) {
 				case services.ErrServiceNotCorrectOperation:
-					log.Println(err)
+
+					logs.ErrorLog(err.(error))
 				}
 				views.RenderInternalError(w, err)
 

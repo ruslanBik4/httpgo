@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"fmt"
 	"strconv"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type TxConnect struct {
@@ -247,7 +248,7 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 					err = conn.insertMultiSet(tableName,  tableProps,
 						tableName + "_" + tableProps + "_has", userID, values, id)
 				} else {
-					log.Println(err)
+					logs.ErrorLog(err)
 				}
 			} (tableProps, val)
 			continue
@@ -261,7 +262,7 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 					}
 					err = conn.insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				} else {
-					log.Println(err)
+					logs.ErrorLog(err)
 				}
 			} (tableProps, val)
 			continue
@@ -320,7 +321,7 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 		tableValues, tableName, tableProps, id)
 	smtp, err := conn.PrepareQuery(sqlCommand)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	}
 	var params, comma string
@@ -332,13 +333,13 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 		if !DigitsValidator.MatchString(value) {
 			newId, err := conn.addNewItem(tableProps, value, userID)
 			if err != nil {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 			}
 			value =  strconv.Itoa(newId)
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			log.Println(sqlCommand)
 		} else {
 			log.Println(resultSQL)
@@ -351,12 +352,12 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 		tableValues, tableName, id, tableProps, params)
 
 	if smtp, err = conn.PrepareQuery(sqlCommand); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	}
 
 	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		log.Println(sqlCommand)
 		return err
 	}else {
@@ -428,7 +429,7 @@ func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInser
 			}
 		}
 		if id, err := tableIDQueryes.tx.DoInsert(fullCommand,  args ...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 		} else {
 			log.Println(fullCommand, id)
 		}

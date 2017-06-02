@@ -16,6 +16,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
 	_ "github.com/ruslanBik4/httpgo/models/system"
 	"net/mail"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -219,7 +220,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 		}
 		if err := views.RenderTemplate(w, r, "adminPage", p); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return
 		}
 		return
@@ -284,7 +285,7 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	}
 	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		fmt.Fprintf(w, "Error during run query %s", sqlCommand)
 		return
 	}
@@ -390,7 +391,8 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 	fields = GetFields(tableName)
 	rows, err := db.DoSelect("select * from "+tableName+" where id=?", id)
 	if (err != nil) {
-		log.Println(err)
+
+		logs.ErrorLog(err, "select * from ", tableName, " where id=?", id)
 		return fields, err
 	}
 
@@ -399,7 +401,7 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 	columns, err := rows.Columns()
 	if (err != nil) {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	rowField := make([] *sql.NullString, len(columns))
 	for idx, _ := range columns {
@@ -411,7 +413,7 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 	for rows.Next() {
 
 		if err := rows.Scan(row...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 		}
 		for idx, field := range rowField {
 			if field.Valid {
@@ -437,7 +439,7 @@ func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if _, err := db.DoUpdate("update " + tableName + " set isDel=1 where id=?", id); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	} else {
 		fmt.Fprint(w, "Успешно удалили запись с номером " + id)
 	}
@@ -498,7 +500,7 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
 
 		tableName := r.FormValue("table")
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			arrJSON["error"] = "true"
 			arrJSON["message"] = fmt.Sprintf("Error %v during uodate table '%s' ", err, tableName)
 		} else {
@@ -603,7 +605,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 			id, err := db.DoInsert(query.SQLCommand + ") " + query.Values + ")", query.Args ... )
 			if err != nil {
-				log.Println(err)
+				logs.ErrorLog(err)
 				arrJSON["error"] = "true"
 				arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
 				break
@@ -662,7 +664,7 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 	}
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return false
 	}
 
@@ -683,7 +685,7 @@ func CheckAdminPermissions(userId int) bool {
 		"WHERE users_roles_list_has.id_users=? AND roles_list.is_general=1", userId)
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return false
 	}
 
@@ -736,7 +738,7 @@ func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	email := r.MultipartForm.Value["login"][0]
 	password, err := users.GeneratePassword(email)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	sql += comma + "hash"
 	values += comma + "?"
@@ -754,7 +756,7 @@ func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
 
 	if _, err := mail.ParseAddress(email); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}

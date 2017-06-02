@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	_ "strconv"
 	"time"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -266,7 +267,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 
 	field.Html = "<thead> <tr>"
@@ -294,7 +295,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		idx++
@@ -430,7 +431,7 @@ func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
 		var idParent sql.NullInt64
 
 		if err := rows.Scan(&id, &title, &idParent); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		if idParent.Valid {
@@ -477,7 +478,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		var idParent sql.NullInt64
 
 		if err := rows.Scan(&id, &title, &idParent); err != nil {
-				log.Println(err)
+				logs.ErrorLog(err)
 				continue
 		}
 		if idParent.Valid {
@@ -554,7 +555,7 @@ func (field *FieldStructure) GetOptions(tableName, val string) {
 		var id, title, selected string
 
 		if err := rows.Scan(&id, &title); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 		if val == id {
@@ -650,13 +651,13 @@ func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, place
 func getPattern(name string) string {
 	rows, err := db.DoSelect("select pattern from patterns_list where name=?", name)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return ""
 	}
 	for rows.Next() {
 		var pattern sql.NullString
 		if err := rows.Scan(&pattern); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return ""
 		}
 		if pattern.Valid {
@@ -726,14 +727,14 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 		var properMap map[string] interface{}
 		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			log.Println(dataJson)
 		} else {
 			for key, val := range properMap {
 
 				//buff, err := val.MarshalJSON()
 				if err != nil {
-					log.Println(err)
+					logs.ErrorLog(err)
 					continue
 				}
 				switch key {
@@ -908,7 +909,7 @@ func (field *FieldStructure) GetOptionsJson(tableName string) {
 		var id, title string
 
 		if err := rows.Scan(&id, &title); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			continue
 		}
 

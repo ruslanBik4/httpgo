@@ -201,12 +201,12 @@ function saveForm(thisForm, successFunction, errorFunction)
             } else {
                 afterSaveAnyForm(data);
             }
-            $.fancybox.close();
+            // $.fancybox.close();
         },
         error: function(error, status) {
             $out.html( error.responseText );
             if (errorFunction !== undefined) {
-                errorFunction(data, thisForm);
+                errorFunction(error, thisForm);
             } else {
                 alert(error);
             }

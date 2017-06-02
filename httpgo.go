@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"net/http"
 	"io/ioutil"
-	"log"
 	"time"
 	"os"
 	"github.com/ruslanBik4/httpgo/views"
@@ -29,6 +28,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/api/v1"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 //go:generate qtc -dir=views/templates
 
@@ -210,7 +210,7 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 
 func sockCatch() {
 	err := recover()
-	log.Println(err)
+	logs.ErrorLog(err.(error))
 }
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
@@ -226,7 +226,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	arrJSON, err := qBuilder.SelectToMultidimension()
 
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return
 	}
 
@@ -234,7 +234,8 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	return
 	//qBuilder := qb.Create("", "", "")
 
-	log.Println(r)
+
+	logs.DebugLog(r)
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
 	for _, headers := range r.MultipartForm.File {
@@ -246,7 +247,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				switch err.(type) {
 				case services.ErrServiceNotCorrectOperation:
-					log.Println(err)
+					logs.ErrorLog(err.(error))
 				}
 				w.Write([]byte(err.(error).Error()))
 
@@ -284,7 +285,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	//отдаем полный список меню для фронтового фреймворка
 	if idMenu == "all" {
 		if arrJSON, err := db.SelectToMultidimension("select * from menu_items"); err != nil {
-			log.Println(err)
+			logs.ErrorLog(err.(error))
 		} else {
 			views.RenderArrayJSON(w, arrJSON)
 		}
@@ -331,7 +332,7 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 	if _, ok := getCache(keyName); !ok {
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog(err)
 			return err
 		}
 		setCache(keyName, data)
@@ -373,12 +374,12 @@ func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
 	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 
 	MongoConfig := server.GetMongodConfig()
 	if err := MongoConfig.Init(f_static, f_web, f_session); err != nil {
-		log.Println(err)
+		logs.ErrorLog(err)
 	}
 	services.InitServices()
 }
@@ -390,10 +391,10 @@ func main() {
 
 	registerRoutes()
 
+	logs.StatusLog("Server starting")
+	logs.StatusLog("Static files found in ", *f_web)
+	logs.StatusLog("System files found in " + *f_static)
+	logs.Fatal(http.ListenAndServe(*f_port, nil))
 
-	log.Println("Server starting in " + time.Now().String() )
-	log.Println("Static files found in " + *f_web )
-	log.Println("System files found in " + *f_static )
-	log.Fatal( http.ListenAndServe(*f_port, nil) )
 
 }

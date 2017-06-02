@@ -1,10 +1,10 @@
 package tables
 
 import (
-	"log"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"regexp"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 var 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
@@ -37,7 +37,7 @@ func (query *QueryStruct) beforeRender() (err error) {
 
 	query.columns, err = query.Rows.Columns()
 	if (err != nil) {
-		log.Println(err)
+		logs.ErrorLog(err)
 		return err
 	}
 
