@@ -13,7 +13,6 @@ import (
 	"strings"
 	"regexp"
 	"fmt"
-	"log"
 	"database/sql"
 	"encoding/json"
 	_ "strconv"
@@ -332,7 +331,7 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 
 		}
 	default:
-		log.Println("not correct type WhereJSON !", whereJSON)
+		logs.DebugLog("not correct type WhereJSON !", whereJSON)
 	}
 
 }
@@ -357,8 +356,7 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 		var properMap map[string] interface{}
 		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
-			logs.ErrorLog(err.(error))
-			log.Println(dataJson)
+			logs.ErrorLog(err.(error), dataJson)
 		} else {
 			for key, val := range properMap {
 

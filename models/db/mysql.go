@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"bytes"
 	"io"
-	"log"
 	"strings"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/server"
@@ -58,7 +57,7 @@ func doConnect() error {
 		logs.ErrorLog(err)
 		return err
 	} else if dbConn == nil {
-		log.Println( DriveName )
+		logs.DebugLog( DriveName )
 		return sql.ErrTxDone
 	}
 
@@ -76,7 +75,7 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := dbConn.Exec( sql, args ...)
 
 	if err != nil {
-		log.Println(sql)
+		logs.ErrorLog(err, sql)
 		return -1, err
 	} else {
 		lastInsertId, err := resultSQL.LastInsertId()
@@ -135,7 +134,7 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 			Encode.Encode(lastInsertId)
 		}
 
-		log.Print( result.String() )
+		logs.DebugLog( result.String() )
 
 		return nil
 	}
@@ -150,7 +149,7 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 			Encode.Encode(RowsAffected)
 		}
 
-		log.Print( result.String() )
+		logs.DebugLog( result.String() )
 
 		return nil
 	}
@@ -158,7 +157,7 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 	rows, err :=  dbConn.Query( sql, args ...)
 
 	if err != nil {
-		log.Print( result.String() )
+		logs.ErrorLog(err,  result.String() )
 		return nil
 	}
 
@@ -346,7 +345,8 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 
 
 	if err != nil {
-		//log.Println("mysql.go,","string 306,", err, sql)
+
+		logs.ErrorLog(err, sql)
 		return nil, err
 	}
 
@@ -412,7 +412,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
 				sqlCommand := getSQLFromNodeID(field)
-				log.Println(sqlCommand)
+				logs.DebugLog(sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value )
 				if err != nil {
 					logs.ErrorLog(err)
@@ -421,7 +421,7 @@ func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[st
 				continue
 			} else if strings.HasPrefix(field.COLUMN_NAME, "tableid_"){
 				sqlCommand := getSQLFromTableID(field)
-				log.Println(sqlCommand)
+				logs.DebugLog(sqlCommand)
 				values[field.COLUMN_NAME], err = SelectToMultidimension( sqlCommand, fieldID.Value)
 				if err != nil {
 					logs.ErrorLog(err)
@@ -483,7 +483,7 @@ func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string
 				logs.ErrorLog(err)
 				continue
 			}
-			log.Println(colType.Length())
+			logs.DebugLog(colType.Length())
 			switch colType.DatabaseTypeName() {
 			case "varchar", "date", "datetime":
 				if fieldValue.Valid {
@@ -518,7 +518,7 @@ func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string
 }
 
 //GetDataPrepareRowsToReading - function get rows with structure field
-//@aurhor Sergey Litvinov
+//@author Sergey Litvinov
 func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
 							columns [] string, colTypes [] *sql.ColumnType, err error )  {
 	rows, err = DoSelect(sql, args...)
@@ -533,19 +533,19 @@ func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Ro
 }
 
 //ConvertPrepareRowsToJson convert many rows to json
-//@aurhor Sergey Litvinov
+//@author Sergey Litvinov
 func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
 			columns [] string, colTypes [] *sql.ColumnType) ( arrJSON [] map[string] interface {}, err error ) {
 
-    log.Println( rows)
+	logs.DebugLog( rows)
 
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
-		log.Println("row=")
-		log.Println(row...)
+
+		logs.DebugLog(row...)
 
 		values := make(map[string] interface{}, len(columns) )
 
@@ -557,7 +557,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 				logs.ErrorLog(err)
 				continue
 			}
-			//log.Println(colType.Length())
+			//logs.DebugLog(colType.Length())
 			switch colType.DatabaseTypeName() {
 			case "varchar", "date", "datetime":
 				if fieldValue.Valid {
@@ -592,7 +592,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 
 
 //ConvertPrepareRowToJson convert one row to json
-//@aurhor Sergey Litvinov
+//@author Sergey Litvinov
 func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType) (id int, arrJSON map[string] interface {},   err error ) {
 		id = 0;
@@ -609,7 +609,7 @@ func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] st
 				logs.ErrorLog(err)
 				continue
 			}
-			//log.Println(colType.Length())
+			//logs.DebugLog(colType.Length())
 			switch colType.DatabaseTypeName() {
 			case "varchar", "date", "datetime":
 				if fieldValue.Valid {
@@ -647,7 +647,7 @@ func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] st
 //GetDataCustom get data with custom sql query
 //Give  begSQL + tableName + endSQL, split, run sql
 //@version 2.00 2017-04-20
-//@aurhor Sergey Litvinov
+//@author Sergey Litvinov
 func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 		row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
 		colTypes [] *sql.ColumnType, err error ){
@@ -683,7 +683,7 @@ func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 
 //DoUpdateFromMap - function generate sql query from data map
 //@version 1.00 2017-04-11
-//@aurhor Sergey Litvinov
+//@author Sergey Litvinov
 func DoUpdateFromMap(table string, mapData map[string] interface{}) (RowsAffected int, err error) {
 
 	var row argsRAW

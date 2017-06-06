@@ -19,6 +19,7 @@ var F_status   = flag.String("status"," ","status mode")
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred args
 func DebugLog( args ...interface{}) {
     _, fn, line, _ := runtime.Caller(1)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
     if *F_debug > "" {
         log.Printf("[DEBUG];%s;in line;%d;%v", fn, line, args)
     }
@@ -28,6 +29,7 @@ func DebugLog( args ...interface{}) {
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func StatusLog( args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if *F_status > "" {
 		log.Printf("[STATUS];;;;%v",  args)
 	}
@@ -36,14 +38,16 @@ func StatusLog( args ...interface{}) {
 //ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
 func ErrorLog(err error, args ...interface{}) {
-    _, fn, line, _ := runtime.Caller(1)
-    log.Printf("[ERROR];%s;in line;%d;%v;%v", fn, line, err, args)
+    pc, fn, line, _ := runtime.Caller(1)
+
+    log.Printf("[ERROR];%s[%s:%d];%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line, err, args)
 }
 
 
 //ErrorStack() - output formated(function and line calls) error runtime stack information
 //@version 1.00 2017-06-02 Sergey Litvinov - Create
 func ErrorStack() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	i:=0
 	for {
 		_, fn, line, ok := runtime.Caller(i)
@@ -60,5 +64,18 @@ func ErrorStack() {
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func Fatal(err error, args ...interface{}) {
 	_, fn, line, _ := runtime.Caller(1)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Fatalf("[FATAL];%s;in line;%d;%v;%v", fn, line, err, args)
+}
+
+func changeShortName(file string)(short string){
+	short = file
+	for i := len(file) - 1; i > 0; i-- {
+		if file[i] == '/' {
+			short = file[i+1:]
+			break
+		}
+	}
+	//file1 = short
+	return short
 }
