@@ -71,6 +71,9 @@ func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
 //add Table, returns object table
 func (qb *QueryBuilder) AddTable(alias, name string) *QBTables {
 
+	if alias == ""  {
+		alias = name
+	}
 	table := &QBTables{Name: name, Alias: alias}
 	table.Fields = make(map[string] *QBFields, 0)
 	qb.Tables    = append(qb.Tables, table)

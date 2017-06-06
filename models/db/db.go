@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 	"strconv"
 	"regexp"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"errors"
 )
 type
 	argsRAW  [] interface {}
@@ -80,9 +80,8 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			logs.ErrorLog(err)
-			log.Println(sqlCommand)
 		} else {
-			log.Println(resultSQL)
+			logs.DebugLog(resultSQL)
 		}
 		params += comma + "?"
 		valParams = append(valParams, value )
@@ -97,11 +96,10 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 	}
 
 	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
-		logs.ErrorLog(err)
-		log.Println(sqlCommand)
+		logs.ErrorLog(err, valParams)
 		return err
 	}else {
-		log.Println(resultSQL)
+		logs.DebugLog(resultSQL)
 	}
 
 	return err
@@ -155,9 +153,9 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 				fullCommand += ",(" + query.Values + ")"
 			}
 			for _, valArr := range query.Args {
-				switch valArr.(type) {
+				switch argsStrings := valArr.(type) {
 				case [] string:
-					args = append(args, valArr.([]string)[i])
+					args = append(args, argsStrings[i])
 				default:
 					args = append(args, valArr)
 
@@ -171,7 +169,7 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 		if id, err := DoInsert(fullCommand,  args ...); err != nil {
 			logs.ErrorLog(err)
 		} else {
-			log.Println(fullCommand, id)
+			logs.DebugLog(fullCommand, id)
 		}
 	}
 
@@ -208,7 +206,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 	r.ParseForm()
 
 	if r.FormValue("table") == "" {
-		log.Println("not table name")
+		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
@@ -241,7 +239,7 @@ func DoInsertFromForm( r *http.Request, userID string ) (lastInsertId int, err e
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						log.Println("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues )
 					}
 					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
@@ -293,7 +291,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 	r.ParseForm()
 
 	if r.FormValue("table") == "" {
-		log.Println("not table name")
+		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
@@ -331,7 +329,7 @@ func DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err e
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						log.Println("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues )
 					}
 					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				} else {
@@ -568,7 +566,7 @@ func (menu *MenuItems) Init(id string) int32 {
 	defer rows.Close()
 	// если нет записей
 	if !rows.Next() {
-		log.Println("Not find menu wich id = ", id)
+		logs.DebugLog("Not find menu wich id = ", id)
 		return -1
 
 	}

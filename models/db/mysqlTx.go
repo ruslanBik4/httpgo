@@ -7,12 +7,12 @@
 package db
 
 import (
-	"database/sql"
+	"errors"
+	"databaqse/sql"
 	"github.com/go-sql-driver/mysql"
 	"encoding/json"
 	"bytes"
 	"io"
-	"log"
 	"strings"
 	"net/http"
 	"fmt"
@@ -49,7 +49,7 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := conn.tx.Exec(sql, args ...)
 
 	if err != nil {
-		log.Println(sql)
+		logs.ErrorLog(err, sql)
 		return -1, err
 	} else {
 		lastInsertId, err := resultSQL.LastInsertId()
@@ -90,7 +90,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 			Encode.Encode(lastInsertId)
 		}
 
-		log.Print(result.String())
+		logs.DebugLog(result.String())
 
 		return nil
 	}
@@ -105,7 +105,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 			Encode.Encode(RowsAffected)
 		}
 
-		log.Print(result.String())
+		logs.DebugLog(result.String())
 
 		return nil
 	}
@@ -113,7 +113,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	rows, err := conn.tx.Query(sql, args ...)
 
 	if err != nil {
-		log.Print(result.String())
+		logs.ErrorLog(err, result.String())
 		return nil
 	}
 
@@ -132,7 +132,7 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 	r.ParseForm()
 
 	if r.FormValue("table") == "" {
-		log.Println("not table name")
+		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
@@ -167,7 +167,7 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						log.Println("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues )
 					}
 					err = conn.insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
@@ -220,7 +220,8 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 	r.ParseForm()
 
 	if r.FormValue("table") == "" {
-		log.Println("not table name")
+
+		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
@@ -258,7 +259,7 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						log.Println("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues )
 					}
 					err = conn.insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				} else {
@@ -339,10 +340,9 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 			value =  strconv.Itoa(newId)
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
-			logs.ErrorLog(err)
-			log.Println(sqlCommand)
+			logs.ErrorLog(err, sqlCommand)
 		} else {
-			log.Println(resultSQL)
+			logs.DebugLog(resultSQL)
 		}
 		params += comma + "?"
 		valParams = append(valParams, value )
@@ -357,11 +357,10 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 	}
 
 	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
-		logs.ErrorLog(err)
-		log.Println(sqlCommand)
+		logs.ErrorLog(err, sqlCommand)
 		return err
 	}else {
-		log.Println(resultSQL)
+		logs.DebugLog(resultSQL)
 	}
 
 	return err
@@ -431,7 +430,7 @@ func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInser
 		if id, err := tableIDQueryes.tx.DoInsert(fullCommand,  args ...); err != nil {
 			logs.ErrorLog(err)
 		} else {
-			log.Println(fullCommand, id)
+			logs.DebugLog(fullCommand, id)
 		}
 	}
 	return err

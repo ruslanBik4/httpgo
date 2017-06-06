@@ -5,7 +5,7 @@ import (
 	//"log"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/views"
-	"runtime"
+	//"runtime"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"errors"
 )
@@ -46,16 +46,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 	default:
 		err :=errors.New("Panic runtime!")
 		logs.ErrorLog(err)
-		i := 0
-		for {
-			pc, _, _, ok := runtime.Caller(i)
-			if !ok {
-				break
-			}
-			err =errors.New("Panic stack. Process")
-			logs.ErrorLog(err, pc)
-			i++
-		}
+		logs.ErrorStack()
 		views.RenderInternalError(w, err.(error))
 	}
 }
