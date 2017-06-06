@@ -357,7 +357,7 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 		var properMap map[string] interface{}
 		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
-			logs.ErrorLog(err.(error))
+			logs.ErrorLog(err.(error),fieldStrc.Table.Name, fieldStrc.COLUMN_NAME)
 			log.Println(dataJson)
 		} else {
 			for key, val := range properMap {
