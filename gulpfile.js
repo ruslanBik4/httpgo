@@ -15,6 +15,7 @@ const jsmin = require('gulp-jsmin');
 
 /* native build in single file */
 const concat = require('gulp-concat');
+// const autopolyfiller = require('gulp-autopolyfiller');
 
 gulp.task('native-js', () => {
   let isBabel = babel({
@@ -30,6 +31,9 @@ gulp.task('native-js', () => {
   gulp.src(`./nativeJS/**/*.js`)
     .pipe(isBabel)
     .pipe(concat('native.min.js'))
+    // .pipe(autopolyfiller(`./js/autopolyfiller.js`, {
+    //   browsers: ['last 2 version', 'ie 9']
+    // }))
     // .pipe(jsmin())
     .pipe(rename({dirname: ''}))
     .pipe(gulp.dest(`./js/`));

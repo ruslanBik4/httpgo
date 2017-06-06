@@ -153,9 +153,9 @@ func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int,
 				fullCommand += ",(" + query.Values + ")"
 			}
 			for _, valArr := range query.Args {
-				switch valArr.(type) {
+				switch argsStrings := valArr.(type) {
 				case [] string:
-					args = append(args, valArr.([]string)[i])
+					args = append(args, argsStrings[i])
 				default:
 					args = append(args, valArr)
 
