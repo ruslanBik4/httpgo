@@ -13,6 +13,7 @@ import (
 	"strings"
 	"fmt"
 )
+var Rows *sql.Rows
 
 func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
@@ -211,13 +212,13 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 
 }
 
+//(qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  return resul rows from sql create qb
 func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
-	//var rows  *extsql.Rows
 	var sqlQuery string
 	sqlQuery, err = qb.createSQL()
 	rows, err = db.DoSelect(sqlQuery, qb.Args...)
 
-	logs.DebugLog("rows=", rows)
+
 	if err != nil {
 		logs.ErrorLog(err, sqlQuery)
 		return nil, err
@@ -225,21 +226,8 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 	return rows, nil
 }
 
-
-func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
-
-	sql, err := qb.createSQL()
-
-	rows, err := db.DoSelect(sql, qb.Args...)
-
-
-	if err != nil {
-		logs.ErrorLog(err, sql)
-		return nil, err
-	}
-
-	defer rows.Close()
-
+ //(qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows)  - part convertation data in rows to travel Json
+func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )  {
 	var valuePtrs []interface{}
 
 	for idx, _ := range qb.fields {
@@ -307,6 +295,20 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 		arrJSON = append(arrJSON, values)
 	}
 
+	return arrJSON, nil
+}
+
+
+func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
+
+	rows, err := qb.GetDataSql()
+	if err != nil {
+		//logs.ErrorLog(err) //errors output in qb.GetDataSql()
+		return nil, err
+	}
+
+	defer rows.Close()
+	arrJSON, err = qb.ConvertDataToJson(rows)
 	return arrJSON, nil
 }
 
