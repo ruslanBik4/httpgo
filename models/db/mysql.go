@@ -101,16 +101,18 @@ func DoUpdate(sql string, args ...interface{}) (int, error) {
 }
 
 //DoSelect(sql string, args ...interface
-func DoSelect(sql string, args ...interface{})  (*sql.Rows, error) {
+func DoSelect(sql string, args ...interface{})  (rows *sql.Rows, err error) {
 
-	if err := doConnect(); err != nil {
+	if err = doConnect(); err != nil {
 		return nil, err
 	}
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return dbConn.Query(sql, args ...)
 	} else {
-
-		return nil, &ErrBadSelectQuery{Sql:sql}
+		err = errors.New("Bad query for select ")
+		logs.ErrorLog(errors.New("Bad query for select -"), sql)
+		logs.ErrorStack()
+		return nil, err
 	}
 }
 func DoQuery(sql string, args ...interface{})  *sql.Rows {

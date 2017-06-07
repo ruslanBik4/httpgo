@@ -10,7 +10,7 @@ import (
 	"os/exec"
 	"github.com/ruslanBik4/httpgo/views"
 	"bytes"
-	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +27,8 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 	} else {
 		views.WriteHeaders(w)
-		log.Println(stdoutStderr)
+		//log.Println(stdoutStderr)
+		logs.DebugLog(stdoutStderr)
 		w.Write(bytes.Replace(stdoutStderr, []byte("/n"), []byte("<br>"), 0))
 	}
 

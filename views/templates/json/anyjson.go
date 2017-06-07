@@ -1,8 +1,9 @@
 package json
 
 import (
-	"log"
+
 	"strings"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type MultiDimension map[string] interface{}
@@ -36,7 +37,7 @@ func isMapMultiDimension(value interface{}) ([] map[string] interface{}, bool) {
 }
 
 func writeElement(value interface {} ) string {
-	log.Println(value)
+	logs.DebugLog("value=",value)
 	switch value.(type) {
 	case map[string]interface{}:
 		return "map"

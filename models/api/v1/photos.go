@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/models/services"
-	"log"
 	"strconv"
 	"os"
 	"image/jpeg"
@@ -87,6 +86,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 		img, str, err := image.Decode(ioReader)
 		if err != nil {
+			logs.ErrorLog(err)
 			views.RenderInternalError(w,err)
 
 		}
@@ -95,7 +95,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		if err := jpeg.Encode(w, img, &jpeg.Options{Quality: 90} ); err != nil {
 			views.RenderInternalError(w,err)
 		} else {
-			log.Println(str, FileSize, img.Bounds())
+			logs.DebugLog(str, FileSize, img.Bounds())
 		}
 	}
 

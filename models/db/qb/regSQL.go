@@ -15,7 +15,7 @@ import (
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a ORDER BY id_user"
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a GROUP BY id_user ORDER BY id_user"
 
-var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name, COUNT(*) count1, COUNT(tab1.*) as count2, COUNT(tab1.min) as count3   FROM AAA a INNER JOIN BBB b ON a.id = b.id_user INNER JOIN CCC c ON b.id = c.id_customer GROUP BY id_user ORDER BY fname, second_name"
+var sqlCommand1 = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name, COUNT(*) count1, COUNT(tab1.*) as count2, COUNT(tab1.min) as count3   FROM AAA a INNER JOIN BBB b ON a.id = b.id_user INNER JOIN CCC c ON b.id = c.id_customer GROUP BY id_user ORDER BY fname, second_name"
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a"
 
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name  FROM AAA a"
@@ -53,7 +53,7 @@ type SqlJoinOn struct {
 }
 
 func main() {
-	sqlStructure, ok := Parse(sql)
+	sqlStructure, ok := Parse(sqlCommand1)
 	if ok {
 		fmt.Println("***** Fields *****")
 		for _, field := range sqlStructure.Fields {

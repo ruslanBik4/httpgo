@@ -14,7 +14,6 @@ import (
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"log"
 	"strings"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
@@ -64,10 +63,10 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 			}
 			//TODO: add where condition
-			log.Println(sqlCommand)
+			logs.DebugLog(sqlCommand)
 			rows, err := db.DoSelect(sqlCommand)
 			if err != nil {
-				log.Println(err, field.SQLforFORMList)
+				logs.ErrorLog(err, field.SQLforFORMList)
 			} else {
 
 				defer rows.Close()

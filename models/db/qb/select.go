@@ -5,6 +5,7 @@
 package qb
 
 import (
+	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strconv"
@@ -209,6 +210,22 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 	return gChild.SelectToMultidimension()
 
 }
+
+func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
+	//var rows  *extsql.Rows
+	var sqlQuery string
+	sqlQuery, err = qb.createSQL()
+	rows, err = db.DoSelect(sqlQuery, qb.Args...)
+
+	logs.DebugLog("rows=", rows)
+	if err != nil {
+		logs.ErrorLog(err, sqlQuery)
+		return nil, err
+	}
+	return rows, nil
+}
+
+
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
 	sql, err := qb.createSQL()
@@ -291,6 +308,5 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 	}
 
 	return arrJSON, nil
-
 }
 

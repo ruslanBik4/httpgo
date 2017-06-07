@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type serverConfig struct {
@@ -49,12 +50,14 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
 	fileInfo, _ := f.Stat()
 	b  := make([]byte, fileInfo.Size())
 	if n, err := f.Read(b); err != nil {
-		log.Println(n)
+
+		logs.ErrorLog(err, "n=", n)
 		return err
 
 	}
 
 	if err := yaml.Unmarshal(b, &sConfig.dbParams); err != nil {
+		logs.ErrorLog(err, b, &sConfig.dbParams)
 		return err
 	}
 
