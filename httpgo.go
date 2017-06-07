@@ -284,7 +284,10 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
 	//отдаем полный список меню для фронтового фреймворка
 	if idMenu == "all" {
-		if arrJSON, err := db.SelectToMultidimension("select * from menu_items"); err != nil {
+		qBuilder := qb.CreateEmpty()
+		qBuilder.AddTable("", "menu_items")
+
+		if arrJSON, err := qBuilder.SelectToMultidimension(); err != nil {
 			logs.ErrorLog(err.(error))
 		} else {
 			views.RenderArrayJSON(w, arrJSON)

@@ -13,7 +13,6 @@ import (
 	"strings"
 	"regexp"
 	"fmt"
-	"database/sql"
 	"encoding/json"
 	_ "strconv"
 	"time"
@@ -26,7 +25,7 @@ var (
 )
 //Сия структура нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
 //На данный момент создается на лету, в будущем
-//TODO: перенести в сервис отдачи структур и сделать независемым от реализации СУБД
+//TODO: hfpltkbnm yf cnfnbxtcre. b lbyfvbxtcre. xfcnb
 type FieldStructure struct {
 	Table 		*FieldsTable
 	COLUMN_NAME   	string
@@ -37,7 +36,6 @@ type FieldStructure struct {
 	COLUMN_COMMENT           string
 	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	Value                    string
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string
@@ -57,13 +55,10 @@ type FieldStructure struct {
 	LinkTD                  string
 	DataJSOM                map[string] interface{}
 	EnumValues              []string
-	SQLforFORMList          string `отдаем в списках полей для формы`
-	SQLforDATAList          string `отдаем в составе данных`
 	SETID, NODEID, TABLEID  bool
 	IdForeign		bool
-	SelectValues            map[int] string
 	TableProps, TableValues string
-	ChildrenFields		FieldsTable
+	ChildrenFields		*FieldsTable
 }
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
@@ -150,65 +145,6 @@ func StyleInput(dataType string) string{
 
 }
 
-// Scan implements the Scanner interface.
-func (field *FieldStructure) Scan(value interface{}) error {
-	var temp sql.NullString
-
-	if err := temp.Scan(value); err != nil {
-		field.Value = ""
-		return err
-	}
-	field.Value = temp.String
-
-	return nil
-}
-
-
-// todo: проверить работу
-// create where for  query from SETID_ / NODEID_ / TABLEID_ fields
-// условия вынимаем из определения поля типа SET
-// и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще усло
-func (field *FieldStructure) WhereFromSet(fields *FieldsTable) (result string) {
-
-	defer func() {
-		result := recover()
-		switch err := result.(type) {
-		case ErrNotFoundTable:
-			err1:=errors.New(err.Error())
-
-			logs.ErrorLog(err1)
-		case nil:
-		case error:
-			panic(err)
-		default:
-			logs.ErrorLog(err.(error))
-		}
-	}()
-	enumValues := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := ""
-	for _, title := range enumValues {
-		enumVal := title[len(title) - 1]
-		if i := strings.Index(enumVal, ":"); i > 0 {
-			param := ""
-			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-			if paramField := fields.FindField(enumVal[i+1:]); (paramField != nil) && (paramField.Value != "") {
-				param = paramField.Value
-				enumVal = enumVal[:i] + fmt.Sprintf("%s", param)
-			} else {
-				continue
-			}
-		}
-		result += comma + enumVal
-		comma = " OR "
-	}
-
-	if (result > "") && (result != "1") {
-
-		return " WHERE (" + result + ")"
-	}
-
-	return ""
-}
 func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
@@ -331,7 +267,7 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 
 		}
 	default:
-		logs.DebugLog("not correct type WhereJSON !", whereJSON)
+		logs.ErrorLog( errors.New("not correct type WhereJSON !"), whereJSON)
 	}
 
 }
@@ -360,11 +296,6 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 		} else {
 			for key, val := range properMap {
 
-				//buff, err := val.MarshalJSON()
-				if err != nil {
-					logs.ErrorLog(err.(error))
-					continue
-				}
 				switch key {
 				case "figure":
 					fieldStrc.Figure = val.(string)
@@ -405,76 +336,5 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 	}
 
 	return fieldStrc.COLUMN_COMMENT
-}
-func (fieldStrc *FieldStructure) writeSQLbySETID() error {
-
-	where := fieldStrc.WhereFromSet(fieldStrc.Table)
-
-	fieldStrc.SQLforFORMList = fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p LEFT JOIN %s v
-		ON (p.id = v.id_%[2]s) ` + where, fieldStrc.GetForeignFields(),
-		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
-
-	fieldStrc.SQLforDATAList = fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?)` + where, fieldStrc.GetForeignFields(),
-		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
-	return nil
-}
-//getSQLFromNodeID(field *schema.FieldStructure) string
-func (fieldStrc *FieldStructure) writeSQLByNodeID() (err error){
-	var titleField string
-
-
-	defer func() {
-		err := recover()
-		switch err.(type) {
-		case ErrNotFoundTable:
-			err = ErrNotFoundTable{Table:fieldStrc.TableProps}
-		case nil:
-		default:
-			panic(err)
-		}
-	}()
-	if fieldStrc.TableProps == "" {
-		fieldsValues := GetFieldsTable(fieldStrc.TableValues)
-
-		for _, field := range fieldsValues.Rows {
-			if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+fieldStrc.Table.Name) {
-				fieldStrc.TableProps = field.COLUMN_NAME[3:]
-				titleField = field.GetForeignFields()
-				break
-			}
-		}
-	}
-
-	where := fieldStrc.WhereFromSet(fieldStrc.Table)
-
-	fieldStrc.SQLforFORMList =  fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p LEFT JOIN %s v
-		ON (p.id = v.id_%[2]s) ` + where,
-		titleField,  fieldStrc.TableProps, fieldStrc.TableValues)
-
-	fieldStrc.SQLforDATAList =  fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?) ` + where,
-		titleField, fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
-
-	return nil
-}
-
-func (fieldStrc *FieldStructure) writeSQLByTableID() error {
-
-
-	where := fieldStrc.WhereFromSet(fieldStrc.Table)
-	if where > "" {
-		where += " OR (id_%s=?)"
-	} else {
-		where = " WHERE (id_%s=?)"
-	}
-
-	fieldStrc.SQLforFORMList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, fieldStrc.TableProps, fieldStrc.Table.Name )
-
-	return nil
 }
 

@@ -18,10 +18,10 @@ var F_status   = flag.String("status"," ","status mode")
 //DebugLog( args ...interface{}) - output formated(function and line calls) debug information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred args
 func DebugLog( args ...interface{}) {
-    pc, fn, line, _ := runtime.Caller(1)
+    _, fn, line, _ := runtime.Caller(1)
 	//log.SetFlags(log.LstdFlags | log.Lshortfile)
     if *F_debug > "" {
-        log.Printf("[DEBUG];%s[%s:%d];%v", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line, args)
+        log.Printf("[DEBUG];%s;in line;%d;%v", fn, line, args)
     }
 }
 
