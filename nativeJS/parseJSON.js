@@ -77,6 +77,7 @@ export class ParseJSON {
 
         // if has attr in params 'list'
         if (typeof params[Variables.paramsJSONList] === 'object' && func.createList) {
+          delete params[Variables.paramsJSONList].count;
           func.createList(component, params[Variables.paramsJSONList], (params[Variables.paramsJSONType] === Variables.paramsJSONSet));
         }
 

@@ -2,6 +2,8 @@
 // native.js
 //
 
+let bufData;
+
 export class Native {
 
   /*
@@ -207,6 +209,19 @@ export class Native {
 
   static customHadlerAfterForm(func) {
     Parse.customHadlerAfterForm(func);
+  }
+
+
+  /*
+  *     buf variables
+  */
+
+  static bufVariables(data) {
+    if (data) {
+      bufData = data;
+    } else {
+      return bufData;
+    }
   }
 
 }
