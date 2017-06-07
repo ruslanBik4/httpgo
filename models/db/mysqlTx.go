@@ -8,7 +8,7 @@ package db
 
 import (
 	"errors"
-	"databaqse/sql"
+	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"encoding/json"
 	"bytes"
