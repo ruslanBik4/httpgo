@@ -8,7 +8,6 @@ package server
 import (
 	"fmt"
  	yaml "gopkg.in/yaml.v2"
-	"log"
 	"os"
 	"path/filepath"
 	"github.com/ruslanBik4/httpgo/models/logs"
@@ -64,10 +63,8 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
 
 	return nil
 }
-func  writeto(v interface{}) error {
-  log.Println(v)
-	return nil
-}
+
+
 //The Data Source DB has a common format, like e.g. PEAR DB uses it,
 // but without type-prefix (optional parts marked by squared brackets):
 //

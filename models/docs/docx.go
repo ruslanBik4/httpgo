@@ -4,8 +4,8 @@ import (
 	"archive/zip"
 	"errors"
 	"io"
-	"log"
 	"os"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // Docx struct that contains data from a docs
@@ -29,7 +29,8 @@ func (d *Docx) ReadFile(path string) error {
 		return errors.New("File has no content")
 	}
 	d.content = cleanText(content)
-	log.Printf("Read File `%s`", path)
+
+	logs.DebugLog("Read File ", path)
 	return nil
 }
 
@@ -55,7 +56,7 @@ func (d *Docx) WriteToFile(path string, data string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Exporting data to %s", path)
+	logs.DebugLog("Exporting data to ", path)
 	return nil
 }
 
