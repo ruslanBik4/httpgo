@@ -253,10 +253,8 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				logs.DebugLog("nil schema", field)
 				continue
 			}
-			//fieldName := field.Alias
-			if fieldName == "id" {
-				fieldID = field.Value
-			}
+			fieldID = field.Table.Fields["id"].Value
+
 			if schema.SETID  {
 				where := field.WhereFromSet()
 				values[fieldName], err = getSETID_Values(schema, where, fieldID)
