@@ -34,12 +34,12 @@ type SqlCustom struct {
 }
 
 type ErrBadSelectQuery struct {
-	Sql string
+	Sql, Message string
 }
 func (err ErrBadSelectQuery) Error() string {
 	return "Bad query for select - " + err.Sql
 }
-func prepareQuery(sql string) (*sql.Stmt, error){
+func PrepareQuery(sql string) (*sql.Stmt, error){
 	return dbConn.Prepare(sql)
 }
 
@@ -109,8 +109,7 @@ func DoSelect(sql string, args ...interface{})  (rows *sql.Rows, err error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return dbConn.Query(sql, args ...)
 	} else {
-		err = errors.New("Bad query for select ")
-		logs.ErrorLog(errors.New("Bad query for select -"), sql)
+		logs.ErrorLog(&ErrBadSelectQuery{Message:"Bad query for select -", Sql: sql })
 		logs.ErrorStack()
 		return nil, err
 	}

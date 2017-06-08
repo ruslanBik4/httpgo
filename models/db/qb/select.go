@@ -38,7 +38,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 		if len(table.Fields) > 0 {
 			for alias, field := range table.Fields {
 				var queryName string
-				if alias > "" {
+				if (alias > "") && (alias != field.Name) {
 					queryName = ` AS "` + alias + `"`
 				}
 				if field.schema.COLUMN_TYPE == "calc" {
@@ -57,8 +57,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 			for _, fieldStrc := range table.schema.Rows {
 
-				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc}
-				qb.fields = append(qb.fields, field)
+				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
+				table.AddField("", fieldStrc.COLUMN_NAME )
+				//TODO: сделать одно место для добавления полей!
+				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
 			}
 		}
 	}
@@ -190,29 +192,36 @@ func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] i
 	}
 	field.ChildQB.Where = where
 
-	field.ChildQB.Args[0] = fieldID
+	if len(field.ChildQB.Args) == 0 {
+		field.ChildQB.AddArg(fieldID)
+	} else {
+		field.ChildQB.Args[0] = fieldID
+	}
 
 	return field.ChildQB.SelectToMultidimension()
 
 }
 
 func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
-	//var rows  *extsql.Rows
-	var sqlQuery string
-	sqlQuery, err = qb.createSQL()
+
+	if qb.Prepared == nil {
+		qb.sqlCommand, err = qb.createSQL()
+		if err == nil {
+			qb.Prepared, err = db.PrepareQuery(qb.sqlCommand)
+		}
+	}
 	if err != nil {
-		logs.ErrorLog(err, sqlQuery)
 		return nil, err
 	}
 
-	return db.DoSelect(sqlQuery, qb.Args...)
+	return qb.Prepared.Query(qb.Args...)
 }
 
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
-		//logs.ErrorLog(err) //errors output in qb.GetDataSql()
+		logs.ErrorLog(err) //errors output in qb.GetDataSql()
 		return nil, err
 	}
 
@@ -273,14 +282,14 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				where := field.WhereFromSet()
 				values[fieldName], err = getNODEID_Values(schema, where, ID)
 				if err != nil {
-					logs.ErrorLog(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field)
 					values[fieldName] = err.Error()
 				}
 				continue
 			} else if schema.TABLEID {
 				values[fieldName], err = getTABLEID_Values(field, ID)
 				if err != nil {
-					logs.ErrorLog(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
 				}
 				continue

@@ -59,7 +59,7 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 
 	sqlCommand := fmt.Sprintf("insert IGNORE into %s (id_%s, id_%s) values (%d, ?)",
 		tableValues, tableName, tableProps, id)
-	smtp, err := prepareQuery(sqlCommand)
+	smtp, err := PrepareQuery(sqlCommand)
 	if err != nil {
 		logs.ErrorLog(err)
 		return err
@@ -90,7 +90,7 @@ func  insertMultiSet(tableName, tableProps, tableValues, userID string, values [
 	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
 		tableValues, tableName, id, tableProps, params)
 
-	if smtp, err = prepareQuery(sqlCommand); err != nil {
+	if smtp, err = PrepareQuery(sqlCommand); err != nil {
 		logs.ErrorLog(err)
 		return err
 	}

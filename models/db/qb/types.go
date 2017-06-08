@@ -7,6 +7,7 @@ package qb
 
 import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"database/sql"
 )
 
 type QBField struct {
@@ -34,6 +35,7 @@ type QueryBuilder struct {
 	Args 		[] interface{}
 	fields 		[] *QBField
 	Aliases 	[] string
+	Prepared        *sql.Stmt
 	FieldsParams 	map[string][]string
 	sqlCommand, sqlSelect, sqlFrom string		`auto recalc`
 	Where, GroupBy, OrderBy, Limits string	`may be defined outside`

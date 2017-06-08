@@ -48,14 +48,14 @@ func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
 
+	log.Output(2,  "[ERROR];" + err.Error() + changeShortName(runtime.FuncForPC(pc).Name() ) )
 
-		//log.Print(errLog)
-		i:=0
-		for _, arg := range args {
-			log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%d;%v", changeShortName(runtime.FuncForPC(pc).Name()), err,i, arg))
-			i++
+	message := "Args:"
+		for i, arg := range args {
+			message += fmt.Sprintf("\n%d=%v", i, arg)
 		}
 
+	log.Println(message )
 
 }
 
@@ -68,10 +68,8 @@ func ErrorLogHandler(err error, args ...interface{}) {
 	//errLog := log.Output(5, fmt.Sprintf("%s;%s", changeShortName(runtime.FuncForPC(pc).Name()), err, args))
 	//if errLog != nil {
 		//log.Print(errLog)
-	i:=0
-		for _, arg := range args {
+		for i, arg := range args {
 			log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%d;%v", changeShortName(runtime.FuncForPC(pc).Name()), err,i, arg))
-			i++
 		}
 	//}
 

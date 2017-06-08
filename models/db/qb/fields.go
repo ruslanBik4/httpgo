@@ -83,7 +83,8 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 		for _, table := range qb.Tables {
 			for _, fieldStrc := range table.schema.Rows {
 
-				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc}
+				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
+				field.Alias = field.Name
 				qb.fields = append(qb.fields, field)
 				if fieldStrc.TABLEID {
 					field.ChildQB = CreateEmpty()
