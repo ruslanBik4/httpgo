@@ -30,13 +30,13 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		case schema.ErrNotFoundTable:
 			views.RenderInternalError(w, err)
 		case nil:
-		default:
+		case error:
 			panic(err)
 		}
 	}()
 
 	qBuilder := qb.Create("id=?", "", "")
-	qBuilder.AddTable("a", tableName)
+	qBuilder.AddTable("", tableName)
 	addJSON := make(map[string]string, 0)
 	if id := r.FormValue("id"); id > "" {
 		// получаем данные для суррогатных полей

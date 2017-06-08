@@ -20,12 +20,7 @@ func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
 	if thisForm.Action == "" {
 		thisForm.Action = "/admin/exec/"
 	}
-	if thisForm.IdCSS == "" {
-		thisForm.IdCSS = "f" + ns.Name
-	}
-	if thisForm.Name == "" {
-		thisForm.Name = ns.Name
-	}
+
 
 	if thisForm.Events == nil {
 
@@ -41,7 +36,16 @@ func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
 			}
 		}
 	}
+	if ns == nil {
+		return
+	}
 
+	if thisForm.IdCSS == "" {
+		thisForm.IdCSS = "f" + ns.Name
+	}
+	if thisForm.Name == "" {
+		thisForm.Name = ns.Name
+	}
 	if str, ok := ns.DataJSOM["onload"]; ok {
 		thisForm.Events["onload"] = str.(string)
 	}

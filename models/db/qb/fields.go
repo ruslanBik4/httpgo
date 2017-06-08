@@ -48,7 +48,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		alias = name
 	}
 
-	field := &QBField{Name: name}
+	field := &QBField{Name: name, Alias: alias}
 	table.Fields[alias] = field
 	defer schemaError()
 
@@ -72,11 +72,23 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 // return schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
-	for _, field := range qb.fields {
-		schTable.Fields[field.Name] = field
+	schTable.Fields = make(map[string] *QBField, 0)
+
+	if len(qb.fields) == 0 {
+		for _, table := range qb.Tables {
+			for _, fieldStrc := range table.schema.Rows {
+
+				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc}
+				qb.fields = append(qb.fields, field)
+			}
+		}
 
 	}
+	for _, field := range qb.fields {
+		schTable.Fields[field.Name] = field
+	}
 
+	logs.StatusLog(schTable.Fields)
 	for _, table := range qb.Tables {
 		schTable.Name += " " + table.Join + table.Name
 	}

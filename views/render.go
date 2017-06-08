@@ -54,8 +54,8 @@ func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
 func RenderInternalError(w http.ResponseWriter, err error) {
-	logs.ErrorLog(err)
 	w.WriteHeader(http.StatusInternalServerError)
+	logs.ErrorLog(err)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)

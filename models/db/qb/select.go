@@ -199,13 +199,12 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 	//var rows  *extsql.Rows
 	var sqlQuery string
 	sqlQuery, err = qb.createSQL()
-	rows, err = db.DoSelect(sqlQuery, qb.Args...)
-
 	if err != nil {
 		logs.ErrorLog(err, sqlQuery)
 		return nil, err
 	}
-	return rows, nil
+
+	return db.DoSelect(sqlQuery, qb.Args...)
 }
 
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
@@ -226,11 +225,11 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 
 	var valuePtrs []interface{}
 
-	for idx, _ := range qb.fields {
-		valuePtrs = append(valuePtrs, &qb.fields[idx] )
+	for _, field := range qb.fields {
+		valuePtrs = append(valuePtrs, field )
 	}
 
-	columns, _ := rows.Columns()
+	//columns, _ := rows.Columns()
 	for rows.Next() {
 		var fieldID string
 		values := make(map[string] interface{}, len(qb.fields) )
@@ -240,10 +239,20 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 		}
 
 
-		for idx, fieldName := range columns {
+		for idx, field := range qb.fields {
 
-			field := qb.fields[idx]
+			//field := qb.fields[idx]
+			if field == nil {
+				logs.DebugLog( "nil field", idx)
+				continue
+
+			}
 			schema:= field.schema
+			if schema == nil {
+				logs.DebugLog("nil schema", field)
+				continue
+			}
+			fieldName := field.Name
 			if fieldName == "id" {
 				fieldID = field.Value
 			}

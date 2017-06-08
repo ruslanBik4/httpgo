@@ -211,6 +211,7 @@ func InitSchema() {
 			//for _, field := range fields.Rows {
 			//
 			//}
+			//logs.StatusLog(tableName, fields)
 		}
 
 		Schema_ready = true

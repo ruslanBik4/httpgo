@@ -10,6 +10,7 @@ import (
     "runtime"
     "log"
     "flag"
+	"fmt"
 )
 
 var F_debug    = flag.String("debug","","debug mode")
@@ -21,7 +22,10 @@ func DebugLog( args ...interface{}) {
     _, fn, line, _ := runtime.Caller(1)
 	//log.SetFlags(log.LstdFlags | log.Lshortfile)
     if *F_debug > "" {
-        log.Printf("[DEBUG];%s;in line;%d;%v", fn, line, args)
+	    for _, arg := range args {
+
+		    log.Output(1, fmt.Sprintf("[DEBUG];%s;in line;%d;%v", fn, line, arg))
+	    }
     }
 }
 
@@ -31,16 +35,20 @@ func StatusLog( args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if *F_status > "" {
-		log.Printf("[STATUS];;;;%v",  args)
+		log.Output(1, fmt.Sprintf("[STATUS];;;;%v",  args) )
 	}
 }
 
 //ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
 func ErrorLog(err error, args ...interface{}) {
-    pc, fn, line, _ := runtime.Caller(1)
+    pc, _, _, _ := runtime.Caller(1)
 
-    log.Printf("[ERROR];%s[%s:%d];%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line, err, args)
+	log.Print("theare!")
+	errLog := log.Output(1, fmt.Sprintf("[ERROR];%s %v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, args) )
+	if errLog != nil {
+		log.Print(errLog)
+	}
 }
 
 
@@ -54,7 +62,7 @@ func ErrorStack() {
 			break
 		}
 
-		log.Printf("[ERROR_STACK];%s[%s:%d];;", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line )
+		log.Output( i+1, fmt.Sprintf("[ERROR_STACK];%s[%s:%d];;", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line ) )
 		i++
 	}
 }
