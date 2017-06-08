@@ -48,14 +48,14 @@ func startService(name string, pService IService) {
 	}
 }
 func catch(name string) {
-	err := recover()
+	result := recover()
 
-	switch err.(type) {
+	switch err := result.(type) {
 	case ErrServiceNotFound:
-		logs.ErrorLogHandler(err.(error), name)
+		logs.ErrorLogHandler(err, name)
 	case nil:
-	default:
-		logs.ErrorLogHandler(err.(error), name)
+	case error:
+		logs.ErrorLogHandler(err, name)
 	}
 }
 func AddService(name string, pService IService) {
