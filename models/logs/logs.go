@@ -54,7 +54,7 @@ func ErrorStack() {
 			break
 		}
 
-		log.Printf("[ERSTACK_STACK];%s[%s:%d];;", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line )
+		log.Printf("[ERROR_STACK];%s[%s:%d];;", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line )
 		i++
 	}
 }
