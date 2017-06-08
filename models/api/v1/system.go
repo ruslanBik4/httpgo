@@ -13,6 +13,13 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
+func renderOutput(w http.ResponseWriter, stdoutStderr []byte ) {
+
+	views.WriteHeaders(w)
+	w.Write( []byte("<pre>") )
+	w.Write( bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0) )
+	w.Write( []byte("</pre>") )
+}
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -26,10 +33,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
-		views.WriteHeaders(w)
-		//log.Println(stdoutStderr)
-		logs.DebugLog(stdoutStderr)
-		w.Write(bytes.Replace(stdoutStderr, []byte("/n"), []byte("<br>"), 0))
+		renderOutput(w, stdoutStderr)
 	}
 
 }
@@ -43,8 +47,7 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
-		views.WriteHeaders(w)
-		w.Write(stdoutStderr)
+		renderOutput(w, stdoutStderr)
 	}
 }
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +60,6 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Write([]byte(err.Error()))
 	} else {
-		views.WriteHeaders(w)
-		w.Write(stdoutStderr)
+		renderOutput(w, stdoutStderr)
 	}
 }
