@@ -17,7 +17,7 @@ type QBField struct {
 	SQLforFORMList  string `отдаем в списках полей для формы`
 	SQLforDATAList  string `отдаем в составе данных`
 	SelectValues    map[int] string
-	ChildrenFields 	map[string] *QBField
+	TableProps 	*QBTable
 	Table 		*QBTable
 }
 type QBTable struct {

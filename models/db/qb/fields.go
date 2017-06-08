@@ -58,6 +58,18 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		field.schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
 	} else {
 		field.SelectValues = make(map[int] string, 0)
+		// для TABLEID_ создадим таблицу свойств и заполним полями!
+		if field.schema.TABLEID {
+			field.TableProps = &QBTable{Name: field.schema.TableProps, qB: nil }
+			field.TableProps.Fields = make(map[string] *QBField, 0)
+			defer schemaError()
+			field.TableProps.schema = schema.GetFieldsTable(field.schema.TableProps)
+			for _, childField := range field.TableProps.schema.Rows {
+				newField := &QBField{Name: childField.COLUMN_NAME, schema: childField, Table: field.TableProps}
+				field.TableProps.Fields[childField.COLUMN_NAME] = newField
+			}
+
+		}
 
 	}
 	//table.qB.fields = append(table.qB.fields, field)
