@@ -13,7 +13,7 @@ func schemaError() {
 	result := recover()
 	switch err := result.(type) {
 	case schema.ErrNotFoundTable:
-		logs.ErrorLog(err, err.Table)
+		logs.ErrorLogHandler(err, err.Table)
 		panic(err)
 	case nil:
 	case error:
