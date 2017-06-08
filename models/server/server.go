@@ -8,9 +8,9 @@ package server
 import (
 	"fmt"
  	yaml "gopkg.in/yaml.v2"
-	"log"
 	"os"
 	"path/filepath"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type serverConfig struct {
@@ -49,22 +49,22 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
 	fileInfo, _ := f.Stat()
 	b  := make([]byte, fileInfo.Size())
 	if n, err := f.Read(b); err != nil {
-		log.Println(n)
+
+		logs.ErrorLog(err, "n=", n)
 		return err
 
 	}
 
 	if err := yaml.Unmarshal(b, &sConfig.dbParams); err != nil {
+		logs.ErrorLog(err, b, &sConfig.dbParams)
 		return err
 	}
 
 
 	return nil
 }
-func  writeto(v interface{}) error {
-  log.Println(v)
-	return nil
-}
+
+
 //The Data Source DB has a common format, like e.g. PEAR DB uses it,
 // but without type-prefix (optional parts marked by squared brackets):
 //

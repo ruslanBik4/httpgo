@@ -145,9 +145,9 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable) {
 
 	fields = &schema.FieldsTable{Name: tableName}
-	fields.Rows = make([] schema.FieldStructure, len(ns.Rows) )
+	fields.Rows = make([] *schema.FieldStructure, len(ns.Rows) )
 	for i, field := range ns.Rows {
-		fields.Rows[i] = schema.FieldStructure{
+		fields.Rows[i] = &schema.FieldStructure{
 			COLUMN_NAME: field.COLUMN_NAME,
 			DATA_TYPE  : field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,

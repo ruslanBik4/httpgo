@@ -12,7 +12,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"os"
-	"log"
 	"io/ioutil"
 	//"gopkg.in/gomail.v2"
 	"net/mail"
@@ -23,6 +22,7 @@ import (
 	"gopkg.in/gomail.v2"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"errors"
 )
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
@@ -70,7 +70,8 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
 	if err != nil {
-		log.Printf("Code exchange failed with '%v'\n", err)
+
+		logs.ErrorLog(err, "Code exchange failed with")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -220,8 +221,7 @@ func GenerateRandomString(s int) (string, error) {
 	return base64.URLEncoding.EncodeToString(b), err
 }
 func GeneratePassword(email string) (string, error) {
-
-	log.Println(email)
+	logs.DebugLog("email", email)
 	return GenerateRandomString(16)
 
 }
@@ -289,13 +289,15 @@ func SendMail(email, password string)  {
 	if err := d.DialAndSend(m); err != nil {
 		logs.ErrorLog(err)
 	}
-	log.Println(email, password)
+
+	logs.DebugLog("email-", email, ", password=", password)
 }
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm();
 
 	if r.FormValue("email") == "" {
-		log.Println("activate user not has email")
+
+		logs.ErrorLog(errors.New("activate user not has email"))
 	}
 	if result, err := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0]); err != nil {
 		logs.ErrorLog(err)

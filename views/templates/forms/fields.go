@@ -5,11 +5,12 @@ package forms
 
 
 import (
+	"errors"
 	"strings"
+
 	"github.com/ruslanBik4/httpgo/models/db"
 	"regexp"
 	"fmt"
-	"log"
 	"database/sql"
 	"encoding/json"
 	_ "strconv"
@@ -261,7 +262,7 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 
 	rows, err := db.DoSelect( sqlCommand, ns.ID )
 	if err != nil {
-		log.Println(sqlCommand, err)
+		logs.ErrorLog(err, sqlCommand)
 		return
 	}
 	defer rows.Close()
@@ -418,7 +419,7 @@ func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
 
 	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
 	if err != nil {
-		log.Println(sqlCommand, err)
+		logs.ErrorLog(err, sqlCommand)
 		return
 	}
 	defer rows.Close()
@@ -465,7 +466,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 
 	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
 	if err != nil {
-		log.Println(sqlCommand, err)
+		logs.ErrorLog(err, sqlCommand)
 		return
 	}
 	defer rows.Close()
@@ -535,13 +536,13 @@ func (field *FieldStructure) GetOptions(tableName, val string) {
 
 		where += enumVal
 
-		log.Println(where)
+		logs.DebugLog("where=", where)
 	}
 
 	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
 	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
-		log.Println(err, sqlCommand)
+		logs.ErrorLog(err, sqlCommand)
 		return
 	}
 	defer rows.Close()
@@ -693,11 +694,12 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 			}
 			fieldStrc.Where += comma + key + enumVal
 			comma = " OR "
-			log.Println(fieldStrc.Where)
+			logs.DebugLog("fieldStrc.Where", fieldStrc.Where)
+
 
 		}
 	default:
-		log.Println("not correct type WhereJSON !", whereJSON)
+		logs.ErrorLog(errors.New("not correct type WhereJSON !"), whereJSON)
 	}
 
 }
@@ -727,8 +729,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 		var properMap map[string] interface{}
 		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
-			logs.ErrorLog(err)
-			log.Println(dataJson)
+			logs.ErrorLog(err, "dataJson=", dataJson)
 		} else {
 			for key, val := range properMap {
 
@@ -890,13 +891,13 @@ func (field *FieldStructure) GetOptionsJson(tableName string) {
 
 		where += enumVal
 
-		log.Println(where)
+		logs.DebugLog("where=", where)
 	}
 
 	sqlCommand := "select id, " + ForeignFields + " from " + tableName + where
 	rows, err := db.DoSelect(sqlCommand)
 	if err != nil {
-		log.Println(err, sqlCommand)
+		logs.ErrorLog(err, sqlCommand)
 		return
 	}
 	defer rows.Close()

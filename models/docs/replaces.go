@@ -7,7 +7,6 @@ package docs
 
 import (
 	"time"
-	"log"
 	"fmt"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -33,7 +32,7 @@ func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces 
 		var name, title string
 
 		if err := rows.Scan(&id, &name, &title); err != nil {
-			log.Print(err)
+			logs.ErrorLog(err)
 			continue
 		}
 

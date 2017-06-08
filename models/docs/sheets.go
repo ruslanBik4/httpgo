@@ -7,7 +7,6 @@ package docs
 import (
 	sheets "google.golang.org/api/sheets/v4"
 	"net/http"
-	"log"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -19,6 +18,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"errors"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 const ClientID 	    = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
 const authCode  =  "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
@@ -53,7 +54,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	tok, err := config.Exchange(oauth2.NoContext, authCode)
 	if err != nil {
-		log.Println("Unable to retrieve token from web %v", err)
+		logs.ErrorLog(errors.New("Unable to retrieve token from web" ), err)
 	}
 	return tok
 }
@@ -75,7 +76,7 @@ func saveToken(file string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", file)
 	f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		log.Println("Unable to cache oauth token: %v", err)
+		logs.ErrorLog(errors.New("Unable to cache oauth token: "), err)
 	}
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
@@ -90,7 +91,7 @@ func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	//}
 	tok, err := tokenFromFile(cacheFile)
 	if err != nil {
-		log.Println(cacheFile)
+		logs.ErrorLog(err, cacheFile)
 		tok = getTokenFromWeb(config)
 		saveToken(cacheFile, tok)
 	}
@@ -102,11 +103,11 @@ func newClient() *http.Client{
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
 	b, err := ioutil.ReadFile(userFile)
 	if err != nil {
-		log.Println("Unable to read client secret file: %v", err)
+		logs.ErrorLog(errors.New("Unable to read client secret file: "), err)
 	}
 	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
 	if err != nil {
-		log.Println("Unable to parse client secret file to config: %v", err)
+		logs.ErrorLog(errors.New("Unable to parse client secret file to config: "), err)
 	}
 	return getClient(ctx, config)
 }

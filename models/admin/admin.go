@@ -3,7 +3,6 @@ import (
 	"encoding/base64"
 	"net/http"
 	"strings"
-	"log"
 	"fmt"
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -17,6 +16,7 @@ import (
 	_ "github.com/ruslanBik4/httpgo/models/system"
 	"net/mail"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"errors"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -537,9 +537,10 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 			indSeparator := strings.Index(key, ":")
 			if indSeparator < 1 {
-				log.Printf("Error in name field %s^ don't write to DB!", key)
+				message := "Error in name   don't write to DB. Field="
+				logs.ErrorLog(errors.New(message), key)
 				arrJSON["error"]   = "true"
-				arrJSON["message"] = fmt.Sprintf("Error in name field %s^ don't write to DB!", key)
+				arrJSON["message"] = fmt.Sprintf(message +"%s^", key)
 				continue
 			}
 
@@ -564,7 +565,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				}
 				query.Args = append(query.Args, str)
 			} else if strings.Contains(fieldName, "[")  {
-				log.Println(fieldName)
+				logs.DebugLog("fieldName=",fieldName)
 				pos := strings.Index(fieldName, "[")
 				//number := fieldName[ pos+1 : strings.Index(fieldName, "]") ]
 				fieldName = "`" + fieldName[ :pos] + "`"
@@ -579,7 +580,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 					//query.args = append(query.args, make(map[string] string, 0))
 				}
 
-				log.Println(fieldName)
+				logs.DebugLog("fieldName=",fieldName)
 				query.Args = append(query.Args, val[0])
 
 			} else {

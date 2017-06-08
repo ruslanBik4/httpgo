@@ -13,16 +13,16 @@ type FieldsTable struct {
 	ID   int
 	Comment string
 	IsDadata bool
-	Rows [] FieldStructure
+	Rows [] *FieldStructure
 	Hiddens map[string] string
 	SaveFormEvents 	map[string] string
 	DataJSOM        map[string] interface{}
 }
 
 func (table *FieldsTable) FindField(name string) *FieldStructure {
-	for idx, field := range table.Rows {
+	for _, field := range table.Rows {
 		if field.COLUMN_NAME == name {
-			return &table.Rows[idx]
+			return field
 		}
 	}
 
@@ -30,9 +30,9 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 }
 func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 
-	for idx, _ := range table.Rows {
+	for idx, fieldStrc := range table.Rows {
 
-		fieldStrc := &(table.Rows[idx])
+		//fieldStrc := &(table.Rows[idx])
 		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
 
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
@@ -40,25 +40,19 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 			table.Rows[idx].SETID = true
 			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
 			table.Rows[idx].TableValues = fieldStrc.Table.Name + "_" + table.Rows[idx].TableProps + "_has"
-			table.Rows[idx].SelectValues = make(map[int] string, 0)
 			table.Rows[idx].setEnumValues()
-			table.Rows[idx].writeSQLbySETID()
 
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "nodeid_") {
 			table.Rows[idx].NODEID = true
 			table.Rows[idx].TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
-			table.Rows[idx].SelectValues = make(map[int] string, 0)
 			table.Rows[idx].setEnumValues()
-			table.Rows[idx].writeSQLByNodeID()
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_"){
 			table.Rows[idx].TABLEID = true
 			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
-			table.Rows[idx].writeSQLByTableID()
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "id_") {
 			table.Rows[idx].IdForeign = true
 			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
-			table.Rows[idx].SQLforFORMList = "SELECT id, " + fieldStrc.GetForeignFields() + " FROM " + table.Rows[idx].TableProps
-			table.Rows[idx].SelectValues = make(map[int] string, 0)
+			//table.Rows[idx].SQLforFORMList = "SELECT id, " + fieldStrc.GetForeignFields() + " FROM " + table.Rows[idx].TableProps
 		}
 
 	}

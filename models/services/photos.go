@@ -48,7 +48,7 @@ func (photos *photosService) Send(args ...interface{}) error{
 	switch message := args[0].(type) {
 	case string:
 		oper = message
-		log.Println(oper)
+		logs.DebugLog(oper)
 	default:
 		return ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 1}
 	}

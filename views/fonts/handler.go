@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 	"io/ioutil"
-	"log"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 var 	PathWeb string
@@ -32,7 +31,7 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "mime/type: font/font-sfnt")
 		//http.ServeFile(w, r, PathWeb+r.URL.Path+ext)
-		log.Println(browser)
+		logs.DebugLog("browser=",browser)
 	}
 
 	if data, err := ioutil.ReadFile(PathWeb+r.URL.Path+ext); err != nil {

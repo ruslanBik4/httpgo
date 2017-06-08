@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"os"
-	"log"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 const internalRewriteFieldName  = "travel"
@@ -51,8 +50,7 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error){
 func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := c.Do(r)
 	if WriteError(w, err) {
-		log.Println(r.RequestURI)
-		log.Println(r)
+		logs.ErrorLog(err, r.RequestURI, r)
 		return
 	}
 	status, isStatus := resp.Header["Status"]
@@ -68,7 +66,8 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		headers[key] = val
 	}
 	if _, err := io.Copy(w, resp.Body); WriteError(w, err) {
-		log.Println(r.RequestURI)
+
+		logs.ErrorLog(err, r.RequestURI)
 	}
 }
 

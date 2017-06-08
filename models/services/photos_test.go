@@ -7,6 +7,7 @@ package services
 import (
 	"testing"
 	"log"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 const serviceName = "photos"
@@ -45,7 +46,7 @@ func TestPhotosGetList(t *testing.T) {
 		t.Errorf("Wrong index %d",err.Index)
 	case nil:
 		t.Skipped()
-		log.Println(result)
+		logs.DebugLog("result", result)
 		return
 
 	default:

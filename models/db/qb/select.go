@@ -5,6 +5,7 @@
 package qb
 
 import (
+	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strconv"
@@ -12,62 +13,51 @@ import (
 	"strings"
 	"fmt"
 )
+//SelectToMultidimension(sql string, args ...interface
+//@version 1.10 Sergey Litvinov 2017-05-25 15:15
+func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+	qBuilder := CreateFromSQL(sql)
+	qBuilder.AddArgs(args)
+
+	return qBuilder.SelectToMultidimension()
+}
 
 func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
-	var qFields, qFrom string
-
 	commaTbl, commaFld := "", ""
+	for idx, table := range qb.Tables {
 
-	qb.fields = make([] schema.FieldStructure, 0)
-	for _, table := range qb.Tables {
-
-		defer func() {
-			result := recover()
-			switch err1 := result.(type) {
-			case schema.ErrNotFoundTable:
-				logs.ErrorLog(err1, err1.Table)
-				err = err1
-			case nil:
-			default:
-				panic(err)
-			}
-		}()
-		tableStrc := schema.GetFieldsTable(table.Name)
 		aliasTable:= table.Alias
-		// temporary not validate first table on  having JOIN property
-		// TODO: add checking join if first table as error!!!
-		if table.Join > "" {
-			qFrom += " " + table.Join + " " + table.Name + " " + aliasTable + " " + table.Using
+		//first table must'n to having JOIN property
+		if (idx > 0) && (table.Join > "") {
+			qb.sqlFrom += " " + table.Join + " " + table.Name + " " + aliasTable + " " + table.Using
 		} else {
-			qFrom += commaTbl + table.Name + " " + aliasTable
+			qb.sqlFrom += commaTbl + table.Name + " " + aliasTable
 		}
 		commaTbl = ", "
 		if len(table.Fields) > 0 {
 			for alias, field := range table.Fields {
 				var queryName string
-				fieldStrc := tableStrc.FindField(field.Name)
 				if alias > "" {
 					queryName = ` AS "` + alias + `"`
 				}
-				if fieldStrc == nil {
-					fieldStrc = &schema.FieldStructure{COLUMN_NAME: alias}
-					qFields += commaFld + field.Name + queryName
+				if field.schema.COLUMN_TYPE == "calc" {
+					qb.sqlSelect += commaFld + field.Name + queryName
 				} else {
 
-					qFields += commaFld + aliasTable + "." + field.Name + queryName
+					qb.sqlSelect += commaFld + aliasTable + "." + field.Name + queryName
+
 				}
-				qb.fields = append(qb.fields, *fieldStrc)
-				qb.Aliases = append(qb.Aliases, alias)
 				commaFld = ", "
 			}
-		} else if table.Join == ""{
-			qFields += commaFld + aliasTable + ".*"
+		} else if table.Join == "" {
+			qb.sqlSelect += commaFld + aliasTable + ".*"
 			commaFld = ", "
 
-			for _, fieldStrc := range tableStrc.Rows {
+			for _, fieldStrc := range table.schema.Rows {
 
-				qb.fields = append(qb.fields, fieldStrc)
+				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc}
+				qb.fields = append(qb.fields, field)
 			}
 		}
 	}
@@ -87,7 +77,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 		sql += " LIMIT " + qb.Limits
 	}
 
-	return "SELECT " + qFields + " FROM " + qFrom + sql, nil
+	return "SELECT " + qb.sqlSelect + " FROM " + qb.sqlFrom + sql, nil
 
 }
 func (qb * QueryBuilder) getWhere() string {
@@ -117,12 +107,10 @@ func (qb * QueryBuilder) unionSQL() string {
 		for _, table := range qb.union.Tables {
 			if field, ok := table.Fields[alias]; ok {
 
-				tableStrc := schema.GetFieldsTable(table.Name)
-				fieldStrc := tableStrc.FindField(field.Name)
-				if fieldStrc != nil {
-					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
-				} else {
+				if field.schema.COLUMN_TYPE == "calc" {
 					qFields += commaFld + field.Name + ` AS "` + field.Alias + `"`
+				} else {
+					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
 
 				}
 				commaFld = ", "
@@ -133,26 +121,24 @@ func (qb * QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
-func getSETID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+func getSETID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	where := field.WhereFromSet(field.Table)
 	gChild := Create(where,"", "")
 	titleField := field.GetForeignFields()
 
 	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
 
 	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, field.Table.Name )
-	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin )
+	gChild.Join ( "v", field.TableValues, onJoin )
 
 	gChild.AddArg(fieldID)
 
 	return gChild.SelectToMultidimension()
 
 }
-func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
+func getNODEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
 
 	fieldTableName := field.Table.Name
-	where := field.WhereFromSet(field.Table)
 
 	gChild := Create(where,"", "")
 
@@ -193,9 +179,8 @@ func getNODEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] m
 	return gChild.SelectToMultidimension()
 
 }
-func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+func getTABLEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	where := field.WhereFromSet(field.Table)
 	if where > "" {
 		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	} else {
@@ -209,19 +194,35 @@ func getTABLEID_Values(field schema.FieldStructure, fieldID string) (arrJSON [] 
 	return gChild.SelectToMultidimension()
 
 }
-func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
-	sql, err := qb.createSQL()
-
-	rows, err := db.DoSelect(sql, qb.Args...)
-
+func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
+	//var rows  *extsql.Rows
+	var sqlQuery string
+	sqlQuery, err = qb.createSQL()
+	rows, err = db.DoSelect(sqlQuery, qb.Args...)
 
 	if err != nil {
-		logs.ErrorLog(err, sql)
+		logs.ErrorLog(err, sqlQuery)
+		return nil, err
+	}
+	return rows, nil
+}
+
+func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
+
+	rows, err := qb.GetDataSql()
+	if err != nil {
+		//logs.ErrorLog(err) //errors output in qb.GetDataSql()
 		return nil, err
 	}
 
 	defer rows.Close()
+
+	return qb.ConvertDataToJson(rows)
+}
+
+func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+
 
 	var valuePtrs []interface{}
 
@@ -242,26 +243,30 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 		for idx, fieldName := range columns {
 
 			field := qb.fields[idx]
+			schema:= field.schema
 			if fieldName == "id" {
 				fieldID = field.Value
 			}
-			if field.SETID  {
-				values[fieldName], err = getSETID_Values(field, fieldID)
+			if schema.SETID  {
+				where := field.WhereFromSet()
+				values[fieldName], err = getSETID_Values(schema, where, fieldID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
-			} else if field.NODEID {
+			} else if schema.NODEID {
 
-				values[fieldName], err = getNODEID_Values(field, fieldID)
+				where := field.WhereFromSet()
+				values[fieldName], err = getNODEID_Values(schema, where, fieldID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
 				}
 				continue
-			} else if field.TABLEID {
-				values[fieldName], err = getTABLEID_Values(field, fieldID)
+			} else if schema.TABLEID {
+				where := field.WhereFromSet()
+				values[fieldName], err = getTABLEID_Values(schema, where, fieldID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
@@ -270,7 +275,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 			}
 
-			switch field.DATA_TYPE {
+			switch schema.DATA_TYPE {
 			case "varchar", "date", "datetime":
 				values[fieldName] = field.Value
 			case "tinyint":
@@ -291,6 +296,5 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 	}
 
 	return arrJSON, nil
-
 }
 

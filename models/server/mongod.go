@@ -3,9 +3,9 @@ package server
 
 import (
 	yaml "gopkg.in/yaml.v2"
-	"log"
 	"os"
 	"path/filepath"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type mongodConfig struct {
@@ -42,7 +42,7 @@ func (mConfig *mongodConfig) Init(f_static, f_web, f_session *string) error{
 	fileInfo, _ := f.Stat()
 	b  := make([]byte, fileInfo.Size())
 	if n, err := f.Read(b); err != nil {
-		log.Println(n)
+		logs.ErrorLog(err, "n=", n)
 		return err
 
 	}

@@ -15,7 +15,6 @@
         <div> COLUMN_COMMENT 	<b> {%s field.COLUMN_COMMENT %} </b></div>
         <div> COLUMN_TYPE 	<b> {%s field.COLUMN_TYPE %} </b></div>
         <div> CHARACTER_MAXIMUM_LENGTH <b> {%d field.CHARACTER_MAXIMUM_LENGTH%} </b></div>
-        <div> Value 		<b> {%s field.Value 	%} </b></div>
         <div> IsHidden 	<b> {%v field.IsHidden %} </b></div>
         <div> InputType	<b> {%s field.InputType%} </b></div>
         <div> CSSClass  	<b> {%s field.CSSClass  %} </b></div>

@@ -41,7 +41,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	r.Form.Del("table")
 
-	joins := make(map[string] schema.FieldsTable, 0)
+	joins := make(map[string] *schema.FieldsTable, 0)
 	for _, tableName := range r.Form["joins"] {
 		joins[tableName] = schema.GetFieldsTable(tableName)
 	}
