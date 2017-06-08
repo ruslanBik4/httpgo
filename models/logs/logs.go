@@ -47,15 +47,14 @@ func ErrorLog(err error, args ...interface{}) {
 //ErrorStack() - output formated(function and line calls) error runtime stack information
 //@version 1.00 2017-06-02 Sergey Litvinov - Create
 func ErrorStack() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	i:=0
 	for {
-		_, fn, line, ok := runtime.Caller(i)
+		pc, fn, line, ok := runtime.Caller(i)
 		if !ok {
 			break
 		}
 
-		log.Printf("[ERROR];%s;in line;%d; Runtime Stack", fn, line )
+		log.Printf("[ERSTACK_STACK];%s[%s:%d];;", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line )
 		i++
 	}
 }
