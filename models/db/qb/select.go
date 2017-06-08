@@ -229,7 +229,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 		valuePtrs = append(valuePtrs, field )
 	}
 
-	//columns, _ := rows.Columns()
+	columns, _ := rows.Columns()
 	for rows.Next() {
 		var fieldID string
 		values := make(map[string] interface{}, len(qb.fields) )
@@ -239,9 +239,9 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 		}
 
 
-		for idx, field := range qb.fields {
+		for idx, fieldName := range columns {
 
-			//field := qb.fields[idx]
+			field := qb.fields[idx]
 			if field == nil {
 				logs.DebugLog( "nil field", idx)
 				continue
@@ -252,7 +252,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				logs.DebugLog("nil schema", field)
 				continue
 			}
-			fieldName := field.Name
+			//fieldName := field.Alias
 			if fieldName == "id" {
 				fieldID = field.Value
 			}
