@@ -66,7 +66,8 @@ export class Native {
     try {
       return JSON.parse(response);
     } catch(e) {
-      console.log(e, response);
+      console.log(e);
+      console.log(response);
       alert(e); // error in the above string (in this case, yes)!
     }
   }
