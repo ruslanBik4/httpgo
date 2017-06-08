@@ -10,15 +10,15 @@ import (
 )
 
 type QBField struct {
-	Name   		string
-	Alias  		string
-        schema 		*schema.FieldStructure
-	Value  		string
-	SQLforFORMList  string `отдаем в списках полей для формы`
-	SQLforDATAList  string `отдаем в составе данных`
-	SelectValues    map[int] string
-	TableProps 	*QBTable
-	Table 		*QBTable
+	Name           string
+	Alias          string
+        schema         *schema.FieldStructure
+	Value          string
+	SQLforFORMList string `отдаем в списках полей для формы`
+	SQLforDATAList string `отдаем в составе данных`
+	SelectValues   map[int] string
+	Table          *QBTable
+	ChildQB        *QueryBuilder
 }
 type QBTable struct {
 	Name   string

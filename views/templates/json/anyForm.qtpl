@@ -67,7 +67,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% endif %}
 
         {% if field.TABLEID %}
-            "list": {{%= CheckFields(qbField.TableProps.Fields) %}},
+            "list": {{%= CheckFields(qbField.ChildQB.GetFields().Fields) %}},
         {% endif %}
 
         "type": "{%j= typeInput %}"

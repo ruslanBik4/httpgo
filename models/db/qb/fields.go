@@ -60,15 +60,8 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		field.SelectValues = make(map[int] string, 0)
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
-			field.TableProps = &QBTable{Name: field.schema.TableProps, qB: nil }
-			field.TableProps.Fields = make(map[string] *QBField, 0)
-			defer schemaError()
-			field.TableProps.schema = schema.GetFieldsTable(field.schema.TableProps)
-			for _, childField := range field.TableProps.schema.Rows {
-				newField := &QBField{Name: childField.COLUMN_NAME, schema: childField, Table: field.TableProps}
-				field.TableProps.Fields[childField.COLUMN_NAME] = newField
-			}
-
+			field.ChildQB = CreateEmpty()
+			field.ChildQB.AddTable("p", field.schema.TableProps)
 		}
 
 	}
@@ -92,10 +85,16 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
 				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc}
 				qb.fields = append(qb.fields, field)
+				if fieldStrc.TABLEID {
+					field.ChildQB = CreateEmpty()
+					field.ChildQB.AddTable("p", field.schema.TableProps)
+				}
 			}
 		}
 
 	}
+	qb.checkSurrogateFields()
+
 	for _, field := range qb.fields {
 		schTable.Fields[field.Name] = field
 	}
@@ -104,7 +103,6 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 		schTable.Name += " " + table.Join + table.Name
 	}
 
-	qb.checkSurrogateFields()
 	return schTable
 }
 func (qb *QueryBuilder) checkSurrogateFields() {

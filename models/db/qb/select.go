@@ -152,8 +152,8 @@ func getNODEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJ
 			logs.ErrorLog(err1, field.TableValues)
 			err = err1
 		case nil:
-		default:
-			panic(err)
+		case error:
+			panic(err1)
 		}
 	}()
 	fieldsValues := schema.GetFieldsTable(field.TableValues)
@@ -180,19 +180,19 @@ func getNODEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJ
 	return gChild.SelectToMultidimension()
 
 }
-func getTABLEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
+	where := field.WhereFromSet()
 	if where > "" {
 		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	} else {
 		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
-	gChild := Create(where,"", "")
-	gChild.AddTable( "p", field.TableProps )
+	field.ChildQB.Where = where
 
-	gChild.AddArg(fieldID)
+	field.ChildQB.Args[0] = fieldID
 
-	return gChild.SelectToMultidimension()
+	return field.ChildQB.SelectToMultidimension()
 
 }
 
@@ -278,8 +278,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				}
 				continue
 			} else if schema.TABLEID {
-				where := field.WhereFromSet()
-				values[fieldName], err = getTABLEID_Values(schema, where, ID)
+				values[fieldName], err = getTABLEID_Values(field, ID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()

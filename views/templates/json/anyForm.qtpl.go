@@ -283,7 +283,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, fields map[string]*qb.QBField)
 			//line views/templates/json/anyForm.qtpl:69
 			qw422016.N().S(`"list": {`)
 			//line views/templates/json/anyForm.qtpl:70
-			StreamCheckFields(qw422016, qbField.TableProps.Fields)
+			StreamCheckFields(qw422016, qbField.ChildQB.GetFields().Fields)
 			//line views/templates/json/anyForm.qtpl:70
 			qw422016.N().S(`},`)
 			//line views/templates/json/anyForm.qtpl:71
