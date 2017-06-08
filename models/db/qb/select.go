@@ -48,6 +48,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 					qb.sqlSelect += commaFld + aliasTable + "." + field.Name + queryName
 
 				}
+				qb.fields = append(qb.fields, field)
 				commaFld = ", "
 			}
 		} else if table.Join == "" {

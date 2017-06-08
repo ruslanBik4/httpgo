@@ -60,7 +60,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		field.SelectValues = make(map[int] string, 0)
 
 	}
-	table.qB.fields = append(table.qB.fields, field)
+	//table.qB.fields = append(table.qB.fields, field)
 
 	table.qB.Aliases = append(table.qB.Aliases, alias)
 
@@ -88,7 +88,6 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 		schTable.Fields[field.Name] = field
 	}
 
-	logs.StatusLog(schTable.Fields)
 	for _, table := range qb.Tables {
 		schTable.Name += " " + table.Join + table.Name
 	}
