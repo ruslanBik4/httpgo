@@ -12,6 +12,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strings"
 	"fmt"
+	"log"
 )
 //SelectToMultidimension(sql string, args ...interface
 //@version 1.10 Sergey Litvinov 2017-05-25 15:15
@@ -203,7 +204,7 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 		logs.ErrorLog(err, sqlQuery)
 		return nil, err
 	}
-
+log.Println(sqlQuery)
 	return db.DoSelect(sqlQuery, qb.Args...)
 }
 
