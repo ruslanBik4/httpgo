@@ -204,7 +204,7 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 		logs.ErrorLog(err, sqlQuery)
 		return nil, err
 	}
-log.Println(sqlQuery)
+
 	return db.DoSelect(sqlQuery, qb.Args...)
 }
 
