@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"github.com/ruslanBik4/httpgo/views"
 	"bytes"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 func renderOutput(w http.ResponseWriter, stdoutStderr []byte ) {
