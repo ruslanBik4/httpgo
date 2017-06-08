@@ -48,7 +48,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		alias = name
 	}
 
-	field := &QBField{Name: name, Alias: alias}
+	field := &QBField{Name: name, Alias: alias, Table: table}
 	table.Fields[alias] = field
 	defer schemaError()
 

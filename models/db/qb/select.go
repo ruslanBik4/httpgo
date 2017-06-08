@@ -232,14 +232,14 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 
 	columns, _ := rows.Columns()
 	for rows.Next() {
-		var fieldID string
+
 		values := make(map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs)
 			continue
 		}
 
-
+		var ID string
 		for idx, fieldName := range columns {
 
 			field := qb.fields[idx]
@@ -253,11 +253,16 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				logs.DebugLog("nil schema", field)
 				continue
 			}
-			fieldID = field.Table.Fields["id"].Value
+			if field.Table == nil {
+				logs.DebugLog("nil Table", field)
+				continue
+			} else if fieldID, ok := field.Table.Fields["id"]; ok {
+				ID = fieldID.Value
+			}
 
 			if schema.SETID  {
 				where := field.WhereFromSet()
-				values[fieldName], err = getSETID_Values(schema, where, fieldID)
+				values[fieldName], err = getSETID_Values(schema, where, ID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
@@ -266,7 +271,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 			} else if schema.NODEID {
 
 				where := field.WhereFromSet()
-				values[fieldName], err = getNODEID_Values(schema, where, fieldID)
+				values[fieldName], err = getNODEID_Values(schema, where, ID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
@@ -274,7 +279,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				continue
 			} else if schema.TABLEID {
 				where := field.WhereFromSet()
-				values[fieldName], err = getTABLEID_Values(schema, where, fieldID)
+				values[fieldName], err = getTABLEID_Values(schema, where, ID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
