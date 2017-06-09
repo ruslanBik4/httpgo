@@ -62,6 +62,37 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		if field.schema.TABLEID {
 			field.ChildQB = CreateEmpty()
 			field.ChildQB.AddTable("p", field.schema.TableProps)
+		} else if field.schema.SETID {
+			field.ChildQB = CreateEmpty()
+			titleField := field.schema.GetForeignFields()
+
+			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
+
+			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
+			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin )
+
+		} else if field.schema.NODEID {
+			var tableProps, titleField string
+
+			TableValues := schema.GetFieldsTable(field.schema.TableValues)
+			//TODO: later refactoring - store values in field propertyes
+			for _, field := range TableValues.Rows {
+				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + field.Table.Name) {
+					tableProps = field.COLUMN_NAME[3:]
+					titleField = field.GetForeignFields()
+					break
+				}
+			}
+
+			if (tableProps == "") || (titleField == "") {
+				panic(schema.ErrNotFoundTable{Table: field.schema.TableValues})
+			}
+			field.ChildQB = CreateEmpty()
+			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
+
+			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
+			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
+
 		}
 
 	}

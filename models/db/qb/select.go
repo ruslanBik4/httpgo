@@ -7,7 +7,6 @@ package qb
 import (
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strings"
@@ -124,62 +123,31 @@ func (qb * QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
-func getSETID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ){
+func getSETID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	gChild := Create(where,"", "")
-	titleField := field.GetForeignFields()
+	field.ChildQB.Where = field.WhereFromSet()
 
-	gChild.AddTable( "p", field.TableProps ).AddField("", "id").AddField("", titleField)
+	if len(field.ChildQB.Args) == 0 {
+		field.ChildQB.AddArg(fieldID)
+	} else {
+		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
+	}
 
-	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, field.Table.Name )
-	gChild.Join ( "v", field.TableValues, onJoin )
-
-	gChild.AddArg(fieldID)
-
-	return gChild.SelectToMultidimension()
+	return field.ChildQB.SelectToMultidimension()
 
 }
-func getNODEID_Values(field *schema.FieldStructure, where, fieldID string) (arrJSON [] map[string] interface {}, err error ) {
+func getNODEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	fieldTableName := field.Table.Name
+	field.ChildQB.Where = field.WhereFromSet()
 
-	gChild := Create(where,"", "")
 
-	var tableProps, titleField string
-
-	defer func() {
-		result := recover()
-		switch err1 := result.(type) {
-		case schema.ErrNotFoundTable:
-			logs.ErrorLog(err1, field.TableValues)
-			err = err1
-		case nil:
-		case error:
-			panic(err1)
-		}
-	}()
-	fieldsValues := schema.GetFieldsTable(field.TableValues)
-
-	//TODO: later refactoring - store values in field propertyes
-	for _, field := range fieldsValues.Rows {
-		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + fieldTableName) {
-			tableProps = field.COLUMN_NAME[3:]
-			titleField = field.GetForeignFields()
-			break
-		}
+	if len(field.ChildQB.Args) == 0 {
+		field.ChildQB.AddArg(fieldID)
+	} else {
+		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
 	}
 
-	if (tableProps == "") || (titleField == "") {
-		return nil, schema.ErrNotFoundTable{Table: field.TableValues}
-	}
-
-	gChild.AddTable( "p", tableProps ).AddField("", "id").AddField("", titleField)
-
-	onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.TableProps, fieldTableName )
-	gChild.JoinTable ( "v", field.TableValues, "JOIN", onJoin ).AddField("", "id_" + fieldTableName)
-	gChild.AddArg(fieldID)
-
-	return gChild.SelectToMultidimension()
+	return field.ChildQB.SelectToMultidimension()
 
 }
 func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
@@ -195,7 +163,7 @@ func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] i
 	if len(field.ChildQB.Args) == 0 {
 		field.ChildQB.AddArg(fieldID)
 	} else {
-		field.ChildQB.Args[0] = fieldID
+		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
 	}
 
 	return field.ChildQB.SelectToMultidimension()
@@ -221,7 +189,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
-		logs.ErrorLog(err) //errors output in qb.GetDataSql()
+		logs.ErrorLog(err)
 		return nil, err
 	}
 
@@ -270,8 +238,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 			}
 
 			if schema.SETID  {
-				where := field.WhereFromSet()
-				values[fieldName], err = getSETID_Values(schema, where, ID)
+				values[fieldName], err = getSETID_Values(field, ID)
 				if err != nil {
 					logs.ErrorLog(err, field.SQLforFORMList)
 					values[fieldName] = err.Error()
@@ -279,8 +246,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				continue
 			} else if schema.NODEID {
 
-				where := field.WhereFromSet()
-				values[fieldName], err = getNODEID_Values(schema, where, ID)
+				values[fieldName], err = getNODEID_Values(field, ID)
 				if err != nil {
 					logs.ErrorLog(err, field)
 					values[fieldName] = err.Error()
