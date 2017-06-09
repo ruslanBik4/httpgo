@@ -215,7 +215,28 @@ func sockCatch() {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	qBuilder := qb.Create("hs.id_hotels=?", "", "")
+	id := r.FormValue("id")
+	qBuilder := qb.Create("b.id=?", "", "")
+
+	qBuilder.AddTable("b", "business")
+
+	qBuilder.JoinTable("cl","currency_list","INNER JOIN", " ON b.id_currency_list=cl.id").AddFields( map[string] string{
+		"currency_title": "title",
+	})
+	qBuilder.JoinTable("c","country_list","INNER JOIN", " ON b.id_country_list=c.id").AddFields( map[string] string{
+		"country_bank_title": "title",
+	})
+	qBuilder.AddArg(id)
+
+	arrJSOn, err := qBuilder.SelectToMultidimension()
+	if err != nil {
+		views.RenderInternalError(w,err)
+		return
+	}
+	views.RenderArrayJSON(w, arrJSOn)
+	return
+
+	qBuilder = qb.Create("hs.id_hotels=?", "", "")
 
 	qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list" ).AddField("", "id_hotels")
 	qBuilder.Join("sl","services_list","ON (sl.id = hs.id_services_list)").AddField( "", "id_services_category_list")
@@ -284,7 +305,10 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
 	//отдаем полный список меню для фронтового фреймворка
 	if idMenu == "all" {
-		if arrJSON, err := db.SelectToMultidimension("select * from menu_items"); err != nil {
+		qBuilder := qb.CreateEmpty()
+		qBuilder.AddTable("", "menu_items")
+
+		if arrJSON, err := qBuilder.SelectToMultidimension(); err != nil {
 			logs.ErrorLog(err.(error))
 		} else {
 			views.RenderArrayJSON(w, arrJSON)

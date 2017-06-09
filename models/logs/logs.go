@@ -7,55 +7,74 @@
 package logs
 
 import (
-    "runtime"
-    "log"
-    "flag"
+	"runtime"
+	"log"
+	"flag"
+	"fmt"
+	"os"
 )
 
-var F_debug    = flag.String("debug","","debug mode")
-var F_status   = flag.String("status"," ","status mode")
+var F_debug = flag.String("debug", "", "debug mode")
+var F_status = flag.String("status", " ", "status mode")
 
+//var l =
 //DebugLog( args ...interface{}) - output formated(function and line calls) debug information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred args
-func DebugLog( args ...interface{}) {
-    pc, fn, line, _ := runtime.Caller(1)
-	//log.SetFlags(log.LstdFlags | log.Lshortfile)
-    if *F_debug > "" {
-        log.Printf("[DEBUG];%s[%s:%d];%v", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line, args)
-    }
+func DebugLog(args ...interface{}) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	pc, _, _, _ := runtime.Caller(1)
+	if *F_debug > "" {
+
+		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
+			getArgsString(args)))
+	}
 }
 
 //StatusLog(err error, args ...interface{}) - output formated information for status
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
-func StatusLog( args ...interface{}) {
+func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
-	//log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	if *F_status > "" {
-		log.Printf("[STATUS];;;;%v",  args)
+		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args)))
 	}
 }
 
 //ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
 func ErrorLog(err error, args ...interface{}) {
-    pc, fn, line, _ := runtime.Caller(1)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	pc, _, _, _ := runtime.Caller(1)
 
-    log.Printf("[ERROR];%s[%s:%d];%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), changeShortName(fn), line, err, args)
+	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()), err.Error(),getArgsString(args)) )
+
+
 }
 
+//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
+//@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
+func ErrorLogHandler(err error, args ...interface{}) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	pc, _, _, _ := runtime.Caller(5)
+
+		log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+			err, getArgsString(args)))
+
+
+}
 
 //ErrorStack() - output formated(function and line calls) error runtime stack information
 //@version 1.00 2017-06-02 Sergey Litvinov - Create
 func ErrorStack() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	i:=0
+	i := 0
 	for {
-		_, fn, line, ok := runtime.Caller(i)
+		pc, _, _, ok := runtime.Caller(i)
 		if !ok {
 			break
 		}
-
-		log.Printf("[ERROR];%s;in line;%d; Runtime Stack", fn, line )
+		log.Output(i+1, fmt.Sprintf("[ERROR_STACK];%s;;;;", changeShortName(runtime.FuncForPC(pc).Name())))
 		i++
 	}
 }
@@ -63,12 +82,15 @@ func ErrorStack() {
 //FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func Fatal(err error, args ...interface{}) {
-	_, fn, line, _ := runtime.Caller(1)
+	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Fatalf("[FATAL];%s;in line;%d;%v;%v", fn, line, err, args)
+	log.Output(2, fmt.Sprintf("[FATAL];%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, getArgsString(args)))
+	os.Exit(1)
+
 }
 
-func changeShortName(file string)(short string){
+//changeShortName(file string) (short string) - return Short Name
+func changeShortName(file string) (short string) {
 	short = file
 	for i := len(file) - 1; i > 0; i-- {
 		if file[i] == '/' {
@@ -76,6 +98,16 @@ func changeShortName(file string)(short string){
 			break
 		}
 	}
-	//file1 = short
 	return short
+}
+
+//changeShortName(file string) (short string) - Convert args to string
+func getArgsString(args ...interface{})(message string){
+	message = ""
+	if (len(args) > 0) {
+		for _, arg := range args {
+			message += fmt.Sprintf("%v, ", arg)
+		}
+	}
+	return message
 }

@@ -45,8 +45,10 @@ func (ns *RecordsTables) GetTablesProp(bd_name string)  error {
 }
 func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 
-	rows, err := DoSelect("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, " +
-		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) " +
+	rows, err := DoSelect("SELECT TABLE_NAME, " +
+		"IF (TABLE_TYPE = NULL, 'VIEW', TABLE_TYPE), "+
+		"IF (ENGINE = NULL, 'VIEW', ENGINE), "+
+		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) "+
 		"FROM INFORMATION_SCHEMA.TABLES WHERE " + where + " order by TABLE_COMMENT")
 
 	if err != nil {
@@ -59,7 +61,7 @@ func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 		err := rows.Scan( &row.TABLE_NAME, &row.TABLE_TYPE, &row.ENGINE, &row.TABLE_COMMENT)
 
 		if err != nil {
-			logs.ErrorLog(err)
+			logs.ErrorLog(err, row.TABLE_NAME, row.TABLE_TYPE)
 			continue
 		}
 
@@ -143,9 +145,9 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable) {
 
 	fields = &schema.FieldsTable{Name: tableName}
-	fields.Rows = make([] schema.FieldStructure, len(ns.Rows) )
+	fields.Rows = make([] *schema.FieldStructure, len(ns.Rows) )
 	for i, field := range ns.Rows {
-		fields.Rows[i] = schema.FieldStructure{
+		fields.Rows[i] = &schema.FieldStructure{
 			COLUMN_NAME: field.COLUMN_NAME,
 			DATA_TYPE  : field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,
@@ -209,6 +211,7 @@ func InitSchema() {
 			//for _, field := range fields.Rows {
 			//
 			//}
+			//logs.StatusLog(tableName, fields)
 		}
 
 		Schema_ready = true

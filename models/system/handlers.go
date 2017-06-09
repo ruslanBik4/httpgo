@@ -7,7 +7,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	//"runtime"
 	"github.com/ruslanBik4/httpgo/models/logs"
-	"errors"
 )
 
 type ErrNotLogin struct {
@@ -33,9 +32,9 @@ func (err ErrNotPermission) Error() string{
 }
 
 func Catch(w http.ResponseWriter, r *http.Request) {
-	err := recover()
+	result := recover()
 
-	switch err.(type) {
+	switch err := result.(type) {
 	case ErrNotLogin:
 		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
 		views.RenderSignForm(w, r, "")
@@ -43,11 +42,9 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<title>%s</title>", "Доступ закрыт" )
 		views.RenderSignForm(w, r, "")
 	case nil:
-	default:
-		err :=errors.New("Panic runtime!")
-		logs.ErrorLog(err)
+	case error:
+		views.RenderInternalError(w, err)
 		logs.ErrorStack()
-		views.RenderInternalError(w, err.(error))
 	}
 }
 

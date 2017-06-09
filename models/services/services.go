@@ -42,20 +42,20 @@ func startService(name string, pService IService) {
 
 	defer catch(name)
 	if err := pService.Init(); err != nil {
-		logs.ErrorLog(err, name)
+		logs.ErrorLogHandler(err, name)
 	} else {
 		logs.StatusLog(name,   " starting",", Status - ", pService.Status())
 	}
 }
 func catch(name string) {
-	err := recover()
+	result := recover()
 
-	switch err.(type) {
+	switch err := result.(type) {
 	case ErrServiceNotFound:
-		logs.ErrorLog(err.(error), name)
+		logs.ErrorLogHandler(err, name)
 	case nil:
-	default:
-		logs.ErrorLog(err.(error), name)
+	case error:
+		logs.ErrorLogHandler(err, name)
 	}
 }
 func AddService(name string, pService IService) {

@@ -9,7 +9,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 //	"views/templates/layouts/common"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
 )
 
 //noinspection GoInvalidConstType
@@ -54,8 +54,8 @@ func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
 func RenderInternalError(w http.ResponseWriter, err error) {
-	logs.ErrorLog(err)
 	w.WriteHeader(http.StatusInternalServerError)
+	logs.ErrorLog(err)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)
@@ -149,7 +149,7 @@ func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {})
 	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
 }
 // render JSON for form by fields map
-func RenderJSONAnyForm(w http.ResponseWriter, fields schema.FieldsTable, form *json.FormStructure,
+func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.FormStructure,
 	AddJson map[string] string) {
 
 	WriteJSONHeaders(w)

@@ -4,28 +4,29 @@
 
 {% import (
     "strings"
-    "github.com/ruslanBik4/httpgo/models/db/schema"
+    "github.com/ruslanBik4/httpgo/models/db/qb"
 ) %}
 
 Формируем JSON, который затем будет использован в форме на клиенте
 dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 {% stripspace %}
-{% func CheckFields(fields [] schema.FieldStructure) %}
+{% func CheckFields(fields map[string] *qb.QBField) %}
 
-{% for _, field := range fields %}
+{% for COLUMN_NAME, qbField := range fields %}
 
     {% code
 
+        field     := qbField.GetSchema()
         titleFull, titleLabel, placeholder, pattern, dataJson := field.GetColumnTitles()
         typeInput := field.TypeInput()
     %}
     "{%s field.COLUMN_NAME %}": {
-        {% if field.Value > "" %} "value": "{%j= field.Value %}", {% endif %}
+        {% if qbField.Value > "" %} "value": "{%j= qbField.Value %}", {% endif %}
 
-                {% if (field.COLUMN_NAME=="id") || field.IsHidden  %}
-                    "type": "hidden" },
-                    {% continue %}
-                {% endif %}
+        {% if (COLUMN_NAME=="id") || field.IsHidden  %}
+            "type": "hidden" },
+            {% continue %}
+        {% endif %}
 
         {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
         {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
@@ -50,12 +51,12 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% endif %}
         {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
         {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
-        {% if len(field.SelectValues) > 0 %}
+        {% if len(qbField.SelectValues) > 0 %}
             "list": {
-                {% for key, val := range field.SelectValues %}
+                {% for key, val := range qbField.SelectValues %}
                     "{%d key %}":"{%j= val %}",
                 {% endfor %}
-                "count": {%d len(field.SelectValues) %}
+                "count": {%d len(qbField.SelectValues) %}
             },
             {% comment %}
                 это применяем только для полей, у которых нет SelectValues
@@ -66,7 +67,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% endif %}
 
         {% if field.TABLEID %}
-            "list": {{%= CheckFields(field.ChildrenFields.Rows) %}},
+            "list": {{%= CheckFields(qbField.ChildQB.GetFields().Fields) %}},
         {% endif %}
 
         "type": "{%j= typeInput %}"
@@ -77,13 +78,13 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 {% endfunc %}
 
 
-{% func (thisForm *FormStructure) JSONAnyForm(ns schema.FieldsTable, AddJson map[string] string) %}
+{% func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, AddJson map[string] string) %}
 {%code
-   thisForm.setFormDefaults(ns)
+   thisForm.setFormDefaults(table.GetSchema())
 %}
 {
  "fields": {
-    {%= CheckFields(ns.Rows) %}
+    {%= CheckFields(table.Fields) %}
 
 },
 "form": {
