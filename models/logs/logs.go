@@ -84,7 +84,7 @@ func ErrorStack() {
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Output(2, fmt.Sprintf("[FATAL]%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, getArgsString(args)))
+	log.Output(2, fmt.Sprintf("[FATAL];%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, getArgsString(args)))
 	os.Exit(1)
 
 }
