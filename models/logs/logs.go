@@ -23,12 +23,10 @@ var F_status = flag.String("status", " ", "status mode")
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	i:=0
 	if *F_debug > "" {
-		for _, arg := range args {
-			log.Output(2, fmt.Sprintf("[DEBUG];%s;%d;%v", changeShortName(runtime.FuncForPC(pc).Name()),i, arg))
-			i++
-		}
+
+		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
+			getArgsString(args)))
 	}
 }
 
@@ -37,8 +35,9 @@ func DebugLog(args ...interface{}) {
 func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	if *F_status > "" {
-		log.Output(2, fmt.Sprintf("[STATUS];;;;%v", args))
+		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args)))
 	}
 }
 
@@ -48,14 +47,8 @@ func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
 
-	log.Output(2,  "[ERROR];" + err.Error() + changeShortName(runtime.FuncForPC(pc).Name() ) )
+	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()), err.Error(),getArgsString(args)) )
 
-	message := "Args:"
-		for i, arg := range args {
-			message += fmt.Sprintf("\n%d=%v", i, arg)
-		}
-
-	log.Println(message )
 
 }
 
@@ -65,13 +58,9 @@ func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(5)
 
-	//errLog := log.Output(5, fmt.Sprintf("%s;%s", changeShortName(runtime.FuncForPC(pc).Name()), err, args))
-	//if errLog != nil {
-		//log.Print(errLog)
-		for i, arg := range args {
-			log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%d;%v", changeShortName(runtime.FuncForPC(pc).Name()), err,i, arg))
-		}
-	//}
+		log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+			err, getArgsString(args)))
+
 
 }
 
@@ -93,14 +82,14 @@ func ErrorStack() {
 //FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
 //@version 1.0 2017-05-31 Sergey Litvinov - Create
 func Fatal(err error, args ...interface{}) {
-	//pc, _, _, _ := runtime.Caller(2)
+	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Output(2, fmt.Sprintf("[FATAL]%v;%v;%v", err, args))
-
+	log.Output(2, fmt.Sprintf("[FATAL]%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, getArgsString(args)))
 	os.Exit(1)
-	//log.Fatalf("[FATAL];%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, args)
+
 }
 
+//changeShortName(file string) (short string) - return Short Name
 func changeShortName(file string) (short string) {
 	short = file
 	for i := len(file) - 1; i > 0; i-- {
@@ -109,6 +98,16 @@ func changeShortName(file string) (short string) {
 			break
 		}
 	}
-	//file1 = short
 	return short
+}
+
+//changeShortName(file string) (short string) - Convert args to string
+func getArgsString(args ...interface{})(message string){
+	message = ""
+	if (len(args) > 0) {
+		for _, arg := range args {
+			message += fmt.Sprintf("%v, ", arg)
+		}
+	}
+	return message
 }
