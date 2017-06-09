@@ -27,7 +27,7 @@ var permissions *pService = &pService{name:"permission"}
 func (permissions *pService) Init() error{
 
 	permissions.Rows = make(map[string] rowsRoles, 0)
-	rows, err := db.DoSelect("SELECT p.id_users, g.title FROM permissions p JOIN permission_group_list g ")
+	rows, err := db.DoSelect("SELECT p.id_users, g.title FROM permissions p JOIN permission_group_list g ON p.id_permission_group_list = g.id")
 	if err != nil {
 		return err
 	}
