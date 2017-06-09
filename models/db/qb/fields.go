@@ -100,7 +100,6 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	}
 	//table.qB.fields = append(table.qB.fields, field)
 
-	table.qB.Aliases = append(table.qB.Aliases, alias)
 
 	return table
 }

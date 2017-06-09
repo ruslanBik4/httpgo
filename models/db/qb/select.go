@@ -48,6 +48,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 
 				}
 				qb.fields = append(qb.fields, field)
+				qb.Aliases = append(qb.Aliases, alias)
 				commaFld = ", "
 			}
 		} else if table.Join == "" {
@@ -60,6 +61,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 				table.AddField("", fieldStrc.COLUMN_NAME )
 				//TODO: сделать одно место для добавления полей!
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
+				qb.Aliases = append(qb.Aliases, fieldStrc.COLUMN_NAME)
 			}
 		}
 	}
@@ -264,7 +266,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 					values[fieldName] = false
 
 				}
-			case "int", "int64", "float":
+			case "int", "int64", "float", "double":
 				values[fieldName], _ = strconv.Atoi(field.Value)
 			default:
 				values[fieldName] = field.Value
