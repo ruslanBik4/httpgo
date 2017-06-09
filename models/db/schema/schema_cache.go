@@ -3,6 +3,12 @@
 // license that can be found in the LICENSE file.
 
 package schema
+
+import (
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"fmt"
+)
+
 // хранит структуру полей - стоит продумать, как хранить еще и ключи
 var SchemaCache map[string] *FieldsTable
 
@@ -11,19 +17,22 @@ type ErrNotFoundTable struct {
 }
 func (err ErrNotFoundTable) Error() string{
 
-	return "Not table in schema " + err.Table
+	return fmt.Sprintf("Not table `%s` in schema ", err.Table)
 }
 type ErrNotFoundField struct {
 	Table string
 	FieldName string
 }
 func (err ErrNotFoundField) Error() string{
-	return "Not table in schema " + err.Table + err.FieldName
+
+	return fmt.Sprintf("Not field `%s` for table `%s` in schema ",err.FieldName, err.Table)
+
 }
 
 func GetFieldsTable(tableName string) *FieldsTable {
 	table, ok := SchemaCache[tableName]
 	if !ok {
+		logs.ErrorLogHandler(ErrNotFoundTable{Table: tableName})
 		panic(ErrNotFoundTable{Table: tableName})
 	}
 	return table
