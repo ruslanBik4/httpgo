@@ -37,21 +37,21 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {
-			table.Rows[idx].SETID = true
-			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
-			table.Rows[idx].TableValues = fieldStrc.Table.Name + "_" + table.Rows[idx].TableProps + "_has"
-			table.Rows[idx].setEnumValues()
+			fieldStrc.SETID = true
+			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
+			fieldStrc.TableValues = fieldStrc.Table.Name + "_" + table.Rows[idx].TableProps + "_has"
+			fieldStrc.setEnumValues()
 
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "nodeid_") {
-			table.Rows[idx].NODEID = true
-			table.Rows[idx].TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
-			table.Rows[idx].setEnumValues()
+			fieldStrc.NODEID = true
+			fieldStrc.TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
+			fieldStrc.setEnumValues()
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_"){
-			table.Rows[idx].TABLEID = true
-			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
+			fieldStrc.TABLEID = true
+			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "id_") {
-			table.Rows[idx].IdForeign = true
-			table.Rows[idx].TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
+			fieldStrc.IdForeign = true
+			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
 			//table.Rows[idx].SQLforFORMList = "SELECT id, " + fieldStrc.GetForeignFields() + " FROM " + table.Rows[idx].TableProps
 		}
 

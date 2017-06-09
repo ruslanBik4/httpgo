@@ -127,11 +127,9 @@ func getSETID_Values(field *QBField, fieldID string) (arrJSON [] map[string] int
 
 	field.ChildQB.Where = field.WhereFromSet()
 
-	if len(field.ChildQB.Args) == 0 {
-		field.ChildQB.AddArg(fieldID)
-	} else {
-		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
-	}
+	field.ChildQB.Args = make([] interface{}, 0)
+	field.putEnumValueToArgs()
+	field.ChildQB.AddArg(fieldID)
 
 	return field.ChildQB.SelectToMultidimension()
 
@@ -141,11 +139,9 @@ func getNODEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] in
 	field.ChildQB.Where = field.WhereFromSet()
 
 
-	if len(field.ChildQB.Args) == 0 {
-		field.ChildQB.AddArg(fieldID)
-	} else {
-		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
-	}
+	field.ChildQB.Args = make([] interface{}, 0)
+	field.putEnumValueToArgs()
+	field.ChildQB.AddArg(fieldID)
 
 	return field.ChildQB.SelectToMultidimension()
 
@@ -154,17 +150,14 @@ func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] i
 
 	where := field.WhereFromSet()
 	if where > "" {
-		where += fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
+		field.ChildQB.Where = where + fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	} else {
-		where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
+		field.ChildQB.Where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
 	}
-	field.ChildQB.Where = where
 
-	if len(field.ChildQB.Args) == 0 {
-		field.ChildQB.AddArg(fieldID)
-	} else {
-		field.ChildQB.Args[len(field.ChildQB.Args)-1] = fieldID
-	}
+	field.ChildQB.Args = make([] interface{}, 0)
+	field.putEnumValueToArgs()
+	field.ChildQB.AddArg(fieldID)
 
 	return field.ChildQB.SelectToMultidimension()
 
@@ -189,7 +182,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
-		logs.ErrorLog(err)
+		logs.ErrorLog(err, qb)
 		return nil, err
 	}
 
@@ -259,7 +252,6 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 					values[fieldName] = err.Error()
 				}
 				continue
-
 			}
 
 			switch schema.DATA_TYPE {

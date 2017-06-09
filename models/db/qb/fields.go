@@ -7,6 +7,7 @@ package qb
 import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strings"
+	"errors"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -92,7 +93,8 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
-
+		} else if field.schema.IdForeign {
+				field.getSelectedValues()
 		}
 
 	}
@@ -103,7 +105,38 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	return table
 }
 
+func (field *QBField) getSelectedValues() {
 
+	defer func() {
+		result := recover()
+		switch err := result.(type) {
+		case schema.ErrNotFoundTable:
+			logs.ErrorLogHandler(err, err.Table, field.Name, field.Table.Name)
+			panic(err)
+		case nil:
+		case error:
+			panic(err)
+		}
+
+	}()
+	field.ChildQB = CreateEmpty()
+	titleField := field.schema.GetForeignFields()
+
+	field.ChildQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
+
+	rows, err := field.ChildQB.GetDataSql()
+	if err != nil {
+		logs.ErrorLog(err, field.ChildQB)
+	} else {
+		for rows.Next() {
+			var id int
+			var title string
+			rows.Scan(&id, &title)
+			field.SelectValues[id] = title
+		}
+	}
+
+}
 
 // return schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
@@ -209,7 +242,30 @@ func (field *QBField) putSelectValues(idx int) map[int] string {
 
 	return field.SelectValues
 }
-// put param
+// put param Value
+func (field *QBField) putEnumValueToArgs() error {
+	for _, enumVal := range field.schema.EnumValues {
+		if i := strings.Index(enumVal, ":"); i > 0 {
+			param := enumVal[i+1:]
+			// считаем, что окончанием параметра могут быть символы ", )"
+			j := strings.IndexAny(param, ", )")
+			if j > 0 {
+				param = param[:j]
+			}
+			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+			if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
+				field.ChildQB.AddArgs( paramField.Value )
+			} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
+					field.ChildQB.AddArgs( paramValue[0] )
+			} else {
+				return errors.New( "not enougth parameter")
+			}
+		}
+	}
+
+	return nil
+}
+// parse enumValues & insert queryes parameters
 func (field *QBField) parseEnumValue(enumVal string) string {
 	if i := strings.Index(enumVal, ":"); i > 0 {
 		param, suffix := enumVal[i+1:], ""
@@ -219,17 +275,10 @@ func (field *QBField) parseEnumValue(enumVal string) string {
 			suffix= param[j:]
 			param = param[:j]
 		}
-		// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
-			return enumVal[:i] + paramField.Value + suffix
-		} else {
-			if paramValue, ok := field.Table.qB.FieldsParams[param]; ok  {
-				return enumVal[:i] + paramValue[0] + suffix
-			}
-		}
+		return enumVal[:i] + "?" + suffix
 	}
 
-	return ""
+	return enumVal
 }
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
