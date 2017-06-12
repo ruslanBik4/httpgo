@@ -81,6 +81,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 		sql += " LIMIT " + qb.Limits
 	}
 
+
 	return "SELECT " + qb.sqlSelect + " FROM " + qb.sqlFrom + sql, nil
 
 }
@@ -169,11 +170,13 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 
 	if qb.Prepared == nil {
 		qb.sqlCommand, err = qb.createSQL()
+		logs.DebugLog("sql=", qb.sqlCommand)
 		if err == nil {
 			qb.Prepared, err = db.PrepareQuery(qb.sqlCommand)
 		}
 	}
 	if err != nil {
+		logs.ErrorLog(err)
 		return nil, err
 	}
 
@@ -283,10 +286,10 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 	return arrJSON, nil
 }
 
-//(qb * QueryBuilder) ConvertDataNotChangeBoolean(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
+//(qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
 //Not Convert BooleanType
 //@author Sergey Litvinov
-func (qb * QueryBuilder) ConvertDataNotChangeBoolean(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
 
 
 	var valuePtrs []interface{}
@@ -354,7 +357,10 @@ func (qb * QueryBuilder) ConvertDataNotChangeBoolean(rows *sql.Rows) ( arrJSON [
 				values[fieldName] = field.Value
 			case "tinyint":
 				values[fieldName], _ = strconv.Atoi(field.Value)
-			case "int", "int64", "float", "double":
+			case "float", "double":
+				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
+
+			case "int", "int64":
 				values[fieldName], _ = strconv.Atoi(field.Value)
 			default:
 				values[fieldName] = field.Value
@@ -379,5 +385,5 @@ func (qb * QueryBuilder) GetSelectToNotChangeBoolean() ( arrJSON [] map[string] 
 	}
 
 	defer rows.Close()
-	return qb.ConvertDataNotChangeBoolean(rows)
+	return qb.ConvertDataNotChangeType(rows)
 }
