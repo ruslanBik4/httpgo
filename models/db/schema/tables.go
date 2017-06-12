@@ -32,7 +32,6 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 
 	for idx, fieldStrc := range table.Rows {
 
-		//fieldStrc := &(table.Rows[idx])
 		fieldStrc.ParseComment(fieldStrc.COLUMN_COMMENT)
 
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
@@ -45,6 +44,20 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "nodeid_") {
 			fieldStrc.NODEID = true
 			fieldStrc.TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
+
+			TableValues := GetFieldsTable(fieldStrc.TableValues)
+			//TODO: later refactoring - store values in field propertyes
+			for _, field := range TableValues.Rows {
+				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + field.Table.Name) {
+					fieldStrc.TableProps = field.COLUMN_NAME[3:]
+					fieldStrc.ForeignFields = field.GetForeignFields()
+					break
+				}
+			}
+
+			if (fieldStrc.TableProps == "") || (fieldStrc.ForeignFields == "") {
+				panic(ErrNotFoundTable{Table: fieldStrc.TableValues})
+			}
 			fieldStrc.setEnumValues()
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_"){
 			fieldStrc.TABLEID = true
@@ -52,7 +65,6 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "id_") {
 			fieldStrc.IdForeign = true
 			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
-			//table.Rows[idx].SQLforFORMList = "SELECT id, " + fieldStrc.GetForeignFields() + " FROM " + table.Rows[idx].TableProps
 		}
 
 	}

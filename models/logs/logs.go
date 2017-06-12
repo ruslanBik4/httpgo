@@ -74,7 +74,7 @@ func ErrorStack() {
 		if !ok {
 			break
 		}
-		log.Output(i+1, fmt.Sprintf("[ERROR_STACK];%s;;;;", changeShortName(runtime.FuncForPC(pc).Name())))
+		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", changeShortName(runtime.FuncForPC(pc).Name())))
 		i++
 	}
 }

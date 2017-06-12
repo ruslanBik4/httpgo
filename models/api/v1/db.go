@@ -102,7 +102,7 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(arrJSON) > 0 {
-			views.RenderAnyJSON(w, arrJSON[0])
+			views.RenderArrayJSON(w, arrJSON)
 			return
 		}
 	} else {

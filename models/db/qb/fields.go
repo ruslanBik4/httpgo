@@ -70,24 +70,11 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
-			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin )
+			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
 
 		} else if field.schema.NODEID {
-			var tableProps, titleField string
 
-			TableValues := schema.GetFieldsTable(field.schema.TableValues)
-			//TODO: later refactoring - store values in field propertyes
-			for _, field := range TableValues.Rows {
-				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + field.Table.Name) {
-					tableProps = field.COLUMN_NAME[3:]
-					titleField = field.GetForeignFields()
-					break
-				}
-			}
-
-			if (tableProps == "") || (titleField == "") {
-				panic(schema.ErrNotFoundTable{Table: field.schema.TableValues})
-			}
+			titleField := field.schema.GetForeignFields()
 			field.ChildQB = CreateEmpty()
 			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
@@ -137,51 +124,6 @@ func (field *QBField) getSelectedValues() {
 
 }
 
-// return schema for render standart methods
-func (qb *QueryBuilder) GetFields() (schTable QBTable) {
-
-	schTable.Fields = make(map[string] *QBField, 0)
-
-	if len(qb.fields) == 0 {
-		for _, table := range qb.Tables {
-			for _, fieldStrc := range table.schema.Rows {
-
-				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-				field.Alias = field.Name
-				qb.fields = append(qb.fields, field)
-				if fieldStrc.TABLEID {
-					field.ChildQB = CreateEmpty()
-					field.ChildQB.AddTable("p", field.schema.TableProps)
-				}
-			}
-		}
-
-	}
-	qb.checkSurrogateFields()
-
-	for _, field := range qb.fields {
-		schTable.Fields[field.Name] = field
-	}
-
-	for _, table := range qb.Tables {
-		schTable.Name += " " + table.Join + table.Name
-	}
-
-	return schTable
-}
-func (qb *QueryBuilder) checkSurrogateFields() {
-	for _, field := range qb.fields {
-		if field.schema.IsHidden {
-			continue
-		} else if field.schema.SETID || field.schema.NODEID || field.schema.IdForeign {
-			//field.SelectValues = qb.putSelectValues(idx, field)
-		} else if field.schema.TABLEID {
-			//field.ChildrenFields = schema.GetFieldsTable(field.schema.TableProps)
-			//qb.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
-
-		}
-	}
-}
 func (field *QBField) putSelectValues(idx int) map[int] string {
 
 		sqlCommand := field.SQLforFORMList
