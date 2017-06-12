@@ -45,11 +45,10 @@ func (ns *RecordsTables) GetTablesProp(bd_name string)  error {
 }
 func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 
-	rows, err := DoSelect("SELECT TABLE_NAME, " +
-		"IF (TABLE_TYPE = NULL, 'VIEW', TABLE_TYPE), "+
-		"IF (ENGINE = NULL, 'VIEW', ENGINE), "+
-		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) "+
-		"FROM INFORMATION_SCHEMA.TABLES WHERE " + where + " order by TABLE_COMMENT")
+	sqlCommand := `select TABLE_NAME, IFNULL(TABLE_TYPE, 'VIEW'), IFNULL(ENGINE, 'VIEW'),
+			IFNULL(TABLE_COMMENT, TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES
+			 WHERE ` + where + " order by TABLE_COMMENT"
+	rows, err := DoSelect(sqlCommand)
 
 	if err != nil {
 		return err
