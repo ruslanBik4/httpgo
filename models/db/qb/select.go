@@ -174,10 +174,11 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 		if err == nil {
 			qb.Prepared, err = db.PrepareQuery(qb.sqlCommand)
 		}
-	}
-	if err != nil {
-		logs.ErrorLog(err)
-		return nil, err
+		// здесь отловим все ошибки и запротоколируем!
+		if err != nil {
+			logs.ErrorLog(err, qb.sqlCommand)
+			return nil, err
+		}
 	}
 
 	return qb.Prepared.Query(qb.Args...)
@@ -239,10 +240,11 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 				ID = fieldID.Value
 			}
 
+			// TODO: refactoring - storid all method in one
 			if schema.SETID  {
 				values[fieldName], err = getSETID_Values(field, ID)
 				if err != nil {
-					logs.ErrorLog(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
 				}
 				continue
@@ -250,7 +252,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 
 				values[fieldName], err = getNODEID_Values(field, ID)
 				if err != nil {
-					logs.ErrorLog(err, field)
+					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
 				}
 				continue
