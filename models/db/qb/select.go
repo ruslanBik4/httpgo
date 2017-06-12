@@ -193,6 +193,10 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 	return qb.ConvertDataToJson(rows)
 }
 
+
+//@func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+//@author Sergey Litvinov
+//@version 1.00 2017-06-12
 func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
 
 
@@ -279,3 +283,101 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 	return arrJSON, nil
 }
 
+//(qb * QueryBuilder) ConvertDataNotChangeBoolean(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
+//Not Convert BooleanType
+//@author Sergey Litvinov
+func (qb * QueryBuilder) ConvertDataNotChangeBoolean(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+
+
+	var valuePtrs []interface{}
+
+	for _, field := range qb.fields {
+		valuePtrs = append(valuePtrs, field )
+	}
+
+	columns, _ := rows.Columns()
+	for rows.Next() {
+
+		values := make(map[string] interface{}, len(qb.fields) )
+		if err := rows.Scan(valuePtrs...); err != nil {
+			logs.ErrorLog(err, valuePtrs)
+			continue
+		}
+
+		var ID string
+		for idx, fieldName := range columns {
+
+			field := qb.fields[idx]
+			if field == nil {
+				logs.DebugLog( "nil field", idx)
+				continue
+
+			}
+			schema:= field.schema
+			if schema == nil {
+				logs.DebugLog("nil schema", field)
+				continue
+			}
+			if field.Table == nil {
+				logs.DebugLog("nil Table", field)
+				continue
+			} else if fieldID, ok := field.Table.Fields["id"]; ok {
+				ID = fieldID.Value
+			}
+
+			if schema.SETID  {
+				values[fieldName], err = getSETID_Values(field, ID)
+				if err != nil {
+					logs.ErrorLog(err, field.SQLforFORMList)
+					values[fieldName] = err.Error()
+				}
+				continue
+			} else if schema.NODEID {
+
+				values[fieldName], err = getNODEID_Values(field, ID)
+				if err != nil {
+					logs.ErrorLog(err, field)
+					values[fieldName] = err.Error()
+				}
+				continue
+			} else if schema.TABLEID {
+				values[fieldName], err = getTABLEID_Values(field, ID)
+				if err != nil {
+					logs.ErrorLog(err, field.ChildQB)
+					values[fieldName] = err.Error()
+				}
+				continue
+			}
+
+			switch schema.DATA_TYPE {
+			case "varchar", "date", "datetime":
+				values[fieldName] = field.Value
+			case "tinyint":
+				values[fieldName], _ = strconv.Atoi(field.Value)
+			case "int", "int64", "float", "double":
+				values[fieldName], _ = strconv.Atoi(field.Value)
+			default:
+				values[fieldName] = field.Value
+			}
+		}
+
+		arrJSON = append(arrJSON, values)
+	}
+
+	return arrJSON, nil
+}
+
+//@func (qb * QueryBuilder) SelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error )
+// Get rows not convert tinyInt fields
+//@author Sergey Litvinov
+func (qb * QueryBuilder) GetSelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error ) {
+
+	rows, err := qb.GetDataSql()
+	if err != nil {
+		logs.ErrorLog(err, qb)
+		return nil, err
+	}
+
+	defer rows.Close()
+	return qb.ConvertDataNotChangeBoolean(rows)
+}
