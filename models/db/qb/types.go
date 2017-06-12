@@ -8,6 +8,7 @@ package qb
 import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"database/sql"
+	"fmt"
 )
 
 type QBField struct {
@@ -41,6 +42,23 @@ type QueryBuilder struct {
 	Where, GroupBy, OrderBy, Limits string	`may be defined outside`
 	union *QueryBuilder
 }
+// for compatabilies interface logsType
+func (qb *QueryBuilder) Print() string {
+	mess := "&qb{sql: " + qb.sqlCommand + ", Where: " + qb.Where + ", Tables: "
+	for _, table := range qb.Tables {
+		mess += table.Name + ", "
+	}
+	mess += " Fields: "
+	for _, alias := range qb.Aliases {
+		mess += alias + ", "
+	}
+	mess += " Args: "
+	for _, arg := range qb.Args {
+		mess += fmt.Sprintf( ":v, ", arg )
+	}
+
+	return mess + "}"
+}
 // addding arguments
 func (qb *QueryBuilder) AddArg(arg interface{}) *QueryBuilder{
 	qb.Args = append(qb.Args, arg)
@@ -66,9 +84,9 @@ func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
 //add Table, returns object table
 func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 
-	if alias == ""  {
-		alias = name
-	}
+	//if alias == ""  {
+	//	alias = name
+	//}
 	table := &QBTable{Name: name, Alias: alias, qB: qb}
 	table.Fields = make(map[string] *QBField, 0)
 	defer schemaError()

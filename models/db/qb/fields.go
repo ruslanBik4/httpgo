@@ -105,7 +105,12 @@ func (field *QBField) getSelectedValues() {
 		}
 
 	}()
+
 	field.ChildQB = CreateEmpty()
+	// подключаем отборы из описания полей и заполняем их по обстановке
+	field.ChildQB.Where = field.WhereFromSet()
+	field.putEnumValueToArgs()
+
 	titleField := field.schema.GetForeignFields()
 
 	field.ChildQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
@@ -123,7 +128,7 @@ func (field *QBField) getSelectedValues() {
 	}
 
 }
-
+//щиыщдуеу
 func (field *QBField) putSelectValues(idx int) map[int] string {
 
 		sqlCommand := field.SQLforFORMList
@@ -197,7 +202,9 @@ func (field *QBField) putEnumValueToArgs() error {
 			if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
 				field.ChildQB.AddArgs( paramField.Value )
 			} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
-					field.ChildQB.AddArgs( paramValue[0] )
+				field.ChildQB.AddArgs( paramValue[0] )
+			} else if param == "id_users" {
+				field.ChildQB.AddArgs( 0 )
 			} else {
 				return errors.New( "not enougth parameter")
 			}

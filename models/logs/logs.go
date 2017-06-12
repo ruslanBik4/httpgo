@@ -14,8 +14,11 @@ import (
 	"os"
 )
 
-var F_debug = flag.String("debug", "", "debug mode")
-var F_status = flag.String("status", " ", "status mode")
+type LogsType interface {
+	Print() string
+}
+var F_debug = flag.String("debug", "true", "debug mode")
+var F_status = flag.String("status", "true", "status mode")
 
 //var l =
 //DebugLog( args ...interface{}) - output formated(function and line calls) debug information
@@ -23,7 +26,7 @@ var F_status = flag.String("status", " ", "status mode")
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	if *F_debug > "" {
+	if *F_debug == "true" {
 
 		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
 			getArgsString(args)))
@@ -36,8 +39,8 @@ func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *F_status > "" {
-		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args)))
+	if *F_status == "true" {
+		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)) )
 	}
 }
 
@@ -47,7 +50,8 @@ func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
 
-	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()), err.Error(),getArgsString(args)) )
+	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+		err.Error(),getArgsString(args...)) )
 
 
 }
@@ -59,7 +63,7 @@ func ErrorLogHandler(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(5)
 
 		log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
-			err, getArgsString(args)))
+			err, getArgsString(args...)))
 
 
 }
@@ -84,7 +88,8 @@ func ErrorStack() {
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.Output(2, fmt.Sprintf("[FATAL];%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()), err, getArgsString(args)))
+	log.Output(2, fmt.Sprintf("[FATAL];%v;%v;%v", changeShortName(runtime.FuncForPC(pc).Name()),
+		err, getArgsString(args...)))
 	os.Exit(1)
 
 }
@@ -104,10 +109,16 @@ func changeShortName(file string) (short string) {
 //changeShortName(file string) (short string) - Convert args to string
 func getArgsString(args ...interface{})(message string){
 	message = ""
-	if (len(args) > 0) {
-		for _, arg := range args {
+	for _, arg := range args {
+
+		switch val := arg.(type) {
+		case LogsType:
+			message += val.Print()
+		default:
+
 			message += fmt.Sprintf("%v, ", arg)
 		}
 	}
+
 	return message
 }

@@ -34,6 +34,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 			qb.sqlFrom += commaTbl + table.Name + " " + aliasTable
 		}
 		commaTbl = ", "
+		if aliasTable > "" {
+			aliasTable += "."
+		}
 		if len(table.Fields) > 0 {
 			for alias, field := range table.Fields {
 				var queryName string
@@ -44,7 +47,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 					qb.sqlSelect += commaFld + field.Name + queryName
 				} else {
 
-					qb.sqlSelect += commaFld + aliasTable + "." + field.Name + queryName
+					qb.sqlSelect += commaFld + aliasTable + field.Name + queryName
 
 				}
 				qb.fields = append(qb.fields, field)
