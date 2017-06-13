@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/db"
 	"database/sql"
 )
 // getters
@@ -114,21 +113,7 @@ func (field *QBField) getSelectedValues() {
 
 	}()
 
-	field.ChildQB = CreateEmpty()
-	// подключаем отборы из описания полей и заполняем их по обстановке
-	where, ANDwhere := field.WhereFromSet(), field.schema.Where
-	if where > "" {
-		field.putEnumValueToArgs()
-	}
-	if ANDwhere > "" {
-		ANDwhere = field.parseEnumValue(ANDwhere)
-		if where > "" {
-			field.ChildQB.Where = where + " AND " + ANDwhere
-		} else {
-			field.ChildQB.Where = ANDwhere
-		}
-		field.putValueToArgs(field.schema.Where)
-	}
+	field.ChildQB = Create( field.WhereFromSet(), "", "" )
 
 	titleField := field.schema.GetForeignFields()
 
@@ -147,82 +132,8 @@ func (field *QBField) getSelectedValues() {
 	}
 
 }
-//щиыщдуеу
-func (field *QBField) putSelectValues(idx int) map[int] string {
-
-		sqlCommand := field.SQLforFORMList
-		comma      := " WHERE "
-		for _, enumVal := range field.schema.EnumValues {
-			if i := strings.Index(enumVal, ":"); i > 0 {
-				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				if paramValue, ok := field.Table.qB.FieldsParams[enumVal[i+1:]]; ok  {
-					enumVal = enumVal[:i] + fmt.Sprintf("%s", paramValue[0])
-					sqlCommand += comma + enumVal
-					comma = " OR "
-				} else {
-					continue
-				}
-			}
-
-		}
-
-		if field.schema.Where > "" {
-			if i := strings.Index(field.schema.Where, ":"); i > 0 {
-				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				param, suffix := field.schema.Where[i+1:], ""
-				// считаем, что окончанием параметра могут быть символы ", )"
-				j := strings.IndexAny(param, ", )")
-				if j > 0 {
-					suffix= param[j:]
-					param = param[:j]
-				}
-				if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
-					sqlCommand += comma + field.schema.Where[:i] + fmt.Sprintf("%s", paramValue[0]) + suffix
-				}
-			} else {
-				sqlCommand += comma + field.schema.Where
-			}
-
-			logs.DebugLog("where for field " + field.schema.Where, sqlCommand)
-		}
-		//TODO: add where condition
-		logs.DebugLog("sql for field " + field.Name, sqlCommand)
-		rows, err := db.DoSelect(sqlCommand)
-		if err != nil {
-			logs.ErrorLog(err, field.SQLforFORMList)
-		} else {
-
-			defer rows.Close()
-			for rows.Next() {
-				var key int
-				var title string
-				if err := rows.Scan(&key, &title); err != nil {
-					logs.ErrorLog(err, key)
-				}
-
-				field.SelectValues[key] = title
-			}
-		}
-
-
-	return field.SelectValues
-}
-// put param Value
-func (field *QBField) putEnumValueToArgs() error {
-	for _, enumVal := range field.schema.EnumValues {
-		field.putValueToArgs(enumVal)
-	}
-
-	return nil
-}
-func (field *QBField) putValueToArgs(enumVal string) error {
-	if i := strings.Index(enumVal, ":"); i > 0 {
-		param := enumVal[i+1:]
+func (field *QBField) putValueToArgs(param string) error {
 		// считаем, что окончанием параметра могут быть символы ", )"
-		j := strings.IndexAny(param, ", )")
-		if j > 0 {
-			param = param[:j]
-		}
 		// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
 		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
 			field.ChildQB.AddArgs( paramField.Value )
@@ -233,107 +144,59 @@ func (field *QBField) putValueToArgs(enumVal string) error {
 		} else {
 			return errors.New( "not enougth parameter")
 		}
-	}
+
 
 	return nil
 }
 // parse enumValues & insert queryes parameters
-func (field *QBField) parseEnumValue(enumVal string) string {
+func (field *QBField) parseEnumValue(enumVal string) (condition, param string) {
 	if i := strings.Index(enumVal, ":"); i > 0 {
-		param, suffix := enumVal[i+1:], ""
+		paramName, suffix := enumVal[i+1:], ""
 		// считаем, что окончанием параметра могут быть символы ", )"
-		j := strings.IndexAny(param, ", )")
+		j := strings.IndexAny(paramName, ", )")
 		if j > 0 {
-			suffix= param[j:]
-			param = param[:j]
+			suffix    = paramName[j:]
+			paramName = paramName[:j]
 		}
-		return enumVal[:i] + "?" + suffix
+		condition = enumVal[:i] + "?" + suffix
+	} else {
+		condition = enumVal
 	}
 
-	return enumVal
+	return condition, param
 }
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
 // условия вынимаем из определения поля типа SET
-// и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще усло
+// и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще условие
 func (field *QBField) WhereFromSet() (result string) {
 
 	defer schemaError()
 	comma  := ""
 	for _, enumVal := range field.schema.EnumValues {
-		result += comma + field.parseEnumValue(enumVal)
+		condition, param :=	field.parseEnumValue(enumVal)
+		if param > "" {
+			field.putValueToArgs(param)
+		} else if condition == "1" {
+			continue
+		}
+		result += comma + condition
 		comma = " OR "
 	}
 
-	if (result > "") && (result != "1") {
+	if field.schema.Where > "" {
 
-		return " WHERE (" + result + ")"
+		condition, param := field.parseEnumValue( field.schema.Where )
+		if param > "" {
+			field.putValueToArgs(param)
+		}
+		if (result > "") {
+
+			result = "(" + result + ") AND "
+		}
+
+		return result + condition
 	}
 
-	return ""
-}
-
-func (field *QBField) writeSQLbySETID() error {
-
-	where := field.WhereFromSet()
-	fieldStrc := field.schema
-
-	field.SQLforFORMList = fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p LEFT JOIN %s v
-		ON (p.id = v.id_%[2]s) ` + where, fieldStrc.GetForeignFields(),
-		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
-
-	field.SQLforDATAList = fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?)` + where, fieldStrc.GetForeignFields(),
-		fieldStrc.TableProps, fieldStrc.TableValues, fieldStrc.Table.Name)
-	return nil
-}
-//getSQLFromNodeID(field *schema.FieldStructure) string
-func (field *QBField) writeSQLByNodeID() (err error){
-	var titleField string
-
-
-	defer schemaError()
-
-	//if field.schema.TableProps == "" {
-	//	fieldsValues := GetFieldsTable(fieldStrc.TableValues)
-	//
-	//	for _, field := range fieldsValues.Rows {
-	//		if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+fieldStrc.Table.Name) {
-	//			fieldStrc.TableProps = field.COLUMN_NAME[3:]
-	//			titleField = field.GetForeignFields()
-	//			break
-	//		}
-	//	}
-	//}
-
-	where := field.WhereFromSet()
-
-	field.SQLforFORMList =  fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p LEFT JOIN %s v
-		ON (p.id = v.id_%[2]s) ` + where,
-		titleField,  field.schema.TableProps, field.schema.TableValues)
-
-	field.SQLforDATAList =  fmt.Sprintf(`SELECT p.id, %s
-		FROM %s p JOIN %s v
-		ON (p.id = v.id_%[2]s AND v.id_%[4]s=?) ` + where,
-		titleField, field.schema.TableProps, field.schema.TableValues, field.schema.Table.Name)
-
-	return nil
-}
-
-func (field *QBField) writeSQLByTableID() error {
-
-
-	where := field.WhereFromSet()
-	if where > "" {
-		where += " OR (id_%s=?)"
-	} else {
-		where = " WHERE (id_%s=?)"
-	}
-
-	field.SQLforFORMList =  fmt.Sprintf( `SELECT * FROM %s p ` + where, field.schema.TableProps, field.schema.Table.Name )
-
-	return nil
+	return result
 }

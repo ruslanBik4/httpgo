@@ -139,18 +139,6 @@ func getSETProps_Values(field *QBField, fieldID string) (arrJSON [] map[string] 
 	return field.ChildQB.SelectToMultidimension()
 
 }
-func getNODEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-
-	field.ChildQB.Where = field.WhereFromSet()
-
-
-	field.ChildQB.Args = make([] interface{}, 0)
-	field.putEnumValueToArgs()
-	field.ChildQB.AddArg(fieldID)
-
-	return field.ChildQB.SelectToMultidimension()
-
-}
 func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
 	//where := field.WhereFromSet()

@@ -54,7 +54,7 @@ func (qb *QueryBuilder) PrintToLogs() string {
 	}
 	mess += " Args: "
 	for _, arg := range qb.Args {
-		mess += fmt.Sprintf( ":v, ", arg )
+		mess += fmt.Sprintf( "%v, ", arg )
 	}
 
 	return mess + "}"
