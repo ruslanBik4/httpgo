@@ -61,7 +61,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		field.SelectValues = make(map[int] string, 0)
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
-			field.ChildQB = CreateEmpty()
+			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
 			field.ChildQB.AddTable("p", field.schema.TableProps)
 			field.ChildQB.FieldsParams = table.qB.FieldsParams
 		} else if field.schema.SETID {
@@ -95,7 +95,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	return table
 }
-
+// TODO: local qb
 func (field *QBField) getSelectedValues() {
 
 	defer func() {
