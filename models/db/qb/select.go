@@ -55,7 +55,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 				commaFld = ", "
 			}
 		} else if table.Join == "" {
-			qb.sqlSelect += commaFld + aliasTable + ".*"
+			qb.sqlSelect += commaFld + aliasTable + "*"
 			commaFld = ", "
 
 			for _, fieldStrc := range table.schema.Rows {
