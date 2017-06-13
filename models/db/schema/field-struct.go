@@ -210,7 +210,7 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 			}
 	}
 
-	return name
+	return "id"
 
 }
 

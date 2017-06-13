@@ -61,8 +61,10 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		field.SelectValues = make(map[int] string, 0)
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
-			field.ChildQB = CreateEmpty()
+			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
 			field.ChildQB.AddTable("p", field.schema.TableProps)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
 			titleField := field.schema.GetForeignFields()
@@ -70,32 +72,25 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
-			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin )
+			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 
 		} else if field.schema.NODEID {
-			var tableProps, titleField string
 
-			TableValues := schema.GetFieldsTable(field.schema.TableValues)
-			//TODO: later refactoring - store values in field propertyes
-			for _, field := range TableValues.Rows {
-				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + field.Table.Name) {
-					tableProps = field.COLUMN_NAME[3:]
-					titleField = field.GetForeignFields()
-					break
-				}
-			}
-
-			if (tableProps == "") || (titleField == "") {
-				panic(schema.ErrNotFoundTable{Table: field.schema.TableValues})
-			}
+			titleField := field.schema.GetForeignFields()
 			field.ChildQB = CreateEmpty()
 			field.ChildQB.AddTable( "p", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 		} else if field.schema.IdForeign {
-				field.getSelectedValues()
+				// уже не нужно, но надо перепроверить!!!
+				//field.getSelectedValues()
 		}
+
 
 	}
 	//table.qB.fields = append(table.qB.fields, field)
@@ -103,7 +98,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	return table
 }
-
+// TODO: local qb
 func (field *QBField) getSelectedValues() {
 
 	defer func() {
@@ -118,14 +113,19 @@ func (field *QBField) getSelectedValues() {
 		}
 
 	}()
+
 	field.ChildQB = CreateEmpty()
+	// подключаем отборы из описания полей и заполняем их по обстановке
+	field.ChildQB.Where = field.WhereFromSet()
+	field.putEnumValueToArgs()
+
 	titleField := field.schema.GetForeignFields()
 
 	field.ChildQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
 	rows, err := field.ChildQB.GetDataSql()
 	if err != nil {
-		logs.ErrorLog(err, field.ChildQB)
+		logs.ErrorLog(err, field.Name,  field.ChildQB)
 	} else {
 		for rows.Next() {
 			var id int
@@ -136,52 +136,7 @@ func (field *QBField) getSelectedValues() {
 	}
 
 }
-
-// return schema for render standart methods
-func (qb *QueryBuilder) GetFields() (schTable QBTable) {
-
-	schTable.Fields = make(map[string] *QBField, 0)
-
-	if len(qb.fields) == 0 {
-		for _, table := range qb.Tables {
-			for _, fieldStrc := range table.schema.Rows {
-
-				field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-				field.Alias = field.Name
-				qb.fields = append(qb.fields, field)
-				if fieldStrc.TABLEID {
-					field.ChildQB = CreateEmpty()
-					field.ChildQB.AddTable("p", field.schema.TableProps)
-				}
-			}
-		}
-
-	}
-	qb.checkSurrogateFields()
-
-	for _, field := range qb.fields {
-		schTable.Fields[field.Name] = field
-	}
-
-	for _, table := range qb.Tables {
-		schTable.Name += " " + table.Join + table.Name
-	}
-
-	return schTable
-}
-func (qb *QueryBuilder) checkSurrogateFields() {
-	for _, field := range qb.fields {
-		if field.schema.IsHidden {
-			continue
-		} else if field.schema.SETID || field.schema.NODEID || field.schema.IdForeign {
-			//field.SelectValues = qb.putSelectValues(idx, field)
-		} else if field.schema.TABLEID {
-			//field.ChildrenFields = schema.GetFieldsTable(field.schema.TableProps)
-			//qb.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
-
-		}
-	}
-}
+//щиыщдуеу
 func (field *QBField) putSelectValues(idx int) map[int] string {
 
 		sqlCommand := field.SQLforFORMList
@@ -255,7 +210,9 @@ func (field *QBField) putEnumValueToArgs() error {
 			if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
 				field.ChildQB.AddArgs( paramField.Value )
 			} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
-					field.ChildQB.AddArgs( paramValue[0] )
+				field.ChildQB.AddArgs( paramValue[0] )
+			} else if param == "id_users" {
+				field.ChildQB.AddArgs( 0 )
 			} else {
 				return errors.New( "not enougth parameter")
 			}

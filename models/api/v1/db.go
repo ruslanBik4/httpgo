@@ -37,6 +37,10 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	qBuilder := qb.Create("id=?", "", "")
 	qBuilder.AddTable("", tableName)
+	// инши параметры могут быть использщованы для суррогатных (вложенных) полей
+	r.ParseForm()
+	qBuilder.FieldsParams = r.Form
+
 	addJSON := make(map[string]string, 0)
 	if id := r.FormValue("id"); id > "" {
 		// получаем данные для суррогатных полей
@@ -102,7 +106,7 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(arrJSON) > 0 {
-			views.RenderAnyJSON(w, arrJSON[0])
+			views.RenderArrayJSON(w, arrJSON)
 			return
 		}
 	} else {
