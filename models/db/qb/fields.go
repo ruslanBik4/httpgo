@@ -117,7 +117,7 @@ func (field *QBField) getSelectedValues() {
 
 	rows, err := field.ChildQB.GetDataSql()
 	if err != nil {
-		logs.ErrorLog(err, "field.ChildQB=",  field.ChildQB)
+		logs.ErrorLog(err, field.Name,  field.ChildQB)
 	} else {
 		for rows.Next() {
 			var id int
