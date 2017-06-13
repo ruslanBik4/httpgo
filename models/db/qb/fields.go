@@ -116,11 +116,19 @@ func (field *QBField) getSelectedValues() {
 
 	field.ChildQB = CreateEmpty()
 	// подключаем отборы из описания полей и заполняем их по обстановке
-	field.ChildQB.Where = field.WhereFromSet()
-	if field.schema.Where > "" {
-		field.ChildQB.Where += " AND " + field.schema.Where
+	where, ANDwhere := field.WhereFromSet(), field.schema.Where
+	if where > "" {
+		field.putEnumValueToArgs()
 	}
-	field.putEnumValueToArgs()
+	if ANDwhere > "" {
+		ANDwhere = field.parseEnumValue(ANDwhere)
+		if where > "" {
+			field.ChildQB.Where = where + " AND " + ANDwhere
+		} else {
+			field.ChildQB.Where = ANDwhere
+		}
+		field.putValueToArgs(field.schema.Where)
+	}
 
 	titleField := field.schema.GetForeignFields()
 
@@ -202,23 +210,28 @@ func (field *QBField) putSelectValues(idx int) map[int] string {
 // put param Value
 func (field *QBField) putEnumValueToArgs() error {
 	for _, enumVal := range field.schema.EnumValues {
-		if i := strings.Index(enumVal, ":"); i > 0 {
-			param := enumVal[i+1:]
-			// считаем, что окончанием параметра могут быть символы ", )"
-			j := strings.IndexAny(param, ", )")
-			if j > 0 {
-				param = param[:j]
-			}
-			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-			if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
-				field.ChildQB.AddArgs( paramField.Value )
-			} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
-				field.ChildQB.AddArgs( paramValue[0] )
-			} else if param == "id_users" {
-				field.ChildQB.AddArgs( 0 )
-			} else {
-				return errors.New( "not enougth parameter")
-			}
+		field.putValueToArgs(enumVal)
+	}
+
+	return nil
+}
+func (field *QBField) putValueToArgs(enumVal string) error {
+	if i := strings.Index(enumVal, ":"); i > 0 {
+		param := enumVal[i+1:]
+		// считаем, что окончанием параметра могут быть символы ", )"
+		j := strings.IndexAny(param, ", )")
+		if j > 0 {
+			param = param[:j]
+		}
+		// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
+			field.ChildQB.AddArgs( paramField.Value )
+		} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
+			field.ChildQB.AddArgs( paramValue[0] )
+		} else if param == "id_users" {
+			field.ChildQB.AddArgs( 0 )
+		} else {
+			return errors.New( "not enougth parameter")
 		}
 	}
 
