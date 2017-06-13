@@ -63,6 +63,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		if field.schema.TABLEID {
 			field.ChildQB = CreateEmpty()
 			field.ChildQB.AddTable("p", field.schema.TableProps)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
 			titleField := field.schema.GetForeignFields()
@@ -71,6 +72,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
 
 		} else if field.schema.NODEID {
 
@@ -80,9 +82,12 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
+			field.ChildQB.FieldsParams = table.qB.FieldsParams
 		} else if field.schema.IdForeign {
-				field.getSelectedValues()
+				// уже не нужно, но надо перепроверить!!!
+				//field.getSelectedValues()
 		}
+
 
 	}
 	//table.qB.fields = append(table.qB.fields, field)
