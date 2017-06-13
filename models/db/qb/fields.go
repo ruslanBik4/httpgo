@@ -117,6 +117,9 @@ func (field *QBField) getSelectedValues() {
 	field.ChildQB = CreateEmpty()
 	// подключаем отборы из описания полей и заполняем их по обстановке
 	field.ChildQB.Where = field.WhereFromSet()
+	if field.schema.Where > "" {
+		field.ChildQB.Where += " AND " + field.schema.Where
+	}
 	field.putEnumValueToArgs()
 
 	titleField := field.schema.GetForeignFields()
