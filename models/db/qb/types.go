@@ -43,7 +43,7 @@ type QueryBuilder struct {
 	union *QueryBuilder
 }
 // for compatabilies interface logsType
-func (qb *QueryBuilder) Print() string {
+func (qb *QueryBuilder) PrintToLogs() string {
 	mess := "&qb{sql: " + qb.sqlCommand + ", Where: " + qb.Where + ", Tables: "
 	for _, table := range qb.Tables {
 		mess += table.Name + ", "

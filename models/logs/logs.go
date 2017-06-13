@@ -15,7 +15,7 @@ import (
 )
 
 type LogsType interface {
-	Print() string
+	PrintToLogs() string
 }
 var F_debug = flag.String("debug", "true", "debug mode")
 var F_status = flag.String("status", "true", "status mode")
@@ -113,7 +113,7 @@ func getArgsString(args ...interface{})(message string){
 
 		switch val := arg.(type) {
 		case LogsType:
-			message += val.Print()
+			message += val.PrintToLogs()
 		default:
 
 			message += fmt.Sprintf("%v, ", arg)
