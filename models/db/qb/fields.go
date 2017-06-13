@@ -64,6 +64,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
 			field.ChildQB.AddTable("p", field.schema.TableProps)
 			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
 			titleField := field.schema.GetForeignFields()
@@ -73,6 +74,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
 			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 
 		} else if field.schema.NODEID {
 
@@ -83,6 +85,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
 			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.AddArg(0)
 		} else if field.schema.IdForeign {
 				// уже не нужно, но надо перепроверить!!!
 				//field.getSelectedValues()
