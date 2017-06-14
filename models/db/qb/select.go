@@ -130,7 +130,7 @@ func (qb * QueryBuilder) unionSQL() string {
 }
 func getSETProps_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	//field.ChildQB.Where = field.WhereFromSet()
+	//field.ChildQB.Where = field.parseWhereANDputArgs()
 	//
 	//field.ChildQB.Args = make([] interface{}, 0)
 	//field.putEnumValueToArgs()
@@ -141,7 +141,7 @@ func getSETProps_Values(field *QBField, fieldID string) (arrJSON [] map[string] 
 }
 func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	//where := field.WhereFromSet()
+	//where := field.parseWhereANDputArgs()
 	//if where > "" {
 	//	field.ChildQB.Where = where + fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
 	//} else {
@@ -189,7 +189,7 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 }
 
 
-//@func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+//@func (field * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
 //@author Sergey Litvinov
 //@version 1.00 2017-06-12
 func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
@@ -266,8 +266,10 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 					values[fieldName] = false
 
 				}
-			case "int", "int64", "float", "double":
+			case "int", "int64":
 				values[fieldName], _ = strconv.Atoi(field.Value)
+			case "float", "double":
+				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
 			default:
 				values[fieldName] = field.Value
 			}
@@ -279,7 +281,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 	return arrJSON, nil
 }
 
-//(qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
+//(field * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
 //Not Convert BooleanType
 //@author Sergey Litvinov
 func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
@@ -366,7 +368,7 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 	return arrJSON, nil
 }
 
-//@func (qb * QueryBuilder) SelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error )
+//@func (field * QueryBuilder) SelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error )
 // Get rows not convert tinyInt fields
 //@author Sergey Litvinov
 func (qb * QueryBuilder) GetSelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error ) {

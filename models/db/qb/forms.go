@@ -29,13 +29,7 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 					}
 				}()
 				table.AddField("", fieldStrc.COLUMN_NAME)
-				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-				//field.Alias = field.Name
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
-				//if fieldStrc.TABLEID {
-				//	field.ChildQB = CreateEmpty()
-				//	field.ChildQB.AddTable("p", field.schema.TableProps)
-				//}
 			}
 		}
 
@@ -60,7 +54,7 @@ func (qb *QueryBuilder) checkSurrogateFields() {
 			field.getSelectedValues()
 		} else if field.schema.TABLEID {
 			//field.ChildrenFields = schema.GetFieldsTable(field.schema.TableProps)
-			//qb.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
+			//field.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
 
 		}
 	}

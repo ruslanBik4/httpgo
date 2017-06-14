@@ -7,11 +7,21 @@ package qb
 import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strings"
-	"errors"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"database/sql"
 )
+// for compatabilies interface logsType
+func (field *QBField) String() string {
+	mess := "&QBField{Name: " + field.Name + ", Alias: " + field.Alias + ", Table: " + field.Table.Name + ", SelectValues: "
+	for key, value := range field.SelectValues {
+		mess += fmt.Sprintf("%d=%s", key, value )
+	}
+	mess += fmt.Sprintf(" SelectQB: %v", field.SelectQB)
+
+	return mess + "}"
+}
+
 // getters
 func (field *QBField) GetSchema() *schema.FieldStructure {
 	return field.schema
@@ -62,7 +72,8 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		if field.schema.TABLEID {
 			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
 			field.ChildQB.AddTable("p", field.schema.TableProps)
-			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.PostParams = table.qB.PostParams
+			logs.StatusLog( field.Name, field.ChildQB.PostParams)
 			field.ChildQB.AddArg(0)
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
@@ -72,7 +83,10 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
-			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.PostParams = make(map[string][]string, len(table.qB.PostParams) )
+			for key, value := range table.qB.PostParams {
+				field.ChildQB.PostParams[key] = value
+			}
 			field.ChildQB.AddArg(0)
 
 		} else if field.schema.NODEID {
@@ -83,7 +97,10 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
-			field.ChildQB.FieldsParams = table.qB.FieldsParams
+			field.ChildQB.PostParams = make(map[string][]string, len(table.qB.PostParams) )
+			for key, value := range table.qB.PostParams {
+				field.ChildQB.PostParams[key] = value
+			}
 			field.ChildQB.AddArg(0)
 		} else if field.schema.IdForeign {
 				// уже не нужно, но надо перепроверить!!!
@@ -97,7 +114,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	return table
 }
-// TODO: local qb
+// TODO: local field
 func (field *QBField) getSelectedValues() {
 
 	defer func() {
@@ -107,21 +124,31 @@ func (field *QBField) getSelectedValues() {
 			logs.ErrorLogHandler(err, err.Table, field.Name, field.Table.Name)
 			panic(err)
 		case nil:
+		case ErrNotFoundParam:
+			logs.ErrorLog( err, field, field.SelectQB)
 		case error:
-			panic(err)
+			logs.ErrorLog( err, field, field.SelectQB)
 		}
 
 	}()
 
-	field.ChildQB = Create( field.WhereFromSet(), "", "" )
+	// создаем дочерний запрос
+	field.SelectQB = CreateEmpty()
 
 	titleField := field.schema.GetForeignFields()
 
-	field.ChildQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
+	field.SelectQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
-	rows, err := field.ChildQB.GetDataSql()
+	// подключаем параметры POST-запроса от старшего запроса field
+	field.SelectQB.PostParams = make(map[string] []string, len(field.Table.qB.PostParams) )
+	for key, value := range field.Table.qB.PostParams {
+		field.SelectQB.PostParams[key] = value
+	}
+	// разбираем заменяемые параметры
+	field.SelectQB.Where = field.parseWhereANDputArgs()
+	rows, err := field.SelectQB.GetDataSql()
 	if err != nil {
-		logs.ErrorLog(err, field.Name,  field.ChildQB)
+		logs.ErrorLog(err, field.Name,  field.SelectQB)
 	} else {
 		for rows.Next() {
 			var id int
@@ -136,66 +163,59 @@ func (field *QBField) putValueToArgs(param string) error {
 		// считаем, что окончанием параметра могут быть символы ", )"
 		// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
 		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
-			field.ChildQB.AddArgs( paramField.Value )
-		} else if paramValue, ok := field.Table.qB.FieldsParams[param]; ok {
-			field.ChildQB.AddArgs( paramValue[0] )
+			field.SelectQB.AddArgs( paramField.Value )
+		} else if paramValue, ok := field.Table.qB.PostParams[param]; ok {
+			field.SelectQB.AddArgs( paramValue[0] )
 		} else if param == "id_users" {
-			field.ChildQB.AddArgs( 0 )
+			field.SelectQB.AddArgs( 0 )
 		} else {
-			return errors.New( "not enougth parameter")
+			panic( &ErrNotFoundParam{Param:"not enougth parameter"} )
 		}
 
 
 	return nil
 }
 // parse enumValues & insert queryes parameters
-func (field *QBField) parseEnumValue(enumVal string) (condition, param string) {
+func (field *QBField) parseEnumValue(enumVal string) string {
 	if i := strings.Index(enumVal, ":"); i > 0 {
-		paramName, suffix := enumVal[i+1:], ""
+		param, suffix := enumVal[i+1:], ""
 		// считаем, что окончанием параметра могут быть символы ", )"
-		j := strings.IndexAny(paramName, ", )")
+		j := strings.IndexAny(param, ", )")
 		if j > 0 {
-			suffix    = paramName[j:]
-			paramName = paramName[:j]
+			suffix = param[j:]
+			param  = param[:j]
 		}
-		condition = enumVal[:i] + "?" + suffix
-	} else {
-		condition = enumVal
+		if err := field.putValueToArgs(param); err != nil {
+			panic(err)
+		}
+		return enumVal[:i] + "?" + suffix
 	}
-
-	return condition, param
+	return enumVal
 }
 // todo: проверить работу
 // create where for  query from SETID_ / NODEID_ / TABLEID_ fields
 // условия вынимаем из определения поля типа SET
 // и все условия оборачиваем в скобки для того, что бы потом можно было навесить еще условие
-func (field *QBField) WhereFromSet() (result string) {
+func (field *QBField) parseWhereANDputArgs() (result string) {
 
-	defer schemaError()
 	comma  := ""
 	for _, enumVal := range field.schema.EnumValues {
-		condition, param :=	field.parseEnumValue(enumVal)
-		if param > "" {
-			field.putValueToArgs(param)
-		} else if condition == "1" {
+		if enumVal == "1" {
 			continue
 		}
-		result += comma + condition
+
+		result += comma + field.parseEnumValue(enumVal)
 		comma = " OR "
 	}
 
 	if field.schema.Where > "" {
 
-		condition, param := field.parseEnumValue( field.schema.Where )
-		if param > "" {
-			field.putValueToArgs(param)
-		}
 		if (result > "") {
 
-			result = "(" + result + ") AND "
+			return "(" + result + ") AND " + field.parseEnumValue( field.schema.Where )
 		}
 
-		return result + condition
+		return field.parseEnumValue( field.schema.Where )
 	}
 
 	return result

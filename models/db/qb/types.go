@@ -14,13 +14,14 @@ import (
 type QBField struct {
 	Name           string
 	Alias          string
-        schema         *schema.FieldStructure
+	schema         *schema.FieldStructure
 	Value          string
 	SQLforFORMList string `отдаем в списках полей для формы`
 	SQLforDATAList string `отдаем в составе данных`
 	SelectValues   map[int] string
 	Table          *QBTable
 	ChildQB        *QueryBuilder
+	SelectQB        *QueryBuilder
 }
 type QBTable struct {
 	Name   string
@@ -32,18 +33,19 @@ type QBTable struct {
 	qB     *QueryBuilder
 }
 type QueryBuilder struct {
-	Tables 		[] *QBTable
-	Args 		[] interface{}
-	fields 		[] *QBField
-	Aliases 	[] string
-	Prepared        *sql.Stmt
-	FieldsParams 	map[string][]string
-	sqlCommand, sqlSelect, sqlFrom string		`auto recalc`
+	Tables                          [] *QBTable
+	Args                            [] interface{}
+	fields                          [] *QBField
+	Aliases                         [] string
+	Prepared                        *sql.Stmt
+	PostParams                      map[string][]string
+	sqlCommand, sqlSelect, sqlFrom  string		`auto recalc`
 	Where, GroupBy, OrderBy, Limits string	`may be defined outside`
-	union *QueryBuilder
+	union                           *QueryBuilder
 }
 // for compatabilies interface logsType
 func (qb *QueryBuilder) PrintToLogs() string {
+
 	mess := "&qb{sql: " + qb.sqlCommand + ", Where: " + qb.Where + ", Tables: "
 	for _, table := range qb.Tables {
 		mess += table.Name + ", "
@@ -57,6 +59,10 @@ func (qb *QueryBuilder) PrintToLogs() string {
 		mess += fmt.Sprintf( "%v, ", arg )
 	}
 
+	mess += " PostParams: "
+	for _, arg := range qb.PostParams {
+		mess += fmt.Sprintf( "%v, ", arg )
+	}
 	return mess + "}"
 }
 // addding arguments
