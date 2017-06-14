@@ -581,3 +581,20 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	return menu.Self.Id
 }
+// функция возвращает стандартный sql для вставки данных в таблицу
+// пример работы https://play.golang.org/p/4KeGhkskh5
+func GetInsertSQLString (table string, args... string) string {
+
+	var comma string
+	gravis := "`"
+	placeholders := ""
+	sqlString := "INSERT INTO " + gravis + table + gravis + " ("
+	for _, val := range args {
+		sqlString += comma + gravis + val + gravis
+		placeholders += comma + "?"
+		comma = ","
+	}
+	sqlString += ") VALUES (" + placeholders + ")"
+
+	return sqlString
+}
