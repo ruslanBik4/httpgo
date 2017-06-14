@@ -15,10 +15,10 @@ import (
 )
 
 type LogsType interface {
-	Print() string
+	PrintToLogs() string
 }
-var F_debug = flag.String("debug", "true", "debug mode")
-var F_status = flag.String("status", "true", "status mode")
+var F_debug = flag.Bool("debug", false, "debug mode")
+var F_status = flag.Bool("status", true, "status mode")
 
 //var l =
 //DebugLog( args ...interface{}) - output formated(function and line calls) debug information
@@ -26,7 +26,7 @@ var F_status = flag.String("status", "true", "status mode")
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	if *F_debug == "true" {
+	if *F_debug {
 
 		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
 			getArgsString(args)))
@@ -39,7 +39,7 @@ func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *F_status == "true" {
+	if *F_status {
 		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)) )
 	}
 }
@@ -112,11 +112,13 @@ func getArgsString(args ...interface{})(message string){
 	for _, arg := range args {
 
 		switch val := arg.(type) {
+		case nil:
+			message += "is nil"
 		case LogsType:
-			message += val.Print()
+			message += val.PrintToLogs()
 		default:
 
-			message += fmt.Sprintf("%v, ", arg)
+			message += fmt.Sprintf("%#v, ", arg)
 		}
 	}
 

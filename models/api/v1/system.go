@@ -39,7 +39,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("./webserver.sh", "status")
+	cmd := exec.Command("systemctl", "status", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -52,7 +52,7 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("./webserver.sh", "restart")
+	cmd := exec.Command("systemctl", "restart", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()

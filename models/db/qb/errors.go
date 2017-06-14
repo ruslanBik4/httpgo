@@ -9,6 +9,12 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
+type ErrNotFoundParam struct {
+	Param string
+}
+func (err ErrNotFoundParam) Error() string {
+	return err.Param
+}
 func schemaError() {
 	result := recover()
 	switch err := result.(type) {
