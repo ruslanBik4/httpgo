@@ -7,12 +7,12 @@ package qb
 import (
 	"log"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // return schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
-	schTable.Fields = make(map[string] *QBField, 0)
 
 	if len(qb.fields) == 0 {
 		for _, table := range qb.Tables {
@@ -31,11 +31,12 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 				table.AddField("", fieldStrc.COLUMN_NAME)
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
 			}
+			logs.StatusLog(table)
 		}
-
 	}
 	qb.checkSurrogateFields()
 
+	schTable.Fields = make(map[string] *QBField, len(qb.fields))
 	for _, field := range qb.fields {
 		schTable.Fields[field.Name] = field
 	}

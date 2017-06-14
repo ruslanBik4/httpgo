@@ -45,11 +45,9 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 				if field.schema.COLUMN_TYPE == "calc" {
 					qb.sqlSelect += commaFld + field.Name + queryName
 				} else {
-
 					qb.sqlSelect += commaFld + aliasTable + field.Name + queryName
-
 				}
-				qb.fields = append(qb.fields, field)
+				qb.fields = append(qb.fields, table.Fields[alias])
 				qb.Aliases = append(qb.Aliases, alias)
 				commaFld = ", "
 			}
@@ -130,27 +128,12 @@ func (qb * QueryBuilder) unionSQL() string {
 }
 func getSETProps_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
 
-	//field.ChildQB.Where = field.parseWhereANDputArgs()
-	//
-	//field.ChildQB.Args = make([] interface{}, 0)
-	//field.putEnumValueToArgs()
 	field.ChildQB.Args[0] = fieldID
 
 	return field.ChildQB.SelectToMultidimension()
 
 }
 func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-
-	//where := field.parseWhereANDputArgs()
-	//if where > "" {
-	//	field.ChildQB.Where = where + fmt.Sprintf( " AND (id_%s=?)", field.Table.Name )
-	//} else {
-	//	field.ChildQB.Where = fmt.Sprintf( " WHERE (id_%s=?)", field.Table.Name )
-	//}
-	//
-	//field.ChildQB.Args = make([] interface{}, 0)
-	//field.putEnumValueToArgs()
-	//field.ChildQB.AddArg(fieldID)
 
 	field.ChildQB.Args[0] = fieldID
 	return field.ChildQB.SelectToMultidimension()

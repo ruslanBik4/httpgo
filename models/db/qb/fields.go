@@ -12,7 +12,7 @@ import (
 	"database/sql"
 )
 // for compatabilies interface logsType
-func (field *QBField) String() string {
+func (field QBField) String() string {
 	mess := "&QBField{Name: " + field.Name + ", Alias: " + field.Alias + ", Table: " + field.Table.Name + ", SelectValues: "
 	for key, value := range field.SelectValues {
 		mess += fmt.Sprintf("%d=%s", key, value )
@@ -67,14 +67,10 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	if field.schema == nil {
 		field.schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
 	} else {
-		field.SelectValues = make(map[int] string, 0)
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
 			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
 			field.ChildQB.AddTable("p", field.schema.TableProps)
-			field.ChildQB.PostParams = table.qB.PostParams
-			logs.StatusLog( field.Name, field.ChildQB.PostParams)
-			field.ChildQB.AddArg(0)
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
 			titleField := field.schema.GetForeignFields()
@@ -83,12 +79,6 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.Join ( "v", field.schema.TableValues, onJoin ).AddField("", "id_" + field.Table.Name)
-			field.ChildQB.PostParams = make(map[string][]string, len(table.qB.PostParams) )
-			for key, value := range table.qB.PostParams {
-				field.ChildQB.PostParams[key] = value
-			}
-			field.ChildQB.AddArg(0)
-
 		} else if field.schema.NODEID {
 
 			titleField := field.schema.GetForeignFields()
@@ -97,16 +87,16 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name )
 			field.ChildQB.JoinTable ( "v", field.schema.TableValues, "JOIN", onJoin ).AddField("", "id_" + field.Table.Name)
-			field.ChildQB.PostParams = make(map[string][]string, len(table.qB.PostParams) )
-			for key, value := range table.qB.PostParams {
-				field.ChildQB.PostParams[key] = value
-			}
-			field.ChildQB.AddArg(0)
 		} else if field.schema.IdForeign {
 				// уже не нужно, но надо перепроверить!!!
 				//field.getSelectedValues()
 		}
 
+		if field.ChildQB != nil {
+
+			field.ChildQB.PostParams = table.qB.PostParams
+			field.ChildQB.AddArg(0)
+		}
 
 	}
 	//table.qB.fields = append(table.qB.fields, field)
@@ -140,16 +130,18 @@ func (field *QBField) getSelectedValues() {
 	field.SelectQB.AddTable( "", field.schema.TableProps ).AddField("", "id").AddField("", titleField)
 
 	// подключаем параметры POST-запроса от старшего запроса field
-	field.SelectQB.PostParams = make(map[string] []string, len(field.Table.qB.PostParams) )
-	for key, value := range field.Table.qB.PostParams {
-		field.SelectQB.PostParams[key] = value
+	field.SelectQB.PostParams = field.Table.qB.PostParams
+	if field.SelectQB.PostParams == nil {
+		logs.StatusLog(field.Name, field.Table)
 	}
 	// разбираем заменяемые параметры
 	field.SelectQB.Where = field.parseWhereANDputArgs()
+
 	rows, err := field.SelectQB.GetDataSql()
 	if err != nil {
 		logs.ErrorLog(err, field.Name,  field.SelectQB)
 	} else {
+		field.SelectValues = make(map[int] string, 2)
 		for rows.Next() {
 			var id int
 			var title string

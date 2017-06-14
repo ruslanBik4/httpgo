@@ -79,28 +79,6 @@ func (qb *QueryBuilder) AddArgs(args ... interface{}) *QueryBuilder{
 
 	return qb
 }
-// add Tables list, returns qB
-func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
-	for alias, name := range names {
-		qb.AddTable(alias, name)
-	}
-
-	return qb
-}
-//add Table, returns object table
-func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
-
-	//if alias == ""  {
-	//	alias = name
-	//}
-	table := &QBTable{Name: name, Alias: alias, qB: qb}
-	table.Fields = make(map[string] *QBField, 0)
-	defer schemaError()
-	table.schema = schema.GetFieldsTable(table.Name)
-	qb.Tables    = append(qb.Tables, table)
-
-	return table
-}
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {
 
