@@ -456,7 +456,6 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 	comma, sqlCommand, where := "", "UPDATE "+table+" SET ", " WHERE "
 	
 	for key, val := range mapData {
-		logs.DebugLog("sql ", key, val)
 		if key == "id" {
 			where += "`" + key + "`=?"
 			switch val.(type) {
