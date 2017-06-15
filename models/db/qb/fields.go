@@ -161,7 +161,7 @@ func (field *QBField) putValueToArgs(param string) error {
 		} else if param == "id_users" {
 			field.SelectQB.AddArgs( 0 )
 		} else {
-			panic( &ErrNotFoundParam{Param:"not enougth parameter"} )
+			panic( &ErrNotFoundParam{Param:"not enougth parameter-" + param} )
 		}
 
 

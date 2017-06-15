@@ -157,7 +157,25 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 
 	return qb.Prepared.Query(qb.Args...)
 }
+func (qb *QueryBuilder) SelectRunFunc( onReadRow func(rows *sql.Rows) error ) error {
 
+	rows, err := qb.GetDataSql()
+	if err != nil {
+		logs.ErrorLog(err, qb)
+		return err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := onReadRow(rows); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+// предназначен для получения данных в формате JSON
 func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
 
 	rows, err := qb.GetDataSql()
@@ -309,7 +327,7 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 			if schema.SETID  {
 				values[fieldName], err = getSETProps_Values(field, ID)
 				if err != nil {
-					logs.ErrorLog(err, field.SQLforFORMList)
+					logs.ErrorLog(err, field)
 					values[fieldName] = err.Error()
 				}
 				continue
