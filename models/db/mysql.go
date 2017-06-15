@@ -444,35 +444,46 @@ func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 }
 
 
-//DoUpdateFromMap - function generate sql query from data map
-//@version 1.00 2017-04-11
+//DoUpdateFromMap - function generate sql update query from data map with current id
 //@author Sergey Litvinov
-func DoUpdateFromMap(table string, mapData map[string] interface{}) (RowsAffected int, err error) {
-
+//@version 1.10 2017-06-15 Add new validation type(Sergey Litvinov)
+func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected int, err error) {
 	var row argsRAW
 	var id int
 	var tableIDQueryes MultiQuery
-	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
-
-	comma, sqlCommand, where := "", "UPDATE " + table + " SET ", " WHERE id="
-
+	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
+	
+	comma, sqlCommand, where := "", "UPDATE "+table+" SET ", " WHERE "
+	
 	for key, val := range mapData {
 		if key == "id" {
-			where += val.(string)
-			id, _ = strconv.Atoi(val.(string))
+			where += "`" + key + "`=?"
+			switch val.(type) {
+			case int:
+				id = val.(int)
+			case string:
+				id, _ = strconv.Atoi(val.(string))
+			default:
+				logs.ErrorLog(errors.New("Not correct fornmat id"))
+			}
+			logs.DebugLog(val)
 			continue
-		}  else {
+		} else {
 			sqlCommand += comma + "`" + key + "`=?"
-			row = append( row, val )
+			row = append(row, val)
 		}
 		comma = ", "
-
+		
 	}
-	row = append( row, id )
-    RowsAffected, err = DoUpdate(sqlCommand + where, row ... )
+	row = append(row, id)
+	sqlCommand = sqlCommand + where
+	//logs.DebugLog("sql ",  sqlCommand)
+	//logs.DebugLog(  row... )
+	
+	RowsAffected, err = DoUpdate(sqlCommand, row...)
 	return RowsAffected, err
-
 }
+
 //TODO: написать нормальный комментарий и убраьтт лишний код проверки типов
 // SelectToMultidimension в своем первозданном виде.
 func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
