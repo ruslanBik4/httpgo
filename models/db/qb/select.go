@@ -207,7 +207,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 
 		values := make(map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
-			logs.ErrorLog(err, valuePtrs)
+			logs.ErrorLog(err, valuePtrs, qb)
 			continue
 		}
 

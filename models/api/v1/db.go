@@ -90,10 +90,10 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if (tableName > "") {
-		qBuilder := qb.Create("", "", "")
+		qBuilder := qb.CreateFromSQL("SELECT * FROM " + tableName)
 		r.ParseForm()
 		qBuilder.PostParams = r.Form
-		qBuilder.AddTable("a", tableName)
+		//qBuilder.AddTable("a", tableName)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
