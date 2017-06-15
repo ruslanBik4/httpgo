@@ -583,7 +583,7 @@ func (menu *MenuItems) Init(id string) int32 {
 }
 // функция возвращает стандартный sql для вставки данных в таблицу
 // пример работы https://play.golang.org/p/4KeGhkskh5
-func GetInsertSQLString (table string, args... string) string {
+func GetSimpleInsertSQLString(table string, args... string) string {
 
 	var comma string
 	gravis := "`"
