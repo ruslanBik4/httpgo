@@ -11,56 +11,76 @@ import (
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/common/input.qtpl:2
+// {#
+//     attr[0] - name input, id input
+//     attr[1] - data-form id form
+// #}
+//
+
+//line views/templates/common/input.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/common/input.qtpl:2
-func StreamRenderInput(qw422016 *qt422016.Writer, name string) {
-	//line views/templates/common/input.qtpl:2
+//line views/templates/common/input.qtpl:7
+func StreamRenderInput(qw422016 *qt422016.Writer, attr ...string) {
+	//line views/templates/common/input.qtpl:7
+	qw422016.N().S(`
+
+    `)
+	//line views/templates/common/input.qtpl:10
+	dataForm := ""
+	if len(attr) > 1 {
+		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+	}
+
+	//line views/templates/common/input.qtpl:14
 	qw422016.N().S(`
 
     <label class="c-app-input">
         <input class="c-input" type="text" id="`)
-	//line views/templates/common/input.qtpl:5
-	qw422016.E().S(name)
-	//line views/templates/common/input.qtpl:5
+	//line views/templates/common/input.qtpl:17
+	qw422016.E().S(attr[0])
+	//line views/templates/common/input.qtpl:17
 	qw422016.N().S(`" name="`)
-	//line views/templates/common/input.qtpl:5
-	qw422016.E().S(name)
-	//line views/templates/common/input.qtpl:5
-	qw422016.N().S(`">
+	//line views/templates/common/input.qtpl:17
+	qw422016.E().S(attr[0])
+	//line views/templates/common/input.qtpl:17
+	qw422016.N().S(`" `)
+	//line views/templates/common/input.qtpl:17
+	qw422016.E().S(dataForm)
+	//line views/templates/common/input.qtpl:17
+	qw422016.N().S(`>
         <span data-set-text></span>
     </label>
 
 `)
-//line views/templates/common/input.qtpl:9
+//line views/templates/common/input.qtpl:21
 }
 
-//line views/templates/common/input.qtpl:9
-func WriteRenderInput(qq422016 qtio422016.Writer, name string) {
-	//line views/templates/common/input.qtpl:9
+//line views/templates/common/input.qtpl:21
+func WriteRenderInput(qq422016 qtio422016.Writer, attr ...string) {
+	//line views/templates/common/input.qtpl:21
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/input.qtpl:9
-	StreamRenderInput(qw422016, name)
-	//line views/templates/common/input.qtpl:9
+	//line views/templates/common/input.qtpl:21
+	StreamRenderInput(qw422016, attr...)
+	//line views/templates/common/input.qtpl:21
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/input.qtpl:9
+//line views/templates/common/input.qtpl:21
 }
 
-//line views/templates/common/input.qtpl:9
-func RenderInput(name string) string {
-	//line views/templates/common/input.qtpl:9
+//line views/templates/common/input.qtpl:21
+func RenderInput(attr ...string) string {
+	//line views/templates/common/input.qtpl:21
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/input.qtpl:9
-	WriteRenderInput(qb422016, name)
-	//line views/templates/common/input.qtpl:9
+	//line views/templates/common/input.qtpl:21
+	WriteRenderInput(qb422016, attr...)
+	//line views/templates/common/input.qtpl:21
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/input.qtpl:9
+	//line views/templates/common/input.qtpl:21
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/input.qtpl:9
+	//line views/templates/common/input.qtpl:21
 	return qs422016
-//line views/templates/common/input.qtpl:9
+//line views/templates/common/input.qtpl:21
 }

@@ -21,6 +21,8 @@ const paramsJSONPhotos = 'photoid_photos';
 const paramsJSONForPost = 'value';
 const paramsJSONIdForTable = 'native-table-id';
 const paramsJSONIdData = 'data-id';
+const paramsForm = 'data-form-id';
+const paramsFormChildren = 'data-form';
 
 
 // JSON reserved words
@@ -101,6 +103,14 @@ export class Variables {
 
   static get paramsJSONIdData() {
     return paramsJSONIdData;
+  }
+
+  static get paramsForm() {
+    return paramsForm;
+  }
+
+  static get paramsFormChildren() {
+    return paramsFormChildren;
   }
 
 

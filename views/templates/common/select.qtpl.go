@@ -11,53 +11,73 @@ import (
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/common/select.qtpl:2
+// {#
+//     attr[0] - name input, id input
+//     attr[1] - data-form id form
+// #}
+//
+
+//line views/templates/common/select.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/common/select.qtpl:2
-func StreamRenderSelect(qw422016 *qt422016.Writer, name string) {
-	//line views/templates/common/select.qtpl:2
+//line views/templates/common/select.qtpl:7
+func StreamRenderSelect(qw422016 *qt422016.Writer, attr ...string) {
+	//line views/templates/common/select.qtpl:7
+	qw422016.N().S(`
+
+    `)
+	//line views/templates/common/select.qtpl:10
+	dataForm := ""
+	if len(attr) > 1 {
+		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+	}
+
+	//line views/templates/common/select.qtpl:14
 	qw422016.N().S(`
 
     <select class='c-app-select c-select' id='`)
-	//line views/templates/common/select.qtpl:4
-	qw422016.E().S(name)
-	//line views/templates/common/select.qtpl:4
+	//line views/templates/common/select.qtpl:16
+	qw422016.E().S(attr[0])
+	//line views/templates/common/select.qtpl:16
 	qw422016.N().S(`' name='`)
-	//line views/templates/common/select.qtpl:4
-	qw422016.E().S(name)
-	//line views/templates/common/select.qtpl:4
-	qw422016.N().S(`'></select>
+	//line views/templates/common/select.qtpl:16
+	qw422016.E().S(attr[0])
+	//line views/templates/common/select.qtpl:16
+	qw422016.N().S(`' `)
+	//line views/templates/common/select.qtpl:16
+	qw422016.E().S(dataForm)
+	//line views/templates/common/select.qtpl:16
+	qw422016.N().S(`></select>
 
 `)
-//line views/templates/common/select.qtpl:6
+//line views/templates/common/select.qtpl:18
 }
 
-//line views/templates/common/select.qtpl:6
-func WriteRenderSelect(qq422016 qtio422016.Writer, name string) {
-	//line views/templates/common/select.qtpl:6
+//line views/templates/common/select.qtpl:18
+func WriteRenderSelect(qq422016 qtio422016.Writer, attr ...string) {
+	//line views/templates/common/select.qtpl:18
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/select.qtpl:6
-	StreamRenderSelect(qw422016, name)
-	//line views/templates/common/select.qtpl:6
+	//line views/templates/common/select.qtpl:18
+	StreamRenderSelect(qw422016, attr...)
+	//line views/templates/common/select.qtpl:18
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/select.qtpl:6
+//line views/templates/common/select.qtpl:18
 }
 
-//line views/templates/common/select.qtpl:6
-func RenderSelect(name string) string {
-	//line views/templates/common/select.qtpl:6
+//line views/templates/common/select.qtpl:18
+func RenderSelect(attr ...string) string {
+	//line views/templates/common/select.qtpl:18
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/select.qtpl:6
-	WriteRenderSelect(qb422016, name)
-	//line views/templates/common/select.qtpl:6
+	//line views/templates/common/select.qtpl:18
+	WriteRenderSelect(qb422016, attr...)
+	//line views/templates/common/select.qtpl:18
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/select.qtpl:6
+	//line views/templates/common/select.qtpl:18
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/select.qtpl:6
+	//line views/templates/common/select.qtpl:18
 	return qs422016
-//line views/templates/common/select.qtpl:6
+//line views/templates/common/select.qtpl:18
 }

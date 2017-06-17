@@ -211,26 +211,36 @@ export class ParseJSON {
 
 
 
-  static setValue(component, attr, callback, str = '', isDefault = false, strTable = '') {
+  static setValue(component, attr, callback, str = '', isDefault = false, isOnlyClass = false, strTable = '') {
+
+    if (strTable) {
+      attr = attr[Variables.paramsJSONList];
+    }
 
     for (let name in attr) {
       let nameField;
 
       if (strTable.length !== 0) {
-        nameField = (isDefault) ? `${ strTable }:${ name }` : `${ strTable }:${ name }${ str }`;
+        nameField = (isDefault || isOnlyClass) ? `${ strTable }:${ name }` : `${ strTable }:${ name }${ str }`;
       } else {
-        nameField = (isDefault) ? `${ name }` : `${ name }${ str }`;
+        nameField = (isDefault || isOnlyClass) ? `${ name }` : `${ name }${ str }`;
       }
 
-      const dom = component.querySelector(`[name="${ nameField }"]`);
+      let dom;
+
+      if (component.hasAttribute(Variables.paramsForm)) {
+        dom = document.querySelector(`[name="${ nameField }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+      } else {
+        dom = component.querySelector(`[name="${ nameField }"]`);
+      }
 
       if (name.startsWith(Variables.paramsJSONTable)) {
-        this.setValue(component, attr[name], callback, str, isDefault, name.replace(new RegExp('^' + Variables.paramsJSONTable)));
+        this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
       } else if (dom) {
         if (isDefault) {
           const intArray = str.match(/\d+/g);
-          dom.setAttribute('name', `${ nameField }${ str }`);
-          dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+          if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
+          if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
         }
         callback(dom, attr[name]);
       }

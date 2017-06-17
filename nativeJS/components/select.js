@@ -40,7 +40,7 @@ export class Select {
     if (component.children.length !== 0) {
       for (let i = 0; i < component.children.length; i++) {
         let option = component.children[i];
-        if (option.getAttribute(Variables.paramsJSONForPost) === attr) {
+        if (option.getAttribute(Variables.paramsJSONForPost) == attr) {
           option.setAttribute('selected', '');
           break;
         }

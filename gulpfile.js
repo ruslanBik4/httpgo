@@ -17,6 +17,36 @@ const jsmin = require('gulp-jsmin');
 const concat = require('gulp-concat');
 // const autopolyfiller = require('gulp-autopolyfiller');
 
+
+gulp.task('common-js', () => {
+
+  let isBabel = babel({
+    presets: [require('babel-preset-es2015')]
+  });
+
+  isBabel.on('error', function(e) {
+    console.log(e);
+    isBabel.end();
+    notifier.notify(`error JS: ${ e.message }`);
+  });
+
+  gulp.src(`./common-js/**/*.js`)
+    .pipe(isBabel)
+    .pipe(rename({
+      prefix: `common-`,
+      dirname: ''
+    }))
+    .pipe(gulp.dest(`./js/common/`));
+
+  require('child_process').exec(`curl localhost:${ port }/recache`, function (err, stdout, stderr) {
+    console.log(stdout);
+    // console.log(stderr);
+    notifier.notify(`recache: ${ stdout }`)
+  });
+});
+
+
+
 gulp.task('native-js', () => {
   let isBabel = babel({
     presets: [require('babel-preset-es2015')]
@@ -42,7 +72,7 @@ gulp.task('native-js', () => {
 
   require('child_process').exec(`curl localhost:${ port }/recache`, function (err, stdout, stderr) {
     console.log(stdout);
-    console.log(stderr);
+    // console.log(stderr);
     notifier.notify(`recache: ${ stdout }`)
   });
 
@@ -52,8 +82,9 @@ gulp.task('native-js', () => {
 /* watch */
 gulp.task('watch', () => {
   gulp.watch([`./nativeJS/**/*`], ['native-js']);
+  gulp.watch([`./common-js/**/*`], ['common-js']);
 });
 
 
 /* default */
-gulp.task('default', ['native-js', 'watch']);
+gulp.task('default', ['native-js', 'common-js', 'watch']);
