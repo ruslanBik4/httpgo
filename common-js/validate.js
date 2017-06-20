@@ -12,19 +12,9 @@ export class Validate {
 
     data.querySelectorAll(`[${ attr }]`).forEach((component) => {
 
-      let componentChild = component.querySelector('input');
+      let componentChild = component.querySelector('select');
 
-      if (componentChild) {
-        if (componentChild.value.length === 0) {
-          if (!isTest) componentChild.classList.add(classNameError);
-          isError = true;
-        } else {
-          componentChild.classList.remove(classNameError);
-        }
-        return;
-      }
-
-      componentChild = component.querySelector('select');
+      // select
 
       if (componentChild) {
         const validateSelect = component.getAttribute(attrSelect);
@@ -59,6 +49,8 @@ export class Validate {
         return;
       }
 
+      // input
+
       if (component.hasAttribute(attrCheckbox)) {
         let result = false;
         component.querySelectorAll('input[type="checkbox"]').forEach((input) => {
@@ -67,8 +59,22 @@ export class Validate {
           }
         });
         isError = !(result);
+        return;
       }
 
+      componentChild = component.querySelector('input');
+
+      if (componentChild) {
+        if (componentChild.value.length === 0) {
+          if (!isTest) componentChild.classList.add(classNameError);
+          isError = true;
+        } else {
+          componentChild.classList.remove(classNameError);
+        }
+        return;
+      }
+
+      //textarea
 
       componentChild = component.querySelector('textarea');
 

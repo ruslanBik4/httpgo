@@ -32,7 +32,7 @@ func StreamRenderSelect(qw422016 *qt422016.Writer, attr ...string) {
 	//line views/templates/common/select.qtpl:10
 	dataForm := ""
 	if len(attr) > 1 {
-		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
 	}
 
 	//line views/templates/common/select.qtpl:14

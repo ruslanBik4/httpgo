@@ -9,12 +9,12 @@
     {% code
         dataForm := ""
         if len(attr) > 1 {
-            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
         }
     %}
 
     <div class="c-app-checkbox">
-        <label for="{%s attr[0] %}">
+        <label>
             <input class="c-checkbox" type="checkbox" id="{%s attr[0] %}" name="{%s attr[0] %}" {%s dataForm %}>
             <span data-set-text></span>
         </label>

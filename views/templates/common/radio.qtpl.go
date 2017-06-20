@@ -32,18 +32,14 @@ func StreamRenderRadio(qw422016 *qt422016.Writer, attr ...string) {
 	//line views/templates/common/radio.qtpl:10
 	dataForm := ""
 	if len(attr) > 1 {
-		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
 	}
 
 	//line views/templates/common/radio.qtpl:14
 	qw422016.N().S(`
 
     <div class="c-app-radio">
-        <label for="`)
-	//line views/templates/common/radio.qtpl:17
-	qw422016.E().S(attr[0])
-	//line views/templates/common/radio.qtpl:17
-	qw422016.N().S(`">
+        <label>
             <input class="c-radio" type="radio" id="`)
 	//line views/templates/common/radio.qtpl:18
 	qw422016.E().S(attr[0])

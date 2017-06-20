@@ -28,19 +28,9 @@ var Validate = exports.Validate = function () {
 
       data.querySelectorAll('[' + attr + ']').forEach(function (component) {
 
-        var componentChild = component.querySelector('input');
+        var componentChild = component.querySelector('select');
 
-        if (componentChild) {
-          if (componentChild.value.length === 0) {
-            if (!isTest) componentChild.classList.add(classNameError);
-            isError = true;
-          } else {
-            componentChild.classList.remove(classNameError);
-          }
-          return;
-        }
-
-        componentChild = component.querySelector('select');
+        // select
 
         if (componentChild) {
           var validateSelect = component.getAttribute(attrSelect);
@@ -74,6 +64,8 @@ var Validate = exports.Validate = function () {
           return;
         }
 
+        // input
+
         if (component.hasAttribute(attrCheckbox)) {
           var _result = false;
           component.querySelectorAll('input[type="checkbox"]').forEach(function (input) {
@@ -82,7 +74,22 @@ var Validate = exports.Validate = function () {
             }
           });
           isError = !_result;
+          return;
         }
+
+        componentChild = component.querySelector('input');
+
+        if (componentChild) {
+          if (componentChild.value.length === 0) {
+            if (!isTest) componentChild.classList.add(classNameError);
+            isError = true;
+          } else {
+            componentChild.classList.remove(classNameError);
+          }
+          return;
+        }
+
+        //textarea
 
         componentChild = component.querySelector('textarea');
 

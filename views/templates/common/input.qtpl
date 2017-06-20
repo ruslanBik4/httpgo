@@ -9,7 +9,7 @@
     {% code
         dataForm := ""
         if len(attr) > 1 {
-            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm }"
+            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
         }
     %}
 

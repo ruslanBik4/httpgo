@@ -97,45 +97,67 @@ export class ParseJSON {
   }
 
 
+
+  static insertValueCurrentComponent(component, attr) {
+
+    let func = this.components[component.tagName];
+    if (func && func.addAttrToComponent) {
+      func.addAttrToComponent(component, attr);
+    } else {
+      if (Object.prototype.toString.call(attr) === '[object Array]') {
+        for (let value of attr) {
+          const currentComponent = component.querySelector(`[${ Variables.paramsJSONIdData }="${ value.id }"]`);
+          if (!currentComponent) {
+            console.log(`component data-id not found for set value: ${ component.id }, ${ value }`);
+            continue;
+          }
+          if (!func) {
+            func = this.components[currentComponent.tagName];
+          }
+          if (func.addAttrToComponent) {
+            func.addAttrToComponent(currentComponent, "1");
+          }
+        }
+      } else {
+        component.textContent = attr;
+        console.log(`Not found in frame: ${ component }`);
+      }
+    }
+
+  };
+
+  static setNewAttrIdAndName(component, index) {
+    const nameAttr = component.getAttribute('name');
+    const idAttr = component.getAttribute('id');
+    component.setAttribute('name', `${ nameAttr }[${ index }]`);
+    component.setAttribute('id', `${ idAttr }-${ index }`);
+  }
+
+
+
   /*
    *   Insert data after create component
    */
 
   static insertValueToComponent(component, attr, strForTable = '') {
 
-    const insertValueCurrentComponent = (component, attr) => {
+    function getDefaultComponent(parent) {
+      if (parent) {
+        const temp = document.createElement('template');
+        temp.innerHTML = parent.innerHTML;
+        // debugger;
+        //
+        // document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
+        //   component.onclick = function() {
+        //     debugger;
+        //     const newComponent = temp.cloneNode(true);
+        //     const parent = document.querySelector(`[${ Varibales.paramsJSONIdForTable }="${ this.getAttribute(Variables.paramsForClick) }"]`)
+        //     parent.appendChild(newComponent);
+        //   };
+        // });
 
-      let func = this.components[component.tagName];
-      if (func && func.addAttrToComponent) {
-        func.addAttrToComponent(component, attr);
-      } else {
-        if (Object.prototype.toString.call(attr) === '[object Array]') {
-          for (let value of attr) {
-            const currentComponent = component.querySelector(`[${ Variables.paramsJSONIdData }="${ value.id }"]`);
-            if (!currentComponent) {
-              console.log(`component data-id not found for set value: ${ component.id }, ${ value }`);
-              continue;
-            }
-            if (!func) {
-              func = this.components[currentComponent.tagName];
-            }
-            if (func.addAttrToComponent) {
-              func.addAttrToComponent(currentComponent, "1");
-            }
-          }
-        } else {
-          component.textContent = attr;
-          console.log(`Not found in frame: ${ component }`);
-        }
+        return temp;
       }
-
-    };
-
-    function setNewAttrIdAndName(component, index) {
-      const nameAttr = component.getAttribute('name');
-      const idAttr = component.getAttribute('id');
-      component.setAttribute('name', `${ nameAttr }[${ index }]`);
-      component.setAttribute('id', `${ idAttr }-${ index }`);
     }
 
     const tableIdParse = (data, strForTable) => {
@@ -150,18 +172,25 @@ export class ParseJSON {
         if (component) {
           if (!parent) {
             parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
-            const temp = document.createElement('template');
-            temp.innerHTML = parent.innerHTML;
-            defaultComponent = temp;
+            defaultComponent = getDefaultComponent(parent);
           }
           if (data[index][id].length !== 0) {
-            insertValueCurrentComponent(component, data[index][id]);
+            this.insertValueCurrentComponent(component, data[index][id]);
           }
-          setNewAttrIdAndName(component, index);
+          this.setNewAttrIdAndName(component, index);
         }
       }
 
       if (!parent) {
+        // let dom;
+        // if (component.hasAttribute(Variables.paramsForm)) {
+        //   dom = document.querySelector(`[name^="${ strForTable }"]`);
+        // } else {
+        //   dom = component.querySelector(`[name^="${ strForTable }"]`);
+        // }
+        // if (dom) {
+        //   getDefaultComponent(Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable));
+        // }
         return;
       }
 
@@ -175,8 +204,8 @@ export class ParseJSON {
           const component = document.querySelector(`[name="${ strForTable }:${ id }"]`) || document.querySelector(`[name="${ strForTable }:${ id }[]"]`);
 
           if (component && data[index][id].length !== 0) {
-            insertValueCurrentComponent(component, data[index][id]);
-            setNewAttrIdAndName(component, index);
+            this.insertValueCurrentComponent(component, data[index][id]);
+            this.setNewAttrIdAndName(component, index);
           }
 
         }
@@ -187,12 +216,19 @@ export class ParseJSON {
     };
 
     if (attr !== null) {
-
-      if (strForTable.length !== 0 && Object.prototype.toString.call(attr) === '[object Array]' && attr.length !== 0) {
+      if (strForTable.length !== 0 && Object.prototype.toString.call(attr) === '[object Array]') {
         tableIdParse(attr, strForTable);
       } else if (component && attr.length !== 0) {
-        insertValueCurrentComponent(component, attr);
+        this.insertValueCurrentComponent(component, attr);
       }
+      /* else if (Object.prototype.toString.call(attr) === '[object Array]') {
+        debugger;
+        const parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
+        if (parent) {
+          getDefaultComponent(parent);
+        }
+      } */
+
     }
 
   }
@@ -218,6 +254,7 @@ export class ParseJSON {
     }
 
     for (let name in attr) {
+
       let nameField;
 
       if (strTable.length !== 0) {
@@ -234,10 +271,59 @@ export class ParseJSON {
         dom = component.querySelector(`[name="${ nameField }"]`);
       }
 
+
       if (name.startsWith(Variables.paramsJSONTable)) {
-        this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+        if (isDefault) {
+          this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+        } else {
+          callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+        }
       } else if (dom) {
         if (isDefault) {
+
+          if (strTable.length !== 0) {
+
+            const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
+
+            if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
+              const idParent = dom.getAttribute(Variables.paramsJSONIdData);
+              parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
+
+              const temp = document.createElement('template');
+              temp.innerHTML = parent.innerHTML;
+
+              document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
+                component.onclick = () => {
+
+                  const newComponent = temp.cloneNode(true);
+                  const index =  parent.children.length;
+
+                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function() {
+                    this.setAttribute('id', this.getAttribute('id') + '-' + index);
+                  });
+
+                  for (let id in attr) {
+                    const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
+
+                    if (component) {
+                      component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
+                      this.setAttrToComponent(component, attr[id]);
+                      this.setNewAttrIdAndName(component, index);
+                    }
+                  }
+
+                  parent.appendChild(newComponent.content);
+
+                  return false;
+                };
+              });
+            }
+          }
+
+          /*
+          *   change name
+          */
+
           const intArray = str.match(/\d+/g);
           if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
           if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
