@@ -70,7 +70,13 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
 			field.ChildQB = Create(fmt.Sprintf( "id_%s=?", field.Table.Name ), "", "")
-			field.ChildQB.AddTable("p", field.schema.TableProps)
+			tableProps := field.ChildQB.AddTable("p", field.schema.TableProps)
+			for _, fieldStruct := range tableProps.schema.Rows {
+				if fieldStruct.COLUMN_NAME == "id_" + field.Table.Name {
+					continue
+				}
+				tableProps.AddField("", fieldStruct.COLUMN_NAME)
+			}
 		} else if field.schema.SETID {
 			field.ChildQB = CreateEmpty()
 			titleField := field.schema.GetForeignFields()

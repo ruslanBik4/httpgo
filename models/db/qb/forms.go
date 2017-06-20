@@ -46,7 +46,6 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
 	schTable.schema = qb.Tables[0].schema
 
-	logs.StatusLog(schTable.Name)
 	return schTable
 }
 func (qb *QueryBuilder) checkSurrogateFields() {
