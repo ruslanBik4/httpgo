@@ -7,7 +7,6 @@ package qb
 import (
 	"log"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // return schema for render standart methods
