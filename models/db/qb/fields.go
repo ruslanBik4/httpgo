@@ -150,6 +150,20 @@ func (field *QBField) getSelectedValues() {
 	}
 
 }
+// ищет параметры в родительских запросах
+func findParamInParent(QBparent *QueryBuilder, param string) string {
+	if QBparent == nil {
+		return ""
+	} else {
+		for _, table := range QBparent.Tables {
+			if paramField, ok := table.Fields[param]; ok && (paramField.Value > "") {
+				return paramField.Value
+			}
+
+			return findParamInParent(QBparent.parent, param)
+		}
+	}
+}
 // locate in field table & post params PARAM & return her value
 func (field *QBField) putValueToArgs(param string) string {
 		// считаем, что окончанием параметра могут быть символы ", )"
@@ -160,9 +174,9 @@ func (field *QBField) putValueToArgs(param string) string {
 			return paramValue[0]
 		} else if param == "id_users" {
 			return "0"
-		} else if field.Table.qB.parent != nil {
-			return field.Table.qB.parent.fields[0].putValueToArgs(param)
-		} else {
+		} else if paramValue := findParamInParent(field.Table.qB.parent, param); paramValue > ""{
+			return paramValue
+		}  else {
 			panic( &ErrNotFoundParam{Param:"not enougth parameter-" + param} )
 		}
 
