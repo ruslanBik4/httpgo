@@ -95,12 +95,11 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 		if field.ChildQB != nil {
 
 			field.ChildQB.PostParams = table.qB.PostParams
+			field.ChildQB.parent	 = table.qB
 			field.ChildQB.AddArg(0)
 		}
 
 	}
-	//table.qB.fields = append(table.qB.fields, field)
-
 
 	return table
 }
@@ -132,7 +131,7 @@ func (field *QBField) getSelectedValues() {
 	// подключаем параметры POST-запроса от старшего запроса field
 	field.SelectQB.PostParams = field.Table.qB.PostParams
 	if field.SelectQB.PostParams == nil {
-		logs.StatusLog(field.Name, field.Table)
+		logs.DebugLog(field.Name, field.Table)
 	}
 	// разбираем заменяемые параметры
 	field.SelectQB.Where = field.parseWhereANDputArgs()
@@ -151,21 +150,23 @@ func (field *QBField) getSelectedValues() {
 	}
 
 }
-func (field *QBField) putValueToArgs(param string) error {
+// locate in field table & post params PARAM & return her value
+func (field *QBField) putValueToArgs(param string) string {
 		// считаем, что окончанием параметра могут быть символы ", )"
 		// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != "") {
-			field.SelectQB.AddArgs( paramField.Value )
+		if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value > "") {
+			return paramField.Value
 		} else if paramValue, ok := field.Table.qB.PostParams[param]; ok {
-			field.SelectQB.AddArgs( paramValue[0] )
+			return paramValue[0]
 		} else if param == "id_users" {
-			field.SelectQB.AddArgs( 0 )
+			return "0"
+		} else if field.Table.qB.parent != nil {
+			return field.Table.qB.parent.fields[0].putValueToArgs(param)
 		} else {
 			panic( &ErrNotFoundParam{Param:"not enougth parameter-" + param} )
 		}
 
-
-	return nil
+	return ""
 }
 // parse enumValues & insert queryes parameters
 func (field *QBField) parseEnumValue(enumVal string) string {
@@ -177,9 +178,8 @@ func (field *QBField) parseEnumValue(enumVal string) string {
 			suffix = param[j:]
 			param  = param[:j]
 		}
-		if err := field.putValueToArgs(param); err != nil {
-			panic(err)
-		}
+		field.SelectQB.AddArgs( field.putValueToArgs(param) )
+
 		return enumVal[:i] + "?" + suffix
 	}
 	return enumVal

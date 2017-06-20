@@ -16,13 +16,13 @@ type QBField struct {
 	Alias          string
 	schema         *schema.FieldStructure
 	Value          string
-	SQLforFORMList string `отдаем в списках полей для формы`
-	SQLforDATAList string `отдаем в составе данных`
 	SelectValues   map[int] string
 	Table          *QBTable
 	ChildQB        *QueryBuilder
 	SelectQB        *QueryBuilder
 }
+// table in QB for incapsulate SQL & schema propertyes
+// ha map Fields as links field query
 type QBTable struct {
 	Name   string
 	Alias  string
@@ -32,6 +32,9 @@ type QBTable struct {
 	schema *schema.FieldsTable
 	qB     *QueryBuilder
 }
+// inline SQL query
+// recheck in DB schema queryes tables&fields
+// may be has parent - link to parent QB
 type QueryBuilder struct {
 	Tables                          [] *QBTable
 	Args                            [] interface{}
@@ -42,6 +45,7 @@ type QueryBuilder struct {
 	sqlCommand, sqlSelect, sqlFrom  string		`auto recalc`
 	Where, GroupBy, OrderBy, Limits string	`may be defined outside`
 	union                           *QueryBuilder
+	parent                          *QueryBuilder
 }
 // for compatabilies interface logsType
 func (qb *QueryBuilder) PrintToLogs() string {

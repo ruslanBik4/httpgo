@@ -126,20 +126,6 @@ func (qb * QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
-func getSETProps_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-
-	field.ChildQB.Args[0] = fieldID
-
-	return field.ChildQB.SelectToMultidimension()
-
-}
-func getTABLEID_Values(field *QBField, fieldID string) (arrJSON [] map[string] interface {}, err error ){
-
-	field.ChildQB.Args[0] = fieldID
-	return field.ChildQB.SelectToMultidimension()
-
-}
-
 func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 
 	if qb.Prepared == nil {
@@ -195,61 +181,34 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 //@version 1.00 2017-06-12
 func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
 
-
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
 		valuePtrs = append(valuePtrs, field )
 	}
 
-	columns, _ := rows.Columns()
 	for rows.Next() {
 
-		values := make(map[string] interface{}, len(qb.fields) )
+		values := make( map[string] interface{}, len(qb.fields) )
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs, qb)
 			continue
 		}
 
-		var ID string
-		for idx, fieldName := range columns {
+		for _, field := range qb.fields {
 
-			field := qb.fields[idx]
-			if field == nil {
-				logs.DebugLog( "nil field", idx)
-				continue
-
-			}
-			schema:= field.schema
-			if schema == nil {
-				logs.DebugLog("nil schema", field)
-				continue
-			}
-			if field.Table == nil {
-				logs.DebugLog("nil Table", field)
-				continue
-			} else if fieldID, ok := field.Table.Fields["id"]; ok {
-				ID = fieldID.Value
-			}
-
-			// TODO: refactoring - storid all method in one
-			if schema.SETID  {
-				values[fieldName], err = getSETProps_Values(field, ID)
-				if err != nil {
-					logs.ErrorLog(err, field.ChildQB)
-					values[fieldName] = err.Error()
+			fieldName := field.Alias
+			schema	  := field.schema
+			// all inline field has QB & we run thiq QB & store result in map
+			if field.ChildQB != nil  {
+				if fieldID, ok := field.Table.Fields["id"]; ok {
+					field.ChildQB.Args[0] = fieldID.Value
+				} else {
+					// проставляем 0 на случай, если в выборке нет ID
+					field.ChildQB.Args[0] = 0
 				}
-				continue
-			} else if schema.NODEID {
 
-				values[fieldName], err = getSETProps_Values(field, ID)
-				if err != nil {
-					logs.ErrorLog(err, field.ChildQB)
-					values[fieldName] = err.Error()
-				}
-				continue
-			} else if schema.TABLEID {
-				values[fieldName], err = getTABLEID_Values(field, ID)
+				values[fieldName], err =  field.ChildQB.SelectToMultidimension()
 				if err != nil {
 					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
@@ -265,7 +224,6 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 					values[fieldName] = true
 				} else {
 					values[fieldName] = false
-
 				}
 			case "int", "int64":
 				values[fieldName], _ = strconv.Atoi(field.Value)
@@ -303,7 +261,6 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 			continue
 		}
 
-		var ID string
 		for idx, fieldName := range columns {
 
 			field := qb.fields[idx]
@@ -313,34 +270,15 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 
 			}
 			schema:= field.schema
-			if schema == nil {
-				logs.DebugLog("nil schema", field)
-				continue
-			}
-			if field.Table == nil {
-				logs.DebugLog("nil Table", field)
-				continue
-			} else if fieldID, ok := field.Table.Fields["id"]; ok {
-				ID = fieldID.Value
-			}
-
-			if schema.SETID  {
-				values[fieldName], err = getSETProps_Values(field, ID)
-				if err != nil {
-					logs.ErrorLog(err, field)
-					values[fieldName] = err.Error()
+			if field.ChildQB != nil  {
+				if fieldID, ok := field.Table.Fields["id"]; ok {
+					field.ChildQB.Args[0] = fieldID.Value
+				} else {
+					// проставляем 0 на случай, если в выборке нет ID
+					field.ChildQB.Args[0] = 0
 				}
-				continue
-			} else if schema.NODEID {
 
-				values[fieldName], err = getSETProps_Values(field, ID)
-				if err != nil {
-					logs.ErrorLog(err, field)
-					values[fieldName] = err.Error()
-				}
-				continue
-			} else if schema.TABLEID {
-				values[fieldName], err = getSETProps_Values(field, ID)
+				values[fieldName], err =  field.ChildQB.SelectToMultidimension()
 				if err != nil {
 					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()

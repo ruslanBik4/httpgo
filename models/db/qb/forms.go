@@ -7,6 +7,7 @@ package qb
 import (
 	"log"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // return schema for render standart methods
@@ -43,6 +44,9 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 		schTable.Name += " " + table.Join + table.Name
 	}
 
+	schTable.schema = qb.Tables[0].schema
+
+	logs.StatusLog(schTable.Name)
 	return schTable
 }
 func (qb *QueryBuilder) checkSurrogateFields() {
