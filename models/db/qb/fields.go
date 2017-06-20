@@ -152,9 +152,7 @@ func (field *QBField) getSelectedValues() {
 }
 // ищет параметры в родительских запросах
 func findParamInParent(QBparent *QueryBuilder, param string) string {
-	if QBparent == nil {
-		return ""
-	} else {
+	if QBparent != nil {
 		for _, table := range QBparent.Tables {
 			if paramField, ok := table.Fields[param]; ok && (paramField.Value > "") {
 				return paramField.Value
@@ -163,6 +161,8 @@ func findParamInParent(QBparent *QueryBuilder, param string) string {
 			return findParamInParent(QBparent.parent, param)
 		}
 	}
+
+	return ""
 }
 // locate in field table & post params PARAM & return her value
 func (field *QBField) putValueToArgs(param string) string {
