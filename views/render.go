@@ -10,6 +10,7 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 //	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"io"
 )
 
 //noinspection GoInvalidConstType
@@ -26,12 +27,24 @@ func WriteHeaders(w http.ResponseWriter) {
 func IsAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
+// NEW! эта функция позволяет определить - пришел ли запрос как AJAX
+// и, если нет, добавить в вывод текст основной страницы
+// получает на вход функцию qtpl, которая пишет сразу в буфер вывода
+func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWrite func(w io.Writer))  {
+	if IsAJAXRequest(r) {
+		fncWrite(w)
+	} else {
+		p := &pages.IndexPageBody{ ContentWrite: fncWrite, Route: r.URL.Path, Buff: w }
+		RenderTemplate(w, r, "index", p)
+	}
+
+}
 //TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
 		w.Write( []byte( strContent ) )
 	} else {
-		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path }
+		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path, Buff: w }
 		RenderTemplate(w, r, "index", p)
 	}
 }
@@ -85,8 +98,12 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 			headPage.Title = "Страничка управления миром - бета-версия"
 			p.Route = "/"
 		}
+		if p.Buff == nil {
+			p.Buff = w
+		}
 
-		w.Write( []byte( headPage.HeadHTML() + p.IndexHTML() ) )
+		headPage.WriteHeadHTML(w)
+		p.WriteIndexHTML(w)
 	case "signinForm":
 		RenderSignForm(w, r, "Введите пароль, полученный по почте")
 	case "signupForm":
@@ -97,7 +114,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		w.Write( []byte(p.ShowAdminPage("")) )
+		p.WriteShowAdminPage(w,"")
 	default:
 		w.Write( []byte( "no rendering with page " + tmplName ) )
 	}
