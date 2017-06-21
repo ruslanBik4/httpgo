@@ -39,8 +39,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
 		views.RenderSignForm(w, r, "")
 	case ErrNotPermission:
-		fmt.Fprintf(w, "<title>%s</title>", "Доступ закрыт" )
-		views.RenderSignForm(w, r, "")
+		views.RenderNoPermissionPage(w)
 	case nil:
 	case error:
 		views.RenderInternalError(w, err)
