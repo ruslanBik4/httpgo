@@ -17,6 +17,7 @@ import (
 var HEADERS = map[string] string {
 	"Content-Type": "text/html; charset=utf-8",
 	"author":	"uStudio",
+	"Server":   "HTTPGO/0.0.1 (CentOS) Go 1.8.3",
 }
 func WriteHeaders(w http.ResponseWriter) {
 	// выдаем стандартные заголовки страницы
