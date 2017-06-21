@@ -1,9 +1,21 @@
 
-{% func RenderRadio(name string) %}
+{#
+    attr[0] - name input, id input
+    attr[1] - data-form id form
+#}
+
+{% func RenderRadio(attr ... string) %}
+
+    {% code
+        dataForm := ""
+        if len(attr) > 1 {
+            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
+        }
+    %}
 
     <div class="c-app-radio">
-        <label for="{%s name %}">
-            <input class="c-radio" type="radio" id="{%s name %}" name="{%s name %}">
+        <label>
+            <input class="c-radio" type="radio" id="{%s attr[0] %}" name="{%s attr[0] %}" {%s dataForm %}>
             <span data-set-text></span>
         </label>
     </div>

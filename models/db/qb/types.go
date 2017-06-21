@@ -14,14 +14,15 @@ import (
 type QBField struct {
 	Name           string
 	Alias          string
-        schema         *schema.FieldStructure
+	schema         *schema.FieldStructure
 	Value          string
-	SQLforFORMList string `отдаем в списках полей для формы`
-	SQLforDATAList string `отдаем в составе данных`
 	SelectValues   map[int] string
 	Table          *QBTable
 	ChildQB        *QueryBuilder
+	SelectQB        *QueryBuilder
 }
+// table in QB for incapsulate SQL & schema propertyes
+// ha map Fields as links field query
 type QBTable struct {
 	Name   string
 	Alias  string
@@ -31,19 +32,24 @@ type QBTable struct {
 	schema *schema.FieldsTable
 	qB     *QueryBuilder
 }
+// inline SQL query
+// recheck in DB schema queryes tables&fields
+// may be has parent - link to parent QB
 type QueryBuilder struct {
-	Tables 		[] *QBTable
-	Args 		[] interface{}
-	fields 		[] *QBField
-	Aliases 	[] string
-	Prepared        *sql.Stmt
-	FieldsParams 	map[string][]string
-	sqlCommand, sqlSelect, sqlFrom string		`auto recalc`
+	Tables                          [] *QBTable
+	Args                            [] interface{}
+	fields                          [] *QBField
+	Aliases                         [] string
+	Prepared                        *sql.Stmt
+	PostParams                      map[string][]string
+	sqlCommand, sqlSelect, sqlFrom  string		`auto recalc`
 	Where, GroupBy, OrderBy, Limits string	`may be defined outside`
-	union *QueryBuilder
+	union                           *QueryBuilder
+	parent                          *QueryBuilder
 }
 // for compatabilies interface logsType
 func (qb *QueryBuilder) PrintToLogs() string {
+
 	mess := "&qb{sql: " + qb.sqlCommand + ", Where: " + qb.Where + ", Tables: "
 	for _, table := range qb.Tables {
 		mess += table.Name + ", "
@@ -57,6 +63,10 @@ func (qb *QueryBuilder) PrintToLogs() string {
 		mess += fmt.Sprintf( "%v, ", arg )
 	}
 
+	mess += " PostParams: "
+	for _, arg := range qb.PostParams {
+		mess += fmt.Sprintf( "%v, ", arg )
+	}
 	return mess + "}"
 }
 // addding arguments
@@ -72,28 +82,6 @@ func (qb *QueryBuilder) AddArgs(args ... interface{}) *QueryBuilder{
 	}
 
 	return qb
-}
-// add Tables list, returns qB
-func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
-	for alias, name := range names {
-		qb.AddTable(alias, name)
-	}
-
-	return qb
-}
-//add Table, returns object table
-func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
-
-	//if alias == ""  {
-	//	alias = name
-	//}
-	table := &QBTable{Name: name, Alias: alias, qB: qb}
-	table.Fields = make(map[string] *QBField, 0)
-	defer schemaError()
-	table.schema = schema.GetFieldsTable(table.Name)
-	qb.Tables    = append(qb.Tables, table)
-
-	return table
 }
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {

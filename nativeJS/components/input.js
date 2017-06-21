@@ -122,9 +122,9 @@ export class Input {
       }
       component.id += `-${ parent.children.length }`;
     }
-    else if (component.tagName === 'LABEL') {
-      component.htmlFor += `-${ parent.children.length }`;
-    }
+    // else if (component.tagName === 'LABEL') {
+    //   component.htmlFor += `-${ parent.children.length }`;
+    // }
     else if (component.hasAttribute(Variables.paramsJSONSetText)) {
       component.textContent = textContent;
     }

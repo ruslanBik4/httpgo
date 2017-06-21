@@ -26,6 +26,7 @@ func WriteHeaders(w http.ResponseWriter) {
 func IsAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
+//TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
 		w.Write( []byte( strContent ) )
@@ -130,28 +131,28 @@ func WriteJSONHeaders(w http.ResponseWriter) {
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteAnyJSON(arrJSON) ) )
+	json.WriteAnyJSON(w, arrJSON)
 }
 func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteArrJSON(arrJSON) ) )
+	json.WriteArrJSON(w, arrJSON)
 }
 func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteStringDimension(arrJSON) ) )
+	json.WriteStringDimension(w, arrJSON)
 }
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
+	json.WriteSliceJSON(w, arrJSON)
 }
 // render JSON for form by fields map
 func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.FormStructure,
-	AddJson map[string] string) {
+	AddJson json.MultiDimension) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )
+	form.WriteJSONAnyForm(w,  fields, AddJson)
 }

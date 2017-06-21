@@ -80,7 +80,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	qBuilder.AddArgs(args...)
-	qBuilder.FieldsParams = r.Form
+	qBuilder.PostParams = r.Form
 
 	arrJSON, err := qBuilder.SelectToMultidimension()
 	if err != nil {

@@ -12,7 +12,6 @@ import (
 // return schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
-	schTable.Fields = make(map[string] *QBField, 0)
 
 	if len(qb.fields) == 0 {
 		for _, table := range qb.Tables {
@@ -29,19 +28,13 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 					}
 				}()
 				table.AddField("", fieldStrc.COLUMN_NAME)
-				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-				//field.Alias = field.Name
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
-				//if fieldStrc.TABLEID {
-				//	field.ChildQB = CreateEmpty()
-				//	field.ChildQB.AddTable("p", field.schema.TableProps)
-				//}
 			}
 		}
-
 	}
 	qb.checkSurrogateFields()
 
+	schTable.Fields = make(map[string] *QBField, len(qb.fields))
 	for _, field := range qb.fields {
 		schTable.Fields[field.Name] = field
 	}
@@ -49,6 +42,8 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 	for _, table := range qb.Tables {
 		schTable.Name += " " + table.Join + table.Name
 	}
+
+	schTable.schema = qb.Tables[0].schema
 
 	return schTable
 }
@@ -60,7 +55,7 @@ func (qb *QueryBuilder) checkSurrogateFields() {
 			field.getSelectedValues()
 		} else if field.schema.TABLEID {
 			//field.ChildrenFields = schema.GetFieldsTable(field.schema.TableProps)
-			//qb.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
+			//field.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
 
 		}
 	}

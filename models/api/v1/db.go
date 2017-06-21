@@ -39,9 +39,9 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	qBuilder.AddTable("", tableName)
 	// инши параметры могут быть использщованы для суррогатных (вложенных) полей
 	r.ParseForm()
-	qBuilder.FieldsParams = r.Form
+	qBuilder.PostParams = r.Form
 
-	addJSON := make(map[string]string, 0)
+	addJSON := make(map[string] interface{}, 0)
 	if id := r.FormValue("id"); id > "" {
 		// получаем данные для суррогатных полей
 		qBuilder.AddArg(id)
@@ -51,20 +51,12 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addJSON["data"] = json.WriteSliceJSON(arrJSON)
+		addJSON["data"] = arrJSON
 	}
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new (json.FormStructure), addJSON)
 }
 
-func convertToMultiDimension(array [] map[string]interface{}) json.MapMultiDimension {
-
-	var mapToDem = json.MapMultiDimension{}
-	for _,val := range array {
-		mapToDem = append(mapToDem, val)
-	}
-	return mapToDem
-}
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	if table, err := services.Get("schema", tableName); err != nil {
@@ -80,15 +72,15 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
+		r.ParseForm()
+		qBuilder.PostParams = r.Form
 		qBuilder.AddTable("a", tableName)
 		qBuilder.AddArg(id)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
-		}
-		if len(arrJSON) > 0 {
+		} else	if len(arrJSON) > 0 {
 			views.RenderAnyJSON(w, arrJSON[0])
-			return
 		}
 	} else {
 		views.RenderBadRequest(w)
@@ -98,16 +90,17 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if (tableName > "") {
-		qBuilder := qb.Create("", "", "")
-		qBuilder.AddTable("a", tableName)
+		qBuilder := qb.CreateFromSQL("SELECT * FROM " + tableName)
+		r.ParseForm()
+		qBuilder.PostParams = r.Form
+		//qBuilder.AddTable("a", tableName)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
-			return
-		}
-		if len(arrJSON) > 0 {
+		} else if len(arrJSON) == 1 {
+			views.RenderAnyJSON(w, arrJSON[0])
+		} else if len(arrJSON) > 1 {
 			views.RenderArrayJSON(w, arrJSON)
-			return
 		}
 	} else {
 		views.RenderBadRequest(w)

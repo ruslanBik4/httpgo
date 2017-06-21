@@ -1,8 +1,20 @@
 
-{% func RenderTextarea(name string) %}
+{#
+    attr[0] - name input, id input
+    attr[1] - data-form id form
+#}
+
+{% func RenderTextarea(attr ... string) %}
+
+    {% code
+        dataForm := ""
+        if len(attr) > 1 {
+            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
+        }
+    %}
 
     <label class="c-app-textarea">
-        <textarea class="c-textarea" id="{%s name %}" name="{%s name %}"></textarea>
+        <textarea class="c-textarea" id="{%s attr[0] %}" name="{%s attr[0] %}" {%s dataForm %}></textarea>
         <span data-set-text></span>
     </label>
 

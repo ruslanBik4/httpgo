@@ -1,6 +1,18 @@
 
-{% func RenderSelect(name string) %}
+{#
+    attr[0] - name input, id input
+    attr[1] - data-form id form
+#}
 
-    <select class='c-app-select c-select' id='{%s name %}' name='{%s name %}'></select>
+{% func RenderSelect(attr ... string) %}
+
+    {% code
+        dataForm := ""
+        if len(attr) > 1 {
+            dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
+        }
+    %}
+
+    <select class='c-app-select c-select' id='{%s attr[0] %}' name='{%s attr[0] %}' {%s dataForm %}></select>
 
 {% endfunc %}

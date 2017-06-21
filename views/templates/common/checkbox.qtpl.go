@@ -11,62 +11,78 @@ import (
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/common/checkbox.qtpl:2
+// {#
+//     attr[0] - name input, id input
+//     attr[1] - data-form id form
+// #}
+//
+
+//line views/templates/common/checkbox.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/common/checkbox.qtpl:2
-func StreamRenderCheckbox(qw422016 *qt422016.Writer, name string) {
-	//line views/templates/common/checkbox.qtpl:2
+//line views/templates/common/checkbox.qtpl:7
+func StreamRenderCheckbox(qw422016 *qt422016.Writer, attr ...string) {
+	//line views/templates/common/checkbox.qtpl:7
+	qw422016.N().S(`
+
+    `)
+	//line views/templates/common/checkbox.qtpl:10
+	dataForm := ""
+	if len(attr) > 1 {
+		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
+	}
+
+	//line views/templates/common/checkbox.qtpl:14
 	qw422016.N().S(`
 
     <div class="c-app-checkbox">
-        <label for="`)
-	//line views/templates/common/checkbox.qtpl:5
-	qw422016.E().S(name)
-	//line views/templates/common/checkbox.qtpl:5
-	qw422016.N().S(`">
+        <label>
             <input class="c-checkbox" type="checkbox" id="`)
-	//line views/templates/common/checkbox.qtpl:6
-	qw422016.E().S(name)
-	//line views/templates/common/checkbox.qtpl:6
+	//line views/templates/common/checkbox.qtpl:18
+	qw422016.E().S(attr[0])
+	//line views/templates/common/checkbox.qtpl:18
 	qw422016.N().S(`" name="`)
-	//line views/templates/common/checkbox.qtpl:6
-	qw422016.E().S(name)
-	//line views/templates/common/checkbox.qtpl:6
-	qw422016.N().S(`">
+	//line views/templates/common/checkbox.qtpl:18
+	qw422016.E().S(attr[0])
+	//line views/templates/common/checkbox.qtpl:18
+	qw422016.N().S(`" `)
+	//line views/templates/common/checkbox.qtpl:18
+	qw422016.E().S(dataForm)
+	//line views/templates/common/checkbox.qtpl:18
+	qw422016.N().S(`>
             <span data-set-text></span>
         </label>
     </div>
 
 `)
-//line views/templates/common/checkbox.qtpl:11
+//line views/templates/common/checkbox.qtpl:23
 }
 
-//line views/templates/common/checkbox.qtpl:11
-func WriteRenderCheckbox(qq422016 qtio422016.Writer, name string) {
-	//line views/templates/common/checkbox.qtpl:11
+//line views/templates/common/checkbox.qtpl:23
+func WriteRenderCheckbox(qq422016 qtio422016.Writer, attr ...string) {
+	//line views/templates/common/checkbox.qtpl:23
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/common/checkbox.qtpl:11
-	StreamRenderCheckbox(qw422016, name)
-	//line views/templates/common/checkbox.qtpl:11
+	//line views/templates/common/checkbox.qtpl:23
+	StreamRenderCheckbox(qw422016, attr...)
+	//line views/templates/common/checkbox.qtpl:23
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/checkbox.qtpl:11
+//line views/templates/common/checkbox.qtpl:23
 }
 
-//line views/templates/common/checkbox.qtpl:11
-func RenderCheckbox(name string) string {
-	//line views/templates/common/checkbox.qtpl:11
+//line views/templates/common/checkbox.qtpl:23
+func RenderCheckbox(attr ...string) string {
+	//line views/templates/common/checkbox.qtpl:23
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/common/checkbox.qtpl:11
-	WriteRenderCheckbox(qb422016, name)
-	//line views/templates/common/checkbox.qtpl:11
+	//line views/templates/common/checkbox.qtpl:23
+	WriteRenderCheckbox(qb422016, attr...)
+	//line views/templates/common/checkbox.qtpl:23
 	qs422016 := string(qb422016.B)
-	//line views/templates/common/checkbox.qtpl:11
+	//line views/templates/common/checkbox.qtpl:23
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/common/checkbox.qtpl:11
+	//line views/templates/common/checkbox.qtpl:23
 	return qs422016
-//line views/templates/common/checkbox.qtpl:11
+//line views/templates/common/checkbox.qtpl:23
 }

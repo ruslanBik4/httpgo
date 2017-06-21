@@ -176,9 +176,9 @@ export class Native {
    *   set default data for Fields
    */
 
-  static setDefaultFields(component, fields, str) {
+  static setDefaultFields(component, fields, str, isOnlyClass = false) {
     if (this.isElement(component) && fields) {
-      ParseJSON.setValue(component, fields, ParseJSON.setAttrToComponent.bind(ParseJSON), str, true);
+      ParseJSON.setValue(component, fields, ParseJSON.setAttrToComponent.bind(ParseJSON), str, true, isOnlyClass);
     }
   }
 
@@ -187,9 +187,9 @@ export class Native {
    *   insert data for data
    */
 
-  static insertData(component, data, str) {
+  static insertData(component, data, str, isOnlyClass = false) {
     if (this.isElement(component) && data) {
-      ParseJSON.setValue(component, data, ParseJSON.insertValueToComponent.bind(ParseJSON), str);
+      ParseJSON.setValue(component, data, ParseJSON.insertValueToComponent.bind(ParseJSON), str, isOnlyClass);
     }
   }
   

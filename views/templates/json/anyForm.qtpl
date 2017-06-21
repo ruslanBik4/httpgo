@@ -10,6 +10,7 @@
 Формируем JSON, который затем будет использован в форме на клиенте
 dataJson и содержимое AddJson вставляются КАК ЕСТЬ, ПОТОМУ ЧТО БЫЛИ ОБРАБОТАНЫ РАНЕЕ!!!
 {% stripspace %}
+{% collapsespace %}
 {% func CheckFields(fields map[string] *qb.QBField) %}
 
 {% for COLUMN_NAME, qbField := range fields %}
@@ -78,7 +79,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 {% endfunc %}
 
 
-{% func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, AddJson map[string] string) %}
+{% func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, arrJSON MultiDimension) %}
 {%code
    thisForm.setFormDefaults(table.GetSchema())
 %}
@@ -95,12 +96,12 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
                 {% for name, event := range thisForm.Events %}
                     ,"{%s name %}": "{%j= event %}"
                 {% endfor %}
-   }
-    {% for name, val := range AddJson %}
-        ,"{%s name %}": {%s= val %}
-    {% endfor %}
+}
 
+    {% for key, value := range arrJSON %}
+            , "{%s key %}": {%= Element(value)%}
+   {% endfor %}
 }
 {% endfunc %}
-
+{% endcollapsespace %}
 {% endstripspace %}
