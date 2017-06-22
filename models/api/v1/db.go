@@ -41,7 +41,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	qBuilder.PostParams = r.Form
 
-	addJSON := make(map[string]string, 0)
+	addJSON := make(map[string] interface{}, 0)
 	if id := r.FormValue("id"); id > "" {
 		// получаем данные для суррогатных полей
 		qBuilder.AddArg(id)
@@ -51,7 +51,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addJSON["data"] = json.WriteSliceJSON(arrJSON)
+		addJSON["data"] = arrJSON
 	}
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new (json.FormStructure), addJSON)
@@ -97,8 +97,10 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
-		} else	if len(arrJSON) > 0 {
+		} else if len(arrJSON) == 1 {
 			views.RenderAnyJSON(w, arrJSON[0])
+		} else if len(arrJSON) > 1 {
+			views.RenderArrayJSON(w, arrJSON)
 		}
 	} else {
 		views.RenderBadRequest(w)

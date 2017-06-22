@@ -10,12 +10,14 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 //	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"io"
 )
 
 //noinspection GoInvalidConstType
 var HEADERS = map[string] string {
 	"Content-Type": "text/html; charset=utf-8",
 	"author":	"uStudio",
+	"Server":   "HTTPGO/0.0.1 (CentOS) Go 1.8.3",
 }
 func WriteHeaders(w http.ResponseWriter) {
 	// выдаем стандартные заголовки страницы
@@ -26,11 +28,24 @@ func WriteHeaders(w http.ResponseWriter) {
 func IsAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
+// NEW! эта функция позволяет определить - пришел ли запрос как AJAX
+// и, если нет, добавить в вывод текст основной страницы
+// получает на вход функцию qtpl, которая пишет сразу в буфер вывода
+func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWrite func(w io.Writer))  {
+	if IsAJAXRequest(r) {
+		fncWrite(w)
+	} else {
+		p := &pages.IndexPageBody{ ContentWrite: fncWrite, Route: r.URL.Path, Buff: w }
+		RenderTemplate(w, r, "index", p)
+	}
+
+}
+//TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
 		w.Write( []byte( strContent ) )
 	} else {
-		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path }
+		p := &pages.IndexPageBody{ Content: strContent, Route: r.URL.Path, Buff: w }
 		RenderTemplate(w, r, "index", p)
 	}
 }
@@ -84,8 +99,12 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 			headPage.Title = "Страничка управления миром - бета-версия"
 			p.Route = "/"
 		}
+		if p.Buff == nil {
+			p.Buff = w
+		}
 
-		w.Write( []byte( headPage.HeadHTML() + p.IndexHTML() ) )
+		headPage.WriteHeadHTML(w)
+		p.WriteIndexHTML(w)
 	case "signinForm":
 		RenderSignForm(w, r, "Введите пароль, полученный по почте")
 	case "signupForm":
@@ -96,7 +115,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		w.Write( []byte(p.ShowAdminPage("")) )
+		p.WriteShowAdminPage(w,"")
 	default:
 		w.Write( []byte( "no rendering with page " + tmplName ) )
 	}
@@ -130,28 +149,28 @@ func WriteJSONHeaders(w http.ResponseWriter) {
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string] interface {}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteAnyJSON(arrJSON) ) )
+	json.WriteAnyJSON(w, arrJSON)
 }
 func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteArrJSON(arrJSON) ) )
+	json.WriteArrJSON(w, arrJSON)
 }
 func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteStringDimension(arrJSON) ) )
+	json.WriteStringDimension(w, arrJSON)
 }
 
 func RenderArrayJSON(w http.ResponseWriter, arrJSON [] map[string] interface {}) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte( json.WriteSliceJSON(arrJSON) ) )
+	json.WriteSliceJSON(w, arrJSON)
 }
 // render JSON for form by fields map
 func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.FormStructure,
-	AddJson map[string] string) {
+	AddJson json.MultiDimension) {
 
 	WriteJSONHeaders(w)
-	w.Write( []byte(form.JSONAnyForm(fields, AddJson)) )
+	form.WriteJSONAnyForm(w,  fields, AddJson)
 }

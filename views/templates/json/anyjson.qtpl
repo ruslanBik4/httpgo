@@ -5,69 +5,69 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% stripspace %}
 {% collapsespace %}
 
-{% func WriteSliceJSON(mapJSON MapMultiDimension) %}
+{% func SliceJSON(mapJSON MapMultiDimension) %}
 [
 {% for key, arrJSON := range mapJSON %}
-    {% if key>0 %}, {% endif %} {%= WriteAnyJSON(arrJSON)%}
+    {% if key>0 %}, {% endif %} {%= AnyJSON(arrJSON)%}
 {% endfor %}
 ]
 {% endfunc %}
 
 получаем объект произвольной формы и возвращаем JSON текстом
-{% func WriteAnyJSON(arrJSON MultiDimension) %}
+{% func AnyJSON(arrJSON MultiDimension) %}
 { {% code comma := "" %}
    {% for key, value := range arrJSON %}
-        {%s comma %} "{%s key %}": {%= WriteElement(value)%} {% code  comma = "," %}
+        {%s comma %} "{%s key %}": {%= Element(value)%} {% code  comma = "," %}
    {% endfor %}
  }
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа
-{% func WriteElement(value interface{}) %}
+{% func Element(value interface{}) %}
     {% switch vv := value.(type) %}
       {% case string %} "{%j= vv %}"
       {% case bool %} {%v vv %}
       {% case int, uint, int32, int64 %} {%d vv.(int) %}
       {% case float64 %} {%f vv %}
       {% case nil %}  null
-      {% case StringDimension %}
-            {%= WriteStringDimension(vv) %}
-      {% case SimpleDimension %}
-            {%= WriteSimpleDimension(vv) %}
+      {% case stringDimension %}
+            {%= StringDimension(vv) %}
+      {% case simpleDimension %}
+            {%= SimpleDimension(vv) %}
       {% case MultiDimension %}
-            {%= WriteAnyJSON(vv) %}
+            {%= AnyJSON(vv) %}
       {% case MapMultiDimension %}
-            {%= WriteSliceJSON(vv) %}
+            {%= SliceJSON(vv) %}
       {% default %}
             {% if vSimple, ok := isSimpleDimension(vv); ok %}
-                {%= WriteSimpleDimension(vSimple) %}
+                {%= SimpleDimension(vSimple) %}
             {% elseif arrJSON, ok := isMultiDimension(vv); ok %}
-                {%= WriteAnyJSON(arrJSON) %}
+                {%= AnyJSON(arrJSON) %}
             {% elseif mapArrJSON, ok := isMapMultiDimension(vv); ok %}
-                {%= WriteSliceJSON(mapArrJSON) %}
+                {%= SliceJSON(mapArrJSON) %}
             {% else %}
                 "{%v vv %}"
             {% endif %}
      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
-{% func WriteArrJSON(arrJSON []interface{} ) %}
+{% func ArrJSON(arrJSON []interface{} ) %}
  [ {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= WriteElement(value) %} {% code  comma = ","   %}
+    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value) %} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив объектов произвольной формы и возвращаем JSON текстом
-{% func WriteSimpleDimension(arrJSON SimpleDimension ) %}
+{% func SimpleDimension(arrJSON simpleDimension ) %}
 [  {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= WriteElement(value)%} {% code  comma = ","   %}
+    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив строк и возвращаем JSON текстом
-{% func WriteStringDimension(arrJSON StringDimension) %}
+{% func StringDimension(arrJSON stringDimension) %}
  [ {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= WriteElement(value)%} {% code  comma = ","   %}
+    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}
