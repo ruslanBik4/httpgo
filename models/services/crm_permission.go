@@ -59,13 +59,47 @@ func (crm_permission *cpService) Init() error{
 	crm_permission.status = "ready"
 	return nil
 }
-func (crm_permission *cpService) Send(messages ...interface{}) error {
 
+// args: 0 => admin part, 1 => user id, 2 => url what test on permiss, 3 => set/delete action with permiss
+// 4 => is allow create for this url, 5 => is allow delete for this url, 6 => is allow edit for this url
+// 4,5,6 (for set permiss only)
+func (crm_permission *cpService) Send(args ...interface{}) error {
 
+	if len(args) < 4 {
+		return ErrServiceNotEnougnParameter{Name: crm_permission.name, Param: args}
+	}
+	if _,ok := args[1].(int); !ok {
+		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
+	}
+	if _,ok := args[2].(string); !ok {
+		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
+	}
 
-	return nil
+	connection_status := Status("crm_permission")
+
+	if connection_status != "ready" {
+		return ErrBrokenConnection{Name: crm_permission.name, Param: args}
+	}
+
+	switch permission_type := args[0].(type) {
+	case string:
+		if permission_type == "crm" {
+			if args[3].(string) == "set" {
+				return crm_permission.setPermissForUser(args[1].(int), args[2].(string), args[4].(bool), args[5].(bool), args[6].(bool));
+			} else if args[3].(string) == "delete" {
+				return crm_permission.deletePermissForUser(args[1].(int), args[2].(string));
+			}
+
+		}
+	default:
+		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
+	}
+
+	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 
 }
+
+// args: 0 => admin part, 1 => user id, 2 => url what test on permiss, 3 => action for test access (Create/Delete/Edit/View)
 func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error) {
 
 	if len(args) < 4 {
@@ -73,12 +107,6 @@ func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error)
 	}
 	if _,ok := args[1].(int); !ok {
 		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
-	}
-	if _,ok := args[2].(string); !ok {
-		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
-	}
-	if _,ok := args[3].(string); !ok {
-		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[3], Number: 4}
 	}
 
 	connection_status := Status("crm_permission")
@@ -138,6 +166,50 @@ func (crm_permission *cpService) getCRMPermissions(user_id int, url, action stri
 		}
 	}
 	return false
+}
+
+func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
+
+	if crm_permission.roles[user_id] == nil || len(crm_permission.roles[user_id]) == 0 {
+		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+	}
+
+	for key,permission := range crm_permission.roles[user_id] {
+		resRow := permission.(map[string]interface{})
+		if resRow["link"].(string) == url {
+			crm_permission.roles[user_id] = append(crm_permission.roles[user_id][:key], crm_permission.roles[user_id][key+1:]...)
+			return nil
+		}
+	}
+	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+}
+
+func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
+
+	newRow := make(map[string]interface{}, 0)
+	newRow["link"] = link
+
+	if allow_create {
+		newRow["allow_create"] = 1
+	} else {
+		newRow["allow_create"] = 0
+	}
+
+	if allow_delete {
+		newRow["allow_delete"] = 1
+	} else {
+		newRow["allow_delete"] = 0
+	}
+
+	if allow_edit {
+		newRow["allow_edit"] = 1
+	} else {
+		newRow["allow_edit"] = 0
+	}
+
+	crm_permission.roles[user_id] = append(crm_permission.roles[user_id], newRow)
+
+	return nil
 }
 
 func init() {
