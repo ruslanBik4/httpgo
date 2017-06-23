@@ -102,6 +102,9 @@ export class ParseJSON {
 
     let func = this.components[component.tagName];
     if (func && func.addAttrToComponent) {
+      if (Object.prototype.toString.call(attr) === '[object Array]') {
+        // debugger;
+      }
       func.addAttrToComponent(component, attr);
     } else {
       if (Object.prototype.toString.call(attr) === '[object Array]') {

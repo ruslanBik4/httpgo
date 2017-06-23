@@ -94,7 +94,7 @@ var Validate = exports.Validate = function () {
         componentChild = component.querySelector('textarea');
 
         if (componentChild) {
-          if (componentChild.textContent.length === 0) {
+          if (componentChild.textLength === 0) {
             if (!isTest) componentChild.classList.add(classNameError);
             isError = true;
           } else {
