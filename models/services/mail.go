@@ -6,14 +6,14 @@
 package services
 
 import (
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"gopkg.in/gomail.v2"
 	netMail "net/mail"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type mailService struct {
-	name   string
-	status string
+	name                  string
+	status                string
 	email, password, body string
 }
 
@@ -31,12 +31,13 @@ func (mail *mailService) Send(messages ...interface{}) error {
 	return nil
 
 }
+
 //TODO: настройки отправки надо вынести в конфигфайл
-func SendMail(email, password, body string)  {
+func SendMail(email, password, body string) {
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", "ruslan-bik@yandex.ru")
-	m.SetHeader("To", email )
+	m.SetHeader("To", email)
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
 	m.SetBody("text/html", body)
@@ -54,12 +55,12 @@ func VerifyMail(email, password string) {
 
 	if _, err := netMail.ParseAddress(email); err != nil {
 		logs.ErrorLog(err, email)
-		logs.DebugLog( "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
+		logs.DebugLog("Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}
 }
 
-func (mail *mailService) Get(messages ... interface{}) (responce interface{}, err error) {
+func (mail *mailService) Get(messages ...interface{}) (responce interface{}, err error) {
 	return nil, nil
 
 }
@@ -79,4 +80,3 @@ func (mail *mailService) Status() string {
 func init() {
 	AddService(mail.name, mail)
 }
-

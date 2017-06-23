@@ -5,15 +5,16 @@
 package api
 
 import (
-	"net/http"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	_ "strings"
-	"github.com/ruslanBik4/httpgo/models/services"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
-	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"net/http"
+	_ "strings"
 )
+
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
@@ -41,7 +42,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	qBuilder.PostParams = r.Form
 
-	addJSON := make(map[string] interface{}, 0)
+	addJSON := make(map[string]interface{}, 0)
 	if id := r.FormValue("id"); id > "" {
 		// получаем данные для суррогатных полей
 		qBuilder.AddArg(id)
@@ -54,7 +55,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 		addJSON["data"] = arrJSON
 	}
 
-	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new (json.FormStructure), addJSON)
+	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
 }
 
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +63,7 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	if table, err := services.Get("schema", tableName); err != nil {
 		views.RenderInternalError(w, err)
 	} else {
-		w.Write([]byte(viewsSystem.ShowSchema(table.(*schema.FieldsTable) )))
+		w.Write([]byte(viewsSystem.ShowSchema(table.(*schema.FieldsTable))))
 	}
 
 }
@@ -79,7 +80,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
-		} else	if len(arrJSON) > 0 {
+		} else if len(arrJSON) > 0 {
 			views.RenderAnyJSON(w, arrJSON[0])
 		}
 	} else {
@@ -89,7 +90,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
-	if (tableName > "") {
+	if tableName > "" {
 		qBuilder := qb.CreateFromSQL("SELECT * FROM " + tableName)
 		r.ParseForm()
 		qBuilder.PostParams = r.Form

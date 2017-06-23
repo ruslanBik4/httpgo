@@ -2,69 +2,68 @@ package forms
 
 //todo необходима вариативность вывода в input select значений из енумов и справочников,пример - есть енум из 9-ти позиций а вывести нужно только 1,5,6(соответственно и юзер может что либо делать только с ними а не со всем списком 1-9)
 
-
-
 import (
 	"errors"
 	"strings"
 
-	"github.com/ruslanBik4/httpgo/models/db"
-	"regexp"
-	"fmt"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"regexp"
 	_ "strconv"
 	"time"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
+
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
-
 )
+
 //Сия структура нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
 //На данный момент создается на лету, в будущем
 //TODO: перенести в сервис отдачи структур и сделать независемым от реализации СУБД
 type FieldStructure struct {
-	Table 		*FieldsTable
-	COLUMN_NAME   	string
-	DATA_TYPE 	string
-	COLUMN_DEFAULT 	string
-	IS_NULLABLE 	string
-	CHARACTER_SET_NAME string
-	COLUMN_COMMENT 	string
-	COLUMN_TYPE 	string
+	Table                    *FieldsTable
+	COLUMN_NAME              string
+	DATA_TYPE                string
+	COLUMN_DEFAULT           string
+	IS_NULLABLE              string
+	CHARACTER_SET_NAME       string
+	COLUMN_COMMENT           string
+	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	Value 		string
-	IsHidden 	bool
-	InputType	string
-	CSSClass  	string
-	CSSStyle        string
-	TableName 	string
-	Events 		map[string] string
-	Where 		string
-	Figure 		string
-	Placeholder	string
-	Pattern		string
-	MinDate		string
-	MaxDate		string
-	BeforeHtml	string
-	Html		string
-	AfterHtml	string
-	ForeignFields	string
-	LinkTD		string
-	DataJSOM        map[string] interface{}
-	EnumValues 	[]string
+	Value                    string
+	IsHidden                 bool
+	InputType                string
+	CSSClass                 string
+	CSSStyle                 string
+	TableName                string
+	Events                   map[string]string
+	Where                    string
+	Figure                   string
+	Placeholder              string
+	Pattern                  string
+	MinDate                  string
+	MaxDate                  string
+	BeforeHtml               string
+	Html                     string
+	AfterHtml                string
+	ForeignFields            string
+	LinkTD                   string
+	DataJSOM                 map[string]interface{}
+	EnumValues               []string
 }
 
 type FieldsTable struct {
-	Name string
-	ID   int
-	Comment string
-	IsDadata bool
-	Rows [] FieldStructure
-	Hiddens map[string] string
-	SaveFormEvents 	map[string] string
-	DataJSOM        map[string] interface{}
+	Name           string
+	ID             int
+	Comment        string
+	IsDadata       bool
+	Rows           []FieldStructure
+	Hiddens        map[string]string
+	SaveFormEvents map[string]string
+	DataJSOM       map[string]interface{}
 }
 
 func (field *FieldStructure) setEnumValues() {
@@ -79,7 +78,7 @@ func (field *FieldStructure) setEnumValues() {
 
 // стиль показа для разных типов полей
 // новый метод, еще обдумываю
-func (field *FieldStructure) TypeInput() string{
+func (field *FieldStructure) TypeInput() string {
 	if (field.COLUMN_NAME == "id") || (field.COLUMN_NAME == "date_sys") {
 		//ns.ID, _ = strconv.Atoi(val)
 		//возможно, тут стоит предусмотреть некоторые действия
@@ -91,14 +90,14 @@ func (field *FieldStructure) TypeInput() string{
 	if strings.HasPrefix(field.COLUMN_NAME, "id_") {
 		return "ForeignSelect"
 	}
-	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
+	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_") {
 		return "set"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
 		return "table"
 	}
 	if field.InputType == "" {
-		switch (field.DATA_TYPE) {
+		switch field.DATA_TYPE {
 		case "varchar":
 			field.InputType = "text"
 		case "set":
@@ -136,8 +135,8 @@ func (field *FieldStructure) TypeInput() string{
 
 //старый метод, обсолете, буду избавляться
 //TODO старый метод, обсолете, буду избавляться
-func StyleInput(dataType string) string{
-	switch (dataType) {
+func StyleInput(dataType string) string {
+	switch dataType {
 	case "varchar":
 		return "search"
 	case "set", "enum":
@@ -162,7 +161,7 @@ func StyleInput(dataType string) string{
 
 // минимальный размер поля для разных типов полей
 func GetLengthFromType(dataType string) (width int, size int) {
-	switch (dataType) {
+	switch dataType {
 	case "select":
 		return 120, 50
 	case "checkbox":
@@ -188,8 +187,7 @@ func getFields(tableName string) (fields FieldsTable, err error) {
 
 	ns.GetColumnsProp(tableName)
 
-
-	fields.PutDataFrom( ns )
+	fields.PutDataFrom(ns)
 	fields.Name = tableName
 
 	return fields, nil
@@ -221,9 +219,9 @@ func (ns *FieldsTable) FindField(name string) *FieldStructure {
 // create where for  query from SETID_ / NODEID_ fields
 func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
-	comma  := " WHERE "
+	comma := " WHERE "
 	for _, title := range fields {
-		enumVal := title[len(title) - 1]
+		enumVal := title[len(title)-1]
 		if i := strings.Index(enumVal, ":"); i > 0 {
 			param := ""
 			// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
@@ -244,7 +242,7 @@ func (field *FieldStructure) whereFromSet(ns *FieldsTable) (result string) {
 //получаем связанную таблицу с полями для поля типа TABLEID_
 func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key string) {
 	//key := field.COLUMN_NAME
-	tableProps := key[ len("tableid_") : ]
+	tableProps := key[len("tableid_"):]
 
 	fields, err := getFields(tableProps)
 	if err != nil {
@@ -258,9 +256,9 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 	} else {
 		where = " WHERE (id_%s=?)"
 	}
-	sqlCommand := fmt.Sprintf( `SELECT * FROM %s p ` + where, tableProps, ns.Name )
+	sqlCommand := fmt.Sprintf(`SELECT * FROM %s p `+where, tableProps, ns.Name)
 
-	rows, err := db.DoSelect( sqlCommand, ns.ID )
+	rows, err := db.DoSelect(sqlCommand, ns.ID)
 	if err != nil {
 		logs.ErrorLog(err, sqlCommand)
 		return
@@ -273,22 +271,22 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 
 	field.Html = "<thead> <tr>"
 
-	var row [] interface {}
+	var row []interface{}
 	var newRow string
 
-	rowField := make([] *sql.NullString, len(columns))
+	rowField := make([]*sql.NullString, len(columns))
 	for idx, fieldName := range columns {
 
-		if (fieldName == "id") || (fieldName == "id_" + ns.Name ) {
+		if (fieldName == "id") || (fieldName == "id_"+ns.Name) {
 			//newRow += "<td></td>"
 		} else {
 			fieldStruct := fields.FindField(fieldName)
 			field.Html += "<td>" + fieldStruct.COLUMN_COMMENT + "</td>"
-			newRow += getTD(tableProps, fieldName, "", "id_" + ns.Name, 0, fieldStruct )
+			newRow += getTD(tableProps, fieldName, "", "id_"+ns.Name, 0, fieldStruct)
 		}
 
 		rowField[idx] = new(sql.NullString)
-		row = append( row, rowField[idx] )
+		row = append(row, rowField[idx])
 	}
 	field.Html += "</tr></thead><tbody>"
 
@@ -302,22 +300,24 @@ func (field *FieldStructure) getTableFrom(ns *FieldsTable, tablePrefix, key stri
 		idx++
 		field.Html += "<tr>"
 		for i, value := range rowField {
-			field.Html += getTD(tableProps, columns[i], value.String, "id_" + ns.Name, idx, fields.FindField(columns[i]) )
+			field.Html += getTD(tableProps, columns[i], value.String, "id_"+ns.Name, idx, fields.FindField(columns[i]))
 		}
 
 		field.Html += "</tr>"
 
 	}
-	field.Html += fmt.Sprintf( `<tr id="tr%s">%s</tr></tbody>`, tablePrefix+key, newRow)
+	field.Html += fmt.Sprintf(`<tr id="tr%s">%s</tr></tbody>`, tablePrefix+key, newRow)
 }
-const CELL_TABLE  = `<td class="%s"><input type="%s" name="%s:%s" value="%s"/></td>`
-const CELL_SELECT  = `<td class="%s"><select name="%s:%s" class="">%s</select></td>`
-func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string){
+
+const CELL_TABLE = `<td class="%s"><input type="%s" name="%s:%s" value="%s"/></td>`
+const CELL_SELECT = `<td class="%s"><select name="%s:%s" class="">%s</select></td>`
+
+func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruct *FieldStructure) (html string) {
 	inputName := fieldName + fmt.Sprintf("[%d]", idx)
 
 	required, events, dataJson := "", "", ""
 
-	if fieldStruct.IS_NULLABLE=="NO" {
+	if fieldStruct.IS_NULLABLE == "NO" {
 		required = "required"
 	}
 
@@ -327,9 +327,9 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 		}
 	} else if strings.HasPrefix(fieldName, "id_") {
 		fieldStruct.GetOptions(fieldName[3:], value)
-		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html )
+		html += fmt.Sprintf(CELL_SELECT, fieldStruct.CSSClass, tableProps, inputName, fieldStruct.Html)
 	} else if strings.HasPrefix(fieldName, "setid_") || strings.HasPrefix(fieldName, "nodeid_") {
-		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps + ":", fieldName, value, "", required) + "</td>"
+		html += "<td>" + fieldStruct.RenderMultiSelect(nil, tableProps+":", fieldName, value, "", required) + "</td>"
 	} else {
 		fullInputName := tableProps + ":" + inputName
 		switch fieldStruct.DATA_TYPE {
@@ -343,7 +343,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 				checked = "checked"
 			}
 			html += "<td class='" + fieldStruct.CSSClass + "'>" +
-					RenderCheckBox(fullInputName, fieldName, "", 1, checked, required, events, dataJson)+ "</td>"
+				RenderCheckBox(fullInputName, fieldName, "", 1, checked, required, events, dataJson) + "</td>"
 		default:
 			html += fmt.Sprintf(CELL_TABLE, fieldStruct.CSSClass, StyleInput(fieldStruct.DATA_TYPE), tableProps, inputName, value)
 		}
@@ -352,7 +352,7 @@ func getTD(tableProps, fieldName, value, parentField string, idx int, fieldStruc
 	return html
 }
 
-func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
+func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string {
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
@@ -361,14 +361,14 @@ func (field *FieldStructure) getSQLFromSETID(key, parentTable string) string{
 		return ""
 	}
 
-	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
 		titleField, parentTable,
 		tableProps, tableValue)
 
 }
 
-func getSQLFromNodeID(key, parentTable string) string{
+func getSQLFromNodeID(key, parentTable string) string {
 	var tableProps, titleField string
 
 	tableValue := strings.TrimPrefix(key, "nodeid_")
@@ -381,7 +381,7 @@ func getSQLFromNodeID(key, parentTable string) string{
 	fields.PutDataFrom(ns)
 
 	for _, field := range fields.Rows {
-		if (field.COLUMN_NAME != "id_" + parentTable) && strings.HasPrefix(field.COLUMN_NAME, "id_") {
+		if (field.COLUMN_NAME != "id_"+parentTable) && strings.HasPrefix(field.COLUMN_NAME, "id_") {
 			tableProps = field.COLUMN_NAME[3:]
 			titleField = field.getForeignFields(tableProps)
 			break
@@ -392,19 +392,19 @@ func getSQLFromNodeID(key, parentTable string) string{
 		return ""
 	}
 
-	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
 		titleField, parentTable,
 		tableProps, tableValue)
 
 }
 
-func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
+func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string) {
 	var sqlCommand string
 
 	if strings.HasPrefix(key, "setid_") {
 		sqlCommand = field.getSQLFromSETID(key, ns.Name)
-	} else if strings.HasPrefix(key, "nodeid_"){
+	} else if strings.HasPrefix(key, "nodeid_") {
 
 		sqlCommand = getSQLFromNodeID(key, ns.Name)
 
@@ -417,7 +417,7 @@ func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
 
 	where := field.whereFromSet(ns)
 
-	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
+	rows, err := db.DoSelect(sqlCommand+where, ns.ID)
 	if err != nil {
 		logs.ErrorLog(err, sqlCommand)
 		return
@@ -440,18 +440,17 @@ func (field *FieldStructure) getOptionsNODEID(ns *FieldsTable, key string){
 		}
 		idx++
 
-
 		field.Html += renderOption(id, title, selected)
 	}
 
 }
 
-func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
+func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string) {
 	var sqlCommand string
 
 	if strings.HasPrefix(key, "setid_") {
 		sqlCommand = field.getSQLFromSETID(key, ns.Name)
-	} else if strings.HasPrefix(key, "nodeid_"){
+	} else if strings.HasPrefix(key, "nodeid_") {
 
 		sqlCommand = getSQLFromNodeID(key, ns.Name)
 
@@ -464,7 +463,7 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 
 	where := field.whereFromSet(ns)
 
-	rows, err := db.DoSelect( sqlCommand + where, ns.ID )
+	rows, err := db.DoSelect(sqlCommand+where, ns.ID)
 	if err != nil {
 		logs.ErrorLog(err, sqlCommand)
 		return
@@ -479,22 +478,20 @@ func (field *FieldStructure) getMultiSelect(ns *FieldsTable, key string){
 		var idParent sql.NullInt64
 
 		if err := rows.Scan(&id, &title, &idParent); err != nil {
-				logs.ErrorLog(err)
-				continue
+			logs.ErrorLog(err)
+			continue
 		}
 		if idParent.Valid {
 			checked = "checked"
 		}
 		idx++
 
-
-		field.Html += "<li role='presentation'>" + RenderCheckBox(key + "[]", id, title, idx, checked, "", "", "") + "</li>"
+		field.Html += "<li role='presentation'>" + RenderCheckBox(key+"[]", id, title, idx, checked, "", "", "") + "</li>"
 	}
 
 }
 
-func (field *FieldStructure) getForeignFields(tableName string)  string {
-
+func (field *FieldStructure) getForeignFields(tableName string) string {
 
 	if field.ForeignFields > "" {
 		return field.ForeignFields
@@ -513,24 +510,24 @@ func (field *FieldStructure) GetOptions(tableName, val string) {
 		return
 	}
 
-        if field.Where > "" {
+	if field.Where > "" {
 		where = " WHERE "
 		enumVal := field.Where
 		i, j := strings.Index(enumVal, ":"), 0
 
 		for i > 0 {
-			param := enumVal[i+1: ]
+			param := enumVal[i+1:]
 			if j = strings.IndexAny(param, ", )"); j > 0 {
 				param = param[:j]
 			}
 			// мы добавим условие со значением поля текущей записи, если это поле найдено и в нем установлено значение
-			if param == "currentUser"{
+			if param == "currentUser" {
 				where += enumVal[:i] + fmt.Sprintf("%s", "users.IsLogin(nil)")
 			} else if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
 			/// попозже перепроверить
-			enumVal = enumVal[i + len(param) + 1 : ]
+			enumVal = enumVal[i+len(param)+1:]
 			i = strings.Index(enumVal, ":")
 		}
 
@@ -577,14 +574,13 @@ func (field *FieldStructure) RenderSet(key, val, required, events, dataJson stri
 		if strings.Contains(val, enumVal) {
 			checked = "checked"
 		}
-		result += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, required, events, dataJson)
+		result += RenderCheckBox(key+"[]", enumVal, enumVal, idx, checked, required, events, dataJson)
 	}
 
 	return result
 }
 
 func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson string) (result string) {
-
 
 	fields := enumValidator.FindAllStringSubmatch(field.COLUMN_TYPE, -1)
 	// TODO: придумать параметр, который будет определять элемент тега ывне зависемости от количества
@@ -603,7 +599,7 @@ func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson str
 
 	for idx, title := range fields {
 		enumVal := title[len(title)-1]
-		checked, selected  := "", ""
+		checked, selected := "", ""
 		if val == enumVal {
 			checked, selected = "checked", "selected"
 		}
@@ -614,20 +610,20 @@ func (field *FieldStructure) RenderEnum(key, val, required, events, dataJson str
 		}
 	}
 	if isRenderSelect {
-		return renderSelect(key, result, required, events, dataJson )
+		return renderSelect(key, result, required, events, dataJson)
 	}
 
 	return result
 }
 
-func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
+func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string) {
 	titleFull = title
 	if title == "" {
 		return "", ""
 	}
 	posPattern := strings.Index(titleFull, pattern)
 	if posPattern > 0 {
-		titlePart = titleFull[posPattern + len(pattern):]
+		titlePart = titleFull[posPattern+len(pattern):]
 		titleFull = titleFull[:posPattern]
 	} else {
 		titlePart = defaultStr
@@ -636,13 +632,13 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 	return titleFull, titlePart
 }
 
-func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
+func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
 
 	counter := 1
 	comma := ""
 	for key, val := range fieldStrc.DataJSOM {
 
-		dataJson += comma + fmt.Sprintf( `"%s": "%s"`, key, val)
+		dataJson += comma + fmt.Sprintf(`"%s": "%s"`, key, val)
 		counter++
 		comma = ","
 	}
@@ -663,7 +659,7 @@ func getPattern(name string) string {
 		}
 		if pattern.Valid {
 			return pattern.String
-		} else  {
+		} else {
 			return ""
 		}
 
@@ -672,9 +668,9 @@ func getPattern(name string) string {
 	return ""
 }
 
-func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON interface{}) {
+func (fieldStrc *FieldStructure) parseWhere(field db.FieldStructure, whereJSON interface{}) {
 	switch whereJSON.(type) {
-	case map[string] interface{}:
+	case map[string]interface{}:
 
 		comma := ""
 		fieldStrc.Where = ""
@@ -696,7 +692,6 @@ func (fieldStrc *FieldStructure) parseWhere (field db.FieldStructure, whereJSON 
 			comma = " OR "
 			logs.DebugLog("fieldStrc.Where", fieldStrc.Where)
 
-
 		}
 	default:
 		logs.ErrorLog(errors.New("not correct type WhereJSON !"), whereJSON)
@@ -716,9 +711,9 @@ func convertDatePattern(strDate string) string {
 	return strDate
 }
 
-func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
+func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string {
 
-	if ! field.COLUMN_COMMENT.Valid {
+	if !field.COLUMN_COMMENT.Valid {
 		return ""
 	}
 	titleFull := field.COLUMN_COMMENT.String
@@ -727,8 +722,8 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 
 		dataJson := field.COLUMN_COMMENT.String[posPattern:]
 
-		var properMap map[string] interface{}
-		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
+		var properMap map[string]interface{}
+		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 			logs.ErrorLog(err, "dataJson=", dataJson)
 		} else {
 			for key, val := range properMap {
@@ -746,7 +741,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 				case "placeholder":
 					fieldStrc.Placeholder = val.(string)
 				case "pattern":
-					fieldStrc.Pattern = getPattern( val.(string) )
+					fieldStrc.Pattern = getPattern(val.(string))
 				case "foreingKeys":
 					fieldStrc.ForeignFields = val.(string)
 				case "inputType":
@@ -754,7 +749,7 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 				case "isHidden":
 					fieldStrc.IsHidden = val.(bool)
 				case "linkTD":
-					fieldStrc.LinkTD   = val.(string)
+					fieldStrc.LinkTD = val.(string)
 				case "where":
 					fieldStrc.parseWhere(field, val)
 				case "maxDate":
@@ -762,8 +757,8 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string{
 				case "minDate":
 					fieldStrc.MinDate = convertDatePattern(val.(string))
 				case "events":
-					fieldStrc.Events = make(map[string] string, 0)
-					for name, event := range val.(map[string] interface{}) {
+					fieldStrc.Events = make(map[string]string, 0)
+					for name, event := range val.(map[string]interface{}) {
 						fieldStrc.Events[name] = event.(string)
 					}
 				default:
@@ -786,13 +781,13 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 	for _, field := range ns.Rows {
 		fieldStrc := &FieldStructure{
 			COLUMN_NAME: field.COLUMN_NAME,
-			DATA_TYPE  : field.DATA_TYPE,
+			DATA_TYPE:   field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,
 			COLUMN_TYPE: field.COLUMN_TYPE,
-			Events     : make(map[string] string, 0),
-			DataJSOM   : make(map[string] interface{}, 0),
-			Table	   : fields,
-			IsHidden   : false,
+			Events:      make(map[string]string, 0),
+			DataJSOM:    make(map[string]interface{}, 0),
+			Table:       fields,
+			IsHidden:    false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fieldStrc.CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -806,7 +801,7 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 			fieldStrc.COLUMN_DEFAULT = field.COLUMN_DEFAULT.String
 		}
 
-		fields.Rows = append(fields.Rows,*fieldStrc)
+		fields.Rows = append(fields.Rows, *fieldStrc)
 	}
 
 	if fields.Name == "" {
@@ -815,13 +810,13 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(fields.Name)
 
-	fields.SaveFormEvents = make(map[string] string, 0)
+	fields.SaveFormEvents = make(map[string]string, 0)
 
 	if pos := strings.Index(tableOpt.TABLE_COMMENT, "onload:"); pos > 0 {
 		fields.Comment = tableOpt.TABLE_COMMENT[:pos]
-		fields.DataJSOM = make( map[string] interface{}, 0 )
+		fields.DataJSOM = make(map[string]interface{}, 0)
 
-		fields.DataJSOM["onload"] = tableOpt.TABLE_COMMENT[pos + len("onload:"): ]
+		fields.DataJSOM["onload"] = tableOpt.TABLE_COMMENT[pos+len("onload:"):]
 	} else {
 		fields.Comment = tableOpt.TABLE_COMMENT
 	}
@@ -830,16 +825,15 @@ func (fields *FieldsTable) PutDataFrom(ns db.FieldsTable) {
 //AppendNewFieldRows - Добаляет в fields поля из других таблиц
 //@version 1.00 2017-05-13
 //@author Serg Litvinov
-func (fields *FieldsTable) AppendNewFieldRows (fields1 FieldsTable,  args ...interface{}){
-	for _, row := range fields1.Rows{
+func (fields *FieldsTable) AppendNewFieldRows(fields1 FieldsTable, args ...interface{}) {
+	for _, row := range fields1.Rows {
 		for _, arg := range args {
 			if row.COLUMN_NAME == arg {
-				fields.Rows = append(fields.Rows,row)
+				fields.Rows = append(fields.Rows, row)
 			}
 		}
 	}
 }
-
 
 func (field *FieldStructure) GetListJSON(key, val, required, events, dataJson string) {
 
@@ -853,7 +847,7 @@ func (field *FieldStructure) GetListJSON(key, val, required, events, dataJson st
 		if strings.Contains(val, enumVal) {
 			checked = "checked"
 		}
-		field.Html += RenderCheckBox(key + "[]", enumVal, enumVal, idx, checked, required, events, dataJson)
+		field.Html += RenderCheckBox(key+"[]", enumVal, enumVal, idx, checked, required, events, dataJson)
 	}
 
 }
@@ -874,18 +868,18 @@ func (field *FieldStructure) GetOptionsJson(tableName string) {
 		i, j := strings.Index(enumVal, ":"), 0
 
 		for i > 0 {
-			param := enumVal[i+1: ]
+			param := enumVal[i+1:]
 			if j = strings.IndexAny(param, ", )"); j > 0 {
 				param = param[:j]
 			}
 			// мы добавим условие со значением поля текущей записи, если это поле найдено и в нем установлено значение
-			if param == "currentUser"{
+			if param == "currentUser" {
 				where += enumVal[:i] + fmt.Sprintf("%s", "users.IsLogin(nil)")
 			} else if paramField := field.Table.FindField(param); (paramField != nil) && (paramField.Value != "") {
 				where += enumVal[:i] + fmt.Sprintf("%s", paramField.Value)
 			}
 			///TODO попозже перепроверить
-			enumVal = enumVal[i + len(param) + 1 : ]
+			enumVal = enumVal[i+len(param)+1:]
 			i = strings.Index(enumVal, ":")
 		}
 

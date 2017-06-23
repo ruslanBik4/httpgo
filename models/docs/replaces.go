@@ -6,14 +6,14 @@
 package docs
 
 import (
-	"time"
-	"fmt"
 	"database/sql"
+	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"time"
 )
 
-func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces map[string] string){
+func GetReplaces(person map[string]*sql.NullString, signSerf string) (replaces map[string]string) {
 
 	rows, err := db.DoSelect("select * from doc_keywords_list")
 	if err != nil {
@@ -22,7 +22,7 @@ func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces 
 		return nil
 	}
 
-	replaces = make(map[string] string, 0)
+	replaces = make(map[string]string, 0)
 
 	defer rows.Close()
 
@@ -40,7 +40,7 @@ func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces 
 		if val, ok := person[name]; ok && val.Valid {
 			replaces[name] = val.String
 		} else if name == "@docNumber" {
-			replaces[name] = fmt.Sprintf("%d/%d", 1, today.Year() )
+			replaces[name] = fmt.Sprintf("%d/%d", 1, today.Year())
 		} else if name == "@docDate" {
 			replaces[name] = today.Local().Format("02.01.2006")
 		} else if name == "@signSerf" {
@@ -54,7 +54,8 @@ func GetReplaces(person map[string] *sql.NullString, signSerf string) (replaces 
 	return replaces
 
 }
+
 // экранируем для поиска в изаммены в шаблоне
-func GetKeyword( name string) string  {
+func GetKeyword(name string) string {
 	return "@" + name
 }

@@ -5,28 +5,30 @@
 package docs
 
 import (
-	sheets "google.golang.org/api/sheets/v4"
-	"net/http"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	sheets "google.golang.org/api/sheets/v4"
 	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
 	"os/user"
 	"path/filepath"
-	"os"
-	"net/url"
-	"encoding/json"
-	"fmt"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"errors"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
-const ClientID 	    = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
-const authCode  =  "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
+
+const ClientID = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"
+const authCode = "4/H7iL6R6BSstU5-W0V7WgI9cPZttAjOzHH5pEmwYS8UQ#"
 
 type SheetsGoogleDocs struct {
 	Service *sheets.Service
 }
+
 // tokenCacheFile generates credential file path/filename.
 // It returns the generated credential path/filename.
 func tokenCacheFile() (string, error) {
@@ -54,10 +56,11 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 
 	tok, err := config.Exchange(oauth2.NoContext, authCode)
 	if err != nil {
-		logs.ErrorLog(errors.New("Unable to retrieve token from web" ), err)
+		logs.ErrorLog(errors.New("Unable to retrieve token from web"), err)
 	}
 	return tok
 }
+
 // tokenFromFile retrieves a Token from a given file path.
 // It returns the retrieved Token and any read error encountered.
 func tokenFromFile(file string) (*oauth2.Token, error) {
@@ -70,6 +73,7 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 	defer f.Close()
 	return t, err
 }
+
 // saveToken uses a file path to create a file and store the
 // token in it.
 func saveToken(file string, token *oauth2.Token) {
@@ -81,8 +85,9 @@ func saveToken(file string, token *oauth2.Token) {
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
 }
-var 	cacheFile = "config/.credentials"
-var 	userFile = "config/oauth2.json"
+
+var cacheFile = "config/.credentials"
+var userFile = "config/oauth2.json"
 
 func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	//cacheFile, err := tokenCacheFile()
@@ -97,7 +102,7 @@ func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	}
 	return config.Client(ctx, tok)
 }
-func newClient() *http.Client{
+func newClient() *http.Client {
 	ctx := context.Background()
 	// If modifying these scopes, delete your previously saved credentials
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
@@ -111,11 +116,11 @@ func newClient() *http.Client{
 	}
 	return getClient(ctx, config)
 }
-func (sheet * SheetsGoogleDocs) Init() (err error){
+func (sheet *SheetsGoogleDocs) Init() (err error) {
 
 	sConfig := server.GetServerConfig()
-	cacheFile = filepath.Join(sConfig.SystemPath(), "config/.credentials" )
-	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json" )
+	cacheFile = filepath.Join(sConfig.SystemPath(), "config/.credentials")
+	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json")
 
 	if sheet.Service, err = sheets.New(newClient()); err != nil {
 		return err
@@ -124,19 +129,18 @@ func (sheet * SheetsGoogleDocs) Init() (err error){
 	return nil
 }
 
-func (sheet * SheetsGoogleDocs) Read(spreadsheetId, readRange string) ( *sheets.ValueRange, error) {
+func (sheet *SheetsGoogleDocs) Read(spreadsheetId, readRange string) (*sheets.ValueRange, error) {
 
-	resp, err := sheet.Service.Spreadsheets.Values.Get(spreadsheetId, readRange).Do();
+	resp, err := sheet.Service.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
-func (sheet * SheetsGoogleDocs) Sheets(spreadsheetId, readRange string) ( *sheets.ValueRange, error) {
-	sh:= sheet.Service.Spreadsheets.Values
+func (sheet *SheetsGoogleDocs) Sheets(spreadsheetId, readRange string) (*sheets.ValueRange, error) {
+	sh := sheet.Service.Spreadsheets.Values
 
-
-	resp, err := sh.Get(spreadsheetId, readRange).Do();
+	resp, err := sh.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		return nil, err
 	}

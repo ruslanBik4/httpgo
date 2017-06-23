@@ -5,41 +5,42 @@
 package services
 
 import (
-	"path/filepath"
-	"os"
-	"log"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"io"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 type photosService struct {
-	name string
-	path string
+	name     string
+	path     string
 	fileName string
-	status string
+	status   string
 }
 
 var (
-	photos *photosService = &photosService{name:"photos"}
+	photos *photosService = &photosService{name: "photos"}
 )
 
-func (photos *photosService) Init() error{
+func (photos *photosService) Init() error {
 	schema.status = "starting"
 
 	ServerConfig := server.GetServerConfig()
 
-	photos.path = filepath.Join( ServerConfig.WWWPath(), "files/photos" )
+	photos.path = filepath.Join(ServerConfig.WWWPath(), "files/photos")
 	photos.fileName = "test.txt"
 
 	schema.status = "ready"
 	return nil
 }
+
 // выполняет операцию по записи/чтении файла
 // это зависит от первого параметра - "save" или "read"
 // третий параметр - имя файла
-func (photos *photosService) Send(args ...interface{}) error{
+func (photos *photosService) Send(args ...interface{}) error {
 
 	var oper string
 	if len(args) < 2 {
@@ -76,13 +77,14 @@ func (photos *photosService) Send(args ...interface{}) error{
 	return nil
 
 }
+
 //возвращает интерфейс чтения файла картинки
 //согласно параметрам:
 //1 - имя таблицы, view или сервиса
 //2 - id записи
 //3 - порядковый номер файла файла
 // (-1 означает, что нужно вернуть массив со списком файлов)
-func (photos *photosService) Get(args ... interface{}) (responce interface{}, err error) {
+func (photos *photosService) Get(args ...interface{}) (responce interface{}, err error) {
 
 	var catalog, id string
 	var num int
@@ -121,11 +123,11 @@ func (photos *photosService) Get(args ... interface{}) (responce interface{}, er
 		return photos.readFile(catalog, id, num)
 	}
 }
-func (photos *photosService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (photos *photosService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 
 	return nil, nil
 }
-func (photos *photosService) Close(out chan <- interface{}) error {
+func (photos *photosService) Close(out chan<- interface{}) error {
 
 	return nil
 }
@@ -140,7 +142,7 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			dir := filepath.Dir(fullName)
-			if err := os.MkdirAll(dir, os.ModeDir); err != nil{
+			if err := os.MkdirAll(dir, os.ModeDir); err != nil {
 				logs.ErrorLog(err.(error))
 				return err
 			}
@@ -154,25 +156,25 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 		}
 	} else {
 		defer outFile.Close()
-		_, err := io.Copy(outFile, inFile )
+		_, err := io.Copy(outFile, inFile)
 		if err != nil {
-			log.Println("Error saving file: "+err.Error())
+			log.Println("Error saving file: " + err.Error())
 			return err
 		}
 	}
 	return nil
 
 }
-func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, error) {
+func (photos *photosService) readFile(catalog, id string, num int) (io.Reader, error) {
 
-	files, err := photos.listFiles(catalog, id )
+	files, err := photos.listFiles(catalog, id)
 	if err != nil {
 		logs.ErrorLog(err.(error))
 		return nil, err
 	}
 
 	if num > len(files)-1 {
-		return nil, ErrServiceWrongIndex{Name:"Number not in files array range", Index: num }
+		return nil, ErrServiceWrongIndex{Name: "Number not in files array range", Index: num}
 	}
 	outFile, err := os.Open(files[num])
 	if err != nil {
@@ -183,13 +185,13 @@ func (photos *photosService) readFile(catalog, id string, num int) ( io.Reader, 
 	return outFile, nil
 
 }
-func (photos *photosService) listFiles(catalog, id string) ( files []string, err error) {
+func (photos *photosService) listFiles(catalog, id string) (files []string, err error) {
 
 	fullPath := filepath.Join(photos.path, catalog, id)
-	return filepath.Glob( fullPath + "/*.*")
+	return filepath.Glob(fullPath + "/*.*")
 
 }
-func (photos *photosService) listLinks(catalog, id string) ( list []string, err error) {
+func (photos *photosService) listLinks(catalog, id string) (list []string, err error) {
 	list, err = photos.listFiles(catalog, id)
 	if err != nil {
 		return nil, err
@@ -204,4 +206,3 @@ func (photos *photosService) listLinks(catalog, id string) ( list []string, err 
 func init() {
 	AddService(photos.name, photos)
 }
-

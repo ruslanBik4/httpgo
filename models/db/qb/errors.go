@@ -12,6 +12,7 @@ import (
 type ErrNotFoundParam struct {
 	Param string
 }
+
 func (err ErrNotFoundParam) Error() string {
 	return err.Param
 }

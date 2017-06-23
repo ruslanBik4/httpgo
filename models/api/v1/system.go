@@ -5,19 +5,19 @@
 package api
 
 import (
-	"net/http"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"os/exec"
-	"github.com/ruslanBik4/httpgo/views"
 	"bytes"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/views"
+	"net/http"
+	"os/exec"
 )
 
-func renderOutput(w http.ResponseWriter, stdoutStderr []byte ) {
+func renderOutput(w http.ResponseWriter, stdoutStderr []byte) {
 
 	views.WriteHeaders(w)
-	w.Write( []byte("<pre>") )
-	w.Write( bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0) )
-	w.Write( []byte("</pre>") )
+	w.Write([]byte("<pre>"))
+	w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
+	w.Write([]byte("</pre>"))
 }
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()

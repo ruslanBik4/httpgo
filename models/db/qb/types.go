@@ -6,21 +6,22 @@
 package qb
 
 import (
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"database/sql"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type QBField struct {
-	Name           string
-	Alias          string
-	schema         *schema.FieldStructure
-	Value          string
-	SelectValues   map[int] string
-	Table          *QBTable
-	ChildQB        *QueryBuilder
-	SelectQB        *QueryBuilder
+	Name         string
+	Alias        string
+	schema       *schema.FieldStructure
+	Value        string
+	SelectValues map[int]string
+	Table        *QBTable
+	ChildQB      *QueryBuilder
+	SelectQB     *QueryBuilder
 }
+
 // table in QB for incapsulate SQL & schema propertyes
 // ha map Fields as links field query
 type QBTable struct {
@@ -28,25 +29,27 @@ type QBTable struct {
 	Alias  string
 	Join   string
 	Using  string
-	Fields map[string] *QBField
+	Fields map[string]*QBField
 	schema *schema.FieldsTable
 	qB     *QueryBuilder
 }
+
 // inline SQL query
 // recheck in DB schema queryes tables&fields
 // may be has parent - link to parent QB
 type QueryBuilder struct {
-	Tables                          [] *QBTable
-	Args                            [] interface{}
-	fields                          [] *QBField
-	Aliases                         [] string
+	Tables                          []*QBTable
+	Args                            []interface{}
+	fields                          []*QBField
+	Aliases                         []string
 	Prepared                        *sql.Stmt
 	PostParams                      map[string][]string
-	sqlCommand, sqlSelect, sqlFrom  string		`auto recalc`
-	Where, GroupBy, OrderBy, Limits string	`may be defined outside`
+	sqlCommand, sqlSelect, sqlFrom  string `auto recalc`
+	Where, GroupBy, OrderBy, Limits string `may be defined outside`
 	union                           *QueryBuilder
 	parent                          *QueryBuilder
 }
+
 // for compatabilies interface logsType
 func (qb *QueryBuilder) PrintToLogs() string {
 
@@ -60,22 +63,23 @@ func (qb *QueryBuilder) PrintToLogs() string {
 	}
 	mess += " Args: "
 	for _, arg := range qb.Args {
-		mess += fmt.Sprintf( "%v, ", arg )
+		mess += fmt.Sprintf("%v, ", arg)
 	}
 
 	mess += " PostParams: "
 	for _, arg := range qb.PostParams {
-		mess += fmt.Sprintf( "%v, ", arg )
+		mess += fmt.Sprintf("%v, ", arg)
 	}
 	return mess + "}"
 }
+
 // addding arguments
-func (qb *QueryBuilder) AddArg(arg interface{}) *QueryBuilder{
+func (qb *QueryBuilder) AddArg(arg interface{}) *QueryBuilder {
 	qb.Args = append(qb.Args, arg)
 
 	return qb
 }
-func (qb *QueryBuilder) AddArgs(args ... interface{}) *QueryBuilder{
+func (qb *QueryBuilder) AddArgs(args ...interface{}) *QueryBuilder {
 
 	for _, arg := range args {
 		qb.Args = append(qb.Args, arg)
@@ -83,44 +87,45 @@ func (qb *QueryBuilder) AddArgs(args ... interface{}) *QueryBuilder{
 
 	return qb
 }
+
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {
 
 	table := qb.AddTable(alias, name)
-	table.Join   = join
-	table.Using  = usingOrOn
+	table.Join = join
+	table.Using = usingOrOn
 
 	return table
 }
 func (qb *QueryBuilder) Join(alias, name, usingOrOn string) *QBTable {
 
 	table := qb.AddTable(alias, name)
-	table.Join   = " JOIN "
-	table.Using  = usingOrOn
+	table.Join = " JOIN "
+	table.Using = usingOrOn
 
 	return table
 }
 func (qb *QueryBuilder) LeftJoin(alias, name, usingOrOn string) *QBTable {
 
 	table := qb.AddTable(alias, name)
-	table.Join   = " LEFT JOIN "
-	table.Using  = usingOrOn
+	table.Join = " LEFT JOIN "
+	table.Using = usingOrOn
 
 	return table
 }
 func (qb *QueryBuilder) RightJoin(alias, name, usingOrOn string) *QBTable {
 
 	table := qb.AddTable(alias, name)
-	table.Join   = " RIGHT JOIN "
-	table.Using  = usingOrOn
+	table.Join = " RIGHT JOIN "
+	table.Using = usingOrOn
 
 	return table
 }
 func (qb *QueryBuilder) InnerJoin(alias, name, usingOrOn string) *QBTable {
 
 	table := qb.AddTable(alias, name)
-	table.Join   = " INNER JOIN "
-	table.Using  = usingOrOn
+	table.Join = " INNER JOIN "
+	table.Using = usingOrOn
 
 	return table
 }

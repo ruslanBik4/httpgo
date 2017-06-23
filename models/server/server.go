@@ -7,17 +7,17 @@ package server
 
 import (
 	"fmt"
- 	yaml "gopkg.in/yaml.v2"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	yaml "gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type serverConfig struct {
 	systemPath  string
 	wwwPath     string
 	SessionPath string
-	dbParams struct {
+	dbParams    struct {
 		DB   string `yaml:"dbName"`
 		User string `yaml:"dbUser"`
 		Pass string `yaml:"dbPass"`
@@ -37,17 +37,17 @@ func GetServerConfig() *serverConfig {
 
 	return sConfig
 }
-func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
+func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error {
 	sConfig.systemPath = *f_static
-	sConfig.wwwPath     = *f_web
+	sConfig.wwwPath = *f_web
 	sConfig.SessionPath = *f_session
 
-	f, err := os.Open(filepath.Join(sConfig.systemPath, "config/db.yml" ))
+	f, err := os.Open(filepath.Join(sConfig.systemPath, "config/db.yml"))
 	if err != nil {
 		return err
 	}
 	fileInfo, _ := f.Stat()
-	b  := make([]byte, fileInfo.Size())
+	b := make([]byte, fileInfo.Size())
 	if n, err := f.Read(b); err != nil {
 
 		logs.ErrorLog(err, "n=", n)
@@ -60,17 +60,15 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error{
 		return err
 	}
 
-
 	return nil
 }
-
 
 //The Data Source DB has a common format, like e.g. PEAR DB uses it,
 // but without type-prefix (optional parts marked by squared brackets):
 //
 //[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 func (sConfig *serverConfig) DNSConnection() string {
-	return fmt.Sprintf("%s:%s@%s/%s?persistent", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot, sConfig.dbParams.DB )
+	return fmt.Sprintf("%s:%s@%s/%s?maximumpoolsize", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot, sConfig.dbParams.DB)
 }
 func (sConfig *serverConfig) DBName() string {
 	return sConfig.dbParams.DB

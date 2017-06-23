@@ -10,23 +10,24 @@ import (
 )
 
 type pRoles struct {
-	idUser int
+	idUser  int
 	idRoles string
 }
-type rowsRoles [] *pRoles
+type rowsRoles []*pRoles
 type pService struct {
-	name string
+	name   string
 	region string
 	status string
-	Rows map[string] rowsRoles
-	roles [] string
+	Rows   map[string]rowsRoles
+	roles  []string
 }
-var permissions *pService = &pService{name:"permission"}
+
+var permissions *pService = &pService{name: "permission"}
 
 //реализация обязательных методов интерейса
-func (permissions *pService) Init() error{
+func (permissions *pService) Init() error {
 
-	permissions.Rows = make(map[string] rowsRoles, 0)
+	permissions.Rows = make(map[string]rowsRoles, 0)
 	rows, err := db.DoSelect("SELECT p.id_users, g.title FROM permissions p JOIN permission_group_list g ON p.id_permission_group_list = g.id")
 	if err != nil {
 		return err
@@ -61,37 +62,37 @@ func (permissions *pService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (permissions *pService) Get(messages ... interface{}) ( interface{}, error) {
+func (permissions *pService) Get(messages ...interface{}) (interface{}, error) {
 
-	responce := make(map[string] bool)
+	responce := make(map[string]bool)
 	for _, message := range messages {
-			switch mess := message.(type) {
-			case map[string]string:
-				for key, val := range mess {
-					pRole, ok := permissions.Rows[key]
-					responce[key] = ok
-					log.Println(val, pRole)
-				}
-			case []interface{}:
-				log.Println(mess)
-				continue
-			case string:
-				responce[mess] = true
-			default:
-				log.Println(mess)
-				responce["Unknow type"] = false
-
+		switch mess := message.(type) {
+		case map[string]string:
+			for key, val := range mess {
+				pRole, ok := permissions.Rows[key]
+				responce[key] = ok
+				log.Println(val, pRole)
 			}
+		case []interface{}:
+			log.Println(mess)
+			continue
+		case string:
+			responce[mess] = true
+		default:
+			log.Println(mess)
+			responce["Unknow type"] = false
+
+		}
 
 	}
 
 	return responce, nil
 }
-func (permissions *pService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (permissions *pService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
 
 	go func() {
-		out<-"open"
+		out <- "open"
 		for {
 			select {
 			case v := <-in:
@@ -105,7 +106,7 @@ func (permissions *pService) Connect(in <- chan interface{}) (out chan interface
 	}()
 	return out, nil
 }
-func (permissions *pService) Close(out chan <- interface{}) error {
+func (permissions *pService) Close(out chan<- interface{}) error {
 	close(out)
 	return nil
 
@@ -138,7 +139,7 @@ func (permissions *pService) GetPermission(name string, idUser int) error {
 	perm, ok := permissions.Rows[name]
 	if ok {
 		for i, val := range perm {
-log.Println(i,val)
+			log.Println(i, val)
 		}
 
 	}

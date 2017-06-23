@@ -5,14 +5,16 @@
 package api
 
 import (
-	"net/http"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
-	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/views"
+	"net/http"
 	"strings"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
-func findField(key string, tables map[string] schema.FieldsTable) *schema.FieldStructure {
+
+func findField(key string, tables map[string]schema.FieldsTable) *schema.FieldStructure {
 
 	for _, table := range tables {
 		if field := table.FindField(key); field != nil {
@@ -25,12 +27,12 @@ func findField(key string, tables map[string] schema.FieldsTable) *schema.FieldS
 func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	var where string
-	var args [] interface{}
+	var args []interface{}
 
 	r.ParseForm()
 
-	tables := make(map[string] schema.FieldsTable, 0)
-	tableName := r.FormValue("table");
+	tables := make(map[string]schema.FieldsTable, 0)
+	tableName := r.FormValue("table")
 
 	if tableName == "" {
 		views.RenderBadRequest(w)
@@ -41,16 +43,18 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	r.Form.Del("table")
 
-	joins := make(map[string] *schema.FieldsTable, 0)
+	joins := make(map[string]*schema.FieldsTable, 0)
 	for _, tableName := range r.Form["joins"] {
 		joins[tableName] = schema.GetFieldsTable(tableName)
 	}
 	r.Form.Del("joins")
 
 	comma := ""
+
 	for key, value := range r.Form {
 
-		if (findField(key, tables) == nil) || (table.FindField(key) == nil) {
+		if (findField(key, tables) == nil) && (table.FindField(key) == nil) {
+			logs.StatusLog(key, value)
 			continue
 		}
 		if len(value) > 1 {
@@ -75,7 +79,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	leftTable := tableName
 	for name, _ := range tables {
-		qBuilder.LeftJoin("", name, "ON m.id_" +leftTable+"="+name+".id")
+		qBuilder.LeftJoin("", name, "ON m.id_"+leftTable+"="+name+".id")
 		leftTable = name
 	}
 
@@ -92,6 +96,5 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 }
 
 func init() {
-	http.HandleFunc("/api/v1/search/", system.WrapCatchHandler( HandlerSearch ) )
+	http.HandleFunc("/api/v1/search/", system.WrapCatchHandler(HandlerSearch))
 }
-

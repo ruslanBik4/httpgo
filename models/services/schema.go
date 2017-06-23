@@ -5,18 +5,20 @@
 package services
 
 import (
-	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/db"
+	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type schemaService struct {
-	name string
+	name   string
 	status string
 }
 
-var (schema *schemaService = &schemaService{name:"schema", status: "create"})
+var (
+	schema *schemaService = &schemaService{name: "schema", status: "create"}
+)
 
-func (schema *schemaService) Init() error{
+func (schema *schemaService) Init() error {
 
 	schema.status = "starting"
 	db.InitSchema()
@@ -24,11 +26,11 @@ func (schema *schemaService) Init() error{
 
 	return nil
 }
-func (schema *schemaService) Send(messages ...interface{}) error{
+func (schema *schemaService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (schema *schemaService) Get(messages ... interface{}) (responce interface{}, err error) {
+func (schema *schemaService) Get(messages ...interface{}) (responce interface{}, err error) {
 
 	switch tableName := messages[0].(type) {
 	case string:
@@ -40,11 +42,11 @@ func (schema *schemaService) Get(messages ... interface{}) (responce interface{}
 	return nil, nil
 
 }
-func (schema *schemaService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (schema *schemaService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 
 	return nil, nil
 }
-func (schema *schemaService) Close(out chan <- interface{}) error {
+func (schema *schemaService) Close(out chan<- interface{}) error {
 
 	return nil
 }
@@ -56,4 +58,3 @@ func (schema *schemaService) Status() string {
 func init() {
 	AddService(schema.name, schema)
 }
-

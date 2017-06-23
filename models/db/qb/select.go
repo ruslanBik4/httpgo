@@ -7,25 +7,26 @@ package qb
 import (
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"strconv"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"strconv"
 	"strings"
 )
+
 //SelectToMultidimension(sql string, args ...interface
 //@version 1.10 Sergey Litvinov 2017-05-25 15:15
-func SelectToMultidimension(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+func SelectToMultidimension(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 	qBuilder := CreateFromSQL(sql)
 	qBuilder.AddArgs(args)
 
 	return qBuilder.SelectToMultidimension()
 }
 
-func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
+func (qb *QueryBuilder) createSQL() (sql string, err error) {
 
 	commaTbl, commaFld := "", ""
 	for idx, table := range qb.Tables {
 
-		aliasTable:= table.Alias
+		aliasTable := table.Alias
 		//first table must'n to having JOIN property
 		if (idx > 0) && (table.Join > "") {
 			qb.sqlFrom += " " + table.Join + " " + table.Name + " " + aliasTable + " " + table.Using
@@ -58,7 +59,7 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 			for _, fieldStrc := range table.schema.Rows {
 
 				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-				table.AddField("", fieldStrc.COLUMN_NAME )
+				table.AddField("", fieldStrc.COLUMN_NAME)
 				//TODO: сделать одно место для добавления полей!
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
 				qb.Aliases = append(qb.Aliases, fieldStrc.COLUMN_NAME)
@@ -81,11 +82,10 @@ func (qb * QueryBuilder) createSQL() ( sql string, err error ) {
 		sql += " LIMIT " + qb.Limits
 	}
 
-
 	return "SELECT " + qb.sqlSelect + " FROM " + qb.sqlFrom + sql, nil
 
 }
-func (qb * QueryBuilder) getWhere() string {
+func (qb *QueryBuilder) getWhere() string {
 	if qb.Where > "" {
 		if strings.Contains(qb.Where, "WHERE") {
 			return qb.Where
@@ -95,7 +95,7 @@ func (qb * QueryBuilder) getWhere() string {
 	}
 	return ""
 }
-func (qb * QueryBuilder) unionSQL() string {
+func (qb *QueryBuilder) unionSQL() string {
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
@@ -126,7 +126,7 @@ func (qb * QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
-func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
+func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	if qb.Prepared == nil {
 		qb.sqlCommand, err = qb.createSQL()
@@ -143,7 +143,7 @@ func (qb * QueryBuilder) GetDataSql() (rows *sql.Rows, err error)  {
 
 	return qb.Prepared.Query(qb.Args...)
 }
-func (qb *QueryBuilder) SelectRunFunc( onReadRow func(rows *sql.Rows) error ) error {
+func (qb *QueryBuilder) SelectRunFunc(onReadRow func(rows *sql.Rows) error) error {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
@@ -161,8 +161,9 @@ func (qb *QueryBuilder) SelectRunFunc( onReadRow func(rows *sql.Rows) error ) er
 
 	return nil
 }
+
 // предназначен для получения данных в формате JSON
-func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] interface {}, err error ) {
+func (qb *QueryBuilder) SelectToMultidimension() (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
@@ -175,21 +176,20 @@ func (qb * QueryBuilder) SelectToMultidimension() ( arrJSON [] map[string] inter
 	return qb.ConvertDataToJson(rows)
 }
 
-
 //@func (field * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
 //@author Sergey Litvinov
 //@version 1.00 2017-06-12
-func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
+func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]interface{}, err error) {
 
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field )
+		valuePtrs = append(valuePtrs, field)
 	}
 
 	for rows.Next() {
 
-		values := make( map[string] interface{}, len(qb.fields) )
+		values := make(map[string]interface{}, len(qb.fields))
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs, qb)
 			continue
@@ -198,9 +198,9 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 		for _, field := range qb.fields {
 
 			fieldName := field.Alias
-			schema	  := field.schema
+			schema := field.schema
 			// all inline field has QB & we run thiq QB & store result in map
-			if field.ChildQB != nil  {
+			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
 					field.ChildQB.Args[0] = fieldID.Value
 				} else {
@@ -208,7 +208,7 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 					field.ChildQB.Args[0] = 0
 				}
 
-				values[fieldName], err =  field.ChildQB.SelectToMultidimension()
+				values[fieldName], err = field.ChildQB.SelectToMultidimension()
 				if err != nil {
 					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
@@ -243,19 +243,18 @@ func (qb * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[stri
 //(field * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
 //Not Convert BooleanType
 //@author Sergey Litvinov
-func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
-
+func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[string]interface{}, err error) {
 
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field )
+		valuePtrs = append(valuePtrs, field)
 	}
 
 	columns, _ := rows.Columns()
 	for rows.Next() {
 
-		values := make(map[string] interface{}, len(qb.fields) )
+		values := make(map[string]interface{}, len(qb.fields))
 		if err := rows.Scan(valuePtrs...); err != nil {
 			logs.ErrorLog(err, valuePtrs)
 			continue
@@ -265,12 +264,12 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 
 			field := qb.fields[idx]
 			if field == nil {
-				logs.DebugLog( "nil field", idx)
+				logs.DebugLog("nil field", idx)
 				continue
 
 			}
-			schema:= field.schema
-			if field.ChildQB != nil  {
+			schema := field.schema
+			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
 					field.ChildQB.Args[0] = fieldID.Value
 				} else {
@@ -278,7 +277,7 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 					field.ChildQB.Args[0] = 0
 				}
 
-				values[fieldName], err =  field.ChildQB.SelectToMultidimension()
+				values[fieldName], err = field.ChildQB.SelectToMultidimension()
 				if err != nil {
 					logs.ErrorLog(err, field.ChildQB)
 					values[fieldName] = err.Error()
@@ -310,7 +309,7 @@ func (qb * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] m
 //@func (field * QueryBuilder) SelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error )
 // Get rows not convert tinyInt fields
 //@author Sergey Litvinov
-func (qb * QueryBuilder) GetSelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error ) {
+func (qb *QueryBuilder) GetSelectToNotChangeBoolean() (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {

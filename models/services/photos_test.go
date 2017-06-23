@@ -5,9 +5,9 @@
 package services
 
 import (
-	"testing"
-	"log"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"log"
+	"testing"
 )
 
 const serviceName = "photos"
@@ -19,7 +19,7 @@ func TestPhotosSend(t *testing.T) {
 	if result == nil {
 		t.Error("Not error by operation with error name")
 	}
-	switch err := result.(type){
+	switch err := result.(type) {
 
 	case ErrServiceNotCorrectOperation:
 		t.Log(err.Error())
@@ -27,7 +27,7 @@ func TestPhotosSend(t *testing.T) {
 	case error:
 		t.Error("Not correct error type - " + err.Error())
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
 
@@ -36,22 +36,21 @@ func TestPhotosGetList(t *testing.T) {
 	//var iErr interface{}
 	result, iErr := Get(serviceName, "rooms", "1", 1)
 
-	switch err := iErr.(type){
+	switch err := iErr.(type) {
 
 	case ErrServiceNotCorrectOperation:
 		t.Skipped()
 	case ErrServiceNotCorrectParamType:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param)
 	case ErrServiceWrongIndex:
-		t.Errorf("Wrong index %d",err.Index)
+		t.Errorf("Wrong index %d", err.Index)
 	case nil:
 		t.Skipped()
 		logs.DebugLog("result", result)
 		return
 
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 		log.Println(err.(ErrServiceNotCorrectParamType).Param)
 	}
 }
-

@@ -1,32 +1,34 @@
 package admin
+
 import (
-	"encoding/base64"
-	"net/http"
-	"strings"
-	"fmt"
 	"database/sql"
+	"encoding/base64"
+	"errors"
+	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	_ "github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"strconv"
-	"github.com/ruslanBik4/httpgo/models/users"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
-	_ "github.com/ruslanBik4/httpgo/models/system"
+	"net/http"
 	"net/mail"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"errors"
+	"strconv"
+	"strings"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
 const nameSession = "PHPSESSID"
+
 var store = users.Store
 
 type UserRecord struct {
-	Id int
+	Id   int
 	Name string
-	Sex int
+	Sex  int
 }
 
 func correctURL(url string) string {
@@ -49,16 +51,16 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 		views.RenderNoPermissionPage(w, r)
 	}*/
 
-	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	p := &layouts.MenuOwnerBody{Title: "Menu admina", TopMenu: make(map[string]*layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
-	ns.Rows = make([] db.TableOptions, 0)
-	ns.GetSelectTablesProp("TABLE_SCHEMA='travel' AND TABLE_NAME in ('users', 'object', 'business') " )
+	ns.Rows = make([]db.TableOptions, 0)
+	ns.GetSelectTablesProp("TABLE_SCHEMA=? AND TABLE_NAME in (?, ?, ?) ", "travel", "users", "object", "business" )
 	for _, value := range ns.Rows {
-		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
+		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
 	if views.IsAJAXRequest(r) {
-		fmt.Fprint(w, p.MenuOwner() )
+		fmt.Fprint(w, p.MenuOwner())
 	} else {
 		HandlerAdmin(w, r)
 	}
@@ -161,27 +163,27 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 	// session save BEFORE write page
 	users.SaveSession(w, r, userId, pair[0])
 
-	return true, []byte( userName), []byte (pair[1]), userId
+	return true, []byte(userName), []byte(pair[1]), userId
 }
 
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
-	userID  := users.IsLogin(r)
+	userID := users.IsLogin(r)
 	resultId, err := strconv.Atoi(userID)
 	if err != nil || !CheckAdminPermissions(resultId) {
 		views.RenderNoPermissionPage(w)
 		return
 	}
-	p := &layouts.MenuOwnerBody{ Title: "Menu admina", TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	p := &layouts.MenuOwnerBody{Title: "Menu admina", TopMenu: make(map[string]*layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
-	ns.Rows = make([] db.TableOptions, 0)
-	ns.GetSelectTablesProp("TABLE_SCHEMA='travel' AND TABLE_NAME like '%_list'" )
+	ns.Rows = make([]db.TableOptions, 0)
+	ns.GetSelectTablesProp("TABLE_SCHEMA=? AND (RIGHT(table_name, 5) = ?)", "travel", "%_list")
 	for _, value := range ns.Rows {
-		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{ Link: "/admin/table/" + value.TABLE_NAME + "/"}
+		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{Link: "/admin/table/" + value.TABLE_NAME + "/"}
 
 	}
 	if views.IsAJAXRequest(r) {
-		fmt.Fprint(w, p.MenuOwner() )
+		fmt.Fprint(w, p.MenuOwner())
 	} else {
 		HandlerAdmin(w, r)
 	}
@@ -190,29 +192,29 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
 	result, username, password, userId := basicAuth(w, r)
-	if  result {
+	if result {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-		headPage  := &layouts.HeadHTMLPage{
-			Charset: "charset=utf-8",
+		headPage := &layouts.HeadHTMLPage{
+			Charset:  "charset=utf-8",
 			Language: "ru",
-			Title: "Заголовок новой страницы",
+			Title:    "Заголовок новой страницы",
 		}
-		p := &pages.AdminPageBody{ Name: username, Pass : password, Content : "", Catalog: make(map[string] *pages.ItemMenu), Head: headPage }
+		p := &pages.AdminPageBody{Name: username, Pass: password, Content: "", Catalog: make(map[string]*pages.ItemMenu), Head: headPage}
 		var menu db.MenuItems
 
 		if menu.GetMenuByUserId(userId) > 0 {
 
 			for _, item := range menu.Items {
-				p.Catalog[item.Title] = &pages.ItemMenu{ Link: "/menu/" + item.Name + "/" }
+				p.Catalog[item.Title] = &pages.ItemMenu{Link: "/menu/" + item.Name + "/"}
 
 			}
 		}
-		if menu.Self.Link > ""  {
-			p.Content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link )
+		if menu.Self.Link > "" {
+			p.Content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 		}
 
-		p.TopMenu = make( map[string] string, 0)
+		p.TopMenu = make(map[string]string, 0)
 		menu.GetMenu("indexTop")
 
 		for _, item := range menu.Items {
@@ -230,7 +232,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(401)
 	w.Write([]byte("401 Unauthorized\n"))
 }
-func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
+func HandlerAdminTable(w http.ResponseWriter, r *http.Request) {
 
 	/*userID  := users.IsLogin(r)
 	resultId,_ := strconv.Atoi(userID)
@@ -242,38 +244,37 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 		views.RenderNoPermissionPage(w, r)
 	}*/
 
-
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	tableName := strings.Trim( r.URL.Path[ len("/admin/table/") : ], "/" )
+	tableName := strings.Trim(r.URL.Path[len("/admin/table/"):], "/")
 
 	var menu db.MenuItems
 
-	p := &layouts.MenuOwnerBody{ Title: tableName, TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	p := &layouts.MenuOwnerBody{Title: tableName, TopMenu: make(map[string]*layouts.ItemMenu, 0)}
 	if menu.GetMenu(tableName) > 0 {
 
 		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = &layouts.ItemMenu{ Link: "/menu/" + item.Name + "/" }
+			p.TopMenu[item.Title] = &layouts.ItemMenu{Link: "/menu/" + item.Name + "/"}
 
 		}
 
 		// return into parent menu if he occurent
 		if menu.Self.ParentID > 0 {
-			p.TopMenu["< на уровень выше"] = &layouts.ItemMenu{ Link: fmt.Sprintf("/menu/%d/", menu.Self.ParentID ) }
+			p.TopMenu["< на уровень выше"] = &layouts.ItemMenu{Link: fmt.Sprintf("/menu/%d/", menu.Self.ParentID)}
 		}
 	} else {
 
-		p.TopMenu["Добавить"] = &layouts.ItemMenu{Link: "/admin/row/new/" + tableName + "/" }
+		p.TopMenu["Добавить"] = &layouts.ItemMenu{Link: "/admin/row/new/" + tableName + "/"}
 	}
 
-	w.Write( []byte(p.MenuOwner()) )
+	w.Write([]byte(p.MenuOwner()))
 
 	var tableOpt db.TableOptions
 	tableOpt.GetTableProp(tableName)
 
 	fields := GetFields(tableName)
 
-	w.Write( []byte(fields.Comment) )
+	w.Write([]byte(fields.Comment))
 
 	sqlCommand := "select * from " + tableName
 
@@ -297,9 +298,8 @@ func HandlerAdminTable (w http.ResponseWriter, r *http.Request) {
 	query.HrefEdit = "/admin/row/edit/?table=" + tableName + "&id="
 	query.Tables = append(query.Tables, &fields)
 
-	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-	w.Write( []byte(query.RenderTable()) )
-
+	fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName)
+	w.Write([]byte(query.RenderTable()))
 
 }
 func HandlerSchema(w http.ResponseWriter, r *http.Request) {
@@ -308,7 +308,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	var fields forms.FieldsTable
 
 	tableName := r.FormValue("table")
-	id        := r.FormValue("id")
+	id := r.FormValue("id")
 	if tableName > "" {
 
 		fields = GetFields(tableName)
@@ -317,7 +317,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		for key, val := range r.Form {
 			if len(val) > 1 {
-				tableName = key[: strings.Index(key, "[")]
+				tableName = key[:strings.Index(key, "[")]
 
 				var ns db.FieldsTable
 				ns.GetColumnsProp(tableName)
@@ -357,10 +357,10 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №" + id + " в таблице " + tableName) )
+	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №"+id+" в таблице "+tableName))
 
 }
-func GetFields(tableName string) (fields forms.FieldsTable){
+func GetFields(tableName string) (fields forms.FieldsTable) {
 
 	var ns db.FieldsTable
 	ns.Options.GetTableProp(tableName)
@@ -379,31 +379,30 @@ func GetFields(tableName string) (fields forms.FieldsTable){
 func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	tableName := r.URL.Path[ len("/admin/row/new/") : len(r.URL.Path)-1]
+	tableName := r.URL.Path[len("/admin/row/new/") : len(r.URL.Path)-1]
 
 	fields := GetFields(tableName)
-	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу " + tableName) )
+	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу "+tableName))
 }
 func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
-
 
 	//TODO научить данную функцию получать значения из полей типа tableid_ setid_ nodeid_
 	fields = GetFields(tableName)
 	rows, err := db.DoSelect("select * from "+tableName+" where id=?", id)
-	if (err != nil) {
+	if err != nil {
 
 		logs.ErrorLog(err, "select * from ", tableName, " where id=?", id)
 		return fields, err
 	}
 
 	defer rows.Close()
-	var row [] interface{}
+	var row []interface{}
 
 	columns, err := rows.Columns()
-	if (err != nil) {
+	if err != nil {
 		logs.ErrorLog(err)
 	}
-	rowField := make([] *sql.NullString, len(columns))
+	rowField := make([]*sql.NullString, len(columns))
 	for idx, _ := range columns {
 
 		rowField[idx] = new(sql.NullString)
@@ -428,20 +427,21 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 	return fields, nil
 }
+
 // удаление записи - помечаем специальное поле isDel
 func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
-	id	  := r.FormValue("id")
+	id := r.FormValue("id")
 
 	if tableName == "" {
 		fmt.Fprint(w, "Not table name!")
 		return
 	}
-	if _, err := db.DoUpdate("update " + tableName + " set isDel=1 where id=?", id); err != nil {
+	if _, err := db.DoUpdate("update "+tableName+" set isDel=1 where id=?", id); err != nil {
 		logs.ErrorLog(err)
 	} else {
-		fmt.Fprint(w, "Успешно удалили запись с номером " + id)
+		fmt.Fprint(w, "Успешно удалили запись с номером "+id)
 	}
 }
 func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
@@ -453,9 +453,8 @@ func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Error during reading record with id=%s", id)
 
 	} else {
-		fmt.Fprint(w, fields.ShowRecord( "Меняем запись №"+id+" в таблице " + fields.Comment ) )
+		fmt.Fprint(w, fields.ShowRecord("Меняем запись №"+id+" в таблице "+fields.Comment))
 	}
-
 
 }
 func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
@@ -468,8 +467,8 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Error during reading record with id=%s", id)
 
 	} else {
-		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName )
-		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице " + fields.Comment, fields, nil, "", "")
+		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName)
+		views.RenderAnyForm(w, r, "Меняем запись №"+id+" в таблице "+fields.Comment, fields, nil, "", "")
 	}
 
 }
@@ -479,10 +478,10 @@ func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
 	return userID, true
 
 }
-func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
+func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 
-	var arrJSON map[string] interface {}
-	arrJSON = make( map[string] interface {}, 0)
+	var arrJSON map[string]interface{}
+	arrJSON = make(map[string]interface{}, 0)
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
@@ -505,16 +504,16 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string)  {
 			arrJSON["message"] = fmt.Sprintf("Error %v during uodate table '%s' ", err, tableName)
 		} else {
 			arrJSON[operation] = id
-			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName )
+			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName)
 		}
 	}
 	views.RenderAnyJSON(w, arrJSON)
 }
 func HandlerAddRecord(w http.ResponseWriter, r *http.Request) {
-	HandlerRecord(w, r, "id" )
+	HandlerRecord(w, r, "id")
 }
-func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request)  {
-	HandlerRecord(w, r, "rowAffected" )
+func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request) {
+	HandlerRecord(w, r, "rowAffected")
 
 }
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
@@ -528,33 +527,33 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		var params db.MultiQuery
-		var arrJSON map[string] interface {}
+		var arrJSON map[string]interface{}
 
-		arrJSON = make( map[string] interface {}, 0)
+		arrJSON = make(map[string]interface{}, 0)
 
-		params.Queryes = make(map[string] *db.ArgsQuery, 0)
+		params.Queryes = make(map[string]*db.ArgsQuery, 0)
 		for key, val := range r.Form {
 
 			indSeparator := strings.Index(key, ":")
 			if indSeparator < 1 {
 				message := "Error in name   don't write to DB. Field="
 				logs.ErrorLog(errors.New(message), key)
-				arrJSON["error"]   = "true"
-				arrJSON["message"] = fmt.Sprintf(message +"%s^", key)
+				arrJSON["error"] = "true"
+				arrJSON["message"] = fmt.Sprintf(message+"%s^", key)
 				continue
 			}
 
-			tableName := key[: indSeparator ]
+			tableName := key[:indSeparator]
 
 			query, ok := params.Queryes[tableName]
 			if !ok {
-				query =  &db.ArgsQuery{
-					Comma: "",
+				query = &db.ArgsQuery{
+					Comma:      "",
 					SQLCommand: "insert into " + tableName + "(",
-					Values: "values (",
+					Values:     "values (",
 				}
 			}
-			fieldName := key[ strings.Index(key, ":")+1 : ]
+			fieldName := key[strings.Index(key, ":")+1:]
 
 			if strings.Contains(fieldName, "[]") {
 				query.SQLCommand += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
@@ -564,28 +563,28 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 					comma = ","
 				}
 				query.Args = append(query.Args, str)
-			} else if strings.Contains(fieldName, "[")  {
-				logs.DebugLog("fieldName=",fieldName)
+			} else if strings.Contains(fieldName, "[") {
+				logs.DebugLog("fieldName=", fieldName)
 				pos := strings.Index(fieldName, "[")
 				//number := fieldName[ pos+1 : strings.Index(fieldName, "]") ]
-				fieldName = "`" + fieldName[ :pos] + "`"
+				fieldName = "`" + fieldName[:pos] + "`"
 
 				// пока беда в том, что количество должно точно соответствовать!
 				//если первый  - то создаем новый список параметров для вставки
-				if strings.HasPrefix(query.SQLCommand, "insert into " + tableName + "(" + fieldName) {
+				if strings.HasPrefix(query.SQLCommand, "insert into "+tableName+"("+fieldName) {
 					query.Comma = "), ("
 					//args, ok := query.args[0][fieldName]
-				} else if !strings.Contains(query.SQLCommand, fieldName )  {
+				} else if !strings.Contains(query.SQLCommand, fieldName) {
 					query.SQLCommand += query.Comma + fieldName
 					//query.args = append(query.args, make(map[string] string, 0))
 				}
 
-				logs.DebugLog("fieldName=",fieldName)
+				logs.DebugLog("fieldName=", fieldName)
 				query.Args = append(query.Args, val[0])
 
 			} else {
 				query.SQLCommand += query.Comma + "`" + fieldName + "`"
-				query.Args = append( query.Args, val[0] )
+				query.Args = append(query.Args, val[0])
 			}
 			query.Values += query.Comma + "?"
 			query.Comma = ", "
@@ -600,11 +599,11 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				primaryTable = key
 			} else {
 				query.SQLCommand += query.Comma + "`id_" + primaryTable + "`"
-				query.Args = append( query.Args, primaryID )
+				query.Args = append(query.Args, primaryID)
 				query.Values += query.Comma + "?"
 			}
 
-			id, err := db.DoInsert(query.SQLCommand + ") " + query.Values + ")", query.Args ... )
+			id, err := db.DoInsert(query.SQLCommand+") "+query.Values+")", query.Args...)
 			if err != nil {
 				logs.ErrorLog(err)
 				arrJSON["error"] = "true"
@@ -612,11 +611,11 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				break
 			} else {
 				arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
-				arrJSON["id"]      = id
+				arrJSON["id"] = id
 
-				 if primaryID == 0 {
-					 primaryID = id
-				 }
+				if primaryID == 0 {
+					primaryID = id
+				}
 			}
 		}
 		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
@@ -631,35 +630,35 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 	var err error
 	switch action {
 	case "Create":
-		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM users_roles_list_has " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
-			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
-			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+		rows, err = db.DoSelect("SELECT menu_items.`id` "+
+			"FROM users_roles_list_has "+
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list "+
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id "+
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` "+
 			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_create`=1", userId, getMenuNameFromUrl(url), url)
 
 	case "Edit":
-		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM users_roles_list_has " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
-			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
-			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+		rows, err = db.DoSelect("SELECT menu_items.`id` "+
+			"FROM users_roles_list_has "+
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list "+
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id "+
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` "+
 			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_edit`=1", userId, getMenuNameFromUrl(url), url)
 
 	case "Delete":
-		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM users_roles_list_has " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
-			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
-			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+		rows, err = db.DoSelect("SELECT menu_items.`id` "+
+			"FROM users_roles_list_has "+
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list "+
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id "+
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` "+
 			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1) AND roles_permission_list.`allow_delete`=1", userId, getMenuNameFromUrl(url), url)
 
 	default:
-		rows, err = db.DoSelect("SELECT menu_items.`id` " +
-			"FROM users_roles_list_has " +
-			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list " +
-			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id " +
-			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
+		rows, err = db.DoSelect("SELECT menu_items.`id` "+
+			"FROM users_roles_list_has "+
+			"LEFT JOIN roles_permission_list ON `roles_permission_list`.`id_roles_list`=users_roles_list_has.id_roles_list "+
+			"INNER JOIN roles_list ON users_roles_list_has.`id_roles_list`=`roles_list`.id "+
+			"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` "+
 			"WHERE users_roles_list_has.id_users=? AND (menu_items.`name`=? OR menu_items.`link`=? OR roles_list.`is_general`=1)", userId, getMenuNameFromUrl(url), url)
 
 	}
@@ -680,9 +679,9 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 //проверка пользователя на права администратора в екстранете
 func CheckAdminPermissions(userId int) bool {
 
-	rows, err := db.DoSelect("SELECT users_roles_list_has.`id_users` " +
-		"FROM users_roles_list_has " +
-		"LEFT JOIN roles_list ON `roles_list`.`id`=users_roles_list_has.id_roles_list " +
+	rows, err := db.DoSelect("SELECT users_roles_list_has.`id_users` "+
+		"FROM users_roles_list_has "+
+		"LEFT JOIN roles_list ON `roles_list`.`id`=users_roles_list_has.id_roles_list "+
 		"WHERE users_roles_list_has.id_users=? AND roles_list.is_general=1", userId)
 
 	if err != nil {
@@ -723,11 +722,10 @@ func getMenuNameFromUrl(url string) string {
 	return urlParts[2]
 }
 
-
 func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32000)
 
-	var args [] interface{}
+	var args []interface{}
 	sql, comma, values := "insert into users (", "", ") values ("
 
 	for key, val := range r.MultipartForm.Value {
@@ -744,8 +742,8 @@ func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	sql += comma + "hash"
 	values += comma + "?"
 
-	args = append(args, users.HashPassword(password) )
-	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
+	args = append(args, users.HashPassword(password))
+	lastInsertId, err := db.DoInsert(sql+values+")", args...)
 	if err != nil {
 
 		fmt.Fprintf(w, "%v", err)
@@ -761,8 +759,8 @@ func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}
-	p := &forms.PersonData{ Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
-		Rows: []forms.MarshalRow{mRow}, Email: email }
+	p := &forms.PersonData{Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
+		Rows: []forms.MarshalRow{mRow}, Email: email}
 	fmt.Fprint(w, p.JSON())
 
 	go users.SendMail(email, password)

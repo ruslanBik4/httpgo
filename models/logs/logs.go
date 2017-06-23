@@ -7,16 +7,17 @@
 package logs
 
 import (
-	"runtime"
-	"log"
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"runtime"
 )
 
 type LogsType interface {
 	PrintToLogs() string
 }
+
 var F_debug = flag.Bool("debug", false, "debug mode")
 var F_status = flag.Bool("status", true, "status mode")
 
@@ -40,7 +41,7 @@ func StatusLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	if *F_status {
-		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)) )
+		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)))
 	}
 }
 
@@ -51,8 +52,7 @@ func ErrorLog(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(1)
 
 	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
-		err.Error(),getArgsString(args...)) )
-
+		err.Error(), getArgsString(args...)))
 
 }
 
@@ -62,9 +62,8 @@ func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(5)
 
-		log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
-			err, getArgsString(args...)))
-
+	log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+		err, getArgsString(args...)))
 
 }
 
@@ -107,7 +106,7 @@ func changeShortName(file string) (short string) {
 }
 
 //changeShortName(file string) (short string) - Convert args to string
-func getArgsString(args ...interface{})(message string){
+func getArgsString(args ...interface{}) (message string) {
 	message = ""
 	for _, arg := range args {
 

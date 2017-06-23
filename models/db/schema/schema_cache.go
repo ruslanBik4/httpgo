@@ -5,27 +5,30 @@
 package schema
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // хранит структуру полей - стоит продумать, как хранить еще и ключи
-var SchemaCache map[string] *FieldsTable
+var SchemaCache map[string]*FieldsTable
 
 type ErrNotFoundTable struct {
 	Table string
 }
-func (err ErrNotFoundTable) Error() string{
+
+func (err ErrNotFoundTable) Error() string {
 
 	return fmt.Sprintf("Not table `%s` in schema ", err.Table)
 }
+
 type ErrNotFoundField struct {
-	Table string
+	Table     string
 	FieldName string
 }
-func (err ErrNotFoundField) Error() string{
 
-	return fmt.Sprintf("Not field `%s` for table `%s` in schema ",err.FieldName, err.Table)
+func (err ErrNotFoundField) Error() string {
+
+	return fmt.Sprintf("Not field `%s` for table `%s` in schema ", err.FieldName, err.Table)
 
 }
 
@@ -38,5 +41,5 @@ func GetFieldsTable(tableName string) *FieldsTable {
 	return table
 }
 func init() {
-	SchemaCache = make(map[string] *FieldsTable, 0)
+	SchemaCache = make(map[string]*FieldsTable, 0)
 }

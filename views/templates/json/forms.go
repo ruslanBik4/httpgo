@@ -7,12 +7,13 @@ package json
 import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
+
 type FormStructure struct {
-	Action          string
-	ClassCSS        string
-	IdCSS           string
-	Name            string
-	Events          map[string] string
+	Action   string
+	ClassCSS string
+	IdCSS    string
+	Name     string
+	Events   map[string]string
 }
 
 func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
@@ -20,7 +21,6 @@ func (thisForm *FormStructure) setFormDefaults(ns *schema.FieldsTable) {
 	if thisForm.Action == "" {
 		thisForm.Action = "/admin/exec/"
 	}
-
 
 	if thisForm.Events == nil {
 

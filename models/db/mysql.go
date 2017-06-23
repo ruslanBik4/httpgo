@@ -4,42 +4,45 @@
 package db
 
 import (
-	"fmt"
-	"regexp"
-	"database/sql"
-	"github.com/go-sql-driver/mysql"
-	"encoding/json"
 	"bytes"
-	"io"
-	"strings"
-	"strconv"
-	"github.com/ruslanBik4/httpgo/models/server"
+	"database/sql"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/go-sql-driver/mysql"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"io"
+	"regexp"
+	"strconv"
+	"strings"
 )
+
 var (
-	dbConn *sql.DB
+	dbConn       *sql.DB
 	SQLvalidator = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
 	//регулярное выражение вытаскивающее имя таблицы из запроса
 	//TODO не отрабатывает конструкцию FROM table1, table2
 	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
 )
+
 //SqlCustom На основе этой структуры формируется запрос вида sqlBeg + table + sqlEnd
 type SqlCustom struct {
-    Table  string;
-    SqlBeg string;
-    SqlEnd string;
-    Sql    string;
+	Table  string
+	SqlBeg string
+	SqlEnd string
+	Sql    string
 }
 
 type ErrBadSelectQuery struct {
 	Sql, Message string
 }
+
 func (err ErrBadSelectQuery) Error() string {
 	return "Bad query for select - " + err.Sql
 }
-func PrepareQuery(sql string) (*sql.Stmt, error){
+func PrepareQuery(sql string) (*sql.Stmt, error) {
 	return dbConn.Prepare(sql)
 }
 
@@ -52,14 +55,16 @@ func doConnect() error {
 		return nil
 	}
 	serverConfig := server.GetServerConfig()
-	dbConn, err = sql.Open( "mysql", serverConfig.DNSConnection() )
+	dbConn, err = sql.Open("mysql", serverConfig.DNSConnection())
 	if err != nil {
 		logs.ErrorLog(err)
 		return err
 	} else if dbConn == nil {
-		logs.DebugLog( DriveName )
-		return sql.ErrTxDone
+		logs.DebugLog(DriveName)
+		return mysql.ErrInvalidConn
 	}
+
+	dbConn.Ping()
 
 	return nil
 
@@ -72,7 +77,7 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 		return -1, err
 	}
 
-	resultSQL, err := dbConn.Exec( sql, args ...)
+	resultSQL, err := dbConn.Exec(sql, args...)
 
 	if err != nil {
 		logs.ErrorLog(err, sql)
@@ -90,31 +95,31 @@ func DoUpdate(sql string, args ...interface{}) (int, error) {
 		return -1, err
 	}
 
-	resultSQL, err := dbConn.Exec( sql, args ...)
+	resultSQL, err := dbConn.Exec(sql, args...)
 
 	if err != nil {
 		return -1, err
 	} else {
-		RowsAffected, err:= resultSQL.RowsAffected()
+		RowsAffected, err := resultSQL.RowsAffected()
 		return int(RowsAffected), err
 	}
 }
 
 //DoSelect(sql string, args ...interface
-func DoSelect(sql string, args ...interface{})  (rows *sql.Rows, err error) {
+func DoSelect(sql string, args ...interface{}) (rows *sql.Rows, err error) {
 
 	if err = doConnect(); err != nil {
 		return nil, err
 	}
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
-		return dbConn.Query(sql, args ...)
+		return dbConn.Query(sql, args...)
 	} else {
-		logs.ErrorLog(&ErrBadSelectQuery{Message:"Bad query for select -", Sql: sql })
+		logs.ErrorLog(&ErrBadSelectQuery{Message: "Bad query for select -", Sql: sql})
 		logs.ErrorStack()
 		return nil, err
 	}
 }
-func DoQuery(sql string, args ...interface{})  *sql.Rows {
+func DoQuery(sql string, args ...interface{}) *sql.Rows {
 
 	if err := doConnect(); err != nil {
 		return nil
@@ -126,55 +131,57 @@ func DoQuery(sql string, args ...interface{})  *sql.Rows {
 	Encode := json.NewEncoder(w)
 
 	if strings.HasPrefix(sql, "insert") {
-		resultSQL, err := dbConn.Exec( sql, args ...)
+		resultSQL, err := dbConn.Exec(sql, args...)
 
 		if err != nil {
 			Encode.Encode(err)
 		} else {
-			lastInsertId, _:= resultSQL.LastInsertId()
+			lastInsertId, _ := resultSQL.LastInsertId()
 			Encode.Encode(lastInsertId)
 		}
 
-		logs.DebugLog( result.String() )
+		logs.DebugLog(result.String())
 
 		return nil
 	}
 
 	if strings.HasPrefix(sql, "update") {
-		resultSQL, err := dbConn.Exec( sql, args ...)
+		resultSQL, err := dbConn.Exec(sql, args...)
 
 		if err != nil {
 			Encode.Encode(err)
 		} else {
-			RowsAffected, _:= resultSQL.RowsAffected()
+			RowsAffected, _ := resultSQL.RowsAffected()
 			Encode.Encode(RowsAffected)
 		}
 
-		logs.DebugLog( result.String() )
+		logs.DebugLog(result.String())
 
 		return nil
 	}
 
-	rows, err :=  dbConn.Query( sql, args ...)
+	rows, err := dbConn.Query(sql, args...)
 
 	if err != nil {
-		logs.ErrorLog(err,  result.String() )
+		logs.ErrorLog(err, result.String())
 		return nil
 	}
 
 	return rows
 }
+
 type rowFields struct {
-	row map[string] string
+	row map[string]string
 }
+
 // func (rows *Myrow)  Scan(value interface{}) err {
 //
 //     return true
 //
 // }
 //подготовка для цикла чтения записей, формирует row для сканирования записи,rowField - для выборки значение и массив типов для последующей обработки
-func PrepareRowsToReading(rows *sql.Rows) (row [] interface {}, rowField map[string] *sql.NullString,
-	columns [] string, colTypes [] *sql.ColumnType) {
+func PrepareRowsToReading(rows *sql.Rows) (row []interface{}, rowField map[string]*sql.NullString,
+	columns []string, colTypes []*sql.ColumnType) {
 
 	columns, err := rows.Columns()
 
@@ -187,23 +194,22 @@ func PrepareRowsToReading(rows *sql.Rows) (row [] interface {}, rowField map[str
 		panic(err)
 	}
 
-	rowField = make( map[string] *sql.NullString, len(columns) )
+	rowField = make(map[string]*sql.NullString, len(columns))
 
 	for _, val := range columns {
 
 		rowField[val] = new(sql.NullString)
-		row = append( row, rowField[val] )
+		row = append(row, rowField[val])
 	}
-
 
 	return row, rowField, columns, colTypes
 
 }
 
 //GetResultToJSON (rows *sql.Rows) []byte
-func GetResultToJSON (rows *sql.Rows) []byte{
+func GetResultToJSON(rows *sql.Rows) []byte {
 
-	var rowOutput [] map[string] string
+	var rowOutput []map[string]string
 
 	row, rowField, _, _ := PrepareRowsToReading(rows)
 
@@ -219,7 +225,7 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 			continue
 		}
 
-		output := make( map[string] string )
+		output := make(map[string]string)
 
 		for name, field := range rowField {
 			if field.Valid {
@@ -229,15 +235,14 @@ func GetResultToJSON (rows *sql.Rows) []byte{
 			}
 		}
 
-		rowOutput = append( rowOutput, output)
+		rowOutput = append(rowOutput, output)
 	}
 
 	if err := Encode.Encode(rowOutput); err != nil {
 		Encode.Encode(err)
 	}
 
-
-	return result.Bytes();
+	return result.Bytes()
 }
 
 //getValue(fieldValue *sql.NullString) string
@@ -249,13 +254,13 @@ func getValue(fieldValue *sql.NullString) string {
 	return "NULL"
 }
 
-func getTableFromSchema(tableName string) *schema.FieldsTable{
+func getTableFromSchema(tableName string) *schema.FieldsTable {
 
 	defer func() {
 		result := recover()
 		switch err := result.(type) {
 		case schema.ErrNotFoundTable:
-			logs.ErrorLog( err,"tableName",  tableName)
+			logs.ErrorLog(err, "tableName", tableName)
 			//err = schema.ErrNotFoundTable{Table:tablePart[1]}
 		case nil:
 		case error:
@@ -265,8 +270,9 @@ func getTableFromSchema(tableName string) *schema.FieldsTable{
 
 	return schema.GetFieldsTable(tableName)
 }
+
 // get table names from sql-query
-func getTablesFromSQL(sql string) (tables [] *schema.FieldsTable) {
+func getTablesFromSQL(sql string) (tables []*schema.FieldsTable) {
 
 	arrTables := tableNameFromSQL.FindAllStringSubmatch(sql, -1)
 	for _, tablePart := range arrTables {
@@ -280,10 +286,11 @@ func getTablesFromSQL(sql string) (tables [] *schema.FieldsTable) {
 
 	return tables
 }
+
 //GetDataPrepareRowsToReading - function get rows with structure field
 //@author Sergey Litvinov
-func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
-							columns [] string, colTypes [] *sql.ColumnType, err error )  {
+func GetDataPrepareRowsToReading(sql string, args ...interface{}) (rows *sql.Rows, row []interface{}, rowField map[string]*sql.NullString,
+	columns []string, colTypes []*sql.ColumnType, err error) {
 	rows, err = DoSelect(sql, args...)
 
 	if err != nil {
@@ -297,10 +304,10 @@ func GetDataPrepareRowsToReading(sql string, args ...interface{})  (rows *sql.Ro
 
 //ConvertPrepareRowsToJson convert many rows to json
 //@author Sergey Litvinov
-func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[string] *sql.NullString,
-			columns [] string, colTypes [] *sql.ColumnType) ( arrJSON [] map[string] interface {}, err error ) {
+func ConvertPrepareRowsToJson(rows *sql.Rows, row []interface{}, rowField map[string]*sql.NullString,
+	columns []string, colTypes []*sql.ColumnType) (arrJSON []map[string]interface{}, err error) {
 
-	logs.DebugLog( rows)
+	logs.DebugLog(rows)
 
 	for rows.Next() {
 		if err := rows.Scan(row...); err != nil {
@@ -310,7 +317,7 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 
 		logs.DebugLog(row...)
 
-		values := make(map[string] interface{}, len(columns) )
+		values := make(map[string]interface{}, len(columns))
 
 		for _, colType := range colTypes {
 
@@ -353,80 +360,77 @@ func ConvertPrepareRowsToJson(rows *sql.Rows, row [] interface {}, rowField map[
 	return arrJSON, nil
 }
 
-
 //ConvertPrepareRowToJson convert one row to json
 //@author Sergey Litvinov
-func ConvertPrepareRowToJson(rowField map[string] *sql.NullString, columns [] string,
-		colTypes [] *sql.ColumnType) (id int, arrJSON map[string] interface {},   err error ) {
-		id = 0;
-		values := make(map[string] interface{}, len(columns) )
+func ConvertPrepareRowToJson(rowField map[string]*sql.NullString, columns []string,
+	colTypes []*sql.ColumnType) (id int, arrJSON map[string]interface{}, err error) {
+	id = 0
+	values := make(map[string]interface{}, len(columns))
 
-		for _, colType := range colTypes {
+	for _, colType := range colTypes {
 
-			fieldName := colType.Name()
-			fieldValue, ok := rowField[fieldName]
-			if (fieldName == "id"){
-				id, _ = strconv.Atoi(getValue(fieldValue))
+		fieldName := colType.Name()
+		fieldValue, ok := rowField[fieldName]
+		if fieldName == "id" {
+			id, _ = strconv.Atoi(getValue(fieldValue))
+		}
+		if !ok {
+			logs.ErrorLog(err)
+			continue
+		}
+		//logs.DebugLog(colType.Length())
+		switch colType.DatabaseTypeName() {
+		case "varchar", "date", "datetime":
+			if fieldValue.Valid {
+				values[fieldName] = fieldValue.String
+			} else {
+				values[fieldName] = nil
 			}
-			if !ok {
-				logs.ErrorLog(err)
-				continue
+		case "tinyint":
+			if getValue(fieldValue) == "1" {
+				values[fieldName] = true
+
+			} else {
+				values[fieldName] = false
+
 			}
-			//logs.DebugLog(colType.Length())
-			switch colType.DatabaseTypeName() {
-			case "varchar", "date", "datetime":
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
-			case "tinyint":
-				if getValue(fieldValue) == "1" {
-					values[fieldName] = true
+		case "int", "int64", "float":
+			values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
 
-				} else {
-					values[fieldName] = false
-
-				}
-			case "int", "int64", "float":
-				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
-
-			default:
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
+		default:
+			if fieldValue.Valid {
+				values[fieldName] = fieldValue.String
+			} else {
+				values[fieldName] = nil
 			}
 		}
+	}
 
-		arrJSON = values
-
+	arrJSON = values
 
 	return id, arrJSON, nil
 }
-
 
 //GetDataCustom get data with custom sql query
 //Give  begSQL + tableName + endSQL, split, run sql
 //@version 2.00 2017-04-20
 //@author Sergey Litvinov
 func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
-		row [] interface {}, rowField map[string] *sql.NullString, columns [] string,
-		colTypes [] *sql.ColumnType, err error ){
+	row []interface{}, rowField map[string]*sql.NullString, columns []string,
+	colTypes []*sql.ColumnType, err error) {
 
-	if(sqlParam.SqlBeg == ""){
+	if sqlParam.SqlBeg == "" {
 		sqlParam.SqlBeg = "SELECT * FROM "
 	}
 
-	if(sqlParam.SqlEnd == ""){
+	if sqlParam.SqlEnd == "" {
 		sqlParam.SqlEnd = " WHERE id=?"
 	}
-	if (sqlParam.Sql == "" &&  sqlParam.Table !=""){
+	if sqlParam.Sql == "" && sqlParam.Table != "" {
 		sqlParam.Sql = sqlParam.SqlBeg + sqlParam.Table + sqlParam.SqlEnd
 	}
-	if (sqlParam.Sql != ""){
-        logs.DebugLog("sqlParam.Sql=", sqlParam.Sql)
+	if sqlParam.Sql != "" {
+		logs.DebugLog("sqlParam.Sql=", sqlParam.Sql)
 		rows, row, rowField, columns, colTypes, err = GetDataPrepareRowsToReading(sqlParam.Sql, args...)
 
 		if err != nil {
@@ -435,14 +439,12 @@ func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 		}
 
 		return rows, row, rowField, columns, colTypes, nil
-	} else{
+	} else {
 		err = errors.New("Error. Not enough parameters for the function GetDataCustom")
 		return nil, nil, nil, nil, nil, err
 	}
 
-
 }
-
 
 //DoUpdateFromMap - function generate sql update query from data map with current id
 //@author Sergey Litvinov
@@ -452,9 +454,9 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 	var id int
 	var tableIDQueryes MultiQuery
 	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
-	
+
 	comma, sqlCommand, where := "", "UPDATE "+table+" SET ", " WHERE "
-	
+
 	for key, val := range mapData {
 		if key == "id" {
 			where += "`" + key + "`=?"
@@ -473,20 +475,20 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 			row = append(row, val)
 		}
 		comma = ", "
-		
+
 	}
 	row = append(row, id)
 	sqlCommand = sqlCommand + where
 	//logs.DebugLog("sql ",  sqlCommand)
 	//logs.DebugLog(  row... )
-	
+
 	RowsAffected, err = DoUpdate(sqlCommand, row...)
 	return RowsAffected, err
 }
 
 //TODO: написать нормальный комментарий и убраьтт лишний код проверки типов
 // SelectToMultidimension в своем первозданном виде.
-func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string] interface {}, err error ) {
+func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := DoSelect(sql, args...)
 
@@ -504,7 +506,7 @@ func PerformSelectQuery(sql string, args ...interface{}) ( arrJSON [] map[string
 			continue
 		}
 
-		values := make(map[string] interface{}, len(columns) )
+		values := make(map[string]interface{}, len(columns))
 
 		for _, colType := range colTypes {
 

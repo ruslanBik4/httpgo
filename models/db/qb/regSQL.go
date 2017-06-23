@@ -1,9 +1,9 @@
 package qb
 
 import (
-"regexp"
-"fmt"
-"strings"
+	"fmt"
+	"regexp"
+	"strings"
 )
 
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA"
@@ -16,6 +16,7 @@ import (
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a GROUP BY id_user ORDER BY id_user"
 
 var sqlCommand1 = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name, COUNT(*) count1, COUNT(tab1.*) as count2, COUNT(tab1.min) as count3   FROM AAA a INNER JOIN BBB b ON a.id = b.id_user INNER JOIN CCC c ON b.id = c.id_customer GROUP BY id_user ORDER BY fname, second_name"
+
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a"
 
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name  FROM AAA a"
@@ -215,7 +216,7 @@ func getTextSelectFields(sql string) (fields string, ok bool) {
 func getFields(textFields string) ([]*SqlField, bool) {
 	var fieldItems []string = strings.Split(textFields, ",")
 	var reg *regexp.Regexp = regexp.MustCompile(regField)
-	var groupNames [] string = reg.SubexpNames()
+	var groupNames []string = reg.SubexpNames()
 
 	var result []*SqlField = make([]*SqlField, 0)
 	for _, text := range fieldItems {

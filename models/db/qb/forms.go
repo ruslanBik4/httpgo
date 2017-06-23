@@ -5,13 +5,12 @@
 package qb
 
 import (
-	"log"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"log"
 )
 
 // return schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
-
 
 	if len(qb.fields) == 0 {
 		for _, table := range qb.Tables {
@@ -34,7 +33,7 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 	}
 	qb.checkSurrogateFields()
 
-	schTable.Fields = make(map[string] *QBField, len(qb.fields))
+	schTable.Fields = make(map[string]*QBField, len(qb.fields))
 	for _, field := range qb.fields {
 		schTable.Fields[field.Name] = field
 	}
@@ -60,4 +59,3 @@ func (qb *QueryBuilder) checkSurrogateFields() {
 		}
 	}
 }
-

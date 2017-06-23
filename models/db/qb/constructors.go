@@ -10,12 +10,12 @@ import (
 )
 
 // constructors
-func Create(where, groupBy, orderBy string) *QueryBuilder{
+func Create(where, groupBy, orderBy string) *QueryBuilder {
 
 	qb := &QueryBuilder{Where: where, OrderBy: orderBy, GroupBy: groupBy}
 	return qb
 }
-func CreateEmpty() *QueryBuilder{
+func CreateEmpty() *QueryBuilder {
 
 	qb := &QueryBuilder{}
 	return qb
@@ -34,7 +34,7 @@ func CreateFromSQL(sqlCommand string) *QueryBuilder {
 
 var compRegEx = regexp.MustCompile(regFrom)
 
-func (qb * QueryBuilder) getFrom(sql string)  {
+func (qb *QueryBuilder) getFrom(sql string) {
 	var match []string = compRegEx.FindStringSubmatch(sql)
 
 	var tableName, Alias string
@@ -53,16 +53,17 @@ func (qb * QueryBuilder) getFrom(sql string)  {
 	for _, fieldStrc := range table.schema.Rows {
 
 		//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
-		table.AddField("", fieldStrc.COLUMN_NAME )
+		table.AddField("", fieldStrc.COLUMN_NAME)
 		//TODO: сделать одно место для добавления полей!
 		qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
 		qb.Aliases = append(qb.Aliases, fieldStrc.COLUMN_NAME)
 	}
 
 }
+
 var joinRegEx = regexp.MustCompile(regJoin)
 
-func (qb * QueryBuilder) getJoins(sql string)  {
+func (qb *QueryBuilder) getJoins(sql string) {
 	var match [][]string = joinRegEx.FindAllStringSubmatch(sql, -1)
 	var groupNames []string = joinRegEx.SubexpNames()
 	for _, v := range match {
@@ -73,7 +74,7 @@ func (qb * QueryBuilder) getJoins(sql string)  {
 		}
 	}
 }
-func (qb * QueryBuilder) getJoin(join []string, groupNames []string)  bool {
+func (qb *QueryBuilder) getJoin(join []string, groupNames []string) bool {
 	var joinTableName, Alias, onLeftTable, onLeftField, onRightTable, onRightField string
 	for i, name := range groupNames {
 		switch name {
@@ -94,12 +95,9 @@ func (qb * QueryBuilder) getJoin(join []string, groupNames []string)  bool {
 	}
 
 	if (joinTableName > "") && (onLeftTable > "") && (onRightTable > "") && (onRightField > "") {
-		qb.Join(Alias, joinTableName, "ON " + onLeftTable + "." + onLeftField + "=" + onRightTable + "." + onRightField)
+		qb.Join(Alias, joinTableName, "ON "+onLeftTable+"."+onLeftField+"="+onRightTable+"."+onRightField)
 		return true
 	}
 
 	return false
 }
-
-
-

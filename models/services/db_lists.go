@@ -13,7 +13,7 @@ import (
 )
 
 type DBlistsService struct {
-	name string
+	name   string
 	status string
 }
 
@@ -32,7 +32,7 @@ func (DBlists *DBlistsService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (DBlists *DBlistsService) Get(messages ... interface{}) (responce interface{}, err error) {
+func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{}, err error) {
 	switch tableName := messages[0].(type) {
 	case string:
 		return cache.GetListRecord(tableName), nil
@@ -59,4 +59,3 @@ func (DBlists *DBlistsService) Status() string {
 func init() {
 	AddService(DBlists.name, DBlists)
 }
-
