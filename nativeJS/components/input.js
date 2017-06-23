@@ -118,6 +118,7 @@ export class Input {
     if (component.tagName === 'INPUT') {
       if (this.isSet) {
         component.name += `[]`;
+        component.value = dataId;
         component.setAttribute(Variables.paramsJSONIdData, dataId);
       }
       component.id += `-${ parent.children.length }`;
