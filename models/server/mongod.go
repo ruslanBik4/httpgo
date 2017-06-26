@@ -1,20 +1,19 @@
 package server
 
-
 import (
+	"github.com/ruslanBik4/httpgo/models/logs"
 	yaml "gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type mongodConfig struct {
 	systemPath  string
 	wwwPath     string
 	SessionPath string
-	dbParams struct {
-			    DB   string `yaml:"dbName"`
-		    }
+	dbParams    struct {
+		DB string `yaml:"dbName"`
+	}
 }
 
 var mConfig *mongodConfig
@@ -29,18 +28,18 @@ func GetMongodConfig() *mongodConfig {
 
 	return mConfig
 }
-func (mConfig *mongodConfig) Init(f_static, f_web, f_session *string) error{
+func (mConfig *mongodConfig) Init(f_static, f_web, f_session *string) error {
 
 	mConfig.systemPath = *f_static
-	mConfig.wwwPath     = *f_web
+	mConfig.wwwPath = *f_web
 	mConfig.SessionPath = *f_session
 
-	f, err := os.Open(filepath.Join(mConfig.systemPath, "config/mongo.yml" ))
+	f, err := os.Open(filepath.Join(mConfig.systemPath, "config/mongo.yml"))
 	if err != nil {
 		return err
 	}
 	fileInfo, _ := f.Stat()
-	b  := make([]byte, fileInfo.Size())
+	b := make([]byte, fileInfo.Size())
 	if n, err := f.Read(b); err != nil {
 		logs.ErrorLog(err, "n=", n)
 		return err

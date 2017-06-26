@@ -5,21 +5,24 @@
 package services
 
 const MessServNotFound = " service not found in list services"
+
 type ErrServiceNotFound struct {
 	Name string
 }
-func (err ErrServiceNotFound) Error() string{
+
+func (err ErrServiceNotFound) Error() string {
 	return err.Name + MessServNotFound
 }
 
 const photosNotCorrectOperation = " operation name is incorrect or not string type - "
 
 type ErrServiceNotCorrectOperation struct {
-	Name string
+	Name     string
 	OperName string
-	Message string
+	Message  string
 }
-func (err ErrServiceNotCorrectOperation) Error() string{
+
+func (err ErrServiceNotCorrectOperation) Error() string {
 	err.Message = err.Name + photosNotCorrectOperation + err.OperName
 	return err.Message
 }
@@ -27,39 +30,42 @@ func (err ErrServiceNotCorrectOperation) Error() string{
 const photosNotCorrectParameterType = " Wrong params type "
 
 type ErrServiceNotCorrectParamType struct {
-	Name string
+	Name   string
 	Number int
-	Param interface{}
+	Param  interface{}
 }
-func (err ErrServiceNotCorrectParamType) Error() string{
+
+func (err ErrServiceNotCorrectParamType) Error() string {
 	return err.Name + photosNotCorrectParameterType
 }
 
 const photosNotEnougnParameter = " not enougn parameters "
 
 type ErrServiceNotEnougnParameter struct {
-	Name string
+	Name  string
 	Param interface{}
 }
-func (err ErrServiceNotEnougnParameter) Error() string{
+
+func (err ErrServiceNotEnougnParameter) Error() string {
 	return err.Name + photosNotEnougnParameter
 }
 
 const brokenStatus = " broken status "
 
 type ErrBrokenConnection struct {
-	Name string
+	Name  string
 	Param interface{}
 }
 
-func (err ErrBrokenConnection) Error() string{
+func (err ErrBrokenConnection) Error() string {
 	return err.Name + brokenStatus
 }
 
 type ErrServiceWrongIndex struct {
-	Name string
+	Name  string
 	Index int
 }
-func (err ErrServiceWrongIndex) Error() string{
+
+func (err ErrServiceWrongIndex) Error() string {
 	return err.Name + photosNotEnougnParameter
 }

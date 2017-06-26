@@ -37,8 +37,8 @@ func TestConnect(t *testing.T) {
 				t.Log(v)
 			}
 			t.Log(v)
-		//default:
-		//	t.Log("-")
+			//default:
+			//	t.Log("-")
 		}
 	}
 
@@ -55,7 +55,7 @@ func TestSend(t *testing.T) {
 }
 func TestGet(t *testing.T) {
 	nameServ := "permission"
-	messages := make(map[string] string, 0)
+	messages := make(map[string]string, 0)
 	messages["system"] = "10"
 	responce, err := Get(nameServ, messages, "stress")
 	if err != nil {
@@ -98,8 +98,8 @@ func TestModConnect(t *testing.T) {
 				t.Log(v)
 			}
 			t.Log(v)
-		//default:
-		//	t.Log("-")
+			//default:
+			//	t.Log("-")
 		}
 	}
 
@@ -107,16 +107,16 @@ func TestModConnect(t *testing.T) {
 
 }
 
-func TestModSendInsert(t *testing.T)  {
+func TestModSendInsert(t *testing.T) {
 	var config = make(map[string]string, 0)
 	config["table"] = "test2"
 	config["key"] = "3333"
 	config["action"] = "insert"
-	var a = make(map[string] [] string, 0)
+	var a = make(map[string][]string, 0)
 
 	a["key"] = append(a["key"], "value1", "value2")
 
-	result := make([] interface{}, 0)
+	result := make([]interface{}, 0)
 
 	result = append(result, config)
 	result = append(result, a)
@@ -129,13 +129,13 @@ func TestModSendInsert(t *testing.T)  {
 	t.Skipped()
 }
 
-func TestModSendDelete(t *testing.T)  {
+func TestModSendDelete(t *testing.T) {
 	var config = make(map[string]string, 0)
 	config["table"] = "test2"
 	config["key"] = "72"
 	config["action"] = "delete"
 
-	result := make([] interface{}, 0)
+	result := make([]interface{}, 0)
 
 	result = append(result, config)
 
@@ -143,12 +143,12 @@ func TestModSendDelete(t *testing.T)  {
 	t.Skipped()
 }
 
-func TestModGet(t *testing.T)  {
+func TestModGet(t *testing.T) {
 	var config = make(map[string]string, 0)
 	config["table"] = "test2"
 	config["key"] = "72"
 
-	responce, err  := Get("moderation", config)
+	responce, err := Get("moderation", config)
 
 	if err != nil {
 		t.Error(err)

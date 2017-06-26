@@ -1,33 +1,36 @@
 package services
 
-import (mongo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+import (
 	"bytes"
-	"encoding/gob"
 	"encoding/base64"
-	"net/url"
+	"encoding/gob"
 	"fmt"
+	mongo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"net/url"
 )
 
-var (moderation *mService = &mService{name:"moderation"})
+var (
+	moderation *mService = &mService{name: "moderation"}
+)
 
 type Record struct {
 	Config map[string]string
-	Data []url.Values
+	Data   []url.Values
 }
 
 type Struct struct {
-	Key string
+	Key  string
 	Data string
 }
 
 type mService struct {
-	name string
+	name    string
 	connect *mongo.Session
-	status string
+	status  string
 }
 
-func (moderation *mService) Init() error{
+func (moderation *mService) Init() error {
 
 	session, err := mongo.Dial("localhost:27017")
 	if err != nil {
@@ -41,11 +44,11 @@ func (moderation *mService) Init() error{
 	return nil
 }
 
-func (moderation *mService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (moderation *mService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
 
 	go func() {
-		out<-"open"
+		out <- "open"
 		for {
 			select {
 			case v := <-in:
@@ -60,7 +63,7 @@ func (moderation *mService) Connect(in <- chan interface{}) (out chan interface{
 	return out, nil
 }
 
-func (moderation *mService) Close(out chan <- interface{}) error {
+func (moderation *mService) Close(out chan<- interface{}) error {
 	close(out)
 	return nil
 }
@@ -71,33 +74,32 @@ func (moderation *mService) Status() string {
 
 func (moderation *mService) Send(messages ...interface{}) error {
 
-	setData := Record {
+	setData := Record{
 		Config: make(map[string]string, 0),
-		Data: make([] url.Values, 0),
+		Data:   make([]url.Values, 0),
 	}
 
 	for _, message := range messages {
-			switch mess := message.(type) {
-			case map[string]string:
-					setData.Config["table"] = mess["table"]
-					setData.Config["key"] = mess["key"]
-					setData.Config["action"] = mess["action"]
-			case []url.Values:
-				setData.Data = mess
-			default:
+		switch mess := message.(type) {
+		case map[string]string:
+			setData.Config["table"] = mess["table"]
+			setData.Config["key"] = mess["key"]
+			setData.Config["action"] = mess["action"]
+		case []url.Values:
+			setData.Data = mess
+		default:
 
-				return &ErrServiceNotCorrectParamType {
-					Name: moderation.name,
-				}
+			return &ErrServiceNotCorrectParamType{
+				Name: moderation.name,
+			}
 
 		}
 	}
 
-
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
-		return &ErrServiceNotCorrectParamType {
+		return &ErrServiceNotCorrectParamType{
 			Name: moderation.name,
 		}
 	}
@@ -118,7 +120,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
-		return &ErrServiceNotCorrectParamType {
+		return &ErrServiceNotCorrectParamType{
 			Name: moderation.name,
 		}
 	}
@@ -134,19 +136,19 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	return nil
 }
 
-func (moderation *mService) Get(messages ...interface{}) ( interface{}, error) {
+func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 
-	getData := Record {
+	getData := Record{
 		Config: make(map[string]string),
-		Data: make([]url.Values, 0),
+		Data:   make([]url.Values, 0),
 	}
 
 	for _, message := range messages {
-			switch mess := message.(type) {
-			case map[string]string:
-				getData.Config["table"] = mess["table"]
-				getData.Config["key"] = mess["key"]
-			}
+		switch mess := message.(type) {
+		case map[string]string:
+			getData.Config["table"] = mess["table"]
+			getData.Config["key"] = mess["key"]
+		}
 	}
 
 	//cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])

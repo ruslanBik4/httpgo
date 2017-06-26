@@ -5,11 +5,11 @@
 package main
 
 import (
-	"testing"
 	"flag"
+	"fmt"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/services"
-	"fmt"
+	"testing"
 )
 
 func TestMain(t *testing.T) {

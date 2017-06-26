@@ -1,32 +1,34 @@
 package db
 
 import (
-	"strings"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"database/sql"
-	"strconv"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"strconv"
+	"strings"
 )
+
 type TableOptions struct {
-	TABLE_NAME   string
-	TABLE_TYPE string
-	ENGINE string
+	TABLE_NAME    string
+	TABLE_TYPE    string
+	ENGINE        string
 	TABLE_COMMENT string
 }
 type RecordsTables struct {
-	Rows [] TableOptions
+	Rows []TableOptions
 }
+
 // получение данных для одной таблицы
 func (ns *TableOptions) GetTableProp(tableName string) error {
 
-	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, " +
-		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) " +
+	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, "+
+		"IF (TABLE_COMMENT = NULL OR TABLE_COMMENT = '', TABLE_NAME, TABLE_COMMENT) "+
 		"FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME=? order by TABLE_COMMENT", tableName)
 
 	for rows.Next() {
 
-		err := rows.Scan( &ns.TABLE_NAME, &ns.TABLE_TYPE, &ns.ENGINE, &ns.TABLE_COMMENT)
+		err := rows.Scan(&ns.TABLE_NAME, &ns.TABLE_TYPE, &ns.ENGINE, &ns.TABLE_COMMENT)
 
 		if err != nil {
 			logs.ErrorLog(err)
@@ -37,18 +39,19 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 
 	return nil
 }
-// получение таблиц
-func (ns *RecordsTables) GetTablesProp(bd_name string)  error {
 
-	return ns.GetSelectTablesProp( "TABLE_SCHEMA='" + bd_name + "'")
+// получение таблиц
+func (ns *RecordsTables) GetTablesProp(bd_name string) error {
+
+	return ns.GetSelectTablesProp("TABLE_SCHEMA=?",  bd_name )
 
 }
-func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
+func (ns *RecordsTables) GetSelectTablesProp(where string, args ... interface{}) error {
 
 	sqlCommand := `select TABLE_NAME, IFNULL(TABLE_TYPE, 'VIEW'), IFNULL(ENGINE, 'VIEW'),
 			IFNULL(TABLE_COMMENT, TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES
 			 WHERE ` + where + " order by TABLE_COMMENT"
-	rows, err := DoSelect(sqlCommand)
+	rows, err := DoSelect(sqlCommand, args ...)
 
 	if err != nil {
 		return err
@@ -57,7 +60,7 @@ func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 	for rows.Next() {
 
 		var row TableOptions
-		err := rows.Scan( &row.TABLE_NAME, &row.TABLE_TYPE, &row.ENGINE, &row.TABLE_COMMENT)
+		err := rows.Scan(&row.TABLE_NAME, &row.TABLE_TYPE, &row.ENGINE, &row.TABLE_COMMENT)
 
 		if err != nil {
 			logs.ErrorLog(err, row.TABLE_NAME, row.TABLE_TYPE)
@@ -71,14 +74,15 @@ func (ns *RecordsTables) GetSelectTablesProp(where string)  error {
 	return nil
 
 }
+
 type FieldStructure struct {
-	COLUMN_NAME   string
-	DATA_TYPE string
-	COLUMN_DEFAULT sql.NullString
-	IS_NULLABLE string
-	CHARACTER_SET_NAME sql.NullString
-	COLUMN_COMMENT sql.NullString
-	COLUMN_TYPE string
+	COLUMN_NAME              string
+	DATA_TYPE                string
+	COLUMN_DEFAULT           sql.NullString
+	IS_NULLABLE              string
+	CHARACTER_SET_NAME       sql.NullString
+	COLUMN_COMMENT           sql.NullString
+	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH sql.NullInt64
 	//TITLE string
 	//TYPE_INPUT string
@@ -86,7 +90,7 @@ type FieldStructure struct {
 
 }
 type FieldsTable struct {
-	Rows [] FieldStructure
+	Rows    []FieldStructure
 	Options TableOptions
 }
 
@@ -107,25 +111,24 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		limiter = " LIMIT " + limiter
 	}
 
-
-	rows, err := DoSelect("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, " +
-		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH " +
-		"FROM INFORMATION_SCHEMA.COLUMNS C " +
-		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION" + limiter,
+	rows, err := DoSelect("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, "+
+		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH "+
+		"FROM INFORMATION_SCHEMA.COLUMNS C "+
+		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION"+limiter,
 		server.GetServerConfig().DBName(), table_name)
 	if err != nil {
 		return err
 	}
 
 	if ns.Rows == nil {
-		ns.Rows = make([] FieldStructure, 0)
+		ns.Rows = make([]FieldStructure, 0)
 	}
 	for rows.Next() {
 		var row FieldStructure
 
-		err := rows.Scan( &row.COLUMN_NAME, &row.DATA_TYPE, &row.COLUMN_DEFAULT, &row.IS_NULLABLE,
+		err := rows.Scan(&row.COLUMN_NAME, &row.DATA_TYPE, &row.COLUMN_DEFAULT, &row.IS_NULLABLE,
 			&row.CHARACTER_SET_NAME, &row.COLUMN_COMMENT, &row.COLUMN_TYPE,
-			&row.CHARACTER_MAXIMUM_LENGTH )
+			&row.CHARACTER_MAXIMUM_LENGTH)
 		//&row.TITLE, &row.TYPE_INPUT, &row.IS_VIEW,
 
 		if err != nil {
@@ -144,17 +147,17 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable) {
 
 	fields = &schema.FieldsTable{Name: tableName}
-	fields.Rows = make([] *schema.FieldStructure, len(ns.Rows) )
+	fields.Rows = make([]*schema.FieldStructure, len(ns.Rows))
 	for i, field := range ns.Rows {
 		fields.Rows[i] = &schema.FieldStructure{
 			COLUMN_NAME: field.COLUMN_NAME,
-			DATA_TYPE  : field.DATA_TYPE,
+			DATA_TYPE:   field.DATA_TYPE,
 			IS_NULLABLE: field.IS_NULLABLE,
 			COLUMN_TYPE: field.COLUMN_TYPE,
-			Events     : make(map[string] string, 0),
-			DataJSOM   : make(map[string] interface{}, 0),
-			Table	   : fields,
-			IsHidden   : false,
+			Events:      make(map[string]string, 0),
+			DataJSOM:    make(map[string]interface{}, 0),
+			Table:       fields,
+			IsHidden:    false,
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fields.Rows[i].CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -177,25 +180,27 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 		//fields.Rows[i] = fieldStrc
 	}
 
-	fields.SaveFormEvents = make(map[string] string, 0)
+	fields.SaveFormEvents = make(map[string]string, 0)
 
 	if pos := strings.Index(ns.Options.TABLE_COMMENT, "onload:"); pos > 0 {
 		fields.Comment = ns.Options.TABLE_COMMENT[:pos]
-		fields.DataJSOM = make( map[string] interface{}, 0 )
+		fields.DataJSOM = make(map[string]interface{}, 0)
 
-		fields.DataJSOM["onload"] = ns.Options.TABLE_COMMENT[pos + len("onload:"): ]
+		fields.DataJSOM["onload"] = ns.Options.TABLE_COMMENT[pos+len("onload:"):]
 	} else {
 		fields.Comment = ns.Options.TABLE_COMMENT
 	}
 
 	return fields
 }
+
 var Schema_ready bool
+
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
 	go func() {
 		var tables RecordsTables
-		tables.GetTablesProp(server.GetServerConfig().DBName() )
+		tables.GetTablesProp(server.GetServerConfig().DBName())
 
 		// первый проход заполняет в кешги данными полей первого уровня
 		for _, table := range tables.Rows {

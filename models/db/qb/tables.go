@@ -22,13 +22,14 @@ func (table *QBTable) getFieldSchema(name string) *schema.FieldStructure {
 }
 
 // add Tables list, returns qB
-func (qb *QueryBuilder) AddTables(names map[string] string) *QueryBuilder {
+func (qb *QueryBuilder) AddTables(names map[string]string) *QueryBuilder {
 	for alias, name := range names {
 		qb.AddTable(alias, name)
 	}
 
 	return qb
 }
+
 //add Table, returns object table
 func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 
@@ -38,8 +39,8 @@ func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 	table := &QBTable{Name: name, Alias: alias, qB: qb}
 	defer schemaError()
 	table.schema = schema.GetFieldsTable(table.Name)
-	table.Fields = make(map[string] *QBField, 0)
-	qb.Tables    = append(qb.Tables, table)
+	table.Fields = make(map[string]*QBField, 0)
+	qb.Tables = append(qb.Tables, table)
 
 	return table
 }

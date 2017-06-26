@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
- func ReplaceDocx(input, output string, replaces map[string] string) bool {
+func ReplaceDocx(input, output string, replaces map[string]string) bool {
 	if r, err := docx.ReadDocxFile(input); err != nil {
 		logs.ErrorLog(err)
 		return false
@@ -23,12 +23,11 @@ import (
 			return false
 		}
 
-
 		return true
 	}
 }
 
-func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string] string)  error {
+func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string]string) error {
 	if r, err := docx.ReadDocxFile(templatesName); err != nil {
 		logs.ErrorLog(err)
 		return err

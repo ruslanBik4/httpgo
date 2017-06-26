@@ -1,31 +1,35 @@
 package system
 
 import (
-	"net/http"
 	"bitbucket.org/PinIdea/fcgi_client"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
-	"os"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
-const internalRewriteFieldName  = "travel"
+
+const internalRewriteFieldName = "travel"
+
 var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
 )
-type FCGI struct{
+
+type FCGI struct {
 	Sock string
-	Env func(r *http.Request) map[string]string
+	Env  func(r *http.Request) map[string]string
 }
+
 func (c *FCGI) defaultEnv(r *http.Request) map[string]string {
 	return map[string]string{
-		"REQUEST_METHOD":    r.Method,
-		"SCRIPT_FILENAME":   r.URL.Path,
-		"SCRIPT_NAME":       r.URL.Path,
-		"QUERY_STRING":      r.URL.RawQuery,
+		"REQUEST_METHOD":  r.Method,
+		"SCRIPT_FILENAME": r.URL.Path,
+		"SCRIPT_NAME":     r.URL.Path,
+		"QUERY_STRING":    r.URL.RawQuery,
 	}
 }
-func (c *FCGI) Do(r *http.Request) (*http.Response, error){
+func (c *FCGI) Do(r *http.Request) (*http.Response, error) {
 	const typeSckt = "unix" // or "unixgram" or "unixpacket"
 
 	fcgi, err := fcgiclient.Dial(typeSckt, c.Sock)
@@ -43,7 +47,7 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error){
 	case "GET":
 		resp, err = fcgi.Get(params)
 	case "POST":
-		resp, err = fcgi.Post(params, params["CONTENT_TYPE"], r.Body, int(r.ContentLength) )
+		resp, err = fcgi.Post(params, params["CONTENT_TYPE"], r.Body, int(r.ContentLength))
 	}
 	return resp, err
 }
@@ -54,9 +58,9 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	status, isStatus := resp.Header["Status"]
-	location, isURL  := resp.Header["Location"]
-	if isStatus && (status[0] == "302 Found") && isURL{
-		http.Redirect (w, r, location[0], http.StatusTemporaryRedirect)
+	location, isURL := resp.Header["Location"]
+	if isStatus && (status[0] == "302 Found") && isURL {
+		http.Redirect(w, r, location[0], http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -72,17 +76,17 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewFPM(sock string) *FCGI {
-	return &FCGI{Sock:sock}
+	return &FCGI{Sock: sock}
 }
 func NewPHP(root string, sock string) *FCGI {
 	return &FCGI{
-		Sock:sock,
+		Sock: sock,
 		Env: func(r *http.Request) map[string]string {
 
-			ip, port   := r.RemoteAddr, ""
+			ip, port := r.RemoteAddr, ""
 			if idx := strings.LastIndex(ip, ":"); idx > -1 {
 				port = ip[idx+1:]
-				ip   = ip[:idx]
+				ip = ip[:idx]
 			}
 			pathInfo, docURI := "", r.URL.RequestURI()
 
@@ -99,24 +103,24 @@ func NewPHP(root string, sock string) *FCGI {
 				"CONTENT_TYPE":      r.Header.Get("Content-Type"),
 				"GATEWAY_INTERFACE": "CGI/1.1",
 				//"PATH_INFO":         pathInfo,
-				"QUERY_STRING":      r.URL.RawQuery,
-				"REMOTE_ADDR":       ip,
-				"REMOTE_HOST":       ip, // For speed, remote host lookups disabled
-				"REMOTE_PORT":       port,
-				"REMOTE_IDENT":      "", // Not used
-				"REMOTE_USER":       "", // Not used
-				"REQUEST_METHOD":    r.Method,
-				"SERVER_NAME":       r.Host,
-				"SERVER_PORT":       ":80", //TODO
-				"SERVER_PROTOCOL":   r.Proto,
-				"SERVER_SOFTWARE":   "httpGo 0.01",
+				"QUERY_STRING":    r.URL.RawQuery,
+				"REMOTE_ADDR":     ip,
+				"REMOTE_HOST":     ip, // For speed, remote host lookups disabled
+				"REMOTE_PORT":     port,
+				"REMOTE_IDENT":    "", // Not used
+				"REMOTE_USER":     "", // Not used
+				"REQUEST_METHOD":  r.Method,
+				"SERVER_NAME":     r.Host,
+				"SERVER_PORT":     ":80", //TODO
+				"SERVER_PROTOCOL": r.Proto,
+				"SERVER_SOFTWARE": "httpGo 0.01",
 
 				// Other variables
 				"DOCUMENT_ROOT":   root,
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       r.Host, // added here, since not always part of headers
 				"REQUEST_URI":     r.URL.RequestURI(),
-				"SCRIPT_FILENAME": filepath.Join(root,"index.php"),
+				"SCRIPT_FILENAME": filepath.Join(root, "index.php"),
 				"SCRIPT_NAME":     "/index.php",
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
@@ -144,6 +148,7 @@ func NewPHP(root string, sock string) *FCGI {
 		},
 	}
 }
+
 // не уверен, что это должно быть здесь - должен быть какой общий механизм для выдачи такого
 func WriteError(w http.ResponseWriter, err error) bool {
 	if err == nil {

@@ -1,20 +1,22 @@
 package services
 
-
-import (mongo "gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+import (
 	"github.com/ruslanBik4/httpgo/models/server"
+	mongo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-var (mongod *mdService = &mdService{name:"mongod"})
+var (
+	mongod *mdService = &mdService{name: "mongod"}
+)
 
 type mdService struct {
-	name string
+	name    string
 	connect *mongo.Session
-	status string
+	status  string
 }
 
-func (mongod *mdService) Init() error{
+func (mongod *mdService) Init() error {
 
 	session, err := mongo.Dial("localhost:27017")
 	if err != nil {
@@ -28,11 +30,11 @@ func (mongod *mdService) Init() error{
 	return nil
 }
 
-func (mongod *mdService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (mongod *mdService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
 
 	go func() {
-		out<-"open"
+		out <- "open"
 		for {
 			select {
 			case v := <-in:
@@ -47,7 +49,7 @@ func (mongod *mdService) Connect(in <- chan interface{}) (out chan interface{}, 
 	return out, nil
 }
 
-func (mongod *mdService) Close(out chan <- interface{}) error {
+func (mongod *mdService) Close(out chan<- interface{}) error {
 	close(out)
 	return nil
 }

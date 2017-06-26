@@ -9,14 +9,14 @@ import (
 )
 
 type FieldsTable struct {
-	Name string
-	ID   int
-	Comment string
-	IsDadata bool
-	Rows [] *FieldStructure
-	Hiddens map[string] string
-	SaveFormEvents 	map[string] string
-	DataJSOM        map[string] interface{}
+	Name           string
+	ID             int
+	Comment        string
+	IsDadata       bool
+	Rows           []*FieldStructure
+	Hiddens        map[string]string
+	SaveFormEvents map[string]string
+	DataJSOM       map[string]interface{}
 }
 
 func (table *FieldsTable) FindField(name string) *FieldStructure {
@@ -28,7 +28,7 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
-func (table *FieldsTable) FillSurroggateFields(tableName string)  {
+func (table *FieldsTable) FillSurroggateFields(tableName string) {
 
 	for idx, fieldStrc := range table.Rows {
 
@@ -37,18 +37,18 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 		// TODO: refatoring this later - учитывать момент того, что попутных таблтиц еще может не быт в кеше
 		if strings.HasPrefix(fieldStrc.COLUMN_NAME, "setid_") {
 			fieldStrc.SETID = true
-			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
+			fieldStrc.TableProps = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "setid_")
 			fieldStrc.TableValues = fieldStrc.Table.Name + "_" + table.Rows[idx].TableProps + "_has"
 			fieldStrc.setEnumValues()
 
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "nodeid_") {
 			fieldStrc.NODEID = true
-			fieldStrc.TableValues  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
+			fieldStrc.TableValues = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "nodeid_")
 
 			TableValues := GetFieldsTable(fieldStrc.TableValues)
 			//TODO: later refactoring - store values in field propertyes
 			for _, field := range TableValues.Rows {
-				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_" + field.Table.Name) {
+				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+field.Table.Name) {
 					fieldStrc.TableProps = field.COLUMN_NAME[3:]
 					fieldStrc.ForeignFields = field.GetForeignFields()
 					break
@@ -59,12 +59,12 @@ func (table *FieldsTable) FillSurroggateFields(tableName string)  {
 				panic(ErrNotFoundTable{Table: fieldStrc.TableValues})
 			}
 			fieldStrc.setEnumValues()
-		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_"){
+		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "tableid_") {
 			fieldStrc.TABLEID = true
-			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
+			fieldStrc.TableProps = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "tableid_")
 		} else if strings.HasPrefix(fieldStrc.COLUMN_NAME, "id_") {
 			fieldStrc.IdForeign = true
-			fieldStrc.TableProps  = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
+			fieldStrc.TableProps = strings.TrimPrefix(fieldStrc.COLUMN_NAME, "id_")
 		}
 
 	}

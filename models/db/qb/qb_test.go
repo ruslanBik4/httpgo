@@ -5,11 +5,11 @@
 package qb
 
 import (
-	"testing"
-	"github.com/ruslanBik4/httpgo/models/services"
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/server"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"testing"
 	"time"
 )
 
@@ -26,8 +26,7 @@ func TestQBCreate(t *testing.T) {
 	t.Log(status)
 	qb := CreateEmpty()
 
-
-	qb.AddTable("a", "rooms" ).AddField("name", "title").AddField("num", "id")
+	qb.AddTable("a", "rooms").AddField("name", "title").AddField("num", "id")
 
 	v, err := qb.SelectToMultidimension()
 
@@ -40,12 +39,12 @@ func TestQBCreate(t *testing.T) {
 }
 
 var (
-	f_port   = flag.String("port",":8080","host address to listen on")
-	f_static = flag.String("path","/Users/ruslan/work/src/github.com/ruslanBik4/httpgo","path to static files")
-	f_web    = flag.String("web","/Users/ruslan/PhpstormProjects/thetravel/web","path to web files")
-	f_session  = flag.String("sessionPath","/var/lib/php/session", "path to store sessions data" )
-	f_cache    = flag.String( "cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO" )
-	f_chePath  = flag.String("cachePath","css;js;fonts;images","path to cached files")
+	f_port    = flag.String("port", ":8080", "host address to listen on")
+	f_static  = flag.String("path", "/Users/ruslan/work/src/github.com/ruslanBik4/httpgo", "path to static files")
+	f_web     = flag.String("web", "/Users/ruslan/PhpstormProjects/thetravel/web", "path to web files")
+	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
+	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
+	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
 )
 
 func init() {
@@ -56,4 +55,3 @@ func init() {
 	}
 	services.InitServices()
 }
-

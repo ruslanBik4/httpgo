@@ -12,22 +12,26 @@ import (
 type ErrNotLogin struct {
 	Message string
 }
-func (err ErrNotLogin) Error() string{
+
+func (err ErrNotLogin) Error() string {
 	return err.Message
 }
+
 //Структура для ошибок базы данных
 type ErrDb struct {
 	Message string
 }
+
 //Функция для обработк структуры ошибок базы данных
-func (err ErrDb) Error() string{
+func (err ErrDb) Error() string {
 	return err.Message
 }
 
 type ErrNotPermission struct {
 	Message string
 }
-func (err ErrNotPermission) Error() string{
+
+func (err ErrNotPermission) Error() string {
 	return err.Message
 }
 
@@ -36,7 +40,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 
 	switch err := result.(type) {
 	case ErrNotLogin:
-		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!")
 		views.RenderSignForm(w, r, "")
 	case ErrNotPermission:
 		views.RenderNoPermissionPage(w)
@@ -49,8 +53,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 
 func WrapCatchHandler(fnc http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		defer Catch(w,r)
-		fnc(w,r)
+		defer Catch(w, r)
+		fnc(w, r)
 	})
 }
-

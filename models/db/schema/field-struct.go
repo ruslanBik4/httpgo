@@ -6,32 +6,31 @@ package schema
 
 //todo необходима вариативность вывода в input select значений из енумов и справочников,пример - есть енум из 9-ти позиций а вывести нужно только 1,5,6(соответственно и юзер может что либо делать только с ними а не со всем списком 1-9)
 
-
-
 import (
-	"errors"
-	"strings"
-	"regexp"
-	"fmt"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"regexp"
 	_ "strconv"
+	"strings"
 	"time"
 
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
+
 var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
-
 )
+
 //Сия структура нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
 //На данный момент создается на лету, в будущем
 //TODO: hfpltkbnm yf cnfnbxtcre. b lbyfvbxtcre. xfcnb
 type FieldStructure struct {
-	Table 		*FieldsTable
-	COLUMN_NAME   	string
-	DATA_TYPE 	string
-	COLUMN_DEFAULT 	string
-	IS_NULLABLE 	string
+	Table                    *FieldsTable
+	COLUMN_NAME              string
+	DATA_TYPE                string
+	COLUMN_DEFAULT           string
+	IS_NULLABLE              string
 	CHARACTER_SET_NAME       string
 	COLUMN_COMMENT           string
 	COLUMN_TYPE              string
@@ -39,27 +38,28 @@ type FieldStructure struct {
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string
-	CSSStyle                string
-	TableName               string
-	Events                  map[string] string
-	Where                   string
-	Figure                  string
-	Placeholder             string
-	Pattern                 string
-	MinDate                 string
-	MaxDate                 string
-	BeforeHtml              string
-	Html                    string
-	AfterHtml               string
-	ForeignFields           string
-	LinkTD                  string
-	DataJSOM                map[string] interface{}
-	EnumValues              []string
-	SETID, NODEID, TABLEID  bool
-	IdForeign		bool
-	TableProps, TableValues string
-	ChildrenFields		*FieldsTable
+	CSSStyle                 string
+	TableName                string
+	Events                   map[string]string
+	Where                    string
+	Figure                   string
+	Placeholder              string
+	Pattern                  string
+	MinDate                  string
+	MaxDate                  string
+	BeforeHtml               string
+	Html                     string
+	AfterHtml                string
+	ForeignFields            string
+	LinkTD                   string
+	DataJSOM                 map[string]interface{}
+	EnumValues               []string
+	SETID, NODEID, TABLEID   bool
+	IdForeign                bool
+	TableProps, TableValues  string
+	ChildrenFields           *FieldsTable
 }
+
 func (field *FieldStructure) setEnumValues() {
 	if len(field.EnumValues) > 0 {
 		return
@@ -69,9 +69,10 @@ func (field *FieldStructure) setEnumValues() {
 		field.EnumValues = append(field.EnumValues, title[len(title)-1])
 	}
 }
+
 // стиль показа для разных типов полей
 // новый метод, еще обдумываю
-func (field *FieldStructure) TypeInput() string{
+func (field *FieldStructure) TypeInput() string {
 	if (field.COLUMN_NAME == "id") || (field.COLUMN_NAME == "date_sys") {
 		//ns.ID, _ = strconv.Atoi(val)
 		//возможно, тут стоит предусмотреть некоторые действия
@@ -83,14 +84,14 @@ func (field *FieldStructure) TypeInput() string{
 	if strings.HasPrefix(field.COLUMN_NAME, "id_") {
 		return "ForeignSelect"
 	}
-	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_"){
+	if strings.HasPrefix(field.COLUMN_NAME, "setid_") || strings.HasPrefix(field.COLUMN_NAME, "nodeid_") {
 		return "set"
 	}
 	if strings.HasPrefix(field.COLUMN_NAME, "tableid_") {
 		return "table"
 	}
 	if field.InputType == "" {
-		switch (field.DATA_TYPE) {
+		switch field.DATA_TYPE {
 		case "varchar":
 			field.InputType = "text"
 		case "set":
@@ -120,9 +121,10 @@ func (field *FieldStructure) TypeInput() string{
 	return field.InputType
 
 }
+
 //старый метод, обсолете, буду избавляться
-func StyleInput(dataType string) string{
-	switch (dataType) {
+func StyleInput(dataType string) string {
+	switch dataType {
 	case "varchar":
 		return "search"
 	case "set", "enum":
@@ -145,7 +147,7 @@ func StyleInput(dataType string) string{
 
 }
 
-func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
+func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string {
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
 
@@ -154,16 +156,16 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string{
 		return ""
 	}
 	// LEFT JOIN for get all propertyes values
-	return fmt.Sprintf( `SELECT p.id, %s, id_%s
+	return fmt.Sprintf(`SELECT p.id, %s, id_%s
 	FROM %s p LEFT JOIN %s v ON (p.id=v.id_%[3]s AND id_%[2]s=?) `,
 		titleField, parentTable,
 		tableProps, tableValue)
 
 }
+
 // возвращает поле в связанной таблице, которое будет отдано пользователю
 //например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
-func (field *FieldStructure) GetForeignFields()  string {
-
+func (field *FieldStructure) GetForeignFields() string {
 
 	if field.ForeignFields > "" {
 		return field.ForeignFields
@@ -200,28 +202,28 @@ func (field *FieldStructure) GetParentFieldName() (name string) {
 	fields := GetFieldsTable(tableName)
 
 	for _, list := range fields.Rows {
-			switch list.COLUMN_NAME {
-			case "name":
-				return "name"
-			case "title":
-				return "title"
-			case "fullname":
-				return "fullname"
-			}
+		switch list.COLUMN_NAME {
+		case "name":
+			return "name"
+		case "title":
+			return "title"
+		case "fullname":
+			return "fullname"
+		}
 	}
 
 	return "id"
 
 }
 
-func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string)  {
+func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart string) {
 	titleFull = title
 	if title == "" {
 		return "", ""
 	}
 	posPattern := strings.Index(titleFull, pattern)
 	if posPattern > 0 {
-		titlePart = titleFull[posPattern + len(pattern):]
+		titlePart = titleFull[posPattern+len(pattern):]
 		titleFull = titleFull[:posPattern]
 	} else {
 		titlePart = defaultStr
@@ -229,21 +231,21 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 
 	return titleFull, titlePart
 }
-func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string)  {
+func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
 
 	counter := 1
 	comma := ""
 	for key, val := range fieldStrc.DataJSOM {
 
-		dataJson += comma + fmt.Sprintf( `"%s": "%s"`, key, val)
+		dataJson += comma + fmt.Sprintf(`"%s": "%s"`, key, val)
 		counter++
 		comma = ","
 	}
 	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
 }
-func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
+func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
 	switch mapWhere := whereJSON.(type) {
-	case map[string] interface{}:
+	case map[string]interface{}:
 
 		comma := ""
 		fieldStrc.Where = ""
@@ -267,7 +269,7 @@ func (fieldStrc *FieldStructure) parseWhere (whereJSON interface{}) {
 
 		}
 	default:
-		logs.ErrorLog( errors.New("not correct type WhereJSON !"), whereJSON)
+		logs.ErrorLog(errors.New("not correct type WhereJSON !"), whereJSON)
 	}
 
 }
@@ -282,7 +284,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
-func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
+func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
 	titleFull := COLUMN_COMMENT
 	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
@@ -290,8 +292,8 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 		dataJson := COLUMN_COMMENT[posPattern:]
 
-		var properMap map[string] interface{}
-		if err := json. Unmarshal([]byte(dataJson), &properMap); err != nil {
+		var properMap map[string]interface{}
+		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
 			logs.ErrorLog(err.(error), dataJson)
 		} else {
 			for key, val := range properMap {
@@ -312,7 +314,7 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 				case "isHidden":
 					fieldStrc.IsHidden = val.(bool)
 				case "linkTD":
-					fieldStrc.LinkTD   = val.(string)
+					fieldStrc.LinkTD = val.(string)
 				case "where":
 					fieldStrc.parseWhere(val)
 				case "maxDate":
@@ -320,8 +322,8 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 				case "minDate":
 					fieldStrc.MinDate = convertDatePattern(val.(string))
 				case "events":
-					fieldStrc.Events = make(map[string] string, 0)
-					for name, event := range val.(map[string] interface{}) {
+					fieldStrc.Events = make(map[string]string, 0)
+					for name, event := range val.(map[string]interface{}) {
 						fieldStrc.Events[name] = event.(string)
 					}
 				default:
@@ -337,4 +339,3 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string{
 
 	return fieldStrc.COLUMN_COMMENT
 }
-

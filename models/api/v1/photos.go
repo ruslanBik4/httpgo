@@ -5,16 +5,17 @@
 package api
 
 import (
-	"net/http"
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/models/services"
-	"strconv"
-	"os"
-	"image/jpeg"
-	"image"
-	"path/filepath"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/views"
+	"image"
+	"image/jpeg"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strconv"
 )
+
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
@@ -31,7 +32,7 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 			//var err interface{}
 			inFile, _ := header.Open()
 
-			path :=  filepath.Join(tableName, id, header.Filename )
+			path := filepath.Join(tableName, id, header.Filename)
 			err := services.Send("photos", "save", path, inFile)
 			if err != nil {
 				switch err.(type) {
@@ -53,7 +54,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
-	num:= r.FormValue("num")
+	num := r.FormValue("num")
 
 	if (tableName == "") || (id == "") {
 		views.RenderBadRequest(w)
@@ -87,13 +88,12 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		img, str, err := image.Decode(ioReader)
 		if err != nil {
 			logs.ErrorLog(err)
-			views.RenderInternalError(w,err)
+			views.RenderInternalError(w, err)
 
 		}
 
-
-		if err := jpeg.Encode(w, img, &jpeg.Options{Quality: 90} ); err != nil {
-			views.RenderInternalError(w,err)
+		if err := jpeg.Encode(w, img, &jpeg.Options{Quality: 90}); err != nil {
+			views.RenderInternalError(w, err)
 		} else {
 			logs.DebugLog(str, FileSize, img.Bounds())
 		}

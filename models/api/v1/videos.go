@@ -5,11 +5,10 @@
 package api
 
 import (
-	"net/http"
 	_ "github.com/ruslanBik4/httpgo/views"
+	"net/http"
 )
 
 func HandleVideos(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
-

@@ -7,24 +7,24 @@
 package db
 
 import (
-	"errors"
-	"database/sql"
-	"github.com/go-sql-driver/mysql"
-	"encoding/json"
 	"bytes"
-	"io"
-	"strings"
-	"net/http"
+	"database/sql"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"strconv"
+	"github.com/go-sql-driver/mysql"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 type TxConnect struct {
 	tx *sql.Tx
 }
 
-func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error){
+func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
 
@@ -33,7 +33,7 @@ func StartTransaction() (*TxConnect, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &TxConnect{tx:tx}, nil
+	return &TxConnect{tx: tx}, nil
 }
 func (conn *TxConnect) CommitTransaction() {
 	conn.tx.Commit()
@@ -46,7 +46,7 @@ func (conn *TxConnect) prepareQuery(sql string) (*sql.Stmt, error) {
 }
 func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 
-	resultSQL, err := conn.tx.Exec(sql, args ...)
+	resultSQL, err := conn.tx.Exec(sql, args...)
 
 	if err != nil {
 		logs.ErrorLog(err, sql)
@@ -58,7 +58,7 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 }
 
 func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
-	resultSQL, err := conn.tx.Exec(sql, args ...)
+	resultSQL, err := conn.tx.Exec(sql, args...)
 
 	if err != nil {
 		return -1, err
@@ -69,7 +69,7 @@ func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 }
 func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
-		return conn.tx.Query(sql, args ...)
+		return conn.tx.Query(sql, args...)
 	} else {
 		return nil, mysql.ErrMalformPkt
 	}
@@ -81,7 +81,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	Encode := json.NewEncoder(w)
 
 	if strings.HasPrefix(sql, "insert") {
-		resultSQL, err := conn.tx.Exec(sql, args ...)
+		resultSQL, err := conn.tx.Exec(sql, args...)
 
 		if err != nil {
 			Encode.Encode(err)
@@ -96,7 +96,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	}
 
 	if strings.HasPrefix(sql, "update") {
-		resultSQL, err := conn.tx.Exec(sql, args ...)
+		resultSQL, err := conn.tx.Exec(sql, args...)
 
 		if err != nil {
 			Encode.Encode(err)
@@ -110,7 +110,7 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 		return nil
 	}
 
-	rows, err := conn.tx.Query(sql, args ...)
+	rows, err := conn.tx.Query(sql, args...)
 
 	if err != nil {
 		logs.ErrorLog(err, result.String())
@@ -121,9 +121,10 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 }
 
 type MultiQueryTransact struct {
-	tx *TxConnect
-	Queryes map[string] *ArgsQuery
+	tx      *TxConnect
+	Queryes map[string]*ArgsQuery
 }
+
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
@@ -141,9 +142,9 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 	var row argsRAW
 	var tableIDQueryes MultiQueryTransact
 	tableIDQueryes.tx = conn
-	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
+	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
 
-	comma, sqlCommand, values := "", "insert into " + tableName + "(", "values ("
+	comma, sqlCommand, values := "", "insert into "+tableName+"(", "values ("
 
 	for key, val := range r.Form {
 
@@ -151,32 +152,32 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 
 		if key == "table" {
 			continue
-		} else if strings.HasPrefix(key, "setid_"){
-			tableProps := getTableProps(key,"setid_" )
+		} else if strings.HasPrefix(key, "setid_") {
+			tableProps := getTableProps(key, "setid_")
 			defer func(tableName, tableProps string, values []string) {
 				if err == nil {
 					//TODO принять функцию
-					err = conn.insertMultiSet(tableName,  tableProps,
-						tableName + "_" + tableProps + "_has", userID, values, lastInsertId)
+					err = conn.insertMultiSet(tableName, tableProps,
+						tableName+"_"+tableProps+"_has", userID, values, lastInsertId)
 				}
-			} (tableName, tableProps, val)
+			}(tableName, tableProps, val)
 			continue
-		} else if strings.HasPrefix(key, "nodeid_"){
-			tableProps := getTableProps(key,"nodeid_" )
+		} else if strings.HasPrefix(key, "nodeid_") {
+			tableProps := getTableProps(key, "nodeid_")
 			defer func(tableName, tableValues string, values []string) {
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						logs.DebugLog("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues)
 					}
 					err = conn.insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
-			} (tableName, tableProps, val)
+			}(tableName, tableProps, val)
 			continue
 		} else if key == "id_users" {
 
 			sqlCommand += comma + "`" + key + "`"
-			row = append( row, userID )
+			row = append(row, userID)
 
 		} else if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
@@ -186,12 +187,12 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 				comma = ","
 			}
 			row = append(row, str)
-		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
+		} else if (indSeparator > 1) && strings.Contains(key, "[") {
 			tableIDQueryes.addNewParam(key, indSeparator, val)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`"
-			row = append( row, val[0] )
+			row = append(row, val[0])
 		}
 		values += comma + "?"
 		comma = ", "
@@ -205,17 +206,17 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 			if err == nil {
 				err = tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
 			}
-		} ()
+		}()
 
 	}
-	return conn.DoInsert(sqlCommand + ") " + values + ")", row ... )
+	return conn.DoInsert(sqlCommand+") "+values+")", row...)
 
 }
 
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает количество измененных записей
-func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsAffected int, err error) {
+func (conn *TxConnect) DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err error) {
 
 	r.ParseForm()
 
@@ -229,9 +230,9 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 	var row argsRAW
 	var id int
 	var tableIDQueryes MultiQueryTransact
-	tableIDQueryes.Queryes = make(map[string] *ArgsQuery, 0)
+	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
 
-	comma, sqlCommand, where := "", "update " + tableName + " set ", " where id="
+	comma, sqlCommand, where := "", "update "+tableName+" set ", " where id="
 
 	for key, val := range r.Form {
 
@@ -242,35 +243,35 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 			where += val[0]
 			id, _ = strconv.Atoi(val[0])
 			continue
-		} else if strings.HasPrefix(key, "setid_"){
-			tableProps := getTableProps(key,"setid_" )
+		} else if strings.HasPrefix(key, "setid_") {
+			tableProps := getTableProps(key, "setid_")
 			defer func(tableProps string, values []string) {
 				if err == nil {
-					err = conn.insertMultiSet(tableName,  tableProps,
-						tableName + "_" + tableProps + "_has", userID, values, id)
+					err = conn.insertMultiSet(tableName, tableProps,
+						tableName+"_"+tableProps+"_has", userID, values, id)
 				} else {
 					logs.ErrorLog(err)
 				}
-			} (tableProps, val)
+			}(tableProps, val)
 			continue
-		} else if strings.HasPrefix(key, "nodeid_"){
-			tableProps := getTableProps(key,"nodeid_" )
+		} else if strings.HasPrefix(key, "nodeid_") {
+			tableProps := getTableProps(key, "nodeid_")
 			defer func(tableValues string, values []string) {
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
-						logs.DebugLog("Empty tableProps! ", tableValues )
+						logs.DebugLog("Empty tableProps! ", tableValues)
 					}
 					err = conn.insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
 				} else {
 					logs.ErrorLog(err)
 				}
-			} (tableProps, val)
+			}(tableProps, val)
 			continue
 		} else if key == "id_users" {
 
 			sqlCommand += comma + "`" + key + "`=?"
-			row = append( row, userID )
+			row = append(row, userID)
 
 		} else if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
@@ -280,12 +281,12 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 				comma = ","
 			}
 			row = append(row, str)
-		} else if (indSeparator > 1) && strings.Contains(key, "[")  {
+		} else if (indSeparator > 1) && strings.Contains(key, "[") {
 			tableIDQueryes.addNewParam(key, indSeparator, val)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`=?"
-			row = append( row, val[0] )
+			row = append(row, val[0])
 		}
 		comma = ", "
 
@@ -297,18 +298,16 @@ func (conn *TxConnect) DoUpdateFromForm( r *http.Request, userID string ) (RowsA
 			if err == nil {
 				err = tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
 			}
-		} ()
+		}()
 
 	}
-	return conn.DoUpdate(sqlCommand + where, row ... )
+	return conn.DoUpdate(sqlCommand+where, row...)
 
 }
 
-
-
 func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error) {
 
-	if newId, err := conn.DoInsert("insert into " + tableProps + "(title, id_users) values (?, ?)", value, userID); err != nil {
+	if newId, err := conn.DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
 		return -1, err
 	} else {
 		return newId, nil
@@ -316,7 +315,7 @@ func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error)
 
 }
 
-func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
+func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
 
 	sqlCommand := fmt.Sprintf("insert IGNORE into %s (id_%s, id_%s) values (%d, ?)",
 		tableValues, tableName, tableProps, id)
@@ -337,7 +336,7 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 				logs.ErrorLog(err)
 				continue
 			}
-			value =  strconv.Itoa(newId)
+			value = strconv.Itoa(newId)
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			logs.ErrorLog(err, sqlCommand)
@@ -345,7 +344,7 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 			logs.DebugLog(resultSQL)
 		}
 		params += comma + "?"
-		valParams = append(valParams, value )
+		valParams = append(valParams, value)
 		comma = ","
 	}
 	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
@@ -356,10 +355,10 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 		return err
 	}
 
-	if resultSQL, err := smtp.Exec(valParams ...); err != nil {
+	if resultSQL, err := smtp.Exec(valParams...); err != nil {
 		logs.ErrorLog(err, sqlCommand)
 		return err
-	}else {
+	} else {
 		logs.DebugLog(resultSQL)
 	}
 
@@ -367,7 +366,7 @@ func  (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userI
 }
 
 func (tableIDQueryes *MultiQueryTransact) addNewParam(key string, indSeparator int, val []string) {
-	tableName := key[: indSeparator ]
+	tableName := key[:indSeparator]
 	query, ok := tableIDQueryes.Queryes[tableName]
 	if !ok {
 		query = &ArgsQuery{
@@ -376,15 +375,15 @@ func (tableIDQueryes *MultiQueryTransact) addNewParam(key string, indSeparator i
 			Values:     "",
 		}
 	}
-	fieldName := key[ strings.Index(key, ":") + 1: ]
+	fieldName := key[strings.Index(key, ":")+1:]
 	pos := strings.Index(fieldName, "[")
-	fieldName = "`" + fieldName[ :pos] + "`"
+	fieldName = "`" + fieldName[:pos] + "`"
 
 	// пока беда в том, что количество должно точно соответствовать!
 	//если первый  - то создаем новый список параметров для вставки
 	if strings.HasPrefix(query.SQLCommand, fieldName) {
 		query.Comma = "), ("
-	} else if !strings.Contains(query.SQLCommand, fieldName )  {
+	} else if !strings.Contains(query.SQLCommand, fieldName) {
 		query.SQLCommand += query.Comma + fieldName
 	}
 
@@ -395,19 +394,19 @@ func (tableIDQueryes *MultiQueryTransact) addNewParam(key string, indSeparator i
 
 }
 
-func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInsertId int, Queryes map[string] *ArgsQuery) (err error){
+func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInsertId int, Queryes map[string]*ArgsQuery) (err error) {
 
 	parentKey := "id_" + tableName
 	for childTableName, query := range Queryes {
 
-		isNotContainParentKey := ! strings.Contains(query.SQLCommand, parentKey)
+		isNotContainParentKey := !strings.Contains(query.SQLCommand, parentKey)
 		if isNotContainParentKey {
 			query.SQLCommand += query.Comma + parentKey
 			query.Values += query.Comma + "?"
 		}
 		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
 
-		var args [] interface{}
+		var args []interface{}
 
 		for i := range query.Args[0].([]string) {
 			if i > 0 {
@@ -415,7 +414,7 @@ func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInser
 			}
 			for _, valArr := range query.Args {
 				switch valArr.(type) {
-				case [] string:
+				case []string:
 					args = append(args, valArr.([]string)[i])
 				default:
 					args = append(args, valArr)
@@ -427,7 +426,7 @@ func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInser
 				args = append(args, lastInsertId)
 			}
 		}
-		if id, err := tableIDQueryes.tx.DoInsert(fullCommand,  args ...); err != nil {
+		if id, err := tableIDQueryes.tx.DoInsert(fullCommand, args...); err != nil {
 			logs.ErrorLog(err)
 		} else {
 			logs.DebugLog(fullCommand, id)

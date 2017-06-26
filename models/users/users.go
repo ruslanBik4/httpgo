@@ -1,47 +1,50 @@
 package users
 
 import (
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"github.com/ruslanBik4/httpgo/views/templates/mails"
-	"github.com/ruslanBik4/httpgo/models/db"
-	"net/http"
 	"fmt"
-	"strconv"
+	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/views/templates/mails"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"os"
 	"io/ioutil"
+	"net/http"
+	"os"
+	"strconv"
 	//"gopkg.in/gomail.v2"
-	"net/mail"
 	"crypto/rand"
 	"encoding/base64"
-	"hash/crc32"
-	"github.com/gorilla/sessions"
-	"gopkg.in/gomail.v2"
-	"github.com/ruslanBik4/httpgo/models/system"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"errors"
+	"github.com/gorilla/sessions"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/system"
+	"gopkg.in/gomail.v2"
+	"hash/crc32"
+	"net/mail"
 )
+
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
+
 var (
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
 		ClientSecret: os.Getenv("googlesecret"),
-		Scopes:       []string{"https://www.googleapis.com/auth/userinfo.profile",
+		Scopes: []string{"https://www.googleapis.com/auth/userinfo.profile",
 			"https://www.googleapis.com/auth/userinfo.email"},
-		Endpoint:     google.Endpoint,
+		Endpoint: google.Endpoint,
 	}
 	oauthStateString = "random"
-	Store = sessions.NewFilesystemStore("/var/lib/php/session",[]byte("travel.com.ua"))
-
+	Store            = sessions.NewFilesystemStore("/var/lib/php/session", []byte("travel.com.ua"))
 )
+
 func SetSessionPath(f_session string) {
-	Store = sessions.NewFilesystemStore(f_session,[]byte("travel.com.ua"))
+	Store = sessions.NewFilesystemStore(f_session, []byte("travel.com.ua"))
 }
+
 //func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
 //
 //
@@ -82,12 +85,14 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	contents, err := ioutil.ReadAll(response.Body)
 	fmt.Fprintf(w, "Content: %s\n", contents)
 }
+
 type UserRecord struct {
-	Id int
+	Id   int
 	Name string
-	Sex int
+	Sex  int
 }
-var greetings = [] string {"господин", "госпожа"}
+
+var greetings = []string{"господин", "госпожа"}
 
 func GetSession(r *http.Request, name string) *sessions.Session {
 	// Get a session. We're ignoring the error resulted from decoding an
@@ -108,13 +113,13 @@ func IsLogin(r *http.Request) string {
 
 		return strconv.Itoa(userID.(int))
 	} else {
-		panic(system.ErrNotLogin{Message:"not login user!"})
+		panic(system.ErrNotLogin{Message: "not login user!"})
 	}
 
 	return ""
 }
 func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
-	session := GetSession(r, nameSession )
+	session := GetSession(r, nameSession)
 	delete(session.Values, "id")
 	delete(session.Values, "email")
 	return session.Save(r, w)
@@ -123,13 +128,13 @@ func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-	session := GetSession(r, nameSession )
+	session := GetSession(r, nameSession)
 	email, ok := session.Values["email"]
 	if !ok {
-		http.Redirect(w,r, "/show/forms/?name=signin", http.StatusSeeOther)
+		http.Redirect(w, r, "/show/forms/?name=signin", http.StatusSeeOther)
 		return
 	}
-	rows := db.DoQuery("select id, fullname, sex from users where login=?", email )
+	rows := db.DoQuery("select id, fullname, sex from users where login=?", email)
 
 	var row UserRecord
 
@@ -144,17 +149,17 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	p := &layouts.MenuOwnerBody{ Title: greetings[row.Sex] + " " + row.Name, TopMenu: make(map[string] *layouts.ItemMenu, 0)}
+	p := &layouts.MenuOwnerBody{Title: greetings[row.Sex] + " " + row.Name, TopMenu: make(map[string]*layouts.ItemMenu, 0)}
 
 	var menu db.MenuItems
 
 	menu.GetMenu("menuOwner")
 
 	for _, item := range menu.Items {
-		p.TopMenu[item.Title] = &layouts.ItemMenu{ Link: "/menu/" + item.Name + "/"  }
+		p.TopMenu[item.Title] = &layouts.ItemMenu{Link: "/menu/" + item.Name + "/"}
 
 	}
-	fmt.Fprint(w, p.MenuOwner() )
+	fmt.Fprint(w, p.MenuOwner())
 }
 func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 
@@ -163,19 +168,19 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	if (email == "") || (password == "") {
-		panic(&system.ErrNotLogin{Message:"Not enoug login parameters!"})
+		panic(&system.ErrNotLogin{Message: "Not enoug login parameters!"})
 	}
 
 	err, userId, userName := CheckUserCredentials(email, password)
 
 	if err != nil {
-		panic(&system.ErrNotLogin{Message:"Wrong email or password"})
+		panic(&system.ErrNotLogin{Message: "Wrong email or password"})
 	}
 
 	// session save BEFORE write page
 	SaveSession(w, r, userId, email)
 
-	p := &forms.PersonData{ Id: userId, Login: userName, Email: email }
+	p := &forms.PersonData{Id: userId, Login: userName, Email: email}
 	fmt.Fprint(w, p.JSON())
 }
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +188,7 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	if err := deleteCurrentUser(w, r); err != nil {
 		logs.ErrorLog(err)
 	}
-	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!" )
+	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!")
 	views.RenderSignForm(w, r, "")
 }
 
@@ -196,6 +201,7 @@ func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
 		logs.ErrorLog(err)
 	}
 }
+
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random
 // number generator fails to function correctly, in which
@@ -228,12 +234,12 @@ func GeneratePassword(email string) (string, error) {
 func HashPassword(password string) interface{} {
 	// crypto password
 	crc32q := crc32.MakeTable(0xD5828281)
-return 	crc32.Checksum([]byte(password), crc32q)
+	return crc32.Checksum([]byte(password), crc32q)
 }
 func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32000)
 
-	var args [] interface{}
+	var args []interface{}
 	sql, comma, values := "insert into users (", "", ") values ("
 
 	for key, val := range r.MultipartForm.Value {
@@ -250,8 +256,8 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	sql += comma + "hash"
 	values += comma + "?"
 
-	args = append(args, HashPassword(password) )
-	lastInsertId, err := db.DoInsert(sql + values + ")", args... )
+	args = append(args, HashPassword(password))
+	lastInsertId, err := db.DoInsert(sql+values+")", args...)
 	if err != nil {
 
 		fmt.Fprintf(w, "%v", err)
@@ -262,25 +268,25 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 	mRow := forms.MarshalRow{Msg: "Append row", N: lastInsertId}
 	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
 
-	if _, err := mail.ParseAddress(email); err !=nil {
+	if _, err := mail.ParseAddress(email); err != nil {
 		logs.ErrorLog(err)
 		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}
-	p := &forms.PersonData{ Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
-		Rows: []forms.MarshalRow{mRow}, Email: email }
+	p := &forms.PersonData{Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
+		Rows: []forms.MarshalRow{mRow}, Email: email}
 	fmt.Fprint(w, p.JSON())
 
 	go SendMail(email, password)
 }
-func SendMail(email, password string)  {
+func SendMail(email, password string) {
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", "ruslan-bik@yandex.ru")
-	m.SetHeader("To", email )
+	m.SetHeader("To", email)
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
-	m.SetBody("text/html", mails.InviteEmail(email, password) )
+	m.SetBody("text/html", mails.InviteEmail(email, password))
 	m.Attach("/home/travel/bootstrap/ico/favicon.png")
 
 	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconSwallow")
@@ -293,7 +299,7 @@ func SendMail(email, password string)  {
 	logs.DebugLog("email-", email, ", password=", password)
 }
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm();
+	r.ParseForm()
 
 	if r.FormValue("email") == "" {
 
@@ -309,7 +315,7 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 
 func CheckUserCredentials(login string, password string) (error, int, string) {
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password) )
+	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password))
 	if err != nil {
 		logs.ErrorLog(err)
 		return err, 0, ""
@@ -329,7 +335,5 @@ func CheckUserCredentials(login string, password string) (error, int, string) {
 		return nil, row.Id, row.Name
 	}
 
-	return &system.ErrNotLogin{Message:"Wrong email or password"}, 0, ""
+	return &system.ErrNotLogin{Message: "Wrong email or password"}, 0, ""
 }
-
-
