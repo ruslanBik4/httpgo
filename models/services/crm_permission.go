@@ -4,6 +4,7 @@ package services
 
 import (
 	"github.com/ruslanBik4/httpgo/models/db"
+	"sync"
 )
 
 type linkPermission struct {
@@ -21,7 +22,9 @@ type cpService struct {
 	Rows map[string] rowsRoles
 	roles map[int][]interface{}
 }
+
 var crm_permission *cpService = &cpService{name:"crm_permission"}
+var cacheMu sync.RWMutex
 
 //реализация обязательных методов интерейса
 func (crm_permission *cpService) Init() error{
@@ -65,6 +68,10 @@ func (crm_permission *cpService) Init() error{
 // 4,5,6 (for set permiss only)
 func (crm_permission *cpService) Send(args ...interface{}) error {
 
+	if crm_permission.status != "ready" {
+		return ErrBrokenConnection{Name: crm_permission.name, Param: args}
+	}
+
 	if len(args) < 4 {
 		return ErrServiceNotEnougnParameter{Name: crm_permission.name, Param: args}
 	}
@@ -73,12 +80,6 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 	}
 	if _,ok := args[2].(string); !ok {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
-	}
-
-	connection_status := Status("crm_permission")
-
-	if connection_status != "ready" {
-		return ErrBrokenConnection{Name: crm_permission.name, Param: args}
 	}
 
 	switch permission_type := args[0].(type) {
@@ -170,6 +171,8 @@ func (crm_permission *cpService) getCRMPermissions(user_id int, url, action stri
 
 func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
 
+	cacheMu.Lock()
+
 	if crm_permission.roles[user_id] == nil || len(crm_permission.roles[user_id]) == 0 {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
@@ -181,10 +184,15 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 			return nil
 		}
 	}
+
+	cacheMu.Unlock()
+
 	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 }
 
 func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
+
+	cacheMu.Lock()
 
 	newRow := make(map[string]interface{}, 0)
 	newRow["link"] = link
@@ -209,6 +217,7 @@ func (crm_permission *cpService) setPermissForUser(user_id int, link string, all
 
 	crm_permission.roles[user_id] = append(crm_permission.roles[user_id], newRow)
 
+	cacheMu.Unlock()
 	return nil
 }
 
