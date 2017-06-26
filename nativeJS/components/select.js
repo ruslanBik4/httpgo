@@ -43,6 +43,9 @@ export class Select {
         if (option.getAttribute(Variables.paramsJSONForPost) == attr) {
           option.setAttribute('selected', '');
           break;
+        } else if (option.text === attr) {
+          option.setAttribute('selected', '');
+          break;
         }
       }
     }

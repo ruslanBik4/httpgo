@@ -184,6 +184,21 @@ export class Native {
 
 
   /*
+  *     set form attributes
+  */
+
+  static setForm(componentName, attr) {
+    const component = document.getElementById(componentName);
+    if (component) {
+      delete attr.id;
+      for (let key in attr) {
+        component.setAttribute(key, attr[key]);
+      }
+    }
+  }
+
+
+  /*
    *   insert data for data
    */
 

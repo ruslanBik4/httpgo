@@ -22,7 +22,7 @@ const paramsJSONForPost = 'value';
 const paramsJSONIdForTable = 'native-table-id';
 const paramsJSONIdData = 'data-id';
 const paramsForm = 'data-form-id';
-const paramsFormChildren = 'data-form';
+const paramsFormChildren = 'form';
 const paramsForClick = 'native-click-button';
 const paramsChangeId = 'native-change-id';
 
