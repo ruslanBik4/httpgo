@@ -102,25 +102,9 @@ export class ParseJSON {
 
     let func = this.components[component.tagName];
     if (func && func.addAttrToComponent) {
-      if (Object.prototype.toString.call(attr) === '[object Array]') {
-        // debugger;
-      }
       func.addAttrToComponent(component, attr);
     } else {
       if (Object.prototype.toString.call(attr) === '[object Array]') {
-        for (let value of attr) {
-          const currentComponent = component.querySelector(`[${ Variables.paramsJSONIdData }="${ value.id }"]`);
-          if (!currentComponent) {
-            console.log(`component data-id not found for set value: ${ component.id }, ${ value }`);
-            continue;
-          }
-          if (!func) {
-            func = this.components[currentComponent.tagName];
-          }
-          if (func.addAttrToComponent) {
-            func.addAttrToComponent(currentComponent, "1");
-          }
-        }
       } else {
         component.textContent = attr;
         console.log(`Not found in frame: ${ component }`);
@@ -262,7 +246,6 @@ export class ParseJSON {
 
       const [dom, nameField] = this._getDom(component, name, strTable, (isDefault || isOnlyClass) ? '' : str);
 
-
       if (name.startsWith(Variables.paramsJSONTable)) {
         if (isDefault) {
           this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
@@ -321,6 +304,22 @@ export class ParseJSON {
           if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
         }
         callback(dom, attr[name]);
+      } else if (component && !isDefault && Object.prototype.toString.call(attr[name]) === '[object Array]') {
+
+        for (let value of attr[name]) {
+
+          let domArray;
+          if (component.hasAttribute(Variables.paramsForm)) {
+            domArray = document.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+          } else {
+            domArray = component.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"]`);
+          }
+
+          if (domArray) {
+            callback(domArray, value);
+          }
+        }
+
       }
 
     }
