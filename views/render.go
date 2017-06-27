@@ -54,7 +54,8 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 }
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
 
-	RenderAnyPage(w, r, forms.SigninForm(email, "Введите пароль, полученный по почте"))
+	signForm := &forms.SignForm{ Email: email, Password: "Введите пароль, полученный по почте"}
+	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
 }
 func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
 

@@ -548,15 +548,15 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			query, ok := params.Queryes[tableName]
 			if !ok {
 				query = &db.ArgsQuery{
-					Comma:      "",
-					SQLCommand: "insert into " + tableName + "(",
-					Values:     "values (",
+					Comma:     "",
+					FieldList: "insert into " + tableName + "(",
+					Values:    "values (",
 				}
 			}
 			fieldName := key[strings.Index(key, ":")+1:]
 
 			if strings.Contains(fieldName, "[]") {
-				query.SQLCommand += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
+				query.FieldList += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
 				str, comma := "", ""
 				for _, value := range val {
 					str += comma + value
@@ -571,11 +571,11 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 
 				// пока беда в том, что количество должно точно соответствовать!
 				//если первый  - то создаем новый список параметров для вставки
-				if strings.HasPrefix(query.SQLCommand, "insert into "+tableName+"("+fieldName) {
+				if strings.HasPrefix(query.FieldList, "insert into "+tableName+"("+fieldName) {
 					query.Comma = "), ("
 					//args, ok := query.args[0][fieldName]
-				} else if !strings.Contains(query.SQLCommand, fieldName) {
-					query.SQLCommand += query.Comma + fieldName
+				} else if !strings.Contains(query.FieldList, fieldName) {
+					query.FieldList += query.Comma + fieldName
 					//query.args = append(query.args, make(map[string] string, 0))
 				}
 
@@ -583,7 +583,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 				query.Args = append(query.Args, val[0])
 
 			} else {
-				query.SQLCommand += query.Comma + "`" + fieldName + "`"
+				query.FieldList += query.Comma + "`" + fieldName + "`"
 				query.Args = append(query.Args, val[0])
 			}
 			query.Values += query.Comma + "?"
@@ -598,12 +598,12 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			if primaryTable == "" {
 				primaryTable = key
 			} else {
-				query.SQLCommand += query.Comma + "`id_" + primaryTable + "`"
+				query.FieldList += query.Comma + "`id_" + primaryTable + "`"
 				query.Args = append(query.Args, primaryID)
 				query.Values += query.Comma + "?"
 			}
 
-			id, err := db.DoInsert(query.SQLCommand+") "+query.Values+")", query.Args...)
+			id, err := db.DoInsert(query.FieldList+") "+query.Values+")", query.Args...)
 			if err != nil {
 				logs.ErrorLog(err)
 				arrJSON["error"] = "true"

@@ -14,13 +14,25 @@ import (
 type argsRAW []interface{}
 
 type ArgsQuery struct {
-	Comma, SQLCommand, Values string
-	Args                      []interface{}
+	Comma, FieldList, Values string
+	Args                     []interface{}
+	TableValues				 map[int] map [string] []string
+	Fields					 []string
+	isNotContainParentKey    bool
 }
 type MultiQuery struct {
-	Queryes map[string]*ArgsQuery
+	Queryes 				map[string]*ArgsQuery
 }
+// найти в списке имя поля
+func (aq *ArgsQuery) findField(name string) bool {
+	for _, val := range aq.Fields {
+		if val == name {
+			return true
+		}
+	}
 
+	return false
+}
 func GetParentFieldName(tableName string) (name string) {
 	var listNs FieldsTable
 
@@ -71,14 +83,15 @@ func insertMultiSet(tableName, tableProps, tableValues, userID string, values []
 
 	for _, value := range values {
 
+		id, err := strconv.Atoi(value)
 		// если не числовое значение - стало быть, это новое свойство и его добавим в таблицу свойств
-		if !DigitsValidator.MatchString(value) {
-			newId, err := addNewItem(tableProps, value, userID)
+		if err != nil {
+			id, err = addNewItem(tableProps, value, userID)
 			if err != nil {
-				logs.ErrorLog(err)
+				logs.ErrorLog(err, value)
 				continue
 			}
-			value = strconv.Itoa(newId)
+			//value = strconv.Itoa(newId)
 		}
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			logs.ErrorLog(err)
@@ -86,7 +99,7 @@ func insertMultiSet(tableName, tableProps, tableValues, userID string, values []
 			logs.DebugLog(resultSQL)
 		}
 		params += comma + "?"
-		valParams = append(valParams, value)
+		valParams = append(valParams, id)
 		comma = ","
 	}
 	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
@@ -112,65 +125,67 @@ func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val 
 	query, ok := tableIDQueryes.Queryes[tableName]
 	if !ok {
 		query = &ArgsQuery{
-			Comma:      "",
-			SQLCommand: "",
-			Values:     "",
+			Comma:     "",
+			FieldList: "",
+			Values:    "",
+			TableValues: make( map[int] map [string] []string, 1),
 		}
 	}
-	fieldName := key[strings.Index(key, ":")+1:]
+	fieldName := key[ indSeparator + 1: ]
 	pos := strings.Index(fieldName, "[")
+	ind, err := strconv.Atoi( fieldName[pos+1:len(fieldName)-1] )
+	if err != nil {
+		logs.ErrorLog(err, fieldName)
+		return
+	}
 	fieldName = "`" + fieldName[:pos] + "`"
 
-	// пока беда в том, что количество должно точно соответствовать!
-	//если первый  - то создаем новый список параметров для вставки
-	if strings.HasPrefix(query.SQLCommand, fieldName) {
-		query.Comma = "), ("
-	} else if !strings.Contains(query.SQLCommand, fieldName) {
-		query.SQLCommand += query.Comma + fieldName
+	if !query.findField(fieldName) {
+		query.Fields = append(query.Fields, fieldName)
 	}
 
-	query.Values += query.Comma + "?"
+	if _, ok := query.TableValues[ind]; !ok {
+		query.TableValues[ind] = make( map[string] []string, 1)
+		logs.StatusLog(ind)
+	}
+	query.TableValues[ind][fieldName] = val
 	query.Comma = ", "
-	query.Args = append(query.Args, val)
 	tableIDQueryes.Queryes[tableName] = query
+	logs.StatusLog(key)
 
 }
-func (tableIDQueryes *MultiQuery) runQueryes(tableName string, lastInsertId int, Queryes map[string]*ArgsQuery) (err error) {
+func (tableIDQueryes *MultiQuery) runQueryes(parentKey string, lastInsertId int) (err error) {
 
-	parentKey := "id_" + tableName
-	for childTableName, query := range Queryes {
+	for tableName, query := range tableIDQueryes.Queryes {
 
-		isNotContainParentKey := !strings.Contains(query.SQLCommand, parentKey)
-		if isNotContainParentKey {
-			query.SQLCommand += query.Comma + parentKey
-			query.Values += query.Comma + "?"
+		if !query.findField(parentKey) {
+			query.Fields = append(query.Fields, parentKey)
 		}
-		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
 
+		params := "(?" + strings.Repeat(",?", len(query.Fields)-1 ) + ")"
+		sqlCommand := fmt.Sprintf("replace into %s (%s) values ", tableName, strings.Join( query.Fields, ",") )
 		var args []interface{}
 
-		for i := range query.Args[0].([]string) {
-			if i > 0 {
-				fullCommand += ",(" + query.Values + ")"
-			}
-			for _, valArr := range query.Args {
-				switch argsStrings := valArr.(type) {
-				case []string:
-					args = append(args, argsStrings[i])
-				default:
-					args = append(args, valArr)
+		comma := ""
+		for _, field := range query.TableValues {
 
+			sqlCommand += comma + params
+			comma = ","
+
+			for _, name := range query.Fields {
+				// последним добавляем вторичный ключ
+				if name == parentKey {
+					args = append(args, lastInsertId)
+				} else {
+					args = append(args, field[name][0])
 				}
 			}
-			// последним добавляем вторичный ключ
-			if isNotContainParentKey {
-				args = append(args, lastInsertId)
-			}
 		}
-		if id, err := DoInsert(fullCommand, args...); err != nil {
+		logs.StatusLog(sqlCommand, args)
+		if id, err := DoInsert(sqlCommand, args...); err != nil {
 			logs.ErrorLog(err)
 		} else {
-			logs.DebugLog(fullCommand, id)
+			logs.DebugLog(sqlCommand, id)
 		}
 	}
 
@@ -279,7 +294,7 @@ func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err err
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
 			if err == nil {
-				err = tableIDQueryes.runQueryes(tableName, lastInsertId, tableIDQueryes.Queryes)
+				err = tableIDQueryes.runQueryes("id_" + tableName, lastInsertId)
 			}
 		}()
 
@@ -370,7 +385,7 @@ func DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err err
 		// исполнить по завершению функции, чтобы получить lastInsertId
 		defer func() {
 			if err == nil {
-				err = tableIDQueryes.runQueryes(tableName, id, tableIDQueryes.Queryes)
+				err = tableIDQueryes.runQueryes("id_" + tableName, id)
 			}
 		}()
 

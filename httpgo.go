@@ -29,6 +29,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"database/sql"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 
 //go:generate qtc -dir=views/templates
@@ -220,6 +222,7 @@ func sockCatch() {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
+	r.ParseForm()
 	id := r.FormValue("id")
 	qBuilder := qb.Create("b.id=?", "", "")
 
@@ -233,12 +236,41 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	})
 	qBuilder.AddArg(id)
 
-	arrJSOn, err := qBuilder.SelectToMultidimension()
+	if r.FormValue("batch") == "1" {
+		arrJSON, err := qBuilder.SelectToMultidimension()
+		if err != nil {
+			views.RenderInternalError(w, err)
+			return
+		}
+		views.RenderArrayJSON(w, arrJSON)
+
+		return
+	}
+
+	w.Write([]byte("{"))
+
+	err := qBuilder.SelectRunFunc(func(columns []string, values []sql.RawBytes, rows *sql.Rows) error {
+		for idx, col := range values {
+			if idx > 0 {
+				w.Write( []byte (",") )
+			}
+
+			w.Write([]byte(`"` + columns[idx] + `":`))
+			if col == nil {
+				w.Write([]byte("null"))
+			} else {
+				json.WriteElement(w, string(col))
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
 		views.RenderInternalError(w, err)
 		return
 	}
-	views.RenderArrayJSON(w, arrJSOn)
+	views.WriteJSONHeaders(w)
+	w.Write([]byte("}"))
 	return
 
 	qBuilder = qb.Create("hs.id_hotels=?", "", "")

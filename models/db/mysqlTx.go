@@ -370,9 +370,9 @@ func (tableIDQueryes *MultiQueryTransact) addNewParam(key string, indSeparator i
 	query, ok := tableIDQueryes.Queryes[tableName]
 	if !ok {
 		query = &ArgsQuery{
-			Comma:      "",
-			SQLCommand: "",
-			Values:     "",
+			Comma:     "",
+			FieldList: "",
+			Values:    "",
 		}
 	}
 	fieldName := key[strings.Index(key, ":")+1:]
@@ -381,10 +381,10 @@ func (tableIDQueryes *MultiQueryTransact) addNewParam(key string, indSeparator i
 
 	// пока беда в том, что количество должно точно соответствовать!
 	//если первый  - то создаем новый список параметров для вставки
-	if strings.HasPrefix(query.SQLCommand, fieldName) {
+	if strings.HasPrefix(query.FieldList, fieldName) {
 		query.Comma = "), ("
-	} else if !strings.Contains(query.SQLCommand, fieldName) {
-		query.SQLCommand += query.Comma + fieldName
+	} else if !strings.Contains(query.FieldList, fieldName) {
+		query.FieldList += query.Comma + fieldName
 	}
 
 	query.Values += query.Comma + "?"
@@ -399,12 +399,12 @@ func (tableIDQueryes *MultiQueryTransact) runQueryes(tableName string, lastInser
 	parentKey := "id_" + tableName
 	for childTableName, query := range Queryes {
 
-		isNotContainParentKey := !strings.Contains(query.SQLCommand, parentKey)
+		isNotContainParentKey := !strings.Contains(query.FieldList, parentKey)
 		if isNotContainParentKey {
-			query.SQLCommand += query.Comma + parentKey
+			query.FieldList += query.Comma + parentKey
 			query.Values += query.Comma + "?"
 		}
-		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.SQLCommand, query.Values)
+		fullCommand := fmt.Sprintf("replace into %s (%s) values (%s)", childTableName, query.FieldList, query.Values)
 
 		var args []interface{}
 

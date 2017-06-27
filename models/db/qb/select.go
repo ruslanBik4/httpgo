@@ -143,7 +143,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	return qb.Prepared.Query(qb.Args...)
 }
-func (qb *QueryBuilder) SelectRunFunc(onReadRow func(rows *sql.Rows) error) error {
+func (qb *QueryBuilder) SelectRunFunc(onReadRow func(columns []string, values []sql.RawBytes, rows *sql.Rows) error) error {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
@@ -153,8 +153,22 @@ func (qb *QueryBuilder) SelectRunFunc(onReadRow func(rows *sql.Rows) error) erro
 
 	defer rows.Close()
 
+	columns, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+	values   := make([]sql.RawBytes, len(columns))
+	scanArgs := make([]interface{}, len(values))
+
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
 	for rows.Next() {
-		if err := onReadRow(rows); err != nil {
+		err := rows.Scan(scanArgs...)
+		if err != nil {
+			continue
+		}
+		if err := onReadRow(columns, values, rows); err != nil {
 			return err
 		}
 	}

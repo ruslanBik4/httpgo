@@ -63,8 +63,10 @@ func doConnect() error {
 		logs.DebugLog(DriveName)
 		return mysql.ErrInvalidConn
 	}
-
 	dbConn.Ping()
+
+	dbConn.SetMaxOpenConns(250)
+	logs.StatusLog(dbConn)
 
 	return nil
 

@@ -79,7 +79,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	leftTable := tableName
 	for name, _ := range tables {
-		qBuilder.LeftJoin("", name, "ON m.id_"+leftTable+"="+name+".id")
+		qBuilder.LeftJoin("", name, "ON " + leftTable + ".id" + "=" + name + ".id_" + leftTable)
 		leftTable = name
 	}
 
