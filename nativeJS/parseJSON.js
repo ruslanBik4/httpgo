@@ -86,6 +86,11 @@ export class ParseJSON {
           func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
 
+        // set default value
+        if (params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
+          func.addAttrToComponent(component, params[Variables.paramsJSONDefault]);
+        }
+
       } else {
         console.log(`Not found in frame: ${ component.tagName }`);
       }

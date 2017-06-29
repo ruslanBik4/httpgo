@@ -33,6 +33,7 @@ const paramsJSONTitle = 'title';
 const paramsJSONSet = 'set';
 const paramsJSONEnum = 'enum';
 const paramsJSONType = 'type';
+const paramsJSONDefault = 'default';
 
 
 // Observer
@@ -147,6 +148,10 @@ export class Variables {
   static get paramsJSONType() {
     return paramsJSONType;
 
+  }
+
+  static get paramsJSONDefault() {
+    return paramsJSONDefault;
   }
 
 
