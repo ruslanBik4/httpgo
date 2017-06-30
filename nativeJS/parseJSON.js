@@ -249,82 +249,85 @@ export class ParseJSON {
 
     for (let name in attr) {
 
-      const [dom, nameField] = this._getDom(component, name, strTable, (isDefault || isOnlyClass) ? '' : str);
+      const [doms, nameField] = this._getDom(component, name, strTable, (isDefault || isOnlyClass) ? '' : str);
 
-      if (name.startsWith(Variables.paramsJSONTable)) {
-        if (isDefault) {
-          this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
-        } else {
-          callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
-        }
-      } else if (dom) {
-        if (isDefault) {
+      for (let dom of doms) {
 
-          if (strTable.length !== 0) {
+        if (name.startsWith(Variables.paramsJSONTable)) {
+          if (isDefault) {
+            this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+          } else {
+            callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+          }
+        } else if (dom) {
+          if (isDefault) {
 
-            const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
+            if (strTable.length !== 0) {
 
-            if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
+              const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
 
-              const idParent = dom.getAttribute(Variables.paramsJSONIdData);
-              parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
+              if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
 
-              const temp = document.createElement('template');
-              temp.innerHTML = parent.innerHTML;
+                const idParent = dom.getAttribute(Variables.paramsJSONIdData);
+                parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
 
-              document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
-                component.onclick = () => {
+                const temp = document.createElement('template');
+                temp.innerHTML = parent.innerHTML;
 
-                  const newComponent = temp.cloneNode(true);
-                  const index =  parent.children.length;
+                document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
+                  component.onclick = () => {
 
-                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function() {
-                    this.setAttribute('id', this.getAttribute('id') + '-' + index);
-                  });
+                    const newComponent = temp.cloneNode(true);
+                    const index = parent.children.length;
 
-                  for (let id in attr) {
-                    const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
+                    newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
+                      this.setAttribute('id', this.getAttribute('id') + '-' + index);
+                    });
 
-                    if (component) {
-                      component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
-                      this.setAttrToComponent(component, attr[id]);
-                      this.setNewAttrIdAndName(component, index);
+                    for (let id in attr) {
+                      const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
+
+                      if (component) {
+                        component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
+                        this.setAttrToComponent(component, attr[id]);
+                        this.setNewAttrIdAndName(component, index);
+                      }
                     }
-                  }
 
-                  parent.appendChild(newComponent.content);
+                    parent.appendChild(newComponent.content);
 
-                  return false;
-                };
-              });
+                    return false;
+                  };
+                });
+              }
+            }
+
+            /*
+             *   change name
+             */
+
+            const intArray = str.match(/\d+/g);
+            if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
+            if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+          }
+          callback(dom, attr[name]);
+        } else if (component && !isDefault && Object.prototype.toString.call(attr[name]) === '[object Array]') {
+
+          for (let value of attr[name]) {
+
+            let domArray;
+            if (component.hasAttribute(Variables.paramsForm)) {
+              domArray = document.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+            } else {
+              domArray = component.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"]`);
+            }
+
+            if (domArray) {
+              callback(domArray, value);
             }
           }
 
-          /*
-          *   change name
-          */
-
-          const intArray = str.match(/\d+/g);
-          if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
-          if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
         }
-        callback(dom, attr[name]);
-      } else if (component && !isDefault && Object.prototype.toString.call(attr[name]) === '[object Array]') {
-
-        for (let value of attr[name]) {
-
-          let domArray;
-          if (component.hasAttribute(Variables.paramsForm)) {
-            domArray = document.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
-          } else {
-            domArray = component.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"]`);
-          }
-
-          if (domArray) {
-            callback(domArray, value);
-          }
-        }
-
       }
 
     }
@@ -341,9 +344,9 @@ export class ParseJSON {
     const nameField = (strTable.length !== 0) ? `${ strTable }:${ name }${ str }` : `${ name }${ str }`;
 
     if (component && component.hasAttribute(Variables.paramsForm)) {
-      dom = document.querySelector(`[name="${ nameField }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
-    } else {
-      dom = component.querySelector(`[name="${ nameField }"]`);
+      dom = document.querySelectorAll(`[name="${ nameField }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+    } else if (component) {
+      dom = component.querySelectorAll(`[name="${ nameField }"]`);
     }
     return [dom, nameField];
   }

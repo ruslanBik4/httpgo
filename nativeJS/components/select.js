@@ -38,6 +38,7 @@ export class Select {
   static addAttrToComponent(component, attr) {
 
     if (component.children.length !== 0) {
+      component.selectedIndex = -1;
       for (let i = 0; i < component.children.length; i++) {
         let option = component.children[i];
         if (option.getAttribute(Variables.paramsJSONForPost) == attr) {
