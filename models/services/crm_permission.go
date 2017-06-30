@@ -68,7 +68,7 @@ func (crm_permission *cpService) Init() error {
 func (crm_permission *cpService) Send(args ...interface{}) error {
 
 	if len(args) < 4 {
-		return ErrServiceNotEnougnParameter{Name: crm_permission.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
 	if _, ok := args[1].(int); !ok {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
@@ -105,7 +105,7 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 func (crm_permission *cpService) Get(args ...interface{}) (interface{}, error) {
 
 	if len(args) < 4 {
-		return nil, ErrServiceNotEnougnParameter{Name: crm_permission.name, Param: args}
+		return nil, ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
 	if _, ok := args[1].(int); !ok {
 		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
