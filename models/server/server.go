@@ -21,7 +21,25 @@ type serverConfig struct {
 		DB   string `yaml:"dbName"`
 		User string `yaml:"dbUser"`
 		Pass string `yaml:"dbPass"`
-		Prot string `yaml:"dbProt"`
+		AllowAllFiles string `yaml:"allowAllFiles"`
+		AllowCleartextPasswords string `yaml:"allowCleartextPasswords"`
+		AllowNativePasswords string `yaml:"allowNativePasswords"`
+		AllowOldPasswords string `yaml:"allowOldPasswords"`
+		Charset string `yaml:"charset"`
+		Collation string `yaml:"collation"`
+		ClientFoundRows string `yaml:"clientFoundRows"`
+		ColumnsWithAlias string `yaml:"columnsWithAlias"`
+		InterpolateParams string `yaml:"interpolateParams"`
+		Loc string `yaml:"loc"`
+		MaxAllowedPacket string `yaml:"maxAllowedPacket"`
+		MultiStatements string `yaml:"multiStatements"`
+		ParseTime string `yaml:"parseTime"`
+		ReadTimeout string `yaml:"readTimeout"`
+		RejectReadOnly string `yaml:"rejectReadOnly"`
+		Strict string `yaml:"strict"`
+		Timeout string `yaml:"timeout"`
+		Tls string `yaml:"tls"`
+		WriteTimeout string `yaml:"writeTimeout"`
 	}
 }
 
@@ -68,7 +86,20 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error {
 //
 //[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 func (sConfig *serverConfig) DNSConnection() string {
-	return fmt.Sprintf("%s:%s@%s/%s?maximumpoolsize", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot, sConfig.dbParams.DB)
+
+	return fmt.Sprintf("%s:%s@/%s?allowAllFiles=%s&allowCleartextPasswords=%s&allowNativePasswords=%s&" +
+		"allowOldPasswords=%s&charset=%s&collation=%s&clientFoundRows=%s&columnsWithAlias=%s&" +
+		"interpolateParams=%s&loc=%s&maxAllowedPacket=%s&multiStatements=%s&parseTime=%s&" +
+		"readTimeout=%s&rejectReadOnly=%s&strict=%s&timeout=%s&tls=%s&writeTimeout=%s",
+		sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.DB,
+		sConfig.dbParams.AllowAllFiles, sConfig.dbParams.AllowCleartextPasswords, sConfig.dbParams.AllowNativePasswords,
+		sConfig.dbParams.AllowOldPasswords,
+		sConfig.dbParams.Charset, sConfig.dbParams.Collation, sConfig.dbParams.ClientFoundRows,
+		sConfig.dbParams.ColumnsWithAlias, sConfig.dbParams.InterpolateParams,
+		sConfig.dbParams.Loc, sConfig.dbParams.MaxAllowedPacket, sConfig.dbParams.MultiStatements,
+		sConfig.dbParams.ParseTime,sConfig.dbParams.ReadTimeout,
+		sConfig.dbParams.RejectReadOnly, sConfig.dbParams.Strict, sConfig.dbParams.Timeout, sConfig.dbParams.Tls,
+		sConfig.dbParams.WriteTimeout)
 }
 func (sConfig *serverConfig) DBName() string {
 	return sConfig.dbParams.DB

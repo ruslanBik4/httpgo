@@ -1,5 +1,22 @@
 dbName: DATABASE_NAME
 dbUser: DATABSE_USER
 dbPass: PASSWORD
-dbProt: protocol(parameters)
-#-- see more https://dev.mysql.com/doc/refman/5.5/en/connecting.html
+allowAllFiles: false
+allowCleartextPasswords: false
+allowNativePasswords: false
+allowOldPasswords: false
+charset: utf8
+collation: utf8_general_ci
+clientFoundRows: false
+columnsWithAlias: false
+interpolateParams: false
+loc: UTC
+maxAllowedPacket: 0
+multiStatements: false
+parseTime: false
+readTimeout: 0
+rejectReadOnly: false
+strict: false
+timeout: 0
+tls: false
+writeTimeout: 0
