@@ -15,7 +15,7 @@ type QBField struct {
 	Name         string
 	Alias        string
 	schema       *schema.FieldStructure
-	Value        string
+	Value        sql.RawBytes
 	SelectValues map[int]string
 	Table        *QBTable
 	ChildQB      *QueryBuilder
@@ -87,7 +87,12 @@ func (qb *QueryBuilder) AddArgs(args ...interface{}) *QueryBuilder {
 
 	return qb
 }
+func (qb *QueryBuilder) SetArgs(args ...interface{}) *QueryBuilder {
+	qb.Args = nil
+	qb.AddArgs(args ...)
 
+	return qb
+}
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {
 

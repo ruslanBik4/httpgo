@@ -29,10 +29,10 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	var where string
 	var args []interface{}
 
+	r.ParseMultipartForm(_2K)
 
 	tables := make(map[string]schema.FieldsTable, 0)
 	tableName := r.FormValue("table")
-	r.ParseForm()
 
 	if tableName == "" {
 		views.RenderBadRequest(w)

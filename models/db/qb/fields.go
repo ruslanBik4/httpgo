@@ -5,7 +5,7 @@
 package qb
 
 import (
-	"database/sql"
+	"strconv"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
@@ -27,19 +27,50 @@ func (field QBField) String() string {
 func (field *QBField) GetSchema() *schema.FieldStructure {
 	return field.schema
 }
-
-// Scan implements the Scanner interface.
-func (field *QBField) Scan(value interface{}) error {
-	var temp sql.NullString
-
-	if err := temp.Scan(value); err != nil {
-		field.Value = ""
-		return err
+// get type
+func (field QBField) getNativeValue(tinyAsBool bool) interface{} {
+	if field.Value == nil {
+		return nil
 	}
-	field.Value = temp.String
+	switch dataType := field.schema.DATA_TYPE; dataType {
+	case "char", "varchar", "text", "date", "datetime", "timestamp", "time", "set", "enum":
+		return string(field.Value)
+	case "tinyint", "int", "uint", "int64":
+		value, err := strconv.Atoi( string(field.Value) )
+		if err != nil {
+			logs.ErrorLog(err, "convert RawBytes ", field.Value)
+			return nil
+		}
+		// если нужно вернуть булево значение из поля типа tinyint
+		if tinyAsBool && (dataType == "tinyint") {
+			return value == 1
+		} else {
+			return value
+		}
+	case "float", "double":
+		value, err := strconv.ParseFloat( string(field.Value), 64 )
+		if err != nil {
+			logs.ErrorLog(err, "convert RawBytes ", field.Value)
+			return nil
+		}
+		return value
+	}
 
-	return nil
+	return field.Value
+
 }
+// Scan implements the Scanner interface.
+//func (field *QBField) Scan(value interface{}) error {
+//	var temp sql.RawBytes
+//
+//	if err := temp.Scan(value); err != nil {
+//		field.Value = ""
+//		return err
+//	}
+//	field.Value = temp.String
+//
+//	return nil
+//}
 
 // adding fields into qB
 func (table *QBTable) AddFields(fields map[string]string) *QBTable {
@@ -165,8 +196,8 @@ func (field *QBField) getSelectedValues() {
 func findParamInParent(QBparent *QueryBuilder, param string) string {
 	if QBparent != nil {
 		for _, table := range QBparent.Tables {
-			if paramField, ok := table.Fields[param]; ok && (paramField.Value > "") {
-				return paramField.Value
+			if paramField, ok := table.Fields[param]; ok && (paramField.Value != nil) {
+				return string(paramField.Value)
 			}
 
 			return findParamInParent(QBparent.parent, param)
@@ -180,8 +211,8 @@ func findParamInParent(QBparent *QueryBuilder, param string) string {
 func (field *QBField) putValueToArgs(param string) string {
 	// считаем, что окончанием параметра могут быть символы ", )"
 	// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-	if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value > "") {
-		return paramField.Value
+	if paramField, ok := field.Table.Fields[param]; ok && (paramField.Value != nil) {
+		return string(paramField.Value)
 	} else if paramValue, ok := field.Table.qB.PostParams[param]; ok {
 		return paramValue[0]
 	} else if param == "id_users" {

@@ -71,6 +71,9 @@ func addNewItem(tableProps, value, userID string) (int, error) {
 //TODO: добавить запись для мультиполей (setid_)
 func insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
 
+	// для обновление связей полей пытаемся вставить новую связку
+	// родительской таблицы с таблицей свойств
+	// игнорируем6 ЕСЛИ УЖЕ ЕСТЬ ТАКАЯ СВЯЗКА
 	sqlCommand := fmt.Sprintf("insert IGNORE into %s (id_%s, id_%s) values (%d, ?)",
 		tableValues, tableName, tableProps, id)
 	smtp, err := PrepareQuery(sqlCommand)
@@ -89,7 +92,7 @@ func insertMultiSet(tableName, tableProps, tableValues, userID string, values []
 			id, err = addNewItem(tableProps, value, userID)
 			if err != nil {
 				logs.ErrorLog(err, value)
-				continue
+				return err
 			}
 			//value = strconv.Itoa(newId)
 		}
@@ -102,6 +105,7 @@ func insertMultiSet(tableName, tableProps, tableValues, userID string, values []
 		valParams = append(valParams, id)
 		comma = ","
 	}
+	// теперь удалим все записи, которые НЕ пришли в запросе
 	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
 		tableValues, tableName, id, tableProps, params)
 

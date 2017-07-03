@@ -73,9 +73,9 @@ func RenderNoPermissionPage(w http.ResponseWriter) {
 func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
-func RenderInternalError(w http.ResponseWriter, err error) {
+func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	w.WriteHeader(http.StatusInternalServerError)
-	logs.ErrorLog(err)
+	logs.ErrorLog(err, args)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)

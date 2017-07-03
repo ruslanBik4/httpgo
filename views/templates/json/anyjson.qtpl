@@ -39,11 +39,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case MapMultiDimension %}
             {%= SliceJSON(vv) %}
       {% default %}
-            {% if vSimple, ok := isSimpleDimension(vv); ok %}
+            {% if vSimple, ok := vv.([]interface{}); ok %}
                 {%= SimpleDimension(vSimple) %}
-            {% elseif arrJSON, ok := isMultiDimension(vv); ok %}
+            {% elseif arrJSON, ok := vv.(map[string]interface{}); ok %}
                 {%= AnyJSON(arrJSON) %}
-            {% elseif mapArrJSON, ok := isMapMultiDimension(vv); ok %}
+            {% elseif mapArrJSON, ok := vv.([]map[string]interface{}); ok %}
                 {%= SliceJSON(mapArrJSON) %}
             {% else %}
                 "{%v vv %}"

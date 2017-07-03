@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
-	"strconv"
 	"strings"
 )
 
@@ -198,7 +197,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field)
+		valuePtrs = append(valuePtrs, &field.Value)
 	}
 
 	for rows.Next() {
@@ -212,11 +211,10 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 		for _, field := range qb.fields {
 
 			fieldName := field.Alias
-			schema := field.schema
 			// all inline field has QB & we run thiq QB & store result in map
 			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
-					field.ChildQB.Args[0] = fieldID.Value
+					field.ChildQB.Args[0] = string(fieldID.Value)
 				} else {
 					// проставляем 0 на случай, если в выборке нет ID
 					field.ChildQB.Args[0] = 0
@@ -230,22 +228,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 				continue
 			}
 
-			switch schema.DATA_TYPE {
-			case "varchar", "date", "datetime":
-				values[fieldName] = field.Value
-			case "tinyint":
-				if field.Value == "1" {
-					values[fieldName] = true
-				} else {
-					values[fieldName] = false
-				}
-			case "int", "int64":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			case "float", "double":
-				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
-			default:
-				values[fieldName] = field.Value
-			}
+			values[fieldName] = field.getNativeValue(true)
 		}
 
 		arrJSON = append(arrJSON, values)
@@ -262,7 +245,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field)
+		valuePtrs = append(valuePtrs, &field.Value)
 	}
 
 	columns, _ := rows.Columns()
@@ -282,7 +265,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 				continue
 
 			}
-			schema := field.schema
+
 			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
 					field.ChildQB.Args[0] = fieldID.Value
@@ -299,19 +282,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 				continue
 			}
 
-			switch schema.DATA_TYPE {
-			case "varchar", "date", "datetime":
-				values[fieldName] = field.Value
-			case "tinyint":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			case "float", "double":
-				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
-
-			case "int", "int64":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			default:
-				values[fieldName] = field.Value
-			}
+			values[fieldName] = field.getNativeValue(false)
 		}
 
 		arrJSON = append(arrJSON, values)

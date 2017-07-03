@@ -13,7 +13,6 @@ import (
 //@aurhor Ruslan Bikchentaev
 //@version 1.10 2017-05-24 Sergey Litvinov
 func InitLists() {
-	go func() {
 		var tables RecordsTables
 		where := `TABLE_SCHEMA=? AND (RIGHT(table_name, 5) = ?)`
 		err := tables.GetSelectTablesProp(where, server.GetServerConfig().DBName(), "_list")
@@ -22,5 +21,4 @@ func InitLists() {
 			logs.ErrorLog(err, where)
 		}
 
-	}()
 }

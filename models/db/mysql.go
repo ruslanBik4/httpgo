@@ -83,6 +83,7 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 
 	if err != nil {
 		logs.ErrorLog(err, sql)
+		logs.ErrorStack()
 		return -1, err
 	} else {
 		lastInsertId, err := resultSQL.LastInsertId()

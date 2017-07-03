@@ -219,10 +219,11 @@ func sockCatch() {
 	err := recover()
 	logs.ErrorLog(err.(error))
 }
+const _24K = (1 << 10) * 24
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
+	r.ParseMultipartForm(_24K)
 	id := r.FormValue("id")
 	qBuilder := qb.Create("b.id=?", "", "")
 
@@ -259,7 +260,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 			if col == nil {
 				w.Write([]byte("null"))
 			} else {
-				json.WriteElement(w, string(col))
+				json.WriteElement(w, string(col) )
 			}
 		}
 
@@ -293,7 +294,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	//qBuilder := qb.Create("", "", "")
 
 	logs.DebugLog(r)
-	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
 	for _, headers := range r.MultipartForm.File {
 		for _, header := range headers {
