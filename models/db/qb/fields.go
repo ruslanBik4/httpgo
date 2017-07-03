@@ -162,12 +162,9 @@ func (field *QBField) getSelectedValues() {
 
 	}()
 
-	// создаем дочерний запрос
-	field.SelectQB = CreateEmpty()
-
 	titleField := field.schema.GetForeignFields()
-
-	field.SelectQB.AddTable("", field.schema.TableProps).AddField("", "id").AddField("", titleField)
+	// создаем дочерний запрос
+	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.schema.TableProps) )
 
 	// подключаем параметры POST-запроса от старшего запроса field
 	field.SelectQB.PostParams = field.Table.qB.PostParams
@@ -177,16 +174,23 @@ func (field *QBField) getSelectedValues() {
 	// разбираем заменяемые параметры
 	field.SelectQB.Where = field.parseWhereANDputArgs()
 
-	rows, err := field.SelectQB.GetDataSql()
-	if err != nil {
+	if rows, err := field.SelectQB.GetDataSql(); err != nil {
 		logs.ErrorLog(err, field.Name, field.SelectQB)
 	} else {
-		field.SelectValues = make(map[int]string, 2)
+		field.SelectValues = make(map[int]string, 0)
 		for rows.Next() {
 			var id int
 			var title string
-			rows.Scan(&id, &title)
+			err = rows.Scan(&id, &title)
+			if err != nil {
+				logs.ErrorLog(err, "get SelectedValues for field", field)
+				field.SelectValues[0] = err.Error()
+				continue
+			}
 			field.SelectValues[id] = title
+		}
+		if field.schema.COLUMN_NAME == "setid_payment_card_list" {
+			logs.StatusLog(field.SelectQB, rows)
 		}
 	}
 

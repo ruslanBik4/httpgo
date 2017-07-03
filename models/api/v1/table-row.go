@@ -17,6 +17,7 @@ import (
 
 const _2K = (1 << 10) * 2
 
+// /api/table/form/?table=
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
@@ -41,7 +42,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	qBuilder := qb.Create("id=?", "", "")
 	qBuilder.AddTable("", tableName)
-	// инши параметры могут быть использщованы для суррогатных (вложенных) полей
+	// инши параметры могут быть использованы для суррогатных (вложенных) полей
 	qBuilder.PostParams = r.Form
 
 	addJSON := make(map[string]interface{}, 0)
