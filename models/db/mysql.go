@@ -488,9 +488,7 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 	RowsAffected, err = DoUpdate(sqlCommand, row...)
 	return RowsAffected, err
 }
-
-//TODO: написать нормальный комментарий и убраьтт лишний код проверки типов
-// SelectToMultidimension в своем первозданном виде.
+// Функция возвращает результат выполнения запроса в заданой структуре
 func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := DoSelect(sql, args...)
@@ -508,9 +506,7 @@ func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]i
 			logs.ErrorLog(err)
 			continue
 		}
-
 		values := make(map[string]interface{}, len(columns))
-
 		for _, colType := range colTypes {
 
 			fieldName := colType.Name()
@@ -519,36 +515,13 @@ func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]i
 				logs.ErrorLog(err)
 				continue
 			}
-			logs.DebugLog(colType.Length())
-			switch colType.DatabaseTypeName() {
-			case "varchar", "date", "datetime":
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
-			case "tinyint":
-				if getValue(fieldValue) == "1" {
-					values[fieldName] = true
-
-				} else {
-					values[fieldName] = false
-
-				}
-			case "int", "int64", "float":
-				values[fieldName], _ = strconv.Atoi(getValue(fieldValue))
-			default:
-				if fieldValue.Valid {
-					values[fieldName] = fieldValue.String
-				} else {
-					values[fieldName] = nil
-				}
+			if fieldValue.Valid {
+				values[fieldName] = fieldValue.String
+			} else {
+				values[fieldName] = nil
 			}
 		}
-
 		arrJSON = append(arrJSON, values)
 	}
-
 	return arrJSON, nil
-
 }
