@@ -55,7 +55,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addJSON["data"] = arrJSON
+		addJSON["data"] = arrJSON[0]
 	}
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
