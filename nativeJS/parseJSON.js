@@ -86,13 +86,13 @@ export class ParseJSON {
           func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
 
-        // set default value
-        if (params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
+        // set default value TODO: refactor need default set value for select
+        if (component.tagName !== 'SELECT' && params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
           func.addAttrToComponent(component, params[Variables.paramsJSONDefault]);
         }
 
       } else {
-        console.log(`Not found in frame: ${ component.tagName }`);
+        // console.log(`Not found in frame: ${ component.tagName }`);
       }
     }
     catch (e) {
@@ -112,7 +112,7 @@ export class ParseJSON {
       if (Object.prototype.toString.call(attr) === '[object Array]') {
       } else {
         component.textContent = attr;
-        console.log(`Not found in frame: ${ component }`);
+        // console.log(`Not found in frame: ${ component }`);
       }
     }
 
