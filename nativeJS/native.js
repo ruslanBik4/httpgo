@@ -241,6 +241,21 @@ export class Native {
 
 
   /*
+   *   get data to component
+   */
+
+  static getDataAttrToComponent(component) {
+    let result = {};
+    if (this.isElement(component)) {
+      for (let attr in component.attributes) {
+        result.attr = component.getAttribute(attr);
+      }
+    }
+    return result;
+  }
+
+
+  /*
   *   set data to component
   */
 
