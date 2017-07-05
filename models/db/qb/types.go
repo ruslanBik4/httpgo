@@ -1,7 +1,7 @@
 // Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// this module has more structures from creating sql-query with relation to db schema
+// this module has more structures from creating sql-query with relation to db Schema
 
 package qb
 
@@ -11,10 +11,12 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
+// field in QB for incapsulate SQL & Schema propertyes
+// may have children QB for getting data on child tables
 type QBField struct {
 	Name         string
 	Alias        string
-	schema       *schema.FieldStructure
+	Schema       *schema.FieldStructure
 	Value        sql.RawBytes
 	SelectValues map[int]string
 	Table        *QBTable
@@ -22,7 +24,7 @@ type QBField struct {
 	SelectQB     *QueryBuilder
 }
 
-// table in QB for incapsulate SQL & schema propertyes
+// table in QB for incapsulate SQL & Schema propertyes
 // ha map Fields as links field query
 type QBTable struct {
 	Name   string
@@ -35,7 +37,7 @@ type QBTable struct {
 }
 
 // inline SQL query
-// recheck in DB schema queryes tables&fields
+// recheck in DB Schema queryes tables&fields
 // may be has parent - link to parent QB
 type QueryBuilder struct {
 	Tables                          []*QBTable

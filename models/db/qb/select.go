@@ -42,7 +42,7 @@ func (qb *QueryBuilder) createSQL() (sql string, err error) {
 				if (alias > "") && (alias != field.Name) {
 					queryName = ` AS "` + alias + `"`
 				}
-				if field.schema.COLUMN_TYPE == "calc" {
+				if field.Schema.COLUMN_TYPE == "calc" {
 					qb.sqlSelect += commaFld + field.Name + queryName
 				} else {
 					qb.sqlSelect += commaFld + aliasTable + field.Name + queryName
@@ -57,7 +57,7 @@ func (qb *QueryBuilder) createSQL() (sql string, err error) {
 
 			for _, fieldStrc := range table.schema.Rows {
 
-				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
+				//field := &QBField{Name: fieldStrc.COLUMN_NAME, Schema: fieldStrc, Table: table}
 				table.AddField("", fieldStrc.COLUMN_NAME)
 				//TODO: сделать одно место для добавления полей!
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
@@ -111,7 +111,7 @@ func (qb *QueryBuilder) unionSQL() string {
 		for _, table := range qb.union.Tables {
 			if field, ok := table.Fields[alias]; ok {
 
-				if field.schema.COLUMN_TYPE == "calc" {
+				if field.Schema.COLUMN_TYPE == "calc" {
 					qFields += commaFld + field.Name + ` AS "` + field.Alias + `"`
 				} else {
 					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
@@ -142,7 +142,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	return qb.Prepared.Query(qb.Args...)
 }
-func (qb *QueryBuilder) SelectRunFunc(onReadRow func(columns []string, values []sql.RawBytes, rows *sql.Rows) error) error {
+func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) error {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
@@ -152,22 +152,19 @@ func (qb *QueryBuilder) SelectRunFunc(onReadRow func(columns []string, values []
 
 	defer rows.Close()
 
-	columns, err := rows.Columns()
-	if err != nil {
-		return err
-	}
-	values   := make([]sql.RawBytes, len(columns))
-	scanArgs := make([]interface{}, len(values))
+	scanArgs := make([]interface{}, len(qb.fields))
 
-	for i := range values {
-		scanArgs[i] = &values[i]
+	for idx, field := range qb.fields {
+		scanArgs[idx] = &field.Value
 	}
+
 	for rows.Next() {
 		err := rows.Scan(scanArgs...)
 		if err != nil {
+			logs.ErrorLog(err, "SelectRunFunc")
 			continue
 		}
-		if err := onReadRow(columns, values, rows); err != nil {
+		if err := onReadRow(qb.fields); err != nil {
 			return err
 		}
 	}
@@ -228,7 +225,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 				continue
 			}
 
-			values[fieldName] = field.getNativeValue(true)
+			values[fieldName] = field.GetNativeValue(true)
 		}
 
 		arrJSON = append(arrJSON, values)
@@ -282,7 +279,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 				continue
 			}
 
-			values[fieldName] = field.getNativeValue(false)
+			values[fieldName] = field.GetNativeValue(false)
 		}
 
 		arrJSON = append(arrJSON, values)

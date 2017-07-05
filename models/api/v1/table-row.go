@@ -13,6 +13,8 @@ import (
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
 	_ "strings"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"strconv"
 )
 
 const _2K = (1 << 10) * 2
@@ -70,6 +72,51 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+var wOut http.ResponseWriter
+// read rows and store in JSON
+func PutRowToJSON(fields []*qb.QBField) error {
+	wOut.Write([]byte("{"))
+	for idx, field := range fields {
+		if idx > 0 {
+			wOut.Write( []byte (",") )
+		}
+
+		logs.StatusLog(field)
+		wOut.Write([]byte(`"` + fields[idx].Alias + `":`))
+		if field.Value == nil {
+			wOut.Write([]byte("null"))
+		} else	if field.ChildQB != nil {
+			if fieldID, ok := field.Table.Fields["id"]; ok {
+				field.ChildQB.Args[0] = fieldID.Value
+			} else {
+				// проставляем 0 на случай, если в выборке нет ID
+				field.ChildQB.Args[0] = 0
+			}
+
+			wOut.Write([]byte("["))
+			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
+			if err != nil {
+				logs.ErrorLog(err, field.ChildQB)
+			}
+			wOut.Write([]byte("]"))
+		} else if field.Schema.SETID || field.Schema.NODEID || field.Schema.IdForeign {
+			if field.SelectValues == nil {
+				field.GetSelectedValues()
+			}
+			value, err := strconv.Atoi( string(field.Value) )
+			if err != nil {
+				logs.ErrorLog(err, "convert RawBytes ", field.Value)
+				return err
+			}
+			json.WriteElement(wOut, field.SelectValues[value] )
+		} else {
+			json.WriteElement(wOut, field.GetNativeValue(true) )
+		}
+	}
+
+	wOut.Write([]byte("}"))
+	return nil
+}
 // return field with text values for show in site
 // /api/v1/table/view/
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
@@ -83,11 +130,13 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		qBuilder.PostParams = r.Form
 		qBuilder.AddTable("a", tableName)
 		qBuilder.AddArg(id)
-		arrJSON, err := qBuilder.SelectToMultidimension()
+
+		wOut = w
+		err := qBuilder.SelectRunFunc(PutRowToJSON)
 		if err != nil {
 			views.RenderInternalError(w, err)
-		} else if len(arrJSON) > 0 {
-			views.RenderAnyJSON(w, arrJSON[0])
+		} else {
+			views.WriteJSONHeaders(w)
 		}
 	} else {
 		views.RenderBadRequest(w)

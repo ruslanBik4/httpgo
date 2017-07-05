@@ -25,14 +25,14 @@ func (field QBField) String() string {
 
 // getters
 func (field *QBField) GetSchema() *schema.FieldStructure {
-	return field.schema
+	return field.Schema
 }
 // get type
-func (field QBField) getNativeValue(tinyAsBool bool) interface{} {
+func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	if field.Value == nil {
 		return nil
 	}
-	switch dataType := field.schema.DATA_TYPE; dataType {
+	switch dataType := field.Schema.DATA_TYPE; dataType {
 	case "char", "varchar", "text", "date", "datetime", "timestamp", "time", "set", "enum":
 		return string(field.Value)
 	case "tinyint", "int", "uint", "int64":
@@ -96,47 +96,48 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	table.Fields[alias] = field
 	defer schemaError()
 
-	field.schema = table.getFieldSchema(field.Name)
+	field.Schema = table.getFieldSchema(field.Name)
 
-	if field.schema == nil {
-		field.schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
+	if field.Schema == nil {
+		field.Schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
 	//	для агрегатных полей спрогнозируем тип
 		if strings.Contains(name, "COUNT") {
-			field.schema.DATA_TYPE = "uint"
+			field.Schema.DATA_TYPE = "uint"
 		} else if strings.Contains(name, "SUM") {
-			field.schema.DATA_TYPE = "double"
+			field.Schema.DATA_TYPE = "double"
 		} else {
-			field.schema.DATA_TYPE = "char"
+			field.Schema.DATA_TYPE = "char"
 		}
+	} else {
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
-		if field.schema.TABLEID {
+		if field.Schema.TABLEID {
 			field.ChildQB = Create(fmt.Sprintf("id_%s=?", field.Table.Name), "", "")
-			tableProps := field.ChildQB.AddTable("p", field.schema.TableProps)
+			tableProps := field.ChildQB.AddTable("p", field.Schema.TableProps)
 			for _, fieldStruct := range tableProps.schema.Rows {
 				if fieldStruct.COLUMN_NAME == "id_"+field.Table.Name {
 					continue
 				}
 				tableProps.AddField("", fieldStruct.COLUMN_NAME)
 			}
-		} else if field.schema.SETID {
+		} else if field.Schema.SETID {
 			field.ChildQB = CreateEmpty()
-			titleField := field.schema.GetForeignFields()
+			titleField := field.Schema.GetForeignFields()
 
-			field.ChildQB.AddTable("p", field.schema.TableProps).AddField("", "id").AddField("", titleField)
+			field.ChildQB.AddTable("p", field.Schema.TableProps).AddField("", "id").AddField("", titleField)
 
-			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name)
-			field.ChildQB.Join("v", field.schema.TableValues, onJoin).AddField("", "id_"+field.Table.Name)
-		} else if field.schema.NODEID {
+			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.Schema.TableProps, field.Table.Name)
+			field.ChildQB.Join("v", field.Schema.TableValues, onJoin).AddField("", "id_"+field.Table.Name)
+		} else if field.Schema.NODEID {
 
-			titleField := field.schema.GetForeignFields()
+			titleField := field.Schema.GetForeignFields()
 			field.ChildQB = CreateEmpty()
-			field.ChildQB.AddTable("p", field.schema.TableProps).AddField("", "id").AddField("", titleField)
+			field.ChildQB.AddTable("p", field.Schema.TableProps).AddField("", "id").AddField("", titleField)
 
-			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.schema.TableProps, field.Table.Name)
-			field.ChildQB.JoinTable("v", field.schema.TableValues, "JOIN", onJoin).AddField("", "id_"+field.Table.Name)
-		} else if field.schema.IdForeign {
+			onJoin := fmt.Sprintf("ON (p.id = v.id_%s AND id_%s = ?)", field.Schema.TableProps, field.Table.Name)
+			field.ChildQB.JoinTable("v", field.Schema.TableValues, "JOIN", onJoin).AddField("", "id_"+field.Table.Name)
+		} else if field.Schema.IdForeign {
 			// уже не нужно, но надо перепроверить!!!
-			//field.getSelectedValues()
+			//field.GetSelectedValues()
 		}
 
 		if field.ChildQB != nil {
@@ -152,7 +153,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 }
 
 // TODO: local field
-func (field *QBField) getSelectedValues() {
+func (field *QBField) GetSelectedValues() {
 
 	defer func() {
 		result := recover()
@@ -169,9 +170,9 @@ func (field *QBField) getSelectedValues() {
 
 	}()
 
-	titleField := field.schema.GetForeignFields()
+	titleField := field.Schema.GetForeignFields()
 	// создаем дочерний запрос
-	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.schema.TableProps) )
+	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.Schema.TableProps) )
 
 	// подключаем параметры POST-запроса от старшего запроса field
 	field.SelectQB.PostParams = field.Table.qB.PostParams
@@ -196,7 +197,7 @@ func (field *QBField) getSelectedValues() {
 			}
 			field.SelectValues[id] = title
 		}
-		if field.schema.COLUMN_NAME == "setid_payment_card_list" {
+		if field.Schema.COLUMN_NAME == "setid_payment_card_list" {
 			logs.StatusLog(field.SelectQB, rows)
 		}
 	}
@@ -261,7 +262,7 @@ func (field *QBField) parseEnumValue(enumVal string) string {
 func (field *QBField) parseWhereANDputArgs() (result string) {
 
 	comma := ""
-	for _, enumVal := range field.schema.EnumValues {
+	for _, enumVal := range field.Schema.EnumValues {
 		if enumVal == "1" {
 			continue
 		}
@@ -270,14 +271,14 @@ func (field *QBField) parseWhereANDputArgs() (result string) {
 		comma = " OR "
 	}
 
-	if field.schema.Where > "" {
+	if field.Schema.Where > "" {
 
 		if result > "" {
 
-			return "(" + result + ") AND " + field.parseEnumValue(field.schema.Where)
+			return "(" + result + ") AND " + field.parseEnumValue(field.Schema.Where)
 		}
 
-		return field.parseEnumValue(field.schema.Where)
+		return field.parseEnumValue(field.Schema.Where)
 	}
 
 	return result
