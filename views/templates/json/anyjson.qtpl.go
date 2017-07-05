@@ -175,15 +175,15 @@ func StreamElement(qw422016 *qt422016.Writer, value interface{}) {
 	//line views/templates/json/anyjson.qtpl:41
 	default:
 		//line views/templates/json/anyjson.qtpl:42
-		if vSimple, ok := isSimpleDimension(vv); ok {
+		if vSimple, ok := vv.([]interface{}); ok {
 			//line views/templates/json/anyjson.qtpl:43
 			StreamSimpleDimension(qw422016, vSimple)
 			//line views/templates/json/anyjson.qtpl:44
-		} else if arrJSON, ok := isMultiDimension(vv); ok {
+		} else if arrJSON, ok := vv.(map[string]interface{}); ok {
 			//line views/templates/json/anyjson.qtpl:45
 			StreamAnyJSON(qw422016, arrJSON)
 			//line views/templates/json/anyjson.qtpl:46
-		} else if mapArrJSON, ok := isMapMultiDimension(vv); ok {
+		} else if mapArrJSON, ok := vv.([]map[string]interface{}); ok {
 			//line views/templates/json/anyjson.qtpl:47
 			StreamSliceJSON(qw422016, mapArrJSON)
 			//line views/templates/json/anyjson.qtpl:48

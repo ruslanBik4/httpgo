@@ -7,6 +7,7 @@ package qb
 import (
 	"github.com/ruslanBik4/httpgo/models/db"
 	"regexp"
+	"strings"
 )
 
 // constructors
@@ -27,8 +28,13 @@ func CreateFromSQL(sqlCommand string) *QueryBuilder {
 	if err != nil {
 		panic(err)
 	}
+
 	qb.getFrom(sqlCommand)
 	qb.getJoins(sqlCommand)
+
+	if fieldsText, ok := getTextSelectFields(sqlCommand); ok {
+		qb.getFields(fieldsText)
+	}
 	return qb
 }
 
@@ -100,4 +106,81 @@ func (qb *QueryBuilder) getJoin(join []string, groupNames []string) bool {
 	}
 
 	return false
+}
+
+var selectRegEx = regexp.MustCompile(regSelect)
+
+func (qb *QueryBuilder) getTextSelectFields(sql string)  {
+	match      := selectRegEx.FindStringSubmatch(sql)
+	groupNames := selectRegEx.SubexpNames()
+
+	for i, name := range groupNames {
+		if name == "fields"  {
+			qb.getFields( match[i] )
+		}
+	}
+
+}
+
+var reg  = regexp.MustCompile(regField)
+
+func (qb *QueryBuilder) getFields(textFields string)  {
+	 fieldItems := strings.Split(textFields, ",")
+	 groupNames := reg.SubexpNames()
+
+	for _, text := range fieldItems {
+		if field := qb.getField(text, groupNames); field != nil {
+
+			table := qb.Tables[0]
+			if field.table > "" {
+				table = qb.FindTable(field.table)
+			}
+			table.AddField(field.alias, field.name)
+			if field.alias == "" {
+				field.alias = field.name
+			}
+			qb.fields = append(qb.fields, table.Fields[field.alias])
+			qb.Aliases = append(qb.Aliases, field.alias)
+		}
+	}
+
+}
+
+func (qb *QueryBuilder) getField(text string, groupNames []string) *SqlField {
+	var fieldNote string = strings.TrimSpace(text)
+	var elements []string = reg.FindStringSubmatch(fieldNote)
+
+	var funcName = ""
+	var fieldTableName = ""
+	var fieldName = ""
+	var fieldAlias = ""
+
+	for i, name := range groupNames {
+		if name == "func_name" {
+			if i > 0 && i <= len(elements) {
+				funcName = strings.TrimRight(elements[i], ".")
+			}
+		}
+		if name == "field_table" {
+			if i > 0 && i <= len(elements) {
+				fieldTableName = strings.TrimRight(elements[i], ".")
+			}
+		}
+		if name == "field_name" {
+			if i > 0 && i <= len(elements) {
+				fieldName = elements[i]
+			}
+		}
+		if name == "alias" {
+			if i > 0 && i <= len(elements) {
+				fieldAlias = elements[i]
+			}
+		}
+	}
+
+	if fieldTableName == "" && fieldName == "" {
+		return nil
+	} else {
+		return &SqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}
+	}
 }

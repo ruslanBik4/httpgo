@@ -54,7 +54,8 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 }
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
 
-	RenderAnyPage(w, r, forms.SigninForm(email, "Введите пароль, полученный по почте"))
+	signForm := &forms.SignForm{ Email: email, Password: "Введите пароль, полученный по почте"}
+	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
 }
 func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
 
@@ -72,9 +73,9 @@ func RenderNoPermissionPage(w http.ResponseWriter) {
 func RenderBadRequest(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusBadRequest)
 }
-func RenderInternalError(w http.ResponseWriter, err error) {
+func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	w.WriteHeader(http.StatusInternalServerError)
-	logs.ErrorLog(err)
+	logs.ErrorLog(err, args)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)

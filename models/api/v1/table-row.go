@@ -15,9 +15,13 @@ import (
 	_ "strings"
 )
 
+const _2K = (1 << 10) * 2
+
+// /api/table/form/?table=
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
+	r.ParseMultipartForm(_2K)
 	tableName := r.FormValue("table")
 
 	if tableName == "" {
@@ -38,8 +42,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	qBuilder := qb.Create("id=?", "", "")
 	qBuilder.AddTable("", tableName)
-	// инши параметры могут быть использщованы для суррогатных (вложенных) полей
-	r.ParseForm()
+	// инши параметры могут быть использованы для суррогатных (вложенных) полей
 	qBuilder.PostParams = r.Form
 
 	addJSON := make(map[string]interface{}, 0)
@@ -52,7 +55,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		addJSON["data"] = arrJSON
+		addJSON["data"] = arrJSON[0]
 	}
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
@@ -68,12 +71,13 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 
 }
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseMultipartForm(_2K)
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
-		r.ParseForm()
 		qBuilder.PostParams = r.Form
 		qBuilder.AddTable("a", tableName)
 		qBuilder.AddArg(id)
@@ -88,11 +92,12 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	}
 }
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseMultipartForm(_2K)
 	tableName := r.FormValue("table")
 
 	if tableName > "" {
 		qBuilder := qb.CreateFromSQL("SELECT * FROM " + tableName)
-		r.ParseForm()
 		qBuilder.PostParams = r.Form
 		//qBuilder.AddTable("a", tableName)
 		arrJSON, err := qBuilder.SelectToMultidimension()

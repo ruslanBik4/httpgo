@@ -22,7 +22,9 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         typeInput := field.TypeInput()
     %}
     "{%s field.COLUMN_NAME %}": {
-        {% if qbField.Value > "" %} "value": "{%j= qbField.Value %}", {% endif %}
+            {% comment %}
+        {% if qbField.Value != nil %} "value": "{%jz= qbField.Value %}", {% endif %}
+            {% endcomment %}
 
         {% if (COLUMN_NAME=="id") || field.IsHidden  %}
             "type": "hidden" },

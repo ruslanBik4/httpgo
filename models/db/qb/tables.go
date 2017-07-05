@@ -44,3 +44,12 @@ func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 
 	return table
 }
+func (qb *QueryBuilder) FindTable(name string) *QBTable {
+	for _, table := range qb.Tables {
+		if table.Name == name {
+			return table
+		}
+	}
+
+	return nil
+}
