@@ -60,7 +60,10 @@ var (
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/":          handlerComponents,
+
+		// TODO: API remove in single module
 		"/api/v1/table/form/":   api.HandleFieldsJSON,
+		"/api/v1/table/view/":   api.HandleTextRowJSON,
 		"/api/v1/table/row/":    api.HandleRowJSON,
 		"/api/v1/table/rows/":   api.HandleAllRowsJSON,
 		"/api/v1/table/schema/": api.HandleSchema,
@@ -70,6 +73,18 @@ var (
 		"/api/v1/photos/":       api.HandlePhotos,
 		"/api/v1/video/":        api.HandleVideos,
 		"/api/v1/photos/add/":   api.HandleAddPhoto,
+		// short route
+		"/api/table/form/":   api.HandleFieldsJSON,
+		"/api/table/view/":   api.HandleTextRowJSON,
+		"/api/table/row/":    api.HandleRowJSON,
+		"/api/table/rows/":   api.HandleAllRowsJSON,
+		"/api/table/schema/": api.HandleSchema,
+		"/api/update/":       api.HandleUpdateServer,
+		"/api/restart/":      api.HandleRestartServer,
+		"/api/log/":          api.HandleLogServer,
+		"/api/photos/":       api.HandlePhotos,
+		"/api/video/":        api.HandleVideos,
+		"/api/photos/add/":   api.HandleAddPhoto,
 	}
 )
 
