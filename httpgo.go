@@ -145,7 +145,7 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer system.Catch(w, r)
-	logs.StatusLog(r.URL.Path)
+
 	switch r.URL.Path {
 	case "/":
 		userID := users.IsLogin(r)
