@@ -53,7 +53,24 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         "count": {%d len(field.Events) %}
         },
         {% endif %}
-        {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
+        {% if field.COLUMN_DEFAULT > "" %}
+            "default":
+                {% switch field.DATA_TYPE %}
+	            {% case "tinyint" %}
+	               {% if field.COLUMN_DEFAULT == "1" %}
+	                    table
+	               {% else %}
+	                    false
+	               {% endif %}}
+	            {% case "int", "uint", "int64" %}
+	                {%s= field.COLUMN_DEFAULT %}
+	            {% case "float", "double" %}
+	                {%s= field.COLUMN_DEFAULT %}
+                {% default %}
+                    "{%j= field.COLUMN_DEFAULT %}"
+                {% endswitch %}
+              ,
+        {% endif %}
         {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
         {% if len(qbField.SelectValues) > 0 %}
             "list": {

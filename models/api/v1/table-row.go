@@ -81,18 +81,20 @@ func PutRowToJSON(fields []*qb.QBField) error {
 			wOut.Write( []byte (",") )
 		}
 
-		logs.StatusLog(field)
 		wOut.Write([]byte(`"` + fields[idx].Alias + `":`))
 		if field.Value == nil {
 			wOut.Write([]byte("null"))
 		} else	if field.ChildQB != nil {
 			if fieldID, ok := field.Table.Fields["id"]; ok {
-				field.ChildQB.Args[0] = fieldID.Value
+				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
+				field.ChildQB.Args[0] = string(fieldID.Value)
 			} else {
 				// проставляем 0 на случай, если в выборке нет ID
 				field.ChildQB.Args[0] = 0
+				logs.StatusLog("not id")
 			}
 
+			logs.StatusLog(field.ChildQB)
 			wOut.Write([]byte("["))
 			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
 			if err != nil {
