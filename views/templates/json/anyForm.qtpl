@@ -61,7 +61,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 	                    table
 	               {% else %}
 	                    false
-	               {% endif %}}
+	               {% endif %}
 	            {% case "int", "uint", "int64" %}
 	                {%s= field.COLUMN_DEFAULT %}
 	            {% case "float", "double" %}

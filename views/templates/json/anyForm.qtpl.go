@@ -224,8 +224,6 @@ func StreamCheckFields(qw422016 *qt422016.Writer, fields map[string]*qb.QBField)
 					qw422016.N().S(`false`)
 					//line views/templates/json/anyForm.qtpl:64
 				}
-				//line views/templates/json/anyForm.qtpl:64
-				qw422016.N().S(`}`)
 			//line views/templates/json/anyForm.qtpl:65
 			case "int", "uint", "int64":
 				//line views/templates/json/anyForm.qtpl:66

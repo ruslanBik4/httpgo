@@ -94,12 +94,12 @@ func PutRowToJSON(fields []*qb.QBField) error {
 				logs.StatusLog("not id")
 			}
 
-			logs.StatusLog(field.ChildQB)
 			wOut.Write([]byte("["))
 			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
 			if err != nil {
 				logs.ErrorLog(err, field.ChildQB)
 			}
+			logs.StatusLog(field.ChildQB)
 			wOut.Write([]byte("]"))
 		} else if field.Schema.SETID || field.Schema.NODEID || field.Schema.IdForeign {
 			if field.SelectValues == nil {
