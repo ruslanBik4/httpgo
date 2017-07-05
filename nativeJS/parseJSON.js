@@ -302,9 +302,9 @@ export class ParseJSON {
            *   change name
            */
 
-          const intArray = str.match(/\d+/g);
+          // const intArray = str.match(/\d+/g);
           if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
-          if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+          dom.setAttribute('id', `${ nameField }-${ str }`); // if (intArray) ... (intArray) ? intArray.join('') : ''
         }
         callback(dom, attr[name]);
       }
