@@ -161,18 +161,19 @@ export class ParseJSON {
 
       for (let id in data[index]) {
 
-        const [component] = this._getDom(curComponent, id, strForTable);
+        const [doms] = this._getDom(curComponent, id, strForTable);
 
-        if (component) {
+        for (let dom of doms) {
           if (!parent) {
-            parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
+            parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
             defaultComponent = getDefaultComponent(parent);
           }
           if (data[index][id].length !== 0) {
-            this.insertValueCurrentComponent(component, data[index][id]);
+            this.insertValueCurrentComponent(dom, data[index][id]);
           }
-          this.setNewAttrIdAndName(component, index);
+          this.setNewAttrIdAndName(dom, index);
         }
+
       }
 
       if (!parent) {
@@ -195,12 +196,15 @@ export class ParseJSON {
 
         for (let id in data[index]) {
 
-          const [component] = this._getDom(newComponent.content.firstElementChild, id, strForTable);
+          const [doms] = this._getDom(newComponent.content.firstElementChild, id, strForTable);
 
-          if (component && data[index][id].length !== 0) {
-            this.insertValueCurrentComponent(component, data[index][id]);
-            this.setNewAttrIdAndName(component, index);
+          for (let dom of doms) {
+            if (data[index][id].length !== 0) {
+              this.insertValueCurrentComponent(dom, data[index][id]);
+              this.setNewAttrIdAndName(dom, index);
+            }
           }
+
 
         }
 
@@ -252,67 +256,67 @@ export class ParseJSON {
       const [doms, nameField] = this._getDom(component, name, strTable, (isDefault || isOnlyClass) ? '' : str);
 
       for (let dom of doms) {
+        if (isDefault) {
 
+          if (strTable.length !== 0) {
+
+            const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
+
+            if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
+
+              const idParent = dom.getAttribute(Variables.paramsJSONIdData);
+              parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
+
+              const temp = document.createElement('template');
+              temp.innerHTML = parent.innerHTML;
+
+              document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
+                component.onclick = () => {
+
+                  const newComponent = temp.cloneNode(true);
+                  const index = parent.children.length;
+
+                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
+                    this.setAttribute('id', this.getAttribute('id') + '-' + index);
+                  });
+
+                  for (let id in attr) {
+                    const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
+
+                    if (component) {
+                      component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
+                      this.setAttrToComponent(component, attr[id]);
+                      this.setNewAttrIdAndName(component, index);
+                    }
+                  }
+
+                  parent.appendChild(newComponent.content);
+
+                  return false;
+                };
+              });
+            }
+          }
+
+          /*
+           *   change name
+           */
+
+          const intArray = str.match(/\d+/g);
+          if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
+          if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+        }
+        callback(dom, attr[name]);
+      }
+
+      if (doms.length === 0) {
         if (name.startsWith(Variables.paramsJSONTable)) {
           if (isDefault) {
             this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
           } else {
             callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
           }
-        } else if (dom) {
-          if (isDefault) {
-
-            if (strTable.length !== 0) {
-
-              const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
-
-              if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
-
-                const idParent = dom.getAttribute(Variables.paramsJSONIdData);
-                parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
-
-                const temp = document.createElement('template');
-                temp.innerHTML = parent.innerHTML;
-
-                document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
-                  component.onclick = () => {
-
-                    const newComponent = temp.cloneNode(true);
-                    const index = parent.children.length;
-
-                    newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
-                      this.setAttribute('id', this.getAttribute('id') + '-' + index);
-                    });
-
-                    for (let id in attr) {
-                      const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
-
-                      if (component) {
-                        component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
-                        this.setAttrToComponent(component, attr[id]);
-                        this.setNewAttrIdAndName(component, index);
-                      }
-                    }
-
-                    parent.appendChild(newComponent.content);
-
-                    return false;
-                  };
-                });
-              }
-            }
-
-            /*
-             *   change name
-             */
-
-            const intArray = str.match(/\d+/g);
-            if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
-            if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
-          }
-          callback(dom, attr[name]);
         } else if (component && !isDefault && Object.prototype.toString.call(attr[name]) === '[object Array]') {
-
           for (let value of attr[name]) {
 
             let domArray;
@@ -326,7 +330,6 @@ export class ParseJSON {
               callback(domArray, value);
             }
           }
-
         }
       }
 
