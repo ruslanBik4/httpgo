@@ -70,6 +70,30 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+// return field with text values for show in site
+// /api/v1/table/view/
+func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseMultipartForm(_2K)
+	tableName := r.FormValue("table")
+	id := r.FormValue("id")
+
+	if (tableName > "") && (id > "") {
+		qBuilder := qb.Create("id=?", "", "")
+		qBuilder.PostParams = r.Form
+		qBuilder.AddTable("a", tableName)
+		qBuilder.AddArg(id)
+		arrJSON, err := qBuilder.SelectToMultidimension()
+		if err != nil {
+			views.RenderInternalError(w, err)
+		} else if len(arrJSON) > 0 {
+			views.RenderAnyJSON(w, arrJSON[0])
+		}
+	} else {
+		views.RenderBadRequest(w)
+	}
+}
+
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)

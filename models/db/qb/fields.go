@@ -100,7 +100,14 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	if field.schema == nil {
 		field.schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
-	} else {
+	//	для агрегатных полей спрогнозируем тип
+		if strings.Contains(name, "COUNT") {
+			field.schema.DATA_TYPE = "uint"
+		} else if strings.Contains(name, "SUM") {
+			field.schema.DATA_TYPE = "double"
+		} else {
+			field.schema.DATA_TYPE = "char"
+		}
 		// для TABLEID_ создадим таблицу свойств и заполним полями!
 		if field.schema.TABLEID {
 			field.ChildQB = Create(fmt.Sprintf("id_%s=?", field.Table.Name), "", "")
