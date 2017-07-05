@@ -73,18 +73,17 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 
 }
 var wOut http.ResponseWriter
+var comma string
 // read rows and store in JSON
 func PutRowToJSON(fields []*qb.QBField) error {
-	wOut.Write([]byte("{"))
+	wOut.Write([]byte(comma + "{"))
 	for idx, field := range fields {
 		if idx > 0 {
 			wOut.Write( []byte (",") )
 		}
 
 		wOut.Write([]byte(`"` + fields[idx].Alias + `":`))
-		if field.Value == nil {
-			wOut.Write([]byte("null"))
-		} else	if field.ChildQB != nil {
+		if field.ChildQB != nil {
 			if fieldID, ok := field.Table.Fields["id"]; ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
 				field.ChildQB.Args[0] = string(fieldID.Value)
@@ -95,12 +94,15 @@ func PutRowToJSON(fields []*qb.QBField) error {
 			}
 
 			wOut.Write([]byte("["))
+			comma = ""
 			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
 			if err != nil {
 				logs.ErrorLog(err, field.ChildQB)
 			}
 			logs.StatusLog(field.ChildQB)
 			wOut.Write([]byte("]"))
+		} else if field.Value == nil {
+			wOut.Write([]byte("null"))
 		} else if field.Schema.SETID || field.Schema.NODEID || field.Schema.IdForeign {
 			if field.SelectValues == nil {
 				field.GetSelectedValues()
@@ -117,6 +119,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 	}
 
 	wOut.Write([]byte("}"))
+	comma = ","
 	return nil
 }
 // return field with text values for show in site
@@ -134,6 +137,7 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		qBuilder.AddArg(id)
 
 		wOut = w
+		comma = ""
 		err := qBuilder.SelectRunFunc(PutRowToJSON)
 		if err != nil {
 			views.RenderInternalError(w, err)

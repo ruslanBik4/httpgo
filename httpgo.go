@@ -145,9 +145,13 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer system.Catch(w, r)
+	logs.StatusLog(r.URL.Path)
 	switch r.URL.Path {
 	case "/":
 		userID := users.IsLogin(r)
+		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
+		return
+
 		p := &pages.IndexPageBody{Title: "Главная страница"}
 		//для авторизованного пользователя - сразу показать его данные на странице
 		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
