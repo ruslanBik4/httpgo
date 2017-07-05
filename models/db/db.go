@@ -221,12 +221,14 @@ func getTableProps(key, typeField string) string {
 	return key[len(typeField):]
 }
 
+const _2K = (1 << 10) * 2
+
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
 func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
 
-	r.ParseForm()
+	r.ParseMultipartForm(_2K)
 
 	if r.FormValue("table") == "" {
 		logs.ErrorLog(errors.New("not table name"))
@@ -312,7 +314,7 @@ func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err err
 //возвращает количество измененных записей
 func DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err error) {
 
-	r.ParseForm()
+	r.ParseMultipartForm(_2K)
 
 	if r.FormValue("table") == "" {
 		logs.ErrorLog(errors.New("not table name"))
