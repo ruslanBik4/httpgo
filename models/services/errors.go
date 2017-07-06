@@ -39,15 +39,15 @@ func (err ErrServiceNotCorrectParamType) Error() string {
 	return err.Name + photosNotCorrectParameterType
 }
 
-const photosNotEnougnParameter = " not enougn parameters "
+const photosNotEnoughParameter = " not enough parameters "
 
-type ErrServiceNotEnougnParameter struct {
+type ErrServiceNotEnoughParameter struct {
 	Name  string
 	Param interface{}
 }
 
-func (err ErrServiceNotEnougnParameter) Error() string {
-	return err.Name + photosNotEnougnParameter
+func (err ErrServiceNotEnoughParameter) Error() string {
+	return err.Name + photosNotEnoughParameter
 }
 
 const brokenStatus = " broken status "
@@ -67,5 +67,5 @@ type ErrServiceWrongIndex struct {
 }
 
 func (err ErrServiceWrongIndex) Error() string {
-	return err.Name + photosNotEnougnParameter
+	return err.Name + photosNotEnoughParameter
 }

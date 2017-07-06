@@ -44,7 +44,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 
 	var oper string
 	if len(args) < 2 {
-		return ErrServiceNotEnougnParameter{Name: photos.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
 	}
 	switch message := args[0].(type) {
 	case string:
@@ -62,7 +62,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 			return ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 2}
 		}
 		if len(args) < 3 {
-			return ErrServiceNotEnougnParameter{Name: photos.name, Param: args}
+			return ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
 		}
 		photos.saveFile(args[2].(io.Reader))
 	} else if oper == "read" {
@@ -89,7 +89,7 @@ func (photos *photosService) Get(args ...interface{}) (responce interface{}, err
 	var catalog, id string
 	var num int
 	if len(args) < 3 {
-		return nil, ErrServiceNotEnougnParameter{Name: photos.name, Param: args}
+		return nil, ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
 	}
 	switch message := args[0].(type) {
 	case string:
