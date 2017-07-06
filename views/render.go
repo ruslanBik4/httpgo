@@ -69,8 +69,10 @@ func RenderNoPermissionPage(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusForbidden)
 }
 
+type ParamNotCorrect map[string] string
+
 // render errors
-func RenderBadRequest(w http.ResponseWriter, params ... map[string]string) {
+func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	description, comma := "", ""
 	for _, param := range params {
