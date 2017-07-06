@@ -58,7 +58,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
                 {% switch field.DATA_TYPE %}
 	            {% case "tinyint" %}
 	               {% if field.COLUMN_DEFAULT == "1" %}
-	                    table
+	                    true
 	               {% else %}
 	                    false
 	               {% endif %}
