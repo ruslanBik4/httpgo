@@ -14,20 +14,27 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
 	if len(qb.fields) == 0 {
 		for _, table := range qb.Tables {
-			for _, fieldStrc := range table.schema.Rows {
+			if len(table.Fields) > 0 {
 
-				defer func() {
-					result := recover()
-					switch err := result.(type) {
-					case schema.ErrNotFoundTable:
-						log.Println(table, fieldStrc)
-					case error:
-						panic(err)
-					case nil:
-					}
-				}()
-				table.AddField("", fieldStrc.COLUMN_NAME)
-				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
+				for _, field := range table.Fields {
+					qb.fields = append(qb.fields, field)
+				}
+			} else {
+				for _, fieldStrc := range table.schema.Rows {
+
+					defer func() {
+						result := recover()
+						switch err := result.(type) {
+						case schema.ErrNotFoundTable:
+							log.Println(table, fieldStrc)
+						case error:
+							panic(err)
+						case nil:
+						}
+					}()
+					table.AddField("", fieldStrc.COLUMN_NAME)
+					qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
+				}
 			}
 		}
 	}
