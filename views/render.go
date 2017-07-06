@@ -76,11 +76,11 @@ func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	description, comma := "", ""
 	for _, param := range params {
+		description += comma
 		for key, value := range param{
 			description += key + "=" + value
 		}
 
-		description += comma
 		comma = "; "
 	}
 
