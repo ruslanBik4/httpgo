@@ -71,7 +71,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, fields map[string]*qb.QBField)
 			//line views/templates/json/anyForm.qtpl:36
 			qw422016.N().S(`"title": "`)
 			//line views/templates/json/anyForm.qtpl:36
-			qw422016.E().J(titleFull)
+			qw422016.N().J(titleFull)
 			//line views/templates/json/anyForm.qtpl:36
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:36
@@ -81,7 +81,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, fields map[string]*qb.QBField)
 			//line views/templates/json/anyForm.qtpl:37
 			qw422016.N().S(`"label": "`)
 			//line views/templates/json/anyForm.qtpl:37
-			qw422016.E().J(titleLabel)
+			qw422016.N().J(titleLabel)
 			//line views/templates/json/anyForm.qtpl:37
 			qw422016.N().S(`",`)
 			//line views/templates/json/anyForm.qtpl:37

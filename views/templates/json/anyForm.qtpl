@@ -33,8 +33,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% endif %}
 
         {% if field.IS_NULLABLE=="NO" %} "required": true, {% endif %}
-        {% if titleFull > "" %} "title": "{%j titleFull %}", {% endif %}
-        {% if titleLabel > "" %} "label": "{%j titleLabel %}", {% endif %}
+        {% if titleFull > "" %} "title": "{%j= titleFull %}", {% endif %}
+        {% if titleLabel > "" %} "label": "{%j= titleLabel %}", {% endif %}
         {% if placeholder > "" %} "placeholder": "{%j placeholder %}", {% endif %}
         {% if pattern > "" %} "pattern": "{%j= pattern %}", {% endif %}
         {% if dataJson > "" %} {%s= dataJson %}, {% endif %}
