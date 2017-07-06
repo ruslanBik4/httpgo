@@ -36,7 +36,6 @@ type Mail struct {
 
 var (
 	mailServ *mailService = &mailService{name: "mail"}
-	defaultMailFrom string
 )
 
 const PATH_FLAG = "-path"
@@ -82,7 +81,6 @@ func (mailServ *mailService) Init() error {
 		mailServ.status = STATUS_ERROR
 		return err
 	}
-	defaultMailFrom = mailServ.mConfig.Email
 	mailServ.status = STATUS_READY
 	return nil
 }
@@ -102,7 +100,11 @@ func (mailServ *mailService) Send(messages ...interface{}) error {
 func (mailServ *mailService) SendMail(mail *Mail) error {
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", mail.From)
+	from := mailServ.mConfig.Email
+	if mail.From != "" {
+		from = mail.From
+	}
+	m.SetHeader("From", from)
 	m.SetHeader("To", mail.To)
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", mail.Subject)
@@ -175,9 +177,6 @@ func (mail *Mail) validate() error {
 	}
 	if _, err := netMail.ParseAddress(mail.To); err != nil {
 		return err
-	}
-	if mail.From == "" {
-		mail.From = defaultMailFrom
 	}
 
 	if mail.Subject == "" {
