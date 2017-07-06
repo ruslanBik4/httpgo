@@ -36,6 +36,7 @@ type Mail struct {
 
 var (
 	mailServ *mailService = &mailService{name: "mail"}
+	defaultMailFrom string
 )
 
 const PATH_FLAG = "-path"
@@ -81,6 +82,7 @@ func (mailServ *mailService) Init() error {
 		mailServ.status = STATUS_ERROR
 		return err
 	}
+	defaultMailFrom = mailServ.mConfig.Email
 	mailServ.status = STATUS_READY
 	return nil
 }
@@ -174,6 +176,10 @@ func (mail *Mail) validate() error {
 	if _, err := netMail.ParseAddress(mail.To); err != nil {
 		return err
 	}
+	if mail.From == "" {
+		mail.From = defaultMailFrom
+	}
+
 	if mail.Subject == "" {
 		return &ErrServiceNotEnoughParameter{
 			Name: "mail Subject",
