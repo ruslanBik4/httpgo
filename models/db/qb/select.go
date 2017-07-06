@@ -128,7 +128,9 @@ func (qb *QueryBuilder) unionSQL() string {
 func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	if qb.Prepared == nil {
-		qb.sqlCommand, err = qb.createSQL()
+		if qb.sqlCommand == "" {
+			qb.sqlCommand, err = qb.createSQL()
+		}
 		logs.DebugLog("sql=", qb.sqlCommand)
 		if err == nil {
 			qb.Prepared, err = db.PrepareQuery(qb.sqlCommand)

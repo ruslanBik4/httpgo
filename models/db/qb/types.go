@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"strings"
 )
 
 // field in QB for incapsulate SQL & Schema propertyes
@@ -94,6 +95,23 @@ func (qb *QueryBuilder) SetArgs(args ...interface{}) *QueryBuilder {
 	qb.AddArgs(args ...)
 
 	return qb
+}
+// replace where clause
+func (qb *QueryBuilder) SetWhere(where string) {
+
+	if (qb.sqlCommand > "") {
+		if (qb.Where > "") {
+			qb.sqlCommand = strings.Replace(qb.sqlCommand, qb.Where, where, -1)
+		} else if where > "" {
+			qb.sqlCommand += " WHERE " + where
+		}
+		if qb.Prepared != nil {
+			qb.Prepared = nil
+		}
+
+	}
+
+	qb.Where = where
 }
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {

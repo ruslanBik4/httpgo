@@ -180,7 +180,7 @@ func (field *QBField) GetSelectedValues() {
 		logs.DebugLog(field.Name, field.Table)
 	}
 	// разбираем заменяемые параметры
-	field.SelectQB.Where = field.parseWhereANDputArgs()
+	field.SelectQB.SetWhere( field.parseWhereANDputArgs() )
 
 	if rows, err := field.SelectQB.GetDataSql(); err != nil {
 		logs.ErrorLog(err, field.Name, field.SelectQB)
@@ -220,6 +220,7 @@ func findParamInParent(QBparent *QueryBuilder, param string) string {
 }
 
 // locate in field table & post params PARAM & return her value
+// TODO: id_users get from session
 func (field *QBField) putValueToArgs(param string) string {
 	// считаем, что окончанием параметра могут быть символы ", )"
 	// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
@@ -228,7 +229,7 @@ func (field *QBField) putValueToArgs(param string) string {
 	} else if paramValue, ok := field.Table.qB.PostParams[param]; ok {
 		return paramValue[0]
 	} else if param == "id_users" {
-		return "0"
+		return "1"
 	} else if paramValue := findParamInParent(field.Table.qB.parent, param); paramValue > "" {
 		return paramValue
 	} else {
