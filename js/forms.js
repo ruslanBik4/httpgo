@@ -181,7 +181,7 @@ function saveForm(thisForm, successFunction, errorFunction)
             }
 
             // добавляем чекбокс-поля, которые были отменены в форме
-            $("input[type=checkbox][checked]:not(:checked)").each(
+            $("input[type=checkbox][checked]:not(:checked)", f).each(
                 function() {
                     a.push({ name: this.name, value: 0, type : this.type, required: this.required })
                 });

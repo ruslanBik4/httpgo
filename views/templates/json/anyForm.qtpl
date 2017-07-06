@@ -22,9 +22,10 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         typeInput := field.TypeInput()
     %}
     "{%s field.COLUMN_NAME %}": {
-            {% comment %}
-        {% if qbField.Value != nil %} "value": "{%jz= qbField.Value %}", {% endif %}
+            {% comment %} qbField.Value != nil
+             для чекбоксов выставляем Value
             {% endcomment %}
+        {% if typeInput == "checkbox" %} "value": 1, {% endif %}
 
         {% if (COLUMN_NAME=="id") || field.IsHidden  %}
             "type": "hidden" },
@@ -52,7 +53,24 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         "count": {%d len(field.Events) %}
         },
         {% endif %}
-        {% if field.COLUMN_DEFAULT > "" %}"default": "{%j= field.COLUMN_DEFAULT %}",{% endif %}
+        {% if field.COLUMN_DEFAULT > "" %}
+            "default":
+                {% switch field.DATA_TYPE %}
+	            {% case "tinyint" %}
+	               {% if field.COLUMN_DEFAULT == "1" %}
+	                    true
+	               {% else %}
+	                    false
+	               {% endif %}
+	            {% case "int", "uint", "int64" %}
+	                {%s= field.COLUMN_DEFAULT %}
+	            {% case "float", "double" %}
+	                {%s= field.COLUMN_DEFAULT %}
+                {% default %}
+                    "{%j= field.COLUMN_DEFAULT %}"
+                {% endswitch %}
+              ,
+        {% endif %}
         {% if field.CHARACTER_SET_NAME > "" %}"charSet": "{%s field.CHARACTER_SET_NAME %}",{% endif %}
         {% if len(qbField.SelectValues) > 0 %}
             "list": {

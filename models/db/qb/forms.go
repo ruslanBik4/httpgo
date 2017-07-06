@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-// return schema for render standart methods
+// return Schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
 	if len(qb.fields) == 0 {
@@ -48,12 +48,12 @@ func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 }
 func (qb *QueryBuilder) checkSurrogateFields() {
 	for _, field := range qb.fields {
-		if field.schema.IsHidden {
+		if field.Schema.IsHidden {
 			continue
-		} else if field.schema.SETID || field.schema.NODEID || field.schema.IdForeign {
-			field.getSelectedValues()
-		} else if field.schema.TABLEID {
-			//field.ChildrenFields = schema.GetFieldsTable(field.schema.TableProps)
+		} else if field.Schema.SETID || field.Schema.NODEID || field.Schema.IdForeign {
+			field.GetSelectedValues()
+		} else if field.Schema.TABLEID {
+			//field.ChildrenFields = Schema.GetFieldsTable(field.Schema.TableProps)
 			//field.checkSurrogateFields(&(*fields)[idx].ChildrenFields.Rows)
 
 		}

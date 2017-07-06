@@ -61,7 +61,7 @@ func (mongod *mdService) Status() string {
 func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 
 	if len(args) < 2 {
-		return nil, ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 
 	connection_status := Status("mongod")
@@ -92,13 +92,13 @@ func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 		}
 	}
 
-	return nil, ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+	return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
 func (mongod *mdService) Send(args ...interface{}) error {
 
 	if len(args) < 2 {
-		return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 
 	connection_status := Status("mongod")
@@ -135,7 +135,7 @@ func (mongod *mdService) Send(args ...interface{}) error {
 		}
 	}
 
-	return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+	return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
 func init() {
@@ -145,7 +145,7 @@ func init() {
 func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, error) {
 
 	if len(args) < 4 {
-		return nil, ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	switch oType := args[2].(type) {
 	case string:
@@ -191,7 +191,7 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
-		return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	err := cConnect.Insert(args[2])
 	if err != nil {
@@ -204,7 +204,7 @@ func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 4 {
-		return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	_, err := cConnect.UpdateAll(args[2], args[3])
 	if err != nil {
@@ -217,7 +217,7 @@ func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
-		return ErrServiceNotEnougnParameter{Name: mongod.name, Param: args}
+		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	err := cConnect.Remove(args[2])
 

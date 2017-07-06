@@ -1,7 +1,7 @@
 // Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-// this module has more structures from creating sql-query with relation to db schema
+// this module has more structures from creating sql-query with relation to db Schema
 
 package qb
 
@@ -9,12 +9,15 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"strings"
 )
 
+// field in QB for incapsulate SQL & Schema propertyes
+// may have children QB for getting data on child tables
 type QBField struct {
 	Name         string
 	Alias        string
-	schema       *schema.FieldStructure
+	Schema       *schema.FieldStructure
 	Value        sql.RawBytes
 	SelectValues map[int]string
 	Table        *QBTable
@@ -22,7 +25,7 @@ type QBField struct {
 	SelectQB     *QueryBuilder
 }
 
-// table in QB for incapsulate SQL & schema propertyes
+// table in QB for incapsulate SQL & Schema propertyes
 // ha map Fields as links field query
 type QBTable struct {
 	Name   string
@@ -35,7 +38,7 @@ type QBTable struct {
 }
 
 // inline SQL query
-// recheck in DB schema queryes tables&fields
+// recheck in DB Schema queryes tables&fields
 // may be has parent - link to parent QB
 type QueryBuilder struct {
 	Tables                          []*QBTable
@@ -92,6 +95,23 @@ func (qb *QueryBuilder) SetArgs(args ...interface{}) *QueryBuilder {
 	qb.AddArgs(args ...)
 
 	return qb
+}
+// replace where clause
+func (qb *QueryBuilder) SetWhere(where string) {
+
+	if (qb.sqlCommand > "") {
+		if (qb.Where > "") {
+			qb.sqlCommand = strings.Replace(qb.sqlCommand, qb.Where, where, -1)
+		} else if where > "" {
+			qb.sqlCommand += " WHERE " + where
+		}
+		if qb.Prepared != nil {
+			qb.Prepared = nil
+		}
+
+	}
+
+	qb.Where = where
 }
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {

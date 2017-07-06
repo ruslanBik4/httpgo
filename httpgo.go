@@ -29,7 +29,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"database/sql"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 
@@ -146,9 +145,13 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer system.Catch(w, r)
+
 	switch r.URL.Path {
 	case "/":
 		userID := users.IsLogin(r)
+		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
+		return
+
 		p := &pages.IndexPageBody{Title: "Главная страница"}
 		//для авторизованного пользователя - сразу показать его данные на странице
 		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
@@ -265,17 +268,17 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("{"))
 
-	err := qBuilder.SelectRunFunc(func(columns []string, values []sql.RawBytes, rows *sql.Rows) error {
-		for idx, col := range values {
+	err := qBuilder.SelectRunFunc(func(fields []*qb.QBField) error {
+		for idx, field := range fields {
 			if idx > 0 {
 				w.Write( []byte (",") )
 			}
 
-			w.Write([]byte(`"` + columns[idx] + `":`))
-			if col == nil {
+			w.Write([]byte(`"` + fields[idx].Alias + `":`))
+			if field.Value == nil {
 				w.Write([]byte("null"))
 			} else {
-				json.WriteElement(w, string(col) )
+				json.WriteElement(w, field.GetNativeValue(true) )
 			}
 		}
 

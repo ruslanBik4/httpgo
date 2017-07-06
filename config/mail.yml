@@ -1,0 +1,4 @@
+smtp-server: smtp.gmail.com
+email: qa82ru@gmail.com
+password: qa82ruteslenko
+port: 465 #-- SMTP port
