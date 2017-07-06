@@ -217,7 +217,7 @@ func StreamCheckFields(qw422016 *qt422016.Writer, fields map[string]*qb.QBField)
 				//line views/templates/json/anyForm.qtpl:60
 				if field.COLUMN_DEFAULT == "1" {
 					//line views/templates/json/anyForm.qtpl:60
-					qw422016.N().S(`table`)
+					qw422016.N().S(`true`)
 					//line views/templates/json/anyForm.qtpl:62
 				} else {
 					//line views/templates/json/anyForm.qtpl:62
