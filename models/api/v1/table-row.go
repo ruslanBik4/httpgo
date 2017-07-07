@@ -19,7 +19,7 @@ import (
 
 const _2K = (1 << 10) * 2
 
-// /api/table/form/?table=
+// @/api/table/form/?table={nameTable}
 // prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
@@ -68,7 +68,8 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	if table, err := services.Get("schema", tableName); err != nil {
 		views.RenderInternalError(w, err)
 	} else {
-		w.Write([]byte(viewsSystem.ShowSchema(table.(*schema.FieldsTable))))
+		views.WriteHeaders(w)
+		viewsSystem.WriteShowSchema( w, table.(*schema.FieldsTable) )
 	}
 
 }

@@ -170,6 +170,7 @@ func (field *QBField) GetSelectedValues() {
 
 	}()
 
+	logs.StatusLog(field)
 	titleField := field.Schema.GetForeignFields()
 	// создаем дочерний запрос
 	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.Schema.TableProps) )
