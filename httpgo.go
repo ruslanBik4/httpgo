@@ -148,22 +148,22 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/":
-		userID := users.IsLogin(r)
+		//userID := users.IsLogin(r)
 		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
 		return
 
-		p := &pages.IndexPageBody{Title: "Главная страница"}
-		//для авторизованного пользователя - сразу показать его данные на странице
-		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
-		var menu db.MenuItems
-		menu.GetMenu("indexTop")
-
-		p.TopMenu = make(map[string]string, len(menu.Items))
-		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
-
-		}
-		views.RenderTemplate(w, r, "index", p)
+		//p := &pages.IndexPageBody{Title: "Главная страница"}
+		////для авторизованного пользователя - сразу показать его данные на странице
+		//p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
+		//var menu db.MenuItems
+		//menu.GetMenu("indexTop")
+		//
+		//p.TopMenu = make(map[string]string, len(menu.Items))
+		//for _, item := range menu.Items {
+		//	p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
+		//
+		//}
+		//views.RenderTemplate(w, r, "index", p)
 		// спецвойска
 	case "/polymer.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer.html"))
