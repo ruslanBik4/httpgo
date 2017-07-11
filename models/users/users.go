@@ -105,7 +105,7 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
-var F_test = flag.Bool("test", false, "test mode")
+var F_test = flag.Bool("test_user", false, "test mode")
 
 func IsLogin(r *http.Request) string {
 	if *F_test {
