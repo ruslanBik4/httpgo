@@ -15,11 +15,13 @@ export class Select {
 
     if (component) {
 
+      const isArray = (Object.prototype.toString.call(list) === '[object Array]');
+
       for (let key in list) {
 
         let option = document.createElement('option');
 
-        option.setAttribute(Variables.paramsJSONForPost, key);
+        option.setAttribute(Variables.paramsJSONForPost, (isArray) ? list[key] : key );
         option.textContent = list[key];
 
         component.appendChild(option);
@@ -44,7 +46,7 @@ export class Select {
         if (option.getAttribute(Variables.paramsJSONForPost) == attr) {
           option.setAttribute('selected', '');
           break;
-        } else if (option.text === attr) {
+        } else if (option.text == attr) {
           option.setAttribute('selected', '');
           break;
         }
