@@ -30,6 +30,7 @@ const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
+	F_test = flag.Bool("test", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
@@ -40,7 +41,6 @@ var (
 	}
 	oauthStateString = "random"
 	Store            = sessions.NewFilesystemStore("/var/lib/php/session", []byte("travel.com.ua"))
-	F_test = flag.Bool("test", false, "test mode")
 )
 
 func SetSessionPath(f_session string) {
