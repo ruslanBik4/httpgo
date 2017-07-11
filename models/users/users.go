@@ -1,7 +1,21 @@
 package users
 
 import (
+	"crypto/rand"
+	"encoding/base64"
+	"errors"
+	"flag"
 	"fmt"
+	"hash/crc32"
+	"io/ioutil"
+	"net/mail"
+	"net/http"
+	"os"
+	"strconv"
+	//"gopkg.in/gomail.v2"
+	"github.com/gorilla/sessions"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
@@ -9,26 +23,14 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strconv"
-	//"gopkg.in/gomail.v2"
-	"crypto/rand"
-	"encoding/base64"
-	"errors"
-	"github.com/gorilla/sessions"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"gopkg.in/gomail.v2"
-	"hash/crc32"
-	"net/mail"
 )
 
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
+	F_test = flag.Bool("test", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
@@ -104,7 +106,11 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
+
 func IsLogin(r *http.Request) string {
+	if *F_test {
+		return "8"
+	}
 	session := GetSession(r, nameSession)
 	if session == nil {
 		panic(http.ErrNotSupported)

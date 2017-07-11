@@ -148,7 +148,8 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/":
-		//userID := users.IsLogin(r)
+		userID := users.IsLogin(r)
+		logs.StatusLog(userID)
 		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
 		return
 
@@ -448,6 +449,7 @@ var (
 	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
 	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
+	F_test = flag.Bool("user8", false, "test mode")
 )
 
 func init() {
