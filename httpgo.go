@@ -449,6 +449,7 @@ var (
 	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
 	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
+	F_test = flag.Bool("user8", false, "test mode")
 )
 
 func init() {
