@@ -30,7 +30,7 @@ const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
-	F_test = flag.Bool("test", false, "test mode")
+	F_test = flag.Bool("user8", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
