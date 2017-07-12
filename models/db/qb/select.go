@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
-	"strconv"
 	"strings"
 )
 
@@ -43,7 +42,7 @@ func (qb *QueryBuilder) createSQL() (sql string, err error) {
 				if (alias > "") && (alias != field.Name) {
 					queryName = ` AS "` + alias + `"`
 				}
-				if field.schema.COLUMN_TYPE == "calc" {
+				if field.Schema.COLUMN_TYPE == "calc" {
 					qb.sqlSelect += commaFld + field.Name + queryName
 				} else {
 					qb.sqlSelect += commaFld + aliasTable + field.Name + queryName
@@ -58,7 +57,7 @@ func (qb *QueryBuilder) createSQL() (sql string, err error) {
 
 			for _, fieldStrc := range table.schema.Rows {
 
-				//field := &QBField{Name: fieldStrc.COLUMN_NAME, schema: fieldStrc, Table: table}
+				//field := &QBField{Name: fieldStrc.COLUMN_NAME, Schema: fieldStrc, Table: table}
 				table.AddField("", fieldStrc.COLUMN_NAME)
 				//TODO: сделать одно место для добавления полей!
 				qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
@@ -112,7 +111,7 @@ func (qb *QueryBuilder) unionSQL() string {
 		for _, table := range qb.union.Tables {
 			if field, ok := table.Fields[alias]; ok {
 
-				if field.schema.COLUMN_TYPE == "calc" {
+				if field.Schema.COLUMN_TYPE == "calc" {
 					qFields += commaFld + field.Name + ` AS "` + field.Alias + `"`
 				} else {
 					qFields += commaFld + table.Alias + "." + field.Name + ` AS "` + field.Alias + `"`
@@ -129,7 +128,9 @@ func (qb *QueryBuilder) unionSQL() string {
 func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	if qb.Prepared == nil {
-		qb.sqlCommand, err = qb.createSQL()
+		if qb.sqlCommand == "" {
+			qb.sqlCommand, err = qb.createSQL()
+		}
 		logs.DebugLog("sql=", qb.sqlCommand)
 		if err == nil {
 			qb.Prepared, err = db.PrepareQuery(qb.sqlCommand)
@@ -143,7 +144,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	return qb.Prepared.Query(qb.Args...)
 }
-func (qb *QueryBuilder) SelectRunFunc(onReadRow func(rows *sql.Rows) error) error {
+func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) error {
 
 	rows, err := qb.GetDataSql()
 	if err != nil {
@@ -153,8 +154,19 @@ func (qb *QueryBuilder) SelectRunFunc(onReadRow func(rows *sql.Rows) error) erro
 
 	defer rows.Close()
 
+	scanArgs := make([]interface{}, len(qb.fields))
+
+	for idx, field := range qb.fields {
+		scanArgs[idx] = &field.Value
+	}
+
 	for rows.Next() {
-		if err := onReadRow(rows); err != nil {
+		err := rows.Scan(scanArgs...)
+		if err != nil {
+			logs.ErrorLog(err, "SelectRunFunc")
+			continue
+		}
+		if err := onReadRow(qb.fields); err != nil {
 			return err
 		}
 	}
@@ -184,7 +196,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field)
+		valuePtrs = append(valuePtrs, &field.Value)
 	}
 
 	for rows.Next() {
@@ -198,11 +210,10 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 		for _, field := range qb.fields {
 
 			fieldName := field.Alias
-			schema := field.schema
 			// all inline field has QB & we run thiq QB & store result in map
 			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
-					field.ChildQB.Args[0] = fieldID.Value
+					field.ChildQB.Args[0] = string(fieldID.Value)
 				} else {
 					// проставляем 0 на случай, если в выборке нет ID
 					field.ChildQB.Args[0] = 0
@@ -216,22 +227,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 				continue
 			}
 
-			switch schema.DATA_TYPE {
-			case "varchar", "date", "datetime":
-				values[fieldName] = field.Value
-			case "tinyint":
-				if field.Value == "1" {
-					values[fieldName] = true
-				} else {
-					values[fieldName] = false
-				}
-			case "int", "int64":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			case "float", "double":
-				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
-			default:
-				values[fieldName] = field.Value
-			}
+			values[fieldName] = field.GetNativeValue(true)
 		}
 
 		arrJSON = append(arrJSON, values)
@@ -248,7 +244,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 	var valuePtrs []interface{}
 
 	for _, field := range qb.fields {
-		valuePtrs = append(valuePtrs, field)
+		valuePtrs = append(valuePtrs, &field.Value)
 	}
 
 	columns, _ := rows.Columns()
@@ -268,7 +264,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 				continue
 
 			}
-			schema := field.schema
+
 			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
 					field.ChildQB.Args[0] = fieldID.Value
@@ -285,19 +281,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 				continue
 			}
 
-			switch schema.DATA_TYPE {
-			case "varchar", "date", "datetime":
-				values[fieldName] = field.Value
-			case "tinyint":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			case "float", "double":
-				values[fieldName], _ = strconv.ParseFloat(field.Value, 64)
-
-			case "int", "int64":
-				values[fieldName], _ = strconv.Atoi(field.Value)
-			default:
-				values[fieldName] = field.Value
-			}
+			values[fieldName] = field.GetNativeValue(false)
 		}
 
 		arrJSON = append(arrJSON, values)

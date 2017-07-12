@@ -26,14 +26,14 @@ var (
 func StreamInviteEmail(qw422016 *qt422016.Writer, email, password string) {
 	//line views/templates/mails/registration.qtpl:5
 	qw422016.N().S(`
-<div> Вы, возможно, зарегистрировались на сайте <i>travel.com.ua</i>,
+<div> Вы, возможно, зарегистрировались на сайте <i>travel.com.ua</i> с адресом email `)
+	//line views/templates/mails/registration.qtpl:6
+	qw422016.E().S(email)
+	//line views/templates/mails/registration.qtpl:6
+	qw422016.N().S(`,
  если это не так - просто не отвечайте на данное письма.
  А если так - нажмите на ссылку ниже для активации своего аккаунта:
-    <a href='http://vps-20777.vps-default-host.net/user/active/?email=`)
-	//line views/templates/mails/registration.qtpl:9
-	qw422016.E().S(email)
-	//line views/templates/mails/registration.qtpl:9
-	qw422016.N().S(`'><b>сюда</b></a>
+    <a href='http://vps-20777.vps-default-host.net/customer-sign-in/'><b>сюда</b></a>
 После этого Вы можете работать на сайте с помощью пароля:
    "<span>`)
 	//line views/templates/mails/registration.qtpl:11

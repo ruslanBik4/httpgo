@@ -2,12 +2,17 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 форма авторизации на сайте.
-{% func SigninForm(email, password string) %}
+{% code
+        type SignForm struct {
+            Email, Password string
+        }
+%}
+{% func (sf *SignForm) SigninForm() %}
 <div class="main-form-wrap">
     <form target="content" action="/user/signin/" class="form-signin" onsubmit="return saveForm(this, afterLogin);" >
         <h2 class="form-signin-heading">Авторизация</h2>
-        <input type="email" name="login" class="input-block-level" placeholder="Email, указанный при регистрации" value="{%s email %}">
-        <input type="password" name="password" class="input-block-level" placeholder="{%s password %}">
+        <input type="email" name="login" class="input-block-level" placeholder="Email, указанный при регистрации" value="{%s sf.Email %}">
+        <input type="password" name="password" class="input-block-level" placeholder="{%s sf.Password %}">
         <label class="checkbox">
          <input type="checkbox" name="remember" value="remember-me"> Запомнить меня в системе
         </label>

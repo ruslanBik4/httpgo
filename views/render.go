@@ -11,6 +11,7 @@ import (
 	//	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"io"
+	"bytes"
 )
 
 //noinspection GoInvalidConstType
@@ -54,7 +55,8 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 }
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
 
-	RenderAnyPage(w, r, forms.SigninForm(email, "Введите пароль, полученный по почте"))
+	signForm := &forms.SignForm{ Email: email, Password: "Введите пароль, полученный по почте"}
+	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
 }
 func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
 
@@ -64,23 +66,36 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 
 	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder))
 }
-func RenderNoPermissionPage(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusForbidden)
-}
+
+type ParamNotCorrect map[string] string
 
 // render errors
-func RenderBadRequest(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusBadRequest)
+func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
+
+	description, comma := "", ""
+	for _, param := range params {
+		description += comma
+		for key, value := range param{
+			description += key + "=" + value
+		}
+
+		comma = "; "
+	}
+
+	http.Error(w, description, http.StatusBadRequest)
 }
-func RenderInternalError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusInternalServerError)
-	logs.ErrorLog(err)
+func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+	logs.ErrorLog(err, args)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
 func RenderNotFound(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
+}
+func RenderNoPermissionPage(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusForbidden)
 }
 
 // render from template
@@ -181,4 +196,12 @@ func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.Form
 
 	WriteJSONHeaders(w)
 	form.WriteJSONAnyForm(w, fields, AddJson)
+}
+// render for output file execute
+func RenderOutput(w http.ResponseWriter, stdoutStderr []byte) {
+
+	WriteHeaders(w)
+	w.Write([]byte("<pre>"))
+	w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
+	w.Write([]byte("</pre>"))
 }

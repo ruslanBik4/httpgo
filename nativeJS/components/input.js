@@ -92,7 +92,11 @@ export class Input {
 
       case 'radio':
       case 'checkbox':
-        component.checked = !!value;
+        if (value) {
+          component.setAttribute('checked', true);
+        } else {
+          component.removeAttribute('checked');
+        }
         break;
 
 
@@ -120,6 +124,8 @@ export class Input {
         component.name += `[]`;
         component.value = dataId;
         component.setAttribute(Variables.paramsJSONIdData, dataId);
+      } else {
+        component.value = 1;
       }
       component.id += `-${ parent.children.length }`;
     }

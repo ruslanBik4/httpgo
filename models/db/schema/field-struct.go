@@ -264,12 +264,12 @@ func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
 				//	continue
 				//}
 			}
-			fieldStrc.Where += comma + key + enumVal
+			fieldStrc.Where += comma + key + " " + enumVal
 			comma = " OR "
 
 		}
 	default:
-		logs.ErrorLog(errors.New("not correct type WhereJSON !"), whereJSON)
+		logs.ErrorLog(errors.New("not correct type WhereJSON !"), fieldStrc.Table.Name, fieldStrc.COLUMN_NAME, whereJSON)
 	}
 
 }

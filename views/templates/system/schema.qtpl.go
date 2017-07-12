@@ -28,26 +28,26 @@ var (
 func StreamShowSchema(qw422016 *qt422016.Writer, fields *schema.FieldsTable) {
 	//line views/templates/system/schema.qtpl:6
 	qw422016.N().S(`
-    <div>
     `)
-	//line views/templates/system/schema.qtpl:8
+	//line views/templates/system/schema.qtpl:7
 	for idx, field := range fields.Rows {
-		//line views/templates/system/schema.qtpl:8
+		//line views/templates/system/schema.qtpl:7
 		qw422016.N().S(`
-        <div id="divField`)
-		//line views/templates/system/schema.qtpl:9
+    <figure id="divField`)
+		//line views/templates/system/schema.qtpl:8
 		qw422016.N().D(idx)
-		//line views/templates/system/schema.qtpl:9
+		//line views/templates/system/schema.qtpl:8
 		qw422016.N().S(`" class="input-wrap `)
-		//line views/templates/system/schema.qtpl:9
+		//line views/templates/system/schema.qtpl:8
 		qw422016.E().S(field.CSSClass)
-		//line views/templates/system/schema.qtpl:9
+		//line views/templates/system/schema.qtpl:8
 		qw422016.N().S(`" >
-        <div> COLUMN_NAME   <b>	`)
-		//line views/templates/system/schema.qtpl:10
+        <figcaption> `)
+		//line views/templates/system/schema.qtpl:9
 		qw422016.E().S(field.COLUMN_NAME)
-		//line views/templates/system/schema.qtpl:10
-		qw422016.N().S(` </b> </div>
+		//line views/templates/system/schema.qtpl:9
+		qw422016.N().S(`</figcaption>
+
         <div> DATA_TYPE 	<b> `)
 		//line views/templates/system/schema.qtpl:11
 		qw422016.E().S(field.DATA_TYPE)
@@ -220,38 +220,58 @@ func StreamShowSchema(qw422016 *qt422016.Writer, fields *schema.FieldsTable) {
 		}
 		//line views/templates/system/schema.qtpl:42
 		qw422016.N().S(`
-    `)
+        `)
 		//line views/templates/system/schema.qtpl:43
+		if field.SETID || field.NODEID || field.TABLEID {
+			//line views/templates/system/schema.qtpl:43
+			qw422016.N().S(`
+            <div> TableProps	<b> `)
+			//line views/templates/system/schema.qtpl:44
+			qw422016.E().S(field.TableProps)
+			//line views/templates/system/schema.qtpl:44
+			qw422016.N().S(` </b></div>
+            <div> TableValues	<b> `)
+			//line views/templates/system/schema.qtpl:45
+			qw422016.E().S(field.TableValues)
+			//line views/templates/system/schema.qtpl:45
+			qw422016.N().S(` </b></div>
+        `)
+			//line views/templates/system/schema.qtpl:46
+		}
+		//line views/templates/system/schema.qtpl:46
+		qw422016.N().S(`
+    </figure>
+    `)
+		//line views/templates/system/schema.qtpl:48
 	}
-	//line views/templates/system/schema.qtpl:43
+	//line views/templates/system/schema.qtpl:48
 	qw422016.N().S(`
-    </div>
 `)
-//line views/templates/system/schema.qtpl:45
+//line views/templates/system/schema.qtpl:49
 }
 
-//line views/templates/system/schema.qtpl:45
+//line views/templates/system/schema.qtpl:49
 func WriteShowSchema(qq422016 qtio422016.Writer, fields *schema.FieldsTable) {
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	StreamShowSchema(qw422016, fields)
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/schema.qtpl:45
+//line views/templates/system/schema.qtpl:49
 }
 
-//line views/templates/system/schema.qtpl:45
+//line views/templates/system/schema.qtpl:49
 func ShowSchema(fields *schema.FieldsTable) string {
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	WriteShowSchema(qb422016, fields)
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/schema.qtpl:45
+	//line views/templates/system/schema.qtpl:49
 	return qs422016
-//line views/templates/system/schema.qtpl:45
+//line views/templates/system/schema.qtpl:49
 }

@@ -35,7 +35,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         </div>
         <div class="content-section">
             <div id="content" rel="{%s body.Route %}">
-                {%code body.ContentWrite(body.Buff) %}
+                {%code
+                    if body.ContentWrite != nil {
+                        body.ContentWrite(body.Buff)
+                    }
+                %}
             </div>
         </div>
     </div>

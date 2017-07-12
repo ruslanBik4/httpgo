@@ -73,10 +73,12 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	//line views/templates/pages/index.qtpl:37
 	qw422016.N().S(`">
                 `)
-	//line views/templates/pages/index.qtpl:38
-	body.ContentWrite(body.Buff)
+	//line views/templates/pages/index.qtpl:39
+	if body.ContentWrite != nil {
+		body.ContentWrite(body.Buff)
+	}
 
-	//line views/templates/pages/index.qtpl:38
+	//line views/templates/pages/index.qtpl:42
 	qw422016.N().S(`
             </div>
         </div>
@@ -85,38 +87,38 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </div>
 
     `)
-	//line views/templates/pages/index.qtpl:45
+	//line views/templates/pages/index.qtpl:49
 	layouts.StreamFooterHTML(qw422016)
-	//line views/templates/pages/index.qtpl:45
+	//line views/templates/pages/index.qtpl:49
 	qw422016.N().S(`
 
 </body>
 `)
-//line views/templates/pages/index.qtpl:48
+//line views/templates/pages/index.qtpl:52
 }
 
-//line views/templates/pages/index.qtpl:48
+//line views/templates/pages/index.qtpl:52
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	body.StreamIndexHTML(qw422016)
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/index.qtpl:48
+//line views/templates/pages/index.qtpl:52
 }
 
-//line views/templates/pages/index.qtpl:48
+//line views/templates/pages/index.qtpl:52
 func (body *IndexPageBody) IndexHTML() string {
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	body.WriteIndexHTML(qb422016)
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	qs422016 := string(qb422016.B)
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/pages/index.qtpl:48
+	//line views/templates/pages/index.qtpl:52
 	return qs422016
-//line views/templates/pages/index.qtpl:48
+//line views/templates/pages/index.qtpl:52
 }

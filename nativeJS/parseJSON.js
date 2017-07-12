@@ -86,8 +86,13 @@ export class ParseJSON {
           func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
 
+        // set default value TODO: refactor need default set value for select
+        if (component.tagName !== 'SELECT' && params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
+          func.addAttrToComponent(component, params[Variables.paramsJSONDefault]);
+        }
+
       } else {
-        console.log(`Not found in frame: ${ component.tagName }`);
+        // console.log(`Not found in frame: ${ component.tagName }`);
       }
     }
     catch (e) {
@@ -102,28 +107,12 @@ export class ParseJSON {
 
     let func = this.components[component.tagName];
     if (func && func.addAttrToComponent) {
-      if (Object.prototype.toString.call(attr) === '[object Array]') {
-        // debugger;
-      }
       func.addAttrToComponent(component, attr);
     } else {
       if (Object.prototype.toString.call(attr) === '[object Array]') {
-        for (let value of attr) {
-          const currentComponent = component.querySelector(`[${ Variables.paramsJSONIdData }="${ value.id }"]`);
-          if (!currentComponent) {
-            console.log(`component data-id not found for set value: ${ component.id }, ${ value }`);
-            continue;
-          }
-          if (!func) {
-            func = this.components[currentComponent.tagName];
-          }
-          if (func.addAttrToComponent) {
-            func.addAttrToComponent(currentComponent, "1");
-          }
-        }
       } else {
         component.textContent = attr;
-        console.log(`Not found in frame: ${ component }`);
+        // console.log(`Not found in frame: ${ component }`);
       }
     }
 
@@ -163,7 +152,7 @@ export class ParseJSON {
       }
     }
 
-    const tableIdParse = (data, strForTable) => {
+    const tableIdParse = (curComponent, data, strForTable) => {
 
       /* first, get parent and default component */
       let parent;
@@ -171,17 +160,20 @@ export class ParseJSON {
       let index = 0;
 
       for (let id in data[index]) {
-        const component = document.getElementById(`${ strForTable }:${ id }`) || document.getElementById(`${ strForTable }:${ id }[]`);
-        if (component) {
+
+        const [doms] = this._getDom(curComponent, id, strForTable);
+
+        for (let dom of doms) {
           if (!parent) {
-            parent = Native.findAncestorByClass(component, Variables.paramsJSONIdForTable);
+            parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
             defaultComponent = getDefaultComponent(parent);
           }
           if (data[index][id].length !== 0) {
-            this.insertValueCurrentComponent(component, data[index][id]);
+            this.insertValueCurrentComponent(dom, data[index][id]);
           }
-          this.setNewAttrIdAndName(component, index);
+          this.setNewAttrIdAndName(dom, index);
         }
+
       }
 
       if (!parent) {
@@ -204,12 +196,15 @@ export class ParseJSON {
 
         for (let id in data[index]) {
 
-          const component = document.querySelector(`[name="${ strForTable }:${ id }"]`) || document.querySelector(`[name="${ strForTable }:${ id }[]"]`);
+          const [doms] = this._getDom(newComponent.content.firstElementChild, id, strForTable);
 
-          if (component && data[index][id].length !== 0) {
-            this.insertValueCurrentComponent(component, data[index][id]);
-            this.setNewAttrIdAndName(component, index);
+          for (let dom of doms) {
+            if (data[index][id].length !== 0) {
+              this.insertValueCurrentComponent(dom, data[index][id]);
+              this.setNewAttrIdAndName(dom, index);
+            }
           }
+
 
         }
 
@@ -220,7 +215,7 @@ export class ParseJSON {
 
     if (attr !== null) {
       if (strForTable.length !== 0 && Object.prototype.toString.call(attr) === '[object Array]') {
-        tableIdParse(attr, strForTable);
+        tableIdParse(component, attr, strForTable);
       } else if (component && attr.length !== 0) {
         this.insertValueCurrentComponent(component, attr);
       }
@@ -258,37 +253,17 @@ export class ParseJSON {
 
     for (let name in attr) {
 
-      let nameField;
+      const [doms, nameField] = this._getDom(component, name, strTable, (isDefault || isOnlyClass) ? '' : str);
 
-      if (strTable.length !== 0) {
-        nameField = (isDefault || isOnlyClass) ? `${ strTable }:${ name }` : `${ strTable }:${ name }${ str }`;
-      } else {
-        nameField = (isDefault || isOnlyClass) ? `${ name }` : `${ name }${ str }`;
-      }
-
-      let dom;
-
-      if (component.hasAttribute(Variables.paramsForm)) {
-        dom = document.querySelector(`[name="${ nameField }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
-      } else {
-        dom = component.querySelector(`[name="${ nameField }"]`);
-      }
-
-
-      if (name.startsWith(Variables.paramsJSONTable)) {
-        if (isDefault) {
-          this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
-        } else {
-          callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
-        }
-      } else if (dom) {
+      for (let dom of doms) {
         if (isDefault) {
 
           if (strTable.length !== 0) {
 
             const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
 
-            if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
+            if (parent) { // && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0
+
               const idParent = dom.getAttribute(Variables.paramsJSONIdData);
               parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
 
@@ -299,9 +274,9 @@ export class ParseJSON {
                 component.onclick = () => {
 
                   const newComponent = temp.cloneNode(true);
-                  const index =  parent.children.length;
+                  const index = parent.children.length;
 
-                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function() {
+                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
                     this.setAttribute('id', this.getAttribute('id') + '-' + index);
                   });
 
@@ -324,17 +299,59 @@ export class ParseJSON {
           }
 
           /*
-          *   change name
-          */
+           *   change name
+           */
 
-          const intArray = str.match(/\d+/g);
+          // const intArray = str.match(/\d+/g);
           if (!isOnlyClass) dom.setAttribute('name', `${ nameField }${ str }`);
-          if (intArray) dom.setAttribute('id', `${ nameField }-${ (intArray) ? intArray.join('') : '' }`);
+          dom.setAttribute('id', `${ nameField }-${ str }`); // if (intArray) ... (intArray) ? intArray.join('') : ''
         }
         callback(dom, attr[name]);
       }
 
+      if (doms.length === 0) {
+        if (name.startsWith(Variables.paramsJSONTable)) {
+          if (isDefault) {
+            this.setValue(component, attr[name], callback, str, isDefault, isOnlyClass, name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+          } else {
+            callback(component, attr[name], name.replace(new RegExp('^' + Variables.paramsJSONTable), ''));
+          }
+        } else if (component && !isDefault && Object.prototype.toString.call(attr[name]) === '[object Array]') {
+          for (let value of attr[name]) {
+
+            let domArray;
+            if (component.hasAttribute(Variables.paramsForm)) {
+              domArray = document.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+            } else {
+              domArray = component.querySelector(`[name="${ nameField }[]"][${ Variables.paramsJSONIdData }="${ value.id }"]`);
+            }
+
+            if (domArray) {
+              callback(domArray, value);
+            }
+          }
+        }
+      }
+
     }
+  }
+
+
+  /*
+  *   get dom
+  */
+
+  static _getDom(component, name, strTable, str = '') {
+    let dom;
+
+    const nameField = (strTable.length !== 0) ? `${ strTable }:${ name }${ str }` : `${ name }${ str }`;
+
+    if (component && component.hasAttribute(Variables.paramsForm)) {
+      dom = document.querySelectorAll(`[name="${ nameField }"][${ Variables.paramsFormChildren }="${ component.getAttribute('id') }"]`);
+    } else if (component) {
+      dom = component.querySelectorAll(`[name="${ nameField }"]`);
+    }
+    return [dom, nameField];
   }
 
 }

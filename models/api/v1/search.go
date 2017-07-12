@@ -29,7 +29,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	var where string
 	var args []interface{}
 
-	r.ParseForm()
+	r.ParseMultipartForm(_2K)
 
 	tables := make(map[string]schema.FieldsTable, 0)
 	tableName := r.FormValue("table")
@@ -79,7 +79,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	leftTable := tableName
 	for name, _ := range tables {
-		qBuilder.LeftJoin("", name, "ON m.id_"+leftTable+"="+name+".id")
+		qBuilder.LeftJoin("", name, "ON " + leftTable + ".id" + "=" + name + ".id_" + leftTable)
 		leftTable = name
 	}
 

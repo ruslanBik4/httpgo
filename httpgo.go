@@ -29,6 +29,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 
 //go:generate qtc -dir=views/templates
@@ -58,7 +59,10 @@ var (
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/":          handlerComponents,
+
+		// TODO: API remove in single module
 		"/api/v1/table/form/":   api.HandleFieldsJSON,
+		"/api/v1/table/view/":   api.HandleTextRowJSON,
 		"/api/v1/table/row/":    api.HandleRowJSON,
 		"/api/v1/table/rows/":   api.HandleAllRowsJSON,
 		"/api/v1/table/schema/": api.HandleSchema,
@@ -68,6 +72,18 @@ var (
 		"/api/v1/photos/":       api.HandlePhotos,
 		"/api/v1/video/":        api.HandleVideos,
 		"/api/v1/photos/add/":   api.HandleAddPhoto,
+		// short route
+		"/api/table/form/":   api.HandleFieldsJSON,
+		"/api/table/view/":   api.HandleTextRowJSON,
+		"/api/table/row/":    api.HandleRowJSON,
+		"/api/table/rows/":   api.HandleAllRowsJSON,
+		"/api/table/schema/": api.HandleSchema,
+		"/api/update/":       api.HandleUpdateServer,
+		"/api/restart/":      api.HandleRestartServer,
+		"/api/log/":          api.HandleLogServer,
+		"/api/photos/":       api.HandlePhotos,
+		"/api/video/":        api.HandleVideos,
+		"/api/photos/add/":   api.HandleAddPhoto,
 	}
 )
 
@@ -129,21 +145,24 @@ func (h *DefaultHandler) toServe(ext string) bool {
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	defer system.Catch(w, r)
+
 	switch r.URL.Path {
 	case "/":
-		userID := users.IsLogin(r)
-		p := &pages.IndexPageBody{Title: "Главная страница"}
-		//для авторизованного пользователя - сразу показать его данные на странице
-		p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
-		var menu db.MenuItems
-		menu.GetMenu("indexTop")
+		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
+		return
 
-		p.TopMenu = make(map[string]string, len(menu.Items))
-		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
-
-		}
-		views.RenderTemplate(w, r, "index", p)
+		//p := &pages.IndexPageBody{Title: "Главная страница"}
+		////для авторизованного пользователя - сразу показать его данные на странице
+		//p.Content = fmt.Sprintf("<script>afterLogin({login:'%d',sex:'0'})</script>", userID)
+		//var menu db.MenuItems
+		//menu.GetMenu("indexTop")
+		//
+		//p.TopMenu = make(map[string]string, len(menu.Items))
+		//for _, item := range menu.Items {
+		//	p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
+		//
+		//}
+		//views.RenderTemplate(w, r, "index", p)
 		// спецвойска
 	case "/polymer.html":
 		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer.html"))
@@ -217,9 +236,11 @@ func sockCatch() {
 	err := recover()
 	logs.ErrorLog(err.(error))
 }
+const _24K = (1 << 10) * 24
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
+	r.ParseMultipartForm(_24K)
 	id := r.FormValue("id")
 	qBuilder := qb.Create("b.id=?", "", "")
 
@@ -233,12 +254,41 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	})
 	qBuilder.AddArg(id)
 
-	arrJSOn, err := qBuilder.SelectToMultidimension()
+	if r.FormValue("batch") == "1" {
+		arrJSON, err := qBuilder.SelectToMultidimension()
+		if err != nil {
+			views.RenderInternalError(w, err)
+			return
+		}
+		views.RenderArrayJSON(w, arrJSON)
+
+		return
+	}
+
+	w.Write([]byte("{"))
+
+	err := qBuilder.SelectRunFunc(func(fields []*qb.QBField) error {
+		for idx, field := range fields {
+			if idx > 0 {
+				w.Write( []byte (",") )
+			}
+
+			w.Write([]byte(`"` + fields[idx].Alias + `":`))
+			if field.Value == nil {
+				w.Write([]byte("null"))
+			} else {
+				json.WriteElement(w, field.GetNativeValue(true) )
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
 		views.RenderInternalError(w, err)
 		return
 	}
-	views.RenderArrayJSON(w, arrJSOn)
+	views.WriteJSONHeaders(w)
+	w.Write([]byte("}"))
 	return
 
 	qBuilder = qb.Create("hs.id_hotels=?", "", "")
@@ -261,7 +311,6 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	//qBuilder := qb.Create("", "", "")
 
 	logs.DebugLog(r)
-	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
 	for _, headers := range r.MultipartForm.File {
 		for _, header := range headers {
@@ -398,6 +447,7 @@ var (
 	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
 	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
+	F_test = flag.Bool("user8", false, "test mode")
 )
 
 func init() {
