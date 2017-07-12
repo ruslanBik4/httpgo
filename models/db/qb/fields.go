@@ -170,7 +170,6 @@ func (field *QBField) GetSelectedValues() {
 
 	}()
 
-	logs.StatusLog(field)
 	titleField := field.Schema.GetForeignFields()
 	// создаем дочерний запрос
 	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.Schema.TableProps) )
@@ -194,12 +193,13 @@ func (field *QBField) GetSelectedValues() {
 			if err != nil {
 				logs.ErrorLog(err, "get SelectedValues for field", field)
 				field.SelectValues[0] = err.Error()
+
+				if strings.Contains(err.Error(), "unsupported Scan") {
+					break
+				}
 				continue
 			}
 			field.SelectValues[id] = title
-		}
-		if field.Schema.COLUMN_NAME == "setid_payment_card_list" {
-			logs.StatusLog(field.SelectQB, rows)
 		}
 	}
 

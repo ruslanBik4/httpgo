@@ -148,8 +148,6 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/":
-		userID := users.IsLogin(r)
-		logs.StatusLog(userID)
 		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
 		return
 
