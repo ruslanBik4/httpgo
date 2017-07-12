@@ -1,6 +1,7 @@
 dbName: DATABASE_NAME
 dbUser: DATABSE_USER
 dbPass: PASSWORD
+dbProt: protocol(parameters)
 allowAllFiles: false
 allowCleartextPasswords: false
 allowNativePasswords: false

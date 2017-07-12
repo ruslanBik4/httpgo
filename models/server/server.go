@@ -21,6 +21,7 @@ type serverConfig struct {
 		DB   string `yaml:"dbName"`
 		User string `yaml:"dbUser"`
 		Pass string `yaml:"dbPass"`
+		Prot string `yaml:"dbProt"`
 		AllowAllFiles string `yaml:"allowAllFiles"`
 		AllowCleartextPasswords string `yaml:"allowCleartextPasswords"`
 		AllowNativePasswords string `yaml:"allowNativePasswords"`
