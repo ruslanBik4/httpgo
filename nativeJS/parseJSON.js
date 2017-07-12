@@ -262,7 +262,7 @@ export class ParseJSON {
 
             const parent = Native.findAncestorByClass(dom, Variables.paramsJSONIdForTable);
 
-            if (parent && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0) {
+            if (parent) { // && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0
 
               const idParent = dom.getAttribute(Variables.paramsJSONIdData);
               parent.setAttribute(Variables.paramsJSONIdForTable, idParent);

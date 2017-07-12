@@ -11,6 +11,7 @@ import (
 	//	"views/templates/layouts/common"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"io"
+	"bytes"
 )
 
 //noinspection GoInvalidConstType
@@ -65,9 +66,6 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 
 	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder))
 }
-func RenderNoPermissionPage(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusForbidden)
-}
 
 type ParamNotCorrect map[string] string
 
@@ -87,7 +85,7 @@ func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 	http.Error(w, description, http.StatusBadRequest)
 }
 func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
-	w.WriteHeader(http.StatusInternalServerError)
+	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLog(err, args)
 }
 func RenderUnAuthorized(w http.ResponseWriter) {
@@ -95,6 +93,9 @@ func RenderUnAuthorized(w http.ResponseWriter) {
 }
 func RenderNotFound(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
+}
+func RenderNoPermissionPage(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusForbidden)
 }
 
 // render from template
@@ -195,4 +196,12 @@ func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.Form
 
 	WriteJSONHeaders(w)
 	form.WriteJSONAnyForm(w, fields, AddJson)
+}
+// render for output file execute
+func RenderOutput(w http.ResponseWriter, stdoutStderr []byte) {
+
+	WriteHeaders(w)
+	w.Write([]byte("<pre>"))
+	w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
+	w.Write([]byte("</pre>"))
 }

@@ -4,10 +4,10 @@
 %}
 Показ схемы определенной таблицы.
 {% func ShowSchema(fields *schema.FieldsTable) %}
-    <div>
     {% for idx, field := range fields.Rows %}
-        <div id="divField{%d idx %}" class="input-wrap {%s field.CSSClass %}" >
-        <div> COLUMN_NAME   <b>	{%s field.COLUMN_NAME %} </b> </div>
+    <figure id="divField{%d idx %}" class="input-wrap {%s field.CSSClass %}" >
+        <figcaption> {%s field.COLUMN_NAME %}</figcaption>
+
         <div> DATA_TYPE 	<b> {%s field.DATA_TYPE %} </b></div>
         <div> COLUMN_DEFAULT 	<b> {%s field.COLUMN_DEFAULT %} </b></div>
         <div> IS_NULLABLE 	<b> {%s field.IS_NULLABLE %} </b></div>
@@ -40,6 +40,10 @@
         {% for i, value := range field.EnumValues %}
        <div>  {%d i %} <b>{%s value %} </b> </div>
         {% endfor %}
+        {% if field.SETID || field.NODEID || field.TABLEID %}
+            <div> TableProps	<b> {%s field.TableProps%} </b></div>
+            <div> TableValues	<b> {%s field.TableValues%} </b></div>
+        {% endif %}
+    </figure>
     {% endfor %}
-    </div>
 {% endfunc %}

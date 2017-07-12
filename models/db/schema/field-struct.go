@@ -264,7 +264,7 @@ func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
 				//	continue
 				//}
 			}
-			fieldStrc.Where += comma + key + enumVal
+			fieldStrc.Where += comma + key + " " + enumVal
 			comma = " OR "
 
 		}

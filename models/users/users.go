@@ -1,7 +1,21 @@
 package users
 
 import (
+	"crypto/rand"
+	"encoding/base64"
+	"errors"
+	"flag"
 	"fmt"
+	"hash/crc32"
+	"io/ioutil"
+	"net/mail"
+	"net/http"
+	"os"
+	"strconv"
+	//"gopkg.in/gomail.v2"
+	"github.com/gorilla/sessions"
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
@@ -9,26 +23,14 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"strconv"
-	//"gopkg.in/gomail.v2"
-	"crypto/rand"
-	"encoding/base64"
-	"errors"
-	"github.com/gorilla/sessions"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"gopkg.in/gomail.v2"
-	"hash/crc32"
-	"net/mail"
 )
 
 const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
+	F_test = flag.Bool("test", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
@@ -104,7 +106,11 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
+
 func IsLogin(r *http.Request) string {
+	if *F_test {
+		return "8"
+	}
 	session := GetSession(r, nameSession)
 	if session == nil {
 		panic(http.ErrNotSupported)
@@ -236,48 +242,57 @@ func HashPassword(password string) interface{} {
 	crc32q := crc32.MakeTable(0xD5828281)
 	return crc32.Checksum([]byte(password), crc32q)
 }
+const _2K = (1 << 10) * 2
+
+// @/user/signup/
+// регистрация нового пользователя сгенерацией пароля
+// и отсылка письмо об регистрации
+//пароль отсылаем в письме, у себя храним только кеш
 func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(32000)
+
+	r.ParseMultipartForm(_2K)
 
 	var args []interface{}
+
+	JSON := make(map[string] interface{}, 4)
+
 	sql, comma, values := "insert into users (", "", ") values ("
 
-	for key, val := range r.MultipartForm.Value {
+	for key, val := range r.Form {
 		args = append(args, val[0])
 		sql += comma + key
 		values += comma + "?"
 		comma = ","
+
+		JSON[key] = val[0]
 	}
-	email := r.MultipartForm.Value["login"][0]
+
+	email := JSON["login"].(string)
+	if JSON["form-radio"] == "radio-male" {
+		JSON["sex"] = "господин"
+	} else {
+		JSON["sex"] = "госпожа"
+	}
 	password, err := GeneratePassword(email)
-	if err != nil {
-		logs.ErrorLog(err)
+	if err == nil {
+		sql += comma + "hash"
+		values += comma + "?"
+		// получаем кеш
+		args = append(args, HashPassword(password))
+		JSON["id"], err = 	db.DoInsert(sql+values+")", args...)
+		if err == nil {
+			// проверка корректности email
+			if _, err := mail.ParseAddress(email); err == nil {
+				go SendMail(email, password)
+				views.RenderAnyJSON(w, JSON)
+			}
+		}
 	}
-	sql += comma + "hash"
-	values += comma + "?"
 
-	args = append(args, HashPassword(password))
-	lastInsertId, err := db.DoInsert(sql+values+")", args...)
 	if err != nil {
-
-		fmt.Fprintf(w, "%v", err)
+		views.RenderInternalError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/json; charset=utf-8")
-
-	mRow := forms.MarshalRow{Msg: "Append row", N: lastInsertId}
-	sex, _ := strconv.Atoi(r.MultipartForm.Value["sex"][0])
-
-	if _, err := mail.ParseAddress(email); err != nil {
-		logs.ErrorLog(err)
-		fmt.Fprintf(w, "Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
-		return
-	}
-	p := &forms.PersonData{Id: lastInsertId, Login: r.MultipartForm.Value["fullname"][0], Sex: sex,
-		Rows: []forms.MarshalRow{mRow}, Email: email}
-	fmt.Fprint(w, p.JSON())
-
-	go SendMail(email, password)
 }
 func SendMail(email, password string) {
 
@@ -287,7 +302,7 @@ func SendMail(email, password string) {
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", "Регистрация на travel.com.ua!")
 	m.SetBody("text/html", mails.InviteEmail(email, password))
-	m.Attach("/home/travel/bootstrap/ico/favicon.png")
+	//m.Attach("/favicon.ico")
 
 	d := gomail.NewDialer("smtp.yandex.ru", 587, "ruslan-bik", "FalconSwallow")
 

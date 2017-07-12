@@ -28,6 +28,8 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
+// fill surrogate field property for API
+// TODO: заменить строки имена таблиц на ссылку на схему
 func (table *FieldsTable) FillSurroggateFields(tableName string) {
 
 	for idx, fieldStrc := range table.Rows {
@@ -48,7 +50,7 @@ func (table *FieldsTable) FillSurroggateFields(tableName string) {
 			TableValues := GetFieldsTable(fieldStrc.TableValues)
 			//TODO: later refactoring - store values in field propertyes
 			for _, field := range TableValues.Rows {
-				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+field.Table.Name) {
+				if strings.HasPrefix(field.COLUMN_NAME, "id_") && (field.COLUMN_NAME != "id_"+fieldStrc.Table.Name) {
 					fieldStrc.TableProps = field.COLUMN_NAME[3:]
 					fieldStrc.ForeignFields = field.GetForeignFields()
 					break
