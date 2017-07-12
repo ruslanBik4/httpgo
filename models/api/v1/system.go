@@ -5,7 +5,6 @@
 package api
 
 import (
-	"bytes"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
