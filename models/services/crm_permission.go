@@ -173,6 +173,8 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 
 	cacheMu.Lock()
 
+	defer cacheMu.Unlock()
+
 	if crm_permission.roles[user_id] == nil || len(crm_permission.roles[user_id]) == 0 {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
@@ -193,6 +195,8 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
 
 	cacheMu.Lock()
+
+	defer cacheMu.Unlock()
 
 	newRow := make(map[string]interface{}, 0)
 	newRow["link"] = link
