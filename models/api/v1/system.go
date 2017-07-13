@@ -72,7 +72,7 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	stdout, err := cmd.Output()
 	if err == nil{
 		var stdin io.WriteCloser
-		cmd := exec.Command("grep", "ERROR")
+		cmd := exec.Command("grep", "-oE", "httpgo.*ERROR.*")
 		stdin, err = cmd.StdinPipe()
 
 		if err == nil {
