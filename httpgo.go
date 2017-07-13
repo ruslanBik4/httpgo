@@ -148,8 +148,6 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Path {
 	case "/":
-		userID := users.IsLogin(r)
-		logs.StatusLog(userID)
 		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
 		return
 
@@ -395,7 +393,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	views.RenderAnyPage(w, r, catalog+content)
 }
 
-// считываю счасти из папки
+// считываю части из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
 	if (err != nil) || ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)

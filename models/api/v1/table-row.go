@@ -62,7 +62,8 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
 }
-
+// @/api/table/schema/?table={nameTable}
+// показ структуры таблицы nameTable
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	if table, err := services.Get("schema", tableName); err != nil {
@@ -123,6 +124,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 	comma = ","
 	return nil
 }
+// @/api/table/view/?table={nameTable}
 // return field with text values for show in site
 // /api/v1/table/view/
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +151,8 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderBadRequest(w)
 	}
 }
-
+// @/api/table/row/?table={nameTable}&id={id}
+// return row from nameTable from key=id
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
@@ -171,6 +174,8 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderBadRequest(w)
 	}
 }
+// @/api/table/rows/?table={nameTable}
+// return all rows from nameTable
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)

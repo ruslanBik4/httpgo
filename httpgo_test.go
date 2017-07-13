@@ -13,7 +13,13 @@ import (
 )
 
 func TestMain(t *testing.T) {
-	t.Skipped()
+
+	h := NewDefaultHandler()
+	if !h.toCache(".css") {
+		t.Error("error cache result from ext 'css'")
+	} else {
+		t.Skipped()
+	}
 }
 func init() {
 	flag.Parse()

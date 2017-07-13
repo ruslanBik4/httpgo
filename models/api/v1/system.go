@@ -5,20 +5,14 @@
 package api
 
 import (
-	"bytes"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
 	"os/exec"
 )
-
-func renderOutput(w http.ResponseWriter, stdoutStderr []byte) {
-
-	views.WriteHeaders(w)
-	w.Write([]byte("<pre>"))
-	w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
-	w.Write([]byte("</pre>"))
-}
+// @/api/update/?branch={branch}
+// update httpgo & {project} co de from git  & build new version httpgo
+// branch - name git branch
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -30,12 +24,14 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		views.RenderInternalError(w, err)
 	} else {
-		renderOutput(w, stdoutStderr)
+		views.RenderOutput(w, stdoutStderr)
 	}
 
 }
+// @/api/log/
+// show log httpgo
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -44,11 +40,13 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		views.RenderInternalError(w, err)
 	} else {
-		renderOutput(w, stdoutStderr)
+		views.RenderOutput(w, stdoutStderr)
 	}
 }
+// @/api/restart/
+// restart service
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -57,8 +55,8 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		views.RenderInternalError(w, err)
 	} else {
-		renderOutput(w, stdoutStderr)
+		views.RenderOutput(w, stdoutStderr)
 	}
 }
