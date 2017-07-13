@@ -393,7 +393,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	views.RenderAnyPage(w, r, catalog+content)
 }
 
-// считываю счасти из папки
+// считываю части из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
 	if (err != nil) || ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)

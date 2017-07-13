@@ -6,15 +6,15 @@ import (
 )
 
 func TestWriteAnyJSON(t *testing.T) {
-	var input = MultiDimension{
+	var input = map[string]interface{}{
 		//"one" : StringDimension {"1","2"},
 		"two":  true,
 		"thre": 3,
-		"5":    MultiDimension{"1": "6", "4": "l", "5": "u"},
+		"5":    map[string]interface{}{"1": "6", "4": "l", "5": "u"},
 	}
 	result := make(map[string]interface{}, 10)
 
-	strJSON := WriteAnyJSON(input)
+	strJSON := AnyJSON(input)
 	if err := json.Unmarshal([]byte(strJSON), &result); err != nil {
 		//!= `{"one":[0:"1",1:"2"],"two":true,"thre":3}` {
 		t.Errorf("WriteAnyJSON=%v, stroka=%s, error=%q", input, strJSON, err)
