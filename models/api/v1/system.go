@@ -30,6 +30,21 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+// @/api/restart/
+// restart service
+func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("systemctl", "restart", "httpgo")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+	}
+}
 // @/api/log/
 // show log httpgo
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
@@ -45,12 +60,12 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderOutput(w, stdoutStderr)
 	}
 }
-// @/api/restart/
-// restart service
-func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
+// @/api/log/errors/
+// show services errors
+func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("systemctl", "restart", "httpgo")
+	cmd := exec.Command("journalctl", "-u", "httpgo", " | grep ERROR")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -59,4 +74,8 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	} else {
 		views.RenderOutput(w, stdoutStderr)
 	}
+}
+
+func init() {
+	http.HandleFunc("/api/log/errors/", HandleShowErrorsServer )
 }

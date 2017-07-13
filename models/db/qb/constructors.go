@@ -35,12 +35,16 @@ func CreateFromSQL(sqlCommand string) *QueryBuilder {
 	if fieldsText, ok := getTextSelectFields(sqlCommand); ok {
 		qb.getFields(fieldsText)
 	}
+
+	for _, table := range qb.Tables {
+		table.addAllFields()
+	}
 	return qb
 }
 
 var compRegEx = regexp.MustCompile(regFrom)
 
-func (qb *QueryBuilder) getFrom(sql string) {
+func (qb *QueryBuilder) getFrom(sql string) *QBTable{
 	var match []string = compRegEx.FindStringSubmatch(sql)
 
 	var tableName, Alias string
@@ -55,16 +59,7 @@ func (qb *QueryBuilder) getFrom(sql string) {
 		}
 	}
 
-	table := qb.AddTable(Alias, tableName)
-	for _, fieldStrc := range table.schema.Rows {
-
-		//field := &QBField{Name: fieldStrc.COLUMN_NAME, Schema: fieldStrc, Table: table}
-		table.AddField("", fieldStrc.COLUMN_NAME)
-		//TODO: сделать одно место для добавления полей!
-		qb.fields = append(qb.fields, table.Fields[fieldStrc.COLUMN_NAME])
-		qb.Aliases = append(qb.Aliases, fieldStrc.COLUMN_NAME)
-	}
-
+	return qb.AddTable(Alias, tableName)
 }
 
 var joinRegEx = regexp.MustCompile(regJoin)

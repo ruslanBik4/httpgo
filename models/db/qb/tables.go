@@ -4,7 +4,9 @@
 
 package qb
 
-import "github.com/ruslanBik4/httpgo/models/db/schema"
+import (
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+)
 
 // getters
 func (table *QBTable) GetSchema() *schema.FieldsTable {
@@ -52,4 +54,19 @@ func (qb *QueryBuilder) FindTable(name string) *QBTable {
 	}
 
 	return nil
+}
+func (table *QBTable) addAllFields()  {
+
+	if len(table.Fields) > 0 {
+		return
+	}
+	for _, fieldStrc := range table.schema.Rows {
+
+		//field := &QBField{Name: fieldStrc.COLUMN_NAME, Schema: fieldStrc, Table: table}
+		table.AddField("", fieldStrc.COLUMN_NAME)
+		//TODO: сделать одно место для добавления полей!
+		table.qB.fields = append(table.qB.fields, table.Fields[fieldStrc.COLUMN_NAME])
+		table.qB.Aliases = append(table.qB.Aliases, fieldStrc.COLUMN_NAME)
+	}
+
 }

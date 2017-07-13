@@ -22,8 +22,8 @@ var sqlCommand1 = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_na
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name  FROM AAA a"
 //var sql = "SELECT   FROM AAA a INNER JOIN BBB b ON a.id = b.id_user"
 
-const regSelect = "^SELECT[ ]+(?P<fields>.*)[ ]+FROM[ ]+"
-const regField = "^[ ]*(((?P<func_name>[a-zA-Z0-9]*)[(])?[ ]*(((?P<field_table>[a-zA-Z0-9_]*)[.])?(?P<field_name>[a-zA-Z0-9_*]*)){1})[)]?((([ ]+as[ ]+)|[ ]+)(?P<alias>[a-zA-Z0-9_]*))?"
+const regSelect = `^SELECT\s+(?P<fields>.*)\s+FROM\s+`
+const regField = `^\s*(((?P<func_name>[a-zA-Z0-9]*)[(])?[ ]*(((?P<field_table>[a-zA-Z0-9_]*)[.])?(?P<field_name>[a-zA-Z0-9_*]*)){1})[)]?(((\s+AS\s+)|\s+)(?P<alias>[a-zA-Z0-9_]*))?`
 const regFrom = `FROM\s*(?P<table>[.a-zA-Z0-9_]*)\s*(?P<table_alias>[a-zA-Z0-9_]*)*\s*`
 const regJoin = "(INNER|LEFT|RIGHT)[ ]*JOIN[ ]*(?P<join_table_name>[.a-zA-Z0-9_]*)[ ]*(?P<join_table_alias>[a-zA-Z0-9_]*)*[ ]*ON[ ]*((?P<on_left_table>[a-zA-Z0-9_]*)[.])+(?P<on_left_field>[a-zA-Z0-9_]*)[ ]*=[ ]*((?P<on_right_table>[a-zA-Z0-9_]*)[.])+(?P<on_right_field>[a-zA-Z0-9_]*)"
 
