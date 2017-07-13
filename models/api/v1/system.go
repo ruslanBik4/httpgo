@@ -74,10 +74,12 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 		var stdin io.WriteCloser
 		cmd := exec.Command("grep", "ERROR")
 		stdin, err = cmd.StdinPipe()
-		defer stdin.Close()
 
 		if err == nil {
-			_, err = stdin.Write(stdout)
+			go func() {
+				defer stdin.Close()
+				_, err = stdin.Write(stdout)
+			}()
 			if err == nil {
 				var stdoutStderr []byte
 				stdoutStderr, err = cmd.CombinedOutput()
