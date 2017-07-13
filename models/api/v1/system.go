@@ -65,7 +65,7 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("journalctl", "-u", "httpgo", " | grep ERROR")
+	cmd := exec.Command("journalctl -u httpgo | grep ERROR")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
