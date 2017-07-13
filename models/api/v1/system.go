@@ -9,6 +9,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
 	"os/exec"
+	"io"
 )
 // @/api/update/?branch={branch}
 // update httpgo & {project} co de from git  & build new version httpgo
@@ -65,14 +66,28 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("journalctl",  "-u httpgo | grep ERROR")
+	cmd := exec.Command("journalctl",  "-u", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
-	stdoutStderr, err := cmd.CombinedOutput()
+	stdout, err := cmd.Output()
+	if err == nil{
+		var stdin io.WriteCloser
+		cmd := exec.Command("grep", "ERROR")
+		stdin, err = cmd.StdinPipe()
+		defer stdin.Close()
+
+		if err == nil {
+			_, err = stdin.Write(stdout)
+			if err == nil {
+				var stdoutStderr []byte
+				stdoutStderr, err = cmd.CombinedOutput()
+				views.RenderOutput(w, stdoutStderr)
+			}
+		}
+	}
+
 	if err != nil {
 		views.RenderInternalError(w, err)
-	} else {
-		views.RenderOutput(w, stdoutStderr)
 	}
 }
 
