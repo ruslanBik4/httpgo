@@ -125,12 +125,14 @@ type MultiQueryTransact struct {
 	Queryes map[string]*ArgsQuery
 }
 
+const _2K = (1 << 10) * 2
+
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
 func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
 
-	r.ParseForm()
+	r.ParseMultipartForm(_2K)
 
 	if r.FormValue("table") == "" {
 		logs.ErrorLog(errors.New("not table name"))
@@ -218,7 +220,7 @@ func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastIns
 //возвращает количество измененных записей
 func (conn *TxConnect) DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err error) {
 
-	r.ParseForm()
+	r.ParseMultipartForm(_2K)
 
 	if r.FormValue("table") == "" {
 

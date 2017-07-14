@@ -606,7 +606,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			id, err := db.DoInsert(query.FieldList+") "+query.Values+")", query.Args...)
 			if err != nil {
 				logs.ErrorLog(err)
-				arrJSON["error"] = "true"
+				arrJSON["error"] = true
 				arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
 				break
 			} else {
