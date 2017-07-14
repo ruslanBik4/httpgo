@@ -32,6 +32,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"os/signal"
 	"net"
+	"syscall"
 )
 
 //go:generate qtc -dir=views/templates
@@ -480,7 +481,8 @@ func main() {
 	logs.StatusLog("System files found in " + *f_static)
 
 	ch := make(chan os.Signal)
-	signal.Notify(ch, os.Interrupt, os.Kill)
+	var KillSignal os.Signal = syscall.SIGTTIN
+	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
 	go listenOnShutdown(ch)
 
 	defer func() {

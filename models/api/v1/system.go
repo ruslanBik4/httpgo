@@ -23,11 +23,15 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		cmd.Args = append(cmd.Args, r.FormValue("branch"))
 	}
 
-	stdoutStderr, err := cmd.CombinedOutput()
+	cmd.Stdout = w
+
+	err := cmd.Start()
+	//stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
 		views.RenderInternalError(w, err)
 	} else {
-		views.RenderOutput(w, stdoutStderr)
+		w.Write([]byte("restart server go"))
+		//views.RenderOutput(w, "stdoutStderr")
 	}
 
 }
@@ -48,6 +52,8 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	//}
 	if err != nil {
 		views.RenderInternalError(w, err)
+	} else {
+		w.Write([]byte("restart server go"))
 	}
 }
 // @/api/log/
