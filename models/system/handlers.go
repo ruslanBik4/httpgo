@@ -3,7 +3,6 @@ package system
 import (
 	"net/http"
 	//"log"
-	"fmt"
 	"github.com/ruslanBik4/httpgo/views"
 	//"runtime"
 	"github.com/ruslanBik4/httpgo/models/logs"

@@ -125,7 +125,7 @@ type MultiQueryTransact struct {
 	Queryes map[string]*ArgsQuery
 }
 
-const _2K = (1 << 10) * 2
+//const _2K = (1 << 10) * 2
 
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
