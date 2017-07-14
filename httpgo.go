@@ -30,6 +30,7 @@ import (
 	"sync"
 	"time"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"os/signal"
 )
 
 //go:generate qtc -dir=views/templates
@@ -474,6 +475,19 @@ func main() {
 	logs.StatusLog("Server starting")
 	logs.StatusLog("Static files found in ", *f_web)
 	logs.StatusLog("System files found in " + *f_static)
+
+	ch := make(chan os.Signal)
+	signal.Notify(ch, os.Interrupt, os.Kill)
+	go listenOnShutdown(ch)
+
+	defer func() {
+		logs.StatusLog("Server correct shutdown")
+	}()
 	logs.Fatal(http.ListenAndServe(*f_port, nil))
 
+}
+func listenOnShutdown(ch <- chan os.Signal) {
+	//var signShut os.Signal
+	signShut := <- ch
+	logs.StatusLog(signShut.String())
 }

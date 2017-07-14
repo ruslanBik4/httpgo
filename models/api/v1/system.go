@@ -93,6 +93,72 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @/api/log/errors/
+// show services errors
+func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("journalctl",  "-u", "httpgo")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdout, err := cmd.Output()
+	if err == nil{
+		var stdin io.WriteCloser
+		cmd := exec.Command("grep", "-oE", "httpgo.*STATUS.*")
+		stdin, err = cmd.StdinPipe()
+
+		if err == nil {
+			go func() {
+				defer stdin.Close()
+				_, err = stdin.Write(stdout)
+			}()
+			if err == nil {
+				var stdoutStderr []byte
+				stdoutStderr, err = cmd.CombinedOutput()
+				views.RenderOutput(w, stdoutStderr)
+			}
+		}
+	}
+
+	if err != nil {
+		views.RenderInternalError(w, err)
+	}
+}
+// @/api/log/errors/
+// show services errors
+func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("journalctl",  "-u", "httpgo")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdout, err := cmd.Output()
+	if err == nil{
+		var stdin io.WriteCloser
+		cmd := exec.Command("grep", "-oE", "httpgo.*DEBUG.*")
+		stdin, err = cmd.StdinPipe()
+
+		if err == nil {
+			go func() {
+				defer stdin.Close()
+				_, err = stdin.Write(stdout)
+			}()
+			if err == nil {
+				var stdoutStderr []byte
+				stdoutStderr, err = cmd.CombinedOutput()
+				views.RenderOutput(w, stdoutStderr)
+			}
+		}
+	}
+
+	if err != nil {
+		views.RenderInternalError(w, err)
+	}
+}
+
+
 func init() {
 	http.HandleFunc("/api/log/errors/", HandleShowErrorsServer )
+	http.HandleFunc("/api/log/status/", HandleShowStatusServer )
+	http.HandleFunc("/api/log/debug/",  HandleShowDebugServer )
 }
