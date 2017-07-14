@@ -31,6 +31,7 @@ import (
 	"time"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"os/signal"
+	"net"
 )
 
 //go:generate qtc -dir=views/templates
@@ -464,6 +465,8 @@ func init() {
 	}
 	services.InitServices()
 }
+var mainServer *http.Server
+var listener net.Listener
 func main() {
 	users.SetSessionPath(*f_session)
 	go cacheFiles()
@@ -483,11 +486,29 @@ func main() {
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
 	}()
-	logs.Fatal(http.ListenAndServe(*f_port, nil))
+
+    var err error
+
+
+	listener, err = net.Listen("tcp", *f_port)
+	if err != nil {
+		logs.Fatal(err)
+	}
+
+	mainServer =  &http.Server{ }
+
+
+
+mainServer.Serve(listener)
+	//logs.Fatal(mainServer.ListenAndServe(*f_port, nil))
 
 }
 func listenOnShutdown(ch <- chan os.Signal) {
 	//var signShut os.Signal
 	signShut := <- ch
+
+
+	mainServer.SetKeepAlivesEnabled(false)
+	listener.Close()
 	logs.StatusLog(signShut.String())
 }
