@@ -94,6 +94,7 @@ export class Input {
       case 'checkbox':
         if (value) {
           component.setAttribute('checked', true);
+          component.checked = true;
         } else {
           component.removeAttribute('checked');
         }
