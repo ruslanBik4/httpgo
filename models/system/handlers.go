@@ -40,8 +40,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 
 	switch err := result.(type) {
 	case ErrNotLogin:
-		fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!")
-		views.RenderSignForm(w, r, "")
+		views.RenderUnAuthorized(w)
 	case ErrNotPermission:
 		views.RenderNoPermissionPage(w)
 	case nil:
