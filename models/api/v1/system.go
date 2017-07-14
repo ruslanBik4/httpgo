@@ -38,13 +38,14 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 
 	cmd := exec.Command("systemctl", "restart", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
+	cmd.Stdout = w
 
 	err := cmd.Start()
-	if err == nil {
-		if stdoutStderr, err := cmd.Output(); err == nil {
-			views.RenderOutput(w, stdoutStderr)
-		}
-	}
+	//if err == nil {
+	//	if stdoutStderr, err := cmd.Output(); err == nil {
+	//		views.RenderOutput(w, stdoutStderr)
+	//	}
+	//}
 	if err != nil {
 		views.RenderInternalError(w, err)
 	}
