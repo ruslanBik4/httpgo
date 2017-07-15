@@ -4,6 +4,14 @@
 
 let bufData;
 
+const codeStatusServer = {
+  '401' : {
+    url: '/customer/login-user/'
+  },
+
+};
+
+
 export class Native {
 
   /*
@@ -15,7 +23,14 @@ export class Native {
     let result;
 
     if (temp.content && this.isElement(component)) {
-      temp.innerHTML = eval('`' + component.innerHTML + '`');
+
+      try {
+        temp.innerHTML = eval('`' + component.innerHTML + '`');
+      } catch (e) {
+        debugger;
+        console.log('%c error in Native.getHTMLDom()! ', 'color: #F44336');
+        console.error(component, '\n', data, '\n', e);
+      }
 
       if (this.isElement(parent)) {
         parent.appendChild(temp.content);
@@ -66,8 +81,8 @@ export class Native {
     try {
       return JSON.parse(response);
     } catch(e) {
-      console.log(e, response);
-      alert(e); // error in the above string (in this case, yes)!
+      console.error(e, response);
+      // alert(e); // error in the above string (in this case, yes)!
     }
   }
 
@@ -108,6 +123,17 @@ export class Native {
     xhr.send(body);
 
     xhr.onload = (response) => {
+
+      const codeStatus = codeStatusServer[response.currentTarget.status];
+
+      if (codeStatus) {
+        alert("Need authorization");
+        const openWindow = window.open(codeStatus.url, '_blank');
+        openWindow.focus();
+        return;
+      }
+
+
       if (callback) {
         callback(response.currentTarget.responseText, url);
       } else {
