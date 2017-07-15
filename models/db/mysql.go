@@ -455,8 +455,6 @@ func GetDataCustom(sqlParam SqlCustom, args ...interface{}) (rows *sql.Rows,
 func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected int, err error) {
 	var row argsRAW
 	var id int
-	var tableIDQueryes MultiQuery
-	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
 
 	comma, sqlCommand, where := "", "UPDATE "+table+" SET ", " WHERE "
 
