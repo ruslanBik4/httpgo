@@ -217,7 +217,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 		case "table":
 			continue
 		case "id":
-			where += val[0]
+
 			id, err = strconv.Atoi(val[0])
 			if err != nil {
 				return -1, errors.New("Bad value in params ID:" + val[0])
