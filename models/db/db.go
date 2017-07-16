@@ -189,6 +189,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает количество измененных записей
+//TODO: сменить проверку параметров в цикле на предпроверку и добавить связку с схемой БД
 func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (RowsAffected int, err error) {
 
 	tableName := checkPOSTParams(r)
@@ -252,7 +253,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 				continue
 
 			} else if strings.Contains(key, "[]") {
-				// fileds type SET | ENUM
+				// fields type SET | ENUM
 				sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
 				str := strings.Join(val, ",")
 				row = append(row, str)

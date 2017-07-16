@@ -162,8 +162,9 @@ func (field *QBField) GetSelectedValues() {
 			logs.ErrorLogHandler(err, err.Table, field.Name, field.Table.Name)
 			panic(err)
 		case nil:
-		case ErrNotFoundParam:
-			logs.ErrorLog(err, field, field.SelectQB)
+		case *ErrNotFoundParam:
+			logs.ErrorLog(err, field, field.SelectQB, field.Table.Name)
+			logs.ErrorStack()
 		case error:
 			logs.ErrorLog(err, field, field.SelectQB)
 		}
