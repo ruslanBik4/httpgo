@@ -27,7 +27,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if tableName == "" {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table")
 		return
 	}
 
@@ -43,9 +43,9 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	qBuilder := qb.Create("id=?", "", "")
-	qBuilder.AddTable("", tableName)
 	// инши параметры могут быть использованы для суррогатных (вложенных) полей
 	qBuilder.PostParams = r.Form
+	addFieldsFromPost( qBuilder.AddTable("", tableName), r.Form )
 
 	addJSON := make(map[string]interface{}, 0)
 	if id := r.FormValue("id"); id > "" {
@@ -136,7 +136,7 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.PostParams = r.Form
-		qBuilder.AddTable("a", tableName)
+		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
 		qBuilder.AddArg(id)
 
 		wOut = w
@@ -148,7 +148,7 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 			views.WriteJSONHeaders(w)
 		}
 	} else {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table", "id")
 	}
 }
 // @/api/table/row/?table={nameTable}&id={id}
@@ -162,7 +162,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.PostParams = r.Form
-		qBuilder.AddTable("a", tableName)
+		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
 		qBuilder.AddArg(id)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
@@ -171,7 +171,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 			views.RenderAnyJSON(w, arrJSON[0])
 		}
 	} else {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table", "id")
 	}
 }
 // @/api/table/rows/?table={nameTable}
@@ -182,9 +182,9 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if tableName > "" {
-		qBuilder := qb.CreateFromSQL("SELECT * FROM " + tableName)
+		qBuilder := qb.Create("", "", "")
 		qBuilder.PostParams = r.Form
-		//qBuilder.AddTable("a", tableName)
+		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)
@@ -194,6 +194,6 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 			views.RenderArrayJSON(w, arrJSON)
 		}
 	} else {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table")
 	}
 }
