@@ -27,6 +27,9 @@ export class Select {
         component.appendChild(option);
 
       }
+      // debugger
+
+      // component.selectedIndex = 0;
     } else {
       throw new SyntaxError(`Данные некорректны, поле select`);
     }
@@ -40,14 +43,21 @@ export class Select {
   static addAttrToComponent(component, attr) {
 
     if (component.children.length !== 0) {
-      component.selectedIndex = -1;
+
+      if (component.selectedIndex > -1) {
+        const index = component.selectedIndex;
+        const option = component.children[index];
+        component.selectedIndex = -1;
+        option.selected = false;
+        option.removeAttribute('selected');
+      }
+
       for (let i = 0; i < component.children.length; i++) {
         let option = component.children[i];
-        if (option.getAttribute(Variables.paramsJSONForPost) == attr) {
-          option.setAttribute('selected', '');
-          break;
-        } else if (option.text == attr) {
-          option.setAttribute('selected', '');
+        if (option.getAttribute(Variables.paramsJSONForPost) == attr || option.text == attr) {
+          component.selectedIndex = i;
+          option.selected = true;
+          option.setAttribute('selected', true);
           break;
         }
       }
