@@ -39,20 +39,22 @@ var Validate = exports.Validate = function () {
 
             var result = false;
             var indexSelected = componentChild.selectedIndex;
-            var valueSelect = componentChild.options[indexSelected].value;
+            var valueSelect = indexSelected > -1 ? componentChild.options[indexSelected].value : false;
 
-            validateSelect.split(', ').forEach(function (value) {
-              if (value === 'first') {
-                result = indexSelected == 0;
-              } else if (value === 'last') {
-                result = indexSelected == componentChild.options.length - 1;
-              } else {
-                result = value == valueSelect;
-              }
-              if (result) {
-                return false;
-              }
-            });
+            if (valueSelect) {
+              validateSelect.split(', ').forEach(function (value) {
+                if (value === 'first') {
+                  result = indexSelected == 0;
+                } else if (value === 'last') {
+                  result = indexSelected == componentChild.options.length - 1;
+                } else {
+                  result = value == valueSelect;
+                }
+                if (result) {
+                  return false;
+                }
+              });
+            }
 
             if (result) {
               if (!isTest) componentChild.classList.add(classNameError);
