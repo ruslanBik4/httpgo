@@ -283,6 +283,13 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 			if tx, err = StartTransaction(); err != nil {
 				return -1, err
 			}
+			defer func() {
+				if err != nil {
+					tx.RollbackTransaction()
+				} else {
+					tx.CommitTransaction()
+				}
+			}()
 		}
 
 		if len(tableIDQueryes.Queryes) > 0 {
