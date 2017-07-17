@@ -20,6 +20,7 @@ type ArgsQuery struct {
 	isNotContainParentKey    bool
 }
 type MultiQuery struct {
+	parentName				string
 	Queryes 				map[string]*ArgsQuery
 }
 // найти в списке имя поля
@@ -41,7 +42,7 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 			FieldList: "",
 			Values:    "",
 			tableName: tableName,
-			parentKey: key,
+			parentKey: "`id_" + tableIDQueryes.parentName + "`",
 			TableValues: make( map[int] map [string] []string, 1),
 		}
 	}
