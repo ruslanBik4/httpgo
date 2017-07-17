@@ -12,6 +12,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"io"
 	"bytes"
+	"strings"
 )
 
 //noinspection GoInvalidConstType
@@ -70,6 +71,13 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 type ParamNotCorrect map[string] string
 
 // render errors
+
+// func get list params thoese not found in request
+func RenderNotParamsInPOST(w http.ResponseWriter, params ... string) {
+	http.Error(w, strings.Join(params, ",") + ": not found", http.StatusBadRequest)
+
+}
+// return header "BADREQUEST" & descriptors bad params
 func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	description, comma := "", ""

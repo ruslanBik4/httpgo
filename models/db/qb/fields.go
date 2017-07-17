@@ -82,6 +82,7 @@ func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 }
 
 // add field and returns table object
+//TODO: add checking real field in table !!!
 func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	if strings.Contains(name, " AS ") {
