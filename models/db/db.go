@@ -9,30 +9,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"github.com/ruslanBik4/httpgo/models/db/multiquery"
 )
 
 type argsRAW []interface{}
 
-type ArgsQuery struct {
-	Comma, FieldList, Values string
-	Args                     []interface{}
-	TableValues				 map[int] map [string] []string
-	Fields					 []string
-	isNotContainParentKey    bool
-}
-type MultiQuery struct {
-	Queryes 				map[string]*ArgsQuery
-}
-// найти в списке имя поля
-func (aq *ArgsQuery) findField(name string) bool {
-	for _, val := range aq.Fields {
-		if val == name {
-			return true
-		}
-	}
 
-	return false
-}
 func GetParentFieldName(tableName string) (name string) {
 	var listNs FieldsTable
 
@@ -58,143 +40,7 @@ var (
 	DigitsValidator = regexp.MustCompile(`^\d+$`)
 )
 
-func addNewItem(tableProps, value, userID string) (int, error) {
 
-	if newId, err := DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
-		return -1, err
-	} else {
-		return newId, nil
-	}
-
-}
-
-//TODO: добавить запись для мультиполей (setid_)
-func insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
-
-	// для обновление связей полей пытаемся вставить новую связку
-	// родительской таблицы с таблицей свойств
-	// игнорируем6 ЕСЛИ УЖЕ ЕСТЬ ТАКАЯ СВЯЗКА
-	sqlCommand := fmt.Sprintf("insert IGNORE into %s (id_%s, id_%s) values (%d, ?)",
-		tableValues, tableName, tableProps, id)
-	smtp, err := PrepareQuery(sqlCommand)
-	if err != nil {
-		logs.ErrorLog(err)
-		return err
-	}
-	var params, comma string
-	var valParams argsRAW
-
-	for _, value := range values {
-
-		id, err := strconv.Atoi(value)
-		// если не числовое значение - стало быть, это новое свойство и его добавим в таблицу свойств
-		if err != nil {
-			id, err = addNewItem(tableProps, value, userID)
-			if err != nil {
-				logs.ErrorLog(err, value)
-				return err
-			}
-			//value = strconv.Itoa(newId)
-		}
-		if resultSQL, err := smtp.Exec(value); err != nil {
-			logs.ErrorLog(err)
-		} else {
-			logs.DebugLog(resultSQL)
-		}
-		params += comma + "?"
-		valParams = append(valParams, id)
-		comma = ","
-	}
-	// теперь удалим все записи, которые НЕ пришли в запросе
-	sqlCommand = fmt.Sprintf("delete from %s where id_%s = %d AND id_%s not in (%s)",
-		tableValues, tableName, id, tableProps, params)
-
-	if smtp, err = PrepareQuery(sqlCommand); err != nil {
-		logs.ErrorLog(err)
-		return err
-	}
-
-	if resultSQL, err := smtp.Exec(valParams...); err != nil {
-		logs.ErrorLog(err, valParams)
-		return err
-	} else {
-		logs.DebugLog(resultSQL)
-	}
-
-	return err
-
-}
-func (tableIDQueryes *MultiQuery) addNewParam(key string, indSeparator int, val []string) {
-	tableName := key[:indSeparator]
-	query, ok := tableIDQueryes.Queryes[tableName]
-	if !ok {
-		query = &ArgsQuery{
-			Comma:     "",
-			FieldList: "",
-			Values:    "",
-			TableValues: make( map[int] map [string] []string, 1),
-		}
-	}
-	fieldName := key[ indSeparator + 1: ]
-	pos := strings.Index(fieldName, "[")
-	ind, err := strconv.Atoi( fieldName[pos+1:len(fieldName)-1] )
-	if err != nil {
-		logs.ErrorLog(err, fieldName)
-		return
-	}
-	fieldName = "`" + fieldName[:pos] + "`"
-
-	if !query.findField(fieldName) {
-		query.Fields = append(query.Fields, fieldName)
-	}
-
-	if _, ok := query.TableValues[ind]; !ok {
-		query.TableValues[ind] = make( map[string] []string, 1)
-		logs.StatusLog(ind)
-	}
-	query.TableValues[ind][fieldName] = val
-	query.Comma = ", "
-	tableIDQueryes.Queryes[tableName] = query
-	logs.StatusLog(key)
-
-}
-func (tableIDQueryes *MultiQuery) runQueryes(parentKey string, lastInsertId int) (err error) {
-
-	for tableName, query := range tableIDQueryes.Queryes {
-
-		if !query.findField(parentKey) {
-			query.Fields = append(query.Fields, parentKey)
-		}
-
-		params := "(?" + strings.Repeat(",?", len(query.Fields)-1 ) + ")"
-		sqlCommand := fmt.Sprintf("replace into %s (%s) values ", tableName, strings.Join( query.Fields, ",") )
-		var args []interface{}
-
-		comma := ""
-		for _, field := range query.TableValues {
-
-			sqlCommand += comma + params
-			comma = ","
-
-			for _, name := range query.Fields {
-				// последним добавляем вторичный ключ
-				if name == parentKey {
-					args = append(args, lastInsertId)
-				} else {
-					args = append(args, field[name][0])
-				}
-			}
-		}
-		logs.StatusLog(sqlCommand, args)
-		if id, err := DoInsert(sqlCommand, args...); err != nil {
-			logs.ErrorLog(err)
-		} else {
-			logs.DebugLog(sqlCommand, id)
-		}
-	}
-
-	return err
-}
 func GetNameTableProps(tableValue, parentTable string) string {
 	var ns FieldsTable
 	ns.GetColumnsProp(tableValue)
@@ -223,25 +69,36 @@ func getTableProps(key, typeField string) string {
 
 const _2K = (1 << 10) * 2
 
-//выполняет запрос согласно переданным данным в POST,
-//для суррогатных полей готовит запросы для изменения связанных полей
-//возвращает id новой записи
-func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
+func checkPOSTParams(r *http.Request) string {
 
 	r.ParseMultipartForm(_2K)
 
-	if r.FormValue("table") == "" {
+	return r.FormValue("table")
+
+}
+//выполняет запрос согласно переданным данным в POST,
+//для суррогатных полей готовит запросы для изменения связанных полей
+//возвращает id новой записи
+func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (lastInsertId int, err error) {
+
+	tableName := checkPOSTParams(r)
+	if tableName == "" {
 		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
-	tableName := r.FormValue("table")
+	tableIDQueryes := multiquery.Create()
+	var tx *TxConnect
+	// проверяем, что мы в контексте транзакции
+	if len(txConn) > 0 {
+		tx = txConn[0]
+	}
 
 	var row argsRAW
-	var tableIDQueryes MultiQuery
-	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
 
 	comma, sqlCommand, values := "", "insert into "+tableName+"(", "values ("
+
+	hasSurrogateFields := false
 
 	for key, val := range r.Form {
 
@@ -250,25 +107,26 @@ func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err err
 		if key == "table" {
 			continue
 		} else if strings.HasPrefix(key, "setid_") {
-			tableProps := getTableProps(key, "setid_")
-			defer func(tableName, tableProps string, values []string) {
+			hasSurrogateFields = true
+			defer func(tableProps string, values []string) {
 				if err == nil {
-					err = insertMultiSet(tableName, tableProps,
+					err = tx.insertMultiSet(tableName, tableProps,
 						tableName+"_"+tableProps+"_has", userID, values, lastInsertId)
 				}
-			}(tableName, tableProps, val)
+			}(getTableProps(key, "setid_"), val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_") {
-			tableProps := getTableProps(key, "nodeid_")
-			defer func(tableName, tableValues string, values []string) {
+			hasSurrogateFields = true
+
+			defer func(tableValues string, values []string) {
 				if err == nil {
 					tableProps := GetNameTableProps(tableValues, tableName)
 					if tableProps == "" {
 						logs.DebugLog("Empty tableProps! ", tableValues)
 					}
-					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
+					err = tx.insertMultiSet(tableName, tableProps, tableValues, userID, values, lastInsertId)
 				}
-			}(tableName, tableProps, val)
+			}(getTableProps(key, "nodeid_"), val)
 			continue
 		} else if key == "id_users" {
 
@@ -284,7 +142,8 @@ func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err err
 			}
 			row = append(row, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[") {
-			tableIDQueryes.addNewParam(key, indSeparator, val)
+			hasSurrogateFields = true
+			tableIDQueryes.AddNewParam(key, indSeparator, val)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`"
@@ -295,108 +154,156 @@ func DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err err
 
 	}
 
-	// если будут дополнительные запросы
-	if len(tableIDQueryes.Queryes) > 0 {
+	if hasSurrogateFields {
 		// исполнить по завершению функции, чтобы получить lastInsertId
-		defer func() {
-			if err == nil {
-				err = tableIDQueryes.runQueryes("id_" + tableName, lastInsertId)
-			}
-		}()
 
+		if tx == nil {
+			if tx, err = StartTransaction(); err != nil {
+				return -1, err
+			}
+		}
+
+		if len(tableIDQueryes.Queryes) > 0 {
+			defer func() {
+				if err == nil {
+					var idQuery int
+					for _, query := range tableIDQueryes.Queryes {
+
+						idQuery, err = tx.DoUpdate(query.GetUpdateSQL(lastInsertId))
+						if err == nil {
+							logs.DebugLog("Insert new child", idQuery)
+						}
+					}
+				}
+			}()
+		}
 	}
-	return DoInsert(sqlCommand+") "+values+")", row...)
+	if tx == nil {
+		return DoInsert(sqlCommand+") "+values+")", row...)
+	} else {
+		return tx.DoInsert(sqlCommand+") "+values+")", row...)
+	}
 
 }
 
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает количество измененных записей
-func DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err error) {
+//TODO: сменить проверку параметров в цикле на предпроверку и добавить связку с схемой БД
+func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (RowsAffected int, err error) {
 
-	r.ParseMultipartForm(_2K)
-
-	if r.FormValue("table") == "" {
+	tableName := checkPOSTParams(r)
+	if tableName == "" {
 		logs.ErrorLog(errors.New("not table name"))
 		return -1, http.ErrNotSupported
 	}
 
-	tableName := r.FormValue("table")
+	tableIDQueryes := multiquery.Create()
+	var tx *TxConnect
+	// проверяем, что мы в контексте транзакции
+	if len(txConn) > 0 {
+		tx = txConn[0]
+	}
 	var row argsRAW
 	var id int
-	var tableIDQueryes MultiQuery
-	tableIDQueryes.Queryes = make(map[string]*ArgsQuery, 0)
 
-	comma, sqlCommand, where := "", "update "+tableName+" set ", " where id="
+	hasSurrogateFields := false
+
+	comma, sqlCommand, where := "", "update "+tableName+" set ", " where id=?"
 
 	for key, val := range r.Form {
 
 		indSeparator := strings.Index(key, ":")
-		if key == "table" {
+		switch key {
+		case "table":
 			continue
-		} else if key == "id" {
-			where += val[0]
-			id, _ = strconv.Atoi(val[0])
-			continue
-		} else if strings.HasPrefix(key, "setid_") {
-			tableProps := getTableProps(key, "setid_")
-			defer func(tableProps string, values []string) {
-				if err == nil {
-					err = insertMultiSet(tableName, tableProps,
-						tableName+"_"+tableProps+"_has", userID, values, id)
-				} else {
-					logs.ErrorLog(err)
-				}
-			}(tableProps, val)
-			continue
-		} else if strings.HasPrefix(key, "nodeid_") {
-			tableProps := getTableProps(key, "nodeid_")
-			defer func(tableValues string, values []string) {
-				if err == nil {
-					tableProps := GetNameTableProps(tableValues, tableName)
-					if tableProps == "" {
-						logs.DebugLog("Empty tableProps! ", tableValues)
-					}
-					err = insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
-				} else {
-					logs.ErrorLog(err)
-				}
-			}(tableProps, val)
-			continue
-		} else if key == "id_users" {
+		case "id":
 
+			id, err = strconv.Atoi(val[0])
+			if err != nil {
+				return -1, errors.New("Bad value in params ID:" + val[0])
+			}
+			continue
+		case "id_users":
 			sqlCommand += comma + "`" + key + "`=?"
 			row = append(row, userID)
+		default:
+			if strings.HasPrefix(key, "setid_") {
+				hasSurrogateFields = true
 
-		} else if strings.Contains(key, "[]") {
-			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
-			str, comma := "", ""
-			for _, value := range val {
-				str += comma + value
-				comma = ","
+				defer func(tableProps string, values []string) {
+					if err == nil {
+						err = tx.insertMultiSet(tableName, tableProps,
+							tableName+"_"+tableProps+"_has", userID, values, id)
+					}
+				}(getTableProps(key, "setid_"), val)
+				continue
+			} else if strings.HasPrefix(key, "nodeid_") {
+				hasSurrogateFields = true
+
+				defer func(tableValues string, values []string) {
+					if err == nil {
+						tableProps := GetNameTableProps(tableValues, tableName)
+						if tableProps == "" {
+							logs.DebugLog("Empty tableProps! ", tableValues)
+						}
+						err = tx.insertMultiSet(tableName, tableProps, tableValues, userID, values, id)
+					}
+				}(getTableProps(key, "nodeid_"), val)
+				continue
+
+			} else if strings.Contains(key, "[]") {
+				// fields type SET | ENUM
+				sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
+				str := strings.Join(val, ",")
+				row = append(row, str)
+			} else if (indSeparator > 1) && strings.Contains(key, "[") {
+				hasSurrogateFields = true
+				tableIDQueryes.AddNewParam(key, indSeparator, val)
+				continue
+			} else {
+				sqlCommand += comma + "`" + key + "`=?"
+				row = append(row, val[0])
 			}
-			row = append(row, str)
-		} else if (indSeparator > 1) && strings.Contains(key, "[") {
-			tableIDQueryes.addNewParam(key, indSeparator, val)
-			continue
-		} else {
-			sqlCommand += comma + "`" + key + "`=?"
-			row = append(row, val[0])
 		}
 		comma = ", "
 
 	}
-	// если будут дополнительные запросы
-	if len(tableIDQueryes.Queryes) > 0 {
-		// исполнить по завершению функции, чтобы получить lastInsertId
-		defer func() {
-			if err == nil {
-				err = tableIDQueryes.runQueryes("id_" + tableName, id)
-			}
-		}()
 
+	if id < 1 {
+		return -1, errors.New("Bad or not value in params ID:" + string(id))
 	}
-	return DoUpdate(sqlCommand+where, row...)
+	row = append(row, id)
+	// если будут дополнительные запросы
+	if hasSurrogateFields {
+		// исполнить по завершению функции, чтобы получить lastInsertId
+
+		if tx == nil {
+			if tx, err = StartTransaction(); err != nil {
+				return -1, err
+			}
+		}
+
+		if len(tableIDQueryes.Queryes) > 0 {
+			defer func() {
+				if err == nil {
+					var idQuery int
+					for _, query := range tableIDQueryes.Queryes {
+
+						idQuery, err = tx.DoUpdate(query.GetUpdateSQL(id))
+						if err == nil {
+							logs.DebugLog("Insert new child", idQuery)
+						}
+					}
+				}
+			}()
+		}
+	}
+	if tx == nil {
+		return DoUpdate(sqlCommand+where, row...)
+	} else {
+		return tx.DoUpdate(sqlCommand+where, row...)
+	}
 
 }
 func createCommand(sqlCommand string, r *http.Request, typeQuery string) (row argsRAW, sqlQuery string) {

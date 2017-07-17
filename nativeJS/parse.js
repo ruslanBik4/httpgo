@@ -121,7 +121,9 @@ export class Parse {
     componentDom.querySelectorAll(`[${ Variables.routerAttr }]`).forEach((component) => {
       const self = this;
       component.onclick = function () {
-        idCurrentPage = this.getAttribute(Variables.paramsJSONId);
+        if (this.hasAttribute(Variables.paramsJSONId)) {
+          idCurrentPage = this.getAttribute(Variables.paramsJSONId);
+        }
         let url = this.getAttribute(Variables.routerHref);
 
         Native.request(url, (component) => {

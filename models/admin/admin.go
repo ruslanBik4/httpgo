@@ -3,9 +3,8 @@ package admin
 import (
 	"database/sql"
 	"encoding/base64"
-	"errors"
+	_ "errors"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	_ "github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
@@ -18,6 +17,7 @@ import (
 	"net/mail"
 	"strconv"
 	"strings"
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -485,8 +485,8 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
-		arrJSON["error"] = "true"
-		arrJSON["message"] = fmt.Sprintf("%s", users.NOT_AUTHORIZE)
+		views.RenderUnAuthorized(w)
+		return
 	} else {
 		var err error
 		var id int
@@ -526,100 +526,100 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 			HandlerAddRecord(w, r)
 		}
 	} else {
-		var params db.MultiQuery
-		var arrJSON map[string]interface{}
-
-		arrJSON = make(map[string]interface{}, 0)
-
-		params.Queryes = make(map[string]*db.ArgsQuery, 0)
-		for key, val := range r.Form {
-
-			indSeparator := strings.Index(key, ":")
-			if indSeparator < 1 {
-				message := "Error in name   don't write to DB. Field="
-				logs.ErrorLog(errors.New(message), key)
-				arrJSON["error"] = "true"
-				arrJSON["message"] = fmt.Sprintf(message+"%s^", key)
-				continue
-			}
-
-			tableName := key[:indSeparator]
-
-			query, ok := params.Queryes[tableName]
-			if !ok {
-				query = &db.ArgsQuery{
-					Comma:     "",
-					FieldList: "insert into " + tableName + "(",
-					Values:    "values (",
-				}
-			}
-			fieldName := key[strings.Index(key, ":")+1:]
-
-			if strings.Contains(fieldName, "[]") {
-				query.FieldList += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
-				str, comma := "", ""
-				for _, value := range val {
-					str += comma + value
-					comma = ","
-				}
-				query.Args = append(query.Args, str)
-			} else if strings.Contains(fieldName, "[") {
-				logs.DebugLog("fieldName=", fieldName)
-				pos := strings.Index(fieldName, "[")
-				//number := fieldName[ pos+1 : strings.Index(fieldName, "]") ]
-				fieldName = "`" + fieldName[:pos] + "`"
-
-				// пока беда в том, что количество должно точно соответствовать!
-				//если первый  - то создаем новый список параметров для вставки
-				if strings.HasPrefix(query.FieldList, "insert into "+tableName+"("+fieldName) {
-					query.Comma = "), ("
-					//args, ok := query.args[0][fieldName]
-				} else if !strings.Contains(query.FieldList, fieldName) {
-					query.FieldList += query.Comma + fieldName
-					//query.args = append(query.args, make(map[string] string, 0))
-				}
-
-				logs.DebugLog("fieldName=", fieldName)
-				query.Args = append(query.Args, val[0])
-
-			} else {
-				query.FieldList += query.Comma + "`" + fieldName + "`"
-				query.Args = append(query.Args, val[0])
-			}
-			query.Values += query.Comma + "?"
-			query.Comma = ", "
-			params.Queryes[tableName] = query
-		}
-
-		primaryTable := ""
-		primaryID := 0
-
-		for key, query := range params.Queryes {
-			if primaryTable == "" {
-				primaryTable = key
-			} else {
-				query.FieldList += query.Comma + "`id_" + primaryTable + "`"
-				query.Args = append(query.Args, primaryID)
-				query.Values += query.Comma + "?"
-			}
-
-			id, err := db.DoInsert(query.FieldList+") "+query.Values+")", query.Args...)
-			if err != nil {
-				logs.ErrorLog(err)
-				arrJSON["error"] = "true"
-				arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
-				break
-			} else {
-				arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
-				arrJSON["id"] = id
-
-				if primaryID == 0 {
-					primaryID = id
-				}
-			}
-		}
-		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
-		views.RenderAnyJSON(w, arrJSON)
+		//var params db.MultiQuery
+		//var arrJSON map[string]interface{}
+		//
+		//arrJSON = make(map[string]interface{}, 0)
+		//
+		//params.Queryes = make(map[string]*db.ArgsQuery, 0)
+		//for key, val := range r.Form {
+		//
+		//	indSeparator := strings.Index(key, ":")
+		//	if indSeparator < 1 {
+		//		message := "Error in name   don't write to DB. Field="
+		//		logs.ErrorLog(errors.New(message), key)
+		//		arrJSON["error"] = "true"
+		//		arrJSON["message"] = fmt.Sprintf(message+"%s^", key)
+		//		continue
+		//	}
+		//
+		//	tableName := key[:indSeparator]
+		//
+		//	query, ok := params.Queryes[tableName]
+		//	if !ok {
+		//		query = &db.ArgsQuery{
+		//			Comma:     "",
+		//			FieldList: "insert into " + tableName + "(",
+		//			Values:    "values (",
+		//		}
+		//	}
+		//	fieldName := key[strings.Index(key, ":")+1:]
+		//
+		//	if strings.Contains(fieldName, "[]") {
+		//		query.FieldList += query.Comma + "`" + strings.TrimRight(fieldName, "[]") + "`"
+		//		str, comma := "", ""
+		//		for _, value := range val {
+		//			str += comma + value
+		//			comma = ","
+		//		}
+		//		query.Args = append(query.Args, str)
+		//	} else if strings.Contains(fieldName, "[") {
+		//		logs.DebugLog("fieldName=", fieldName)
+		//		pos := strings.Index(fieldName, "[")
+		//		//number := fieldName[ pos+1 : strings.Index(fieldName, "]") ]
+		//		fieldName = "`" + fieldName[:pos] + "`"
+		//
+		//		// пока беда в том, что количество должно точно соответствовать!
+		//		//если первый  - то создаем новый список параметров для вставки
+		//		if strings.HasPrefix(query.FieldList, "insert into "+tableName+"("+fieldName) {
+		//			query.Comma = "), ("
+		//			//args, ok := query.args[0][fieldName]
+		//		} else if !strings.Contains(query.FieldList, fieldName) {
+		//			query.FieldList += query.Comma + fieldName
+		//			//query.args = append(query.args, make(map[string] string, 0))
+		//		}
+		//
+		//		logs.DebugLog("fieldName=", fieldName)
+		//		query.Args = append(query.Args, val[0])
+		//
+		//	} else {
+		//		query.FieldList += query.Comma + "`" + fieldName + "`"
+		//		query.Args = append(query.Args, val[0])
+		//	}
+		//	query.Values += query.Comma + "?"
+		//	query.Comma = ", "
+		//	params.Queryes[tableName] = query
+		//}
+		//
+		//primaryTable := ""
+		//primaryID := 0
+		//
+		//for key, query := range params.Queryes {
+		//	if primaryTable == "" {
+		//		primaryTable = key
+		//	} else {
+		//		query.FieldList += query.Comma + "`id_" + primaryTable + "`"
+		//		query.Args = append(query.Args, primaryID)
+		//		query.Values += query.Comma + "?"
+		//	}
+		//
+		//	id, err := db.DoInsert(query.FieldList+") "+query.Values+")", query.Args...)
+		//	if err != nil {
+		//		logs.ErrorLog(err)
+		//		arrJSON["error"] = true
+		//		arrJSON["message"] = fmt.Sprintf("Error during insert into %s ", key)
+		//		break
+		//	} else {
+		//		arrJSON["message"] = fmt.Sprintf("insert into %s record #%d", key, id)
+		//		arrJSON["id"] = id
+		//
+		//		if primaryID == 0 {
+		//			primaryID = id
+		//		}
+		//	}
+		//}
+		//arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", primaryTable)
+		//views.RenderAnyJSON(w, arrJSON)
 	}
 }
 

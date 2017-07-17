@@ -25,6 +25,7 @@ const paramsForm = 'data-form-id';
 const paramsFormChildren = 'form';
 const paramsForClick = 'native-click-button';
 const paramsChangeId = 'native-change-id';
+const paramsNotInsertData = 'data-not-insert';
 
 
 // JSON reserved words
@@ -122,6 +123,10 @@ export class Variables {
 
   static get paramsChangeId() {
     return paramsChangeId;
+  }
+
+  static get paramsNotInsertData() {
+    return paramsNotInsertData;
   }
 
 

@@ -105,6 +105,9 @@ export class ParseJSON {
 
   static insertValueCurrentComponent(component, attr) {
 
+    if (component.hasAttribute(Variables.paramsNotInsertData))
+      return;
+
     let func = this.components[component.tagName];
     if (func && func.addAttrToComponent) {
       func.addAttrToComponent(component, attr);

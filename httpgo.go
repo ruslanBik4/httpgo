@@ -30,6 +30,9 @@ import (
 	"sync"
 	"time"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"os/signal"
+	"net"
+	"syscall"
 )
 
 //go:generate qtc -dir=views/templates
@@ -393,7 +396,7 @@ func handlerMenu(w http.ResponseWriter, r *http.Request) {
 	views.RenderAnyPage(w, r, catalog+content)
 }
 
-// считываю счасти из папки
+// считываю части из папки
 func cacheWalk(path string, info os.FileInfo, err error) error {
 	if (err != nil) || ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)
@@ -463,6 +466,8 @@ func init() {
 	}
 	services.InitServices()
 }
+var mainServer *http.Server
+var listener net.Listener
 func main() {
 	users.SetSessionPath(*f_session)
 	go cacheFiles()
@@ -474,6 +479,38 @@ func main() {
 	logs.StatusLog("Server starting")
 	logs.StatusLog("Static files found in ", *f_web)
 	logs.StatusLog("System files found in " + *f_static)
-	logs.Fatal(http.ListenAndServe(*f_port, nil))
 
+	ch := make(chan os.Signal)
+	var KillSignal os.Signal = syscall.SIGTTIN
+	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
+	go listenOnShutdown(ch)
+
+	defer func() {
+		logs.StatusLog("Server correct shutdown")
+	}()
+
+    var err error
+
+
+	listener, err = net.Listen("tcp", *f_port)
+	if err != nil {
+		logs.Fatal(err)
+	}
+
+	mainServer =  &http.Server{ }
+
+
+
+mainServer.Serve(listener)
+	//logs.Fatal(mainServer.ListenAndServe(*f_port, nil))
+
+}
+func listenOnShutdown(ch <- chan os.Signal) {
+	//var signShut os.Signal
+	signShut := <- ch
+
+
+	mainServer.SetKeepAlivesEnabled(false)
+	listener.Close()
+	logs.StatusLog(signShut.String())
 }
