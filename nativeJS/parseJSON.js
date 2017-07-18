@@ -85,9 +85,10 @@ export class ParseJSON {
         else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
           func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
+        // if (component.tagName === 'SELECT') debugger;
 
-        // set default value TODO: refactor need default set value for select
-        if (component.tagName !== 'SELECT' && params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
+        // set default value TODO: refactor need default set value for select component.tagName !== 'SELECT' &&
+        if (params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
           func.addAttrToComponent(component, params[Variables.paramsJSONDefault]);
         }
 

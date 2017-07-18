@@ -175,7 +175,8 @@ function saveForm(thisForm, successFunction, errorFunction)
             var isNewRecord = $('input[name=id]').length == 0;
 
             for( var i = a.length -1; i >= 0; --i){
-                if ( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one') ) {
+                if (( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one'))
+                  || (a[i].value.length === 0 && a[i].name === 'id')) {
                     a.splice(i,1);
                 }
             }
