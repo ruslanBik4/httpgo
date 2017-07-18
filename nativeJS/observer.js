@@ -20,11 +20,12 @@ export class Observer {
   static addListener(eventName, callback) {
 
     const listeners = this.listeners.get(eventName);
+    const hashCallback = this.hashCode(callback);
     let isListener = false;
 
     if (listeners && listeners.length) {
       for (let listener of listeners) {
-        if (listener === callback) {
+        if (listener.hash === hashCallback) {
           isListener = true;
           break;
         }
@@ -33,7 +34,7 @@ export class Observer {
 
     if (!isListener) {
       this.listeners.has(eventName) || this.listeners.set(eventName, []);
-      this.listeners.get(eventName).push(callback);
+      this.listeners.get(eventName).push({ func:callback, hash: this.hashCode(callback) });
     }
 
   }
@@ -43,12 +44,12 @@ export class Observer {
     let index;
       
     if (listeners && listeners.length) {
-      index = listeners.reduce((i, listener, index) => {
+      index = listeners.func.reduce((i, listener, index) => {
         return (isFunction(listener) && listener === callback) ? i = index : i;
       }, -1);
       if (index > -1) {
-        listeners.splice(index, 1);
-        this.listeners.set(eventName, listeners);
+        listeners.func.splice(index, 1);
+        this.listeners.set(eventName, listeners.func);
         return true;
       }
     }
@@ -61,14 +62,27 @@ export class Observer {
 
     if (listeners && listeners.length) {
       for (let listener of listeners) {
-        const isRemove = listener(...args);
+        const isRemove = listener.func(...args);
         if (isRemove) {
-          this.removeListener(eventName, listener);
+          this.removeListener(eventName, listener.func);
         }
       }
       result = true;
     }
 
     return result;
+  }
+
+  static hashCode(str) {
+    let hash = 0;
+    str = (typeof str === 'string') ? str : str.toString();
+
+    if (str.length == 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+      let char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
   }
 }
