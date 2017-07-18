@@ -23,20 +23,22 @@ export class Validate {
 
           let result = false;
           const indexSelected = componentChild.selectedIndex;
-          const valueSelect = componentChild.options[indexSelected].value;
+          const valueSelect = (indexSelected > -1) ? componentChild.options[indexSelected].value : false;
 
-          validateSelect.split(', ').forEach((value) => {
-            if (value === 'first') {
-              result = (indexSelected == 0);
-            } else if (value === 'last') {
-              result = (indexSelected == componentChild.options.length - 1);
-            } else {
-              result = (value == valueSelect);
-            }
-            if (result) {
-              return false;
-            }
-          });
+          if (valueSelect) {
+            validateSelect.split(', ').forEach((value) => {
+              if (value === 'first') {
+                result = (indexSelected == 0);
+              } else if (value === 'last') {
+                result = (indexSelected == componentChild.options.length - 1);
+              } else {
+                result = (value == valueSelect);
+              }
+              if (result) {
+                return false;
+              }
+            });
+          }
 
           if (result) {
             if (!isTest) componentChild.classList.add(classNameError);

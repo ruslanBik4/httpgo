@@ -87,7 +87,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 		return -1, http.ErrNotSupported
 	}
 
-	tableIDQueryes := multiquery.Create()
+	tableIDQueryes := multiquery.Create(tableName)
 	var tx *TxConnect
 	// проверяем, что мы в контексте транзакции
 	if len(txConn) > 0 {
@@ -169,7 +169,8 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 					var idQuery int
 					for _, query := range tableIDQueryes.Queryes {
 
-						idQuery, err = tx.DoUpdate(query.GetUpdateSQL(lastInsertId))
+						sql, args := query.GetUpdateSQL(lastInsertId)
+						idQuery, err = tx.DoUpdate(sql, args ...)
 						if err == nil {
 							logs.DebugLog("Insert new child", idQuery)
 						}
@@ -193,19 +194,31 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (RowsAffected int, err error) {
 
 	tableName := checkPOSTParams(r)
-	if tableName == "" {
+
+	if len(r.Form) < 3 {
+		return -1, errors.New("Count params is less 3!")
+	}
+	idText    := r.FormValue("id")
+	if (tableName == "") && (idText == "") {
 		logs.ErrorLog(errors.New("not table name"))
-		return -1, http.ErrNotSupported
+		return -1, ErrParamNotFound{Name: "table", FuncName: "DoUpdateFromForm"}
 	}
 
-	tableIDQueryes := multiquery.Create()
+	id, err := strconv.Atoi(idText)
+	if (err != nil) || (id < 1) {
+		return -1, ErrBadParam{Name: "id", BadName: idText, FuncName: "DoUpdateFromForm"}
+	}
+	// удаляем определяющие параметры
+	r.Form.Del("table")
+	r.Form.Del("id")
+
+	tableIDQueryes := multiquery.Create(tableName)
 	var tx *TxConnect
 	// проверяем, что мы в контексте транзакции
 	if len(txConn) > 0 {
 		tx = txConn[0]
 	}
 	var row argsRAW
-	var id int
 
 	hasSurrogateFields := false
 
@@ -213,21 +226,12 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 
 	for key, val := range r.Form {
 
-		indSeparator := strings.Index(key, ":")
 		switch key {
-		case "table":
-			continue
-		case "id":
-
-			id, err = strconv.Atoi(val[0])
-			if err != nil {
-				return -1, errors.New("Bad value in params ID:" + val[0])
-			}
-			continue
 		case "id_users":
 			sqlCommand += comma + "`" + key + "`=?"
 			row = append(row, userID)
 		default:
+			indSeparator := strings.Index(key, ":")
 			if strings.HasPrefix(key, "setid_") {
 				hasSurrogateFields = true
 
@@ -270,9 +274,6 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 
 	}
 
-	if id < 1 {
-		return -1, errors.New("Bad or not value in params ID:" + string(id))
-	}
 	row = append(row, id)
 	// если будут дополнительные запросы
 	if hasSurrogateFields {
@@ -282,6 +283,13 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 			if tx, err = StartTransaction(); err != nil {
 				return -1, err
 			}
+			defer func() {
+				if err != nil {
+					tx.RollbackTransaction()
+				} else {
+					tx.CommitTransaction()
+				}
+			}()
 		}
 
 		if len(tableIDQueryes.Queryes) > 0 {
@@ -290,7 +298,8 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 					var idQuery int
 					for _, query := range tableIDQueryes.Queryes {
 
-						idQuery, err = tx.DoUpdate(query.GetUpdateSQL(id))
+						sql, args := query.GetUpdateSQL(id)
+						idQuery, err = tx.DoUpdate(sql, args ...)
 						if err == nil {
 							logs.DebugLog("Insert new child", idQuery)
 						}

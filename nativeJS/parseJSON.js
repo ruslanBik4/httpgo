@@ -85,9 +85,10 @@ export class ParseJSON {
         else if (params[Variables.paramsJSONTitle] && func.setDefaultAttr) {
           func.setDefaultAttr(component, params[Variables.paramsJSONTitle]);
         }
+        // if (component.tagName === 'SELECT') debugger;
 
-        // set default value TODO: refactor need default set value for select
-        if (component.tagName !== 'SELECT' && params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
+        // set default value TODO: refactor need default set value for select component.tagName !== 'SELECT' &&
+        if (params[Variables.paramsJSONDefault] && func.addAttrToComponent) {
           func.addAttrToComponent(component, params[Variables.paramsJSONDefault]);
         }
 
@@ -267,34 +268,43 @@ export class ParseJSON {
 
             if (parent) { // && parent.getAttribute(Variables.paramsJSONIdForTable).length === 0
 
+              const changeNameInTableId = (newComponent, index, idParent) => {
+                for (let id in attr) {
+                  const component = newComponent.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.querySelector(`[name="${ strTable }:${ id }[]"]`);
+                  if (component) {
+                    if (idParent) {
+                      component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
+                    }
+                    this.setAttrToComponent(component, attr[id]);
+                    this.setNewAttrIdAndName(component, index);
+                  }
+                }
+              };
+
+              const changeNameForTableId = (parent, temp, index, idParent) => {
+                const newComponent = temp.cloneNode(true);
+
+                newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
+                  this.setAttribute('id', this.getAttribute('id') + '-' + index);
+                });
+
+                changeNameInTableId(newComponent.content, index, idParent);
+                parent.appendChild(newComponent.content);
+              };
+
+              let indexArrayTableId = 0;
+
               const idParent = dom.getAttribute(Variables.paramsJSONIdData);
               parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
 
               const temp = document.createElement('template');
               temp.innerHTML = parent.innerHTML;
 
+              changeNameInTableId(parent, indexArrayTableId++, idParent);
+
               document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
                 component.onclick = () => {
-
-                  const newComponent = temp.cloneNode(true);
-                  const index = parent.children.length;
-
-                  newComponent.content.querySelectorAll(`[${ Variables.paramsChangeId }]`).forEach(function () {
-                    this.setAttribute('id', this.getAttribute('id') + '-' + index);
-                  });
-
-                  for (let id in attr) {
-                    const component = newComponent.content.querySelector(`[name="${ strTable }:${ id }"]`) || newComponent.content.querySelector(`[name="${ strTable }:${ id }[]"]`);
-
-                    if (component) {
-                      component.setAttribute('id', component.getAttribute('id') + '-' + idParent);
-                      this.setAttrToComponent(component, attr[id]);
-                      this.setNewAttrIdAndName(component, index);
-                    }
-                  }
-
-                  parent.appendChild(newComponent.content);
-
+                  changeNameForTableId(parent, temp, indexArrayTableId++, idParent);
                   return false;
                 };
               });

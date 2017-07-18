@@ -5,6 +5,6 @@
 package multiquery
 
 
-func Create() *MultiQuery{
-	return &MultiQuery{	Queryes: make(map[string]*ArgsQuery, 0)}
+func Create(tableName string) *MultiQuery{
+	return &MultiQuery{	Queryes: make(map[string]*ArgsQuery, 0), parentName: tableName}
 }

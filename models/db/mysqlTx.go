@@ -175,7 +175,7 @@ func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID
 		if resultSQL, err := smtp.Exec(value); err != nil {
 			logs.ErrorLog(err)
 		} else {
-			logs.DebugLog(resultSQL)
+			logs.DebugLog(resultSQL.LastInsertId())
 		}
 		params += comma + "?"
 		valParams = append(valParams, id)
