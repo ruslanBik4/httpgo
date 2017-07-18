@@ -10,7 +10,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"fmt"
 )
-
+// аргументы для запроса, формируются дирнамичекски по полученным данным
+// для этого имеем несколько доп. полей для промежуточных результатов
 type ArgsQuery struct {
 	Comma, FieldList, Values string
 	tableName, parentKey     string
@@ -19,6 +20,9 @@ type ArgsQuery struct {
 	Fields					 []string
 	isNotContainParentKey    bool
 }
+// для подготовки запросов суррогатнызх полей
+// их значения мы получаем в одном запросе вместе
+//с данными основной таблицы
 type MultiQuery struct {
 	parentName				string
 	Queryes 				map[string]*ArgsQuery
@@ -33,6 +37,8 @@ func (query *ArgsQuery) findField(name string) bool {
 
 	return false
 }
+// добавляем запросы для мультиполей, различаем их по таблицам(куда будем делать вставки
+// и по строкам (так как для tableid_ может прийти сразу несколько строк данных!
 func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val []string) {
 	tableName := key[:indSeparator]
 	query, ok := tableIDQueryes.Queryes[tableName]
@@ -66,9 +72,9 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 	query.TableValues[row][fieldName] = val
 	query.Comma = ", "
 	tableIDQueryes.Queryes[tableName] = query
-	logs.StatusLog(key)
-
 }
+// получаем запрос для вставки данных суррогатных полей
+// далее он может быть использован внутри транзакции, например
 func (query *ArgsQuery) GetUpdateSQL(idParent int) (string, []interface{}) {
 
 	if !query.findField(query.parentKey) {
@@ -98,7 +104,11 @@ func (query *ArgsQuery) GetUpdateSQL(idParent int) (string, []interface{}) {
 			if name == query.parentKey {
 				args = append(args, idParent)
 			} else {
-				args = append(args, field[name][0])
+				if value, ok := field[name]; ok{
+					args = append(args, value[0])
+				} else {
+					args = append(args, "DEFAULT" )
+				}
 			}
 		}
 	}
