@@ -195,15 +195,18 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 
 	tableName := checkPOSTParams(r)
 
+	if len(r.Form) < 3 {
+		return -1, errors.New("Count params is less 3!")
+	}
 	idText    := r.FormValue("id")
 	if (tableName == "") && (idText == "") {
 		logs.ErrorLog(errors.New("not table name"))
-		return -1, http.ErrNotSupported
+		return -1, ErrParamNotFound{Name: "table", FuncName: "DoUpdateFromForm"}
 	}
 
 	id, err := strconv.Atoi(idText)
-	if err != nil {
-		return -1, errors.New("Bad value in params ID:" + idText)
+	if (err != nil) || (id < 1) {
+		return -1, ErrBadParam{Name: "id", BadName: idText, FuncName: "DoUpdateFromForm"}
 	}
 	// удаляем определяющие параметры
 	r.Form.Del("table")
@@ -271,9 +274,6 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 
 	}
 
-	if id < 1 {
-		return -1, errors.New("Bad or not value in params ID:" + string(id))
-	}
 	row = append(row, id)
 	// если будут дополнительные запросы
 	if hasSurrogateFields {

@@ -69,14 +69,26 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 	logs.StatusLog(key)
 
 }
-func (query *ArgsQuery) GetUpdateSQL(lastInsertId int) (string, []interface{}) {
+func (query *ArgsQuery) GetUpdateSQL(idParent int) (string, []interface{}) {
 
 	if !query.findField(query.parentKey) {
 		query.Fields = append(query.Fields, query.parentKey)
 	}
 	params := "(?" + strings.Repeat(",?", len(query.Fields)-1) + ")"
-	sqlCommand := fmt.Sprintf("replace into %s (%s) values ", query.tableName, strings.Join(query.Fields, ","))
-	sqlCommand += params + strings.Repeat( "," + params, len(query.TableValues)-1)
+	sqlCommand := fmt.Sprintf("insert into %s (%s) values ", query.tableName, strings.Join(query.Fields, ","))
+	sqlCommand += params + strings.Repeat( "," + params, len(query.TableValues)-1) + " ON DUPLICATE KEY UPDATE "
+
+	// готовим дубликаты для записи только неключыевых полей!
+	comma := ""
+	for _, field := range query.Fields {
+		switch field {
+		case "id", query.parentKey:
+			continue
+		default:
+			sqlCommand += comma + field + "=VALUES(" + field + ")"
+		}
+		comma = ","
+	}
 	var args []interface{}
 
 	for _, field := range query.TableValues {
@@ -84,7 +96,7 @@ func (query *ArgsQuery) GetUpdateSQL(lastInsertId int) (string, []interface{}) {
 		for _, name := range query.Fields {
 			// последним добавляем вторичный ключ
 			if name == query.parentKey {
-				args = append(args, lastInsertId)
+				args = append(args, idParent)
 			} else {
 				args = append(args, field[name][0])
 			}
