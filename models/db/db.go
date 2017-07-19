@@ -82,10 +82,19 @@ func checkPOSTParams(r *http.Request) string {
 func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (lastInsertId int, err error) {
 
 	tableName := checkPOSTParams(r)
+	if len(r.Form) < 3 {
+		return -1, errors.New("Count params is less 3!")
+	}
 	if tableName == "" {
 		logs.ErrorLog(errors.New("not table name"))
-		return -1, http.ErrNotSupported
+		return -1, ErrParamNotFound{Name: "table", FuncName: "DoInsertFromForm"}
 	}
+
+	if r.FormValue("id") > "" {
+		return -1, ErrBadParam{Name: "id", BadName: "found uncorrect params", FuncName: "DoInsertFromForm"}
+	}
+	// удаляем определяющие параметры
+	r.Form.Del("table")
 
 	tableIDQueryes := multiquery.Create(tableName)
 	var tx *TxConnect
@@ -104,9 +113,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 
 		indSeparator := strings.Index(key, ":")
 
-		if key == "table" {
-			continue
-		} else if strings.HasPrefix(key, "setid_") {
+		if strings.HasPrefix(key, "setid_") {
 			hasSurrogateFields = true
 			defer func(tableProps string, values []string) {
 				if err == nil {
@@ -161,24 +168,25 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 			if tx, err = StartTransaction(); err != nil {
 				return -1, err
 			}
-		}
 
-		if len(tableIDQueryes.Queryes) > 0 {
 			defer func() {
-				if err == nil {
-					var idQuery int
-					for _, query := range tableIDQueryes.Queryes {
-
-						sql, args := query.GetUpdateSQL(lastInsertId)
-						idQuery, err = tx.DoUpdate(sql, args ...)
-						if err == nil {
-							logs.DebugLog("Insert new child", idQuery)
-						}
-					}
+				if err != nil {
+					tx.RollbackTransaction()
+				} else {
+					tx.CommitTransaction()
 				}
 			}()
 		}
 	}
+
+	if len(tableIDQueryes.Queryes) > 0 {
+		defer func() {
+			if err == nil {
+				err = runMultiQuery(tableIDQueryes, lastInsertId, tx)
+			}
+		}()
+	}
+
 	if tx == nil {
 		return DoInsert(sqlCommand+") "+values+")", row...)
 	} else {
@@ -295,15 +303,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 		if len(tableIDQueryes.Queryes) > 0 {
 			defer func() {
 				if err == nil {
-					var idQuery int
-					for _, query := range tableIDQueryes.Queryes {
-
-						sql, args := query.GetUpdateSQL(id)
-						idQuery, err = tx.DoUpdate(sql, args ...)
-						if err == nil {
-							logs.DebugLog("Insert new child", idQuery)
-						}
-					}
+					err = runMultiQuery(tableIDQueryes, id, tx)
 				}
 			}()
 		}
@@ -314,6 +314,18 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 		return tx.DoUpdate(sqlCommand+where, row...)
 	}
 
+}
+func runMultiQuery(tableIDQueryes *multiquery.MultiQuery, parentId int, tx *TxConnect) error {
+	for _, query := range tableIDQueryes.Queryes {
+
+		sql, args := query.GetUpdateSQL(parentId)
+		idQuery, err := tx.DoUpdate(sql, args ...)
+		if err != nil {
+			return err
+		}
+		logs.DebugLog("Insert new child", idQuery)
+	}
+	return nil
 }
 func createCommand(sqlCommand string, r *http.Request, typeQuery string) (row argsRAW, sqlQuery string) {
 
