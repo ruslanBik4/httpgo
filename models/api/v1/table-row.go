@@ -145,8 +145,23 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.Form.Del("table")
 
-	var args []interface{}
-	where, comma := "", ""
+	where, args := PrepareQuery(r, table)
+	qBuilder := qb.Create(where, "", "")
+	qBuilder.PostParams = r.Form
+	qBuilder.AddTable("m", tableName)
+	qBuilder.AddArgs(args...)
+
+	wOut = w
+	comma = "["
+	err := qBuilder.SelectRunFunc(PutRowToJSON)
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		w.Write([]byte("]"))
+		views.WriteJSONHeaders(w)
+	}
+}
+func PrepareQuery(r *http.Request, table *schema.FieldsTable) (where string, args []interface{}) {
 	for key, value := range r.Form {
 
 		if (table.FindField(key) == nil) {
@@ -168,19 +183,7 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		}
 		comma = " AND "
 	}
-		qBuilder := qb.Create(where, "", "")
-		qBuilder.PostParams = r.Form
-	qBuilder.AddTable("m", tableName)
-	qBuilder.AddArgs(args...)
-
-		wOut = w
-		comma = ""
-		err := qBuilder.SelectRunFunc(PutRowToJSON)
-		if err != nil {
-			views.RenderInternalError(w, err)
-		} else {
-			views.WriteJSONHeaders(w)
-		}
+	return where, args
 }
 // @/api/table/row/?table={nameTable}&id={id}
 // return row from nameTable from key=id
