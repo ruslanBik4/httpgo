@@ -34,11 +34,11 @@ func HandleMultiRouteJSON(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Write([]byte(comma + val + `":`))
+		w.Write([]byte(comma + val + `":[`))
 		io.Copy(w, resp.Body)
-		comma = `,"`
+		comma = `],"`
 	}
-	w.Write([]byte("}"))
+	w.Write([]byte("]}"))
 
 }
 

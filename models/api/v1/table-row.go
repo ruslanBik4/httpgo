@@ -124,9 +124,9 @@ func PutRowToJSON(fields []*qb.QBField) error {
 	comma = ","
 	return nil
 }
-// @/api/table/view/?table={nameTable}
+// @/api/table/view/?table={nameTable}& other field in this table
 // return field with text values for show in site
-// /api/v1/table/view/
+
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
