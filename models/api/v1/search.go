@@ -35,7 +35,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if tableName == "" {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table")
 		return
 	}
 
