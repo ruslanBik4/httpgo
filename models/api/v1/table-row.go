@@ -131,13 +131,47 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
 	tableName := r.FormValue("table")
+	if tableName == "" {
+		views.RenderNotParamsInPOST(w, "table")
+		return
+	}
 	id := r.FormValue("id")
 
-	if (tableName > "") && (id > "") {
-		qBuilder := qb.Create("id=?", "", "")
+	if (id == "") && (len(r.Form) < 2) {
+		views.RenderNotParamsInPOST(w, "id")
+		return
+	}
+	table := schema.GetFieldsTable(tableName)
+
+	r.Form.Del("table")
+
+	var args []interface{}
+	where, comma := "", ""
+	for key, value := range r.Form {
+
+		if (table.FindField(key) == nil) {
+			logs.StatusLog(key, value)
+			continue
+		}
+		if len(value) > 1 {
+			where += comma + key + " in ("
+			commaIn := ""
+			for _, val := range value {
+				args = append(args, val)
+				where += commaIn + "?"
+				commaIn = ","
+			}
+			where += ")"
+		} else {
+			where += comma + key + "=?"
+			args = append(args, value[0])
+		}
+		comma = " AND "
+	}
+		qBuilder := qb.Create(where, "", "")
 		qBuilder.PostParams = r.Form
-		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
-		qBuilder.AddArg(id)
+	qBuilder.AddTable("m", tableName)
+	qBuilder.AddArgs(args...)
 
 		wOut = w
 		comma = ""
@@ -147,9 +181,6 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		} else {
 			views.WriteJSONHeaders(w)
 		}
-	} else {
-		views.RenderNotParamsInPOST(w, "table", "id")
-	}
 }
 // @/api/table/row/?table={nameTable}&id={id}
 // return row from nameTable from key=id
