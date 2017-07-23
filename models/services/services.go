@@ -69,6 +69,10 @@ func Send(name string, messages ...interface{}) (err error) {
 		return &ErrServiceNotFound{Name: name}
 	}
 
+	if pService.Status() != "ready" {
+		return &ErrServiceNotReady{Name: name}
+	}
+
 	return pService.Send(messages...)
 }
 func Get(name string, messages ...interface{}) (responce interface{}, err error) {

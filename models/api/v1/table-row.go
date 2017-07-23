@@ -101,7 +101,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 			if err != nil {
 				logs.ErrorLog(err, field.ChildQB)
 			}
-			logs.StatusLog(field.ChildQB)
+			logs.DebugLog(field.ChildQB)
 			wOut.Write([]byte("]"))
 		} else if field.Value == nil {
 			wOut.Write([]byte("null"))
