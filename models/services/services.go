@@ -43,7 +43,7 @@ func startService(name string, pService IService) {
 
 	defer catch(name)
 	if err := pService.Init(); err != nil {
-		logs.ErrorLogHandler(err, name)
+		logs.ErrorLog(err, name)
 	} else {
 		logs.StatusLog(name, " starting", ", Status - ", pService.Status())
 	}
