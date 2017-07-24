@@ -15,6 +15,7 @@ import (
 	_ "strings"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
+	"net/url"
 )
 
 const _2K = (1 << 10) * 2
@@ -135,17 +136,18 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderNotParamsInPOST(w, "table")
 		return
 	}
-	id := r.FormValue("id")
+	//TODO: add check ID as integer unsigned
+	_, ok := r.Form["id"]
 
-	if (id == "") && (len(r.Form) < 2) {
+	if !ok && (len(r.Form) < 2) {
 		views.RenderNotParamsInPOST(w, "id")
 		return
 	}
 	table := schema.GetFieldsTable(tableName)
 
-	r.Form.Del("table")
+	//r.Form.Del("table")
 
-	where, args := PrepareQuery(r, table)
+	where, args := PrepareQuery(r.Form, table)
 	qBuilder := qb.Create(where, "", "")
 	qBuilder.PostParams = r.Form
 	qBuilder.AddTable("m", tableName)
@@ -161,9 +163,14 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.WriteJSONHeaders(w)
 	}
 }
-func PrepareQuery(r *http.Request, table *schema.FieldsTable) (where string, args []interface{}) {
-	for key, value := range r.Form {
+func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, args []interface{}) {
 
+	comma := ""
+	for key, value := range rForm {
+
+		if key == "table" {
+			continue
+		}
 		if (table.FindField(key) == nil) {
 			logs.StatusLog(key, value)
 			continue
