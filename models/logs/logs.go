@@ -50,8 +50,16 @@ func StatusLog(args ...interface{}) {
 func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
+	calldepth   := 2
 
-	log.Output(2, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+	funcName := runtime.FuncForPC(pc).Name()
+	if funcName == "views.RenderInternalError" {
+		pc, _, _, _ = runtime.Caller(2)
+		funcName = runtime.FuncForPC(pc).Name()
+		calldepth++
+	}
+
+	log.Output(calldepth, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(funcName),
 		err.Error(), getArgsString(args...)))
 
 }
@@ -107,18 +115,21 @@ func changeShortName(file string) (short string) {
 
 //changeShortName(file string) (short string) - Convert args to string
 func getArgsString(args ...interface{}) (message string) {
-	message = ""
+
+	comma := ""
 	for _, arg := range args {
 
 		switch val := arg.(type) {
 		case nil:
-			message += "is nil"
+			message += comma + " is nil"
 		case LogsType:
-			message += val.PrintToLogs()
+			message += comma + val.PrintToLogs()
 		default:
 
-			message += fmt.Sprintf("%#v, ", arg)
+			message += comma + fmt.Sprintf("%s, ", arg)
 		}
+
+		comma = ", "
 	}
 
 	return message
