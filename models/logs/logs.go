@@ -126,7 +126,7 @@ func getArgsString(args ...interface{}) (message string) {
 			message += comma + val.PrintToLogs()
 		default:
 
-			message += comma + fmt.Sprintf("%s, ", arg)
+			message += comma + fmt.Sprintf("%#v", arg)
 		}
 
 		comma = ", "
