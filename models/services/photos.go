@@ -26,14 +26,14 @@ var (
 )
 
 func (photos *photosService) Init() error {
-	schema.status = "starting"
+	photos.status = "starting"
 
 	ServerConfig := server.GetServerConfig()
 
 	photos.path = filepath.Join(ServerConfig.WWWPath(), "files/photos")
 	photos.fileName = "test.txt"
 
-	schema.status = "ready"
+	photos.status = "ready"
 	return nil
 }
 

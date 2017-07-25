@@ -15,6 +15,7 @@ import (
 	_ "strings"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
+	"net/url"
 )
 
 const _2K = (1 << 10) * 2
@@ -78,30 +79,36 @@ var wOut http.ResponseWriter
 var comma string
 // read rows and store in JSON
 func PutRowToJSON(fields []*qb.QBField) error {
+	// обрамление объекта в JSON
 	wOut.Write([]byte(comma + "{"))
+	defer func() {
+		wOut.Write([]byte("}"))
+		comma = ","
+	}()
+
 	for idx, field := range fields {
 		if idx > 0 {
 			wOut.Write( []byte (",") )
 		}
 
-		wOut.Write([]byte(`"` + fields[idx].Alias + `":`))
+		wOut.Write([]byte(`"` + field.Alias + `":`))
 		if field.ChildQB != nil {
+			wOut.Write([]byte("["))
 			if fieldID, ok := field.Table.Fields["id"]; ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
 				field.ChildQB.Args[0] = string(fieldID.Value)
+				comma = ""
+				err := field.ChildQB.SelectRunFunc(PutRowToJSON)
+				if err != nil {
+					logs.ErrorLog(err, field.ChildQB)
+					return err
+				}
 			} else {
 				// проставляем 0 на случай, если в выборке нет ID
-				field.ChildQB.Args[0] = 0
-				logs.StatusLog("not id")
+				wOut.Write([]byte(`"error":"not ID in parent Table"`))
+				logs.DebugLog(field.ChildQB, field.Table)
 			}
 
-			wOut.Write([]byte("["))
-			comma = ""
-			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
-			if err != nil {
-				logs.ErrorLog(err, field.ChildQB)
-			}
-			logs.StatusLog(field.ChildQB)
 			wOut.Write([]byte("]"))
 		} else if field.Value == nil {
 			wOut.Write([]byte("null"))
@@ -120,36 +127,74 @@ func PutRowToJSON(fields []*qb.QBField) error {
 		}
 	}
 
-	wOut.Write([]byte("}"))
-	comma = ","
 	return nil
 }
-// @/api/table/view/?table={nameTable}
+// @/api/table/view/?table={nameTable}& other field in this table
 // return field with text values for show in site
-// /api/v1/table/view/
+
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
 	tableName := r.FormValue("table")
-	id := r.FormValue("id")
-
-	if (tableName > "") && (id > "") {
-		qBuilder := qb.Create("id=?", "", "")
-		qBuilder.PostParams = r.Form
-		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
-		qBuilder.AddArg(id)
-
-		wOut = w
-		comma = ""
-		err := qBuilder.SelectRunFunc(PutRowToJSON)
-		if err != nil {
-			views.RenderInternalError(w, err)
-		} else {
-			views.WriteJSONHeaders(w)
-		}
-	} else {
-		views.RenderNotParamsInPOST(w, "table", "id")
+	if tableName == "" {
+		views.RenderNotParamsInPOST(w, "table")
+		return
 	}
+	//TODO: add check ID as integer unsigned
+	_, ok := r.Form["id"]
+
+	if !ok && (len(r.Form) < 2) {
+		views.RenderNotParamsInPOST(w, "id")
+		return
+	}
+	table := schema.GetFieldsTable(tableName)
+
+	//r.Form.Del("table")
+
+	where, args := PrepareQuery(r.Form, table)
+	qBuilder := qb.Create(where, "", "")
+	qBuilder.PostParams = r.Form
+	qBuilder.AddTable("m", tableName)
+	qBuilder.AddArgs(args...)
+
+	wOut = w
+	comma = "["
+	err := qBuilder.SelectRunFunc(PutRowToJSON)
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		w.Write([]byte("]"))
+		views.WriteJSONHeaders(w)
+	}
+}
+func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, args []interface{}) {
+
+	comma := ""
+	for key, value := range rForm {
+
+		if key == "table" {
+			continue
+		}
+		if (table.FindField(key) == nil) {
+			logs.StatusLog(key, value)
+			continue
+		}
+		if len(value) > 1 {
+			where += comma + key + " in ("
+			commaIn := ""
+			for _, val := range value {
+				args = append(args, val)
+				where += commaIn + "?"
+				commaIn = ","
+			}
+			where += ")"
+		} else {
+			where += comma + key + "=?"
+			args = append(args, value[0])
+		}
+		comma = " AND "
+	}
+	return where, args
 }
 // @/api/table/row/?table={nameTable}&id={id}
 // return row from nameTable from key=id

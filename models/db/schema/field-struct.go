@@ -35,6 +35,7 @@ type FieldStructure struct {
 	COLUMN_COMMENT           string
 	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
+	PrimaryKey				 bool
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string

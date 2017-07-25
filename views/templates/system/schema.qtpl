@@ -6,7 +6,10 @@
 {% func ShowSchema(fields *schema.FieldsTable) %}
     {% for idx, field := range fields.Rows %}
     <figure id="divField{%d idx %}" class="input-wrap {%s field.CSSClass %}" >
-        <figcaption> {%s field.COLUMN_NAME %}</figcaption>
+        <h3> {%s field.COLUMN_NAME %}</h3>
+         {% if field.PrimaryKey %}
+            <div> <b> PrimaryKey</b></div>
+        {% endif %}
 
         <div> DATA_TYPE 	<b> {%s field.DATA_TYPE %} </b></div>
         <div> COLUMN_DEFAULT 	<b> {%s field.COLUMN_DEFAULT %} </b></div>
@@ -19,7 +22,7 @@
         <div> InputType	<b> {%s field.InputType%} </b></div>
         <div> CSSClass  	<b> {%s field.CSSClass  %} </b></div>
         <div> CSSStyle    <b> {%s field.CSSStyle   %} </b></div>
-        <div> TableName 	<b> {%s field.TableName %} </b></div>
+        <div> TableName 	<b> {%s field.Table.Name %} </b></div>
         <div> Where 		<b> {%s field.Where 	%} </b></div>
         <div> Figure 		<b> {%s field.Figure 	%} </b></div>
         <div> Placeholder	<b> {%s field.Placeholder%} </b></div>
@@ -37,8 +40,8 @@
         {% for name, value := range field.DataJSOM %}
          <div>  {%s name %} <b>{%s value.(string) %} </b> </div>
         {% endfor %}
-        {% for i, value := range field.EnumValues %}
-       <div>  {%d i %} <b>{%s value %} </b> </div>
+        {% for _, value := range field.EnumValues %}
+            <div>  <b>{%s value %} </b> </div>
         {% endfor %}
         {% if field.SETID || field.NODEID || field.TABLEID %}
             <div> TableProps	<b> {%s field.TableProps%} </b></div>

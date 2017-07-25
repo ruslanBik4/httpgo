@@ -8,6 +8,7 @@ const routerAPIGET = 'data-api-get';
 const routerAPIPOST = 'data-api-post';
 const routerHref = 'href';
 const routerAttr = 'data-link';
+const routerStopAttr = 'data-link';
 const nameForm = 'form';
 const nameMainContent = 'app-main';
 const dynamicallyScript = 'app-script';

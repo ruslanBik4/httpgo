@@ -13,13 +13,18 @@ import (
 	"io"
 	"bytes"
 	"strings"
+	"time"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"fmt"
 )
 
 //noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"Content-Type": "text/html; charset=utf-8",
 	"author":       "uStudio",
-	"Server":       "HTTPGO/0.0.1 (CentOS) Go 1.8.3",
+	"Server":       "HTTPGO/0.1 (CentOS) Go 1.8.3",
+	"Content-Language": "en, ru",
+	"Age"   :        fmt.Sprintf("%f", time.Since( server.GetServerConfig().StartTime ).Seconds() ),
 }
 
 func WriteHeaders(w http.ResponseWriter) {

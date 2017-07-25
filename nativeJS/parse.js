@@ -101,6 +101,19 @@ export class Parse {
   }
 
   /*
+  *   get component by route
+  */
+
+  static getComponentByRoute(url) {
+    Native.request(url, (component) => {
+      this._changeComponentDom(component);
+      Router.routing(url);
+    });
+  }
+
+
+
+  /*
   *    change Component dynamically
   */
 
@@ -121,15 +134,12 @@ export class Parse {
     componentDom.querySelectorAll(`[${ Variables.routerAttr }]`).forEach((component) => {
       const self = this;
       component.onclick = function () {
+
         if (this.hasAttribute(Variables.paramsJSONId)) {
           idCurrentPage = this.getAttribute(Variables.paramsJSONId);
         }
-        let url = this.getAttribute(Variables.routerHref);
 
-        Native.request(url, (component) => {
-          self._changeComponentDom(component);
-          Router.routing(url);
-        });
+        self.getComponentByRoute(this.getAttribute(Variables.routerHref));
 
         return false;
       };

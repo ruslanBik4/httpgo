@@ -103,18 +103,21 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 		tx = txConn[0]
 	}
 
-	var row argsRAW
+	var args argsRAW
 
 	comma, sqlCommand, values := "", "insert into "+tableName+"(", "values ("
-
-	hasSurrogateFields := false
 
 	for key, val := range r.Form {
 
 		indSeparator := strings.Index(key, ":")
 
 		if strings.HasPrefix(key, "setid_") {
-			hasSurrogateFields = true
+			if tx == nil {
+				tx, err = startTXforQuery()
+				defer func() {
+					finishTX(tx, err)
+				}()
+			}
 			defer func(tableProps string, values []string) {
 				if err == nil {
 					err = tx.insertMultiSet(tableName, tableProps,
@@ -123,7 +126,12 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 			}(getTableProps(key, "setid_"), val)
 			continue
 		} else if strings.HasPrefix(key, "nodeid_") {
-			hasSurrogateFields = true
+			if tx == nil {
+				tx, err = startTXforQuery()
+				defer func() {
+					finishTX(tx, err)
+				}()
+			}
 
 			defer func(tableValues string, values []string) {
 				if err == nil {
@@ -138,7 +146,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 		} else if key == "id_users" {
 
 			sqlCommand += comma + "`" + key + "`"
-			row = append(row, userID)
+			args = append(args, userID)
 
 		} else if strings.Contains(key, "[]") {
 			sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`"
@@ -147,39 +155,26 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 				str += comma + value
 				comma = ","
 			}
-			row = append(row, str)
+			args = append(args, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[") {
-			hasSurrogateFields = true
 			tableIDQueryes.AddNewParam(key, indSeparator, val)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`"
-			row = append(row, val[0])
+			args = append(args, val[0])
 		}
 		values += comma + "?"
 		comma = ", "
 
 	}
 
-	if hasSurrogateFields {
-		// исполнить по завершению функции, чтобы получить lastInsertId
-
+	if len(tableIDQueryes.Queryes) > 0 {
 		if tx == nil {
-			if tx, err = StartTransaction(); err != nil {
-				return -1, err
-			}
-
+			tx, err = startTXforQuery()
 			defer func() {
-				if err != nil {
-					tx.RollbackTransaction()
-				} else {
-					tx.CommitTransaction()
-				}
+				finishTX(tx, err)
 			}()
 		}
-	}
-
-	if len(tableIDQueryes.Queryes) > 0 {
 		defer func() {
 			if err == nil {
 				err = runMultiQuery(tableIDQueryes, lastInsertId, tx)
@@ -188,9 +183,9 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	}
 
 	if tx == nil {
-		return DoInsert(sqlCommand+") "+values+")", row...)
+		return DoInsert(sqlCommand+") "+values+")", args...)
 	} else {
-		return tx.DoInsert(sqlCommand+") "+values+")", row...)
+		return tx.DoInsert(sqlCommand+") "+values+")", args...)
 	}
 
 }
@@ -226,9 +221,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 	if len(txConn) > 0 {
 		tx = txConn[0]
 	}
-	var row argsRAW
-
-	hasSurrogateFields := false
+	var args argsRAW
 
 	comma, sqlCommand, where := "", "update "+tableName+" set ", " where id=?"
 
@@ -237,11 +230,16 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 		switch key {
 		case "id_users":
 			sqlCommand += comma + "`" + key + "`=?"
-			row = append(row, userID)
+			args = append(args, userID)
 		default:
 			indSeparator := strings.Index(key, ":")
 			if strings.HasPrefix(key, "setid_") {
-				hasSurrogateFields = true
+				if tx == nil {
+					tx, err = startTXforQuery()
+					defer func() {
+						finishTX(tx, err)
+					}()
+				}
 
 				defer func(tableProps string, values []string) {
 					if err == nil {
@@ -251,7 +249,12 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 				}(getTableProps(key, "setid_"), val)
 				continue
 			} else if strings.HasPrefix(key, "nodeid_") {
-				hasSurrogateFields = true
+				if tx == nil {
+					tx, err = startTXforQuery()
+					defer func() {
+						finishTX(tx, err)
+					}()
+				}
 
 				defer func(tableValues string, values []string) {
 					if err == nil {
@@ -268,52 +271,53 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 				// fields type SET | ENUM
 				sqlCommand += comma + "`" + strings.TrimRight(key, "[]") + "`=?"
 				str := strings.Join(val, ",")
-				row = append(row, str)
+				args = append(args, str)
 			} else if (indSeparator > 1) && strings.Contains(key, "[") {
-				hasSurrogateFields = true
 				tableIDQueryes.AddNewParam(key, indSeparator, val)
 				continue
 			} else {
 				sqlCommand += comma + "`" + key + "`=?"
-				row = append(row, val[0])
+				args = append(args, val[0])
 			}
 		}
 		comma = ", "
 
 	}
 
-	row = append(row, id)
+	args = append(args, id)
 	// если будут дополнительные запросы
-	if hasSurrogateFields {
-		// исполнить по завершению функции, чтобы получить lastInsertId
-
+	if len(tableIDQueryes.Queryes) > 0 {
 		if tx == nil {
-			if tx, err = StartTransaction(); err != nil {
-				return -1, err
+			tx, err = startTXforQuery()
+			defer func() {
+				finishTX(tx, err)
+			}()
+		}
+		defer func() {
+			if err == nil {
+				err = runMultiQuery(tableIDQueryes, id, tx)
 			}
-			defer func() {
-				if err != nil {
-					tx.RollbackTransaction()
-				} else {
-					tx.CommitTransaction()
-				}
-			}()
-		}
-
-		if len(tableIDQueryes.Queryes) > 0 {
-			defer func() {
-				if err == nil {
-					err = runMultiQuery(tableIDQueryes, id, tx)
-				}
-			}()
-		}
+		}()
 	}
+
 	if tx == nil {
-		return DoUpdate(sqlCommand+where, row...)
+		return DoUpdate(sqlCommand+where, args...)
 	} else {
-		return tx.DoUpdate(sqlCommand+where, row...)
+		return tx.DoUpdate(sqlCommand+where, args...)
 	}
 
+}
+// запускаем транзакцию, если в этом есть необходимость
+func startTXforQuery() (*TxConnect, error) {
+	return StartTransaction()
+}
+// и закрываем потом (в зависемости от результатов запросов)
+func finishTX(tx *TxConnect, err error) {
+	if err != nil {
+		tx.RollbackTransaction()
+	} else {
+		tx.CommitTransaction()
+	}
 }
 func runMultiQuery(tableIDQueryes *multiquery.MultiQuery, parentId int, tx *TxConnect) error {
 	for _, query := range tableIDQueryes.Queryes {

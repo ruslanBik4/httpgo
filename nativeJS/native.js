@@ -52,6 +52,19 @@ export class Native {
 
 
   /*
+  *   go to new component
+  */
+
+  static goToLink(url) {
+    if (typeof url === 'string') {
+      Parse.getComponentByRoute(url);
+    } else {
+      console.error('Url is don`t string: ', url);
+    }
+  }
+
+
+  /*
   *   add parse to Dynamic Component
   */
 
