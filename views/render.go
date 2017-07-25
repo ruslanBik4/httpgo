@@ -97,6 +97,14 @@ func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	http.Error(w, description, http.StatusBadRequest)
 }
+// для отдачи и записи в лог паники системы при работе хендлеров
+func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+	logs.ErrorLogHandler(err, args)
+	logs.ErrorStack()
+}
+
+// для отдачи и записи в лог ошибок системы при работе хендлеров
 func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLog(err, args)

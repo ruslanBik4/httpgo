@@ -17,6 +17,9 @@ import (
 )
 //"/api/v1/photos/add/"
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
+	const _24K = (1 << 10) * 24
+	r.ParseMultipartForm(_24K)
+
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
@@ -25,29 +28,30 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const _24K = (1 << 10) * 24
-	r.ParseMultipartForm(_24K)
+	if r.MultipartForm == nil {
+		views.RenderNotParamsInPOST(w, "file", "empty list")
+		return
+
+	}
+	w.Write([]byte("{"))
+	comma := ""
+
 	for _, headers := range r.MultipartForm.File {
 		for _, header := range headers {
 			//var err interface{}
 			inFile, _ := header.Open()
-
 			path := filepath.Join(tableName, id, header.Filename)
 			err := services.Send("photos", "save", path, inFile)
 			if err != nil {
-				switch err.(type) {
-				case services.ErrServiceNotCorrectOperation:
-
-					logs.ErrorLog(err.(error))
-				}
 				views.RenderInternalError(w, err)
-
+				return
 			} else {
-				w.Write([]byte("Succesfull - " + header.Filename))
+				w.Write([]byte(comma + `"` + header.Filename + `": "succesfull"`))
+				comma = ","
 			}
 		}
 	}
-	w.Write([]byte("\nDone"))
+	w.Write([]byte("}"))
 
 }
 // /api/v1/photos/
