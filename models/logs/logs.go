@@ -53,14 +53,14 @@ func ErrorLog(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(1)
 	calldepth   := 2
 
-	funcName := runtime.FuncForPC(pc).Name()
+	funcName := changeShortName(runtime.FuncForPC(pc).Name())
 	if funcName == "views.RenderInternalError" {
 		pc, _, _, _ = runtime.Caller(2)
-		funcName = runtime.FuncForPC(pc).Name()
+		funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		calldepth++
 	}
 
-	log.Output(calldepth, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(funcName),
+	log.Output(calldepth, fmt.Sprintf("[ERROR];%s;%s;%s", funcName,
 		err.Error(), getArgsString(args...)))
 
 }
@@ -86,7 +86,12 @@ func ErrorStack() {
 		if !ok {
 			break
 		}
-		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", changeShortName(runtime.FuncForPC(pc).Name())))
+		funcName := changeShortName(runtime.FuncForPC(pc).Name())
+		// пропускаем рендер ошибок
+		if funcName == "views.RenderInternalError" {
+			continue
+		}
+		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName) )
 		i++
 	}
 }
