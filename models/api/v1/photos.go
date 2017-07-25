@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"io"
 )
 //"/api/v1/photos/add/"
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
@@ -72,37 +73,47 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 		number = -1
 	}
 	result, err := services.Get("photos", tableName, id, number)
-	if err != nil {
-		views.RenderInternalError(w, err)
+	if err == nil {
+
+		switch ioReader := result.(type) {
+		case []string:
+			views.RenderStringSliceJSON(w, ioReader)
+		case *os.File:
+			//Get the file size
+			FileStat, _ := ioReader.Stat()                     //Get info from file
+			fileName, fileExt := filepath.Base(FileStat.Name()), filepath.Ext(FileStat.Name())
+			FileSize := strconv.FormatInt(FileStat.Size(), 10) //Get file size as a string
+			//Send the headers
+			w.Header().Set("Content-Description", "File Transfer")
+			w.Header().Set("Content-Type", "application/octet-stream")
+			w.Header().Set("Content-Disposition", "attachment; filename=" + fileName)
+			w.Header().Set("Content-Transfer-Encoding", "binary")
+			w.Header().Set("Cache-Control", "must-revalidate")
+
+			if fileExt == ".jpg" {
+
+				var str string
+				var img image.Image
+				img, str, err = image.Decode(ioReader)
+
+				ioReader.Name()
+				if err == nil {
+					err = jpeg.Encode(w, img, &jpeg.Options{Quality: 90})
+					if err == nil {
+						logs.DebugLog(str, FileSize, img.Bounds())
+					}
+				}
+			} else {
+				w.Header().Set("Content-Length", FileSize)
+				io.Copy(w, ioReader)
+			}
+
+		}
 	}
 
-	switch ioReader := result.(type) {
-	case []string:
-		views.RenderStringSliceJSON(w, ioReader)
-	case *os.File:
-		//Get the file size
-		FileStat, _ := ioReader.Stat()                     //Get info from file
-		FileSize := strconv.FormatInt(FileStat.Size(), 10) //Get file size as a string
-		//Send the headers
-		w.Header().Set("Content-Description", "File Transfer")
-		w.Header().Set("Content-Type", "application/octet-stream")
-		w.Header().Set("Content-Disposition", "attachment; filename="+tableName+id+".jpg")
-		w.Header().Set("Content-Transfer-Encoding", "binary")
-		w.Header().Set("Cache-Control", "must-revalidate")
-		//w.Header().Set("Content-Length", FileSize)
-
-		img, str, err := image.Decode(ioReader)
-		if err != nil {
-			logs.ErrorLog(err)
-			views.RenderInternalError(w, err)
-
-		}
-
-		if err := jpeg.Encode(w, img, &jpeg.Options{Quality: 90}); err != nil {
-			views.RenderInternalError(w, err)
-		} else {
-			logs.DebugLog(str, FileSize, img.Bounds())
-		}
+	if err != nil {
+		views.RenderInternalError(w, err)
+		return
 	}
 
 }
