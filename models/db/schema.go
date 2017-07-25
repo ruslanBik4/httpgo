@@ -201,7 +201,7 @@ var Schema_ready bool
 
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
-	go func() {
+	//go func() {
 		var tables RecordsTables
 		tables.GetTablesProp(server.GetServerConfig().DBName())
 
@@ -223,5 +223,5 @@ func InitSchema() {
 
 		Schema_ready = true
 
-	}()
+	//}()
 }

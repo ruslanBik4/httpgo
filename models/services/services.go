@@ -18,7 +18,7 @@ type IService interface {
 }
 
 type rootServices struct {
-	services map[string]IService
+	services map[string] IService
 }
 
 var sServices = &rootServices{services: make(map[string]IService, 0)}
@@ -45,7 +45,7 @@ func startService(name string, pService IService) {
 	if err := pService.Init(); err != nil {
 		logs.ErrorLog(err, name)
 	} else {
-		logs.StatusLog(name, " starting", ", Status - ", pService.Status())
+		logs.StatusLog(name + " starting, Status - " + pService.Status())
 	}
 }
 func catch(name string) {

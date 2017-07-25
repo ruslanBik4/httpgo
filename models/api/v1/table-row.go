@@ -79,30 +79,36 @@ var wOut http.ResponseWriter
 var comma string
 // read rows and store in JSON
 func PutRowToJSON(fields []*qb.QBField) error {
+	// обрамление объекта в JSON
 	wOut.Write([]byte(comma + "{"))
+	defer func() {
+		wOut.Write([]byte("}"))
+		comma = ","
+	}()
+
 	for idx, field := range fields {
 		if idx > 0 {
 			wOut.Write( []byte (",") )
 		}
 
-		wOut.Write([]byte(`"` + fields[idx].Alias + `":`))
+		wOut.Write([]byte(`"` + field.Alias + `":`))
 		if field.ChildQB != nil {
+			wOut.Write([]byte("["))
 			if fieldID, ok := field.Table.Fields["id"]; ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
 				field.ChildQB.Args[0] = string(fieldID.Value)
+				comma = ""
+				err := field.ChildQB.SelectRunFunc(PutRowToJSON)
+				if err != nil {
+					logs.ErrorLog(err, field.ChildQB)
+					return err
+				}
 			} else {
 				// проставляем 0 на случай, если в выборке нет ID
-				field.ChildQB.Args[0] = 0
-				logs.StatusLog("not id")
+				wOut.Write([]byte(`"error":"not ID in parent Table"`))
+				logs.DebugLog(field.ChildQB, field.Table)
 			}
 
-			wOut.Write([]byte("["))
-			comma = ""
-			err := field.ChildQB.SelectRunFunc(PutRowToJSON)
-			if err != nil {
-				logs.ErrorLog(err, field.ChildQB)
-			}
-			logs.DebugLog(field.ChildQB)
 			wOut.Write([]byte("]"))
 		} else if field.Value == nil {
 			wOut.Write([]byte("null"))
@@ -121,8 +127,6 @@ func PutRowToJSON(fields []*qb.QBField) error {
 		}
 	}
 
-	wOut.Write([]byte("}"))
-	comma = ","
 	return nil
 }
 // @/api/table/view/?table={nameTable}& other field in this table
