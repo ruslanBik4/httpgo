@@ -14,7 +14,6 @@ import (
 	"time"
 	"strings"
 	"database/sql"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type DBlistsService struct {
@@ -37,7 +36,7 @@ var (
 
 func (lRows *listRows) addRows() error {
 	rows, err := db.DoSelect("SELECT * FROM `" + lRows.schema.Name + "`")
-logs.DebugLog("SELECT * FROM " + lRows.schema.Name)
+
 	if err != nil {
 		return err
 	}

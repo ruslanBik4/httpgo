@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"time"
 )
 
 type LogsType interface {
@@ -124,6 +125,8 @@ func getArgsString(args ...interface{}) (message string) {
 			message += comma + " is nil"
 		case LogsType:
 			message += comma + val.PrintToLogs()
+		case time.Time:
+			message += comma + val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
 		default:
 
 			message += comma + fmt.Sprintf("%#v", arg)

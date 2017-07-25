@@ -15,13 +15,13 @@ import (
 	"path/filepath"
 	"strconv"
 )
-
+//"/api/v1/photos/add/"
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
 	if (tableName == "") || (id == "") {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table", "id")
 		return
 	}
 
@@ -50,6 +50,8 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("\nDone"))
 
 }
+// /api/v1/photos/
+// возвращает ссылки на фото обьекта либо файл
 func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
@@ -57,7 +59,7 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 	num := r.FormValue("num")
 
 	if (tableName == "") || (id == "") {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table", "id")
 		return
 	}
 
