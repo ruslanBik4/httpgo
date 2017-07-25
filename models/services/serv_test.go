@@ -6,6 +6,7 @@ package services
 
 import (
 	"testing"
+	"net/url"
 )
 
 func TestConnect(t *testing.T) {
@@ -112,14 +113,17 @@ func TestModSendInsert(t *testing.T) {
 	config["table"] = "test2"
 	config["key"] = "3333"
 	config["action"] = "insert"
-	var a = make(map[string][]string, 0)
+	var a []url.Values
+	result := make(map[string][]string, 0)
+	result["key"] = []string{
+		"11",
+	}
+	a = append(a, result)
 
-	a["key"] = append(a["key"], "value1", "value2")
 
-	result := make([]interface{}, 0)
 
-	result = append(result, config)
-	result = append(result, a)
+	//result = append(result, config)
+	//result = append(result, a)
 
 	defer func() {
 		err := recover()
@@ -127,7 +131,11 @@ func TestModSendInsert(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	Send("moderation", result)
+	err := Send("moderation", config, a)
+	if err != nil {
+		t.Error(err)
+	}
+
 	t.Skipped()
 }
 

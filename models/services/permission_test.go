@@ -48,6 +48,35 @@ func TestPermissSend(t *testing.T) {
 	}
 }
 
+func TestPermissSendExtranet(t *testing.T) {
+
+	ServerConfig := server.GetServerConfig()
+	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+		t.Error(err)
+	}
+
+	service := getService(permissName)
+	startService(permissName, service)
+
+	var result interface{}
+	result = Send(permissName, EXTRANET_PART, 8, "/admin/business/", DROP_PERMISS, 52)
+	if result == nil {
+		t.Skipped()
+		logs.DebugLog("result", result)
+		return
+	}
+
+	switch err := result.(type){
+
+	case ErrServiceNotCorrectParamType:
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+	case error:
+		t.Error("Not correct error type - " + err.Error())
+	default:
+		t.Error("Not correct error type - ")
+	}
+}
+
 func TestPermissSendWrongParam(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
@@ -93,7 +122,34 @@ func TestPermissGet(t *testing.T) {
 
 	switch err := sErr.(type){
 
-	case ErrServiceNotEnougnParameter:
+	case ErrServiceNotEnoughParameter:
+		t.Skipped()
+	case ErrServiceNotCorrectParamType:
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+	case nil:
+		t.Skipped()
+		logs.DebugLog("result", result)
+		return
+	default:
+		t.Error("Not correct error type - " )
+	}
+}
+
+func TestPermissGetExtranet(t *testing.T) {
+
+	ServerConfig := server.GetServerConfig()
+	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+		t.Error(err)
+	}
+
+	service := getService(permissName)
+	startService(permissName, service)
+
+	result, sErr := Get(permissName, "extranet", 8, "/payment_rules", "Delete", 52)
+
+	switch err := sErr.(type){
+
+	case ErrServiceNotEnoughParameter:
 		t.Skipped()
 	case ErrServiceNotCorrectParamType:
 		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
@@ -120,7 +176,7 @@ func TestPermissGetWrongParam(t *testing.T) {
 
 	switch err := sErr.(type){
 
-	case ErrServiceNotEnougnParameter:
+	case ErrServiceNotEnoughParameter:
 		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Name, err.Param )
 	case ErrServiceNotCorrectParamType:
 		t.Skipped()
