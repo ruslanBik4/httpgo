@@ -7,6 +7,7 @@ package api
 import (
 	"net/url"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 // check params "fields" in Post request & add those in qBuilder table
 func addFieldsFromPost(table *qb.QBTable, rForm url.Values)  {
@@ -17,4 +18,16 @@ func addFieldsFromPost(table *qb.QBTable, rForm url.Values)  {
 		}
 	}
 }
+
+func findField(key string, tables map[string]schema.FieldsTable) *schema.FieldStructure {
+
+	for _, table := range tables {
+		if field := table.FindField(key); field != nil {
+			return field
+		}
+	}
+
+	return nil
+}
+
 

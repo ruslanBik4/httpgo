@@ -13,6 +13,15 @@ type ErrServiceNotFound struct {
 func (err ErrServiceNotFound) Error() string {
 	return err.Name + MessServNotFound
 }
+const MessServNotReady = " service not ready to operation"
+
+type ErrServiceNotReady struct {
+	Name string
+}
+
+func (err ErrServiceNotReady) Error() string {
+	return err.Name + MessServNotReady
+}
 
 const photosNotCorrectOperation = " operation name is incorrect or not string type - "
 

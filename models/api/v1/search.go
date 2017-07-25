@@ -14,16 +14,6 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
-func findField(key string, tables map[string]schema.FieldsTable) *schema.FieldStructure {
-
-	for _, table := range tables {
-		if field := table.FindField(key); field != nil {
-			return field
-		}
-	}
-
-	return nil
-}
 func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	var where string
@@ -35,7 +25,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 
 	if tableName == "" {
-		views.RenderBadRequest(w)
+		views.RenderNotParamsInPOST(w, "table")
 		return
 	}
 

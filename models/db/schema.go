@@ -83,6 +83,8 @@ type FieldStructure struct {
 	CHARACTER_SET_NAME       sql.NullString
 	COLUMN_COMMENT           sql.NullString
 	COLUMN_TYPE              string
+	COLUMN_KEY				 string
+	EXTRA					 string
 	CHARACTER_MAXIMUM_LENGTH sql.NullInt64
 	//TITLE string
 	//TYPE_INPUT string
@@ -111,10 +113,10 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		limiter = " LIMIT " + limiter
 	}
 
-	rows, err := DoSelect("SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, "+
-		"IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, CHARACTER_MAXIMUM_LENGTH "+
-		"FROM INFORMATION_SCHEMA.COLUMNS C "+
-		"WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION"+limiter,
+	rows, err := DoSelect(`SELECT COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT,
+		IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, COLUMN_KEY, EXTRA, CHARACTER_MAXIMUM_LENGTH
+		FROM INFORMATION_SCHEMA.COLUMNS C
+		WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION`+limiter,
 		server.GetServerConfig().DBName(), table_name)
 	if err != nil {
 		return err
@@ -127,9 +129,8 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		var row FieldStructure
 
 		err := rows.Scan(&row.COLUMN_NAME, &row.DATA_TYPE, &row.COLUMN_DEFAULT, &row.IS_NULLABLE,
-			&row.CHARACTER_SET_NAME, &row.COLUMN_COMMENT, &row.COLUMN_TYPE,
+			&row.CHARACTER_SET_NAME, &row.COLUMN_COMMENT, &row.COLUMN_TYPE, &row.COLUMN_KEY, &row.EXTRA,
 			&row.CHARACTER_MAXIMUM_LENGTH)
-		//&row.TITLE, &row.TYPE_INPUT, &row.IS_VIEW,
 
 		if err != nil {
 			logs.ErrorLog(err)
@@ -157,7 +158,9 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			Events:      make(map[string]string, 0),
 			DataJSOM:    make(map[string]interface{}, 0),
 			Table:       fields,
-			IsHidden:    false,
+			// TODO: продумать позже механизм для READ-ONLY полей
+			IsHidden:    (field.COLUMN_KEY=="PRI") || (field.EXTRA=="on update CURRENT_TIMESTAMP"),
+			PrimaryKey:  field.COLUMN_KEY=="PRI",
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fields.Rows[i].CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -198,7 +201,7 @@ var Schema_ready bool
 
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
-	go func() {
+	//go func() {
 		var tables RecordsTables
 		tables.GetTablesProp(server.GetServerConfig().DBName())
 
@@ -220,5 +223,5 @@ func InitSchema() {
 
 		Schema_ready = true
 
-	}()
+	//}()
 }

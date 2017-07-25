@@ -97,6 +97,7 @@ export class Input {
           component.checked = true;
         } else {
           component.removeAttribute('checked');
+          component.checked = false;
         }
         break;
 

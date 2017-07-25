@@ -129,6 +129,11 @@ export class ParseJSON {
     component.setAttribute('id', `${ idAttr }-${ index }`);
   }
 
+  static changeAttrIdAndName(component) {
+    const nameAttr = component.getAttribute('name').replace('[0]', '');
+    component.setAttribute('name', nameAttr);
+  }
+
 
 
   /*
@@ -162,6 +167,13 @@ export class ParseJSON {
       let parent;
       let defaultComponent;
       let index = 0;
+
+      for (let id in data[index]) {
+        const [doms] = this._getDom(curComponent, id, strForTable, `[${ index }]`);
+        for (let dom of doms) {
+          this.changeAttrIdAndName(dom);
+        }
+      }
 
       for (let id in data[index]) {
 
@@ -295,16 +307,19 @@ export class ParseJSON {
               let indexArrayTableId = 0;
 
               const idParent = dom.getAttribute(Variables.paramsJSONIdData);
-              parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
+
+              if (idParent) {
+                parent.setAttribute(Variables.paramsJSONIdForTable, idParent);
+              }
 
               const temp = document.createElement('template');
               temp.innerHTML = parent.innerHTML;
 
-              changeNameInTableId(parent, indexArrayTableId++, idParent);
+              changeNameInTableId(parent, indexArrayTableId--, idParent);
 
               document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
                 component.onclick = () => {
-                  changeNameForTableId(parent, temp, indexArrayTableId++, idParent);
+                  changeNameForTableId(parent, temp, indexArrayTableId--, idParent);
                   return false;
                 };
               });

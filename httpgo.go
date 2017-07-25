@@ -222,6 +222,18 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 	keyName := path.Base(filename)
 
 	data, ok := getCache(keyName)
+	if ok {
+		// if found header no-cache - reread resource
+		cache, found := r.Header["Cache-Control"]
+		if found {
+			for _, val := range cache {
+				if val == "no-cache" {
+					ok = false
+					break
+				}
+			}
+		}
+	}
 	if !ok {
 		data, err := ioutil.ReadFile(filepath.Join(*f_static, filename))
 		if os.IsNotExist(err) {
@@ -231,6 +243,7 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		setCache(keyName, data)
+		logs.DebugLog("recache file", filename)
 	}
 	http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
 }
@@ -464,6 +477,7 @@ func init() {
 	if err := MongoConfig.Init(f_static, f_web, f_session); err != nil {
 		logs.ErrorLog(err)
 	}
+	logs.StatusLog("Server starting", ServerConfig.StartTime)
 	services.InitServices()
 }
 var mainServer *http.Server
@@ -476,7 +490,6 @@ func main() {
 
 	registerRoutes()
 
-	logs.StatusLog("Server starting")
 	logs.StatusLog("Static files found in ", *f_web)
 	logs.StatusLog("System files found in " + *f_static)
 

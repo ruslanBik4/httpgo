@@ -144,6 +144,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	return qb.Prepared.Query(qb.Args...)
 }
+// обход результатов запроса и передача callback func данных каждой строки для обработки
 func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) error {
 
 	rows, err := qb.GetDataSql()
