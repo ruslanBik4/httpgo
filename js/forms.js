@@ -162,7 +162,7 @@ function saveForm(thisForm, successFunction, errorFunction)
     // TODO: create element form for output form result
     var $out = $('output', thisForm),
         $loading = $('.loading', thisForm),
-        $progress = $('progress', thisForm);
+        $progress = $('.progress', thisForm);
 
     if (!validateFields(thisForm))
         return false;
