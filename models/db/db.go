@@ -95,7 +95,7 @@ func checkField(key string, table *schema.FieldsTable) (field *schema.FieldStruc
 	}
 
 	if field == nil {
-		return nil, -1, ErrBadParam {Name: fieldName, FuncName: "DoInsertFromForm"}
+		return nil, -1, ErrBadParam {Name: fieldName, BadName: " field not in table" + table.Name, FuncName: "DoInsertFromForm"}
 	}
 
 	return field, indSeparator, nil

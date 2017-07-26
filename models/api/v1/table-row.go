@@ -16,6 +16,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
 	"net/url"
+	"strings"
 )
 
 const _2K = (1 << 10) * 2
@@ -94,11 +95,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 		wOut.Write([]byte(`"` + field.Alias + `":`))
 		if field.ChildQB != nil {
 			wOut.Write([]byte("["))
-			fieldID, ok := field.Table.Fields["id"]
-			if !ok {
-				fieldID, ok = field.Table.Fields["id_tariffs"]
-			}
-			if ok {
+			if fieldID, ok := field.Table.Fields["id"]; ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
 				field.ChildQB.Args[0] = string(fieldID.Value)
 				comma = ""
@@ -107,8 +104,30 @@ func PutRowToJSON(fields []*qb.QBField) error {
 					logs.ErrorLog(err, field.ChildQB)
 					return err
 				}
+			} else if val := string(field.Value); val > "" {
+				// проставляем, что в значении есть фильтра
+				if i := strings.Index(val, ":"); i > 0 {
+					param, suffix := val[i+1:], ""
+					// считаем, что окончанием параметра могут быть символы ", )"
+					j := strings.IndexAny(param, ", )")
+					if j > 0 {
+						suffix = param[j:]
+						param = param[:j]
+					}
+					if fieldID, ok := field.Table.Fields[param]; ok {
+						field.SelectQB.AddArgs(fieldID)
+					}
+
+					val = val[:i] + "?" + suffix
+					field.ChildQB.SetWhere(val)
+					comma = ""
+					err := field.ChildQB.SelectRunFunc(PutRowToJSON)
+					if err != nil {
+						logs.ErrorLog(err, field.ChildQB)
+						return err
+					}
+				}
 			} else {
-				// проставляем 0 на случай, если в выборке нет ID
 				wOut.Write([]byte(`{"error":"not ID in parent Table"}`))
 				logs.DebugLog(field.ChildQB, field.Table)
 			}
