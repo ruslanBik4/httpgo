@@ -140,9 +140,7 @@ export class Native {
       const codeStatus = codeStatusServer[response.currentTarget.status];
 
       if (codeStatus) {
-        alert("Need authorization");
-        const openWindow = window.open(codeStatus.url, '_blank');
-        openWindow.focus();
+        Observer.emit(`Server: ${ response.currentTarget.status }`, response, url, callback, data);
         return;
       }
 
