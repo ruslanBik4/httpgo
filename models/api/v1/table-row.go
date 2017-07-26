@@ -105,7 +105,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 				}
 			} else {
 				// проставляем 0 на случай, если в выборке нет ID
-				wOut.Write([]byte(`"error":"not ID in parent Table"`))
+				wOut.Write([]byte(`{"error":"not ID in parent Table"}`))
 				logs.DebugLog(field.ChildQB, field.Table)
 			}
 
