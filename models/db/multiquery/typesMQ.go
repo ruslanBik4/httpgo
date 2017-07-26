@@ -49,8 +49,12 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 			FieldList: "",
 			Values:    "",
 			tableName: tableName,
-			parentKey: "`id_" + field.Table.Name + "`",
+			parentKey: "`id_" + tableIDQueryes.parentName + "`",
 			TableValues: make( map[int] map [string] []string, 1),
+		}
+		parentTable := schema.GetParentTable(tableName)
+		if parentTable != nil {
+			query.parentKey = "`id_" + parentTable.Name + "`"
 		}
 
 	}
