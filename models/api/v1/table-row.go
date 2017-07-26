@@ -94,7 +94,11 @@ func PutRowToJSON(fields []*qb.QBField) error {
 		wOut.Write([]byte(`"` + field.Alias + `":`))
 		if field.ChildQB != nil {
 			wOut.Write([]byte("["))
-			if fieldID, ok := field.Table.Fields["id"]; ok {
+			fieldID, ok := field.Table.Fields["id"]
+			if !ok {
+				fieldID, ok = field.Table.Fields["id_tariff"]
+			}
+			if ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
 				field.ChildQB.Args[0] = string(fieldID.Value)
 				comma = ""
