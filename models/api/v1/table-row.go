@@ -115,7 +115,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 						param = param[:j]
 					}
 					if fieldID, ok := field.Table.Fields[param]; ok {
-						field.ChildQB.SetArgs(fieldID.Value)
+						field.ChildQB.SetArgs(string(fieldID.Value))
 					}
 
 					val = val[:i] + "?" + suffix
