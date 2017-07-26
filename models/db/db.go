@@ -77,6 +77,30 @@ func checkPOSTParams(r *http.Request) string {
 	return r.FormValue("table")
 
 }
+// check field in schema
+func checkField(key string, table *schema.FieldsTable) (field *schema.FieldStructure, indSeparator int, err error) {
+
+	indSeparator = strings.Index(key, ":")
+	fieldName    := key
+	if pos := strings.Index(fieldName, "["); pos > 0 {
+		fieldName = fieldName[: pos]
+		logs.DebugLog(fieldName)
+	}
+	if indSeparator > 0 {
+		tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
+		fieldName  = fieldName[ indSeparator + 1: ]
+		field = tableChild.FindField(fieldName)
+	} else {
+		field = table.FindField(fieldName)
+	}
+
+	if field == nil {
+		return nil, -1, ErrBadParam {Name: fieldName, FuncName: "DoInsertFromForm"}
+	}
+
+	return field, indSeparator, nil
+
+}
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
@@ -110,24 +134,11 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	comma, sqlCommand, values := "", "insert into "+tableName+"(", "values ("
 
 	for key, val := range r.Form {
-		var field *schema.FieldStructure
-		indSeparator := strings.Index(key, ":")
-		fieldName    := key
-		if pos := strings.Index(fieldName, "["); pos > 0 {
-			fieldName = fieldName[: pos]
-		}
-		if indSeparator > 0 {
-			tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
-			fieldName  = fieldName[ indSeparator + 1: ]
-			field = tableChild.FindField(fieldName)
-		} else {
-			field = table.FindField(fieldName)
-		}
 
-		if field == nil {
-			return -1, ErrBadParam {Name: fieldName, FuncName: "DoInsertFromForm"}
+		field, indSeparator, err := checkField(key, table)
+		if err != nil {
+			return -1, err
 		}
-
 		if strings.HasPrefix(key, "setid_") {
 			if tx == nil {
 				tx, err = startTXforQuery()
@@ -250,28 +261,9 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 			sqlCommand += comma + "`" + key + "`=?"
 			args = append(args, userID)
 		default:
-			var field *schema.FieldStructure
-			indSeparator := strings.Index(key, ":")
-			fieldName    := key
-			if pos := strings.Index(fieldName, "["); pos > 0 {
-				fieldName = fieldName[: pos]
-			}
-			if indSeparator > 0 {
-				tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
-				fieldName  = fieldName[ indSeparator + 1: ]
-				field = tableChild.FindField(fieldName)
-			} else {
-				field = table.FindField(fieldName)
-			}
-
-			if field == nil {
-				return -1, ErrBadParam{Name: fieldName, FuncName: "DoInsertFromForm"}
-			}
-			if indSeparator == -1 {
-				field := table.FindField(key)
-				if field == nil {
-					return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
-				}
+			field, indSeparator, err := checkField(key, table)
+			if err != nil {
+				return -1, err
 			}
 			if strings.HasPrefix(key, "setid_") {
 				if tx == nil {
