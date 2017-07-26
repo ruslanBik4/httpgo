@@ -75,6 +75,7 @@ func doConnect() error {
 //DoInsert(sql string, args ...interface
 func DoInsert(sql string, args ...interface{}) (int, error) {
 
+	logs.DebugLog(sql)
 	if err := doConnect(); err != nil {
 		return -1, err
 	}

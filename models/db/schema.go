@@ -159,7 +159,7 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			DataJSOM:    make(map[string]interface{}, 0),
 			Table:       fields,
 			// TODO: продумать позже механизм для READ-ONLY полей
-			IsHidden:    (field.COLUMN_KEY=="PRI") || (field.EXTRA=="on update CURRENT_TIMESTAMP"),
+			//IsHidden:    (field.COLUMN_KEY=="PRI") || (field.EXTRA=="on update CURRENT_TIMESTAMP"),
 			PrimaryKey:  field.COLUMN_KEY=="PRI",
 		}
 		if field.CHARACTER_SET_NAME.Valid {
