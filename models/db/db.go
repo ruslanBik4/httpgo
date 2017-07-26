@@ -112,14 +112,20 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	for key, val := range r.Form {
 		var field *schema.FieldStructure
 		indSeparator := strings.Index(key, ":")
-		if indSeparator == -1 {
-			field = table.FindField(key)
+		fieldName    := key
+		if pos := strings.Index(fieldName, "["); pos > 0 {
+			fieldName = fieldName[: pos]
+		}
+		if indSeparator > 0 {
+			tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
+			fieldName  = fieldName[ indSeparator + 1: ]
+			field = tableChild.FindField(fieldName)
 		} else {
-			field = table.FindField(key[ indSeparator + 1: ])
+			field = table.FindField(fieldName)
 		}
 
 		if field == nil {
-			return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
+			return -1, ErrBadParam {Name: fieldName, FuncName: "DoInsertFromForm"}
 		}
 
 		if strings.HasPrefix(key, "setid_") {
@@ -246,14 +252,20 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 		default:
 			var field *schema.FieldStructure
 			indSeparator := strings.Index(key, ":")
-			if indSeparator == -1 {
-				field = table.FindField(key)
+			fieldName    := key
+			if pos := strings.Index(fieldName, "["); pos > 0 {
+				fieldName = fieldName[: pos]
+			}
+			if indSeparator > 0 {
+				tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
+				fieldName  = fieldName[ indSeparator + 1: ]
+				field = tableChild.FindField(fieldName)
 			} else {
-				field = table.FindField(key[ indSeparator + 1: ])
+				field = table.FindField(fieldName)
 			}
 
 			if field == nil {
-				return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
+				return -1, ErrBadParam{Name: fieldName, FuncName: "DoInsertFromForm"}
 			}
 			if indSeparator == -1 {
 				field := table.FindField(key)
