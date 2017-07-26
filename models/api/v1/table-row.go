@@ -96,7 +96,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 			wOut.Write([]byte("["))
 			fieldID, ok := field.Table.Fields["id"]
 			if !ok {
-				fieldID, ok = field.Table.Fields["id_tariff"]
+				fieldID, ok = field.Table.Fields["id_tariffs"]
 			}
 			if ok {
 				// не переводим в int только потому, что в данном случае неважно, отдаем строкой
