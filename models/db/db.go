@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/db/multiquery"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type argsRAW []interface{}
@@ -93,6 +94,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	if r.FormValue("id") > "" {
 		return -1, ErrBadParam{Name: "id", BadName: "found uncorrect params", FuncName: "DoInsertFromForm"}
 	}
+	table := schema.GetFieldsTable(tableName)
 	// удаляем определяющие параметры
 	r.Form.Del("table")
 
@@ -108,8 +110,17 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	comma, sqlCommand, values := "", "insert into "+tableName+"(", "values ("
 
 	for key, val := range r.Form {
-
+		var field *schema.FieldStructure
 		indSeparator := strings.Index(key, ":")
+		if indSeparator == -1 {
+			field = table.FindField(key)
+		} else {
+			field = table.FindField(key[ indSeparator + 1: ])
+		}
+
+		if field == nil {
+			return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
+		}
 
 		if strings.HasPrefix(key, "setid_") {
 			if tx == nil {
@@ -157,7 +168,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 			}
 			args = append(args, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[") {
-			tableIDQueryes.AddNewParam(key, indSeparator, val)
+			tableIDQueryes.AddNewParam(key, indSeparator, val, field)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`"
@@ -211,6 +222,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 	if (err != nil) || (id < 1) {
 		return -1, ErrBadParam{Name: "id", BadName: idText, FuncName: "DoUpdateFromForm"}
 	}
+	table := schema.GetFieldsTable(tableName)
 	// удаляем определяющие параметры
 	r.Form.Del("table")
 	r.Form.Del("id")
@@ -232,7 +244,23 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 			sqlCommand += comma + "`" + key + "`=?"
 			args = append(args, userID)
 		default:
+			var field *schema.FieldStructure
 			indSeparator := strings.Index(key, ":")
+			if indSeparator == -1 {
+				field = table.FindField(key)
+			} else {
+				field = table.FindField(key[ indSeparator + 1: ])
+			}
+
+			if field == nil {
+				return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
+			}
+			if indSeparator == -1 {
+				field := table.FindField(key)
+				if field == nil {
+					return -1, ErrBadParam {Name: key, FuncName: "DoInsertFromForm"}
+				}
+			}
 			if strings.HasPrefix(key, "setid_") {
 				if tx == nil {
 					tx, err = startTXforQuery()
@@ -273,7 +301,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 				str := strings.Join(val, ",")
 				args = append(args, str)
 			} else if (indSeparator > 1) && strings.Contains(key, "[") {
-				tableIDQueryes.AddNewParam(key, indSeparator, val)
+				tableIDQueryes.AddNewParam(key, indSeparator, val, field)
 				continue
 			} else {
 				sqlCommand += comma + "`" + key + "`=?"
