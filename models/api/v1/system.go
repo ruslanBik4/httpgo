@@ -184,7 +184,7 @@ func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("./webserver.sh", "pull")
+	cmd := exec.Command("./webserver.sh", "test")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
@@ -199,7 +199,7 @@ func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("./webserver.sh", "pull")
+	cmd := exec.Command("./webserver.sh", "build")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdoutStderr, err := cmd.CombinedOutput()
