@@ -27,14 +27,13 @@ route - имя пути, на который надо сделать запро�
 
         xhr.open('POST', url, true);
 
-        if (data) {
           var boundary = String(Math.random()).slice(2);
           var boundaryMiddle = '--' + boundary + '\r\n';
           var boundaryLast = '--' + boundary + '--\r\n';
 
           body = body.join(boundaryMiddle) + boundaryLast;
           xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-        }
+
 
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.send(body);
@@ -47,7 +46,7 @@ route - имя пути, на который надо сделать запро�
       }
     </script>
 
-    <div id=addString"></div>
+    <div id="addString"></div>
 
 </body>
 </html>

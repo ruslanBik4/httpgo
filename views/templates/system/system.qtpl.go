@@ -54,14 +54,13 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
         xhr.open('POST', url, true);
 
-        if (data) {
           var boundary = String(Math.random()).slice(2);
           var boundaryMiddle = '--' + boundary + '\r\n';
           var boundaryLast = '--' + boundary + '--\r\n';
 
           body = body.join(boundaryMiddle) + boundaryLast;
           xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-        }
+
 
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         xhr.send(body);
@@ -74,38 +73,38 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
       }
     </script>
 
-    <div id=addString"></div>
+    <div id="addString"></div>
 
 </body>
 </html>
 
 
 `)
-//line views/templates/system/system.qtpl:56
+//line views/templates/system/system.qtpl:55
 }
 
-//line views/templates/system/system.qtpl:56
+//line views/templates/system/system.qtpl:55
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:56
+//line views/templates/system/system.qtpl:55
 }
 
-//line views/templates/system/system.qtpl:56
+//line views/templates/system/system.qtpl:55
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:56
+	//line views/templates/system/system.qtpl:55
 	return qs422016
-//line views/templates/system/system.qtpl:56
+//line views/templates/system/system.qtpl:55
 }
