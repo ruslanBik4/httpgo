@@ -67,8 +67,8 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
         xhr.onload = function (response) {
           var d = document.createElement('div');
           d.style.marginTop = '20px';
-          d.innerHTML = response;
-          body.appendChild(d);
+          d.innerHTML = response.currentTarget.responseText;
+          document.body.append(d);
         }
       }
     </script>
