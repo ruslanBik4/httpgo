@@ -476,7 +476,7 @@ func (menu *MenuItems) GetMenu(id string) int {
 	for rows.Next() {
 
 		item := &menuItem{}
-		if err := menu.Scan(rows); err != nil {
+		if err := item.Scan(rows); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
@@ -490,8 +490,8 @@ func (menu *MenuItems) GetMenu(id string) int {
 func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 
 	isAdmin, err := DoSelect("SELECT is_general FROM roles_list "+
-		"INNER JOIN users_roles_list_has ON users_roles_list_has.id_roles_list=roles_list.id "+
-		"WHERE users_roles_list_has.id_users=?", user_id)
+		"INNER JOIN users_roles_list_has UR ON UR.id_roles_list=roles_list.id "+
+		"WHERE UR.id_users=?", user_id)
 
 	if err != nil {
 		logs.ErrorLog(err)
@@ -528,7 +528,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	for rows.Next() {
 
 		item := &menuItem{}
-		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
+		if err := item.Scan(rows); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
@@ -538,9 +538,9 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	return len(menu.Items)
 }
 
-func (menu *MenuItems) Scan(rows *sql.Rows) error {
-	return rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
-		&menu.Self.SQL, &menu.Self.Link, &menu.Self.SortOrder, &menu.Self.Elements)
+func (menu *menuItem) Scan(rows *sql.Rows) error {
+	return rows.Scan(&menu.Id, &menu.Name, &menu.ParentID, &menu.Title,
+		&menu.SQL, &menu.Link, &menu.SortOrder, &menu.Elements)
 }
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
@@ -567,7 +567,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	}
 
-	if err := menu.Scan(rows); err != nil {
+	if err := menu.Self.Scan(rows); err != nil {
 		logs.ErrorLog(err)
 		return -1
 	}
