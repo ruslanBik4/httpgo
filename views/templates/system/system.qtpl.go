@@ -39,6 +39,12 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
     <script>
         var dom = document.getElementById('addString');
+        request(`)
+	//line views/templates/system/system.qtpl:19
+	qw422016.N().S(route)
+	//line views/templates/system/system.qtpl:19
+	qw422016.N().S(`});
+
       function request(url) {
 
         var method = 'GET';
@@ -76,31 +82,31 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
 
 `)
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:57
 }
 
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:57
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:57
 }
 
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:57
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:57
 	return qs422016
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:57
 }
