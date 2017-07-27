@@ -16,21 +16,21 @@ import (
 // update httpgo & {project} co de from git  & build new version httpgo
 // branch - name git branch
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("./webserver.sh", "update")
-	cmd.Dir = ServerConfig.SystemPath()
-	if r.FormValue("branch") > "" {
-		cmd.Args = append(cmd.Args, r.FormValue("branch"))
-	}
-
-	stdoutStderr, err := cmd.CombinedOutput()
-	if err != nil {
-		views.RenderInternalError(w, err)
-	} else {
-		views.RenderOutput(w, stdoutStderr)
-		system.WriteAddRescanJS(w, "restart")
-	}
+	//ServerConfig := server.GetServerConfig()
+	//
+	//cmd := exec.Command("./webserver.sh", "update")
+	//cmd.Dir = ServerConfig.SystemPath()
+	//if r.FormValue("branch") > "" {
+	//	cmd.Args = append(cmd.Args, r.FormValue("branch"))
+	//}
+	//
+	//stdoutStderr, err := cmd.CombinedOutput()
+	//if err != nil {
+	//	views.RenderInternalError(w, err)
+	//} else {
+	//	views.RenderOutput(w, stdoutStderr)
+		system.WriteAddRescanJS(w, "/api/v1/update/")
+	//}
 
 }
 // @/api/restart/

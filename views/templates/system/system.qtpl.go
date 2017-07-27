@@ -16,48 +16,91 @@ import (
 //
 // предназначен для оформления выдачи сообщений управления веб-сервером.
 // route - имя пути, на который надо сделать запрос и полученный ответ показать на странице
+//
 
-//line views/templates/system/system.qtpl:6
+//line views/templates/system/system.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/system/system.qtpl:6
+//line views/templates/system/system.qtpl:7
 func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:6
+	//line views/templates/system/system.qtpl:7
 	qw422016.N().S(`
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+</head>
+<body>
+
     <script>
-    route string
+        var dom = document.getElementById('addString');
+      function request(url) {
+
+        var method = 'GET';
+        var body = ['\r\n'];
+
+        var XHR = 'onload' in new XMLHttpRequest() ? XMLHttpRequest : XDomainRequest;
+        var xhr = new XHR();
+
+        xhr.open('POST', url, true);
+
+        if (data) {
+          var boundary = String(Math.random()).slice(2);
+          var boundaryMiddle = '--' + boundary + '\r\n';
+          var boundaryLast = '--' + boundary + '--\r\n';
+
+          body = body.join(boundaryMiddle) + boundaryLast;
+          xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+        }
+
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send(body);
+
+        xhr.onload = function (response) {
+          var d = document.createElement('div');
+          d.innerHTML(response);
+          dom.appendChild(d);
+        }
+      }
     </script>
-    <div id=addString >
-    </div>
+
+    <div id=addString"></div>
+
+</body>
+</html>
+
+
 `)
-//line views/templates/system/system.qtpl:12
+//line views/templates/system/system.qtpl:55
 }
 
-//line views/templates/system/system.qtpl:12
+//line views/templates/system/system.qtpl:55
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:12
+//line views/templates/system/system.qtpl:55
 }
 
-//line views/templates/system/system.qtpl:12
+//line views/templates/system/system.qtpl:55
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:12
+	//line views/templates/system/system.qtpl:55
 	return qs422016
-//line views/templates/system/system.qtpl:12
+//line views/templates/system/system.qtpl:55
 }

@@ -3,10 +3,53 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 предназначен для оформления выдачи сообщений управления веб-сервером.
 route - имя пути, на который надо сделать запрос и полученный ответ показать на странице
+
 {% func AddRescanJS(route string) %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update</title>
+</head>
+<body>
+
     <script>
-    route string
+        var dom = document.getElementById('addString');
+      function request(url) {
+
+        var method = 'GET';
+        var body = ['\r\n'];
+
+        var XHR = 'onload' in new XMLHttpRequest() ? XMLHttpRequest : XDomainRequest;
+        var xhr = new XHR();
+
+        xhr.open('POST', url, true);
+
+        if (data) {
+          var boundary = String(Math.random()).slice(2);
+          var boundaryMiddle = '--' + boundary + '\r\n';
+          var boundaryLast = '--' + boundary + '--\r\n';
+
+          body = body.join(boundaryMiddle) + boundaryLast;
+          xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+        }
+
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhr.send(body);
+
+        xhr.onload = function (response) {
+          var d = document.createElement('div');
+          d.innerHTML(response);
+          dom.appendChild(d);
+        }
+      }
     </script>
-    <div id=addString >
-    </div>
+
+    <div id=addString"></div>
+
+</body>
+</html>
+
+
 {% endfunc %}
