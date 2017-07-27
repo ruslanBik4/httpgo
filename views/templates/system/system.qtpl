@@ -6,6 +6,8 @@ route - имя пути, на который надо сделать запро�
 
 {% func AddRescanJS(route string) %}
 
+  <p>Request to server by address: {%s route %} ...</p>
+
     <script>
         var dom = document.getElementById('addString');
         request("{%s= route %}");
@@ -34,7 +36,7 @@ route - имя пути, на который надо сделать запро�
         xhr.onload = function (response) {
           var d = document.createElement('div');
           d.style.marginTop = '20px';
-          d.innerHTML(response);
+          d.innerHTML = response;
           body.appendChild(d);
         }
       }

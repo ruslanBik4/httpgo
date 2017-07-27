@@ -29,12 +29,18 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 	//line views/templates/system/system.qtpl:7
 	qw422016.N().S(`
 
+  <p>Request to server by address: `)
+	//line views/templates/system/system.qtpl:9
+	qw422016.E().S(route)
+	//line views/templates/system/system.qtpl:9
+	qw422016.N().S(` ...</p>
+
     <script>
         var dom = document.getElementById('addString');
         request("`)
-	//line views/templates/system/system.qtpl:11
+	//line views/templates/system/system.qtpl:13
 	qw422016.N().S(route)
-	//line views/templates/system/system.qtpl:11
+	//line views/templates/system/system.qtpl:13
 	qw422016.N().S(`");
 
       function request(url) {
@@ -60,8 +66,8 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
         xhr.onload = function (response) {
           var d = document.createElement('div');
-          d.style.marginTop = '20px'; 
-          d.innerHTML(response);
+          d.style.marginTop = '20px';
+          d.innerHTML = response;
           body.appendChild(d);
         }
       }
@@ -69,31 +75,31 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
 
 `)
-//line views/templates/system/system.qtpl:44
+//line views/templates/system/system.qtpl:46
 }
 
-//line views/templates/system/system.qtpl:44
+//line views/templates/system/system.qtpl:46
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:44
+//line views/templates/system/system.qtpl:46
 }
 
-//line views/templates/system/system.qtpl:44
+//line views/templates/system/system.qtpl:46
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:44
+	//line views/templates/system/system.qtpl:46
 	return qs422016
-//line views/templates/system/system.qtpl:44
+//line views/templates/system/system.qtpl:46
 }
