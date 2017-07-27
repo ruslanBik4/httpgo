@@ -177,7 +177,7 @@ func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		views.RenderOutput(w, stdoutStderr)
-		system.WriteAddRescanJS(w, "/api/test/")
+		system.WriteAddRescanJS(w, "/api/update/test/")
 	}
 
 }
@@ -192,7 +192,7 @@ func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		views.RenderOutput(w, stdoutStderr)
-		system.WriteAddRescanJS(w, "/api/build/")
+		system.WriteAddRescanJS(w, "/api/update/build/")
 	}
 
 }
