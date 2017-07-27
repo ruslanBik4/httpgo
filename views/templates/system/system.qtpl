@@ -16,7 +16,7 @@ route - имя пути, на который надо сделать запро�
 
     <script>
         var dom = document.getElementById('addString');
-        request({%s= route %}});
+        request("{%s= route %}");
 
       function request(url) {
 
