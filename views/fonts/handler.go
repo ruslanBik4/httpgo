@@ -36,7 +36,11 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 		logs.DebugLog("browser=", browser)
 	}
 
-	if data, err := ioutil.ReadFile(PathWeb + r.URL.Path + ext); err != nil {
+	filename := r.URL.Path
+	if pos := strings.Index(r.URL.Path, "."); pos > 0 {
+		filename = filename[:pos-1]
+	}
+	if data, err := ioutil.ReadFile(PathWeb + filename + ext); err != nil {
 		logs.ErrorLog(err)
 	} else {
 		w.Write(data)
