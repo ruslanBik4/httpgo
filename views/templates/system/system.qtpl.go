@@ -33,73 +33,46 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 	//line views/templates/system/system.qtpl:9
 	qw422016.E().S(route)
 	//line views/templates/system/system.qtpl:9
-	qw422016.N().S(` ...</p>
+	qw422016.N().S(`, please wait ...</p>
 
+  <script src="/request.js"></script>
     <script>
         var dom = document.getElementById('addString');
         request("`)
-	//line views/templates/system/system.qtpl:13
+	//line views/templates/system/system.qtpl:14
 	qw422016.N().S(route)
-	//line views/templates/system/system.qtpl:13
+	//line views/templates/system/system.qtpl:14
 	qw422016.N().S(`");
 
-      function request(url) {
-
-        var method = 'GET';
-        var body = ['\r\n'];
-
-        var XHR = 'onload' in new XMLHttpRequest() ? XMLHttpRequest : XDomainRequest;
-        var xhr = new XHR();
-
-        xhr.open('POST', url, true);
-
-          var boundary = String(Math.random()).slice(2);
-          var boundaryMiddle = '--' + boundary + '\r\n';
-          var boundaryLast = '--' + boundary + '--\r\n';
-
-          body = body.join(boundaryMiddle) + boundaryLast;
-          xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-
-
-        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        xhr.send(body);
-
-        xhr.onload = function (response) {
-          var d = document.createElement('div');
-          d.style.marginTop = '20px';
-          d.innerHTML = response.currentTarget.responseText;
-          document.body.append(d);
-        }
-      }
     </script>
 
 
 `)
-//line views/templates/system/system.qtpl:46
+//line views/templates/system/system.qtpl:19
 }
 
-//line views/templates/system/system.qtpl:46
+//line views/templates/system/system.qtpl:19
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:46
+//line views/templates/system/system.qtpl:19
 }
 
-//line views/templates/system/system.qtpl:46
+//line views/templates/system/system.qtpl:19
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:46
+	//line views/templates/system/system.qtpl:19
 	return qs422016
-//line views/templates/system/system.qtpl:46
+//line views/templates/system/system.qtpl:19
 }
