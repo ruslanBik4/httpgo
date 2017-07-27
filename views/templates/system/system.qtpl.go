@@ -29,19 +29,12 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 	//line views/templates/system/system.qtpl:7
 	qw422016.N().S(`
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update</title>
-</head>
-<body>
     <script>
         var dom = document.getElementById('addString');
         request("`)
-	//line views/templates/system/system.qtpl:18
+	//line views/templates/system/system.qtpl:11
 	qw422016.N().S(route)
-	//line views/templates/system/system.qtpl:18
+	//line views/templates/system/system.qtpl:11
 	qw422016.N().S(`");
 
       function request(url) {
@@ -67,44 +60,40 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
         xhr.onload = function (response) {
           var d = document.createElement('div');
+          d.style.marginTop = '20px'; 
           d.innerHTML(response);
-          dom.appendChild(d);
+          body.appendChild(d);
         }
       }
     </script>
 
-    <div id="addString"></div>
-
-</body>
-</html>
-
 
 `)
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:44
 }
 
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:44
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:44
 }
 
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:44
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:55
+	//line views/templates/system/system.qtpl:44
 	return qs422016
-//line views/templates/system/system.qtpl:55
+//line views/templates/system/system.qtpl:44
 }

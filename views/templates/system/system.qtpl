@@ -6,13 +6,6 @@ route - имя пути, на который надо сделать запро�
 
 {% func AddRescanJS(route string) %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update</title>
-</head>
-<body>
     <script>
         var dom = document.getElementById('addString');
         request("{%s= route %}");
@@ -40,16 +33,12 @@ route - имя пути, на который надо сделать запро�
 
         xhr.onload = function (response) {
           var d = document.createElement('div');
+          d.style.marginTop = '20px';
           d.innerHTML(response);
-          dom.appendChild(d);
+          body.appendChild(d);
         }
       }
     </script>
-
-    <div id="addString"></div>
-
-</body>
-</html>
 
 
 {% endfunc %}
