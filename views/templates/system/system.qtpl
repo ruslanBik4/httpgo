@@ -13,7 +13,6 @@ route - имя пути, на который надо сделать запро�
     <title>Update</title>
 </head>
 <body>
-
     <script>
         var dom = document.getElementById('addString');
         request("{%s= route %}");

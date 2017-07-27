@@ -36,14 +36,13 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
     <title>Update</title>
 </head>
 <body>
-
     <script>
         var dom = document.getElementById('addString');
-        request(`)
-	//line views/templates/system/system.qtpl:19
+        request("`)
+	//line views/templates/system/system.qtpl:18
 	qw422016.N().S(route)
-	//line views/templates/system/system.qtpl:19
-	qw422016.N().S(`});
+	//line views/templates/system/system.qtpl:18
+	qw422016.N().S(`");
 
       function request(url) {
 
@@ -82,31 +81,31 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 
 
 `)
-//line views/templates/system/system.qtpl:57
+//line views/templates/system/system.qtpl:56
 }
 
-//line views/templates/system/system.qtpl:57
+//line views/templates/system/system.qtpl:56
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:57
+//line views/templates/system/system.qtpl:56
 }
 
-//line views/templates/system/system.qtpl:57
+//line views/templates/system/system.qtpl:56
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:57
+	//line views/templates/system/system.qtpl:56
 	return qs422016
-//line views/templates/system/system.qtpl:57
+//line views/templates/system/system.qtpl:56
 }
