@@ -16,21 +16,20 @@ import (
 // update httpgo & {project} co de from git  & build new version httpgo
 // branch - name git branch
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
-	//ServerConfig := server.GetServerConfig()
-	//
-	//cmd := exec.Command("./webserver.sh", "update")
-	//cmd.Dir = ServerConfig.SystemPath()
-	//if r.FormValue("branch") > "" {
-	//	cmd.Args = append(cmd.Args, r.FormValue("branch"))
-	//}
-	//
-	//stdoutStderr, err := cmd.CombinedOutput()
-	//if err != nil {
-	//	views.RenderInternalError(w, err)
-	//} else {
-	//	views.RenderOutput(w, stdoutStderr)
-		system.WriteAddRescanJS(w, "/api/v1/update/")
-	//}
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "update")
+	cmd.Dir = ServerConfig.SystemPath()
+	if r.FormValue("branch") > "" {
+		cmd.Args = append(cmd.Args, r.FormValue("branch"))
+	}
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+	}
 
 }
 // @/api/restart/
@@ -163,10 +162,62 @@ func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+// incremental update
+// @/api/update/source/
+// update httpgo & {project} co de from git  & build new version httpgo
+// branch - name git branch
+func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "pull")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+		system.WriteAddRescanJS(w, "/api/test/")
+	}
+
+}
+func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "pull")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+		system.WriteAddRescanJS(w, "/api/build/")
+	}
+
+}
+func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "pull")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+		system.WriteAddRescanJS(w, "/api/restart/")
+	}
+
+}
 
 
 func init() {
 	http.HandleFunc("/api/log/errors/", HandleShowErrorsServer )
 	http.HandleFunc("/api/log/status/", HandleShowStatusServer )
 	http.HandleFunc("/api/log/debug/",  HandleShowDebugServer )
+	http.HandleFunc("/api/update/source/",  HandleUpdateSource )
+	http.HandleFunc("/api/update/test/",  HandleUpdateTest )
+	http.HandleFunc("/api/update/build/",  HandleUpdateBuild )
 }
