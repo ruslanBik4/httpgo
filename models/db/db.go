@@ -452,6 +452,8 @@ type menuItem struct {
 	Title    string
 	SQL      []byte
 	Link     string
+	SortOrder int32
+	Elements string
 }
 type MenuItems struct {
 	Self  menuItem
@@ -474,7 +476,7 @@ func (menu *MenuItems) GetMenu(id string) int {
 	for rows.Next() {
 
 		item := &menuItem{}
-		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
+		if err := menu.Scan(rows); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
@@ -536,6 +538,10 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	return len(menu.Items)
 }
 
+func (menu *MenuItems) Scan(rows *sql.Rows) error {
+	return rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
+		&menu.Self.SQL, &menu.Self.Link, &menu.Self.SortOrder, &menu.Self.Elements)
+}
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 
@@ -561,8 +567,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	}
 
-	if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
-		&menu.Self.SQL, &menu.Self.Link); err != nil {
+	if err := menu.Scan(rows); err != nil {
 		logs.ErrorLog(err)
 		return -1
 	}

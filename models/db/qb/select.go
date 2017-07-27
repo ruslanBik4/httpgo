@@ -211,7 +211,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 		for _, field := range qb.fields {
 
 			fieldName := field.Alias
-			// all inline field has QB & we run thiq QB & store result in map
+			// all inline field has QB & we run this QB & store result in map
 			if field.ChildQB != nil {
 				if fieldID, ok := field.Table.Fields["id"]; ok {
 					field.ChildQB.Args[0] = string(fieldID.Value)
