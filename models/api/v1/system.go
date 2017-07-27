@@ -7,6 +7,7 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
 	"os/exec"
 	"io"
@@ -28,6 +29,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		views.RenderOutput(w, stdoutStderr)
+		system.WriteAddRescanJS(w, "restart")
 	}
 
 }

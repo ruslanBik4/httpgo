@@ -1,0 +1,12 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+предназначен для оформления выдачи сообщений управления веб-сервером.
+route - имя пути, на который надо сделать запрос и полученный ответ показать на странице
+{% func AddRescanJS(route string) %}
+    <script>
+    route string
+    </script>
+    <div id=addString >
+    </div>
+{% endfunc %}
