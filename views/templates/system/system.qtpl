@@ -4,12 +4,17 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 предназначен для оформления выдачи сообщений управления веб-сервером.
 route - имя пути, на который надо сделать запрос и полученный ответ показать на странице
 
-{% func AddRescanJS(route string) %}
+{% func AddRescanJS(route []string) %}
 
     <script src="/request.js"></script>
 
     <script>
-        queueRequests("{%s= route %}");
+        var arr = [
+        {% for _, str := range route %}
+            "{%s= route %}",
+        {% endfor %}
+        ];
+        queueRequests(arr);
     </script>
 
 {% endfunc %}
