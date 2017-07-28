@@ -6,12 +6,10 @@ route - имя пути, на который надо сделать запро�
 
 {% func AddRescanJS(route string) %}
 
-  <p>Request to server by address: {%s route %}, please wait ...</p>
+    <script src="/request.js"></script>
 
-  <script src="/request.js"></script>
     <script>
-        request("{%s= route %}");
+        queueRequests("{%s= route %}");
     </script>
-
 
 {% endfunc %}

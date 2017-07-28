@@ -296,6 +296,7 @@ export class Native {
   *   set data to component
   */
 
+
   static setDataAttrToComponent(component, data = {}) {
     if (this.isElement(component) && data.length !== 0) {
       for (let attr in data) {
