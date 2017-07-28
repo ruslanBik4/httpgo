@@ -89,7 +89,8 @@ var (
 		"/api/photos/add/":   api.HandleAddPhoto,
 	}
 )
-
+// registerRoutes
+// connect routers list ti http.Handle
 func registerRoutes() {
 	http.Handle("/", NewDefaultHandler())
 	for route, fnc := range routes {
@@ -106,7 +107,7 @@ type DefaultHandler struct {
 	cache     []string
 	whitelist []string
 }
-
+// NewDefaultHandler create default handler for read static files
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
 		fpm: system.NewFPM(fpmSocket),
