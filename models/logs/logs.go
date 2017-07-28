@@ -1,9 +1,7 @@
 // Copyright 2017 Author: Sergey Litvinov. All rights reserved.
-//@package logs Output logs and advanced debug information
-//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//ErrorStack() - output formated(function and line calls) error runtime stack information
-//FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
-//StatusLog(err error, args ...interface{}) - output formated information for status
+
+// Output logs and advanced debug information
+
 package logs
 
 import (

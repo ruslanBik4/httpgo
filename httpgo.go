@@ -105,7 +105,7 @@ func registerRoutes() {
 	config.RegisterRoutes()
 }
 
-// работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
+// DefaultHandler работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
 type DefaultHandler struct {
 	fpm       *system.FCGI
 	php       *system.FCGI
@@ -116,7 +116,7 @@ type DefaultHandler struct {
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
 		fpm: system.NewFPM(fpmSocket),
-		php: system.NewPHP(*f_web, fpmSocket),
+		php: system.NewPHP(*fWeb, fpmSocket),
 		cache: []string{
 			".svg", ".css", ".js", ".map", ".ico",
 		},
@@ -125,7 +125,7 @@ func NewDefaultHandler() *DefaultHandler {
 		},
 	}
 	// read from flags
-	cacheExt := *f_cache
+	cacheExt := *fCache
 	p := strings.Index(cacheExt, ";")
 	for p > 0 {
 
@@ -174,11 +174,11 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//views.RenderTemplate(w, r, "index", p)
 		// спецвойска
 	case "/polymer.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer.html"))
+		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer.html"))
 	case "/polymer-mini.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer-mini.html"))
+		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer-mini.html"))
 	case "/polymer-micro.html":
-		http.ServeFile(w, r, filepath.Join(*f_static, "views/components/polymer/polymer-micro.html"))
+		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer-micro.html"))
 	case "/status", "/ping", "/pong":
 		h.fpm.ServeHTTP(w, r)
 	default:
@@ -190,8 +190,8 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if h.toCache(ext) {
 			serveAndCache(filename, w, r)
 		} else if h.toServe(ext) {
-			http.ServeFile(w, r, filepath.Join(*f_web, filename))
-		} else if fileName := filepath.Join(*f_web, filename); ext == "" {
+			http.ServeFile(w, r, filepath.Join(*fWeb, filename))
+		} else if fileName := filepath.Join(*fWeb, filename); ext == "" {
 			http.ServeFile(w, r, fileName)
 		} else {
 			h.php.ServeHTTP(w, r)
@@ -202,7 +202,7 @@ func handlerComponents(w http.ResponseWriter, r *http.Request) {
 
 	filename := strings.TrimLeft(r.URL.Path, "/")
 
-	http.ServeFile(w, r, filepath.Join(*f_static+"/views", filename))
+	http.ServeFile(w, r, filepath.Join(*fStatic+"/views", filename))
 
 }
 
@@ -241,9 +241,9 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !ok {
-		data, err := ioutil.ReadFile(filepath.Join(*f_static, filename))
+		data, err := ioutil.ReadFile(filepath.Join(*fStatic, filename))
 		if os.IsNotExist(err) {
-			data, err = ioutil.ReadFile(filepath.Join(*f_web, filename))
+			data, err = ioutil.ReadFile(filepath.Join(*fWeb, filename))
 		}
 		if system.WriteError(w, err) {
 			return
@@ -368,8 +368,8 @@ func isAJAXRequest(r *http.Request) bool {
 func handlerMenu(w http.ResponseWriter, r *http.Request) {
 
 	userID := users.IsLogin(r)
-	resultId, err := strconv.Atoi(userID)
-	if err != nil || !admin.GetUserPermissionForPageByUserId(resultId, r.URL.Path, "View") {
+	resultID, err := strconv.Atoi(userID)
+	if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, r.URL.Path, "View") {
 		views.RenderNoPermissionPage(w)
 		return
 	}
@@ -440,18 +440,18 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 	return nil
 }
 func cacheFiles() {
-	filepath.Walk(filepath.Join(*f_static, "js"), cacheWalk)
-	filepath.Walk(filepath.Join(*f_static, "css"), cacheWalk)
+	filepath.Walk(filepath.Join(*fStatic, "js"), cacheWalk)
+	filepath.Walk(filepath.Join(*fStatic, "css"), cacheWalk)
 
-	cachePath := *f_chePath
+	cachePath := *fChePath
 	p := strings.Index(cachePath, ";")
 	for p > 0 {
 
-		filepath.Walk(filepath.Join(*f_web, cachePath[:p]), cacheWalk)
+		filepath.Walk(filepath.Join(*fWeb, cachePath[:p]), cacheWalk)
 		cachePath = cachePath[p+1:]
 		p = strings.Index(cachePath, ";")
 	}
-	filepath.Walk(filepath.Join(*f_web, cachePath), cacheWalk)
+	filepath.Walk(filepath.Join(*fWeb, cachePath), cacheWalk)
 }
 
 // rereads files to cache directive
@@ -463,24 +463,24 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	f_port    = flag.String("port", ":80", "host address to listen on")
-	f_static  = flag.String("path", "./", "path to static files")
-	f_web     = flag.String("web", "/home/travel/web/", "path to web files")
-	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
-	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
-	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
-	F_test = flag.Bool("user8", false, "test mode")
+	fPort    = flag.String("port", ":80", "host address to listen on")
+	fStatic  = flag.String("path", "./", "path to static files")
+	fWeb     = flag.String("web", "/home/travel/web/", "path to web files")
+	fSession = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
+	fCache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
+	fChePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
+	fTest    = flag.Bool("user8", false, "test mode")
 )
 
 func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		logs.ErrorLog(err)
 	}
 
 	MongoConfig := server.GetMongodConfig()
-	if err := MongoConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := MongoConfig.Init(fStatic, fWeb, fSession); err != nil {
 		logs.ErrorLog(err)
 	}
 	logs.StatusLog("Server starting", ServerConfig.StartTime)
@@ -489,15 +489,15 @@ func init() {
 var mainServer *http.Server
 var listener net.Listener
 func main() {
-	users.SetSessionPath(*f_session)
+	users.SetSessionPath(*fSession)
 	go cacheFiles()
 
-	fonts.GetPath(f_web)
+	fonts.GetPath(fWeb)
 
 	registerRoutes()
 
-	logs.StatusLog("Static files found in ", *f_web)
-	logs.StatusLog("System files found in " + *f_static)
+	logs.StatusLog("Static files found in ", *fWeb)
+	logs.StatusLog("System files found in " + *fStatic)
 
 	ch := make(chan os.Signal)
 
@@ -512,7 +512,7 @@ func main() {
     var err error
 
 
-	listener, err = net.Listen("tcp", *f_port)
+	listener, err = net.Listen("tcp", *fPort)
 	if err != nil {
 		logs.Fatal(err)
 	}
@@ -522,7 +522,7 @@ func main() {
 
 
 mainServer.Serve(listener)
-	//logs.Fatal(mainServer.ListenAndServe(*f_port, nil))
+	//logs.Fatal(mainServer.ListenAndServe(*fPort, nil))
 
 }
 func listenOnShutdown(ch <- chan os.Signal) {
