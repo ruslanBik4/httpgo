@@ -105,10 +105,13 @@ export class Parse {
   */
 
   static getComponentByRoute(url) {
-    Native.request(url, (component) => {
-      this._changeComponentDom(component);
-      Router.routing(url);
-    });
+
+    if (url.startsWith('/')) {
+      Native.request(url, (component) => {
+        this._changeComponentDom(component);
+        Router.routing(url);
+      });
+    }
   }
 
 

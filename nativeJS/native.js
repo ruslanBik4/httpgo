@@ -45,7 +45,7 @@ export class Native {
       }
 
     } else {
-      console.log(`It's not dom component: ${ component }`);
+      console.error(`It's not dom component: ${ component }`);
     }
     return result;
   }
@@ -72,7 +72,7 @@ export class Native {
     if (this.isElement(component)) {
       Parse.parsComponents(component);
     } else {
-      console.log(`This component is not dom: `, component);
+      console.error(`This component is not dom: `, component);
     }
   }
 
@@ -153,7 +153,7 @@ export class Native {
     };
 
     xhr.onerror = function () {
-      console.log(`Error API to url ${ url } : ${ this }`);
+      console.error(`Error API to url ${ url } : ${ this }`);
     };
 
   }

@@ -10,9 +10,7 @@ route - имя пути, на который надо сделать запро�
 
   <script src="/request.js"></script>
     <script>
-        var dom = document.getElementById('addString');
         request("{%s= route %}");
-
     </script>
 
 
