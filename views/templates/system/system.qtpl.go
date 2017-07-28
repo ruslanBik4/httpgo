@@ -35,18 +35,18 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route []string) {
 	qw422016.N().S(`
     `)
 	//line views/templates/system/system.qtpl:13
-	arr := strings.Join(route, ",")
+	arr := strings.Join(route, "','")
 
 	//line views/templates/system/system.qtpl:14
 	qw422016.N().S(`
     <script src="/request.js"></script>
 
     <script>
-        var arr = [ `)
+        var arr = [ '`)
 	//line views/templates/system/system.qtpl:18
 	qw422016.N().S(arr)
 	//line views/templates/system/system.qtpl:18
-	qw422016.N().S(`  ];
+	qw422016.N().S(`'  ];
         queueRequests(arr);
     </script>
 
