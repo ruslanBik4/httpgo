@@ -1,3 +1,8 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// генерация форм на основе типов полей таблиц БД
 package forms
 
 //todo необходима вариативность вывода в input select значений из енумов и справочников,пример - есть енум из 9-ти позиций а вывести нужно только 1,5,6(соответственно и юзер может что либо делать только с ними а не со всем списком 1-9)
