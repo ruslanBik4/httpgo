@@ -49,7 +49,7 @@ func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWri
 	}
 
 }
-
+// deprecate
 //TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
