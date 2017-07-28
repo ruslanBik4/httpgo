@@ -10,12 +10,12 @@ route - имя пути, на который надо сделать запро�
 
 {% func AddRescanJS(route []string) %}
     {% code
-        arr := strings.Join(route, ",")
+        arr := strings.Join(route, "','")
     %}
     <script src="/request.js"></script>
 
     <script>
-        var arr = [ {%s= arr %}  ];
+        var arr = [ '{%s= arr %}'  ];
         queueRequests(arr);
     </script>
 
