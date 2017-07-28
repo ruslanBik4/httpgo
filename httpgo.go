@@ -1,3 +1,8 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// инициализация и запуск веб-сервера, подключение основных хандлеров
 package main
 
 import (
@@ -495,7 +500,8 @@ func main() {
 	logs.StatusLog("System files found in " + *f_static)
 
 	ch := make(chan os.Signal)
-	var KillSignal os.Signal = syscall.SIGTTIN
+
+	KillSignal := syscall.SIGTTIN
 	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
 	go listenOnShutdown(ch)
 
