@@ -6,9 +6,6 @@
 package main
 
 import (
-	"bytes"
-	"flag"
-	"fmt"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	"github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -21,8 +18,12 @@ import (
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/fonts"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"bytes"
+	"flag"
+	"fmt"
 	"io/ioutil"
 	"models/config"
 	"net/http"
@@ -34,7 +35,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"os/signal"
 	"net"
 	"syscall"
