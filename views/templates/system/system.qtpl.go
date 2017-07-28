@@ -29,48 +29,42 @@ func StreamAddRescanJS(qw422016 *qt422016.Writer, route string) {
 	//line views/templates/system/system.qtpl:7
 	qw422016.N().S(`
 
-  <p>Request to server by address: `)
-	//line views/templates/system/system.qtpl:9
-	qw422016.E().S(route)
-	//line views/templates/system/system.qtpl:9
-	qw422016.N().S(`, please wait ...</p>
+    <script src="/request.js"></script>
 
-  <script src="/request.js"></script>
     <script>
-        request("`)
-	//line views/templates/system/system.qtpl:13
+        queueRequests("`)
+	//line views/templates/system/system.qtpl:12
 	qw422016.N().S(route)
-	//line views/templates/system/system.qtpl:13
+	//line views/templates/system/system.qtpl:12
 	qw422016.N().S(`");
     </script>
 
-
 `)
-//line views/templates/system/system.qtpl:17
+//line views/templates/system/system.qtpl:15
 }
 
-//line views/templates/system/system.qtpl:17
+//line views/templates/system/system.qtpl:15
 func WriteAddRescanJS(qq422016 qtio422016.Writer, route string) {
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	StreamAddRescanJS(qw422016, route)
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/system.qtpl:17
+//line views/templates/system/system.qtpl:15
 }
 
-//line views/templates/system/system.qtpl:17
+//line views/templates/system/system.qtpl:15
 func AddRescanJS(route string) string {
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	WriteAddRescanJS(qb422016, route)
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	qs422016 := string(qb422016.B)
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/system/system.qtpl:17
+	//line views/templates/system/system.qtpl:15
 	return qs422016
-//line views/templates/system/system.qtpl:17
+//line views/templates/system/system.qtpl:15
 }

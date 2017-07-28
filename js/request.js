@@ -3,9 +3,43 @@
  * TODO: сделать системной функцией в нативе - пусть получает имя элемента, куда писать респонс или пишет в боди
  */
 
-function request(url) {
+/*
+*   for queue of requests
+*/
 
-    var method = 'GET';
+function queueRequests(arr) {
+
+    request(arr.shift(), queue);
+
+    function queue(response) {
+        if (response.status) {
+            var url = arr.shift();
+            waitMessage(url);
+            createDivInBody(response.responseText);
+            request(url, queue);
+        } else {
+            console.error(response);
+            createDivInBody(response.errors);
+        }
+    }
+}
+
+function waitMessage(msg) {
+  var p = document.createElement('p');
+  p.style.marginTop = '20px';
+  p.innerHTML = 'Request to server by address: ' + msg + ', please wait ...';
+  document.body.append(p);
+}
+
+function createDivInBody(text) {
+    var d = document.createElement('div');
+    d.style.marginTop = '20px';
+    d.innerHTML = text;
+    document.body.append(d);
+}
+
+function request(url, callback) {
+
     var body = ['\r\n'];
 
     var XHR = 'onload' in new XMLHttpRequest() ? XMLHttpRequest : XDomainRequest;
@@ -25,9 +59,10 @@ function request(url) {
     xhr.send(body);
 
     xhr.onload = function (response) {
-        var d = document.createElement('div');
-        d.style.marginTop = '20px';
-        d.innerHTML = response.currentTarget.responseText;
-        document.body.append(d);
-    }
+        callback(response.currentTarget, url);
+    };
+
+    xhr.onerror = function () {
+        console.error('Error API to url ' + url + ' : ' + this);
+    };
 }
