@@ -14,9 +14,13 @@ function queueRequests(arr) {
     function queue(response) {
         if (response.status) {
             var url = arr.shift();
-            waitMessage(url);
-            createDivInBody(response.responseText);
-            request(url, queue);
+            if (url) {
+                waitMessage(url);
+                createDivInBody(response.responseText);
+                request(url, queue);
+            } else {
+                waitMessage('Queue of requests is over');
+            }
         } else {
             console.error(response);
             createDivInBody(response.errors);
