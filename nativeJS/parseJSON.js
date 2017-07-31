@@ -318,9 +318,9 @@ export class ParseJSON {
               changeNameInTableId(parent, indexArrayTableId--, idParent);
 
               document.querySelectorAll(`[${ Variables.paramsForClick }="${ parent.getAttribute(Variables.paramsJSONIdForTable) }"]`).forEach((component) => {
-                component.onclick = () => {
+                component.onclick = (e) => {
+                  e.preventDefault();
                   changeNameForTableId(parent, temp, indexArrayTableId--, idParent);
-                  return false;
                 };
               });
             }

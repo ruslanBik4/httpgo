@@ -52,7 +52,7 @@ func StreamRenderCheckbox(qw422016 *qt422016.Writer, attr ...string) {
 	//line views/templates/common/checkbox.qtpl:18
 	qw422016.E().S(dataForm)
 	//line views/templates/common/checkbox.qtpl:18
-	qw422016.N().S(`>
+	qw422016.N().S(` value="1">
             <span data-set-text></span>
         </label>
     </div>

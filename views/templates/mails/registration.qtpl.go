@@ -11,64 +11,65 @@ import (
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-// All the text outside function templates is treated as comments,
-// i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 //
 // письмо после регистрации на сайте.
 
-//line views/templates/mails/registration.qtpl:5
+//line views/templates/mails/registration.qtpl:6
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/mails/registration.qtpl:5
+//line views/templates/mails/registration.qtpl:6
 func StreamInviteEmail(qw422016 *qt422016.Writer, email, password string) {
-	//line views/templates/mails/registration.qtpl:5
+	//line views/templates/mails/registration.qtpl:6
 	qw422016.N().S(`
 <div> Вы, возможно, зарегистрировались на сайте <i>travel.com.ua</i> с адресом email `)
-	//line views/templates/mails/registration.qtpl:6
+	//line views/templates/mails/registration.qtpl:7
 	qw422016.E().S(email)
-	//line views/templates/mails/registration.qtpl:6
+	//line views/templates/mails/registration.qtpl:7
 	qw422016.N().S(`,
  если это не так - просто не отвечайте на данное письма.
  А если так - нажмите на ссылку ниже для активации своего аккаунта:
     <a href='http://vps-20777.vps-default-host.net/customer-sign-in/'><b>сюда</b></a>
 После этого Вы можете работать на сайте с помощью пароля:
    "<span>`)
-	//line views/templates/mails/registration.qtpl:11
+	//line views/templates/mails/registration.qtpl:12
 	qw422016.E().S(password)
-	//line views/templates/mails/registration.qtpl:11
+	//line views/templates/mails/registration.qtpl:12
 	qw422016.N().S(`</span>" </br>
    <span> Просьба сохранить его в надежном месте, потому что мы ен храним паролей своих пользователей!</span>
 </div>
 
 `)
-//line views/templates/mails/registration.qtpl:15
+//line views/templates/mails/registration.qtpl:16
 }
 
-//line views/templates/mails/registration.qtpl:15
+//line views/templates/mails/registration.qtpl:16
 func WriteInviteEmail(qq422016 qtio422016.Writer, email, password string) {
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	qw422016 := qt422016.AcquireWriter(qq422016)
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	StreamInviteEmail(qw422016, email, password)
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/mails/registration.qtpl:15
+//line views/templates/mails/registration.qtpl:16
 }
 
-//line views/templates/mails/registration.qtpl:15
+//line views/templates/mails/registration.qtpl:16
 func InviteEmail(email, password string) string {
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	qb422016 := qt422016.AcquireByteBuffer()
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	WriteInviteEmail(qb422016, email, password)
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	qs422016 := string(qb422016.B)
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	qt422016.ReleaseByteBuffer(qb422016)
-	//line views/templates/mails/registration.qtpl:15
+	//line views/templates/mails/registration.qtpl:16
 	return qs422016
-//line views/templates/mails/registration.qtpl:15
+//line views/templates/mails/registration.qtpl:16
 }

@@ -1,7 +1,8 @@
-All the text outside function templates is treated as comments,
-i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 
-письмо после регистрации на сайте.
+// письмо после регистрации на сайте.
 {% func InviteEmail(email, password string) %}
 <div> Вы, возможно, зарегистрировались на сайте <i>travel.com.ua</i> с адресом email {%s email %},
  если это не так - просто не отвечайте на данное письма.

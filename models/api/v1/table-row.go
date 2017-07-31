@@ -16,6 +16,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
 	"net/url"
+	"strings"
 )
 
 const _2K = (1 << 10) * 2
@@ -103,9 +104,36 @@ func PutRowToJSON(fields []*qb.QBField) error {
 					logs.ErrorLog(err, field.ChildQB)
 					return err
 				}
+			} else if val := string(field.Value); val > "" {
+				// проставляем, что в значении есть фильтра
+				if i := strings.Index(val, ":"); i > 0 {
+					param, suffix := val[i+1:], ""
+					// считаем, что окончанием параметра могут быть символы ", )"
+					j := strings.IndexAny(param, ", )")
+					if j > 0 {
+						suffix = param[j:]
+						param = param[:j]
+					}
+					if fieldID, ok := field.Table.Fields[param]; ok {
+						field.ChildQB.SetArgs(string(fieldID.Value))
+						// del field into select
+						_, ok := field.ChildQB.Tables[0].Fields[param]
+						if ok {
+							delete( field.ChildQB.Tables[0].Fields, param)
+						}
+					}
+
+					val = val[:i] + "?" + suffix
+					field.ChildQB.SetWhere(val)
+					comma = ""
+					err := field.ChildQB.SelectRunFunc(PutRowToJSON)
+					if err != nil {
+						logs.ErrorLog(err, field.ChildQB)
+						return err
+					}
+				}
 			} else {
-				// проставляем 0 на случай, если в выборке нет ID
-				wOut.Write([]byte(`"error":"not ID in parent Table"`))
+				wOut.Write([]byte(`{"error":"not ID in parent Table"}`))
 				logs.DebugLog(field.ChildQB, field.Table)
 			}
 

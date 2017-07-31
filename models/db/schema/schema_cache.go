@@ -40,6 +40,22 @@ func GetFieldsTable(tableName string) *FieldsTable {
 	}
 	return table
 }
+func GetParentTable(tableName string) *FieldsTable {
+	_, ok := SchemaCache[tableName]
+	if !ok {
+		logs.ErrorLogHandler(ErrNotFoundTable{Table: tableName})
+		panic(ErrNotFoundTable{Table: tableName})
+	}
+	for _, fields := range SchemaCache {
+		for _, field := range fields.Rows {
+			if field.TableValues == tableName {
+				return fields
+			}
+		}
+	}
+	return nil
+}
+
 func init() {
 	SchemaCache = make(map[string]*FieldsTable, 0)
 }

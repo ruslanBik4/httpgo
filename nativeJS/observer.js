@@ -21,21 +21,19 @@ export class Observer {
 
     const listeners = this.listeners.get(eventName);
     const hashCallback = this.hashCode(callback);
-    let isListener = false;
+
 
     if (listeners && listeners.length) {
-      for (let listener of listeners) {
-        if (listener.hash === hashCallback) {
-          isListener = true;
+      for (let i = 0; i < listeners.length; i++) {
+        if (listeners[i].hash === hashCallback) {
+          listeners.splice(i, 1);
           break;
         }
       }
     }
 
-    if (!isListener) {
-      this.listeners.has(eventName) || this.listeners.set(eventName, []);
-      this.listeners.get(eventName).push({ func:callback, hash: this.hashCode(callback) });
-    }
+    this.listeners.has(eventName) || this.listeners.set(eventName, []);
+    this.listeners.get(eventName).push({ func:callback, hash: this.hashCode(callback) });
 
   }
 
@@ -44,11 +42,12 @@ export class Observer {
     let index;
       
     if (listeners && listeners.length) {
-      index = listeners.func.reduce((i, listener, index) => {
-        return (isFunction(listener) && listener === callback) ? i = index : i;
+      const hashCallback = this.hashCode(callback);
+      index = listeners.reduce((i, listener, index) => {
+        return (isFunction(listener.func) && listener.hash === hashCallback) ? i = index : i;
       }, -1);
       if (index > -1) {
-        listeners.func.splice(index, 1);
+        listeners.splice(index, 1);
         this.listeners.set(eventName, listeners.func);
         return true;
       }

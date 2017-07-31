@@ -7,6 +7,7 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
 	"os/exec"
 	"io"
@@ -161,10 +162,61 @@ func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+// incremental update
+// @/api/update/source/
+// update httpgo & {project} co de from git  & build new version httpgo
+// branch - name git branch
+func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "pull")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+		arr := [] string {"/api/update/test/", "/api/update/build/", "/api/restart/"}
+		system.WriteAddRescanJS(w, arr)
+	}
+
+}
+func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "test")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+	}
+
+}
+func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
+
+	cmd := exec.Command("./webserver.sh", "build")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+	}
+
+}
 
 
 func init() {
 	http.HandleFunc("/api/log/errors/", HandleShowErrorsServer )
 	http.HandleFunc("/api/log/status/", HandleShowStatusServer )
 	http.HandleFunc("/api/log/debug/",  HandleShowDebugServer )
+	http.HandleFunc("/api/update/source/",  HandleUpdateSource )
+	http.HandleFunc("/api/update/test/",  HandleUpdateTest )
+	http.HandleFunc("/api/update/build/",  HandleUpdateBuild )
 }

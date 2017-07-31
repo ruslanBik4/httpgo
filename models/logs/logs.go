@@ -1,9 +1,7 @@
 // Copyright 2017 Author: Sergey Litvinov. All rights reserved.
-//@package logs Output logs and advanced debug information
-//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//ErrorStack() - output formated(function and line calls) error runtime stack information
-//FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
-//StatusLog(err error, args ...interface{}) - output formated information for status
+
+// Output logs and advanced debug information
+
 package logs
 
 import (
@@ -69,9 +67,9 @@ func ErrorLog(err error, args ...interface{}) {
 //@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
 func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	pc, _, _, _ := runtime.Caller(5)
+	pc, _, _, _ := runtime.Caller(6)
 
-	log.Output(5, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
+	log.Output(6, fmt.Sprintf("[ERROR];%s;%s;%s", changeShortName(runtime.FuncForPC(pc).Name()),
 		err, getArgsString(args...)))
 
 }
@@ -80,19 +78,17 @@ func ErrorLogHandler(err error, args ...interface{}) {
 //@version 1.00 2017-06-02 Sergey Litvinov - Create
 func ErrorStack() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	i := 0
-	for {
-		pc, _, _, ok := runtime.Caller(i)
-		if !ok {
-			break
-		}
+
+	i := 1
+
+	for pc, _, _, ok := runtime.Caller(i); ok; pc, _, _, ok = runtime.Caller(i) {
+		i++
 		funcName := changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		if funcName == "views.RenderInternalError" {
 			continue
 		}
 		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName) )
-		i++
 	}
 }
 
