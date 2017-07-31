@@ -2,12 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// для подключения сервисов и устроения взаиможействия сервисов с глаыным потоком
 package services
 
 import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
+// интерфейс сервиса
 type IService interface {
 	Init() error
 	Send(messages ...interface{}) error

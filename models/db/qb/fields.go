@@ -23,11 +23,11 @@ func (field QBField) String() string {
 	return mess + "}"
 }
 
-// getters
+// getters - возвращает схему поля, взятую из БД
 func (field *QBField) GetSchema() *schema.FieldStructure {
 	return field.Schema
 }
-// get type
+// возвращает значение поля типа соответствующего типы поля в БД
 func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	if field.Value == nil {
 		return nil
@@ -82,7 +82,6 @@ func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 }
 
 // add field and returns table object
-//TODO: add checking real field in table !!!
 func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	if strings.Contains(name, " AS ") {
@@ -153,7 +152,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	return table
 }
 
-// TODO: local field
+// записываем лист значений для поля, чтобы показывать список на форме
 func (field *QBField) GetSelectedValues() {
 
 	defer func() {

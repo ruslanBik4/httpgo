@@ -45,7 +45,7 @@ export class Native {
       }
 
     } else {
-      console.log(`It's not dom component: ${ component }`);
+      console.error(`It's not dom component: ${ component }`);
     }
     return result;
   }
@@ -72,7 +72,7 @@ export class Native {
     if (this.isElement(component)) {
       Parse.parsComponents(component);
     } else {
-      console.log(`This component is not dom: `, component);
+      console.error(`This component is not dom: `, component);
     }
   }
 
@@ -140,9 +140,7 @@ export class Native {
       const codeStatus = codeStatusServer[response.currentTarget.status];
 
       if (codeStatus) {
-        alert("Need authorization");
-        const openWindow = window.open(codeStatus.url, '_blank');
-        openWindow.focus();
+        Observer.emit(`Server: ${ response.currentTarget.status }`, response, url, callback, data);
         return;
       }
 
@@ -155,7 +153,7 @@ export class Native {
     };
 
     xhr.onerror = function () {
-      console.log(`Error API to url ${ url } : ${ this }`);
+      console.error(`Error API to url ${ url } : ${ this }`);
     };
 
   }
@@ -297,6 +295,7 @@ export class Native {
   /*
   *   set data to component
   */
+
 
   static setDataAttrToComponent(component, data = {}) {
     if (this.isElement(component) && data.length !== 0) {

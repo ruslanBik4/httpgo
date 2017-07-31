@@ -17,11 +17,11 @@ func TestQBCreate(t *testing.T) {
 
 	status := services.Status("schema")
 
-	i := 0
-	for (status != "ready") && (i < 1000) {
+
+	for i := 0; (status != "ready") && (i < 1000); status = services.Status("schema") {
 		time.Sleep(5)
 		i++
-		status = services.Status("schema")
+
 	}
 	t.Log(status)
 	qb := CreateEmpty()
@@ -40,7 +40,7 @@ func TestQBCreate(t *testing.T) {
 
 var (
 	f_port    = flag.String("port", ":8080", "host address to listen on")
-	f_static  = flag.String("path", "/Users/ruslan/work/src/github.com/ruslanBik4/httpgo", "path to static files")
+	f_static  = flag.String("path", "./", "path to static files")
 	f_web     = flag.String("web", "/Users/ruslan/PhpstormProjects/thetravel/web", "path to web files")
 	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")

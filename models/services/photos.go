@@ -64,7 +64,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 		if len(args) < 3 {
 			return ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
 		}
-		photos.saveFile(args[2].(io.Reader))
+		return photos.saveFile(args[2].(io.Reader))
 	} else if oper == "read" {
 		log.Println(oper)
 		return ErrServiceNotCorrectOperation{Name: photos.name, OperName: oper}
@@ -142,26 +142,25 @@ func (photos *photosService) saveFile(inFile io.Reader) error {
 	if err != nil {
 		if os.IsNotExist(err) {
 			dir := filepath.Dir(fullName)
-			if err := os.MkdirAll(dir, os.ModeDir); err != nil {
-				logs.ErrorLog(err.(error))
-				return err
+			//TODO: add privilegias from config file!
+			err = os.MkdirAll(dir, os.ModeDir | os.ModePerm)
+			if err == nil {
+				outFile, err = os.Create(fullName)
 			}
-			if outFile, err = os.Create(fullName); err != nil {
-				logs.ErrorLog(err.(error))
-				return err
-			}
-		} else {
-			logs.ErrorLog(err.(error))
-			return err
-		}
-	} else {
-		defer outFile.Close()
-		_, err := io.Copy(outFile, inFile)
-		if err != nil {
-			log.Println("Error saving file: " + err.Error())
-			return err
 		}
 	}
+	// записываем данные файла из потока
+	if err == nil {
+		defer outFile.Close()
+		_, err = io.Copy(outFile, inFile)
+	}
+
+	if err != nil {
+		logs.ErrorLog(err, "Error saving file: " + fullName)
+		return err
+	}
+
+	logs.DebugLog("Succesfull save file " + fullName)
 	return nil
 
 }

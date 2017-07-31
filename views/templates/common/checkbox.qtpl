@@ -15,7 +15,7 @@
 
     <div class="c-app-checkbox">
         <label>
-            <input class="c-checkbox" type="checkbox" id="{%s attr[0] %}" name="{%s attr[0] %}" {%s dataForm %}>
+            <input class="c-checkbox" type="checkbox" id="{%s attr[0] %}" name="{%s attr[0] %}" {%s dataForm %} value="1">
             <span data-set-text></span>
         </label>
     </div>

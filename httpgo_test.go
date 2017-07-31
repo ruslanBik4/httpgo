@@ -24,7 +24,7 @@ func TestMain(t *testing.T) {
 func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		fmt.Println(err)
 	}
 	services.InitServices()

@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 // аргументы для запроса, формируются дирнамичекски по полученным данным
 // для этого имеем несколько доп. полей для промежуточных результатов
@@ -39,7 +40,7 @@ func (query *ArgsQuery) findField(name string) bool {
 }
 // добавляем запросы для мультиполей, различаем их по таблицам(куда будем делать вставки
 // и по строкам (так как для tableid_ может прийти сразу несколько строк данных!
-func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val []string) {
+func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val []string, field *schema.FieldStructure) {
 	tableName := key[:indSeparator]
 	query, ok := tableIDQueryes.Queryes[tableName]
 	if !ok {
@@ -51,6 +52,11 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 			parentKey: "`id_" + tableIDQueryes.parentName + "`",
 			TableValues: make( map[int] map [string] []string, 1),
 		}
+		parentTable := schema.GetParentTable(tableName)
+		if parentTable != nil {
+			query.parentKey = "`id_" + parentTable.Name + "`"
+		}
+
 	}
 	fieldName := key[ indSeparator + 1: ]
 	pos := strings.Index(fieldName, "[")

@@ -1,3 +1,8 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// some function for request БД
 package db
 
 import (
@@ -10,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/ruslanBik4/httpgo/models/db/multiquery"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type argsRAW []interface{}
@@ -76,6 +82,30 @@ func checkPOSTParams(r *http.Request) string {
 	return r.FormValue("table")
 
 }
+// check field in schema
+func checkField(key string, table *schema.FieldsTable) (field *schema.FieldStructure, indSeparator int, err error) {
+
+	indSeparator = strings.Index(key, ":")
+	fieldName    := key
+	if pos := strings.Index(fieldName, "["); pos > 0 {
+		fieldName = fieldName[: pos]
+		logs.DebugLog(fieldName)
+	}
+	if indSeparator > 0 {
+		tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
+		fieldName  = fieldName[ indSeparator + 1: ]
+		field = tableChild.FindField(fieldName)
+	} else {
+		field = table.FindField(fieldName)
+	}
+
+	if field == nil {
+		return nil, -1, ErrBadParam {Name: fieldName, BadName: " field not in table" + table.Name, FuncName: "DoInsertFromForm"}
+	}
+
+	return field, indSeparator, nil
+
+}
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
@@ -93,6 +123,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 	if r.FormValue("id") > "" {
 		return -1, ErrBadParam{Name: "id", BadName: "found uncorrect params", FuncName: "DoInsertFromForm"}
 	}
+	table := schema.GetFieldsTable(tableName)
 	// удаляем определяющие параметры
 	r.Form.Del("table")
 
@@ -109,8 +140,10 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 
 	for key, val := range r.Form {
 
-		indSeparator := strings.Index(key, ":")
-
+		field, indSeparator, err := checkField(key, table)
+		if err != nil {
+			return -1, err
+		}
 		if strings.HasPrefix(key, "setid_") {
 			if tx == nil {
 				tx, err = startTXforQuery()
@@ -157,7 +190,7 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 			}
 			args = append(args, str)
 		} else if (indSeparator > 1) && strings.Contains(key, "[") {
-			tableIDQueryes.AddNewParam(key, indSeparator, val)
+			tableIDQueryes.AddNewParam(key, indSeparator, val, field)
 			continue
 		} else {
 			sqlCommand += comma + "`" + key + "`"
@@ -211,6 +244,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 	if (err != nil) || (id < 1) {
 		return -1, ErrBadParam{Name: "id", BadName: idText, FuncName: "DoUpdateFromForm"}
 	}
+	table := schema.GetFieldsTable(tableName)
 	// удаляем определяющие параметры
 	r.Form.Del("table")
 	r.Form.Del("id")
@@ -232,7 +266,10 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 			sqlCommand += comma + "`" + key + "`=?"
 			args = append(args, userID)
 		default:
-			indSeparator := strings.Index(key, ":")
+			field, indSeparator, err := checkField(key, table)
+			if err != nil {
+				return -1, err
+			}
 			if strings.HasPrefix(key, "setid_") {
 				if tx == nil {
 					tx, err = startTXforQuery()
@@ -273,7 +310,7 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 				str := strings.Join(val, ",")
 				args = append(args, str)
 			} else if (indSeparator > 1) && strings.Contains(key, "[") {
-				tableIDQueryes.AddNewParam(key, indSeparator, val)
+				tableIDQueryes.AddNewParam(key, indSeparator, val, field)
 				continue
 			} else {
 				sqlCommand += comma + "`" + key + "`=?"
@@ -420,6 +457,8 @@ type menuItem struct {
 	Title    string
 	SQL      []byte
 	Link     string
+	SortOrder int32
+	Elements string
 }
 type MenuItems struct {
 	Self  menuItem
@@ -442,7 +481,7 @@ func (menu *MenuItems) GetMenu(id string) int {
 	for rows.Next() {
 
 		item := &menuItem{}
-		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
+		if err := item.Scan(rows); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
@@ -456,8 +495,8 @@ func (menu *MenuItems) GetMenu(id string) int {
 func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 
 	isAdmin, err := DoSelect("SELECT is_general FROM roles_list "+
-		"INNER JOIN users_roles_list_has ON users_roles_list_has.id_roles_list=roles_list.id "+
-		"WHERE users_roles_list_has.id_users=?", user_id)
+		"INNER JOIN users_roles_list_has UR ON UR.id_roles_list=roles_list.id "+
+		"WHERE UR.id_users=?", user_id)
 
 	if err != nil {
 		logs.ErrorLog(err)
@@ -494,7 +533,7 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	for rows.Next() {
 
 		item := &menuItem{}
-		if err := rows.Scan(&item.Id, &item.Name, &item.ParentID, &item.Title, &item.SQL, &item.Link); err != nil {
+		if err := item.Scan(rows); err != nil {
 			logs.ErrorLog(err)
 			continue
 		}
@@ -504,6 +543,10 @@ func (menu *MenuItems) GetMenuByUserId(user_id int) int {
 	return len(menu.Items)
 }
 
+func (menu *menuItem) Scan(rows *sql.Rows) error {
+	return rows.Scan(&menu.Id, &menu.Name, &menu.ParentID, &menu.Title,
+		&menu.SQL, &menu.Link, &menu.SortOrder, &menu.Elements)
+}
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 
@@ -529,8 +572,7 @@ func (menu *MenuItems) Init(id string) int32 {
 
 	}
 
-	if err := rows.Scan(&menu.Self.Id, &menu.Self.Name, &menu.Self.ParentID, &menu.Self.Title,
-		&menu.Self.SQL, &menu.Self.Link); err != nil {
+	if err := menu.Self.Scan(rows); err != nil {
 		logs.ErrorLog(err)
 		return -1
 	}

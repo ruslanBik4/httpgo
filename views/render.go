@@ -1,3 +1,8 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// подготовка вывода данных в поток возврата
 package views
 
 import (
@@ -49,7 +54,7 @@ func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWri
 	}
 
 }
-
+// deprecate
 //TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
@@ -97,6 +102,14 @@ func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	http.Error(w, description, http.StatusBadRequest)
 }
+// для отдачи и записи в лог паники системы при работе хендлеров
+func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
+	http.Error(w, err.Error(), http.StatusInternalServerError)
+	logs.ErrorLogHandler(err, args)
+	logs.ErrorStack()
+}
+
+// для отдачи и записи в лог ошибок системы при работе хендлеров
 func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLog(err, args)

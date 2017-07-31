@@ -1,3 +1,9 @@
+// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// сервер отдачи шрифтов (пока реализовано только разделение браузеров на два виде,
+// позже планируется учитывать другие параметры пользователя
 package fonts
 
 import (
@@ -36,7 +42,11 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 		logs.DebugLog("browser=", browser)
 	}
 
-	if data, err := ioutil.ReadFile(PathWeb + r.URL.Path + ext); err != nil {
+	filename := r.URL.Path
+	if pos := strings.Index(r.URL.Path, "."); pos > 0 {
+		filename = filename[:pos-1]
+	}
+	if data, err := ioutil.ReadFile(PathWeb + filename + ext); err != nil {
 		logs.ErrorLog(err)
 	} else {
 		w.Write(data)

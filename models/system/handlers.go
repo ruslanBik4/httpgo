@@ -2,10 +2,7 @@ package system
 
 import (
 	"net/http"
-	//"log"
 	"github.com/ruslanBik4/httpgo/views"
-	//"runtime"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type ErrNotLogin struct {
@@ -44,8 +41,7 @@ func Catch(w http.ResponseWriter, r *http.Request) {
 		views.RenderNoPermissionPage(w)
 	case nil:
 	case error:
-		views.RenderInternalError(w, err)
-		logs.ErrorStack()
+		views.RenderHandlerError(w, err)
 	}
 }
 
