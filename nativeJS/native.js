@@ -8,6 +8,9 @@ const codeStatusServer = {
   '401' : {
     url: '/customer/login-user/'
   },
+  '403' : {
+    
+  }
 
 };
 
@@ -27,7 +30,6 @@ export class Native {
       try {
         temp.innerHTML = eval('`' + component.innerHTML + '`');
       } catch (e) {
-        debugger;
         console.log('%c error in Native.getHTMLDom()! ', 'color: #F44336');
         console.error(component, '\n', data, '\n', e);
       }
