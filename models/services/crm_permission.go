@@ -40,11 +40,13 @@ const DROP_PERMISS = "Drop"
 const CRM_PART = "crm"
 const EXTRANET_PART = "extranet"
 
-var crm_permission *cpService = &cpService{name:"crm_permission"}
+var crm_permission *cpService = &cpService{name:"crm_permission", status: "create"}
 var cacheMu sync.RWMutex
 
 //реализация обязательных методов интерейса
 func (crm_permission *cpService) Init() error{
+
+	crm_permission.status = "init"
 
 	err := crm_permission.setUserPermissionForCRM()
 
@@ -223,6 +225,7 @@ func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
 
 	cacheMu.Lock()
+	// TODO: Unlock must to allow there as defer func
 
 	if crm_permission.crm_permissions_roles[user_id] == nil || len(crm_permission.crm_permissions_roles[user_id]) == 0 {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
@@ -245,6 +248,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
 
 	cacheMu.Lock()
+	// TODO: Unlock must to allow there as defer func
 
 	newRow := make(map[string]interface{}, 0)
 	newRow["link"] = link
@@ -276,6 +280,7 @@ func (crm_permission *cpService) setPermissForUser(user_id int, link string, all
 func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_hotels int) error {
 
 	cacheMu.Lock()
+	// TODO: Unlock must to allow there as defer func
 
 	if crm_permission.extranet_permissions[user_id] == nil || len(crm_permission.extranet_permissions[user_id]) == 0 {
 		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
@@ -291,6 +296,7 @@ func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_ho
 func (crm_permission *cpService) setPermissForUserExtranet(user_id, id_hotels, id_role int) error {
 
 	cacheMu.Lock()
+	// TODO: Unlock must to allow there as defer func
 
 	crm_permission.extranet_permissions[user_id][id_hotels] = id_role
 
