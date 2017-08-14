@@ -1,0 +1,38 @@
+url: vps-20777.vps-default-host.net/extranet/
+#searchField {
+    clear:
+    pause: 3000
+    sendkey: Алупка
+}
+#resultSearchWhenIsEmpty {
+    displayed : fail
+}
+a.collapsed[href='#collapse525'] {
+    displayed: !continue
+    text:
+    click:
+}
+#collapse525 > div > ul > li:nth-child(1) > a {
+    displayed: !continue
+    click:
+    text:
+    pause: 1000
+}
+input[name=login] {
+    displayed: !continue
+    sendkey: ruslan-bik@yandex.ru
+}
+input[name=password] {
+    displayed: !continue
+    sendkey: kRnZBweSNEjr-8VJY0htTw==
+}
+form.login-user-form {
+    displayed: !continue
+    submit:
+}
+pause: 2000
+
+select[name=id_prop_hotels_type_list] {
+    displayed: !continue
+    text
+}

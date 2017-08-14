@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func main()  {
+func Example()  {
 
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
