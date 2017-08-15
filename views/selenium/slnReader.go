@@ -116,6 +116,14 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 		err = wd.MaximizeWindow("")
 	case "screenshot":
 		wd.Screenshot()
+	case "pause":
+		pInt, err := strconv.Atoi(param)
+		if err != nil {
+			return err
+		}
+		log.Print("pause ", pInt)
+		time.Sleep(time.Millisecond * time.Duration(pInt))
+
 	case "executescript":
 		result, err := wd.ExecuteScript(param, nil)
 		log.Print("script ", result)
