@@ -1,38 +1,53 @@
-url: vps-20777.vps-default-host.net/extranet/
+url:vps-20777.vps-default-host.net/extranet/
+maximize
 #searchField {
     clear:
-    pause: 3000
+    pause: 1000
     sendkey: Алупка
 }
 #resultSearchWhenIsEmpty {
-    displayed : fail
+    visible : fail
 }
-a.collapsed[href='#collapse525'] {
-    displayed: !continue
+a.collapsed::visible {
     text:
-    click:
+    click
 }
-#collapse525 > div > ul > li:nth-child(1) > a {
-    displayed: !continue
+#collapse525 > div > ul > li:nth-child(1) > a::visible {
     click:
     text:
     pause: 1000
 }
-input[name=login] {
-    displayed: !continue
+input[name=login]::visible {
     sendkey: ruslan-bik@yandex.ru
 }
-input[name=password] {
-    displayed: !continue
+input[name=password]::visible {
     sendkey: kRnZBweSNEjr-8VJY0htTw==
 }
-form.login-user-form {
-    displayed: !continue
-    submit:
+.modal-footer > button::visible{
+    click
+    pause: 100
+    getalert
 }
-pause: 2000
+#collapse525 > div > ul > li:nth-child(1) > a::visible {
+    click:
+    text:
+}
 
-select[name=id_prop_hotels_type_list] {
-    displayed: !continue
+select[name=id_prop_hotels_type_list]::visible {
     text
 }
+.main-tabs >li > a {
+    click
+    pause: 1000
+}
+executescript:alert('Hello')
+pause: 1000
+getalert
+
+#decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
+    click
+}
+#carousel-example-generic > a.right.object-gallery-right::visible {
+    click
+}
+pause: 200000

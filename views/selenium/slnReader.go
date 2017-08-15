@@ -14,10 +14,15 @@ import (
 	"time"
 	"strconv"
 	"strings"
+	"errors"
 )
 var 	fFilename    = flag.String("filename", "test.css", "file with css selenium rules")
+type tCommand struct {
+	command, param string
+}
 var (
-	wElem       []selenium.WebElement
+	wElements []selenium.WebElement
+ 	command [] tCommand
 )
 
 func main() {
@@ -28,6 +33,13 @@ func main() {
 		panic(err) // panic is used only as an example and is not otherwise recommended.
 	}
 	defer wd.Quit()
+	defer func() {
+		err := recover()
+		if err, ok := err.(error); ok {
+			time.Sleep(time.Millisecond * 5000)
+			log.Print(err)
+		}
+	}()
 
 	ioReader, err := os.Open(*fFilename)
 	if err != nil {
@@ -44,79 +56,130 @@ func main() {
 		panic(err) // panic is used only as an example and is not otherwise recommended.
 	}
 
+	log.Print(n)
 	b = bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
-	str := string(b)
-	token, param := "", ""
-	isCommand := false
+	slBytes := bytes.Split(b, []byte("\n"))
 
-	for i, s := range str {
-		if i > n {
-			log.Print("i>n")
-			break
-		}
-		switch string(s) {
-		case "{":
-			wElem, err = wd.FindElements(selenium.ByCSSSelector, token)
-			if err != nil {
-				log.Print(token)
-				panic(err)
-			}
-			log.Print(token)
-			token, param, isCommand = "", "", false
-		case "}":
-			token, param, isCommand, wElem = "", "", false, nil
-		case ":":
-			isCommand = (wElem != nil) || (token == "url")
-			if !isCommand {
-				token += string(s)
-			}
-		case "\n":
-			if token == "url" {
-				// Navigate to the simple playground interface.
-				if err := wd.Get("http://" + param); err != nil {
-					panic(err)
-				}
-				log.Print("open " + param)
-
-				img, err := wd.Screenshot()
-				if err != nil {
-					output, err := os.Create("screeshot.jpg")
+	for _, line := range slBytes {
+		if bytes.Index(line, []byte("}") ) > -1 {
+			for _, elem := range wElements {
+				for _, val := range command {
+					err := wdCommand(val.command, wd, val.param)
 					if err != nil {
-						log.Print(err)
-					} else {
-						output.Write(img)
-						output.Close()
-					}
-				}
-				wd.MaximizeWindow("")
-
-			} else if (token > "") && (wElem != nil) {
-				for i, elem := range wElem {
-					if (elem !=nil) && !runCommand(token, param, elem) {
-						wElem[i] = nil
+						if err.Error() == "unknow command" {
+							if !runCommand(val.command, val.param, elem) {
+								log.Print(val.command)
+							}
+						} else {
+							log.Print(err)
+						}
 					}
 				}
 			}
-			token, param, isCommand = "", "", false
-		case " ":
+			wElements, command = nil, nil
 			continue
-		default:
-			if isCommand {
-				param += string(s)
+		}
+
+		tokens := bytes.Split(line, []byte("{"))
+		if len(tokens) > 1 {
+			// find selector
+			wElements = getElement(wd, string(tokens[0]))
+			command = make([] tCommand, 0)
+		} else {
+			var token, param string
+
+			tokens = bytes.Split(line, []byte(":"))
+			if len(tokens) > 1 {
+				token, param = string(tokens[0]), string(tokens[1])
 			} else {
-				token += string(s)
+				token, param = string(line), ""
+			}
+
+			token, param = strings.TrimSpace(token), strings.TrimSpace(param)
+
+			if command != nil {
+				command = append(command, tCommand{ command: token, param: param } )
+			} else {
+				err := wdCommand(token, wd, param)
+				log.Print(err)
 			}
 		}
 	}
 }
-func runCommand(token, param string, wd selenium.WebElement) bool{
+func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
+	switch token {
+	case "url":
+		openURL(wd, param)
+	case "getalert":
+		err = wd.AcceptAlert()
+	case "maximize":
+		err = wd.MaximizeWindow("")
+	case "screenshot":
+		wd.Screenshot()
+	case "executescript":
+		result, err := wd.ExecuteScript(param, nil)
+		log.Print("script ", result)
+		return err
+	default:
+		return errors.New("unknow command")
+	}
+
+	return err
+}
+func openURL(wd selenium.WebDriver, param string) {
+	// Navigate to the simple playground interface.
+	if err := wd.Get("http://" + param); err != nil {
+		panic(err)
+	}
+	if status, err := wd.Status(); err != nil {
+		panic(err)
+	} else {
+		log.Printf("%#v", status)
+	}
+	log.Print("open " + param)
+	img, err := wd.Screenshot()
+	if err != nil {
+		output, err := os.Create("/Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/selenium/screeshot.jpg")
+		if err != nil {
+			log.Print(err)
+		} else {
+			output.Write(img)
+			output.Close()
+		}
+	}
+}
+// webElement select
+func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement){
+
+	list := strings.Split(token, "::")
+	token = list[0]
+	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
+	if err != nil {
+		log.Print(token)
+		panic(err)
+	}
+	if len(list) > 1 {
+		stat := strings.TrimSpace(list[1])
+		for i, elem := range wElements {
+			if runCommand(stat, "!continue", elem) {
+				result = append(result, wElements[i])
+			}
+		}
+	} else {
+		result = wElements
+	}
+	log.Print("select ", len(wElements), " from ", token)
+
+	return
+}
+func runCommand(token, param string, wElem selenium.WebElement) bool{
 var (	slnCommands  = map[string] func() error {
-	"click": wd.Click,
-	"clear": wd.Clear,
-	"submit": wd.Submit, }
-	slnStat  = map[string] func() (bool, error) {"selected": wd.IsSelected, "enabled": wd.IsEnabled, "displayed": wd.IsDisplayed, }
-	slnText  = map[string] func() (string, error) { "tag": wd.TagName, "text": wd.Text, }
-	slnCSS   = map[string] func(string) (string, error) {"css": wd.CSSProperty, "attr": wd.GetAttribute, }
+	"click":  wElem.Click,
+	"clear":  wElem.Clear,
+	"submit": wElem.Submit, }
+	slnStat  = map[string] func() (bool, error) {"selected": wElem.IsSelected, "enabled": wElem.IsEnabled, "visible": wElem.IsDisplayed, }
+	slnText  = map[string] func() (string, error) { "tag": wElem.TagName, "text": wElem.Text, }
+	slnCSS   = map[string] func(string) (string, error) {"css": wElem.CSSProperty, "attr": wElem.GetAttribute, }
 	//{"move": wElem.MoveTo}
 )
 	if command, ok := slnCommands[token]; ok {
@@ -130,6 +193,7 @@ var (	slnCommands  = map[string] func() error {
 			log.Print(token)
 			panic(err)
 		} else {
+
 			if strings.HasPrefix( param, "!") {
 				ok = !ok
 				param = param[1:]
@@ -141,11 +205,9 @@ var (	slnCommands  = map[string] func() error {
 				case "continue":
 					return false
 				default:
-					log.Print(token+" is ", ok, param)
+					log.Print( token + " is ", ok, " unknow param ", param)
 
 				}
-			} else {
-				log.Print(token+" is ", ok)
 			}
 		}
 	} else if command, ok := slnText[token]; ok {
@@ -172,7 +234,7 @@ var (	slnCommands  = map[string] func() error {
 		time.Sleep(time.Millisecond * time.Duration(pInt))
 
 	} else  if token == "sendkey" {
-		if err := wd.SendKeys(param); err != nil {
+		if err := wElem.SendKeys(param); err != nil {
 			log.Print("sendkey err", err, param)
 			panic(err)
 		}
