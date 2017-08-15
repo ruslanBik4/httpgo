@@ -1,5 +1,5 @@
+url:www.отдохнутьвкрыму.рф/extranet/
 maximize
-url:vps-20777.vps-default-host.net/extranet/
 #searchField {
     clear:
     pause: 1000
@@ -10,7 +10,7 @@ url:vps-20777.vps-default-host.net/extranet/
 }
 a.collapsed::visible {
     text:
-    click
+            click
 }
 #collapse525 > div > ul > li:nth-child(1) > a::visible {
     click:

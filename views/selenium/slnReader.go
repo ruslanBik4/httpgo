@@ -26,6 +26,7 @@ var (
 )
 
 func main() {
+	flag.Parse()
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
