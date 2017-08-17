@@ -180,6 +180,7 @@ func openURL(wd selenium.WebDriver, param string) {
 	}
 	log.Print("open " + param)
 }
+// создает скриншот текущего окна браузера и сохраняет его в папке программы
 func saveScreenShoot(wd selenium.WebDriver)  {
 	img, err := wd.Screenshot()
 	if err == nil {
