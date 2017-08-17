@@ -32,6 +32,7 @@ var (
  	command [] tCommand
 	values = map[string] string {}
 	fFilename    = flag.String("filename", "test.css", "file with css selenium rules")
+	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
 )
 const valPrefix = '@'
 //todo: добавить в сценарий переменные, в частности, читать пароли отдельно из файла
@@ -191,7 +192,7 @@ func openURL(wd selenium.WebDriver, param string) {
 func saveScreenShoot(wd selenium.WebDriver)  {
 	img, err := wd.Screenshot()
 	if err == nil {
-		output, err := os.Create("./" + time.Now().String() + ".jpg")
+		output, err := os.Create(*fScrPath + time.Now().String() + ".jpg")
 		if err == nil {
 			_, err = output.Write(img)
 			output.Close()
