@@ -56,7 +56,8 @@ function showFormModal(data) {
     return false;
 }
 function alertField(thisElem) {
-    var nameField = $('label[for="' + thisElem.id + '"]').text();
+    debugger
+    var nameField = $(thisElem).attr('label');
     if (nameField == "") {
         nameField = thisElem.placeholder
     }
@@ -203,6 +204,7 @@ function saveForm(thisForm, successFunction, errorFunction)
             $progress.val( percentComplete );
         },
         success: function(data, status) {
+
             $out.html('Успешно изменили запись.');
             // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
             if (successFunction !== undefined) {
