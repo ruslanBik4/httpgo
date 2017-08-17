@@ -168,6 +168,7 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 
 	return err
 }
+// открыть URL
 func openURL(wd selenium.WebDriver, param string) {
 	// Navigate to the simple playground interface.
 	if err := wd.Get("http://" + param); err != nil {
