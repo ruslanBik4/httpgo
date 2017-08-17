@@ -19,6 +19,14 @@ import (
 type tCommand struct {
 	command, param string
 }
+type ErrFailTest struct {
+	token, param string
+}
+
+func (err ErrFailTest) Error() string {
+	return err.token + " wtih param " + err.param
+}
+type ErrUnknowCommand error
 var (
 	wElements []selenium.WebElement
  	command [] tCommand
@@ -141,7 +149,7 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 	case "maximize":
 		err = wd.MaximizeWindow("")
 	case "screenshot":
-		wd.Screenshot()
+		saveScreenShoot(wd)
 	case "pause":
 		pInt, err := strconv.Atoi(param)
 		if err != nil {
@@ -171,7 +179,6 @@ func openURL(wd selenium.WebDriver, param string) {
 		log.Printf("%#v", status)
 	}
 	log.Print("open " + param)
-	saveScreenShoot(wd)
 }
 func saveScreenShoot(wd selenium.WebDriver)  {
 	img, err := wd.Screenshot()
@@ -251,7 +258,7 @@ var (	slnCommands  = map[string] func() error {
 			if ok && (param > "") {
 				switch param {
 				case "fail":
-					log.Fatal(token)
+					panic(ErrFailTest{token: token, param: param} )
 				case "continue":
 					return false
 				default:

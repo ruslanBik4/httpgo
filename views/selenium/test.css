@@ -5,7 +5,7 @@ url: vps-20777.vps-default-host.net/extranet/
 @password: kRnZBweSNEjr-8VJY0htTw==
 #searchField {
     clear:
-    pause: 1000
+    pause: 2000
     sendkey: @hotelName
 }
 #resultSearchWhenIsEmpty {
@@ -15,17 +15,20 @@ url: vps-20777.vps-default-host.net/extranet/
     text:
     click
 }
+screenshot
 #app_aside_parent_list > div > div.panel-collapse[aria-expanded='true'] > div > ul > li:nth-child(1) > a::visible {
     click:
     text:
     pause: 1000
 }
+screenshot
 input[name=login]::visible {
     sendkey: @userName
 }
 input[name=password]::visible {
     sendkey: @password
 }
+screenshot
 .modal-footer > button::visible{
     click
     pause: 100
