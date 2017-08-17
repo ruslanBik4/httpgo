@@ -9,7 +9,7 @@ const codeStatusServer = {
     url: '/customer/login-user/'
   },
   '403' : {
-    
+
   }
 
 };
@@ -85,6 +85,15 @@ export class Native {
 
   static get getIdCurrentPage() {
     return Parse.idCurrentPage;
+  }
+
+
+  /*
+  *   reset current id dynamically page
+  */
+
+  static resetIdCurrentPage() {
+    Parse.idCurrentPage = null;
   }
 
 

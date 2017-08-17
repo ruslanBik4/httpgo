@@ -13,6 +13,10 @@ export class Parse {
   static get idCurrentPage() {
     return idCurrentPage;
   }
+
+  static set idCurrentPage(id) {
+    idCurrentPage = id;
+  }
   
   static get getDataAfterForm() {
     return dataAfterForm;
