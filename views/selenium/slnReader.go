@@ -24,6 +24,9 @@ var (
 	wElements []selenium.WebElement
  	command [] tCommand
 )
+//todo: добавить в сценарий переменные, в частности, читать пароли отдельно из файла
+//todo: добавить циклы  и ветвления
+//todo: доабвить ассерты стандартных тестов ГО
 
 func main() {
 	flag.Parse()
@@ -148,7 +151,7 @@ func openURL(wd selenium.WebDriver, param string) {
 	log.Print("open " + param)
 	img, err := wd.Screenshot()
 	if err != nil {
-		output, err := os.Create("/Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/selenium/screeshot.jpg")
+		output, err := os.Create("./screeshot.jpg")
 		if err != nil {
 			log.Print(err)
 		} else {

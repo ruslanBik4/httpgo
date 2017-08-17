@@ -3,7 +3,7 @@ url:vps-20777.vps-default-host.net/extranet/
 #searchField {
     clear:
     pause: 1000
-    sendkey: Алупка
+    sendkey: Кокос
 }
 #resultSearchWhenIsEmpty {
     visible : fail
@@ -43,13 +43,11 @@ select[name=id_prop_hotels_type_list]::visible {
 executescript:alert('Hello')
 pause: 1000
 getalert
-
 #decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
     click
 }
 pause: 1000
-
-#carousel-example-generic > a.right.object-gallery-right {
+#carousel-example-generic > a.right.object-gallery-right::visible {
     click
 }
 pause: 1000
