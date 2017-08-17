@@ -1,14 +1,17 @@
 maximize
-url:vps-20777.vps-default-host.net/extranet/
+url: vps-20777.vps-default-host.net/extranet/
+@hotelName: Кокос
+@userName: ruslan-bik@yandex.ru
+@password: kRnZBweSNEjr-8VJY0htTw==
 #searchField {
     clear:
     pause: 1000
-    sendkey: Кокос
+    sendkey: @hotelName
 }
 #resultSearchWhenIsEmpty {
     visible : fail
 }
-#app_aside_parent_list div.panel[style=''] {
+#app_aside_parent_list div.panel[style='']::first {
     text:
     click
 }
@@ -18,10 +21,10 @@ url:vps-20777.vps-default-host.net/extranet/
     pause: 1000
 }
 input[name=login]::visible {
-    sendkey: ruslan-bik@yandex.ru
+    sendkey: @userName
 }
 input[name=password]::visible {
-    sendkey: kRnZBweSNEjr-8VJY0htTw==
+    sendkey: @password
 }
 .modal-footer > button::visible{
     click
@@ -32,7 +35,6 @@ input[name=password]::visible {
     click:
     text:
 }
-
 select[name=id_prop_hotels_type_list]::visible {
     text
 }
@@ -45,21 +47,22 @@ pause: 1000
 getalert
 #decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
     click
+    pause: 1000
 }
-pause: 1000
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
+    pause: 1000
 }
-pause: 1000
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
+    pause: 1000
 }
-pause: 1000
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
+    pause: 1000
 }
-pause: 1000
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
+    pause: 1000
 }
 pause: 2000

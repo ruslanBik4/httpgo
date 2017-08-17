@@ -16,14 +16,16 @@ import (
 	"strings"
 	"errors"
 )
-var 	fFilename    = flag.String("filename", "test.css", "file with css selenium rules")
 type tCommand struct {
 	command, param string
 }
 var (
 	wElements []selenium.WebElement
  	command [] tCommand
+	values = map[string] string {}
+	fFilename    = flag.String("filename", "test.css", "file with css selenium rules")
 )
+const valPrefix = '@'
 //todo: добавить в сценарий переменные, в частности, читать пароли отдельно из файла
 //todo: добавить циклы  и ветвления
 //todo: доабвить ассерты стандартных тестов ГО
@@ -38,10 +40,12 @@ func main() {
 	}
 	defer wd.Quit()
 	defer func() {
+		saveScreenShoot(wd)
 		err := recover()
 		if err, ok := err.(error); ok {
-			time.Sleep(time.Millisecond * 5000)
+			wd.SetAlertText(err.Error())
 			log.Print(err)
+			time.Sleep(time.Millisecond * 5000)
 		}
 	}()
 
@@ -99,17 +103,35 @@ func main() {
 				token, param = string(line), ""
 			}
 
-			token, param = strings.TrimSpace(token), strings.TrimSpace(param)
+			token, param = strings.TrimSpace(token), getParam(param)
 
-			if command != nil {
+			if token[0] == valPrefix {
+				values[token[1:]] = param
+			} else if command != nil {
 				command = append(command, tCommand{ command: token, param: param } )
 			} else {
-				err := wdCommand(token, wd, param)
-				log.Print(err)
+				if err := wdCommand(token, wd, param); err != nil {
+					log.Print(err)
+				}
 			}
 		}
 	}
 }
+//
+func getParam(param string) string {
+	param = strings.TrimSpace(param)
+	if (param > "") && (param[0] == valPrefix) {
+		if value, ok := values[param[1:]]; ok {
+			return value
+		} else {
+			return ""
+		}
+	}
+
+	return param
+}
+// выполнение обзих команд Селениума (не привязанных к елементу страницы)
+// возвращает ошибку исполнения, коли такая произойдет
 func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 	switch token {
 	case "url":
@@ -149,15 +171,19 @@ func openURL(wd selenium.WebDriver, param string) {
 		log.Printf("%#v", status)
 	}
 	log.Print("open " + param)
+	saveScreenShoot(wd)
+}
+func saveScreenShoot(wd selenium.WebDriver)  {
 	img, err := wd.Screenshot()
-	if err != nil {
-		output, err := os.Create("./screeshot.jpg")
-		if err != nil {
-			log.Print(err)
-		} else {
-			output.Write(img)
+	if err == nil {
+		output, err := os.Create("./" + time.Now().String() + ".jpg")
+		if err == nil {
+			_, err = output.Write(img)
 			output.Close()
 		}
+	}
+	if err != nil {
+		log.Print(err)
 	}
 }
 // webElement select
@@ -172,9 +198,16 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 	}
 	if len(list) > 1 {
 		stat := strings.TrimSpace(list[1])
-		for i, elem := range wElements {
-			if runCommand(stat, "!continue", elem) {
-				result = append(result, wElements[i])
+		switch stat {
+		case "first":
+			return wElements[:1]
+		case "last":
+			return wElements[len(wElements)-1:]
+		default:
+			for i, elem := range wElements {
+				if runCommand(stat, "!continue", elem) {
+					result = append(result, wElements[i])
+				}
 			}
 		}
 	} else {
@@ -186,10 +219,15 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 }
 func runCommand(token, param string, wElem selenium.WebElement) bool{
 var (	slnCommands  = map[string] func() error {
-	"click":  wElem.Click,
-	"clear":  wElem.Clear,
-	"submit": wElem.Submit, }
-	slnStat  = map[string] func() (bool, error) {"selected": wElem.IsSelected, "enabled": wElem.IsEnabled, "visible": wElem.IsDisplayed, }
+							"click":  wElem.Click,
+							"clear":  wElem.Clear,
+							"submit": wElem.Submit,
+						}
+	slnStat  = map[string] func() (bool, error) {
+		"selected": wElem.IsSelected,
+		"enabled": wElem.IsEnabled,
+		"visible": wElem.IsDisplayed,
+	}
 	slnText  = map[string] func() (string, error) { "tag": wElem.TagName, "text": wElem.Text, }
 	slnCSS   = map[string] func(string) (string, error) {"css": wElem.CSSProperty, "attr": wElem.GetAttribute, }
 	//{"move": wElem.MoveTo}
