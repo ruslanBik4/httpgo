@@ -8,6 +8,7 @@ url: vps-20777.vps-default-host.net/extranet/
     pause: 2000
     sendkey: @hotelName
 }
+
 #resultSearchWhenIsEmpty {
     visible : fail
 }

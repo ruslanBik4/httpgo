@@ -77,6 +77,12 @@ func main() {
 	slBytes := bytes.Split(b, []byte("\n"))
 
 	for _, line := range slBytes {
+
+		// комментарии и пустые строки пропускаем
+		if (len(line) == 0) || bytes.HasPrefix(line, []byte("//")) {
+			continue
+		}
+		// завершение блока - вылопляем команды для селектора
 		if bytes.Index(line, []byte("}") ) > -1 {
 			for _, elem := range wElements {
 				for _, val := range command {
@@ -198,6 +204,16 @@ func saveScreenShoot(wd selenium.WebDriver)  {
 // webElement select
 func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement){
 
+	if token == "activeElement" {
+		if wElem, err := wd.ActiveElement(); err != nil {
+			panic(err)
+		} else {
+			result = append(result, wElem)
+		}
+
+		return
+
+	}
 	list := strings.Split(token, "::")
 	token = list[0]
 	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
