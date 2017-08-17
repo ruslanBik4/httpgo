@@ -46,26 +46,26 @@ select[name=id_prop_hotels_type_list]::visible {
     pause: 1000
 }
 executescript:alert('Hello')
-pause: 1000
+pause: 100
 getalert
 #decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
     click
-    pause: 1000
+    pause: 100
 }
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
-    pause: 1000
+    pause: 200
 }
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
-    pause: 1000
+    pause: 200
 }
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
-    pause: 1000
+    pause: 200
 }
 #carousel-example-generic > a.right.object-gallery-right::visible {
     click
-    pause: 1000
+    pause: 200
 }
 pause: 2000
