@@ -19,5 +19,17 @@ button.form__btn {
 }
 .hotel-card__btn > a::first {
     click
+    pause: 2000
+}
+input[name=login]::visible {
+    sendkey: @userName
+}
+input[name=password]::visible {
+    sendkey: @password
+}
+.modal-footer > button.blue-btn::visible{
+    click
+    pause: 100
+    getalert
 }
 pause: 20000
