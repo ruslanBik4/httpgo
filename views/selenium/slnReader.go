@@ -31,7 +31,7 @@ var (
 	wElements []selenium.WebElement
  	command [] tCommand
 	values = map[string] string {}
-	fFilename    = flag.String("filename", "test.css", "file with css selenium rules")
+	fFilename    = flag.String("filename", "test.sln", "file with css selenium rules")
 	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
 )
 const valPrefix = '@'
@@ -164,7 +164,6 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 		}
 		log.Print("pause ", pInt)
 		time.Sleep(time.Millisecond * time.Duration(pInt))
-
 	case "executescript":
 		result, err := wd.ExecuteScript(param, nil)
 		log.Print("script ", result)
