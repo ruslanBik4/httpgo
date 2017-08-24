@@ -38,6 +38,7 @@ import (
 	"os/signal"
 	"net"
 	"syscall"
+	"os/exec"
 )
 
 //go:generate qtc -dir=views/templates
@@ -52,9 +53,11 @@ var (
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
 	routes  = map[string]http.HandlerFunc{
+		"/godoc/":        handlerGoDoc,
 		"/recache":       handlerRecache,
 		"/update/":       handleUpdate,
 		"/test/":         handleTest,
+		"/api/firebird/": HandleFirebird,
 		"/fonts/":        fonts.HandleGetFont,
 		"/query/":        db.HandlerDBQuery,
 		"/menu/":         handlerMenu,
@@ -260,6 +263,28 @@ func sockCatch() {
 }
 const _24K = (1 << 10) * 24
 
+func HandleFirebird(w http.ResponseWriter, r *http.Request) {
+
+
+	rows, err := db.FBSelect("SELECT * FROM country_list")
+
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		defer rows.Close()
+		for rows.Next() {
+			var id int
+			var title string
+			if err := rows.Scan(&id, &title); err != nil {
+				views.RenderInternalError(w, err)
+				break
+			}
+			fmt.Fprintf(w, "id=%i, title =%s", id, title)
+
+		}
+	}
+}
+
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_24K)
@@ -453,7 +478,20 @@ func cacheFiles() {
 	}
 	filepath.Walk(filepath.Join(*fWeb, cachePath), cacheWalk)
 }
+// show doc
+func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
+	ServerConfig := server.GetServerConfig()
 
+	cmd := exec.Command("godoc", "/Users/ruslan/work/src/github.com/ruslanBik4/httpgo")
+	cmd.Dir = ServerConfig.SystemPath()
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		views.RenderInternalError(w, err)
+	} else {
+		views.RenderOutput(w, stdoutStderr)
+	}
+}
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
 

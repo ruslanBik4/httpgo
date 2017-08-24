@@ -4,7 +4,6 @@
 // Creating %{DATE}
 
 //Обслуживает кеш для справочников БД
-
 package services
 
 import (
