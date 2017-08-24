@@ -25,7 +25,6 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"models/config"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -39,6 +38,7 @@ import (
 	"net"
 	"syscall"
 	"os/exec"
+	"plugin"
 )
 
 //go:generate qtc -dir=views/templates
@@ -105,7 +105,14 @@ func registerRoutes() {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 	admin.RegisterRoutes()
-	config.RegisterRoutes()
+	if travel, err := plugin.Open("travel"); err != nil {
+		logs.ErrorLog(err)
+	} else {
+		symb, err := travel.Lookup("RegisterRoutes")
+		if  err == nil {
+			symb.(func())()
+		}
+	}
 }
 
 // DefaultHandler работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
