@@ -1,5 +1,7 @@
 FROM golang:1.9rc2
-CMD go install github.com/ruslanBik4/httpgo # "go install -v ./..."
-
-CMD ["httpgo", "run"]
+WORKDIR /go/src/app
+COPY . .
+RUN go-wrapper download
+RUN go-wrapper install
+CMD ["go-wrapper", "run"]
 EXPOSE 80
