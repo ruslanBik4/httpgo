@@ -16,7 +16,8 @@ import (
 	"strconv"
 	"io"
 )
-//"/api/v1/photos/add/"
+//@/api/v1/photos/add/
+// добавление фото к обьекту (по имени таблицы и Айди)
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
@@ -41,8 +42,7 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 		for _, header := range headers {
 			//var err interface{}
 			inFile, _ := header.Open()
-			path := filepath.Join(tableName, id, header.Filename)
-			err := services.Send("photos", "save", path, inFile)
+			err := services.Send("photos", tableName, id, inFile, header.Filename)
 			if err != nil {
 				views.RenderInternalError(w, err)
 				return
@@ -55,7 +55,7 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("}"))
 
 }
-// /api/v1/photos/
+// @/api/v1/photos/
 // возвращает ссылки на фото обьекта либо файл
 func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 

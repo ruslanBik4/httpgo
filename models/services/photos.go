@@ -17,7 +17,6 @@ import (
 type photosService struct {
 	name     string
 	path     string
-	fileName string
 	status   string
 }
 
@@ -31,56 +30,53 @@ func (photos *photosService) Init() error {
 	ServerConfig := server.GetServerConfig()
 
 	photos.path = filepath.Join(ServerConfig.WWWPath(), "files/photos")
-	photos.fileName = "test.txt"
 
 	photos.status = "ready"
 	return nil
 }
 
-// выполняет операцию по записи/чтении файла
-// это зависит от первого параметра - "save" или "read"
-// третий параметр - имя файла
+// выполняет операцию по записи файла
+// согласно параметрам:
+// 1 - имя раздела(например, таблицы, view или сервиса)
+// 2 - id записи
+// 3 - io.Reader
 func (photos *photosService) Send(args ...interface{}) error {
 
-	var oper string
-	if len(args) < 2 {
+	var catalog, id, filename string
+
+	if len(args) < 3 {
 		return ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
 	}
-	switch message := args[0].(type) {
-	case string:
-		oper = message
-		logs.DebugLog(oper)
-	default:
-		return ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 1}
+	var ok bool
+
+	if catalog, ok = args[0].(string); !ok {
+		return ErrServiceNotCorrectParamType{Name: photos.name, Param: args[0], Number: 0}
 	}
 
-	if oper == "save" {
-		switch message := args[1].(type) {
-		case string:
-			photos.fileName = message
-		default:
-			return ErrServiceNotCorrectParamType{Name: photos.name, Param: message, Number: 2}
-		}
-		if len(args) < 3 {
-			return ErrServiceNotEnoughParameter{Name: photos.name, Param: args}
-		}
-		return photos.saveFile(args[2].(io.Reader))
-	} else if oper == "read" {
-		log.Println(oper)
-		return ErrServiceNotCorrectOperation{Name: photos.name, OperName: oper}
+	if id, ok = args[1].(string); !ok {
+		return ErrServiceNotCorrectParamType{Name: photos.name, Param: args[1], Number: 1}
+	}
 
+	var iFile io.Reader
+	if iFile, ok = args[2].(io.Reader); !ok {
+		return ErrServiceNotCorrectParamType{Name: photos.name, Param: args[2], Number: 2}
+	}
+
+	if len(args) > 3 {
+		if filename, ok = args[3].(string); !ok {
+			return ErrServiceNotCorrectParamType{Name: photos.name, Param: args[3], Number: 1}
+		}
 	} else {
-		return ErrServiceNotCorrectOperation{Name: photos.name, OperName: oper}
-
+		filename = "main.jpg"
 	}
+	return photos.saveFile(	filepath.Join(catalog, id, filename), iFile)
 
-	return nil
 
 }
 
 //возвращает интерфейс чтения файла картинки
 //согласно параметрам:
-//1 - имя таблицы, view или сервиса
+//1 - имя раздела(например, таблицы, view или сервиса)
 //2 - id записи
 //3 - порядковый номер файла файла
 // (-1 означает, что нужно вернуть массив со списком файлов)
@@ -135,9 +131,10 @@ func (photos *photosService) Status() string {
 
 	return photos.status
 }
-func (photos *photosService) saveFile(inFile io.Reader) error {
+func (photos *photosService) saveFile(fileName string, inFile io.Reader) error {
 
-	fullName := filepath.Join(photos.path, photos.fileName)
+	// соединяем переданный путь с путем к  хранилищу
+	fullName := filepath.Join(photos.path, fileName)
 	outFile, err := os.Create(fullName)
 	if err != nil {
 		if os.IsNotExist(err) {

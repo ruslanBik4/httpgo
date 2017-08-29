@@ -4,7 +4,8 @@ url: vps-20777.vps-default-host.net/customer/
 @userName: ruslan-bik@yandex.ru
 @password: kRnZBweSNEjr-8VJY0htTw==
 input[name='full_address'] {
-    sendkey: @hotelName
+    pause: 2000
+    sendkey:@hotelName
 }
 input[name='arr-date'] {
     click
