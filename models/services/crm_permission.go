@@ -1,4 +1,8 @@
 // Copyright 2017 Author: Yurii Kravchuk. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+//Реализует работу с правами пользователя для доступа в CRM/Extranet
 
 package services
 
@@ -7,6 +11,7 @@ import (
 	"sync"
 )
 
+//структура прав для пользователя по ссылке (CRM)
 type linkPermission struct {
 	link string
 	allow_create int
@@ -15,6 +20,7 @@ type linkPermission struct {
 	id_users int
 }
 
+//структура прав роли по ссылке (Extranet)
 type roles struct {
 	link string
 	allow_create int
@@ -174,10 +180,13 @@ func (crm_permission *cpService) Close(out chan <- interface{}) error {
 	return nil
 
 }
+
+//получение статуса сервиса
 func (crm_permission *cpService) Status() string {
 	return crm_permission.status
 }
 
+//получение права пользователя в CRM на выполнения конкретного действия по конкретному url
 func (crm_permission *cpService) getCRMPermissions(user_id int, url, action string) bool {
 
 	if crm_permission.crm_permissions_roles[user_id] == nil || len(crm_permission.crm_permissions_roles[user_id]) == 0 {
@@ -193,6 +202,7 @@ func (crm_permission *cpService) getCRMPermissions(user_id int, url, action stri
 	return false
 }
 
+//получение прав пользователя в Extranet для конкретного отеля
 func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action string, id_hotels int) bool {
 
 	role_id := crm_permission.getUserRole(user_id, id_hotels)
@@ -211,6 +221,7 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 
 }
 
+//получение роли пользователя для Extranet для конкретного отеля
 func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 
 	for hotel,role := range crm_permission.extranet_permissions[user_id] {
@@ -221,7 +232,7 @@ func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 
 	return 0
 }
-
+//удаление роли для пользователя в CRM
 func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
 
 	cacheMu.Lock()
@@ -245,6 +256,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 }
 
+//выставление роли для пользователя в CRM
 func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
 
 	cacheMu.Lock()
@@ -277,6 +289,7 @@ func (crm_permission *cpService) setPermissForUser(user_id int, link string, all
 	return nil
 }
 
+//удаление роли для пользователя в Extranet для конкретного отеля
 func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_hotels int) error {
 
 	cacheMu.Lock()
@@ -293,6 +306,7 @@ func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_ho
 	return nil
 }
 
+//выставление роли для пользователя в Extranet для конкретного отеля
 func (crm_permission *cpService) setPermissForUserExtranet(user_id, id_hotels, id_role int) error {
 
 	cacheMu.Lock()
@@ -304,6 +318,7 @@ func (crm_permission *cpService) setPermissForUserExtranet(user_id, id_hotels, i
 	return nil
 }
 
+//заполнение масива прав для CRM
 func (crm_permission *cpService) setUserPermissionForCRM() error {
 
 	rows, err := db.DoSelect("SELECT `menu_items`.`link`, `roles_permission_list`.`allow_create`, " +
@@ -341,6 +356,7 @@ func (crm_permission *cpService) setUserPermissionForCRM() error {
 	return nil
 }
 
+//заполнение масива прав для ролей Extranet
 func (crm_permission *cpService) setExtranetRoles() error {
 	roles_rows, roles_err := db.DoSelect("SELECT `roles_list`.id AS id_role, " +
 		"`menu_items`.`link`, `roles_permission_list`.`allow_create`, " +
@@ -378,6 +394,7 @@ func (crm_permission *cpService) setExtranetRoles() error {
 	return nil
 }
 
+//заполнение масива ролей для Extranet
 func (crm_permission *cpService) setExtranetUserRoles() error {
 	extranet_user_roles, extranet_user_roles_err := db.DoSelect("SELECT id_users, id_roles_list, id_hotels FROM " +
 		"users_roles_list_has_extranet")
@@ -413,6 +430,7 @@ func init() {
 	AddService(crm_permission.name, crm_permission)
 }
 
+//проверка на конкретную операцию CRM
 func checkAction(permiss interface{}, action string) bool {
 	convert := permiss.(map[string]interface{})
 	switch action {
@@ -441,6 +459,7 @@ func checkAction(permiss interface{}, action string) bool {
 	}
 }
 
+//проверка на конкретную операцию Extranet
 func checkActionExtranet(permiss roles, action string) bool {
 
 	switch action {
