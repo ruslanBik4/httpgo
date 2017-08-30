@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 //Реализует работу с правами пользователя для доступа в CRM/Extranet
-
-package services
+package crm_permission
 
 import (
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/httpgo/models/services"
 	"sync"
 )
 
@@ -426,10 +426,6 @@ func (crm_permission *cpService) setExtranetUserRoles() error {
 	return nil
 }
 
-func init() {
-	AddService(crm_permission.name, crm_permission)
-}
-
 //проверка на конкретную операцию CRM
 func checkAction(permiss interface{}, action string) bool {
 	convert := permiss.(map[string]interface{})
@@ -486,4 +482,8 @@ func checkActionExtranet(permiss roles, action string) bool {
 	default:
 		return false
 	}
+}
+
+func init() {
+	services.AddService(crm_permission.name, crm_permission)
 }

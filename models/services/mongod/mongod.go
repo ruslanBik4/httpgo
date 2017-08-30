@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 //Реализует работу с базой данных mongodb
-
-package services
+package mongod
 
 import (
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -147,10 +147,6 @@ func (mongod *mdService) Send(args ...interface{}) error {
 	return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
-func init() {
-	AddService(mongod.name, mongod)
-}
-
 //поиск записей в mongodb
 func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, error) {
 
@@ -244,3 +240,8 @@ func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 func GetMongoCollectionConnect(collection string) *mongo.Collection {
 	return mongod.connect.DB(server.GetMongodConfig().MongoDBName()).C(collection)
 }
+
+func init() {
+	services.AddService(mongod.name, mongod)
+}
+

@@ -1,4 +1,9 @@
-package services
+// Copyright 2017 Author: Yurii Kravchuk. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+//Реализует работу с записями для последуйщей модерации
+package moderation
 
 import (
 	"bytes"
@@ -8,6 +13,8 @@ import (
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/url"
+	"github.com/ruslanBik4/httpgo/models/services/mongod"
+	"github.com/ruslanBik4/httpgo/models/services"
 )
 
 var (
@@ -89,7 +96,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 			setData.Data = mess
 		default:
 
-			return &ErrServiceNotCorrectParamType{
+			return &services.ErrServiceNotCorrectParamType{
 				Name: moderation.name,
 			}
 
@@ -99,16 +106,16 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	if setData.Config["table"] == "" || setData.Config["key"] == "" ||
 		(setData.Config["action"] != "insert" && setData.Config["action"] != "delete") {
 
-		return &ErrServiceNotCorrectParamType{
+		return &services.ErrServiceNotCorrectParamType{
 			Name: moderation.name,
 		}
 	}
 
-	cConnect := GetMongoCollectionConnect(setData.Config["table"])
+	cConnect := mongod.GetMongoCollectionConnect(setData.Config["table"])
 
 	if setData.Config["action"] == "delete" {
 		//err := cConnect.Remove(bson.M{"key": setData.Config["key"]})
-		err := Send("mongod", setData.Config["table"], "Remove", bson.M{"key": setData.Config["key"]})
+		err := services.Send("mongod", setData.Config["table"], "Remove", bson.M{"key": setData.Config["key"]})
 		if err != nil {
 			return err
 		}
@@ -120,7 +127,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	err := cConnect.Find(bson.M{"key": setData.Config["key"]}).One(&checkRow)
 
 	if checkRow.Data != "" {
-		return &ErrServiceNotCorrectParamType{
+		return &services.ErrServiceNotCorrectParamType{
 			Name: moderation.name,
 		}
 	}
@@ -152,7 +159,7 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 	}
 
 	//cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])
-	cConnect := GetMongoCollectionConnect(getData.Config["table"])
+	cConnect := mongod.GetMongoCollectionConnect(getData.Config["table"])
 
 	responce := Struct{}
 
@@ -165,10 +172,6 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 	data := FromGOB64(responce.Data)
 
 	return data, nil
-}
-
-func init() {
-	AddService(moderation.name, moderation)
 }
 
 func GetMongoConnection() *mongo.Session {
@@ -200,4 +203,8 @@ func FromGOB64(str string) []url.Values {
 		fmt.Println(`failed gob Decode`, err)
 	}
 	return m
+}
+
+func init() {
+	services.AddService(moderation.name, moderation)
 }
