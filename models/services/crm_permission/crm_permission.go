@@ -37,14 +37,25 @@ type cpService struct {
 	extranet_permissions map[int]map[int]int
 }
 
-const CREATE_ACTION = "Create"
-const DELETE_ACTION = "Delete"
-const EDIT_ACTION = "Edit"
-const VIEW_ACTION = "View"
-const SET_PERMISS = "Set"
-const DROP_PERMISS = "Drop"
-const CRM_PART = "crm"
-const EXTRANET_PART = "extranet"
+//константы для работы с сервисом
+const (
+	//Создание
+	CREATE_ACTION = "Create"
+	//Удаление
+	DELETE_ACTION = "Delete"
+	//Редактирование
+	EDIT_ACTION = "Edit"
+	//Просмотр
+	VIEW_ACTION = "View"
+	//Устрановление прав
+	SET_PERMISS = "Set"
+	//Удаление прав
+	DROP_PERMISS = "Drop"
+	//Часть CRM
+	CRM_PART = "crm"
+	//Часть Extranet
+	EXTRANET_PART = "extranet"
+)
 
 var crm_permission *cpService = &cpService{name:"crm_permission", status: "create"}
 var cacheMu sync.RWMutex
