@@ -21,11 +21,13 @@ var (
 	moderation *mService = &mService{name: "moderation"}
 )
 
+//структура получения данных для модерации
 type Record struct {
 	Config map[string]string
 	Data   []url.Values
 }
 
+//структура записи модерации данных
 type Struct struct {
 	Key  string
 	Data string
@@ -79,6 +81,7 @@ func (moderation *mService) Status() string {
 	return moderation.status
 }
 
+//отправка данных на хранение для последуйщей модерации
 func (moderation *mService) Send(messages ...interface{}) error {
 
 	setData := Record{
@@ -143,6 +146,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 	return nil
 }
 
+//получение данных для модерации
 func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 
 	getData := Record{
@@ -178,6 +182,7 @@ func GetMongoConnection() *mongo.Session {
 	return moderation.connect
 }
 
+// go binary encoder
 func ToGOB64(m []url.Values) string {
 
 	b := bytes.Buffer{}
