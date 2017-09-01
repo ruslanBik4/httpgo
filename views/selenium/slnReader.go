@@ -28,11 +28,11 @@ func (err ErrFailTest) Error() string {
 }
 type ErrUnknowCommand error
 var (
-	wElements []selenium.WebElement
- 	command [] tCommand
-	values = map[string] string {}
-	fFilename    = flag.String("filename", "test.sln", "file with css selenium rules")
-	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
+	result    []selenium.WebElement
+ 	command   [] tCommand
+	values     = map[string] string {}
+	fFilename     = flag.String("filename", "test.sln", "file with css selenium rules")
+	fScrPath    = flag.String("path_scr", "./", "path to screenshot files")
 )
 const valPrefix = '@'
 //todo: добавить в сценарий переменные, в частности, читать пароли отдельно из файла
@@ -80,12 +80,12 @@ func main() {
 	for _, line := range slBytes {
 
 		// комментарии и пустые строки пропускаем
-		if (len(line) == 0) || bytes.HasPrefix(line, []byte("//")) {
+		if (len(line) == 0) || isComment(line) {
 			continue
 		}
 		// завершение блока - вылопляем команды для селектора
 		if bytes.Index(line, []byte("}") ) > -1 {
-			for _, elem := range wElements {
+			for _, elem := range result {
 				for _, val := range command {
 					err := wdCommand(val.command, wd, val.param)
 					if err != nil {
@@ -99,14 +99,14 @@ func main() {
 					}
 				}
 			}
-			wElements, command = nil, nil
+			result, command = nil, nil
 			continue
 		}
 
 		tokens := bytes.Split(line, []byte("{"))
 		if len(tokens) > 1 {
 			// find selector
-			wElements = getElement(wd, string(tokens[0]))
+			result = getElement(wd, string(tokens[0]))
 			command = make([] tCommand, 0)
 		} else {
 			var token, param string
@@ -131,6 +131,12 @@ func main() {
 			}
 		}
 	}
+}
+// line is comment
+func isComment(line []byte) bool {
+	line = bytes.TrimSpace(line)
+	return bytes.HasPrefix(line, []byte("//")) ||
+		( bytes.HasPrefix(line, []byte("/*")) && bytes.HasSuffix(line, []byte("*/")) )
 }
 //
 func getParam(param string) string {
@@ -201,6 +207,16 @@ func saveScreenShoot(wd selenium.WebDriver)  {
 		log.Print(err)
 	}
 }
+// find element by selector & panic if error occupiers
+func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebElement {
+	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
+	if err != nil {
+		log.Print(token)
+		panic(err)
+	}
+
+	return wElements
+}
 // webElement select
 func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement){
 
@@ -216,32 +232,40 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 	}
 	list := strings.Split(token, "::")
 	token = list[0]
-	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
-	if err != nil {
-		log.Print(token)
-		panic(err)
-	}
-	if len(list) > 1 {
+	if (len(list) > 1) {
 		stat := strings.TrimSpace(list[1])
+		result = findElementBySelector(wd, token)
+		// addition parameters filtering result set
 		switch stat {
+		case "while":
+			wd.SetAlertText("Ждем появления элемента \n" + token + `
+			если долго не будет ничего происходит - просто закройте браузер!`)
+			for ; len(result) < 1; result = findElementBySelector(wd, token) {
+				log.Print("while for element " + token)
+				time.Sleep(time.Millisecond * 100)
+			}
+			wd.AcceptAlert()
 		case "first":
-			return wElements[:1]
+			return result[:1]
 		case "last":
-			return wElements[len(wElements)-1:]
+			return result[len(result)-1:]
 		default:
-			for i, elem := range wElements {
+			temp := make([]selenium.WebElement, 0)
+			for i, elem := range result {
 				if runCommand(stat, "!continue", elem) {
-					result = append(result, wElements[i])
+					temp = append(temp, result[i])
 				}
 			}
+			result = temp
 		}
 	} else {
-		result = wElements
+		result = findElementBySelector(wd, token)
 	}
-	log.Print("select ", len(wElements), " from ", token)
+	log.Print("select ", len(result), " from ", token)
 
 	return
 }
+// run Comman by webElement
 func runCommand(token, param string, wElem selenium.WebElement) bool{
 var (	slnCommands  = map[string] func() error {
 							"click":  wElem.Click,

@@ -17,10 +17,10 @@ url: vps-20777.vps-default-host.net/extranet/
     click
 }
 screenshot
-#app_aside_parent_list > div > div.panel-collapse[aria-expanded='true'] > div > ul > li:nth-child(1) > a::visible {
+#app_aside_parent_list > div > div.panel-collapse[aria-expanded='true'] > div > ul > li:nth-child(1) > a::while {
     click:
     text:
-    pause: 1000
+    pause: 100
 }
 screenshot
 input[name=login]::visible {
@@ -35,25 +35,18 @@ screenshot
     pause: 100
     getalert
 }
-#app_aside_parent_list > div > div.panel-collapse[aria-expanded='true'] > div > ul > li:nth-child(1) > a::visible {
-    click:
-    text:
-}
-select[name=id_prop_hotels_type_list]::visible {
+select[name=id_prop_hotels_type_list]::while {
     text
 }
 .main-tabs >li > a {
     click
     pause: 1000
 }
-executescript:alert('Hello')
-pause: 100
-getalert
 #decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
     click
-    pause: 100
+    /*pause: 100*/
 }
-#carousel-example-generic > a.right.object-gallery-right::visible {
+#carousel-example-generic > a.right.object-gallery-right::while {
     click
     pause: 200
 }

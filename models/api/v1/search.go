@@ -14,6 +14,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
+// @/api/search/?table={nameTable}
+// prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	var where string
