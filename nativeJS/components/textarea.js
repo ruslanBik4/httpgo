@@ -1,6 +1,9 @@
 
 export class TextArea {
 
+  /*
+  *   Getters
+  */
   static get className() {
     return 'c-app-textarea';
   }
@@ -9,7 +12,6 @@ export class TextArea {
   /*
    *   set default value
    */
-
   static setDefaultAttr(component, attr) {
 
     component = Native.findAncestorByClass(component, this.className);
@@ -26,7 +28,6 @@ export class TextArea {
   /*
    *    set value
    */
-
   static addAttrToComponent(component, value) {
     component.textContent = value;
   }

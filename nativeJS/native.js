@@ -20,8 +20,8 @@ export class Native {
   /*
   *   get HTML bu template string
   */
-
   static getHTMLDom(component, data, parent, isRemove = false) {
+    console.log(document)
     let temp = document.createElement('template');
     let result;
 
@@ -56,7 +56,6 @@ export class Native {
   /*
   *   go to new component
   */
-
   static goToLink(url) {
     if (typeof url === 'string') {
       Parse.getComponentByRoute(url);
@@ -69,7 +68,6 @@ export class Native {
   /*
   *   add parse to Dynamic Component
   */
-
   static reChangeDomDynamically(component) {
     if (this.isElement(component)) {
       Parse.parsComponents(component);
@@ -82,7 +80,6 @@ export class Native {
   /*
   *   current Id dynamically page
   */
-
   static get getIdCurrentPage() {
     return Parse.idCurrentPage;
   }
@@ -91,7 +88,6 @@ export class Native {
   /*
   *   reset current id dynamically page
   */
-
   static resetIdCurrentPage() {
     Parse.idCurrentPage = null;
   }
@@ -100,7 +96,6 @@ export class Native {
   /*
   *   parse JSON is safely
   */
-
   static jsonParse(response) {
     try {
       return JSON.parse(response);
@@ -114,7 +109,6 @@ export class Native {
   /*
    *  get and post request with callback
    */
-
   static request(url, callback, data) {
 
     let method = 'GET';
@@ -173,7 +167,6 @@ export class Native {
   /*
   *   Set Value Data By Attribute to Dom
   */
-
   static setValueDataByAttr(data = {}) {
 
     ParseJSON.parseDataGet(data['fields'], ParseJSON.setAttrToComponent.bind(ParseJSON));
@@ -199,7 +192,6 @@ export class Native {
   /*
    *  returns true if it is a DOM element
   */
-
   static isElement(obj) {
     return (
       typeof HTMLElement === "object" ? obj instanceof HTMLElement : //DOM2
@@ -211,7 +203,6 @@ export class Native {
   /*
   *   Find first ancestor by class
   */
-
   static findAncestorByClass(element, className) {
     if (this.isElement(element) && typeof className === 'string') {
       while (!element.classList.contains(className) && (element = element.parentElement));
@@ -223,7 +214,6 @@ export class Native {
   /*
    *   set default data for Fields
    */
-
   static setDefaultFields(component, fields, str = '', isOnlyClass = false) {
     if (this.isElement(component) && fields) {
       ParseJSON.setValue(component, fields, ParseJSON.setAttrToComponent.bind(ParseJSON), (typeof str === 'string') ? str : str.toString(), true, isOnlyClass);
@@ -234,7 +224,6 @@ export class Native {
   /*
   *     set form attributes
   */
-
   static setForm(componentName, attr) {
     const component = document.getElementById(componentName);
     if (component) {
@@ -249,7 +238,6 @@ export class Native {
   /*
    *   insert data for data
    */
-
   static insertData(component, data, str = '', isOnlyClass = false) {
     if (this.isElement(component) && data) {
       ParseJSON.setValue(component, data, ParseJSON.insertValueToComponent.bind(ParseJSON), (typeof str === 'string') ? str : str.toString(), false, isOnlyClass);
@@ -260,7 +248,6 @@ export class Native {
   /*
   *     get data after submit form 
   */
-  
   static getDataAfterForm() {
     return Parse.getDataAfterForm;
   }
@@ -269,7 +256,6 @@ export class Native {
   /*
   *     custom handler
   */
-
   static customHadlerAfterForm(func) {
     Parse.customHadlerAfterForm(func);
   }
@@ -278,7 +264,6 @@ export class Native {
   /*
   *     buf variables
   */
-
   static bufVariables(data) {
     if (data) {
       bufData = data;
@@ -287,34 +272,6 @@ export class Native {
     }
   }
 
-
-  /*
-   *   get data to component
-   */
-
-  static getDataAttrToComponent(component) {
-    let result = {};
-    if (this.isElement(component)) {
-      for (let attr in component.attributes) {
-        result.attr = component.getAttribute(attr);
-      }
-    }
-    return result;
-  }
-
-
-  /*
-  *   set data to component
-  */
-
-
-  static setDataAttrToComponent(component, data = {}) {
-    if (this.isElement(component) && data.length !== 0) {
-      for (let attr in data) {
-        component.setAttribute(`data-${ attr }`, data[attr]);
-      }
-    }
-  }
 
 
 }

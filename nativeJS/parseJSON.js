@@ -1,6 +1,9 @@
 
 export class ParseJSON {
 
+  /*
+  *   components are parse from json with HTTPGO
+  */
   static get components() {
     return {
       'SELECT'    : Select,
@@ -13,7 +16,6 @@ export class ParseJSON {
   /*
    *   When need recursion for table
    */
-
   static parseDataGet(data, callback, strForTable = '', isDataTable = false) {
 
     for (let id in data) {
@@ -49,7 +51,6 @@ export class ParseJSON {
   /*
   *   set attributes to component
   */
-
   static setAttrToComponent(component, params = {}) {
 
     for (let attr in params) {
@@ -103,7 +104,9 @@ export class ParseJSON {
   }
 
 
-
+  /*
+  *   Insert value the component
+  */
   static insertValueCurrentComponent(component, attr) {
 
     if (component.hasAttribute(Variables.paramsNotInsertData))
@@ -122,6 +125,10 @@ export class ParseJSON {
 
   };
 
+
+  /*
+  *   Set new attr id and Name to component
+  */
   static setNewAttrIdAndName(component, index) {
     const nameAttr = component.getAttribute('name');
     const idAttr = component.getAttribute('id');
@@ -139,7 +146,6 @@ export class ParseJSON {
   /*
    *   Insert data after create component
    */
-
   static insertValueToComponent(component, attr, strForTable = '') {
 
     function getDefaultComponent(parent) {
@@ -248,6 +254,9 @@ export class ParseJSON {
   }
 
 
+  /*
+  *   Insert Data to attr set text
+  */
   static insertDataToAttrSetText(component, textContent = '') {
     if (component.children.length !== 0) {
       for (let i = 0; i < component.children.length; i++) {
@@ -260,7 +269,9 @@ export class ParseJSON {
   }
 
 
-
+  /*
+  *   Set value to component
+  */
   static setValue(component, attr, callback, str = '', isDefault = false, isOnlyClass = false, strTable = '') {
 
     if (strTable) {
@@ -368,7 +379,6 @@ export class ParseJSON {
   /*
   *   get dom
   */
-
   static _getDom(component, name, strTable, str = '') {
     let dom;
 

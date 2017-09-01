@@ -58,7 +58,7 @@ gulp.task('native-js', () => {
     notifier.notify(`error JS: ${ e.message }`);
   });
 
-  gulp.src(`./nativeJS/**/*.js`)
+  gulp.src([`./nativeJS/*.js`, `./nativeJS/components/*.js`])
     .pipe(isBabel)
     .pipe(concat('native.min.js'))
     // .pipe(autopolyfiller(`./js/autopolyfiller.js`, {
@@ -79,9 +79,18 @@ gulp.task('native-js', () => {
 });
 
 
+// mocha
+const gulpOpen = require('gulp-open');
+
+gulp.task('test', () =>
+  gulp.src('./nativeJS/tests/index.html').pipe(gulpOpen())
+);
+
+
+
 /* watch */
 gulp.task('watch', () => {
-  gulp.watch([`./nativeJS/**/*`], ['native-js']);
+  gulp.watch([`./nativeJS/*.js`, `./nativeJS/components/*.js`], ['native-js']);
   gulp.watch([`./common-js/**/*`], ['common-js']);
 });
 

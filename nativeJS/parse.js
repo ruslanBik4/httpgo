@@ -10,26 +10,19 @@ let customHadlerAfterForm;
 
 export class Parse {
 
-  static get idCurrentPage() {
-    return idCurrentPage;
-  }
+  /*
+  *   Getters
+  */
+  static get idCurrentPage() { return idCurrentPage; }
+  static set idCurrentPage(id) { idCurrentPage = id; }
+  static get getDataAfterForm() { return dataAfterForm; }
+  static customHadlerAfterForm(func) { customHadlerAfterForm = func; }
+  static setStateHistoryComponents() { stateHistoryComponents.push(this.mainContent.innerHTML); }
 
-  static set idCurrentPage(id) {
-    idCurrentPage = id;
-  }
-  
-  static get getDataAfterForm() {
-    return dataAfterForm;
-  }
 
-  static customHadlerAfterForm(func) {
-    customHadlerAfterForm = func;
-  }
-
-  static setStateHistoryComponents() {
-    stateHistoryComponents.push(this.mainContent.innerHTML);
-  }
-
+  /*
+  *   Set main content to page
+  */
   static setMainContent(index = 0) {
     if (index < stateHistoryComponents.length) {
       this.mainContent.innerHTML = stateHistoryComponents[index];
@@ -38,6 +31,9 @@ export class Parse {
     }
   }
 
+  /*
+  *   Set component to dynamic component (main)
+  */
   static setComponent(component, isFirst = false) {
     if (isFirst) {
       this.mainContent.innerHTML = firstComponent;
@@ -46,6 +42,10 @@ export class Parse {
     }
   }
 
+
+  /*
+  *   Init Parse framework
+  */
   static start(page) {
     this.page = page;
     this.mainContent = page.getElementsByTagName(Variables.nameMainContent)[0];
@@ -55,6 +55,9 @@ export class Parse {
   }
 
 
+  /*
+  *   parsing component
+  */
   static parsComponents(componentDom) {
 
     // if tag have a link to router
@@ -104,10 +107,10 @@ export class Parse {
 
   }
 
+
   /*
   *   get component by route
   */
-
   static getComponentByRoute(url) {
 
     if (url.startsWith('/')) {
@@ -119,11 +122,9 @@ export class Parse {
   }
 
 
-
   /*
   *    change Component dynamically
   */
-
   static _changeComponentDom(component) {
     isRequestAPI = 0;
     this.mainContent.innerHTML = component;
@@ -136,7 +137,6 @@ export class Parse {
   /*
   *   parse Router link for dynamically component
   */
-
   static _routerLink(componentDom) {
     componentDom.querySelectorAll(`[${ Variables.routerAttr }]`).forEach((component) => {
       const self = this;
@@ -157,7 +157,6 @@ export class Parse {
   /*
    *   parse API get request by tag 'data-api-get'
    */
-
   static _APIGetRequest(componentDom) {
     componentDom.querySelectorAll(`[${ Variables.routerAPIGET }]`).forEach((component) => {
 
@@ -185,7 +184,6 @@ export class Parse {
   /*
   *   parse API post request by tag 'data-api-post'
   */
-
   static _APIPostRequest(componentDom) {
     componentDom.querySelectorAll(`[${ Variables.routerAPIPOST }]`).forEach((component) => {
 
@@ -212,7 +210,6 @@ export class Parse {
   /*
   *   import script dynamically
   */
-
   static _importScript(component) {
     let scriptsComponent = [];
 
@@ -229,12 +226,14 @@ export class Parse {
     }
   }
 
+
+  /*
+  *   Is document Ready?
+  */
   static _documentIsReady(component) {
     if (isRequestAPI === 0) {
       Observer.emit(Variables.documentIsReady, component);
       this._importScript(component);
     }
   }
-
-
 }

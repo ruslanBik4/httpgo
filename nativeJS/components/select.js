@@ -1,14 +1,17 @@
 
 export class Select {
 
+  /*
+  *   Getters
+  */
   static get className() {
     return 'c-app-select';
   }
 
+
   /*
   *   create <option></option> list
   */
-
   static createList(component, list) {
 
     component = Native.findAncestorByClass(component, this.className);
@@ -36,10 +39,10 @@ export class Select {
 
   }
 
+
   /*
   *   selected active item
   */
-
   static addAttrToComponent(component, attr) {
 
     if (component.children.length !== 0) {

@@ -10,13 +10,17 @@ let listeners = new Map();
 
 export class Observer {
 
-  constructor() {
-  }
-
+  /*
+  *   Get all listener
+  *   return Map()
+  */
   static get listeners() {
     return listeners;
   }
 
+  /*
+  *   Add listener to Observer
+  */
   static addListener(eventName, callback) {
 
     const listeners = this.listeners.get(eventName);
@@ -32,11 +36,15 @@ export class Observer {
       }
     }
 
-    this.listeners.has(eventName) || this.listeners.set(eventName, []);
+    this.listeners.get(eventName) || this.listeners.set(eventName, []);
     this.listeners.get(eventName).push({ func:callback, hash: this.hashCode(callback) });
 
   }
 
+
+  /*
+   *   Remove listener from Observer
+   */
   static removeListener(eventName, callback) {
     let listeners = this.listeners.get(eventName);
     let index;
@@ -54,7 +62,11 @@ export class Observer {
     }
     return false;
   }
-  
+
+
+  /*
+   *   Emit listener from Observer
+   */
   static emit(eventName, ...args) {
     let result = false;
     let listeners = this.listeners.get(eventName);
@@ -72,6 +84,10 @@ export class Observer {
     return result;
   }
 
+
+  /*
+   *   Create hash code for listener
+   */
   static hashCode(str) {
     let hash = 0;
     str = (typeof str === 'string') ? str : str.toString();

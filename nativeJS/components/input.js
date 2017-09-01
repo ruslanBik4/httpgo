@@ -2,6 +2,9 @@
 
 export class Input {
 
+  /*
+  *   Getters
+  */
   static get classNames() {
     return {
       'radio'     : 'c-app-radio',
@@ -13,6 +16,10 @@ export class Input {
     return 'c-app-input';
   }
 
+
+  /*
+  *   Get className by tag
+  */
   static classNameByTag(tag) {
     return (this.classNames[tag] ? this.classNames[tag] : this.defaultClassName);
   }
@@ -21,7 +28,6 @@ export class Input {
   /*
    *   set default value
    */
-
   static setDefaultAttr(component, attr) {
 
     const className = this.classNameByTag(component.type);
@@ -43,7 +49,6 @@ export class Input {
   /*
    *   create inputs
    */
-
   static createList(component, list, isSet = false, isReturnDomString = false) {
 
     this.isSet = isSet;
@@ -83,7 +88,6 @@ export class Input {
   /*
    *   selected active item for input and set value
    */
-
   static addAttrToComponent(component, value = '') {
 
     switch (component.getAttribute('type')) {
@@ -112,7 +116,9 @@ export class Input {
   }
 
 
-
+  /*
+  *   append Dom to Component
+  */
   static _appendDomToComponent(component, parent, dataId, textContent = '') {
 
     if (component.children.length !== 0) {

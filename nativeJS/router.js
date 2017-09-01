@@ -2,9 +2,10 @@
 let currentLink = '';
 
 export class Router {
-  constructor() {
-  }
 
+  /*
+  *   Init Router and Native
+  */
   static start() {
 
     this.urls = urls;
@@ -24,6 +25,10 @@ export class Router {
 
   }
 
+
+  /*
+  *   Routing, change history and toolbar
+  */
   static routing(url, isHistoryBack = false) {
 
     if (url !== currentLink) {
