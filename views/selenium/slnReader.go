@@ -15,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"errors"
+	"io/ioutil"
+	"path/filepath"
 )
 type tCommand struct {
 	command, param string
@@ -39,13 +41,75 @@ const valPrefix = '@'
 //todo: добавить циклы  и ветвления
 //todo: доабвить ассерты стандартных тестов ГО
 
-func main() {
-	flag.Parse()
-	// Connect to the WebDriver instance running locally.
+// получаем список сценариев из текущей директории
+func getScenarioFilesList() ([]string, error) {
+
+	var result []string
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+	for _, f := range files {
+		fileName := f.Name()
+		if filepath.Ext(fileName) == ".sln" {
+			result = append(result, dir + "/" + fileName)
+		}
+	}
+	return result, nil
+}
+// преобразовываем список файлов сценария в байт-код
+func ReadScenarioFiles(filePath string) ([][]byte, error) {
+
+	var result [][]byte
+	ioReader, err := os.Open(filePath)
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+	stat, err := ioReader.Stat()
+	if err != nil {
+		log.Println(err)
+		return result, err
+	}
+
+	b := make([]byte, stat.Size())
+	n, err := ioReader.Read(b)
+	if err != nil {
+		panic(err) // panic is used only as an example and is not otherwise recommended.
+	}
+
+	log.Print(n)
+	b = bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
+	result = bytes.Split(b, []byte("\n"))
+	return result, nil
+}
+
+func handleScenarioFile(handlerResultsBuffer chan <- HandlingResultType, filePath string) {
+
+	scenarioHandlerResults := HandlingResultType{
+		error:	nil,
+		file:	filePath,
+		ok:		true,
+	}
+	defer func() {
+		// отправляем результат работы обработчика в буфер результатаов
+		handlerResultsBuffer <- scenarioHandlerResults
+	}()
+
+	//Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		scenarioHandlerResults.error = err
+		scenarioHandlerResults.ok = false
+		log.Println(err)
+		return
 	}
 	defer wd.Quit()
 	defer func() {
@@ -58,25 +122,13 @@ func main() {
 		}
 	}()
 
-	ioReader, err := os.Open(*fFilename)
+	slBytes, err := ReadScenarioFiles(filePath)
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		scenarioHandlerResults.error = err
+		scenarioHandlerResults.ok = false
+		log.Println(err)
+		return
 	}
-	stat, err := ioReader.Stat()
-	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
-	}
-
-	b := make([]byte, stat.Size())
-	n, err := ioReader.Read(b)
-	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
-	}
-
-	log.Print(n)
-	b = bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
-	slBytes := bytes.Split(b, []byte("\n"))
-
 	for _, line := range slBytes {
 
 		// комментарии и пустые строки пропускаем
@@ -94,7 +146,10 @@ func main() {
 								log.Print(val.command)
 							}
 						} else {
-							log.Print(err)
+							scenarioHandlerResults.error = err
+							scenarioHandlerResults.ok = false
+							log.Println(err)
+							return
 						}
 					}
 				}
@@ -126,9 +181,70 @@ func main() {
 				command = append(command, tCommand{ command: token, param: param } )
 			} else {
 				if err := wdCommand(token, wd, param); err != nil {
-					log.Print(err)
+					scenarioHandlerResults.error = err
+					scenarioHandlerResults.ok = false
+					log.Println(err)
+					return
 				}
 			}
+		}
+	}
+}
+
+func sendToHandling(scenarioBuffer chan <- string, files []string) {
+
+	for _, file := range files {
+		log.Println("Sending to buffer file " + file)
+		scenarioBuffer <- file
+	}
+}
+type HandlingResultType struct {
+	ok bool
+	file string
+	error error
+}
+// обработчик канала сценариев. Запускается в количистве SCENARIO_HANDLERS_COUNT
+func ScenarioBufferHandler(scenarioBuffer <- chan string, handlerResultsBuffer chan <- HandlingResultType) {
+
+	for file := range scenarioBuffer {
+		log.Println("Starting ScenarioBufferHandler on file " + file)
+
+		handleScenarioFile(handlerResultsBuffer, file)
+	}
+}
+// количество одновременных обработчиков сценариев
+const SCENARIO_HANDLERS_COUNT int = 3
+func main() {
+
+	flag.Parse()
+	// устанавливаем количество одновременных обрабатуемых файлов
+	scenarioBuffer := make(chan string, 3)
+	defer close(scenarioBuffer)
+
+	files, err := getScenarioFilesList()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	//устанавливаем канал, в которомбудем держать резульатты работы
+	handlerResultsBuffer := make(chan HandlingResultType, 3)
+
+	// отправляем файлы на обработку
+	go sendToHandling(scenarioBuffer, files)
+
+	//запускаем три инстанса обработчиков сценариев
+	for i := 1; i<= SCENARIO_HANDLERS_COUNT; i++ {
+		go ScenarioBufferHandler(scenarioBuffer, handlerResultsBuffer)
+	}
+
+	// определяем условие выхода из программы
+	for i := 0; i < len(files); i++ {
+		r := <- handlerResultsBuffer
+		log.Println(r.file)
+		if !r.ok {
+			log.Println("error : " + r.error.Error())
+		} else {
+			log.Println("error : false")
 		}
 	}
 }
