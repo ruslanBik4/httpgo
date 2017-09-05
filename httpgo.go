@@ -7,7 +7,7 @@ package main
 
 import (
 	"github.com/ruslanBik4/httpgo/models/admin"
-	"github.com/ruslanBik4/httpgo/models/api/v1"
+	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	_ "github.com/ruslanBik4/httpgo/models/docs"
@@ -71,30 +71,6 @@ var (
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/":          handlerComponents,
 
-		// TODO: API remove in single module
-		"/api/v1/table/form/":   api.HandleFieldsJSON,
-		"/api/v1/table/view/":   api.HandleTextRowJSON,
-		"/api/v1/table/row/":    api.HandleRowJSON,
-		"/api/v1/table/rows/":   api.HandleAllRowsJSON,
-		"/api/v1/table/schema/": api.HandleSchema,
-		"/api/v1/update/":       api.HandleUpdateServer,
-		"/api/v1/restart/":      api.HandleRestartServer,
-		"/api/v1/log/":          api.HandleLogServer,
-		"/api/v1/photos/":       api.HandlePhotos,
-		"/api/v1/video/":        api.HandleVideos,
-		"/api/v1/photos/add/":   api.HandleAddPhoto,
-		// short route
-		"/api/table/form/":   api.HandleFieldsJSON,
-		"/api/table/view/":   api.HandleTextRowJSON,
-		"/api/table/row/":    api.HandleRowJSON,
-		"/api/table/rows/":   api.HandleAllRowsJSON,
-		"/api/table/schema/": api.HandleSchema,
-		"/api/update/":       api.HandleUpdateServer,
-		"/api/restart/":      api.HandleRestartServer,
-		"/api/log/":          api.HandleLogServer,
-		"/api/photos/":       api.HandlePhotos,
-		"/api/video/":        api.HandleVideos,
-		"/api/photos/add/":   api.HandleAddPhoto,
 	}
 )
 // registerRoutes
@@ -105,7 +81,7 @@ func registerRoutes() {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 	admin.RegisterRoutes()
-	if travel, err := plugin.Open("travel"); err != nil {
+	if travel, err := plugin.Open( filepath.Join(*fStatic, "plugin","travel") ); err != nil {
 		logs.ErrorLog(err)
 	} else {
 		symb, err := travel.Lookup("RegisterRoutes")
@@ -486,17 +462,24 @@ func cacheFiles() {
 	filepath.Walk(filepath.Join(*fWeb, cachePath), cacheWalk)
 }
 // show doc
+// @/godoc/
 func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("godoc", "/Users/ruslan/work/src/github.com/ruslanBik4/httpgo")
+	cmd := exec.Command("godoc", "http=:6060", "index")
 	cmd.Dir = ServerConfig.SystemPath()
 
-	stdoutStderr, err := cmd.CombinedOutput()
+	err := cmd.Run()
 	if err != nil {
 		views.RenderInternalError(w, err)
 	} else {
-		views.RenderOutput(w, stdoutStderr)
+		output, err := cmd.Output()
+		if err != nil {
+			views.RenderInternalError(w, err)
+		} else {
+			views.RenderOutput(w,output)
+		}
+		http.Redirect(w, r, "http://localhost:6060", http.StatusPermanentRedirect)
 	}
 }
 // rereads files to cache directive
