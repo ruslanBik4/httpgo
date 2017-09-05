@@ -11,7 +11,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"io"
 	"os"
 	"github.com/ruslanBik4/httpgo/views"
 )
