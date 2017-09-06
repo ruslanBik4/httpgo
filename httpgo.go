@@ -564,7 +564,7 @@ func main() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
-    var err error
+    //var err error
 
 	//
 	//listener, err = net.Listen("tcp", *fPort)
