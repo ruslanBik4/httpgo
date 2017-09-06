@@ -87,7 +87,7 @@ func registerRoutes() {
 			logs.ErrorLog(err)
 		}
 	}()
-	err := filepath.Walk(filepath.Join(*fStatic, "plugin"), attachPlugin)
+	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
 	if err != nil {
 		logs.ErrorLog(err)
 	}
@@ -101,14 +101,14 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	}
 logs.StatusLog(path)
 	err = nil
-	travel, err := plugin.Open(filepath.Join(*fStatic, path) )
-	logs.StatusLog(travel)
+	travel, err := plugin.Open(filepath.Join(*fSystem, path) )
+	logs.StatusLog(travel, err)
 	if err != nil {
 		return err
 	}
 
 	symb, err := travel.Lookup("InitPlugin")
-	logs.StatusLog(symb)
+	logs.StatusLog(symb, err)
 	if err == nil {
 		err = symb.(func() error)()
 	}
@@ -185,11 +185,11 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//views.RenderTemplate(w, r, "index", p)
 		// спецвойска
 	case "/polymer.html":
-		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer.html"))
+		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer.html"))
 	case "/polymer-mini.html":
-		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer-mini.html"))
+		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-mini.html"))
 	case "/polymer-micro.html":
-		http.ServeFile(w, r, filepath.Join(*fStatic, "views/components/polymer/polymer-micro.html"))
+		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-micro.html"))
 	case "/status", "/ping", "/pong":
 		h.fpm.ServeHTTP(w, r)
 	default:
@@ -213,7 +213,7 @@ func handlerComponents(w http.ResponseWriter, r *http.Request) {
 
 	filename := strings.TrimLeft(r.URL.Path, "/")
 
-	http.ServeFile(w, r, filepath.Join(*fStatic+"/views", filename))
+	http.ServeFile(w, r, filepath.Join(*fSystem+"/views", filename))
 
 }
 
@@ -252,7 +252,7 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !ok {
-		data, err := ioutil.ReadFile(filepath.Join(*fStatic, filename))
+		data, err := ioutil.ReadFile(filepath.Join(*fSystem, filename))
 		if os.IsNotExist(err) {
 			data, err = ioutil.ReadFile(filepath.Join(*fWeb, filename))
 		}
@@ -473,8 +473,8 @@ func cacheWalk(path string, info os.FileInfo, err error) error {
 	return nil
 }
 func cacheFiles() {
-	filepath.Walk(filepath.Join(*fStatic, "js"), cacheWalk)
-	filepath.Walk(filepath.Join(*fStatic, "css"), cacheWalk)
+	filepath.Walk(filepath.Join(*fSystem, "js"), cacheWalk)
+	filepath.Walk(filepath.Join(*fSystem, "css"), cacheWalk)
 
 	cachePath := *fChePath
 	p := strings.Index(cachePath, ";")
@@ -517,7 +517,7 @@ func handlerRecache(w http.ResponseWriter, r *http.Request) {
 
 var (
 	fPort    = flag.String("port", ":80", "host address to listen on")
-	fStatic  = flag.String("path", "./", "path to static files")
+	fSystem  = flag.String("path", "./", "path to static files")
 	fWeb     = flag.String("web", "/home/travel/web/", "path to web files")
 	fSession = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	fCache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
@@ -528,12 +528,12 @@ var (
 func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
+	if err := ServerConfig.Init(fSystem, fWeb, fSession); err != nil {
 		logs.ErrorLog(err)
 	}
 
 	MongoConfig := server.GetMongodConfig()
-	if err := MongoConfig.Init(fStatic, fWeb, fSession); err != nil {
+	if err := MongoConfig.Init(fSystem, fWeb, fSession); err != nil {
 		logs.ErrorLog(err)
 	}
 	logs.StatusLog("Server starting", ServerConfig.StartTime)
@@ -547,10 +547,11 @@ func main() {
 
 	fonts.GetPath(fWeb)
 
-	registerRoutes()
 
 	logs.StatusLog("Static files found in ", *fWeb)
-	logs.StatusLog("System files found in " + *fStatic)
+	logs.StatusLog("System files found in " + *fSystem)
+
+	registerRoutes()
 
 	ch := make(chan os.Signal)
 
