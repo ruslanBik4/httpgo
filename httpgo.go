@@ -86,12 +86,12 @@ func registerRoutes() {
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
 
-	if (err != nil) || ((info != nil) && info.IsDir()) {
+	if ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)
 		return nil
 	}
 
-	travel, err := plugin.Open(path)
+	travel, err := plugin.Open(filepath.Base( path) )
 	if err != nil {
 		logs.ErrorLog(err)
 		return err
