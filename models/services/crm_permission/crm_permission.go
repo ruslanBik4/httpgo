@@ -96,17 +96,17 @@ func (crm_permission *cpService) Init() error{
 func (crm_permission *cpService) Send(args ...interface{}) error {
 
 	if crm_permission.status != "ready" {
-		return ErrBrokenConnection{Name: crm_permission.name, Param: args}
+		return services.ErrBrokenConnection{Name: crm_permission.name, Param: args}
 	}
 
 	if len(args) < 4 {
-		return ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
+		return services.ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
 	if _,ok := args[1].(int); !ok {
-		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
+		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
 	}
 	if _,ok := args[2].(string); !ok {
-		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
+		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
 	}
 
 	switch permission_type := args[0].(type) {
@@ -125,10 +125,10 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 			}
 		}
 	default:
-		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
+		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
 	}
 
-	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+	return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 
 }
 
@@ -137,16 +137,16 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error) {
 
 	if len(args) < 4 {
-		return nil, ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
+		return nil, services.ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
 	if _,ok := args[1].(int); !ok {
-		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
+		return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
 	}
 
-	connection_status := Status("crm_permission")
+	connection_status := services.Status("crm_permission")
 
 	if connection_status != "ready" {
-		return nil, ErrBrokenConnection{Name: crm_permission.name, Param: args}
+		return nil, services.ErrBrokenConnection{Name: crm_permission.name, Param: args}
 	}
 
 	switch permission_type := args[0].(type) {
@@ -156,17 +156,17 @@ func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error)
 		} else if permission_type == EXTRANET_PART {
 
 			if _,ok := args[4].(int); !ok {
-				return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[4], Number: 2}
+				return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[4], Number: 2}
 			}
 
 			return crm_permission.getExtranetPermissions(args[1].(int), args[2].(string),
 				args[3].(string), args[4].(int)), nil;
 		}
 	default:
-		return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
+		return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
 	}
 
-	return nil, ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+	return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 }
 func (crm_permission *cpService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
@@ -250,7 +250,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 	// TODO: Unlock must to allow there as defer func
 
 	if crm_permission.crm_permissions_roles[user_id] == nil || len(crm_permission.crm_permissions_roles[user_id]) == 0 {
-		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
 	for key,permission := range crm_permission.crm_permissions_roles[user_id] {
@@ -264,7 +264,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 
 	cacheMu.Unlock()
 
-	return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+	return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 }
 
 //выставление роли для пользователя в CRM
@@ -307,7 +307,7 @@ func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_ho
 	// TODO: Unlock must to allow there as defer func
 
 	if crm_permission.extranet_permissions[user_id] == nil || len(crm_permission.extranet_permissions[user_id]) == 0 {
-		return ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
+		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
 	crm_permission.extranet_permissions[user_id][id_hotels] = 0
