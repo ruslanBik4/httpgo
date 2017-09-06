@@ -81,6 +81,12 @@ func registerRoutes() {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 	admin.RegisterRoutes()
+	defer func() {
+		err := recover()
+		if err, ok := err.(error); ok {
+			logs.ErrorLog(err)
+		}
+	}()
 	filepath.Walk(filepath.Join(*fStatic, "plugin"), attachPlugin)
 
 }
