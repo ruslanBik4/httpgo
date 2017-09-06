@@ -558,7 +558,7 @@ func main() {
 
 	KillSignal := syscall.SIGTTIN
 	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
-	go listenOnShutdown(ch)
+	//go listenOnShutdown(ch)
 
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
@@ -566,11 +566,11 @@ func main() {
 
     var err error
 
-
-	listener, err = net.Listen("tcp", *fPort)
-	if err != nil {
-		logs.Fatal(err)
-	}
+	//
+	//listener, err = net.Listen("tcp", *fPort)
+	//if err != nil {
+	//	logs.Fatal(err)
+	//}
 
 	//mainServer =  &http.Server{ Handler: http.DefaultServeMux}
 	//
