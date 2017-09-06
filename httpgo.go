@@ -81,14 +81,28 @@ func registerRoutes() {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 	admin.RegisterRoutes()
-	if travel, err := plugin.Open( filepath.Join(*fStatic, "plugin","travel") ); err != nil {
-		logs.ErrorLog(err)
-	} else {
-		symb, err := travel.Lookup("RegisterRoutes")
-		if  err == nil {
-			symb.(func())()
-		}
+	filepath.Walk(filepath.Join(*fStatic, "plugin"), attachPlugin)
+
+}
+func attachPlugin(path string, info os.FileInfo, err error) error {
+
+	if (err != nil) || ((info != nil) && info.IsDir()) {
+		//log.Println(err, info)
+		return nil
 	}
+
+	travel, err := plugin.Open(path)
+	if err != nil {
+		logs.ErrorLog(err)
+		return err
+	}
+
+	symb, err := travel.Lookup("RegisterRoutes")
+	if err == nil {
+		err = symb.(func() error)()
+	}
+
+	return err
 }
 
 // DefaultHandler работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
