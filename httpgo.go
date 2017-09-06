@@ -96,7 +96,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		//log.Println(err, info)
 		return nil
 	}
-
+logs.StatusLog(path)
 	travel, err := plugin.Open(path)
 	if err != nil {
 		logs.ErrorLog(err)
