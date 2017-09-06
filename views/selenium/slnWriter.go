@@ -12,6 +12,7 @@ import (
 	"log"
 	"time"
 	"strings"
+	"errors"
 )
 
 type currentElem struct {
@@ -25,6 +26,14 @@ var (
 )
 
 func main()  {
+	defer func() {
+		err := recover()
+		if err, ok := err.(error); ok {
+			//wd.SetAlertText(err.Error())
+			log.Printf("%#v, %T", err, err)
+			time.Sleep(time.Millisecond * 5000)
+		}
+	}()
 	flag.Parse()
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
@@ -90,7 +99,11 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 	result.elem = elem
 	id, err = elem.GetAttribute("id")
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		if strings.HasPrefix( err.Error(), "" ) {
+
+		} else {
+			panic(err) // panic is used only as an example and is not otherwise recommended.
+		}
 	}
 	if id > "" {
 		result.Selector = "#" + id
@@ -113,6 +126,7 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 			}
 		} else {
 			class, err = elem.GetAttribute("class")
+			class      = strings.Replace(class, "sln_writer", "", 0)
 			if class > "" {
 				result.Selector = tag + "." + class + "::first"
 			} else {

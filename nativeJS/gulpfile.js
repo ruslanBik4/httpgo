@@ -36,7 +36,7 @@ gulp.task('common-js', () => {
       prefix: `common-`,
       dirname: ''
     }))
-    .pipe(gulp.dest(`./js/common/`));
+    .pipe(gulp.dest(`../js/common/`));
 
   require('child_process').exec(`curl localhost:${ port }/recache`, function (err, stdout, stderr) {
     console.log(stdout);
@@ -58,7 +58,7 @@ gulp.task('native-js', () => {
     notifier.notify(`error JS: ${ e.message }`);
   });
 
-  gulp.src([`./nativeJS/*.js`, `./nativeJS/components/*.js`])
+  gulp.src([`./framework/*.js`, `./framework/components/*.js`])
     .pipe(isBabel)
     .pipe(concat('native.min.js'))
     // .pipe(autopolyfiller(`./js/autopolyfiller.js`, {
@@ -66,7 +66,7 @@ gulp.task('native-js', () => {
     // }))
     // .pipe(jsmin())
     .pipe(rename({dirname: ''}))
-    .pipe(gulp.dest(`./js/`));
+    .pipe(gulp.dest(`../js/`));
     // .pipe(open({uri: recacheURL}))
 
 
@@ -83,14 +83,14 @@ gulp.task('native-js', () => {
 const gulpOpen = require('gulp-open');
 
 gulp.task('test', () =>
-  gulp.src('./nativeJS/tests/index.html').pipe(gulpOpen())
+  gulp.src('./framework/tests/index.html').pipe(gulpOpen())
 );
 
 
 
 /* watch */
 gulp.task('watch', () => {
-  gulp.watch([`./nativeJS/*.js`, `./nativeJS/components/*.js`], ['native-js']);
+  gulp.watch([`./framework/*.js`, `./framework/components/*.js`], ['native-js']);
   gulp.watch([`./common-js/**/*`], ['common-js']);
 });
 
