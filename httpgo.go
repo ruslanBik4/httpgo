@@ -99,7 +99,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		//log.Println(err, info)
 		return nil
 	}
-	path, _ := filepath.Abs(path)
+	path, _ = filepath.Abs(path)
 logs.StatusLog(path)
 	err = nil
 	travel, err := plugin.Open(filepath.Join(*fSystem, path) )
