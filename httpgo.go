@@ -572,12 +572,12 @@ func main() {
 		logs.Fatal(err)
 	}
 
-	mainServer =  &http.Server{ Handler: http.DefaultServeMux}
-
-
-
-	logs.ErrorLog( mainServer.Serve(listener) )
-	//logs.Fatal(mainServer.ListenAndServe(*fPort, nil))
+	//mainServer =  &http.Server{ Handler: http.DefaultServeMux}
+	//
+	//
+	//
+	//logs.ErrorLog( mainServer.Serve(listener) )
+	logs.Fatal(http.ListenAndServe(*fPort, nil))
 
 }
 func listenOnShutdown(ch <- chan os.Signal) {
