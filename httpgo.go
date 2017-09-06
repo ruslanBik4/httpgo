@@ -87,7 +87,10 @@ func registerRoutes() {
 			logs.ErrorLog(err)
 		}
 	}()
-	filepath.Walk(filepath.Join(*fStatic, "plugin"), attachPlugin)
+	err := filepath.Walk(filepath.Join(*fStatic, "plugin"), attachPlugin)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
 
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
@@ -97,9 +100,9 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 logs.StatusLog(path)
-	travel, err := plugin.Open(path)
+	err = nil
+	travel, err := plugin.Open(filepath.Join(*fStatic, path) )
 	if err != nil {
-		logs.ErrorLog(err)
 		return err
 	}
 	logs.StatusLog(travel)
