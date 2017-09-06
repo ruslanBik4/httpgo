@@ -97,7 +97,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		return err
 	}
 
-	symb, err := travel.Lookup("RegisterRoutes")
+	symb, err := travel.Lookup("InitPlugin")
 	if err == nil {
 		err = symb.(func() error)()
 	}
