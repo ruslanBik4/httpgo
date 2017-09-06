@@ -227,7 +227,7 @@ func main() {
 		return
 	}
 	//устанавливаем канал, в которомбудем держать резульатты работы
-	handlerResultsBuffer := make(chan HandlingResultType, 3)
+	handlerResultsBuffer := make(chan HandlingResultType, len(files))
 
 	// отправляем файлы на обработку
 	go sendToHandling(scenarioBuffer, files)
