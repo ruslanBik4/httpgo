@@ -17,11 +17,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var (
+	mysqlMu      sync.RWMutex
 	dbConn       *sql.DB
-	SQLvalidator = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
+	SQLvalidator  = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
 	//регулярное выражение вытаскивающее имя таблицы из запроса
 	//TODO не отрабатывает конструкцию FROM table1, table2
 	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
@@ -54,6 +56,11 @@ func doConnect() error {
 	if dbConn != nil {
 		return nil
 	}
+	// lock for prepare dublicate DB call
+	mysqlMu.Lock()
+	defer func() {
+		mysqlMu.Unlock()
+	}()
 	serverConfig := server.GetServerConfig()
 	dbConn, err = sql.Open("mysql", serverConfig.DNSConnection())
 	if err != nil {
