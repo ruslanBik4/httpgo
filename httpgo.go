@@ -102,10 +102,10 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 logs.StatusLog(path)
 	err = nil
 	travel, err := plugin.Open(filepath.Join(*fStatic, path) )
+	logs.StatusLog(travel)
 	if err != nil {
 		return err
 	}
-	logs.StatusLog(travel)
 
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb)
