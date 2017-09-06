@@ -96,8 +96,10 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		logs.ErrorLog(err)
 		return err
 	}
+	logs.StatusLog(travel)
 
 	symb, err := travel.Lookup("InitPlugin")
+	logs.StatusLog(symb)
 	if err == nil {
 		err = symb.(func() error)()
 	}
