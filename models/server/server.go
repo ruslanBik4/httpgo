@@ -23,6 +23,7 @@ type serverConfig struct {
 		User string `yaml:"dbUser"`
 		Pass string `yaml:"dbPass"`
 		Prot string `yaml:"dbProt"`
+		ConfigParams map[string]string `yaml:"configParams"`
 	}
 	StartTime   time.Time
 }
@@ -71,7 +72,10 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error {
 //
 //[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
 func (sConfig *serverConfig) DNSConnection() string {
-	return fmt.Sprintf("%s:%s@%s/%s?maximumpoolsize", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot, sConfig.dbParams.DB)
+
+	addConfig := sConfig.generateConfigString()
+	return fmt.Sprintf("%s:%s@%s/%s?maximumpoolsize&%s", sConfig.dbParams.User, sConfig.dbParams.Pass, sConfig.dbParams.Prot,
+		sConfig.dbParams.DB, addConfig)
 }
 func (sConfig *serverConfig) DBName() string {
 	return sConfig.dbParams.DB
@@ -81,4 +85,14 @@ func (sConfig *serverConfig) SystemPath() string {
 }
 func (sConfig *serverConfig) WWWPath() string {
 	return sConfig.wwwPath
+}
+func (sConfig *serverConfig) generateConfigString() (result string) {
+
+	var separator string
+	for key, val := range sConfig.dbParams.ConfigParams {
+		result += separator + key + "=" + val
+		separator = "&"
+	}
+
+	return result
 }
