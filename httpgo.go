@@ -76,17 +76,19 @@ var (
 // registerRoutes
 // connect routers list ti http.Handle
 func registerRoutes() {
-	http.Handle("/", NewDefaultHandler())
-	for route, fnc := range routes {
-		http.HandleFunc(route, system.WrapCatchHandler(fnc))
-	}
-	admin.RegisterRoutes()
 	defer func() {
 		err := recover()
 		if err, ok := err.(error); ok {
 			logs.ErrorLog(err)
 		}
 	}()
+	http.Handle("/", NewDefaultHandler())
+	for route, fnc := range routes {
+		http.HandleFunc(route, system.WrapCatchHandler(fnc))
+	}
+	admin.RegisterRoutes()
+
+	logs.StatusLog("httpgo", http.DefaultServeMux)
 	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
 	if err != nil {
 		logs.ErrorLog(err)

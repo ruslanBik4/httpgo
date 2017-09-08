@@ -12,7 +12,7 @@ import (
 	"log"
 	"time"
 	"strings"
-	"errors"
+
 )
 
 type currentElem struct {
