@@ -39,6 +39,7 @@ import (
 	"syscall"
 	"os/exec"
 	"plugin"
+	"gitlab.dzo.com.ua/bik4ruslan/travel.git"
 )
 
 //go:generate qtc -dir=views/templates
@@ -556,32 +557,33 @@ func main() {
 	logs.StatusLog("Static files found in ", *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
 
-	registerRoutes()
 
 	ch := make(chan os.Signal)
 
 	KillSignal := syscall.SIGTTIN
 	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
-	//go listenOnShutdown(ch)
+	go listenOnShutdown(ch)
 
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
-    //var err error
+    var err error
 
-	//
-	//listener, err = net.Listen("tcp", *fPort)
-	//if err != nil {
-	//	logs.Fatal(err)
-	//}
 
-	//mainServer =  &http.Server{ Handler: http.DefaultServeMux}
-	//
-	//
-	//
-	//logs.ErrorLog( mainServer.Serve(listener) )
-	logs.Fatal(http.ListenAndServe(*fPort, nil))
+	listener, err = net.Listen("tcp", *fPort)
+	if err != nil {
+		logs.Fatal(err)
+	}
+
+	registerRoutes()
+	//travel_git.InitPlugin()
+	mainServer =  &http.Server{ Handler: http.DefaultServeMux}
+
+
+
+	logs.ErrorLog( mainServer.Serve(listener) )
+	//logs.Fatal(http.ListenAndServe(*fPort, nil))
 
 }
 func listenOnShutdown(ch <- chan os.Signal) {
