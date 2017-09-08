@@ -210,13 +210,3 @@ func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
-
-func init() {
-	http.HandleFunc("/api/log/errors/", HandleShowErrorsServer )
-	http.HandleFunc("/api/log/status/", HandleShowStatusServer )
-	http.HandleFunc("/api/log/debug/",  HandleShowDebugServer )
-	http.HandleFunc("/api/update/source/",  HandleUpdateSource )
-	http.HandleFunc("/api/update/test/",  HandleUpdateTest )
-	http.HandleFunc("/api/update/build/",  HandleUpdateBuild )
-}
