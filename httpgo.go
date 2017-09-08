@@ -86,11 +86,11 @@ func registerRoutes() {
 			logs.ErrorLog(err)
 		}
 	}()
-	http.Handle("/", NewDefaultHandler())
-	for route, fnc := range routes {
-		http.HandleFunc(route, system.WrapCatchHandler(fnc))
-	}
-	admin.RegisterRoutes()
+	//http.Handle("/", NewDefaultHandler())
+	//for route, fnc := range routes {
+	//	http.HandleFunc(route, system.WrapCatchHandler(fnc))
+	//}
+	//admin.RegisterRoutes()
 
 	logs.StatusLog("httpgo", http.DefaultServeMux)
 
