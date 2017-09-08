@@ -6,7 +6,6 @@ package api
 
 import (
 	"net/http"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/views"
 	"io"
 )
