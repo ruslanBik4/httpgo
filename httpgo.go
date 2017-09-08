@@ -76,6 +76,10 @@ var (
 // registerRoutes
 // connect routers list ti http.Handle
 func registerRoutes() {
+	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
 	defer func() {
 		err := recover()
 		if err, ok := err.(error); ok {
@@ -88,10 +92,6 @@ func registerRoutes() {
 	}
 	admin.RegisterRoutes()
 
-	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
-	if err != nil {
-		logs.ErrorLog(err)
-	}
 	logs.StatusLog("httpgo", http.DefaultServeMux)
 
 }
