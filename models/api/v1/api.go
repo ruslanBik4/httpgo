@@ -61,9 +61,9 @@ func findField(key string, tables map[string]schema.FieldsTable) *schema.FieldSt
 	return nil
 }
 
-func init() {
-	for route, fnc := range routes {
-		http.HandleFunc(route, system.WrapCatchHandler(fnc))
-	}
-
-}
+//func init() {
+//	for route, fnc := range routes {
+//		http.HandleFunc(route, system.WrapCatchHandler(fnc))
+//	}
+//
+//}
