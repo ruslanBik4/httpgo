@@ -22,7 +22,7 @@ func main()  {
 	defer wd.Quit()
 
 	// Navigate to the simple playground interface.
-	if err := wd.Get("http://vps-20777.vps-default-host.net/extranet/"); err != nil {
+	if err := wd.Get("http://отдохнутьвкрыму.рф/extranet/"); err != nil {
 		panic(err)
 	}
 
