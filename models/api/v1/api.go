@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/system"
+	//"github.com/ruslanBik4/httpgo/models/system"
 )
 var (
 	routes = map[string]http.HandlerFunc{
