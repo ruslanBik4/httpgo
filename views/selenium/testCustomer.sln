@@ -1,5 +1,5 @@
 maximize
-url: vps-20777.vps-default-host.net/customer/
+url: отдохнутьвкрыму.рф/customer/
 @hotelName: Алупка
 @userName: ruslan-bik@yandex.ru
 @password: kRnZBweSNEjr-8VJY0htTw==
@@ -33,4 +33,5 @@ input[name=password]::visible {
     pause: 100
     getalert
 }
+screenshot
 pause: 20000

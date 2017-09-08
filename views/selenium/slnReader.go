@@ -33,7 +33,7 @@ var (
 	result    []selenium.WebElement
  	command   [] tCommand
 	values     = map[string] string {}
-	fFilename     = flag.String("filename", "test.sln", "file with css selenium rules")
+	//fFilename     = flag.String("filename", "test.sln", "file with css selenium rules")
 	fScrPath    = flag.String("path_scr", "./", "path to screenshot files")
 )
 const valPrefix = '@'
@@ -90,7 +90,7 @@ func ReadScenarioFiles(filePath string) ([][]byte, error) {
 	return result, nil
 }
 
-func handleScenarioFile(handlerResultsBuffer chan <- HandlingResultType, filePath string) {
+func handleScenarioFile(handlerResultsBuffer chan <- HandlingResultType, filePath string, wd selenium.WebDriver) {
 
 	scenarioHandlerResults := HandlingResultType{
 		error:	nil,
@@ -103,12 +103,8 @@ func handleScenarioFile(handlerResultsBuffer chan <- HandlingResultType, filePat
 	}()
 
 	//Connect to the WebDriver instance running locally.
-	caps := selenium.Capabilities{"browserName": "chrome"}
-	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
-	if err != nil {
-		scenarioHandlerResults.error = err
+	if wd == nil {
 		scenarioHandlerResults.ok = false
-		log.Println(err)
 		return
 	}
 	defer wd.Quit()
@@ -204,12 +200,12 @@ type HandlingResultType struct {
 	error error
 }
 // обработчик канала сценариев. Запускается в количистве SCENARIO_HANDLERS_COUNT
-func ScenarioBufferHandler(scenarioBuffer <- chan string, handlerResultsBuffer chan <- HandlingResultType) {
+func ScenarioBufferHandler(scenarioBuffer <- chan string, handlerResultsBuffer chan <- HandlingResultType, wd selenium.WebDriver) {
 
 	for file := range scenarioBuffer {
 		log.Println("Starting ScenarioBufferHandler on file " + file)
 
-		handleScenarioFile(handlerResultsBuffer, file)
+		handleScenarioFile(handlerResultsBuffer, file, wd)
 	}
 }
 // количество одновременных обработчиков сценариев
@@ -232,9 +228,19 @@ func main() {
 	// отправляем файлы на обработку
 	go sendToHandling(scenarioBuffer, files)
 
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	//запускаем три инстанса обработчиков сценариев
 	for i := 1; i<= SCENARIO_HANDLERS_COUNT; i++ {
-		go ScenarioBufferHandler(scenarioBuffer, handlerResultsBuffer)
+		wd, err := getDriverConnection()
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		go ScenarioBufferHandler(scenarioBuffer, handlerResultsBuffer, wd)
 	}
 
 	// определяем условие выхода из программы
@@ -459,4 +465,17 @@ var (	slnCommands  = map[string] func() error {
 	}
 
 	return true
+}
+
+func getDriverConnection() (wd selenium.WebDriver, err error) {
+
+	//Connect to the WebDriver instance running locally.
+	caps := selenium.Capabilities{"browserName": "chrome"}
+	wd, err = selenium.NewRemote(caps, "http://localhost:9515")
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return wd, nil
 }
