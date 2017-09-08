@@ -6,7 +6,7 @@ package api
 
 import (
 	"net/http"
-	//"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/system"
 )
 var (
 	routes = map[string]http.HandlerFunc{
@@ -47,8 +47,7 @@ var (
 )
 
 func init() {
-		//for route, fnc := range routes {
-		//	http.HandleFunc(route, system.WrapCatchHandler(fnc))
-		//}
-		//
+		for route, fnc := range routes {
+			http.HandleFunc(route, system.WrapCatchHandler(fnc))
+		}
 }

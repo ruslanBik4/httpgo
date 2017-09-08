@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	//_ "net/http/pprof"
+	_ "net/http/pprof"
 	"os"
 	"path"
 	"path/filepath"
@@ -35,9 +35,10 @@ import (
 	"time"
 	"os/signal"
 	"net"
-	"syscall"
+	//"syscall"
 	"os/exec"
 	"plugin"
+	"syscall"
 )
 
 //go:generate qtc -dir=views/templates
@@ -75,23 +76,22 @@ var (
 // registerRoutes
 // connect routers list ti http.Handle
 func registerRoutes() {
-	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
-	if err != nil {
-		logs.ErrorLog(err)
-	}
 	defer func() {
 		err := recover()
 		if err, ok := err.(error); ok {
 			logs.ErrorLog(err)
 		}
 	}()
-	//http.Handle("/", NewDefaultHandler())
-	//for route, fnc := range routes {
-	//	http.HandleFunc(route, system.WrapCatchHandler(fnc))
-	//}
-	//admin.RegisterRoutes()
+	MyMux.Handle("/", NewDefaultHandler())
+	for route, fnc := range routes {
+		MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+	}
+	admin.RegisterRoutes()
 
-	logs.StatusLog("httpgo", http.DefaultServeMux)
+	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
+		logs.ErrorLog(err)
+	}
+	logs.StatusLog("httpgo", MyMux)
 
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
@@ -112,7 +112,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err = symb.(func() error)()
+		err = symb.(func(MyMux *http.ServeMux) error)(MyMux)
 	} else {
 		logs.ErrorLog(err)
 	}
@@ -545,6 +545,7 @@ func init() {
 }
 var mainServer *http.Server
 var listener net.Listener
+var MyMux *http.ServeMux
 func main() {
 	users.SetSessionPath(*fSession)
 	go cacheFiles()
@@ -558,7 +559,8 @@ func main() {
 
 	ch := make(chan os.Signal)
 
-	KillSignal := syscall.SIGTTIN
+	KillSignal := syscall.Signal(15)
+	//syscall.SIGTTIN
 	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
 	go listenOnShutdown(ch)
 
@@ -574,9 +576,10 @@ func main() {
 		logs.Fatal(err)
 	}
 
+	MyMux = http.NewServeMux()
 	registerRoutes()
 	//travel_git.InitPlugin()
-	mainServer =  &http.Server{ Handler: http.DefaultServeMux}
+	mainServer =  &http.Server{ Handler: MyMux}
 
 
 
