@@ -88,11 +88,11 @@ func registerRoutes() {
 	}
 	admin.RegisterRoutes()
 
-	logs.StatusLog("httpgo", http.DefaultServeMux)
 	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
 	if err != nil {
 		logs.ErrorLog(err)
 	}
+	logs.StatusLog("httpgo", http.DefaultServeMux)
 
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
@@ -114,6 +114,8 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	logs.StatusLog(symb, err)
 	if err == nil {
 		err = symb.(func() error)()
+	} else {
+		logs.ErrorLog(err)
 	}
 
 	return err
