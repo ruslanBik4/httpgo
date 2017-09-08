@@ -39,7 +39,6 @@ import (
 	"syscall"
 	"os/exec"
 	"plugin"
-	"gitlab.dzo.com.ua/bik4ruslan/travel.git"
 )
 
 //go:generate qtc -dir=views/templates
