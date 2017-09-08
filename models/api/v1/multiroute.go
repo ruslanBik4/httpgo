@@ -41,7 +41,3 @@ func HandleMultiRouteJSON(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("}"))
 
 }
-
-func init() {
-	http.HandleFunc("/api/v1/multiroute/", system.WrapCatchHandler(HandleMultiRouteJSON))
-}

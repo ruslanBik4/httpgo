@@ -21,6 +21,9 @@ var (
 		"/api/v1/photos/":       HandlePhotos,
 		"/api/v1/video/":        HandleVideos,
 		"/api/v1/photos/add/":   HandleAddPhoto,
+		"/api/v1/search/"    :   HandlerSearch,
+		"/api/v1/multiroute/":   HandleMultiRouteJSON,
+		"/api/v1/list/"      :   HandleListAllList,
 		// short route
 		"/api/table/form/":   HandleFieldsJSON,
 		"/api/table/view/":   HandleTextRowJSON,

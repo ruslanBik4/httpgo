@@ -35,8 +35,3 @@ func HandleListAllList(w http.ResponseWriter, r *http.Request) {
 		//}
 	}
 }
-
-func init()  {
-	http.HandleFunc("/api/v1/list/", HandleListAllList )
-
-}

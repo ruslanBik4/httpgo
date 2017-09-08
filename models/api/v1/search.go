@@ -7,7 +7,6 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
 	"strings"
@@ -85,8 +84,4 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	views.RenderArrayJSON(w, arrJSON)
-}
-
-func init() {
-	http.HandleFunc("/api/v1/search/", system.WrapCatchHandler(HandlerSearch))
 }
