@@ -124,6 +124,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 		}
 		for route, fnc := range routes {
 			MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+			fnc(nil, nil)
 		}
 	} else {
 		logs.ErrorLog(err)
