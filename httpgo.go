@@ -96,6 +96,12 @@ func registerRoutes() {
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
 
+	defer func() {
+		err := recover()
+		if err, ok := err.(error); ok {
+			logs.ErrorLog(err)
+		}
+	}()
 	if ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)
 		return nil
@@ -112,7 +118,13 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err = symb.(func(MyMux *http.ServeMux) error)(MyMux)
+		err, routes := symb.(func(MyMux *http.ServeMux) (error, map[string] http.HandlerFunc ) )(MyMux)
+		if err != nil {
+			return err
+		}
+		for route, fnc := range routes {
+			MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+		}
 	} else {
 		logs.ErrorLog(err)
 	}
