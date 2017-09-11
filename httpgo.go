@@ -234,7 +234,7 @@ func handlerComponents(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// считываем файлы типа css/js ect в память и потом отдаем из нее
+// считываем файлы типа css/js etc в память и потом отдаем из нее
 func setCache(path string, data []byte) {
 	cacheMu.Lock()
 	cache[path] = data

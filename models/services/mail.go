@@ -121,7 +121,7 @@ func (mailServ *mailService) SendMail(mail *Mail) error {
 	return nil
 }
 
-func (mailServ *mailService) Get(messages ...interface{}) (responce interface{}, err error) {
+func (mailServ *mailService) Get(messages ...interface{}) (response interface{}, err error) {
 	return nil, nil
 
 }

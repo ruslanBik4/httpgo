@@ -58,13 +58,13 @@ func TestGet(t *testing.T) {
 	nameServ := "permission"
 	messages := make(map[string]string, 0)
 	messages["system"] = "10"
-	responce, err := Get(nameServ, messages, "stress")
+	response, err := Get(nameServ, messages, "stress")
 	if err != nil {
 		t.Error(err)
-	} else if responce == nil {
+	} else if response == nil {
 		t.Errorf("Get return nil !")
 	} else {
-		t.Log(responce)
+		t.Log(response)
 
 	}
 	t.Skipped()
@@ -158,14 +158,14 @@ func TestModGet(t *testing.T) {
 	config["table"] = "test2"
 	config["key"] = "72"
 
-	responce, err := Get("moderation", config)
+	response, err := Get("moderation", config)
 
 	if err != nil {
 		t.Error(err)
-	} else if responce == nil {
+	} else if response == nil {
 		t.Errorf("Get return nil !")
 	} else {
-		t.Log(responce)
+		t.Log(response)
 		t.Skipped()
 
 	}

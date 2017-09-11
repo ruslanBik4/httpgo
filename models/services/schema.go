@@ -30,7 +30,7 @@ func (schema *schemaService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (schema *schemaService) Get(messages ...interface{}) (responce interface{}, err error) {
+func (schema *schemaService) Get(messages ...interface{}) (response interface{}, err error) {
 
 	if tableName, ok := messages[0].(string); ok {
 		return DBschema.GetFieldsTable(tableName), nil

@@ -80,7 +80,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 //2 - id записи
 //3 - порядковый номер файла файла
 // (-1 означает, что нужно вернуть массив со списком файлов)
-func (photos *photosService) Get(args ...interface{}) (responce interface{}, err error) {
+func (photos *photosService) Get(args ...interface{}) (response interface{}, err error) {
 
 	var catalog, id string
 	var num int

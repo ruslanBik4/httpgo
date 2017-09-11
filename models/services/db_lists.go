@@ -94,7 +94,7 @@ func (DBlists *DBlistsService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{}, err error) {
+func (DBlists *DBlistsService) Get(messages ...interface{}) (response interface{}, err error) {
 
 	oper, ok := messages[0].(string)
 	if !ok {
