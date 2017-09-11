@@ -2,10 +2,10 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 просто показ одной записи таблицы.
-{% func (ns *FieldsTable) ShowRecord(Title string) %}
+{% func (fields *FieldsTable) ShowRecord(id string) %}
     <div>
-        <h2>Title string</h2>
-        {% for idx, field := range ns.Rows %}
+        <h2>Запись №{%s= id %} в таблице {%s= fields.Comment %}</h2>
+        {% for idx, field := range fields.Rows %}
         <div id="divField{%d idx %}" class="row {%s field.CSSClass %}"
             {% if field.IsHidden %} style="display:none" {% endif %}
         >

@@ -177,7 +177,7 @@ func TestPermissGetWrongParam(t *testing.T) {
 	switch err := sErr.(type){
 
 	case ErrServiceNotEnoughParameter:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Name, err.Param )
+		t.Errorf("Error - %s, parameter %s = %v", err.Error(), err.Name, err.Param )
 	case ErrServiceNotCorrectParamType:
 		t.Skipped()
 		logs.DebugLog("result", result)

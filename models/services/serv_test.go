@@ -33,7 +33,7 @@ func TestConnect(t *testing.T) {
 			case "second":
 				in <- "close"
 				//close(in)
-				return
+				break
 			default:
 				t.Log(v)
 			}
@@ -94,7 +94,7 @@ func TestModConnect(t *testing.T) {
 			case "second":
 				in <- "close"
 				//close(in)
-				return
+				break
 			default:
 				t.Log(v)
 			}

@@ -238,7 +238,6 @@ func (field *QBField) putValueToArgs(param string) string {
 		panic(&ErrNotFoundParam{Param: "not enougth parameter-" + param})
 	}
 
-	return ""
 }
 
 // parse enumValues & insert queryes parameters

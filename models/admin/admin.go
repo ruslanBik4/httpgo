@@ -455,10 +455,10 @@ func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 
 	if fields, err := GetRecord(tableName, id); err != nil {
-		fmt.Fprint(w, "Error during reading record with id=%s", id)
+		fmt.Fprintf(w, "Error during reading record with id=%s", id)
 
 	} else {
-		fmt.Fprint(w, fields.ShowRecord("Меняем запись №"+id+" в таблице "+fields.Comment))
+		fields.WriteShowRecord(w, id)
 	}
 
 }
@@ -469,7 +469,7 @@ func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
 
 	if fields, err := GetRecord(tableName, id); err != nil {
-		fmt.Fprint(w, "Error during reading record with id=%s", id)
+		fmt.Fprintf(w, "Error during reading record with id=%s", id)
 
 	} else {
 		fmt.Fprintf(w, `<script src="/%s.js"></script>`, tableName)

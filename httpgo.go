@@ -304,7 +304,7 @@ func HandleFirebird(w http.ResponseWriter, r *http.Request) {
 				views.RenderInternalError(w, err)
 				break
 			}
-			fmt.Fprintf(w, "id=%i, title =%s", id, title)
+			fmt.Fprintf(w, "id=%d, title =%s", id, title)
 
 		}
 	}
@@ -363,45 +363,45 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("}"))
 	return
 
-	qBuilder = qb.Create("hs.id_hotels=?", "", "")
-
-	qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list").AddField("", "id_hotels")
-	qBuilder.Join("sl", "services_list", "ON (sl.id = hs.id_services_list)").AddField("", "id_services_category_list")
-
-	//qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
-
-	qBuilder.AddArg(r.FormValue("id_hotels"))
-	arrJSON, err := qBuilder.SelectToMultidimension()
-
-	if err != nil {
-		logs.ErrorLog(err)
-		return
-	}
-
-	views.RenderArrayJSON(w, arrJSON)
-	return
-	//qBuilder := qb.Create("", "", "")
-
-	logs.DebugLog(r)
-	r.ParseMultipartForm(_24K)
-	for _, headers := range r.MultipartForm.File {
-		for _, header := range headers {
-			var err interface{}
-			inFile, _ := header.Open()
-
-			err = services.Send("photos", "save", header.Filename, inFile)
-			if err != nil {
-				switch err.(type) {
-				case services.ErrServiceNotCorrectOperation:
-					logs.ErrorLog(err.(error))
-				}
-				w.Write([]byte(err.(error).Error()))
-
-			} else {
-				w.Write([]byte("Succesfull"))
-			}
-		}
-	}
+	//qBuilder = qb.Create("hs.id_hotels=?", "", "")
+	//
+	//qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list").AddField("", "id_hotels")
+	//qBuilder.Join("sl", "services_list", "ON (sl.id = hs.id_services_list)").AddField("", "id_services_category_list")
+	//
+	////qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
+	//
+	//qBuilder.AddArg(r.FormValue("id_hotels"))
+	//arrJSON, err := qBuilder.SelectToMultidimension()
+	//
+	//if err != nil {
+	//	logs.ErrorLog(err)
+	//	return
+	//}
+	//
+	//views.RenderArrayJSON(w, arrJSON)
+	//return
+	////qBuilder := qb.Create("", "", "")
+	//
+	//logs.DebugLog(r)
+	//r.ParseMultipartForm(_24K)
+	//for _, headers := range r.MultipartForm.File {
+	//	for _, header := range headers {
+	//		var err interface{}
+	//		inFile, _ := header.Open()
+	//
+	//		err = services.Send("photos", "save", header.Filename, inFile)
+	//		if err != nil {
+	//			switch err.(type) {
+	//			case services.ErrServiceNotCorrectOperation:
+	//				logs.ErrorLog(err.(error))
+	//			}
+	//			w.Write([]byte(err.(error).Error()))
+	//
+	//		} else {
+	//			w.Write([]byte("Succesfull"))
+	//		}
+	//	}
+	//}
 
 }
 

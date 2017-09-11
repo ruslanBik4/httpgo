@@ -47,8 +47,8 @@ type QueryBuilder struct {
 	Aliases                         []string
 	Prepared                        *sql.Stmt
 	PostParams                      map[string][]string
-	sqlCommand, sqlSelect, sqlFrom  string `auto recalc`
-	Where, GroupBy, OrderBy, Limits string `may be defined outside`
+	sqlCommand, sqlSelect, sqlFrom  string `httpgo:auto recalc`
+	Where, GroupBy, OrderBy, Limits string `httpgo:may be defined outside`
 	union                           *QueryBuilder
 	parent                          *QueryBuilder
 }

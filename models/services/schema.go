@@ -32,15 +32,11 @@ func (schema *schemaService) Send(messages ...interface{}) error {
 }
 func (schema *schemaService) Get(messages ...interface{}) (responce interface{}, err error) {
 
-	switch tableName := messages[0].(type) {
-	case string:
+	if tableName, ok := messages[0].(string); ok {
 		return DBschema.GetFieldsTable(tableName), nil
-	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
 	}
 
-	return nil, nil
-
+	return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
 }
 func (schema *schemaService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 

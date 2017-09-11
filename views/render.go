@@ -178,6 +178,7 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 		head += layouts.DadataHead()
 		foot += layouts.DadataScript(Inputs)
 	}
+	//TODO: replace on stream buffer function
 	RenderAnyPage(w, r, head+layouts.PutHeadForm()+fields.ShowAnyForm("/admin/exec/", Title)+layouts.PutEndForm()+foot)
 
 	return nil

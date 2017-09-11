@@ -87,7 +87,10 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-
+	if err != nil {
+		logs.ErrorLog(err, "access_token")
+		return
+	}
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	fmt.Fprintf(w, "Content: %s\n", contents)
@@ -120,14 +123,12 @@ func IsLogin(r *http.Request) string {
 	if session == nil {
 		panic(http.ErrNotSupported)
 	}
-	if userID, ok := session.Values["id"]; ok {
-
-		return strconv.Itoa(userID.(int))
-	} else {
+	userID, ok := session.Values["id"]
+	if !ok {
 		panic(system.ErrNotLogin{Message: "not login user!"})
 	}
 
-	return ""
+	return strconv.Itoa(userID.(int))
 }
 func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	session := GetSession(r, nameSession)

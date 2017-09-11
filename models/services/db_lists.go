@@ -95,7 +95,12 @@ func (DBlists *DBlistsService) Send(messages ...interface{}) error {
 
 }
 func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{}, err error) {
-	oper := messages[0].(string)
+
+	oper, ok := messages[0].(string)
+	if !ok {
+		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
+	}
+
 	switch oper {
 
 	case "all-list":
@@ -118,15 +123,10 @@ func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{
 			}
 		}
 		return result, nil
-	}
-	switch tableName := messages[0].(type) {
-	case string:
-		return cache.GetListRecord(tableName), nil
+	//	сокращенный вариант вызова - только имя таблицы
 	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
+		return cache.GetListRecord(oper), nil
 	}
-
-	return nil, nil
 
 }
 func (DBlists *DBlistsService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
