@@ -42,7 +42,7 @@ const valPrefix = '@'
 //todo: доабвить ассерты стандартных тестов ГО
 
 // получаем список сценариев из текущей директории
-func getScenarioFilesList() ([]string, error) {
+func GetScenarioFilesList() ([]string, error) {
 
 	var result []string
 	dir, err := os.Getwd()
@@ -217,25 +217,21 @@ func main() {
 	scenarioBuffer := make(chan string, 3)
 	defer close(scenarioBuffer)
 
-	files, err := getScenarioFilesList()
+	files, err := GetScenarioFilesList()
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	//устанавливаем канал, в которомбудем держать резульатты работы
 	handlerResultsBuffer := make(chan HandlingResultType, len(files))
+	defer close(handlerResultsBuffer)
 
 	// отправляем файлы на обработку
 	go sendToHandling(scenarioBuffer, files)
 
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	//запускаем три инстанса обработчиков сценариев
-	for i := 1; i<= SCENARIO_HANDLERS_COUNT; i++ {
-		wd, err := getDriverConnection()
+	for i := 1; i <= SCENARIO_HANDLERS_COUNT; i++ {
+		wd, err := GetDriverConnection()
 		if err != nil {
 			log.Println(err)
 			continue
@@ -467,7 +463,7 @@ var (	slnCommands  = map[string] func() error {
 	return true
 }
 
-func getDriverConnection() (wd selenium.WebDriver, err error) {
+func GetDriverConnection() (wd selenium.WebDriver, err error) {
 
 	//Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
