@@ -79,6 +79,9 @@ func main() {
 			continue
 		}
 		newElem, err := saveNewElement(elem, url)
+		if err != nil {
+			continue
+		}
 		if activeElem.Selector != newElem.Selector {
 			if activeElem.Selector > "" {
 				ioWriter.Write([]byte(activeElem.Selector + "{\nclick\n}\n"))

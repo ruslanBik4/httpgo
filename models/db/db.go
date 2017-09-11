@@ -570,7 +570,7 @@ func (menu *MenuItems) Init(id string) int32 {
 	defer rows.Close()
 	// если нет записей
 	if !rows.Next() {
-		logs.DebugLog("Not find menu wich id = ", id)
+		logs.DebugLog("Not find menu which id = ", id)
 		return -1
 
 	}

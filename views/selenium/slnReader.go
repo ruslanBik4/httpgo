@@ -25,7 +25,7 @@ type ErrFailTest struct {
 }
 
 func (err ErrFailTest) Error() string {
-	return err.token + " wtih param " + err.param
+	return err.token + " with param " + err.param
 }
 
 type ErrUnknowCommand error
@@ -207,10 +207,11 @@ func openURL(wd selenium.WebDriver, param string) {
 func saveScreenShoot(wd selenium.WebDriver) {
 	img, err := wd.Screenshot()
 	if err == nil {
-		output, err := os.Create(*fScrPath + time.Now().String() + ".jpg")
+		var output *os.File
+		output, err = os.Create(*fScrPath + time.Now().String() + ".jpg")
 		if err == nil {
+			defer output.Close()
 			_, err = output.Write(img)
-			output.Close()
 		}
 	}
 	if err != nil {
