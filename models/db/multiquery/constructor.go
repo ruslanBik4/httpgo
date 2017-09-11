@@ -5,7 +5,6 @@
 // create, check & run query for children tables in main query
 package multiquery
 
-
-func Create(tableName string) *MultiQuery{
-	return &MultiQuery{	Queryes: make(map[string]*ArgsQuery, 0), parentName: tableName}
+func Create(tableName string) *MultiQuery {
+	return &MultiQuery{Queryes: make(map[string]*ArgsQuery, 0), parentName: tableName}
 }

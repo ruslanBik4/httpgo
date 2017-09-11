@@ -15,9 +15,9 @@ import (
 )
 
 type photosService struct {
-	name     string
-	path     string
-	status   string
+	name   string
+	path   string
+	status string
 }
 
 var (
@@ -69,8 +69,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 	} else {
 		filename = "main.jpg"
 	}
-	return photos.saveFile(	filepath.Join(catalog, id, filename), iFile)
-
+	return photos.saveFile(filepath.Join(catalog, id, filename), iFile)
 
 }
 
@@ -140,7 +139,7 @@ func (photos *photosService) saveFile(fileName string, inFile io.Reader) error {
 		if os.IsNotExist(err) {
 			dir := filepath.Dir(fullName)
 			//TODO: add privilegias from config file!
-			err = os.MkdirAll(dir, os.ModeDir | os.ModePerm)
+			err = os.MkdirAll(dir, os.ModeDir|os.ModePerm)
 			if err == nil {
 				outFile, err = os.Create(fullName)
 			}
@@ -153,7 +152,7 @@ func (photos *photosService) saveFile(fileName string, inFile io.Reader) error {
 	}
 
 	if err != nil {
-		logs.ErrorLog(err, "Error saving file: " + fullName)
+		logs.ErrorLog(err, "Error saving file: "+fullName)
 		return err
 	}
 

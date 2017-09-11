@@ -5,10 +5,10 @@
 package qb
 
 import (
-	"strconv"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"strconv"
 	"strings"
 )
 
@@ -27,6 +27,7 @@ func (field QBField) String() string {
 func (field *QBField) GetSchema() *schema.FieldStructure {
 	return field.Schema
 }
+
 // возвращает значение поля типа соответствующего типы поля в БД
 func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	if field.Value == nil {
@@ -36,7 +37,7 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	case "char", "varchar", "text", "date", "datetime", "timestamp", "time", "set", "enum":
 		return string(field.Value)
 	case "tinyint", "int", "uint", "int64":
-		value, err := strconv.Atoi( string(field.Value) )
+		value, err := strconv.Atoi(string(field.Value))
 		if err != nil {
 			logs.ErrorLog(err, "convert RawBytes ", field.Value)
 			return nil
@@ -48,7 +49,7 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 			return value
 		}
 	case "float", "double":
-		value, err := strconv.ParseFloat( string(field.Value), 64 )
+		value, err := strconv.ParseFloat(string(field.Value), 64)
 		if err != nil {
 			logs.ErrorLog(err, "convert RawBytes ", field.Value)
 			return nil
@@ -59,6 +60,7 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	return field.Value
 
 }
+
 // Scan implements the Scanner interface.
 //func (field *QBField) Scan(value interface{}) error {
 //	var temp sql.RawBytes
@@ -100,7 +102,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	if field.Schema == nil {
 		field.Schema = &schema.FieldStructure{COLUMN_NAME: alias, COLUMN_TYPE: "calc"}
-	//	для агрегатных полей спрогнозируем тип
+		//	для агрегатных полей спрогнозируем тип
 		if strings.Contains(name, "COUNT") {
 			field.Schema.DATA_TYPE = "uint"
 		} else if strings.Contains(name, "SUM") {
@@ -173,7 +175,7 @@ func (field *QBField) GetSelectedValues() {
 
 	titleField := field.Schema.GetForeignFields()
 	// создаем дочерний запрос
-	field.SelectQB = CreateFromSQL( fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.Schema.TableProps) )
+	field.SelectQB = CreateFromSQL(fmt.Sprintf("SELECT id, %s FROM %s", titleField, field.Schema.TableProps))
 
 	// подключаем параметры POST-запроса от старшего запроса field
 	field.SelectQB.PostParams = field.Table.qB.PostParams
@@ -181,7 +183,7 @@ func (field *QBField) GetSelectedValues() {
 		logs.DebugLog(field.Name, field.Table)
 	}
 	// разбираем заменяемые параметры
-	field.SelectQB.SetWhere( field.parseWhereANDputArgs() )
+	field.SelectQB.SetWhere(field.parseWhereANDputArgs())
 
 	if rows, err := field.SelectQB.GetDataSql(); err != nil {
 		logs.ErrorLog(err, field.Name, field.SelectQB)

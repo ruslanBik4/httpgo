@@ -6,16 +6,17 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"flag"
-	"os"
-	"log"
 	"bytes"
-	"time"
+	"errors"
+	"flag"
+	"github.com/tebeka/selenium"
+	"log"
+	"os"
 	"strconv"
 	"strings"
-	"errors"
+	"time"
 )
+
 type tCommand struct {
 	command, param string
 }
@@ -26,15 +27,19 @@ type ErrFailTest struct {
 func (err ErrFailTest) Error() string {
 	return err.token + " wtih param " + err.param
 }
+
 type ErrUnknowCommand error
+
 var (
 	result    []selenium.WebElement
- 	command   [] tCommand
-	values     = map[string] string {}
-	fFilename     = flag.String("filename", "test.sln", "file with css selenium rules")
-	fScrPath    = flag.String("path_scr", "./", "path to screenshot files")
+	command   []tCommand
+	values    = map[string]string{}
+	fFilename = flag.String("filename", "test.sln", "file with css selenium rules")
+	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
 )
+
 const valPrefix = '@'
+
 //todo: добавить в сценарий переменные, в частности, читать пароли отдельно из файла
 //todo: добавить циклы  и ветвления
 //todo: доабвить ассерты стандартных тестов ГО
@@ -84,7 +89,7 @@ func main() {
 			continue
 		}
 		// завершение блока - вылопляем команды для селектора
-		if bytes.Index(line, []byte("}") ) > -1 {
+		if bytes.Index(line, []byte("}")) > -1 {
 			for _, elem := range result {
 				for _, val := range command {
 					err := wdCommand(val.command, wd, val.param)
@@ -107,7 +112,7 @@ func main() {
 		if len(tokens) > 1 {
 			// find selector
 			result = getElement(wd, string(tokens[0]))
-			command = make([] tCommand, 0)
+			command = make([]tCommand, 0)
 		} else {
 			var token, param string
 
@@ -123,7 +128,7 @@ func main() {
 			if token[0] == valPrefix {
 				values[token[1:]] = param
 			} else if command != nil {
-				command = append(command, tCommand{ command: token, param: param } )
+				command = append(command, tCommand{command: token, param: param})
 			} else {
 				if err := wdCommand(token, wd, param); err != nil {
 					log.Print(err)
@@ -132,12 +137,14 @@ func main() {
 		}
 	}
 }
+
 // line is comment
 func isComment(line []byte) bool {
 	line = bytes.TrimSpace(line)
 	return bytes.HasPrefix(line, []byte("//")) ||
-		( bytes.HasPrefix(line, []byte("/*")) && bytes.HasSuffix(line, []byte("*/")) )
+		(bytes.HasPrefix(line, []byte("/*")) && bytes.HasSuffix(line, []byte("*/")))
 }
+
 //
 func getParam(param string) string {
 	param = strings.TrimSpace(param)
@@ -151,9 +158,10 @@ func getParam(param string) string {
 
 	return param
 }
+
 // выполнение обзих команд Селениума (не привязанных к елементу страницы)
 // возвращает ошибку исполнения, коли такая произойдет
-func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
+func wdCommand(token string, wd selenium.WebDriver, param string) (err error) {
 	switch token {
 	case "url":
 		openURL(wd, param)
@@ -180,6 +188,7 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error){
 
 	return err
 }
+
 // открыть URL
 func openURL(wd selenium.WebDriver, param string) {
 	// Navigate to the simple playground interface.
@@ -193,8 +202,9 @@ func openURL(wd selenium.WebDriver, param string) {
 	}
 	log.Print("open " + param)
 }
+
 // создает скриншот текущего окна браузера и сохраняет его в папке программы
-func saveScreenShoot(wd selenium.WebDriver)  {
+func saveScreenShoot(wd selenium.WebDriver) {
 	img, err := wd.Screenshot()
 	if err == nil {
 		output, err := os.Create(*fScrPath + time.Now().String() + ".jpg")
@@ -207,6 +217,7 @@ func saveScreenShoot(wd selenium.WebDriver)  {
 		log.Print(err)
 	}
 }
+
 // find element by selector & panic if error occupiers
 func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebElement {
 	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
@@ -217,8 +228,9 @@ func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebEl
 
 	return wElements
 }
+
 // webElement select
-func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement){
+func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement) {
 
 	if token == "activeElement" {
 		if wElem, err := wd.ActiveElement(); err != nil {
@@ -232,7 +244,7 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 	}
 	list := strings.Split(token, "::")
 	token = list[0]
-	if (len(list) > 1) {
+	if len(list) > 1 {
 		stat := strings.TrimSpace(list[1])
 		result = findElementBySelector(wd, token)
 		// addition parameters filtering result set
@@ -265,22 +277,24 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 
 	return
 }
+
 // run Comman by webElement
-func runCommand(token, param string, wElem selenium.WebElement) bool{
-var (	slnCommands  = map[string] func() error {
-							"click":  wElem.Click,
-							"clear":  wElem.Clear,
-							"submit": wElem.Submit,
-						}
-	slnStat  = map[string] func() (bool, error) {
-		"selected": wElem.IsSelected,
-		"enabled": wElem.IsEnabled,
-		"visible": wElem.IsDisplayed,
-	}
-	slnText  = map[string] func() (string, error) { "tag": wElem.TagName, "text": wElem.Text, }
-	slnCSS   = map[string] func(string) (string, error) {"css": wElem.CSSProperty, "attr": wElem.GetAttribute, }
-	//{"move": wElem.MoveTo}
-)
+func runCommand(token, param string, wElem selenium.WebElement) bool {
+	var (
+		slnCommands = map[string]func() error{
+			"click":  wElem.Click,
+			"clear":  wElem.Clear,
+			"submit": wElem.Submit,
+		}
+		slnStat = map[string]func() (bool, error){
+			"selected": wElem.IsSelected,
+			"enabled":  wElem.IsEnabled,
+			"visible":  wElem.IsDisplayed,
+		}
+		slnText = map[string]func() (string, error){"tag": wElem.TagName, "text": wElem.Text}
+		slnCSS  = map[string]func(string) (string, error){"css": wElem.CSSProperty, "attr": wElem.GetAttribute}
+		//{"move": wElem.MoveTo}
+	)
 	if command, ok := slnCommands[token]; ok {
 		if err := command(); err != nil {
 			log.Print(token)
@@ -293,18 +307,18 @@ var (	slnCommands  = map[string] func() error {
 			panic(err)
 		} else {
 
-			if strings.HasPrefix( param, "!") {
+			if strings.HasPrefix(param, "!") {
 				ok = !ok
 				param = param[1:]
 			}
 			if ok && (param > "") {
 				switch param {
 				case "fail":
-					panic(ErrFailTest{token: token, param: param} )
+					panic(ErrFailTest{token: token, param: param})
 				case "continue":
 					return false
 				default:
-					log.Print( token + " is ", ok, " unknow param ", param)
+					log.Print(token+" is ", ok, " unknow param ", param)
 
 				}
 			}
@@ -314,7 +328,7 @@ var (	slnCommands  = map[string] func() error {
 			log.Print(token)
 			panic(err)
 		} else {
-			log.Print(token +"=" + str)
+			log.Print(token + "=" + str)
 		}
 	} else if command, ok := slnCSS[token]; ok {
 		if ok, err := command(param); err != nil {
@@ -332,7 +346,7 @@ var (	slnCommands  = map[string] func() error {
 		log.Print("pause ", pInt)
 		time.Sleep(time.Millisecond * time.Duration(pInt))
 
-	} else  if token == "sendkey" {
+	} else if token == "sendkey" {
 		if err := wElem.SendKeys(param); err != nil {
 			log.Print("sendkey err", err, param)
 			panic(err)

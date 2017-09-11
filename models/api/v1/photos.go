@@ -10,12 +10,13 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 	"image"
 	"image/jpeg"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"io"
 )
+
 //@/api/v1/photos/add/
 // добавление фото к обьекту (по имени таблицы и Айди)
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +56,7 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("}"))
 
 }
+
 // @/api/v1/photos/
 // возвращает ссылки на фото обьекта либо файл
 func HandlePhotos(w http.ResponseWriter, r *http.Request) {
@@ -80,13 +82,13 @@ func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 			views.RenderStringSliceJSON(w, ioReader)
 		case *os.File:
 			//Get the file size
-			FileStat, _ := ioReader.Stat()                     //Get info from file
+			FileStat, _ := ioReader.Stat() //Get info from file
 			fileName, fileExt := filepath.Base(FileStat.Name()), filepath.Ext(FileStat.Name())
 			FileSize := strconv.FormatInt(FileStat.Size(), 10) //Get file size as a string
 			//Send the headers
 			w.Header().Set("Content-Description", "File Transfer")
 			w.Header().Set("Content-Type", "application/octet-stream")
-			w.Header().Set("Content-Disposition", "attachment; filename=" + fileName)
+			w.Header().Set("Content-Disposition", "attachment; filename="+fileName)
 			w.Header().Set("Content-Transfer-Encoding", "binary")
 			w.Header().Set("Cache-Control", "must-revalidate")
 

@@ -49,7 +49,7 @@ func StatusLog(args ...interface{}) {
 func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	calldepth   := 2
+	calldepth := 2
 
 	funcName := changeShortName(runtime.FuncForPC(pc).Name())
 	if funcName == "views.RenderInternalError" {
@@ -88,7 +88,7 @@ func ErrorStack() {
 		if funcName == "views.RenderInternalError" {
 			continue
 		}
-		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName) )
+		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName))
 	}
 }
 

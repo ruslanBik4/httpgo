@@ -43,15 +43,15 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 // получение таблиц
 func (ns *RecordsTables) GetTablesProp(bd_name string) error {
 
-	return ns.GetSelectTablesProp("TABLE_SCHEMA=?",  bd_name )
+	return ns.GetSelectTablesProp("TABLE_SCHEMA=?", bd_name)
 
 }
-func (ns *RecordsTables) GetSelectTablesProp(where string, args ... interface{}) error {
+func (ns *RecordsTables) GetSelectTablesProp(where string, args ...interface{}) error {
 
 	sqlCommand := `select TABLE_NAME, IFNULL(TABLE_TYPE, 'VIEW'), IFNULL(ENGINE, 'VIEW'),
 			IFNULL(TABLE_COMMENT, TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES
 			 WHERE ` + where + " order by TABLE_COMMENT"
-	rows, err := DoSelect(sqlCommand, args ...)
+	rows, err := DoSelect(sqlCommand, args...)
 
 	if err != nil {
 		return err
@@ -83,8 +83,8 @@ type FieldStructure struct {
 	CHARACTER_SET_NAME       sql.NullString
 	COLUMN_COMMENT           sql.NullString
 	COLUMN_TYPE              string
-	COLUMN_KEY				 string
-	EXTRA					 string
+	COLUMN_KEY               string
+	EXTRA                    string
 	CHARACTER_MAXIMUM_LENGTH sql.NullInt64
 	//TITLE string
 	//TYPE_INPUT string
@@ -160,7 +160,7 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 			Table:       fields,
 			// TODO: продумать позже механизм для READ-ONLY полей
 			//IsHidden:    (field.COLUMN_KEY=="PRI") || (field.EXTRA=="on update CURRENT_TIMESTAMP"),
-			PrimaryKey:  field.COLUMN_KEY=="PRI",
+			PrimaryKey: field.COLUMN_KEY == "PRI",
 		}
 		if field.CHARACTER_SET_NAME.Valid {
 			fields.Rows[i].CHARACTER_SET_NAME = field.CHARACTER_SET_NAME.String
@@ -202,26 +202,26 @@ var Schema_ready bool
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
 	//go func() {
-		var tables RecordsTables
-		tables.GetTablesProp(server.GetServerConfig().DBName())
+	var tables RecordsTables
+	tables.GetTablesProp(server.GetServerConfig().DBName())
 
-		// первый проход заполняет в кешги данными полей первого уровня
-		for _, table := range tables.Rows {
-			var fields FieldsTable
-			fields.GetColumnsProp(table.TABLE_NAME)
+	// первый проход заполняет в кешги данными полей первого уровня
+	for _, table := range tables.Rows {
+		var fields FieldsTable
+		fields.GetColumnsProp(table.TABLE_NAME)
 
-			schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
-		}
-		// теперь заполняем данные второго уровня - которые зависят от других таблиц
-		for tableName, fields := range schema.SchemaCache {
-			fields.FillSurroggateFields(tableName)
-			//for _, field := range fields.Rows {
-			//
-			//}
-			//logs.StatusLog(tableName, fields)
-		}
+		schema.SchemaCache[table.TABLE_NAME] = fields.PutDataFrom(table.TABLE_NAME)
+	}
+	// теперь заполняем данные второго уровня - которые зависят от других таблиц
+	for tableName, fields := range schema.SchemaCache {
+		fields.FillSurroggateFields(tableName)
+		//for _, field := range fields.Rows {
+		//
+		//}
+		//logs.StatusLog(tableName, fields)
+	}
 
-		Schema_ready = true
+	Schema_ready = true
 
 	//}()
 }

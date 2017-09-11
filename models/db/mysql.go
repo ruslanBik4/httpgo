@@ -23,7 +23,7 @@ import (
 var (
 	mysqlMu      sync.RWMutex
 	dbConn       *sql.DB
-	SQLvalidator  = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
+	SQLvalidator = regexp.MustCompile(`^(\s*)?(\()?select(\s+.+\s)+(\s*)?from\s+`)
 	//регулярное выражение вытаскивающее имя таблицы из запроса
 	//TODO не отрабатывает конструкцию FROM table1, table2
 	tableNameFromSQL = regexp.MustCompile(`(?is)(?:from|into|update|join)\s+(\w+)`)
@@ -494,6 +494,7 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 	RowsAffected, err = DoUpdate(sqlCommand, row...)
 	return RowsAffected, err
 }
+
 // Функция возвращает результат выполнения запроса в заданой структуре
 func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 

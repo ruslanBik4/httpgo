@@ -24,7 +24,7 @@ type serverConfig struct {
 		Pass string `yaml:"dbPass"`
 		Prot string `yaml:"dbProt"`
 	}
-	StartTime   time.Time
+	StartTime time.Time
 }
 
 var sConfig *serverConfig
@@ -43,7 +43,7 @@ func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error {
 	sConfig.systemPath = *f_static
 	sConfig.wwwPath = *f_web
 	sConfig.SessionPath = *f_session
-	sConfig.StartTime   = time.Now()
+	sConfig.StartTime = time.Now()
 
 	f, err := os.Open(filepath.Join(sConfig.systemPath, "config/db.yml"))
 	if err != nil {

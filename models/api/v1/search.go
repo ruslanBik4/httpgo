@@ -7,10 +7,10 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
 	"strings"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // @/api/search/?table={nameTable}
@@ -70,7 +70,7 @@ func HandlerSearch(w http.ResponseWriter, r *http.Request) {
 
 	leftTable := tableName
 	for name, _ := range tables {
-		qBuilder.LeftJoin("", name, "ON " + leftTable + ".id" + "=" + name + ".id_" + leftTable)
+		qBuilder.LeftJoin("", name, "ON "+leftTable+".id"+"="+name+".id_"+leftTable)
 		leftTable = name
 	}
 

@@ -13,28 +13,28 @@ import (
 
 //структура прав для пользователя по ссылке (CRM)
 type linkPermission struct {
-	link string
+	link         string
 	allow_create int
 	allow_delete int
-	allow_edit int
-	id_users int
+	allow_edit   int
+	id_users     int
 }
 
 //структура прав роли по ссылке (Extranet)
 type roles struct {
-	link string
+	link         string
 	allow_create int
 	allow_delete int
-	allow_edit int
+	allow_edit   int
 }
 
 type cpService struct {
-	name string
-	region string
-	status string
+	name                  string
+	region                string
+	status                string
 	crm_permissions_roles map[int][]interface{}
-	extranet_roles map[int][]roles
-	extranet_permissions map[int]map[int]int
+	extranet_roles        map[int][]roles
+	extranet_permissions  map[int]map[int]int
 }
 
 //константы для работы с сервисом
@@ -57,11 +57,11 @@ const (
 	EXTRANET_PART = "extranet"
 )
 
-var crm_permission *cpService = &cpService{name:"crm_permission", status: "create"}
+var crm_permission *cpService = &cpService{name: "crm_permission", status: "create"}
 var cacheMu sync.RWMutex
 
 //реализация обязательных методов интерейса
-func (crm_permission *cpService) Init() error{
+func (crm_permission *cpService) Init() error {
 
 	crm_permission.status = "init"
 
@@ -102,10 +102,10 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 	if len(args) < 4 {
 		return services.ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
-	if _,ok := args[1].(int); !ok {
+	if _, ok := args[1].(int); !ok {
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
 	}
-	if _,ok := args[2].(string); !ok {
+	if _, ok := args[2].(string); !ok {
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[2], Number: 3}
 	}
 
@@ -113,15 +113,15 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 	case string:
 		if permission_type == CRM_PART {
 			if args[3].(string) == SET_PERMISS {
-				return crm_permission.setPermissForUser(args[1].(int), args[2].(string), args[4].(bool), args[5].(bool), args[6].(bool));
+				return crm_permission.setPermissForUser(args[1].(int), args[2].(string), args[4].(bool), args[5].(bool), args[6].(bool))
 			} else if args[3].(string) == DROP_PERMISS {
-				return crm_permission.deletePermissForUser(args[1].(int), args[2].(string));
+				return crm_permission.deletePermissForUser(args[1].(int), args[2].(string))
 			}
 		} else if permission_type == EXTRANET_PART {
 			if args[3].(string) == SET_PERMISS {
-				return crm_permission.setPermissForUserExtranet(args[1].(int), args[4].(int), args[5].(int));
+				return crm_permission.setPermissForUserExtranet(args[1].(int), args[4].(int), args[5].(int))
 			} else if args[3].(string) == DROP_PERMISS {
-				return crm_permission.deletePermissForUserExtranet(args[1].(int), args[4].(int));
+				return crm_permission.deletePermissForUserExtranet(args[1].(int), args[4].(int))
 			}
 		}
 	default:
@@ -134,12 +134,12 @@ func (crm_permission *cpService) Send(args ...interface{}) error {
 
 // args: 0 => admin part, 1 => user id, 2 => url what test on permiss, 3 => action for test access (Create/Delete/Edit/View)
 //for Extranet 4 => id_hotels
-func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error) {
+func (crm_permission *cpService) Get(args ...interface{}) (interface{}, error) {
 
 	if len(args) < 4 {
 		return nil, services.ErrServiceNotEnoughParameter{Name: crm_permission.name, Param: args}
 	}
-	if _,ok := args[1].(int); !ok {
+	if _, ok := args[1].(int); !ok {
 		return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[1], Number: 2}
 	}
 
@@ -152,15 +152,15 @@ func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error)
 	switch permission_type := args[0].(type) {
 	case string:
 		if permission_type == CRM_PART {
-			return crm_permission.getCRMPermissions(args[1].(int), args[2].(string), args[3].(string)), nil;
+			return crm_permission.getCRMPermissions(args[1].(int), args[2].(string), args[3].(string)), nil
 		} else if permission_type == EXTRANET_PART {
 
-			if _,ok := args[4].(int); !ok {
+			if _, ok := args[4].(int); !ok {
 				return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: args[4], Number: 2}
 			}
 
 			return crm_permission.getExtranetPermissions(args[1].(int), args[2].(string),
-				args[3].(string), args[4].(int)), nil;
+				args[3].(string), args[4].(int)), nil
 		}
 	default:
 		return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: permission_type, Number: 1}
@@ -168,11 +168,11 @@ func (crm_permission *cpService) Get(args ... interface{}) ( interface{}, error)
 
 	return nil, services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 }
-func (crm_permission *cpService) Connect(in <- chan interface{}) (out chan interface{}, err error) {
+func (crm_permission *cpService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})
 
 	go func() {
-		out<-"open"
+		out <- "open"
 		for {
 			select {
 			case v := <-in:
@@ -186,7 +186,7 @@ func (crm_permission *cpService) Connect(in <- chan interface{}) (out chan inter
 	}()
 	return out, nil
 }
-func (crm_permission *cpService) Close(out chan <- interface{}) error {
+func (crm_permission *cpService) Close(out chan<- interface{}) error {
 	close(out)
 	return nil
 
@@ -204,7 +204,7 @@ func (crm_permission *cpService) getCRMPermissions(user_id int, url, action stri
 		return false
 	}
 
-	for _,permission := range crm_permission.crm_permissions_roles[user_id] {
+	for _, permission := range crm_permission.crm_permissions_roles[user_id] {
 		resRow := permission.(map[string]interface{})
 		if resRow["link"].(string) == url {
 			return checkAction(resRow, action)
@@ -222,7 +222,7 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 		return false
 	}
 
-	for _,permission := range crm_permission.extranet_roles[role_id] {
+	for _, permission := range crm_permission.extranet_roles[role_id] {
 		if permission.link == url {
 			return checkActionExtranet(permission, action)
 		}
@@ -235,7 +235,7 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 //получение роли пользователя для Extranet для конкретного отеля
 func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 
-	for hotel,role := range crm_permission.extranet_permissions[user_id] {
+	for hotel, role := range crm_permission.extranet_permissions[user_id] {
 		if hotel == id_hotels {
 			return role
 		}
@@ -243,6 +243,7 @@ func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 
 	return 0
 }
+
 //удаление роли для пользователя в CRM
 func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
 
@@ -253,7 +254,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
-	for key,permission := range crm_permission.crm_permissions_roles[user_id] {
+	for key, permission := range crm_permission.crm_permissions_roles[user_id] {
 		resRow := permission.(map[string]interface{})
 		if resRow["link"].(string) == url {
 			crm_permission.crm_permissions_roles[user_id] = append(crm_permission.crm_permissions_roles[user_id][:key],
@@ -418,7 +419,6 @@ func (crm_permission *cpService) setExtranetUserRoles() error {
 
 	for extranet_user_roles.Next() {
 
-
 		extranet_user_permiss_info := make(map[int]int, 0)
 
 		var id_users, id_roles_list, id_hotels int
@@ -430,7 +430,6 @@ func (crm_permission *cpService) setExtranetUserRoles() error {
 
 		extranet_user_permiss[id_users] = extranet_user_permiss_info
 	}
-
 
 	crm_permission.extranet_permissions = extranet_user_permiss
 

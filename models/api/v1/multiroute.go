@@ -5,9 +5,9 @@
 package api
 
 import (
-	"net/http"
 	"github.com/ruslanBik4/httpgo/views"
 	"io"
+	"net/http"
 )
 
 // @/api/multiroute/?route[]={routes list}

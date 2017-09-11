@@ -55,7 +55,7 @@ func (qb *QueryBuilder) FindTable(name string) *QBTable {
 
 	return nil
 }
-func (table *QBTable) addAllFields()  {
+func (table *QBTable) addAllFields() {
 
 	if len(table.Fields) > 0 {
 		return

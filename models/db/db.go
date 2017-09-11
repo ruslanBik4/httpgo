@@ -9,17 +9,16 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db/multiquery"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
-	"github.com/ruslanBik4/httpgo/models/db/multiquery"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type argsRAW []interface{}
-
 
 func GetParentFieldName(tableName string) (name string) {
 	var listNs FieldsTable
@@ -45,7 +44,6 @@ func GetParentFieldName(tableName string) (name string) {
 var (
 	DigitsValidator = regexp.MustCompile(`^\d+$`)
 )
-
 
 func GetNameTableProps(tableValue, parentTable string) string {
 	var ns FieldsTable
@@ -82,34 +80,36 @@ func checkPOSTParams(r *http.Request) string {
 	return r.FormValue("table")
 
 }
+
 // check field in schema
 func checkField(key string, table *schema.FieldsTable) (field *schema.FieldStructure, indSeparator int, err error) {
 
 	indSeparator = strings.Index(key, ":")
-	fieldName    := key
+	fieldName := key
 	if pos := strings.Index(fieldName, "["); pos > 0 {
-		fieldName = fieldName[: pos]
+		fieldName = fieldName[:pos]
 		logs.DebugLog(fieldName)
 	}
 	if indSeparator > 0 {
 		tableChild := schema.GetFieldsTable(fieldName[:indSeparator])
-		fieldName  = fieldName[ indSeparator + 1: ]
+		fieldName = fieldName[indSeparator+1:]
 		field = tableChild.FindField(fieldName)
 	} else {
 		field = table.FindField(fieldName)
 	}
 
 	if field == nil {
-		return nil, -1, ErrBadParam {Name: fieldName, BadName: " field not in table" + table.Name, FuncName: "DoInsertFromForm"}
+		return nil, -1, ErrBadParam{Name: fieldName, BadName: " field not in table" + table.Name, FuncName: "DoInsertFromForm"}
 	}
 
 	return field, indSeparator, nil
 
 }
+
 //выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
-func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (lastInsertId int, err error) {
+func DoInsertFromForm(r *http.Request, userID string, txConn ...*TxConnect) (lastInsertId int, err error) {
 
 	tableName := checkPOSTParams(r)
 	if len(r.Form) < 3 {
@@ -227,14 +227,14 @@ func DoInsertFromForm(r *http.Request, userID string, txConn ... *TxConnect) (la
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает количество измененных записей
 //TODO: сменить проверку параметров в цикле на предпроверку и добавить связку с схемой БД
-func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (RowsAffected int, err error) {
+func DoUpdateFromForm(r *http.Request, userID string, txConn ...*TxConnect) (RowsAffected int, err error) {
 
 	tableName := checkPOSTParams(r)
 
 	if len(r.Form) < 3 {
 		return -1, errors.New("Count params is less 3!")
 	}
-	idText    := r.FormValue("id")
+	idText := r.FormValue("id")
 	if (tableName == "") && (idText == "") {
 		logs.ErrorLog(errors.New("not table name"))
 		return -1, ErrParamNotFound{Name: "table", FuncName: "DoUpdateFromForm"}
@@ -344,10 +344,12 @@ func DoUpdateFromForm(r *http.Request, userID string, txConn ... *TxConnect) (Ro
 	}
 
 }
+
 // запускаем транзакцию, если в этом есть необходимость
 func startTXforQuery() (*TxConnect, error) {
 	return StartTransaction()
 }
+
 // и закрываем потом (в зависемости от результатов запросов)
 func finishTX(tx *TxConnect, err error) {
 	if err != nil {
@@ -360,7 +362,7 @@ func runMultiQuery(tableIDQueryes *multiquery.MultiQuery, parentId int, tx *TxCo
 	for _, query := range tableIDQueryes.Queryes {
 
 		sql, args := query.GetUpdateSQL(parentId)
-		idQuery, err := tx.DoUpdate(sql, args ...)
+		idQuery, err := tx.DoUpdate(sql, args...)
 		if err != nil {
 			return err
 		}
@@ -451,14 +453,14 @@ func HandlerDBQuery(w http.ResponseWriter, r *http.Request) {
 }
 
 type menuItem struct {
-	Id       int32
-	Name     string
-	ParentID int32
-	Title    string
-	SQL      []byte
-	Link     string
+	Id        int32
+	Name      string
+	ParentID  int32
+	Title     string
+	SQL       []byte
+	Link      string
 	SortOrder int32
-	Elements string
+	Elements  string
 }
 type MenuItems struct {
 	Self  menuItem
@@ -547,6 +549,7 @@ func (menu *menuItem) Scan(rows *sql.Rows) error {
 	return rows.Scan(&menu.Id, &menu.Name, &menu.ParentID, &menu.Title,
 		&menu.SQL, &menu.Link, &menu.SortOrder, &menu.Elements)
 }
+
 // -1 означает, что нет нужного нам пункта в меню
 func (menu *MenuItems) Init(id string) int32 {
 

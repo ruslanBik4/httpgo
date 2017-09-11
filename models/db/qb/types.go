@@ -92,15 +92,16 @@ func (qb *QueryBuilder) AddArgs(args ...interface{}) *QueryBuilder {
 }
 func (qb *QueryBuilder) SetArgs(args ...interface{}) *QueryBuilder {
 	qb.Args = nil
-	qb.AddArgs(args ...)
+	qb.AddArgs(args...)
 
 	return qb
 }
+
 // replace where clause
 func (qb *QueryBuilder) SetWhere(where string) {
 
-	if (qb.sqlCommand > "") {
-		if (qb.Where > "") {
+	if qb.sqlCommand > "" {
+		if qb.Where > "" {
 			qb.sqlCommand = strings.Replace(qb.sqlCommand, qb.Where, where, -1)
 		} else if where > "" {
 			qb.sqlCommand += " WHERE " + where
@@ -113,6 +114,7 @@ func (qb *QueryBuilder) SetWhere(where string) {
 
 	qb.Where = where
 }
+
 // add table with join
 func (qb *QueryBuilder) JoinTable(alias, name, join, usingOrOn string) *QBTable {
 

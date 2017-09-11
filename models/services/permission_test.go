@@ -5,18 +5,18 @@
 package services
 
 import (
-	"testing"
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"testing"
 )
 
 const permissName = "crm_permission"
 
 var (
-	f_static = flag.String("path","/opt/lampp/htdocs/go_src/src/github.com/ruslanBik4/httpgo","path to static files")
-	f_web    = flag.String("web","/opt/lampp/htdocs/travel/web","path to web files")
-	f_session  = flag.String("sessionPath","/opt/lampp/htdocs/go_sessions", "path to store sessions data" )
+	f_static  = flag.String("path", "/opt/lampp/htdocs/go_src/src/github.com/ruslanBik4/httpgo", "path to static files")
+	f_web     = flag.String("web", "/opt/lampp/htdocs/travel/web", "path to web files")
+	f_session = flag.String("sessionPath", "/opt/lampp/htdocs/go_sessions", "path to store sessions data")
 )
 
 func TestPermissSend(t *testing.T) {
@@ -37,14 +37,14 @@ func TestPermissSend(t *testing.T) {
 		return
 	}
 
-	switch err := result.(type){
+	switch err := result.(type) {
 
 	case ErrServiceNotCorrectParamType:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param)
 	case error:
 		t.Error("Not correct error type - " + err.Error())
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
 
@@ -66,10 +66,10 @@ func TestPermissSendExtranet(t *testing.T) {
 		return
 	}
 
-	switch err := result.(type){
+	switch err := result.(type) {
 
 	case ErrServiceNotCorrectParamType:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param)
 	case error:
 		t.Error("Not correct error type - " + err.Error())
 	default:
@@ -95,7 +95,7 @@ func TestPermissSendWrongParam(t *testing.T) {
 		return
 	}
 
-	switch err := result.(type){
+	switch err := result.(type) {
 
 	case ErrServiceNotCorrectParamType:
 		t.Skipped()
@@ -104,7 +104,7 @@ func TestPermissSendWrongParam(t *testing.T) {
 	case error:
 		t.Error("Not correct error type - " + err.Error())
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
 
@@ -120,18 +120,18 @@ func TestPermissGet(t *testing.T) {
 
 	result, sErr := Get(permissName, "crm", 8, "/admin/business/", "Create")
 
-	switch err := sErr.(type){
+	switch err := sErr.(type) {
 
 	case ErrServiceNotEnoughParameter:
 		t.Skipped()
 	case ErrServiceNotCorrectParamType:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param)
 	case nil:
 		t.Skipped()
 		logs.DebugLog("result", result)
 		return
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
 
@@ -147,18 +147,18 @@ func TestPermissGetExtranet(t *testing.T) {
 
 	result, sErr := Get(permissName, "extranet", 8, "/payment_rules", "Delete", 52)
 
-	switch err := sErr.(type){
+	switch err := sErr.(type) {
 
 	case ErrServiceNotEnoughParameter:
 		t.Skipped()
 	case ErrServiceNotCorrectParamType:
-		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param )
+		t.Errorf("Error - %s, parameter #%d - %v", err.Error(), err.Number, err.Param)
 	case nil:
 		t.Skipped()
 		logs.DebugLog("result", result)
 		return
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
 
@@ -174,10 +174,10 @@ func TestPermissGetWrongParam(t *testing.T) {
 
 	result, sErr := Get(permissName, "crm", "8", "/admin/business/", "Create")
 
-	switch err := sErr.(type){
+	switch err := sErr.(type) {
 
 	case ErrServiceNotEnoughParameter:
-		t.Errorf("Error - %s, parameter %s = %v", err.Error(), err.Name, err.Param )
+		t.Errorf("Error - %s, parameter %s = %v", err.Error(), err.Name, err.Param)
 	case ErrServiceNotCorrectParamType:
 		t.Skipped()
 		logs.DebugLog("result", result)
@@ -185,7 +185,6 @@ func TestPermissGetWrongParam(t *testing.T) {
 	case nil:
 		t.Errorf("No error on wrong params count")
 	default:
-		t.Error("Not correct error type - " )
+		t.Error("Not correct error type - ")
 	}
 }
-

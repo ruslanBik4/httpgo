@@ -5,27 +5,27 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
-	"os"
 	"flag"
-	_ "time"
+	"github.com/tebeka/selenium"
 	"log"
-	"time"
+	"os"
 	"strings"
-
+	"time"
+	_ "time"
 )
 
 type currentElem struct {
-	elem selenium.WebElement
+	elem     selenium.WebElement
 	Selector string
 }
+
 var (
 	//command [] tCommand
-	fFileName    = flag.String("filename", "new.sln", "file with css selenium rules")
-	fURL  = flag.String("url", "vps-20777.vps-default-host.net/extranet/", "path to screenshot files")
+	fFileName = flag.String("filename", "new.sln", "file with css selenium rules")
+	fURL      = flag.String("url", "vps-20777.vps-default-host.net/extranet/", "path to screenshot files")
 )
 
-func main()  {
+func main() {
 	defer func() {
 		err := recover()
 		if err, ok := err.(error); ok {
@@ -43,17 +43,16 @@ func main()  {
 	}
 	defer wd.Quit()
 
-	if !strings.HasPrefix( *fURL, "http://") {
+	if !strings.HasPrefix(*fURL, "http://") {
 		*fURL = "http://" + *fURL
 	}
 
-	if err := wd.Get( *fURL ); err != nil {
+	if err := wd.Get(*fURL); err != nil {
 		panic(err)
 	}
 
-
 	ioWriter, err := os.Create(*fFileName)
-	ioWriter.Write([]byte( "url: " + *fURL + "\n"))
+	ioWriter.Write([]byte("url: " + *fURL + "\n"))
 
 	defer ioWriter.Close()
 
@@ -67,13 +66,13 @@ func main()  {
 		$(event.target).addClass("sln_writer").focus();
 		return true;})`, nil)
 	time.Sleep(time.Millisecond * 1000)
-	log.Print( string(resp) )
-	log.Print( wd.Status() )
+	log.Print(string(resp))
+	log.Print(wd.Status())
 	if err != nil {
 		log.Print(err)
 	}
 	for count, url := 0, *fURL; (url > "") && (count < 1000) && (err == nil); url, err = wd.CurrentURL() {
-			wd.AcceptAlert()
+		wd.AcceptAlert()
 		elem, err := wd.FindElement(selenium.ByClassName, "sln_writer")
 		if err != nil {
 			err = nil
@@ -87,19 +86,18 @@ func main()  {
 			activeElem = newElem
 		}
 
-
 	}
-	log.Print( wd.Status() )
+	log.Print(wd.Status())
 }
 
-func saveNewElement(elem selenium.WebElement, url string) (result currentElem, err error){
+func saveNewElement(elem selenium.WebElement, url string) (result currentElem, err error) {
 	var id, tag, name, class, href string
-	var inputFields = map[string] string { "input": "", "select": "", "textarea": "", }
+	var inputFields = map[string]string{"input": "", "select": "", "textarea": ""}
 
 	result.elem = elem
 	id, err = elem.GetAttribute("id")
 	if err != nil {
-		if strings.HasPrefix( err.Error(), "" ) {
+		if strings.HasPrefix(err.Error(), "") {
 
 		} else {
 			panic(err) // panic is used only as an example and is not otherwise recommended.
@@ -111,7 +109,7 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 	}
 	tag, err = elem.TagName()
 	if err == nil {
-		if _, ok := inputFields[ tag ]; ok  {
+		if _, ok := inputFields[tag]; ok {
 			name, err = elem.CSSProperty("name")
 			if err == nil {
 				result.Selector = tag + "[name=" + name + "]"
@@ -120,13 +118,13 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 			href, err = elem.GetAttribute("href")
 			if href > "" {
 				if strings.HasPrefix(href, url) {
-					href =strings.TrimPrefix(href, url)
+					href = strings.TrimPrefix(href, url)
 				}
 				result.Selector = tag + "[href='" + href + "']"
 			}
 		} else {
 			class, err = elem.GetAttribute("class")
-			class      = strings.Replace(class, "sln_writer", "", 0)
+			class = strings.Replace(class, "sln_writer", "", 0)
 			if class > "" {
 				result.Selector = tag + "." + class + "::first"
 			} else {

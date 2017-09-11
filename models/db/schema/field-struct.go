@@ -35,7 +35,7 @@ type FieldStructure struct {
 	COLUMN_COMMENT           string
 	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	PrimaryKey				 bool
+	PrimaryKey               bool
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string
@@ -287,8 +287,7 @@ func convertDatePattern(strDate string) string {
 }
 func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
-	titleFull := COLUMN_COMMENT
-	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
+	COLUMN_COMMENT, fieldStrc.Pattern = cutPartFromTitle(COLUMN_COMMENT, "//", "")
 	if posPattern := strings.Index(COLUMN_COMMENT, "{"); posPattern > 0 {
 
 		dataJson := COLUMN_COMMENT[posPattern:]

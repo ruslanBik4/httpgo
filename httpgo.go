@@ -6,6 +6,9 @@
 package main
 
 import (
+	"bytes"
+	"flag"
+	"fmt"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -20,21 +23,18 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"bytes"
-	"flag"
-	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"os/signal"
-	"net"
 	//"syscall"
 	"os/exec"
 	"plugin"
@@ -70,9 +70,9 @@ var (
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/":          handlerComponents,
-
 	}
 )
+
 // registerRoutes
 // connect routers list ti http.Handle
 func registerRoutes() {
@@ -102,7 +102,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 			logs.ErrorLog(err)
 		}
 	}()
-	if ((info != nil) && info.IsDir()) {
+	if (info != nil) && info.IsDir() {
 		//log.Println(err, info)
 		return nil
 	}
@@ -118,7 +118,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err, routes := symb.(func(MyMux *http.ServeMux) (error, map[string] http.HandlerFunc ) )(MyMux)
+		err, routes := symb.(func(MyMux *http.ServeMux) (error, map[string]http.HandlerFunc))(MyMux)
 		if err != nil {
 			return err
 		}
@@ -140,6 +140,7 @@ type DefaultHandler struct {
 	cache     []string
 	whitelist []string
 }
+
 // NewDefaultHandler create default handler for read static files
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
@@ -286,10 +287,10 @@ func sockCatch() {
 	err := recover()
 	logs.ErrorLog(err.(error))
 }
+
 const _24K = (1 << 10) * 24
 
 func HandleFirebird(w http.ResponseWriter, r *http.Request) {
-
 
 	rows, err := db.FBSelect("SELECT * FROM country_list")
 
@@ -342,14 +343,14 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	err := qBuilder.SelectRunFunc(func(fields []*qb.QBField) error {
 		for idx, field := range fields {
 			if idx > 0 {
-				w.Write( []byte (",") )
+				w.Write([]byte(","))
 			}
 
 			w.Write([]byte(`"` + fields[idx].Alias + `":`))
 			if field.Value == nil {
 				w.Write([]byte("null"))
 			} else {
-				json.WriteElement(w, field.GetNativeValue(true) )
+				json.WriteElement(w, field.GetNativeValue(true))
 			}
 		}
 
@@ -503,6 +504,7 @@ func cacheFiles() {
 	}
 	filepath.Walk(filepath.Join(*fWeb, cachePath), cacheWalk)
 }
+
 // show doc
 // @/godoc/
 func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
@@ -519,11 +521,12 @@ func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			views.RenderInternalError(w, err)
 		} else {
-			views.RenderOutput(w,output)
+			views.RenderOutput(w, output)
 		}
 		http.Redirect(w, r, "http://localhost:6060", http.StatusPermanentRedirect)
 	}
 }
+
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
 
@@ -556,19 +559,19 @@ func init() {
 	logs.StatusLog("Server starting", ServerConfig.StartTime)
 	services.InitServices()
 }
+
 var mainServer *http.Server
 var listener net.Listener
 var MyMux *http.ServeMux
+
 func main() {
 	users.SetSessionPath(*fSession)
 	go cacheFiles()
 
 	fonts.GetPath(fWeb)
 
-
 	logs.StatusLog("Static files found in ", *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
-
 
 	ch := make(chan os.Signal)
 
@@ -581,8 +584,7 @@ func main() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
-    var err error
-
+	var err error
 
 	listener, err = net.Listen("tcp", *fPort)
 	if err != nil {
@@ -592,18 +594,15 @@ func main() {
 	MyMux = http.NewServeMux()
 	registerRoutes()
 	//travel_git.InitPlugin()
-	mainServer =  &http.Server{ Handler: MyMux}
+	mainServer = &http.Server{Handler: MyMux}
 
-
-
-	logs.ErrorLog( mainServer.Serve(listener) )
+	logs.ErrorLog(mainServer.Serve(listener))
 	//logs.Fatal(http.ListenAndServe(*fPort, nil))
 
 }
-func listenOnShutdown(ch <- chan os.Signal) {
+func listenOnShutdown(ch <-chan os.Signal) {
 	//var signShut os.Signal
-	signShut := <- ch
-
+	signShut := <-ch
 
 	mainServer.SetKeepAlivesEnabled(false)
 	listener.Close()

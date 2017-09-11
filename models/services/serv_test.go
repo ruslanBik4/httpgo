@@ -5,8 +5,8 @@
 package services
 
 import (
-	"testing"
 	"net/url"
+	"testing"
 )
 
 func TestConnect(t *testing.T) {
@@ -119,8 +119,6 @@ func TestModSendInsert(t *testing.T) {
 		"11",
 	}
 	a = append(a, result)
-
-
 
 	//result = append(result, config)
 	//result = append(result, a)

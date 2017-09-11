@@ -144,6 +144,7 @@ func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error)
 	}
 
 }
+
 //TODO: добавить запись для мультиполей (setid_)
 func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID string, values []string, id int) (err error) {
 
@@ -200,5 +201,3 @@ func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID
 	return err
 
 }
-
-

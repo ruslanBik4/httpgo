@@ -10,11 +10,11 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/models/services/mongod"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/url"
-	"github.com/ruslanBik4/httpgo/models/services/mongod"
-	"github.com/ruslanBik4/httpgo/models/services"
 )
 
 var (

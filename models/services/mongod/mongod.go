@@ -244,4 +244,3 @@ func GetMongoCollectionConnect(collection string) *mongo.Collection {
 func init() {
 	services.AddService(mongod.name, mongod)
 }
-

@@ -8,10 +8,11 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/system"
+	"io"
 	"net/http"
 	"os/exec"
-	"io"
 )
+
 // @/api/update/?branch={branch}
 // update httpgo & {project} co de from git  & build new version httpgo
 // branch - name git branch
@@ -32,6 +33,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 // @/api/restart/
 // restart service
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
@@ -53,6 +55,7 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("restart server go"))
 	}
 }
+
 // @/api/log/
 // show log httpgo
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
@@ -68,16 +71,17 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderOutput(w, stdoutStderr)
 	}
 }
+
 // @/api/log/errors/
 // show services errors
 func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("journalctl",  "-u", "httpgo")
+	cmd := exec.Command("journalctl", "-u", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdout, err := cmd.Output()
-	if err == nil{
+	if err == nil {
 		var stdin io.WriteCloser
 		cmd := exec.Command("grep", "-oE", "httpgo.*ERROR.*")
 		stdin, err = cmd.StdinPipe()
@@ -105,11 +109,11 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("journalctl",  "-u", "httpgo")
+	cmd := exec.Command("journalctl", "-u", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdout, err := cmd.Output()
-	if err == nil{
+	if err == nil {
 		var stdin io.WriteCloser
 		cmd := exec.Command("grep", "-oE", "httpgo.*STATUS.*")
 		stdin, err = cmd.StdinPipe()
@@ -131,16 +135,17 @@ func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // @/api/log/errors/
 // show services errors
 func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
-	cmd := exec.Command("journalctl",  "-u", "httpgo")
+	cmd := exec.Command("journalctl", "-u", "httpgo")
 	cmd.Dir = ServerConfig.SystemPath()
 
 	stdout, err := cmd.Output()
-	if err == nil{
+	if err == nil {
 		var stdin io.WriteCloser
 		cmd := exec.Command("grep", "-oE", "httpgo.*DEBUG.*")
 		stdin, err = cmd.StdinPipe()
@@ -162,6 +167,7 @@ func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // incremental update
 // @/api/update/source/
 // update httpgo & {project} co de from git  & build new version httpgo
@@ -177,7 +183,7 @@ func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		views.RenderOutput(w, stdoutStderr)
-		arr := [] string {"/api/update/test/", "/api/update/build/", "/api/restart/"}
+		arr := []string{"/api/update/test/", "/api/update/build/", "/api/restart/"}
 		system.WriteAddRescanJS(w, arr)
 	}
 

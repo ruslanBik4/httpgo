@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	_ "errors"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	_ "github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
@@ -22,7 +23,6 @@ import (
 	"net/mail"
 	"strconv"
 	"strings"
-	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
@@ -59,7 +59,7 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 	p := &layouts.MenuOwnerBody{Title: "Menu admina", TopMenu: make(map[string]*layouts.ItemMenu, 0)}
 	var ns db.RecordsTables
 	ns.Rows = make([]db.TableOptions, 0)
-	ns.GetSelectTablesProp("TABLE_SCHEMA=? AND TABLE_NAME in (?, ?, ?) ", "travel", "users", "object", "business" )
+	ns.GetSelectTablesProp("TABLE_SCHEMA=? AND TABLE_NAME in (?, ?, ?) ", "travel", "users", "object", "business")
 	for _, value := range ns.Rows {
 		p.TopMenu[value.TABLE_COMMENT] = &layouts.ItemMenu{Link: "/admin/table/" + value.TABLE_NAME + "/"}
 

@@ -634,7 +634,7 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 		titlePart = defaultStr
 	}
 
-	return titleFull, titlePart
+	return
 }
 
 func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
@@ -723,9 +723,9 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string {
 	}
 	titleFull := field.COLUMN_COMMENT.String
 	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
-	if posPattern := strings.Index(field.COLUMN_COMMENT.String, "{"); posPattern > 0 {
+	if posPattern := strings.Index(titleFull, "{"); posPattern > 0 {
 
-		dataJson := field.COLUMN_COMMENT.String[posPattern:]
+		dataJson := titleFull[posPattern:]
 
 		var properMap map[string]interface{}
 		if err := json.Unmarshal([]byte(dataJson), &properMap); err != nil {
@@ -772,9 +772,9 @@ func (fieldStrc *FieldStructure) GetTitle(field db.FieldStructure) string {
 			}
 		}
 
-		fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String[:posPattern]
+		fieldStrc.COLUMN_COMMENT = titleFull[:posPattern]
 	} else {
-		fieldStrc.COLUMN_COMMENT = field.COLUMN_COMMENT.String
+		fieldStrc.COLUMN_COMMENT = titleFull
 	}
 
 	return fieldStrc.COLUMN_COMMENT
