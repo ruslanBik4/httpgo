@@ -33,6 +33,7 @@ func TestConnect(t *testing.T) {
 			case "second":
 				in <- "close"
 				//close(in)
+				t.Skipped()
 				break
 			default:
 				t.Log(v)
@@ -43,7 +44,6 @@ func TestConnect(t *testing.T) {
 		}
 	}
 
-	t.Skipped()
 
 }
 func TestSend(t *testing.T) {
@@ -94,6 +94,7 @@ func TestModConnect(t *testing.T) {
 			case "second":
 				in <- "close"
 				//close(in)
+				t.Skipped()
 				break
 			default:
 				t.Log(v)
@@ -104,7 +105,6 @@ func TestModConnect(t *testing.T) {
 		}
 	}
 
-	t.Skipped()
 
 }
 

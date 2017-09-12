@@ -6,15 +6,6 @@ import (
 	"strings"
 )
 
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a INNER JOIN BBB b ON a.id = b.id_user"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a LEFT JOIN BBB b ON a.id = b.id_user"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a RIGHT JOIN BBB b ON a.id = b.id_user"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a RIGHT JOIN BBB b ON a.id = b.id_user INNER JOIN CCC c ON a.id = c.id_customer"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a GROUP BY id_user"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a ORDER BY id_user"
-//var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a GROUP BY id_user ORDER BY id_user"
-
 var sqlCommand1 = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name, COUNT(*) count1, COUNT(tab1.*) as count2, COUNT(tab1.min) as count3   FROM AAA a INNER JOIN BBB b ON a.id = b.id_user INNER JOIN CCC c ON b.id = c.id_customer GROUP BY id_user ORDER BY fname, second_name"
 
 //var sql = "SELECT  a.id as id_user, a.group group_id, a.name, a.first_name fname, last_name lname, second_name FROM AAA a"
@@ -27,34 +18,34 @@ const regField = `^\s*(((?P<func_name>[a-zA-Z0-9]*)[(])?[ ]*(((?P<field_table>[a
 const regFrom = `FROM\s*(?P<table>[.a-zA-Z0-9_]*)\s*(?P<table_alias>[a-zA-Z0-9_]*)*\s*`
 const regJoin = "(INNER|LEFT|RIGHT)[ ]*JOIN[ ]*(?P<join_table_name>[.a-zA-Z0-9_]*)[ ]*(?P<join_table_alias>[a-zA-Z0-9_]*)*[ ]*ON[ ]*((?P<on_left_table>[a-zA-Z0-9_]*)[.])+(?P<on_left_field>[a-zA-Z0-9_]*)[ ]*=[ ]*((?P<on_right_table>[a-zA-Z0-9_]*)[.])+(?P<on_right_field>[a-zA-Z0-9_]*)"
 
-type SQLStructure struct {
-	Fields []*SqlField
-	From   *SqlFrom
-	Joins  []*SqlJoin
+type tSQLStructure struct {
+	Fields []*tSqlField
+	From   *tSqlFrom
+	Joins  []*tSqlJoin
 }
-type SqlField struct {
+type tSqlField struct {
 	fun   string
 	table string
 	name  string
 	alias string
 }
-type SqlFrom struct {
+type tSqlFrom struct {
 	tableName  string
 	tableAlias string
 }
-type SqlJoin struct {
+type tSqlJoin struct {
 	tableName  string
 	tableAlias string
-	onLeft     *SqlJoinOn
-	onRight    *SqlJoinOn
+	onLeft     *tSqlJoinOn
+	onRight    *tSqlJoinOn
 }
-type SqlJoinOn struct {
+type tSqlJoinOn struct {
 	tableName string
 	fieldName string
 }
 
 func main() {
-	sqlStructure, ok := Parse(sqlCommand1)
+	sqlStructure, ok := parse(sqlCommand1)
 	if ok {
 		fmt.Println("***** Fields *****")
 		for _, field := range sqlStructure.Fields {
@@ -80,27 +71,27 @@ func main() {
 	}
 }
 
-func Parse(sql string) (*SQLStructure, bool) {
-	fields, ok := GetFields(sql)
+func parse(sql string) (*tSQLStructure, bool) {
+	fields, ok := getFields(sql)
 	if !ok {
 		return nil, false
 	}
-	from, ok := GetFrom(sql)
+	from, ok := getFrom(sql)
 	if !ok {
 		return nil, false
 	}
-	joins, ok := GetJoins(sql)
+	joins, ok := getJoins(sql)
 	if !ok {
 		return nil, false
 	}
-	return &SQLStructure{
+	return &tSQLStructure{
 		Fields: fields,
 		From:   from,
 		Joins:  joins,
 	}, true
 }
 
-func GetFrom(sql string) (*SqlFrom, bool) {
+func getFrom(sql string) (*tSqlFrom, bool) {
 	var compRegEx = regexp.MustCompile(regFrom)
 	var match []string = compRegEx.FindStringSubmatch(sql)
 
@@ -118,14 +109,14 @@ func GetFrom(sql string) (*SqlFrom, bool) {
 	if tableName == "" && tableAlias == "" {
 		return nil, false
 	} else {
-		return &SqlFrom{tableName: tableName, tableAlias: tableAlias}, true
+		return &tSqlFrom{tableName: tableName, tableAlias: tableAlias}, true
 	}
 }
 
-func GetJoins(sql string) ([]*SqlJoin, bool) {
+func getJoins(sql string) ([]*tSqlJoin, bool) {
 	var compRegEx = regexp.MustCompile(regJoin)
 	var match [][]string = compRegEx.FindAllStringSubmatch(sql, -1)
-	var result []*SqlJoin = make([]*SqlJoin, 0)
+	var result []*tSqlJoin = make([]*tSqlJoin, 0)
 	var groupNames []string = compRegEx.SubexpNames()
 	for _, v := range match {
 		if join, ok := getJoin(v, groupNames); ok {
@@ -137,7 +128,7 @@ func GetJoins(sql string) ([]*SqlJoin, bool) {
 	return result, true
 }
 
-func getJoin(join []string, groupNames []string) (*SqlJoin, bool) {
+func getJoin(join []string, groupNames []string) (*tSqlJoin, bool) {
 	var joinTableName string = ""
 	var joinTableAlias string = ""
 	var onLeftTable string = ""
@@ -171,14 +162,14 @@ func getJoin(join []string, groupNames []string) (*SqlJoin, bool) {
 		onRightTable == "" || onRightField == "" {
 		return nil, false
 	} else {
-		return &SqlJoin{
+		return &tSqlJoin{
 			tableName:  joinTableName,
 			tableAlias: joinTableAlias,
-			onLeft: &SqlJoinOn{
+			onLeft: &tSqlJoinOn{
 				tableName: onLeftTable,
 				fieldName: onLeftField,
 			},
-			onRight: &SqlJoinOn{
+			onRight: &tSqlJoinOn{
 				tableName: onRightTable,
 				fieldName: onRightField,
 			},
@@ -186,7 +177,7 @@ func getJoin(join []string, groupNames []string) (*SqlJoin, bool) {
 	}
 }
 
-func GetFields(sql string) ([]*SqlField, bool) {
+func getFields(sql string) ([]*tSqlField, bool) {
 	if fieldsText, ok := getTextSelectFields(sql); ok {
 		if fields, ok := getFields(fieldsText); ok {
 			return fields, ok
@@ -213,24 +204,24 @@ func getTextSelectFields(sql string) (fields string, ok bool) {
 	}
 }
 
-func getFields(textFields string) ([]*SqlField, bool) {
-	var fieldItems []string = strings.Split(textFields, ",")
-	var reg *regexp.Regexp = regexp.MustCompile(regField)
-	var groupNames []string = reg.SubexpNames()
+//func getFields(textFields string) ([]*tSqlField, bool) {
+//	var fieldItems []string = strings.Split(textFields, ",")
+//	var reg *regexp.Regexp = regexp.MustCompile(regField)
+//	var groupNames []string = reg.SubexpNames()
+//
+//	var result []*tSqlField = make([]*tSqlField, 0)
+//	for _, text := range fieldItems {
+//		if field, ok := getField(text, groupNames, reg); ok {
+//			result = append(result, field)
+//		} else {
+//			return nil, false
+//		}
+//	}
+//
+//	return result, true
+//}
 
-	var result []*SqlField = make([]*SqlField, 0)
-	for _, text := range fieldItems {
-		if field, ok := getField(text, groupNames, reg); ok {
-			result = append(result, field)
-		} else {
-			return nil, false
-		}
-	}
-
-	return result, true
-}
-
-func getField(text string, groupNames []string, reg *regexp.Regexp) (*SqlField, bool) {
+func getField(text string, groupNames []string, reg *regexp.Regexp) (*tSqlField, bool) {
 	var fieldNote string = strings.TrimSpace(text)
 	var elements []string = reg.FindStringSubmatch(fieldNote)
 
@@ -265,6 +256,6 @@ func getField(text string, groupNames []string, reg *regexp.Regexp) (*SqlField, 
 	if fieldTableName == "" && fieldName == "" {
 		return nil, false
 	} else {
-		return &SqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}, true
+		return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}, true
 	}
 }

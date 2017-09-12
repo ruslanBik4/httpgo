@@ -142,7 +142,7 @@ func (qb *QueryBuilder) getFields(textFields string) {
 
 }
 
-func (qb *QueryBuilder) getField(text string, groupNames []string) *SqlField {
+func (qb *QueryBuilder) getField(text string, groupNames []string) *tSqlField {
 	var fieldNote string = strings.TrimSpace(text)
 	var elements []string = reg.FindStringSubmatch(fieldNote)
 
@@ -177,6 +177,6 @@ func (qb *QueryBuilder) getField(text string, groupNames []string) *SqlField {
 	if fieldTableName == "" && fieldName == "" {
 		return nil
 	} else {
-		return &SqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}
+		return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}
 	}
 }
