@@ -35,7 +35,7 @@ type FieldStructure struct {
 	COLUMN_COMMENT           string
 	COLUMN_TYPE              string
 	CHARACTER_MAXIMUM_LENGTH int
-	PrimaryKey				 bool
+	PrimaryKey               bool
 	IsHidden                 bool
 	InputType                string
 	CSSClass                 string
@@ -254,17 +254,17 @@ func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
 		for key, value := range mapWhere {
 			enumVal := value.(string)
 			// отбираем параметры типы :имя_поля
-			if i := strings.Index(enumVal, ":"); i > -1 {
-				param := enumVal[i+1:]
-				// считаем, что окончанием параметра могут быть символы ", )"
-				if j := strings.IndexAny(param, ", )"); j > 0 {
-					param = param[:j]
-				}
-				// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-				//if paramField := fieldStrc.Table.FindField(param); paramField == nil {
-				//	continue
-				//}
-			}
+			//if i := strings.Index(enumVal, ":"); i > -1 {
+			//	param := enumVal[i+1:]
+			//	// считаем, что окончанием параметра могут быть символы ", )"
+			//	if j := strings.IndexAny(param, ", )"); j > 0 {
+			//		param = param[:j]
+			//	}
+			//	// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
+			//	//if paramField := fieldStrc.Table.FindField(param); paramField == nil {
+			//	//	continue
+			//	//}
+			//}
 			fieldStrc.Where += comma + key + " " + enumVal
 			comma = " OR "
 
@@ -287,8 +287,7 @@ func convertDatePattern(strDate string) string {
 }
 func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
-	titleFull := COLUMN_COMMENT
-	titleFull, fieldStrc.Pattern = cutPartFromTitle(titleFull, "//", "")
+	COLUMN_COMMENT, fieldStrc.Pattern = cutPartFromTitle(COLUMN_COMMENT, "//", "")
 	if posPattern := strings.Index(COLUMN_COMMENT, "{"); posPattern > 0 {
 
 		dataJson := COLUMN_COMMENT[posPattern:]

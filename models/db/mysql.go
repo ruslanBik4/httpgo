@@ -494,6 +494,7 @@ func DoUpdateFromMap(table string, mapData map[string]interface{}) (RowsAffected
 	RowsAffected, err = DoUpdate(sqlCommand, row...)
 	return RowsAffected, err
 }
+
 // Функция возвращает результат выполнения запроса в заданой структуре
 func PerformSelectQuery(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 

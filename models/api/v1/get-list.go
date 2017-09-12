@@ -5,10 +5,10 @@
 package api
 
 import (
-	"net/http"
-	_ "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/views"
+	_ "github.com/ruslanBik4/httpgo/views/templates/json"
+	"net/http"
 )
 
 // @/api/table/schema/?table={nameTable}
@@ -21,7 +21,7 @@ func HandleListAllList(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			views.RenderInternalError(w, err)
 		} else {
-			views.RenderArrayJSON(w, result.([]map[string] interface{}))
+			views.RenderArrayJSON(w, result.([]map[string]interface{}))
 		}
 		return
 
@@ -31,12 +31,7 @@ func HandleListAllList(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		//for _, name := range result.([]string) {
-			views.RenderStringSliceJSON(w, result.([]string) )
+		views.RenderStringSliceJSON(w, result.([]string))
 		//}
 	}
-}
-
-func init()  {
-	http.HandleFunc("/api/v1/list/", HandleListAllList )
-
 }

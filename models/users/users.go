@@ -13,15 +13,15 @@ import (
 	"fmt"
 	"hash/crc32"
 	"io/ioutil"
-	"net/mail"
 	"net/http"
+	"net/mail"
 	"os"
 	"strconv"
 	//"gopkg.in/gomail.v2"
 	"github.com/gorilla/sessions"
+	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/system"
-	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
@@ -35,7 +35,7 @@ const nameSession = "PHPSESSID"
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
-	F_test = flag.Bool("test", false, "test mode")
+	F_test            = flag.Bool("test", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
@@ -87,10 +87,16 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-
+	if err != nil {
+		logs.ErrorLog(err, "access_token")
+		return
+	}
 	defer response.Body.Close()
-	contents, err := ioutil.ReadAll(response.Body)
-	fmt.Fprintf(w, "Content: %s\n", contents)
+	if contents, err := ioutil.ReadAll(response.Body); err != nil {
+		logs.ErrorLog(err, "read_token")
+	} else {
+		fmt.Fprintf(w, "Content: %s\n", contents)
+	}
 }
 
 type UserRecord struct {
@@ -120,14 +126,12 @@ func IsLogin(r *http.Request) string {
 	if session == nil {
 		panic(http.ErrNotSupported)
 	}
-	if userID, ok := session.Values["id"]; ok {
-
-		return strconv.Itoa(userID.(int))
-	} else {
+	userID, ok := session.Values["id"]
+	if !ok {
 		panic(system.ErrNotLogin{Message: "not login user!"})
 	}
 
-	return ""
+	return strconv.Itoa(userID.(int))
 }
 func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	session := GetSession(r, nameSession)
@@ -247,6 +251,7 @@ func HashPassword(password string) interface{} {
 	crc32q := crc32.MakeTable(0xD5828281)
 	return crc32.Checksum([]byte(password), crc32q)
 }
+
 const _2K = (1 << 10) * 2
 
 // @/user/signup/
@@ -259,7 +264,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 
 	var args []interface{}
 
-	JSON := make(map[string] interface{}, 4)
+	JSON := make(map[string]interface{}, 4)
 
 	sql, comma, values := "insert into users (", "", ") values ("
 
@@ -284,7 +289,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 		values += comma + "?"
 		// получаем кеш
 		args = append(args, HashPassword(password))
-		JSON["id"], err = 	db.DoInsert(sql+values+")", args...)
+		JSON["id"], err = db.DoInsert(sql+values+")", args...)
 		if err == nil {
 			// проверка корректности email
 			if _, err := mail.ParseAddress(email); err == nil {

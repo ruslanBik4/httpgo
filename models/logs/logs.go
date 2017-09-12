@@ -22,7 +22,7 @@ var F_status = flag.Bool("status", true, "status mode")
 
 //var l =
 //DebugLog( args ...interface{}) - output formated(function and line calls) debug information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote requred args
+//@version 1.1 2017-05-31 Sergey Litvinov - Remote required args
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
@@ -45,11 +45,11 @@ func StatusLog(args ...interface{}) {
 }
 
 //ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
+//@version 1.1 2017-05-31 Sergey Litvinov - Remote required advanced arg
 func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	calldepth   := 2
+	calldepth := 2
 
 	funcName := changeShortName(runtime.FuncForPC(pc).Name())
 	if funcName == "views.RenderInternalError" {
@@ -64,7 +64,7 @@ func ErrorLog(err error, args ...interface{}) {
 }
 
 //ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote requred advanced arg
+//@version 1.1 2017-05-31 Sergey Litvinov - Remote required advanced arg
 func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(6)
@@ -88,7 +88,7 @@ func ErrorStack() {
 		if funcName == "views.RenderInternalError" {
 			continue
 		}
-		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName) )
+		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName))
 	}
 }
 

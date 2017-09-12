@@ -5,13 +5,15 @@
 package db
 
 import (
-	_ "github.com/nakagami/firebirdsql"
 	"database/sql"
+	_ "github.com/nakagami/firebirdsql"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
+
 var (
 	fbConn *sql.DB
 )
+
 func fbConnect() (err error) {
 	if fbConn != nil {
 		return nil
@@ -31,6 +33,6 @@ func FBSelect(sql string, args ...interface{}) (rows *sql.Rows, err error) {
 		return nil, err
 	}
 
-	return fbConn.Query(sql, args ...)
+	return fbConn.Query(sql, args...)
 
 }

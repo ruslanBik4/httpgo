@@ -14,22 +14,22 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
 	//	"views/templates/layouts/common"
-	"github.com/ruslanBik4/httpgo/models/db/qb"
-	"io"
 	"bytes"
+	"fmt"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"github.com/ruslanBik4/httpgo/models/server"
+	"io"
 	"strings"
 	"time"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"fmt"
 )
 
 //noinspection GoInvalidConstType
 var HEADERS = map[string]string{
-	"Content-Type": "text/html; charset=utf-8",
-	"author":       "uStudio",
-	"Server":       "HTTPGO/0.1 (CentOS) Go 1.8.3",
+	"Content-Type":     "text/html; charset=utf-8",
+	"author":           "uStudio",
+	"Server":           "HTTPGO/0.1 (CentOS) Go 1.8.3",
 	"Content-Language": "en, ru",
-	"Age"   :        fmt.Sprintf("%f", time.Since( server.GetServerConfig().StartTime ).Seconds() ),
+	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
 
 func WriteHeaders(w http.ResponseWriter) {
@@ -54,6 +54,7 @@ func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWri
 	}
 
 }
+
 // deprecate
 //TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
@@ -66,7 +67,7 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 }
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
 
-	signForm := &forms.SignForm{ Email: email, Password: "Введите пароль, полученный по почте"}
+	signForm := &forms.SignForm{Email: email, Password: "Введите пароль, полученный по почте"}
 	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
 }
 func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
@@ -78,22 +79,23 @@ func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder
 	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder))
 }
 
-type ParamNotCorrect map[string] string
+type ParamNotCorrect map[string]string
 
 // render errors
 
 // func get list params thoese not found in request
-func RenderNotParamsInPOST(w http.ResponseWriter, params ... string) {
-	http.Error(w, strings.Join(params, ",") + ": not found", http.StatusBadRequest)
+func RenderNotParamsInPOST(w http.ResponseWriter, params ...string) {
+	http.Error(w, strings.Join(params, ",")+": not found", http.StatusBadRequest)
 
 }
+
 // return header "BADREQUEST" & descriptors bad params
-func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
+func RenderBadRequest(w http.ResponseWriter, params ...ParamNotCorrect) {
 
 	description, comma := "", ""
 	for _, param := range params {
 		description += comma
-		for key, value := range param{
+		for key, value := range param {
 			description += key + "=" + value
 		}
 
@@ -102,6 +104,7 @@ func RenderBadRequest(w http.ResponseWriter, params ... ParamNotCorrect) {
 
 	http.Error(w, description, http.StatusBadRequest)
 }
+
 // для отдачи и записи в лог паники системы при работе хендлеров
 func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -178,6 +181,7 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 		head += layouts.DadataHead()
 		foot += layouts.DadataScript(Inputs)
 	}
+	//TODO: replace on stream buffer function
 	RenderAnyPage(w, r, head+layouts.PutHeadForm()+fields.ShowAnyForm("/admin/exec/", Title)+layouts.PutEndForm()+foot)
 
 	return nil
@@ -224,6 +228,7 @@ func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.Form
 	WriteJSONHeaders(w)
 	form.WriteJSONAnyForm(w, fields, AddJson)
 }
+
 // render for output file execute
 func RenderOutput(w http.ResponseWriter, stdoutStderr []byte) {
 

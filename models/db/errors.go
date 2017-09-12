@@ -8,19 +8,19 @@ package db
 const MessParamNotFound = "Param not found:"
 
 type ErrParamNotFound struct {
-	Name string
+	Name     string
 	FuncName string
 }
 
 func (err ErrParamNotFound) Error() string {
-	return  MessParamNotFound + err.Name
+	return MessParamNotFound + err.Name
 }
 
 const MessBadParam = "Bad value in params:"
 
 type ErrBadParam struct {
-	Name string
-	BadName string
+	Name     string
+	BadName  string
 	FuncName string
 }
 

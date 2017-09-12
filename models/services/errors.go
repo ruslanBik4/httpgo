@@ -13,6 +13,7 @@ type ErrServiceNotFound struct {
 func (err ErrServiceNotFound) Error() string {
 	return err.Name + MessServNotFound
 }
+
 const MessServNotReady = " service not ready to operation"
 
 type ErrServiceNotReady struct {

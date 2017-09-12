@@ -5,10 +5,9 @@
 package api
 
 import (
-	"net/http"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/views"
 	"io"
+	"net/http"
 )
 
 // @/api/multiroute/?route[]={routes list}
@@ -40,8 +39,4 @@ func HandleMultiRouteJSON(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write([]byte("}"))
 
-}
-
-func init() {
-	http.HandleFunc("/api/v1/multiroute/", system.WrapCatchHandler(HandleMultiRouteJSON))
 }

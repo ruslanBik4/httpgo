@@ -8,11 +8,11 @@ package fonts
 
 import (
 	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/views"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"os"
-	"github.com/ruslanBik4/httpgo/views"
+	"strings"
 )
 
 var PathWeb string
@@ -29,10 +29,12 @@ func contains(array []string, str string) bool {
 
 	return false
 }
-var fontTypes = map[string] string {
-	"ttf" : "font-sfnt",
-	"woff" : "x-woff",
+
+var fontTypes = map[string]string{
+	"ttf":  "font-sfnt",
+	"woff": "x-woff",
 }
+
 // push font for some browser
 // @/fonts/{font_name}
 func HandleGetFont(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +70,8 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 
 }
+
 // set header on font type
 func setHeaderFromFontType(w http.ResponseWriter, ext string) {
-	w.Header().Set("Content-Type", "mime/type: font/" + fontTypes[ext[:1]])
+	w.Header().Set("Content-Type", "mime/type: font/"+fontTypes[ext[:1]])
 }

@@ -64,29 +64,29 @@ func (permissions *pService) Send(messages ...interface{}) error {
 }
 func (permissions *pService) Get(messages ...interface{}) (interface{}, error) {
 
-	responce := make(map[string]bool)
+	response := make(map[string]bool)
 	for _, message := range messages {
 		switch mess := message.(type) {
 		case map[string]string:
 			for key, val := range mess {
 				pRole, ok := permissions.Rows[key]
-				responce[key] = ok
+				response[key] = ok
 				log.Println(val, pRole)
 			}
 		case []interface{}:
 			log.Println(mess)
 			continue
 		case string:
-			responce[mess] = true
+			response[mess] = true
 		default:
 			log.Println(mess)
-			responce["Unknow type"] = false
+			response["Unknow type"] = false
 
 		}
 
 	}
 
-	return responce, nil
+	return response, nil
 }
 func (permissions *pService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 	out = make(chan interface{})

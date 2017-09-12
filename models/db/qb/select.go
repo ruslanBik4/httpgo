@@ -20,6 +20,7 @@ func SelectToMultidimension(sql string, args ...interface{}) (arrJSON []map[stri
 	return qBuilder.SelectToMultidimension()
 }
 
+// create SQL-query from qBuilder components
 func (qb *QueryBuilder) createSQL() (sql string, err error) {
 
 	commaTbl, commaFld := "", ""
@@ -66,35 +67,60 @@ func (qb *QueryBuilder) createSQL() (sql string, err error) {
 		}
 	}
 
-	sql += qb.getWhere()
-
-	if qb.union != nil {
-		sql += qb.unionSQL()
-	}
-	if qb.GroupBy > "" {
-		sql += " GROUP BY " + qb.GroupBy
-	}
-	if qb.OrderBy > "" {
-		sql += " ORDER BY " + qb.OrderBy
-	}
-	if qb.Limits > "" {
-		sql += " LIMIT " + qb.Limits
-	}
+	sql += qb.getWhere() + qb.unionSQL() + qb.GroupBy + qb.OrderBy + qb.Limits
 
 	return "SELECT " + qb.sqlSelect + " FROM " + qb.sqlFrom + sql, nil
 
 }
+func (qb *QueryBuilder) getGroupBy() string {
+	const GroupByPref = "GROUP BY"
+	if qb.GroupBy > "" {
+		if strings.Contains(qb.GroupBy, GroupByPref) {
+			return qb.GroupBy
+		} else {
+			return " " + GroupByPref + " " + qb.GroupBy
+		}
+	}
+	return ""
+}
+func (qb *QueryBuilder) getOrderBy() string {
+	const OrderByPref = "ORDER BY"
+	if qb.OrderBy > "" {
+		if strings.Contains(qb.OrderBy, OrderByPref) {
+			return qb.OrderBy
+		} else {
+			return " " + OrderByPref + " " + qb.OrderBy
+		}
+	}
+	return ""
+}
+func (qb *QueryBuilder) getLimits() string {
+	const OrderByPref = "LIMIT"
+	if qb.Limits > "" {
+		if strings.Contains(qb.OrderBy, OrderByPref) {
+			return qb.Limits
+		} else {
+			return " " + OrderByPref + " " + qb.Limits
+		}
+	}
+	return ""
+}
+
 func (qb *QueryBuilder) getWhere() string {
+	const WherePref = "LIMIT"
 	if qb.Where > "" {
-		if strings.Contains(qb.Where, "WHERE") {
+		if strings.Contains(qb.Where, WherePref) {
 			return qb.Where
 		} else {
-			return " WHERE " + qb.Where
+			return " " + WherePref + " " + qb.Where
 		}
 	}
 	return ""
 }
 func (qb *QueryBuilder) unionSQL() string {
+	if qb.union == nil {
+		return ""
+	}
 	var qFields, qFrom string
 
 	commaTbl, commaFld := "", ""
@@ -144,6 +170,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	return qb.Prepared.Query(qb.Args...)
 }
+
 // обход результатов запроса и передача callback func данных каждой строки для обработки
 func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) error {
 

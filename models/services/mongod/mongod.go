@@ -159,14 +159,14 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 		case "All":
 			switch args[3].(type) {
 			case bson.M:
-				responce := make([]interface{}, 0)
-				err := cConnect.Find(args[3]).All(&responce)
+				response := make([]interface{}, 0)
+				err := cConnect.Find(args[3]).All(&response)
 
 				if err != nil {
 					return nil, err
 				}
 
-				return responce, nil
+				return response, nil
 
 			default:
 				return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
@@ -174,14 +174,14 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 		case "One":
 			switch args[3].(type) {
 			case bson.M:
-				var responce interface{}
-				err := cConnect.Find(args[3]).One(&responce)
+				var response interface{}
+				err := cConnect.Find(args[3]).One(&response)
 
 				if err != nil {
 					return nil, err
 				}
 
-				return responce, nil
+				return response, nil
 
 			default:
 				return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
@@ -244,4 +244,3 @@ func GetMongoCollectionConnect(collection string) *mongo.Collection {
 func init() {
 	services.AddService(mongod.name, mongod)
 }
-

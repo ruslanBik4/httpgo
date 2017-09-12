@@ -7,16 +7,16 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	viewsSystem "github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
-	_ "strings"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"strconv"
 	"net/url"
+	"strconv"
 	"strings"
+	_ "strings"
 )
 
 const _2K = (1 << 10) * 2
@@ -47,7 +47,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	qBuilder := qb.Create("id=?", "", "")
 	// инши параметры могут быть использованы для суррогатных (вложенных) полей
 	qBuilder.PostParams = r.Form
-	addFieldsFromPost( qBuilder.AddTable("", tableName), r.Form )
+	addFieldsFromPost(qBuilder.AddTable("", tableName), r.Form)
 
 	addJSON := make(map[string]interface{}, 0)
 	if id := r.FormValue("id"); id > "" {
@@ -64,6 +64,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
 }
+
 // @/api/table/schema/?table={nameTable}
 // показ структуры таблицы nameTable
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
@@ -72,12 +73,14 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	} else {
 		views.WriteHeaders(w)
-		viewsSystem.WriteShowSchema( w, table.(*schema.FieldsTable) )
+		viewsSystem.WriteShowSchema(w, table.(*schema.FieldsTable))
 	}
 
 }
+
 var wOut http.ResponseWriter
 var comma string
+
 // read rows and store in JSON
 func PutRowToJSON(fields []*qb.QBField) error {
 	// обрамление объекта в JSON
@@ -89,7 +92,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 
 	for idx, field := range fields {
 		if idx > 0 {
-			wOut.Write( []byte (",") )
+			wOut.Write([]byte(","))
 		}
 
 		wOut.Write([]byte(`"` + field.Alias + `":`))
@@ -119,7 +122,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 						// del field into select
 						_, ok := field.ChildQB.Tables[0].Fields[param]
 						if ok {
-							delete( field.ChildQB.Tables[0].Fields, param)
+							delete(field.ChildQB.Tables[0].Fields, param)
 						}
 					}
 
@@ -144,19 +147,20 @@ func PutRowToJSON(fields []*qb.QBField) error {
 			if field.SelectValues == nil {
 				field.GetSelectedValues()
 			}
-			value, err := strconv.Atoi( string(field.Value) )
+			value, err := strconv.Atoi(string(field.Value))
 			if err != nil {
 				logs.ErrorLog(err, "convert RawBytes ", field.Value)
 				return err
 			}
-			json.WriteElement(wOut, field.SelectValues[value] )
+			json.WriteElement(wOut, field.SelectValues[value])
 		} else {
-			json.WriteElement(wOut, field.GetNativeValue(true) )
+			json.WriteElement(wOut, field.GetNativeValue(true))
 		}
 	}
 
 	return nil
 }
+
 // @/api/table/view/?table={nameTable}& other field in this table
 // return field with text values for show in site
 
@@ -203,7 +207,7 @@ func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, ar
 		if key == "table" {
 			continue
 		}
-		if (table.FindField(key) == nil) {
+		if table.FindField(key) == nil {
 			logs.StatusLog(key, value)
 			continue
 		}
@@ -224,6 +228,7 @@ func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, ar
 	}
 	return where, args
 }
+
 // @/api/table/row/?table={nameTable}&id={id}
 // return row from nameTable from key=id
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
@@ -235,7 +240,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	if (tableName > "") && (id > "") {
 		qBuilder := qb.Create("id=?", "", "")
 		qBuilder.PostParams = r.Form
-		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
+		addFieldsFromPost(qBuilder.AddTable("a", tableName), r.Form)
 		qBuilder.AddArg(id)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
@@ -247,6 +252,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderNotParamsInPOST(w, "table", "id")
 	}
 }
+
 // @/api/table/rows/?table={nameTable}
 // return all rows from nameTable
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +263,7 @@ func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 	if tableName > "" {
 		qBuilder := qb.Create("", "", "")
 		qBuilder.PostParams = r.Form
-		addFieldsFromPost( qBuilder.AddTable("a", tableName), r.Form )
+		addFieldsFromPost(qBuilder.AddTable("a", tableName), r.Form)
 		arrJSON, err := qBuilder.SelectToMultidimension()
 		if err != nil {
 			views.RenderInternalError(w, err)

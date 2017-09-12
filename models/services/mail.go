@@ -6,23 +6,23 @@
 package services
 
 import (
+	"errors"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"gopkg.in/gomail.v2"
+	"gopkg.in/yaml.v2"
 	netMail "net/mail"
 	"os"
-	"errors"
 	"path/filepath"
-	"gopkg.in/yaml.v2"
 )
 
 type mailService struct {
-	name   string
-	status string
+	name    string
+	status  string
 	mConfig struct {
 		Server   string `yaml:"smtp-server"`
 		Email    string `yaml:"email"`
 		Password string `yaml:"password"`
-		Port     int `yaml:"port"`
+		Port     int    `yaml:"port"`
 	}
 }
 type Mail struct {
@@ -121,7 +121,7 @@ func (mailServ *mailService) SendMail(mail *Mail) error {
 	return nil
 }
 
-func (mailServ *mailService) Get(messages ...interface{}) (responce interface{}, err error) {
+func (mailServ *mailService) Get(messages ...interface{}) (response interface{}, err error) {
 	return nil, nil
 
 }

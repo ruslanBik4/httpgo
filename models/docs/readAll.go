@@ -6,11 +6,11 @@ import (
 )
 
 func GetPlainText(fileName string) string {
-	if responce, err := docconv.ConvertPath(fileName); err != nil {
+	if response, err := docconv.ConvertPath(fileName); err != nil {
 		logs.ErrorLog(err)
 		return ""
 	} else {
-		return responce.Body
+		return response.Body
 	}
 
 }

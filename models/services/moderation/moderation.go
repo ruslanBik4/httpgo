@@ -10,11 +10,11 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/models/services/mongod"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net/url"
-	"github.com/ruslanBik4/httpgo/models/services/mongod"
-	"github.com/ruslanBik4/httpgo/models/services"
 )
 
 var (
@@ -165,15 +165,15 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 	//cConnect := moderation.connect.DB("newDB").C(getData.Config["table"])
 	cConnect := mongod.GetMongoCollectionConnect(getData.Config["table"])
 
-	responce := Struct{}
+	response := Struct{}
 
-	err := cConnect.Find(bson.M{"key": getData.Config["key"]}).One(&responce)
+	err := cConnect.Find(bson.M{"key": getData.Config["key"]}).One(&response)
 
 	if err != nil {
 		return nil, err
 	}
 
-	data := FromGOB64(responce.Data)
+	data := FromGOB64(response.Data)
 
 	return data, nil
 }

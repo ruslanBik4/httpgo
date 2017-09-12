@@ -6,11 +6,13 @@
 package main
 
 import (
+	"bytes"
+	"flag"
+	"fmt"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
-	_ "github.com/ruslanBik4/httpgo/models/docs"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/services"
@@ -21,24 +23,22 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"bytes"
-	"flag"
-	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"os/signal"
-	"net"
-	"syscall"
+	//"syscall"
 	"os/exec"
 	"plugin"
+	"syscall"
 )
 
 //go:generate qtc -dir=views/templates
@@ -70,32 +70,39 @@ var (
 		//"/user/oauth/":    users.HandlerQauth2,
 		"/user/GoogleCallback/": users.HandleGoogleCallback,
 		"/components/":          handlerComponents,
-
 	}
 )
+
 // registerRoutes
 // connect routers list ti http.Handle
 func registerRoutes() {
-	http.Handle("/", NewDefaultHandler())
-	for route, fnc := range routes {
-		http.HandleFunc(route, system.WrapCatchHandler(fnc))
-	}
-	admin.RegisterRoutes()
 	defer func() {
 		err := recover()
 		if err, ok := err.(error); ok {
 			logs.ErrorLog(err)
 		}
 	}()
-	err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin)
-	if err != nil {
+	MyMux.Handle("/", NewDefaultHandler())
+	for route, fnc := range routes {
+		MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+	}
+	admin.RegisterRoutes()
+
+	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
 		logs.ErrorLog(err)
 	}
+	logs.StatusLog("httpgo", MyMux)
 
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
 
-	if ((info != nil) && info.IsDir()) {
+	defer func() {
+		err := recover()
+		if err, ok := err.(error); ok {
+			logs.ErrorLog(err)
+		}
+	}()
+	if (info != nil) && info.IsDir() {
 		//log.Println(err, info)
 		return nil
 	}
@@ -111,7 +118,16 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err = symb.(func() error)()
+		err, routes := symb.(func(MyMux *http.ServeMux) (error, map[string]http.HandlerFunc))(MyMux)
+		if err != nil {
+			return err
+		}
+		for route, fnc := range routes {
+			MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+			fnc(nil, nil)
+		}
+	} else {
+		logs.ErrorLog(err)
 	}
 
 	return err
@@ -124,6 +140,7 @@ type DefaultHandler struct {
 	cache     []string
 	whitelist []string
 }
+
 // NewDefaultHandler create default handler for read static files
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
@@ -218,7 +235,7 @@ func handlerComponents(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// считываем файлы типа css/js ect в память и потом отдаем из нее
+// считываем файлы типа css/js etc в память и потом отдаем из нее
 func setCache(path string, data []byte) {
 	cacheMu.Lock()
 	cache[path] = data
@@ -270,10 +287,10 @@ func sockCatch() {
 	err := recover()
 	logs.ErrorLog(err.(error))
 }
+
 const _24K = (1 << 10) * 24
 
 func HandleFirebird(w http.ResponseWriter, r *http.Request) {
-
 
 	rows, err := db.FBSelect("SELECT * FROM country_list")
 
@@ -288,7 +305,7 @@ func HandleFirebird(w http.ResponseWriter, r *http.Request) {
 				views.RenderInternalError(w, err)
 				break
 			}
-			fmt.Fprintf(w, "id=%i, title =%s", id, title)
+			fmt.Fprintf(w, "id=%d, title =%s", id, title)
 
 		}
 	}
@@ -326,14 +343,14 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	err := qBuilder.SelectRunFunc(func(fields []*qb.QBField) error {
 		for idx, field := range fields {
 			if idx > 0 {
-				w.Write( []byte (",") )
+				w.Write([]byte(","))
 			}
 
 			w.Write([]byte(`"` + fields[idx].Alias + `":`))
 			if field.Value == nil {
 				w.Write([]byte("null"))
 			} else {
-				json.WriteElement(w, field.GetNativeValue(true) )
+				json.WriteElement(w, field.GetNativeValue(true))
 			}
 		}
 
@@ -347,45 +364,45 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("}"))
 	return
 
-	qBuilder = qb.Create("hs.id_hotels=?", "", "")
-
-	qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list").AddField("", "id_hotels")
-	qBuilder.Join("sl", "services_list", "ON (sl.id = hs.id_services_list)").AddField("", "id_services_category_list")
-
-	//qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
-
-	qBuilder.AddArg(r.FormValue("id_hotels"))
-	arrJSON, err := qBuilder.SelectToMultidimension()
-
-	if err != nil {
-		logs.ErrorLog(err)
-		return
-	}
-
-	views.RenderArrayJSON(w, arrJSON)
-	return
-	//qBuilder := qb.Create("", "", "")
-
-	logs.DebugLog(r)
-	r.ParseMultipartForm(_24K)
-	for _, headers := range r.MultipartForm.File {
-		for _, header := range headers {
-			var err interface{}
-			inFile, _ := header.Open()
-
-			err = services.Send("photos", "save", header.Filename, inFile)
-			if err != nil {
-				switch err.(type) {
-				case services.ErrServiceNotCorrectOperation:
-					logs.ErrorLog(err.(error))
-				}
-				w.Write([]byte(err.(error).Error()))
-
-			} else {
-				w.Write([]byte("Succesfull"))
-			}
-		}
-	}
+	//qBuilder = qb.Create("hs.id_hotels=?", "", "")
+	//
+	//qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list").AddField("", "id_hotels")
+	//qBuilder.Join("sl", "services_list", "ON (sl.id = hs.id_services_list)").AddField("", "id_services_category_list")
+	//
+	////qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
+	//
+	//qBuilder.AddArg(r.FormValue("id_hotels"))
+	//arrJSON, err := qBuilder.SelectToMultidimension()
+	//
+	//if err != nil {
+	//	logs.ErrorLog(err)
+	//	return
+	//}
+	//
+	//views.RenderArrayJSON(w, arrJSON)
+	//return
+	////qBuilder := qb.Create("", "", "")
+	//
+	//logs.DebugLog(r)
+	//r.ParseMultipartForm(_24K)
+	//for _, headers := range r.MultipartForm.File {
+	//	for _, header := range headers {
+	//		var err interface{}
+	//		inFile, _ := header.Open()
+	//
+	//		err = services.Send("photos", "save", header.Filename, inFile)
+	//		if err != nil {
+	//			switch err.(type) {
+	//			case services.ErrServiceNotCorrectOperation:
+	//				logs.ErrorLog(err.(error))
+	//			}
+	//			w.Write([]byte(err.(error).Error()))
+	//
+	//		} else {
+	//			w.Write([]byte("Succesfull"))
+	//		}
+	//	}
+	//}
 
 }
 
@@ -487,6 +504,7 @@ func cacheFiles() {
 	}
 	filepath.Walk(filepath.Join(*fWeb, cachePath), cacheWalk)
 }
+
 // show doc
 // @/godoc/
 func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
@@ -503,11 +521,12 @@ func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			views.RenderInternalError(w, err)
 		} else {
-			views.RenderOutput(w,output)
+			views.RenderOutput(w, output)
 		}
 		http.Redirect(w, r, "http://localhost:6060", http.StatusPermanentRedirect)
 	}
 }
+
 // rereads files to cache directive
 func handlerRecache(w http.ResponseWriter, r *http.Request) {
 
@@ -540,50 +559,50 @@ func init() {
 	logs.StatusLog("Server starting", ServerConfig.StartTime)
 	services.InitServices()
 }
+
 var mainServer *http.Server
 var listener net.Listener
+var MyMux *http.ServeMux
+
 func main() {
 	users.SetSessionPath(*fSession)
 	go cacheFiles()
 
 	fonts.GetPath(fWeb)
 
-
 	logs.StatusLog("Static files found in ", *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
 
-	registerRoutes()
-
 	ch := make(chan os.Signal)
 
-	KillSignal := syscall.SIGTTIN
+	KillSignal := syscall.Signal(15)
+	//syscall.SIGTTIN
 	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
-	//go listenOnShutdown(ch)
+	go listenOnShutdown(ch)
 
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
-    //var err error
+	var err error
 
-	//
-	//listener, err = net.Listen("tcp", *fPort)
-	//if err != nil {
-	//	logs.Fatal(err)
-	//}
+	listener, err = net.Listen("tcp", *fPort)
+	if err != nil {
+		logs.Fatal(err)
+	}
 
-	//mainServer =  &http.Server{ Handler: http.DefaultServeMux}
-	//
-	//
-	//
-	//logs.ErrorLog( mainServer.Serve(listener) )
-	logs.Fatal(http.ListenAndServe(*fPort, nil))
+	MyMux = http.NewServeMux()
+	registerRoutes()
+	//travel_git.InitPlugin()
+	mainServer = &http.Server{Handler: MyMux}
+
+	logs.ErrorLog(mainServer.Serve(listener))
+	//logs.Fatal(http.ListenAndServe(*fPort, nil))
 
 }
-func listenOnShutdown(ch <- chan os.Signal) {
+func listenOnShutdown(ch <-chan os.Signal) {
 	//var signShut os.Signal
-	signShut := <- ch
-
+	signShut := <-ch
 
 	mainServer.SetKeepAlivesEnabled(false)
 	listener.Close()

@@ -28,6 +28,7 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 
 	return nil
 }
+
 // fill surrogate field property for API
 // TODO: заменить строки имена таблиц на ссылку на схему
 func (table *FieldsTable) FillSurroggateFields(tableName string) {

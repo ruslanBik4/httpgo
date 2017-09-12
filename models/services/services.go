@@ -13,14 +13,14 @@ import (
 type IService interface {
 	Init() error
 	Send(messages ...interface{}) error
-	Get(messages ...interface{}) (responce interface{}, err error)
+	Get(messages ...interface{}) (response interface{}, err error)
 	Connect(in <-chan interface{}) (out chan interface{}, err error)
 	Close(out chan<- interface{}) error
 	Status() string
 }
 
 type rootServices struct {
-	services map[string] IService
+	services map[string]IService
 }
 
 var sServices = &rootServices{services: make(map[string]IService, 0)}
@@ -77,7 +77,7 @@ func Send(name string, messages ...interface{}) (err error) {
 
 	return pService.Send(messages...)
 }
-func Get(name string, messages ...interface{}) (responce interface{}, err error) {
+func Get(name string, messages ...interface{}) (response interface{}, err error) {
 
 	pService := getService(name)
 	if pService == nil {

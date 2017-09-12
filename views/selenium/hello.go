@@ -6,12 +6,12 @@ package main
 
 import (
 	"github.com/tebeka/selenium"
-	"time"
 	"log"
 	"strings"
+	"time"
 )
 
-func main()  {
+func main() {
 
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
@@ -57,14 +57,14 @@ func main()  {
 		panic(err)
 	}
 
-    link, err := btn.GetAttribute("href")
+	link, err := btn.GetAttribute("href")
 	if err != nil {
 		log.Print("href")
 		panic(err)
 	}
 	pos := strings.Index(link, "#")
 	link = link[pos:]
-	btn, err = wd.FindElement(selenium.ByCSSSelector,  link + " > div > ul > li:nth-child(1) > a")
+	btn, err = wd.FindElement(selenium.ByCSSSelector, link+" > div > ul > li:nth-child(1) > a")
 	if err != nil {
 		log.Print("href")
 		panic(err)

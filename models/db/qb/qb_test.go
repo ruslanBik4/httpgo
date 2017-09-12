@@ -17,7 +17,6 @@ func TestQBCreate(t *testing.T) {
 
 	status := services.Status("schema")
 
-
 	for i := 0; (status != "ready") && (i < 1000); status = services.Status("schema") {
 		time.Sleep(5)
 		i++

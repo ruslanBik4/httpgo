@@ -45,7 +45,7 @@ func CreateFromSQL(sqlCommand string) *QueryBuilder {
 
 var compRegEx = regexp.MustCompile(regFrom)
 
-func (qb *QueryBuilder) getFrom(sql string) *QBTable{
+func (qb *QueryBuilder) getFrom(sql string) *QBTable {
 	var match []string = compRegEx.FindStringSubmatch(sql)
 
 	var tableName, Alias string
@@ -106,23 +106,23 @@ func (qb *QueryBuilder) getJoin(join []string, groupNames []string) bool {
 
 var selectRegEx = regexp.MustCompile(regSelect)
 
-func (qb *QueryBuilder) getTextSelectFields(sql string)  {
-	match      := selectRegEx.FindStringSubmatch(sql)
+func (qb *QueryBuilder) getTextSelectFields(sql string) {
+	match := selectRegEx.FindStringSubmatch(sql)
 	groupNames := selectRegEx.SubexpNames()
 
 	for i, name := range groupNames {
-		if name == "fields"  {
-			qb.getFields( match[i] )
+		if name == "fields" {
+			qb.getFields(match[i])
 		}
 	}
 
 }
 
-var reg  = regexp.MustCompile(regField)
+var reg = regexp.MustCompile(regField)
 
-func (qb *QueryBuilder) getFields(textFields string)  {
-	 fieldItems := strings.Split(textFields, ",")
-	 groupNames := reg.SubexpNames()
+func (qb *QueryBuilder) getFields(textFields string) {
+	fieldItems := strings.Split(textFields, ",")
+	groupNames := reg.SubexpNames()
 
 	for _, text := range fieldItems {
 		if field := qb.getField(text, groupNames); field != nil {

@@ -7,12 +7,12 @@
 package services
 
 import (
+	"database/sql"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/cache"
 	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
-	"time"
 	"strings"
-	"database/sql"
+	"time"
 )
 
 type DBlistsService struct {
@@ -20,18 +20,18 @@ type DBlistsService struct {
 	status string
 	tables listTables
 }
-type listTables map[string] *listRows
+type listTables map[string]*listRows
 
 type listRows struct {
 	schema *DBschema.FieldsTable
-	rows [] listRowData
+	rows   []listRowData
 }
-type listRowData map[string] string
+type listRowData map[string]string
 type rowField string
-var (
-	DBlists *DBlistsService = &DBlistsService{name: "DBlists", status: "create", tables:make(listTables,0)}
-)
 
+var (
+	DBlists *DBlistsService = &DBlistsService{name: "DBlists", status: "create", tables: make(listTables, 0)}
+)
 
 func (lRows *listRows) addRows() error {
 	rows, err := db.DoSelect("SELECT * FROM `" + lRows.schema.Name + "`")
@@ -43,6 +43,9 @@ func (lRows *listRows) addRows() error {
 	defer rows.Close()
 
 	columns, err := rows.ColumnTypes()
+	if err != nil {
+		return err
+	}
 	scanArgs := make([]interface{}, len(columns))
 
 	for idx := range scanArgs {
@@ -58,7 +61,7 @@ func (lRows *listRows) addRows() error {
 			if scanArgs[idx] == nil {
 				newRow[value.Name()] = "NULL"
 			} else {
-				newRow[value.Name()] = string( *scanArgs[idx].(*sql.RawBytes) )
+				newRow[value.Name()] = string(*scanArgs[idx].(*sql.RawBytes))
 			}
 		}
 
@@ -76,7 +79,7 @@ func (DBlists *DBlistsService) Init() error {
 
 	for tableName, fields := range DBschema.SchemaCache {
 		if strings.HasSuffix(tableName, "_list") {
-			DBlists.tables[tableName] = &listRows{ schema: fields }
+			DBlists.tables[tableName] = &listRows{schema: fields}
 			err := DBlists.tables[tableName].addRows()
 			if err != nil {
 				DBlists.status = "crashing"
@@ -84,7 +87,6 @@ func (DBlists *DBlistsService) Init() error {
 			}
 		}
 	}
-
 
 	DBlists.status = "ready"
 
@@ -94,13 +96,18 @@ func (DBlists *DBlistsService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{}, err error) {
-	oper := messages[0].(string)
+func (DBlists *DBlistsService) Get(messages ...interface{}) (response interface{}, err error) {
+
+	oper, ok := messages[0].(string)
+	if !ok {
+		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
+	}
+
 	switch oper {
 
 	case "all-list":
 
-		result := make([] string, 0, len(DBlists.tables))
+		result := make([]string, 0, len(DBlists.tables))
 		for name, _ := range DBlists.tables {
 			result = append(result, name)
 		}
@@ -110,23 +117,18 @@ func (DBlists *DBlistsService) Get(messages ...interface{}) (responce interface{
 		if !ok {
 			return nil, ErrServiceWrongIndex{Name: messages[1].(string)}
 		}
-		result := make([]map[string] interface{}, len(list.rows))
+		result := make([]map[string]interface{}, len(list.rows))
 		for idx, row := range list.rows {
-			result[idx] = make(map[string] interface{}, 0)
+			result[idx] = make(map[string]interface{}, 0)
 			for key, value := range row {
 				result[idx][key] = value
 			}
 		}
 		return result, nil
-	}
-	switch tableName := messages[0].(type) {
-	case string:
-		return cache.GetListRecord(tableName), nil
+	//	сокращенный вариант вызова - только имя таблицы
 	default:
-		return nil, &ErrServiceNotCorrectParamType{Name: schema.name, Param: messages[0]}
+		return cache.GetListRecord(oper), nil
 	}
-
-	return nil, nil
 
 }
 func (DBlists *DBlistsService) Connect(in <-chan interface{}) (out chan interface{}, err error) {

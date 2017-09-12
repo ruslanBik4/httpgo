@@ -23,14 +23,22 @@ var (
 )
 
 //line views/templates/forms/record.qtpl:5
-func (ns *FieldsTable) StreamShowRecord(qw422016 *qt422016.Writer, Title string) {
+func (fields *FieldsTable) StreamShowRecord(qw422016 *qt422016.Writer, id string) {
 	//line views/templates/forms/record.qtpl:5
 	qw422016.N().S(`
     <div>
-        <h2>Title string</h2>
+        <h2>Запись №`)
+	//line views/templates/forms/record.qtpl:7
+	qw422016.N().S(id)
+	//line views/templates/forms/record.qtpl:7
+	qw422016.N().S(` в таблице `)
+	//line views/templates/forms/record.qtpl:7
+	qw422016.N().S(fields.Comment)
+	//line views/templates/forms/record.qtpl:7
+	qw422016.N().S(`</h2>
         `)
 	//line views/templates/forms/record.qtpl:8
-	for idx, field := range ns.Rows {
+	for idx, field := range fields.Rows {
 		//line views/templates/forms/record.qtpl:8
 		qw422016.N().S(`
         <div id="divField`)
@@ -70,22 +78,22 @@ func (ns *FieldsTable) StreamShowRecord(qw422016 *qt422016.Writer, Title string)
 }
 
 //line views/templates/forms/record.qtpl:17
-func (ns *FieldsTable) WriteShowRecord(qq422016 qtio422016.Writer, Title string) {
+func (fields *FieldsTable) WriteShowRecord(qq422016 qtio422016.Writer, id string) {
 	//line views/templates/forms/record.qtpl:17
 	qw422016 := qt422016.AcquireWriter(qq422016)
 	//line views/templates/forms/record.qtpl:17
-	ns.StreamShowRecord(qw422016, Title)
+	fields.StreamShowRecord(qw422016, id)
 	//line views/templates/forms/record.qtpl:17
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/record.qtpl:17
 }
 
 //line views/templates/forms/record.qtpl:17
-func (ns *FieldsTable) ShowRecord(Title string) string {
+func (fields *FieldsTable) ShowRecord(id string) string {
 	//line views/templates/forms/record.qtpl:17
 	qb422016 := qt422016.AcquireByteBuffer()
 	//line views/templates/forms/record.qtpl:17
-	ns.WriteShowRecord(qb422016, Title)
+	fields.WriteShowRecord(qb422016, id)
 	//line views/templates/forms/record.qtpl:17
 	qs422016 := string(qb422016.B)
 	//line views/templates/forms/record.qtpl:17
