@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//Реализует работу с правами пользователя для доступа в CRM/Extranet
+//Package crm_permission Реализует работу с правами пользователя для доступа в CRM/Extranet
 package crm_permission
 
 import (
@@ -14,18 +14,18 @@ import (
 //структура прав для пользователя по ссылке (CRM)
 type linkPermission struct {
 	link string
-	allow_create int
+	allowCreate int
 	allow_delete int
-	allow_edit int
-	id_users int
+	allowEdit int
+	idUsers int
 }
 
 //структура прав роли по ссылке (Extranet)
 type roles struct {
 	link string
-	allow_create int
-	allow_delete int
-	allow_edit int
+	allowCreate int
+	allowDelete int
+	allowEdit int
 }
 
 type cpService struct {
@@ -33,8 +33,8 @@ type cpService struct {
 	region string
 	status string
 	crm_permissions_roles map[int][]interface{}
-	extranet_roles map[int][]roles
-	extranet_permissions map[int]map[int]int
+	extranetRoles map[int][]roles
+	extranetPermissions map[int]map[int]int
 }
 
 //константы для работы с сервисом
@@ -218,11 +218,11 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 
 	role_id := crm_permission.getUserRole(user_id, id_hotels)
 
-	if role_id == 0 || crm_permission.extranet_roles[role_id] == nil {
+	if role_id == 0 || crm_permission.extranetRoles[role_id] == nil {
 		return false
 	}
 
-	for _,permission := range crm_permission.extranet_roles[role_id] {
+	for _,permission := range crm_permission.extranetRoles[role_id] {
 		if permission.link == url {
 			return checkActionExtranet(permission, action)
 		}
@@ -235,7 +235,7 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 //получение роли пользователя для Extranet для конкретного отеля
 func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 
-	for hotel,role := range crm_permission.extranet_permissions[user_id] {
+	for hotel,role := range crm_permission.extranetPermissions[user_id] {
 		if hotel == id_hotels {
 			return role
 		}
@@ -268,7 +268,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 }
 
 //выставление роли для пользователя в CRM
-func (crm_permission *cpService) setPermissForUser(user_id int, link string, allow_create, allow_delete, allow_edit bool) error {
+func (crm_permission *cpService) setPermissForUser(user_id int, link string, allowCreate, allowDelete, allowEdit bool) error {
 
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
@@ -276,19 +276,19 @@ func (crm_permission *cpService) setPermissForUser(user_id int, link string, all
 	newRow := make(map[string]interface{}, 0)
 	newRow["link"] = link
 
-	if allow_create {
+	if allowCreate {
 		newRow["allow_create"] = 1
 	} else {
 		newRow["allow_create"] = 0
 	}
 
-	if allow_delete {
+	if allowDelete {
 		newRow["allow_delete"] = 1
 	} else {
 		newRow["allow_delete"] = 0
 	}
 
-	if allow_edit {
+	if allowEdit {
 		newRow["allow_edit"] = 1
 	} else {
 		newRow["allow_edit"] = 0
@@ -306,11 +306,11 @@ func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_ho
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
 
-	if crm_permission.extranet_permissions[user_id] == nil || len(crm_permission.extranet_permissions[user_id]) == 0 {
+	if crm_permission.extranetPermissions[user_id] == nil || len(crm_permission.extranetPermissions[user_id]) == 0 {
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
-	crm_permission.extranet_permissions[user_id][id_hotels] = 0
+	crm_permission.extranetPermissions[user_id][id_hotels] = 0
 
 	cacheMu.Unlock()
 
@@ -323,7 +323,7 @@ func (crm_permission *cpService) setPermissForUserExtranet(user_id, id_hotels, i
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
 
-	crm_permission.extranet_permissions[user_id][id_hotels] = id_role
+	crm_permission.extranetPermissions[user_id][id_hotels] = id_role
 
 	cacheMu.Unlock()
 	return nil
@@ -348,18 +348,18 @@ func (crm_permission *cpService) setUserPermissionForCRM() error {
 	crm_permissions_roles := make(map[int][]interface{}, 0)
 	for rows.Next() {
 		var link string
-		var allow_create, allow_delete, allow_edit, id_users int
-		if err := rows.Scan(&link, &allow_create, &allow_delete, &allow_edit, &id_users); err != nil {
+		var allowCreate, allowDelete, allowEdit, idUsers int
+		if err := rows.Scan(&link, &allowCreate, &allowDelete, &allowEdit, &idUsers); err != nil {
 			continue
 		}
 
 		newRow := make(map[string]interface{}, 0)
 		newRow["link"] = link
-		newRow["allow_create"] = allow_create
-		newRow["allow_delete"] = allow_delete
-		newRow["allow_edit"] = allow_edit
+		newRow["allow_create"] = allowCreate
+		newRow["allow_delete"] = allowDelete
+		newRow["allow_edit"] = allowEdit
 
-		crm_permissions_roles[id_users] = append(crm_permissions_roles[id_users], newRow)
+		crm_permissions_roles[idUsers] = append(crm_permissions_roles[idUsers], newRow)
 	}
 
 	crm_permission.crm_permissions_roles = crm_permissions_roles
@@ -381,26 +381,26 @@ func (crm_permission *cpService) setExtranetRoles() error {
 		return roles_err
 	}
 
-	extranet_roles := make(map[int][]roles, 0)
+	extranetRoles := make(map[int][]roles, 0)
 
 	for roles_rows.Next() {
 		var extranet_role roles
 
 		var link string
-		var allow_create, allow_delete, allow_edit, id_role int
-		if err := roles_rows.Scan(&id_role, &link, &allow_create, &allow_delete, &allow_edit); err != nil {
+		var allowCreate, allowDelete, allowEdit, id_role int
+		if err := roles_rows.Scan(&id_role, &link, &allowCreate, &allowDelete, &allowEdit); err != nil {
 			continue
 		}
 
 		extranet_role.link = link
-		extranet_role.allow_create = allow_create
-		extranet_role.allow_delete = allow_delete
-		extranet_role.allow_edit = allow_edit
+		extranet_role.allowCreate = allowCreate
+		extranet_role.allowDelete = allowDelete
+		extranet_role.allowEdit = allowEdit
 
-		extranet_roles[id_role] = append(extranet_roles[id_role], extranet_role)
+		extranetRoles[id_role] = append(extranetRoles[id_role], extranet_role)
 	}
 
-	crm_permission.extranet_roles = extranet_roles
+	crm_permission.extranetRoles = extranetRoles
 
 	return nil
 }
@@ -414,25 +414,25 @@ func (crm_permission *cpService) setExtranetUserRoles() error {
 		return extranet_user_roles_err
 	}
 
-	extranet_user_permiss := make(map[int]map[int]int, 0)
+	extranetUserPermiss := make(map[int]map[int]int, 0)
 
 	for extranet_user_roles.Next() {
 
 
 		extranet_user_permiss_info := make(map[int]int, 0)
 
-		var id_users, id_roles_list, id_hotels int
-		if err := extranet_user_roles.Scan(&id_users, &id_roles_list, &id_hotels); err != nil {
+		var idUsers, id_roles_list, idHotels int
+		if err := extranet_user_roles.Scan(&idUsers, &id_roles_list, &idHotels); err != nil {
 			continue
 		}
 
-		extranet_user_permiss_info[id_hotels] = id_roles_list
+		extranet_user_permiss_info[idHotels] = id_roles_list
 
-		extranet_user_permiss[id_users] = extranet_user_permiss_info
+		extranetUserPermiss[idUsers] = extranet_user_permiss_info
 	}
 
 
-	crm_permission.extranet_permissions = extranet_user_permiss
+	crm_permission.extranetPermissions = extranetUserPermiss
 
 	return nil
 }
@@ -444,21 +444,19 @@ func checkAction(permiss interface{}, action string) bool {
 	case CREATE_ACTION:
 		if convert["allow_create"].(int) == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case DELETE_ACTION:
 		if convert["allow_delete"].(int) == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case EDIT_ACTION:
 		if convert["allow_edit"].(int) == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
+
 	case VIEW_ACTION:
 		return true
 	default:
@@ -471,23 +469,20 @@ func checkActionExtranet(permiss roles, action string) bool {
 
 	switch action {
 	case CREATE_ACTION:
-		if permiss.allow_create == 1 {
+		if permiss.allowCreate == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case DELETE_ACTION:
-		if permiss.allow_delete == 1 {
+		if permiss.allowDelete == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case EDIT_ACTION:
-		if permiss.allow_edit == 1 {
+		if permiss.allowEdit	 == 1 {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case VIEW_ACTION:
 		return true
 	default:
