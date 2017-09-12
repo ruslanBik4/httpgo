@@ -15,7 +15,7 @@ import (
 type linkPermission struct {
 	link string
 	allowCreate int
-	allow_delete int
+	allowDelete int
 	allowEdit int
 	idUsers int
 }
