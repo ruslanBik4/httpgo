@@ -57,10 +57,10 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 	if err != nil {
 		logs.ErrorLog(err, sql)
 		return -1, err
-	} else {
-		lastInsertId, err := resultSQL.LastInsertId()
-		return int(lastInsertId), err
 	}
+
+	lastInsertId, err := resultSQL.LastInsertId()
+	return int(lastInsertId), err
 }
 // DoUpdate - Выполнение UPDATE запроса для заданой транзакции
 func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
@@ -68,18 +68,17 @@ func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 
 	if err != nil {
 		return -1, err
-	} else {
-		RowsAffected, err := resultSQL.RowsAffected()
-		return int(RowsAffected), err
 	}
+
+	RowsAffected, err := resultSQL.RowsAffected()
+	return int(RowsAffected), err
 }
 // DoSelect - Выполнение SELECT запроса для заданой транзакции
 func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return conn.tx.Query(sql, args...)
-	} else {
-		return nil, mysql.ErrMalformPkt
 	}
+	return nil, mysql.ErrMalformPkt
 }
 // DoQuery - Выполнение произвольного запроса для заданой транзакции
 func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
@@ -135,7 +134,6 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
 
 	return DoInsertFromForm(r, userID, conn)
-
 }
 
 //DoUpdateFromForm - выполняет запрос согласно переданным данным в POST,
@@ -152,7 +150,6 @@ func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error)
 	} else {
 		return newId, nil
 	}
-
 }
 
 //TODO: добавить запись для мультиполей (setid_)
