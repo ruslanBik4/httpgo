@@ -25,10 +25,12 @@ import (
 type TxConnect struct {
 	tx *sql.Tx
 }
+
 // PrepareQuery - реализация метода подготовки запроса для заданой транзакции
 func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
+
 // StartTransaction - открытие транзакции.
 //@return *TxConnect - connection
 func StartTransaction() (*TxConnect, error) {
@@ -38,10 +40,12 @@ func StartTransaction() (*TxConnect, error) {
 	}
 	return &TxConnect{tx: tx}, nil
 }
+
 // CommitTransaction - Коммит транзакции.
 func (conn *TxConnect) CommitTransaction() {
 	conn.tx.Commit()
 }
+
 // RollbackTransaction - Откат транзакции
 func (conn *TxConnect) RollbackTransaction() {
 	conn.tx.Rollback()
@@ -49,6 +53,7 @@ func (conn *TxConnect) RollbackTransaction() {
 func (conn *TxConnect) prepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
+
 // DoInsert - Выполнение INSERT запроса для заданой транзакции
 func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 
@@ -57,30 +62,32 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 	if err != nil {
 		logs.ErrorLog(err, sql)
 		return -1, err
-	} else {
-		lastInsertId, err := resultSQL.LastInsertId()
-		return int(lastInsertId), err
 	}
+
+	lastInsertId, err := resultSQL.LastInsertId()
+	return int(lastInsertId), err
 }
+
 // DoUpdate - Выполнение UPDATE запроса для заданой транзакции
 func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := conn.tx.Exec(sql, args...)
 
 	if err != nil {
 		return -1, err
-	} else {
-		RowsAffected, err := resultSQL.RowsAffected()
-		return int(RowsAffected), err
 	}
+
+	RowsAffected, err := resultSQL.RowsAffected()
+	return int(RowsAffected), err
 }
+
 // DoSelect - Выполнение SELECT запроса для заданой транзакции
 func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return conn.tx.Query(sql, args...)
-	} else {
-		return nil, mysql.ErrMalformPkt
 	}
+	return nil, mysql.ErrMalformPkt
 }
+
 // DoQuery - Выполнение произвольного запроса для заданой транзакции
 func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	var result bytes.Buffer
@@ -135,7 +142,6 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
 
 	return DoInsertFromForm(r, userID, conn)
-
 }
 
 //DoUpdateFromForm - выполняет запрос согласно переданным данным в POST,
@@ -147,12 +153,12 @@ func (conn *TxConnect) DoUpdateFromForm(r *http.Request, userID string) (RowsAff
 
 func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error) {
 
-	if newId, err := conn.DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
+	var newId int
+	var err error
+	if newId, err = conn.DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
 		return -1, err
-	} else {
-		return newId, nil
 	}
-
+	return newId, nil
 }
 
 //TODO: добавить запись для мультиполей (setid_)
@@ -201,13 +207,11 @@ func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID
 		return err
 	}
 
-	if resultSQL, err := smtp.Exec(valParams...); err != nil {
+	var resultSQL sql.Result
+	if resultSQL, err = smtp.Exec(valParams...); err != nil {
 		logs.ErrorLog(err, valParams)
 		return err
-	} else {
-		logs.DebugLog(resultSQL)
 	}
-
+	logs.DebugLog(resultSQL)
 	return err
-
 }
