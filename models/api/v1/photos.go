@@ -17,8 +17,8 @@ import (
 	"strconv"
 )
 
+// HandleAddPhoto добавление фото к обьекту (по имени таблицы и Айди)
 //@/api/v1/photos/add/
-// добавление фото к обьекту (по имени таблицы и Айди)
 func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 	const _24K = (1 << 10) * 24
 	r.ParseMultipartForm(_24K)
@@ -47,18 +47,18 @@ func HandleAddPhoto(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				views.RenderInternalError(w, err)
 				return
-			} else {
-				w.Write([]byte(comma + `"` + header.Filename + `": "succesfull"`))
-				comma = ","
 			}
+
+			w.Write([]byte(comma + `"` + header.Filename + `": "succesfull"`))
+			comma = ","
 		}
 	}
 	w.Write([]byte("}"))
 
 }
 
+// HandlePhotos возвращает ссылки на фото обьекта либо файл
 // @/api/v1/photos/
-// возвращает ссылки на фото обьекта либо файл
 func HandlePhotos(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
