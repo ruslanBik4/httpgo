@@ -20,11 +20,12 @@ import (
 	"strings"
 )
 
-// тип данных, что хранит транзакцию
+// TxConnect - тип данных, что хранит транзакцию
+//@see database/sql
 type TxConnect struct {
 	tx *sql.Tx
 }
-// реализация метода подготовки запроса для заданой транзакции
+// PrepareQuery - реализация метода подготовки запроса для заданой транзакции
 func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
