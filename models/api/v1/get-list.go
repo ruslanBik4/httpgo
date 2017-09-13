@@ -7,12 +7,11 @@ package api
 import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/views"
-	_ "github.com/ruslanBik4/httpgo/views/templates/json"
 	"net/http"
 )
 
+// HandleListAllList показ структуры таблицы nameTable
 // @/api/table/schema/?table={nameTable}
-// показ структуры таблицы nameTable
 func HandleListAllList(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)

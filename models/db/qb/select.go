@@ -11,8 +11,7 @@ import (
 	"strings"
 )
 
-//SelectToMultidimension(sql string, args ...interface
-//@version 1.10 Sergey Litvinov 2017-05-25 15:15
+// SelectToMultidimension
 func SelectToMultidimension(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 	qBuilder := CreateFromSQL(sql)
 	qBuilder.AddArgs(args)
@@ -77,9 +76,9 @@ func (qb *QueryBuilder) getGroupBy() string {
 	if qb.GroupBy > "" {
 		if strings.Contains(qb.GroupBy, GroupByPref) {
 			return qb.GroupBy
-		} else {
-			return " " + GroupByPref + " " + qb.GroupBy
 		}
+
+		return " " + GroupByPref + " " + qb.GroupBy
 	}
 	return ""
 }
@@ -88,9 +87,9 @@ func (qb *QueryBuilder) getOrderBy() string {
 	if qb.OrderBy > "" {
 		if strings.Contains(qb.OrderBy, OrderByPref) {
 			return qb.OrderBy
-		} else {
-			return " " + OrderByPref + " " + qb.OrderBy
 		}
+
+		return " " + OrderByPref + " " + qb.OrderBy
 	}
 	return ""
 }
@@ -99,9 +98,9 @@ func (qb *QueryBuilder) getLimits() string {
 	if qb.Limits > "" {
 		if strings.Contains(qb.OrderBy, OrderByPref) {
 			return qb.Limits
-		} else {
-			return " " + OrderByPref + " " + qb.Limits
 		}
+
+		return " " + OrderByPref + " " + qb.Limits
 	}
 	return ""
 }
@@ -111,9 +110,9 @@ func (qb *QueryBuilder) getWhere() string {
 	if qb.Where > "" {
 		if strings.Contains(qb.Where, WherePref) {
 			return qb.Where
-		} else {
-			return " " + WherePref + " " + qb.Where
 		}
+
+		return " " + WherePref + " " + qb.Where
 	}
 	return ""
 }
@@ -171,7 +170,7 @@ func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 	return qb.Prepared.Query(qb.Args...)
 }
 
-// обход результатов запроса и передача callback func данных каждой строки для обработки
+// SelectRunFunc обход результатов запроса и передача callback func данных каждой строки для обработки
 func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) error {
 
 	rows, err := qb.GetDataSql()
@@ -202,7 +201,7 @@ func (qb *QueryBuilder) SelectRunFunc(onReadRow func(fields []*QBField) error) e
 	return nil
 }
 
-// предназначен для получения данных в формате JSON
+// SelectToMultidimension предназначен для получения данных в формате JSON
 func (qb *QueryBuilder) SelectToMultidimension() (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := qb.GetDataSql()
@@ -216,9 +215,7 @@ func (qb *QueryBuilder) SelectToMultidimension() (arrJSON []map[string]interface
 	return qb.ConvertDataToJson(rows)
 }
 
-//@func (field * QueryBuilder) ConvertDataToJson(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error ) {
-//@author Sergey Litvinov
-//@version 1.00 2017-06-12
+// ConvertDataToJson return map data from query rows
 func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]interface{}, err error) {
 
 	var valuePtrs []interface{}
@@ -264,9 +261,7 @@ func (qb *QueryBuilder) ConvertDataToJson(rows *sql.Rows) (arrJSON []map[string]
 	return arrJSON, nil
 }
 
-//(field * QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) ( arrJSON [] map[string] interface {}, err error )
-//Not Convert BooleanType
-//@author Sergey Litvinov
+// ConvertDataNotChangeType - analog ConvertDataNotChange Not Convert BooleanType
 func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[string]interface{}, err error) {
 
 	var valuePtrs []interface{}
@@ -318,9 +313,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 	return arrJSON, nil
 }
 
-//@func (field * QueryBuilder) SelectToNotChangeBoolean() ( arrJSON [] map[string] interface {}, err error )
-// Get rows not convert tinyInt fields
-//@author Sergey Litvinov
+// SelectToNotChangeBoolean  Get rows not convert tinyInt fields
 func (qb *QueryBuilder) GetSelectToNotChangeBoolean() (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := qb.GetDataSql()
