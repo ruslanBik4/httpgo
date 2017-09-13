@@ -1,7 +1,6 @@
 // Copyright 2017 Author: Sergey Litvinov. All rights reserved.
 
-// Output logs and advanced debug information
-
+// Package logs output logs and advanced debug information
 package logs
 
 import (
@@ -17,35 +16,29 @@ type LogsType interface {
 	PrintToLogs() string
 }
 
-var F_debug = flag.Bool("debug", false, "debug mode")
-var F_status = flag.Bool("status", true, "status mode")
+var FDebug = flag.Bool("debug", false, "debug mode")
+var FStatus = flag.Bool("status", true, "status mode")
 
-//var l =
-//DebugLog( args ...interface{}) - output formated(function and line calls) debug information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote required args
+// DebugLog output formated(function and line calls) debug information
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	if *F_debug {
+	if *FDebug {
 
 		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
 			getArgsString(args)))
 	}
 }
-
-//StatusLog(err error, args ...interface{}) - output formated information for status
-//@version 1.0 2017-05-31 Sergey Litvinov - Create
+// StatusLog output formated information for status
 func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *F_status {
+	if *FStatus {
 		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)))
 	}
 }
-
-//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote required advanced arg
+// ErrorLog - output formated(function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
@@ -62,9 +55,7 @@ func ErrorLog(err error, args ...interface{}) {
 		err.Error(), getArgsString(args...)))
 
 }
-
-//ErrorLog(err error, args ...interface{}) - output formated(function and line calls) error information
-//@version 1.1 2017-05-31 Sergey Litvinov - Remote required advanced arg
+// ErrorLog - output formated(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(6)
@@ -73,9 +64,7 @@ func ErrorLogHandler(err error, args ...interface{}) {
 		err, getArgsString(args...)))
 
 }
-
-//ErrorStack() - output formated(function and line calls) error runtime stack information
-//@version 1.00 2017-06-02 Sergey Litvinov - Create
+// ErrorStack - output formated(function and line calls) error runtime stack information
 func ErrorStack() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
@@ -91,9 +80,7 @@ func ErrorStack() {
 		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName))
 	}
 }
-
-//FatalLog(err error, args ...interface{}) - output formated (function and line calls) fatal information
-//@version 1.0 2017-05-31 Sergey Litvinov - Create
+// FatalLog - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -102,8 +89,6 @@ func Fatal(err error, args ...interface{}) {
 	os.Exit(1)
 
 }
-
-//changeShortName(file string) (short string) - return Short Name
 func changeShortName(file string) (short string) {
 	short = file
 	for i := len(file) - 1; i > 0; i-- {
@@ -114,8 +99,6 @@ func changeShortName(file string) (short string) {
 	}
 	return short
 }
-
-//changeShortName(file string) (short string) - Convert args to string
 func getArgsString(args ...interface{}) (message string) {
 
 	comma := ""
