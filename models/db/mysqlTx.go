@@ -25,10 +25,12 @@ import (
 type TxConnect struct {
 	tx *sql.Tx
 }
+
 // PrepareQuery - реализация метода подготовки запроса для заданой транзакции
 func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
+
 // StartTransaction - открытие транзакции.
 //@return *TxConnect - connection
 func StartTransaction() (*TxConnect, error) {
@@ -38,10 +40,12 @@ func StartTransaction() (*TxConnect, error) {
 	}
 	return &TxConnect{tx: tx}, nil
 }
+
 // CommitTransaction - Коммит транзакции.
 func (conn *TxConnect) CommitTransaction() {
 	conn.tx.Commit()
 }
+
 // RollbackTransaction - Откат транзакции
 func (conn *TxConnect) RollbackTransaction() {
 	conn.tx.Rollback()
@@ -49,6 +53,7 @@ func (conn *TxConnect) RollbackTransaction() {
 func (conn *TxConnect) prepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
+
 // DoInsert - Выполнение INSERT запроса для заданой транзакции
 func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 
@@ -62,6 +67,7 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 	lastInsertId, err := resultSQL.LastInsertId()
 	return int(lastInsertId), err
 }
+
 // DoUpdate - Выполнение UPDATE запроса для заданой транзакции
 func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := conn.tx.Exec(sql, args...)
@@ -73,6 +79,7 @@ func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 	RowsAffected, err := resultSQL.RowsAffected()
 	return int(RowsAffected), err
 }
+
 // DoSelect - Выполнение SELECT запроса для заданой транзакции
 func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
@@ -80,6 +87,7 @@ func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, err
 	}
 	return nil, mysql.ErrMalformPkt
 }
+
 // DoQuery - Выполнение произвольного запроса для заданой транзакции
 func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	var result bytes.Buffer
