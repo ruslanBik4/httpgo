@@ -11,10 +11,8 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
-	_ "strconv"
 	"strings"
 	"time"
-
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
@@ -22,7 +20,7 @@ var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
 )
 
-//Сия структура нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
+//FieldStructure нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
 //На данный момент создается на лету, в будущем
 //TODO: hfpltkbnm yf cnfnbxtcre. b lbyfvbxtcre. xfcnb
 type FieldStructure struct {
@@ -71,7 +69,7 @@ func (field *FieldStructure) setEnumValues() {
 	}
 }
 
-// стиль показа для разных типов полей
+// TypeInput стиль показа для разных типов полей
 // новый метод, еще обдумываю
 func (field *FieldStructure) TypeInput() string {
 	if (field.COLUMN_NAME == "id") || (field.COLUMN_NAME == "date_sys") {
@@ -122,32 +120,7 @@ func (field *FieldStructure) TypeInput() string {
 	return field.InputType
 
 }
-
-//старый метод, обсолете, буду избавляться
-func StyleInput(dataType string) string {
-	switch dataType {
-	case "varchar":
-		return "search"
-	case "set", "enum":
-		return "select"
-	case "tinyint":
-		return "checkbox"
-	case "int":
-		return "number"
-	case "date":
-		return "date"
-	case "timestamp", "datetime":
-		return "datetime"
-	case "text":
-		return "textarea"
-	case "blob":
-		return "file"
-	}
-
-	return "text"
-
-}
-
+// GetSQLFromSETID return sql-query string fro field {key}
 func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string {
 	tableProps := strings.TrimPrefix(key, "setid_")
 	tableValue := parentTable + "_" + tableProps + "_has"
@@ -163,18 +136,17 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string {
 		tableProps, tableValue)
 
 }
-
-// возвращает поле в связанной таблице, которое будет отдано пользователю
-//например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
+// GetForeignFields возвращает поле в связанной таблице, которое будет отдано пользователю
+// например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
 func (field *FieldStructure) GetForeignFields() string {
 
 	if field.ForeignFields > "" {
 		return field.ForeignFields
-	} else {
-		return field.GetParentFieldName()
 	}
-}
 
+	return field.GetParentFieldName()
+}
+// GetParentFieldName fro field by her name
 func (field *FieldStructure) GetParentFieldName() (name string) {
 
 	// получаем имя связанной таблицы
@@ -232,6 +204,7 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 
 	return titleFull, titlePart
 }
+// GetColumnTitles split title field for form render
 func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
 
 	counter := 1
@@ -285,6 +258,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
+// ParseComment извлекает из комментария к полю значимые токены
 func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
 	COLUMN_COMMENT, fieldStrc.Pattern = cutPartFromTitle(COLUMN_COMMENT, "//", "")

@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// аргументы для запроса, формируются дирнамичекски по полученным данным
+// ArgsQuery аргументы для запроса, формируются дирнамичекски по полученным данным
 // для этого имеем несколько доп. полей для промежуточных результатов
 type ArgsQuery struct {
 	Comma, FieldList, Values string
@@ -23,7 +23,7 @@ type ArgsQuery struct {
 	isNotContainParentKey    bool
 }
 
-// для подготовки запросов суррогатнызх полей
+// MultiQuery для подготовки запросов суррогатнызх полей
 // их значения мы получаем в одном запросе вместе
 //с данными основной таблицы
 type MultiQuery struct {
@@ -42,7 +42,7 @@ func (query *ArgsQuery) findField(name string) bool {
 	return false
 }
 
-// добавляем запросы для мультиполей, различаем их по таблицам(куда будем делать вставки
+// AddNewParam добавляем запросы для мультиполей, различаем их по таблицам(куда будем делать вставки
 // и по строкам (так как для tableid_ может прийти сразу несколько строк данных!
 func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val []string, field *schema.FieldStructure) {
 	tableName := key[:indSeparator]
@@ -84,7 +84,7 @@ func (tableIDQueryes *MultiQuery) AddNewParam(key string, indSeparator int, val 
 	tableIDQueryes.Queryes[tableName] = query
 }
 
-// получаем запрос для вставки данных суррогатных полей
+// GetUpdateSQL получаем запрос для вставки данных суррогатных полей
 // далее он может быть использован внутри транзакции, например
 func (query *ArgsQuery) GetUpdateSQL(idParent int) (string, []interface{}) {
 

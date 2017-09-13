@@ -111,12 +111,10 @@ func (photos *photosService) Get(args ...interface{}) (response interface{}, err
 	}
 
 	if num == -1 {
-
 		return photos.listLinks(catalog, id)
-	} else {
-
-		return photos.readFile(catalog, id, num)
 	}
+
+	return photos.readFile(catalog, id, num)
 }
 func (photos *photosService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 
@@ -192,7 +190,7 @@ func (photos *photosService) listLinks(catalog, id string) (list []string, err e
 		return nil, err
 	}
 
-	for num, _ := range list {
+	for num := range list {
 		list[num] = fmt.Sprintf("/api/v1/photos/?table=%s&id=%s&num=%d", catalog, id, num)
 	}
 

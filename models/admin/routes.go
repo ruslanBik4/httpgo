@@ -4,7 +4,6 @@ import (
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"net/http"
-	//	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 )
 
@@ -26,19 +25,19 @@ var (
 		"/admin/anothersignup/": HandlerSignUpAnotherUser,
 	}
 )
-
+// RegisterRoutes link handlers in htttp.Handler
 func RegisterRoutes() {
 	for route, fnc := range routes {
 		CheckPermissions(route)
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 }
-
+// CheckPermissions is not complete yet
 func CheckPermissions(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user_id, _ := strconv.Atoi(users.IsLogin(r))
+		userId, _ := strconv.Atoi(users.IsLogin(r))
 
-		if !GetUserPermissionForPageByUserId(user_id, route, "View") {
+		if !GetUserPermissionForPageByUserId(userId, route, "View") {
 			//			views.RenderNoPermissionPage(w, r)
 
 		}

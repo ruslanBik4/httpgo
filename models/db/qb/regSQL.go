@@ -108,9 +108,9 @@ func getFrom(sql string) (*tSqlFrom, bool) {
 
 	if tableName == "" && tableAlias == "" {
 		return nil, false
-	} else {
-		return &tSqlFrom{tableName: tableName, tableAlias: tableAlias}, true
 	}
+
+	return &tSqlFrom{tableName: tableName, tableAlias: tableAlias}, true
 }
 
 func getJoins(sql string) ([]*tSqlJoin, bool) {
