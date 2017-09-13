@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-const permissName = "crm_permission"
+const permissName = "crmPermission"
 
 var (
 	f_static  = flag.String("path", "/opt/lampp/htdocs/go_src/src/github.com/ruslanBik4/httpgo", "path to static files")
