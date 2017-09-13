@@ -29,7 +29,7 @@ type TxConnect struct {
 func (conn *TxConnect) PrepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
-// открытие транзакции.
+// StartTransaction - открытие транзакции.
 //@return *TxConnect - connection
 func StartTransaction() (*TxConnect, error) {
 	tx, err := dbConn.Begin()
@@ -38,18 +38,18 @@ func StartTransaction() (*TxConnect, error) {
 	}
 	return &TxConnect{tx: tx}, nil
 }
-// Коммит транзакции.
+// CommitTransaction - Коммит транзакции.
 func (conn *TxConnect) CommitTransaction() {
 	conn.tx.Commit()
 }
-// Откат транзакции
+// RollbackTransaction - Откат транзакции
 func (conn *TxConnect) RollbackTransaction() {
 	conn.tx.Rollback()
 }
 func (conn *TxConnect) prepareQuery(sql string) (*sql.Stmt, error) {
 	return conn.tx.Prepare(sql)
 }
-// Выполнение INSERT запроса для заданой транзакции
+// DoInsert - Выполнение INSERT запроса для заданой транзакции
 func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 
 	resultSQL, err := conn.tx.Exec(sql, args...)
@@ -62,7 +62,7 @@ func (conn *TxConnect) DoInsert(sql string, args ...interface{}) (int, error) {
 		return int(lastInsertId), err
 	}
 }
-// Выполнение UPDATE запроса для заданой транзакции
+// DoUpdate - Выполнение UPDATE запроса для заданой транзакции
 func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 	resultSQL, err := conn.tx.Exec(sql, args...)
 
@@ -73,7 +73,7 @@ func (conn *TxConnect) DoUpdate(sql string, args ...interface{}) (int, error) {
 		return int(RowsAffected), err
 	}
 }
-// Выполнение SELECT запроса для заданой транзакции
+// DoSelect - Выполнение SELECT запроса для заданой транзакции
 func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, error) {
 	if SQLvalidator.MatchString(strings.ToLower(sql)) {
 		return conn.tx.Query(sql, args...)
@@ -81,7 +81,7 @@ func (conn *TxConnect) DoSelect(sql string, args ...interface{}) (*sql.Rows, err
 		return nil, mysql.ErrMalformPkt
 	}
 }
-// Выполнение произвольного запроса для заданой транзакции
+// DoQuery - Выполнение произвольного запроса для заданой транзакции
 func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	var result bytes.Buffer
 
@@ -128,16 +128,17 @@ func (conn *TxConnect) DoQuery(sql string, args ...interface{}) *sql.Rows {
 	return rows
 }
 
-//выполняет запрос согласно переданным данным в POST,
+//DoInsertFromForm - выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает id новой записи
+//@see DoInsertFromForm
 func (conn *TxConnect) DoInsertFromForm(r *http.Request, userID string) (lastInsertId int, err error) {
 
 	return DoInsertFromForm(r, userID, conn)
 
 }
 
-//выполняет запрос согласно переданным данным в POST,
+//DoUpdateFromForm - выполняет запрос согласно переданным данным в POST,
 //для суррогатных полей готовит запросы для изменения связанных полей
 //возвращает количество измененных записей
 func (conn *TxConnect) DoUpdateFromForm(r *http.Request, userID string) (RowsAffected int, err error) {
