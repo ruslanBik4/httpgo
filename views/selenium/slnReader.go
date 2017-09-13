@@ -20,10 +20,12 @@ import (
 type tCommand struct {
 	command, param string
 }
+
 // ErrFailTest has not valid parameters
 type ErrFailTest struct {
 	token, param string
 }
+
 func (err ErrFailTest) Error() string {
 	return err.token + " with param " + err.param
 }

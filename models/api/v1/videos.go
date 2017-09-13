@@ -8,6 +8,7 @@ import (
 	_ "github.com/ruslanBik4/httpgo/views"
 	"net/http"
 )
+
 // HandleVideos is dummy handler
 func HandleVideos(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))

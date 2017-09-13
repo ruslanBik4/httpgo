@@ -18,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	//"gopkg.in/gomail.v2"
+	"database/sql"
 	"github.com/gorilla/sessions"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
@@ -29,10 +30,10 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/gomail.v2"
-	"database/sql"
 )
 
 const nameSession = "PHPSESSID"
+
 // NOT_AUTHORIZE message for response
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
@@ -49,6 +50,7 @@ var (
 	oauthStateString = "random"
 	Store            = sessions.NewFilesystemStore("/var/lib/php/session", []byte("travel.com.ua"))
 )
+
 // SetSessionPath set path for session storage
 func SetSessionPath(fSession string) {
 	Store = sessions.NewFilesystemStore(fSession, []byte("travel.com.ua"))
@@ -101,6 +103,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Content: %s\n", contents)
 	}
 }
+
 // UserRecord for user data
 type UserRecord struct {
 	Id   int
@@ -109,6 +112,7 @@ type UserRecord struct {
 }
 
 var greetings = []string{"господин", "госпожа"}
+
 // GetSession return session for cutrrent user (create is needing)
 func GetSession(r *http.Request, name string) *sessions.Session {
 	// Get a session. We're ignoring the error resulted from decoding an
@@ -120,6 +124,7 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	}
 	return session
 }
+
 // IsLogin return ID current user or panic()
 func IsLogin(r *http.Request) string {
 	if *fTest {
@@ -143,6 +148,7 @@ func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	return session.Save(r, w)
 
 }
+
 // HandlerProfile show data on profile current user
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -180,6 +186,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, p.MenuOwner())
 }
+
 // HandlerSignIn run user authorization
 func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 
@@ -203,6 +210,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 	p := &forms.PersonData{Id: user.Id, Login: user.Name, Email: email}
 	fmt.Fprint(w, p.JSON())
 }
+
 // HandlerSignOut sign out current user & show authorization form
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 
@@ -212,6 +220,7 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!")
 	views.RenderSignForm(w, r, "")
 }
+
 // SaveSession save in session some data from user
 func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
 	session := sessions.NewSession(Store, nameSession)
@@ -247,12 +256,14 @@ func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
 }
+
 // GeneratePassword run password by email
 func GeneratePassword(email string) (string, error) {
 	logs.DebugLog("email", email)
 	return GenerateRandomString(16)
 
 }
+
 // HashPassword create hash from {password} & return checksumm
 func HashPassword(password string) interface{} {
 	// crypto password
@@ -312,6 +323,7 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 // SendMail create mail with new {password} & send to {email}
 func SendMail(email, password string) {
 
@@ -332,6 +344,7 @@ func SendMail(email, password string) {
 
 	logs.DebugLog("email-", email, ", password=", password)
 }
+
 // HandlerActivateUser - obsolete
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -347,6 +360,7 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 
 	}
 }
+
 // CheckUserCredentials check user data & return id + name
 func CheckUserCredentials(login string, password string) (row UserRecord, err error) {
 

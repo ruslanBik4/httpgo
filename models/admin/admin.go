@@ -359,6 +359,7 @@ func handlerSchema(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №"+id+" в таблице "+tableName))
 
 }
+
 // GetFields return field list (OBSOLETE)
 func GetFields(tableName string) (fields forms.FieldsTable) {
 
@@ -485,25 +486,25 @@ func handlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 		views.RenderUnAuthorized(w)
 		return
 	}
-		var err error
-		var id int
+	var err error
+	var id int
 
-		if operation == "id" {
-			id, err = db.DoInsertFromForm(r, userID)
-		} else {
-			id, err = db.DoUpdateFromForm(r, userID)
-		}
+	if operation == "id" {
+		id, err = db.DoInsertFromForm(r, userID)
+	} else {
+		id, err = db.DoUpdateFromForm(r, userID)
+	}
 
-		tableName := r.FormValue("table")
-		arrJSON   := make(map[string]interface{}, 0)
-		if err != nil {
-			logs.ErrorLog(err)
-			arrJSON["error"] = "true"
-			arrJSON["message"] = fmt.Sprintf("Error %v during uodate table '%s' ", err, tableName)
-		} else {
-			arrJSON[operation] = id
-			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName)
-		}
+	tableName := r.FormValue("table")
+	arrJSON := make(map[string]interface{}, 0)
+	if err != nil {
+		logs.ErrorLog(err)
+		arrJSON["error"] = "true"
+		arrJSON["message"] = fmt.Sprintf("Error %v during uodate table '%s' ", err, tableName)
+	} else {
+		arrJSON[operation] = id
+		arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName)
+	}
 
 	views.RenderAnyJSON(w, arrJSON)
 }
@@ -514,6 +515,7 @@ func handlerUpdateRecord(w http.ResponseWriter, r *http.Request) {
 	handlerRecord(w, r, "rowAffected")
 
 }
+
 // HandlerExec executes sql-query on post parameters
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -720,6 +722,7 @@ func getMenuNameFromUrl(url string) string {
 
 	return urlParts[2]
 }
+
 // HandlerSignUpAnotherUser is TODO: comments
 func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32000)
