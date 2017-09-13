@@ -198,13 +198,13 @@ func (crm_permission *cpService) Status() string {
 }
 
 //получение права пользователя в CRM на выполнения конкретного действия по конкретному url
-func (crm_permission *cpService) getCRMPermissions(user_id int, url, action string) bool {
+func (crm_permission *cpService) getCRMPermissions(userId int, url, action string) bool {
 
-	if crm_permission.crmPermissionsRoles[user_id] == nil || len(crm_permission.crmPermissionsRoles[user_id]) == 0 {
+	if crm_permission.crmPermissionsRoles[userId] == nil || len(crm_permission.crmPermissionsRoles[userId]) == 0 {
 		return false
 	}
 
-	for _,permission := range crm_permission.crmPermissionsRoles[user_id] {
+	for _,permission := range crm_permission.crmPermissionsRoles[userId] {
 		resRow := permission.(map[string]interface{})
 		if resRow["link"].(string) == url {
 			return checkAction(resRow, action)
@@ -214,15 +214,15 @@ func (crm_permission *cpService) getCRMPermissions(user_id int, url, action stri
 }
 
 //получение прав пользователя в Extranet для конкретного отеля
-func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action string, id_hotels int) bool {
+func (crm_permission *cpService) getExtranetPermissions(userId int, url, action string, idHotels int) bool {
 
-	role_id := crm_permission.getUserRole(user_id, id_hotels)
+	roleId := crm_permission.getUserRole(userId, idHotels)
 
-	if role_id == 0 || crm_permission.extranetRoles[role_id] == nil {
+	if roleId == 0 || crm_permission.extranetRoles[roleId] == nil {
 		return false
 	}
 
-	for _,permission := range crm_permission.extranetRoles[role_id] {
+	for _,permission := range crm_permission.extranetRoles[roleId] {
 		if permission.link == url {
 			return checkActionExtranet(permission, action)
 		}
@@ -233,10 +233,10 @@ func (crm_permission *cpService) getExtranetPermissions(user_id int, url, action
 }
 
 //получение роли пользователя для Extranet для конкретного отеля
-func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
+func (crm_permission *cpService) getUserRole(userId, idHotels int) int {
 
-	for hotel,role := range crm_permission.extranetPermissions[user_id] {
-		if hotel == id_hotels {
+	for hotel,role := range crm_permission.extranetPermissions[userId] {
+		if hotel == idHotels {
 			return role
 		}
 	}
@@ -244,20 +244,20 @@ func (crm_permission *cpService) getUserRole(user_id, id_hotels int) int {
 	return 0
 }
 //удаление роли для пользователя в CRM
-func (crm_permission *cpService) deletePermissForUser(user_id int, url string) error {
+func (crm_permission *cpService) deletePermissForUser(userId int, url string) error {
 
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
 
-	if crm_permission.crmPermissionsRoles[user_id] == nil || len(crm_permission.crmPermissionsRoles[user_id]) == 0 {
+	if crm_permission.crmPermissionsRoles[userId] == nil || len(crm_permission.crmPermissionsRoles[userId]) == 0 {
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
-	for key,permission := range crm_permission.crmPermissionsRoles[user_id] {
+	for key,permission := range crm_permission.crmPermissionsRoles[userId] {
 		resRow := permission.(map[string]interface{})
 		if resRow["link"].(string) == url {
-			crm_permission.crmPermissionsRoles[user_id] = append(crm_permission.crmPermissionsRoles[user_id][:key],
-				crm_permission.crmPermissionsRoles[user_id][key+1:]...)
+			crm_permission.crmPermissionsRoles[userId] = append(crm_permission.crmPermissionsRoles[userId][:key],
+				crm_permission.crmPermissionsRoles[userId][key+1:]...)
 			return nil
 		}
 	}
@@ -268,7 +268,7 @@ func (crm_permission *cpService) deletePermissForUser(user_id int, url string) e
 }
 
 //выставление роли для пользователя в CRM
-func (crm_permission *cpService) setPermissForUser(user_id int, link string, allowCreate, allowDelete, allowEdit bool) error {
+func (crm_permission *cpService) setPermissForUser(userId int, link string, allowCreate, allowDelete, allowEdit bool) error {
 
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
@@ -294,23 +294,23 @@ func (crm_permission *cpService) setPermissForUser(user_id int, link string, all
 		newRow["allow_edit"] = 0
 	}
 
-	crm_permission.crmPermissionsRoles[user_id] = append(crm_permission.crmPermissionsRoles[user_id], newRow)
+	crm_permission.crmPermissionsRoles[userId] = append(crm_permission.crmPermissionsRoles[userId], newRow)
 
 	cacheMu.Unlock()
 	return nil
 }
 
 //удаление роли для пользователя в Extranet для конкретного отеля
-func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_hotels int) error {
+func (crm_permission *cpService) deletePermissForUserExtranet(userId int, idHotels int) error {
 
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
 
-	if crm_permission.extranetPermissions[user_id] == nil || len(crm_permission.extranetPermissions[user_id]) == 0 {
+	if crm_permission.extranetPermissions[userId] == nil || len(crm_permission.extranetPermissions[userId]) == 0 {
 		return services.ErrServiceNotCorrectParamType{Name: crm_permission.name, Param: "", Number: 1}
 	}
 
-	crm_permission.extranetPermissions[user_id][id_hotels] = 0
+	crm_permission.extranetPermissions[userId][idHotels] = 0
 
 	cacheMu.Unlock()
 
@@ -318,12 +318,12 @@ func (crm_permission *cpService) deletePermissForUserExtranet(user_id int, id_ho
 }
 
 //выставление роли для пользователя в Extranet для конкретного отеля
-func (crm_permission *cpService) setPermissForUserExtranet(user_id, id_hotels, id_role int) error {
+func (crm_permission *cpService) setPermissForUserExtranet(userId, idHotels, id_role int) error {
 
 	cacheMu.Lock()
 	// TODO: Unlock must to allow there as defer func
 
-	crm_permission.extranetPermissions[user_id][id_hotels] = id_role
+	crm_permission.extranetPermissions[userId][idHotels] = id_role
 
 	cacheMu.Unlock()
 	return nil
@@ -369,7 +369,7 @@ func (crm_permission *cpService) setUserPermissionForCRM() error {
 
 //заполнение масива прав для ролей Extranet
 func (crm_permission *cpService) setExtranetRoles() error {
-	roles_rows, roles_err := db.DoSelect("SELECT `roles_list`.id AS id_role, " +
+	rolesRows, rolesErr := db.DoSelect("SELECT `roles_list`.id AS id_role, " +
 		"`menu_items`.`link`, `roles_permission_list`.`allow_create`, " +
 		"`roles_permission_list`.`allow_delete`, `roles_permission_list`.`allow_edit` " +
 		"FROM `roles_list` " +
@@ -377,18 +377,18 @@ func (crm_permission *cpService) setExtranetRoles() error {
 		"INNER JOIN `menu_items` ON `roles_permission_list`.`id_menu_items` = menu_items.`id` " +
 		"WHERE roles_list.is_extranet = 1")
 
-	if roles_err != nil {
-		return roles_err
+	if rolesErr != nil {
+		return rolesErr
 	}
 
 	extranetRoles := make(map[int][]roles, 0)
 
-	for roles_rows.Next() {
+	for rolesRows.Next() {
 		var extranetRole roles
 
 		var link string
-		var allowCreate, allowDelete, allowEdit, id_role int
-		if err := roles_rows.Scan(&id_role, &link, &allowCreate, &allowDelete, &allowEdit); err != nil {
+		var allowCreate, allowDelete, allowEdit, idRole int
+		if err := rolesRows.Scan(&idRole, &link, &allowCreate, &allowDelete, &allowEdit); err != nil {
 			continue
 		}
 
@@ -397,7 +397,7 @@ func (crm_permission *cpService) setExtranetRoles() error {
 		extranetRole.allowDelete = allowDelete
 		extranetRole.allowEdit = allowEdit
 
-		extranetRoles[id_role] = append(extranetRoles[id_role], extranetRole)
+		extranetRoles[idRole] = append(extranetRoles[idRole], extranetRole)
 	}
 
 	crm_permission.extranetRoles = extranetRoles
