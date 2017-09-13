@@ -153,11 +153,12 @@ func (conn *TxConnect) DoUpdateFromForm(r *http.Request, userID string) (RowsAff
 
 func (conn *TxConnect) addNewItem(tableProps, value, userID string) (int, error) {
 
-	if newId, err := conn.DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
+	var newId int
+	var err error
+	if newId, err = conn.DoInsert("insert into "+tableProps+"(title, id_users) values (?, ?)", value, userID); err != nil {
 		return -1, err
-	} else {
-		return newId, nil
 	}
+	return newId, nil
 }
 
 //TODO: добавить запись для мультиполей (setid_)
@@ -206,13 +207,11 @@ func (conn *TxConnect) insertMultiSet(tableName, tableProps, tableValues, userID
 		return err
 	}
 
-	if resultSQL, err := smtp.Exec(valParams...); err != nil {
+	var resultSQL sql.Result
+	if resultSQL, err = smtp.Exec(valParams...); err != nil {
 		logs.ErrorLog(err, valParams)
 		return err
-	} else {
-		logs.DebugLog(resultSQL)
 	}
-
+	logs.DebugLog(resultSQL)
 	return err
-
 }
