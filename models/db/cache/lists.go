@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// хранит кешированные данные БД (пока только справочники)
+// Package cache хранит кешированные данные БД (пока только справочники)
 // для использования при отдаче данных
 package cache
 
-// хранит структуру полей - стоит продумать, как хранить еще и ключи
+// ListsCache хранит структуру полей - стоит продумать, как хранить еще и ключи
 var ListsCache map[string]map[string]string
-
+// GetListRecord return data map from list by {tableName}
 func GetListRecord(tableName string) map[string]string {
 	if list, ok := ListsCache[tableName]; ok {
 		return list
