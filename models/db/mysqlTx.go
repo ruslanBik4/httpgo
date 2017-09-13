@@ -1,4 +1,4 @@
-// Package db
+// Package db Реализует функции работы с транзакциями
 // Copyright 2017
 // 	Author's: Mykhailo Sizov sizov.mykhailo@gmail.com
 // All rights reserved.
