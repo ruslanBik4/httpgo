@@ -237,7 +237,7 @@ func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
-//получение соединения к колекции по названию
+//GetMongoCollectionConnect функция для получения соединения к колекции по названию
 func GetMongoCollectionConnect(collection string) *mongo.Collection {
 	return mongod.connect.DB(server.GetMongodConfig().MongoDBName()).C(collection)
 }
