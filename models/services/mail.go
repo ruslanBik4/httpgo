@@ -25,37 +25,44 @@ type mailService struct {
 		Port     int    `yaml:"port"`
 	}
 }
+// Mail - тип данных для письма
 type Mail struct {
-	From         string
-	To           string
-	Subject      string
-	Content_type string
-	Body         string
-	Attachments  []string
+	From        string
+	To          string
+	Subject     string
+	ContentType string
+	Body        string
+	Attachments []string
 }
 
 var (
 	mailServ *mailService = &mailService{name: "mail"}
 )
-
+// PATH_FLAG - сиситемая константа - флаг пути к файлам конфигурации.
 const PATH_FLAG = "-path"
+// STATUS_PREPARING - стстус Сервиса - "Подготовка сервиса"
 const STATUS_PREPARING = "preparing data"
+// STATUS_ERROR - стстус Сервиса - "Ошибка"
 const STATUS_ERROR = "error"
+// STATUS_READY - стстус Сервиса - "Готово"
 const STATUS_READY = "ready"
+// TYPE_PLAIN_TEXT - тип отправляемого сообщения - "Текст"
 const TYPE_PLAIN_TEXT = "text/plain"
+// TYPE_HTML - тип отправляемого сообщения - "HTML"
 const TYPE_HTML = "text/html"
 
 func init() {
 	AddService(mailServ.name, mailServ)
 }
+// Examlpe_SendEmail - пример отправки сообщения
 func Examlpe_SendEmail() {
 
 	mail := Mail{
-		From:         "ruslan@gmail.com",
-		To:           "sizov.mykhailo@gmail.com",
-		Body:         "you shall no pass!",
-		Subject:      "massage subject text",
-		Content_type: TYPE_PLAIN_TEXT, // TYPE_PLAIN_TEXT || TYPE_HTML
+		From:        "ruslan@gmail.com",
+		To:          "sizov.mykhailo@gmail.com",
+		Body:        "you shall no pass!",
+		Subject:     "massage subject text",
+		ContentType: TYPE_PLAIN_TEXT, // TYPE_PLAIN_TEXT || TYPE_HTML
 	}
 	if err := Send("mail", mail); err != nil {
 		logs.ErrorLog(err, mail)
@@ -108,7 +115,7 @@ func (mailServ *mailService) SendMail(mail *Mail) error {
 	m.SetHeader("To", mail.To)
 	//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 	m.SetHeader("Subject", mail.Subject)
-	m.SetBody(mail.Content_type, mail.Body)
+	m.SetBody(mail.ContentType, mail.Body)
 	for _, file := range mail.Attachments {
 		m.Attach(file)
 	}
@@ -187,12 +194,12 @@ func (mail *Mail) validate() error {
 	if len(mail.Subject) > 255 {
 		return errors.New("Massage Subject is too long")
 	}
-	if mail.Content_type != TYPE_HTML && mail.Content_type != TYPE_PLAIN_TEXT {
+	if mail.ContentType != TYPE_HTML && mail.ContentType != TYPE_PLAIN_TEXT {
 		return errors.New("Content type is illegal")
 	}
 	return nil
 }
-
+// VerifyMail - проверка на валидность email - адреса
 func VerifyMail(email, password string) {
 
 	if _, err := netMail.ParseAddress(email); err != nil {
