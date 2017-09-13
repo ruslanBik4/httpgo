@@ -25,6 +25,7 @@ type mailService struct {
 		Port     int    `yaml:"port"`
 	}
 }
+
 // Mail - тип данных для письма
 type Mail struct {
 	From        string
@@ -38,24 +39,31 @@ type Mail struct {
 var (
 	mailServ *mailService = &mailService{name: "mail"}
 )
+
 // PATH_FLAG - сиситемая константа - флаг пути к файлам конфигурации.
 const PATH_FLAG = "-path"
+
 // STATUS_PREPARING - стстус Сервиса - "Подготовка сервиса"
 const STATUS_PREPARING = "preparing data"
+
 // STATUS_ERROR - стстус Сервиса - "Ошибка"
 const STATUS_ERROR = "error"
+
 // STATUS_READY - стстус Сервиса - "Готово"
 const STATUS_READY = "ready"
+
 // TYPE_PLAIN_TEXT - тип отправляемого сообщения - "Текст"
 const TYPE_PLAIN_TEXT = "text/plain"
+
 // TYPE_HTML - тип отправляемого сообщения - "HTML"
 const TYPE_HTML = "text/html"
 
 func init() {
 	AddService(mailServ.name, mailServ)
 }
-// Examlpe_SendEmail - пример отправки сообщения
-func Examlpe_SendEmail() {
+
+// ExamlpeSendEmail - пример отправки сообщения
+func ExamlpeSendEmail() {
 
 	mail := Mail{
 		From:        "ruslan@gmail.com",
@@ -199,6 +207,7 @@ func (mail *Mail) validate() error {
 	}
 	return nil
 }
+
 // VerifyMail - проверка на валидность email - адреса
 func VerifyMail(email, password string) {
 
