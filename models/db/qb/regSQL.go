@@ -164,17 +164,17 @@ func getJoin(join []string, groupNames []string) (*tSqlJoin, bool) {
 	}
 
 	return &tSqlJoin{
-			tableName:  joinTableName,
-			tableAlias: joinTableAlias,
-			onLeft: &tSqlJoinOn{
-				tableName: onLeftTable,
-				fieldName: onLeftField,
-			},
-			onRight: &tSqlJoinOn{
-				tableName: onRightTable,
-				fieldName: onRightField,
-			},
-		}, true
+		tableName:  joinTableName,
+		tableAlias: joinTableAlias,
+		onLeft: &tSqlJoinOn{
+			tableName: onLeftTable,
+			fieldName: onLeftField,
+		},
+		onRight: &tSqlJoinOn{
+			tableName: onRightTable,
+			fieldName: onRightField,
+		},
+	}, true
 }
 
 func getFields(sql string) ([]*tSqlField, bool) {

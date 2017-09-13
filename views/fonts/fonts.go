@@ -16,6 +16,7 @@ import (
 )
 
 var pathWeb string
+
 // GetPath set path with fonts files
 func GetPath(path *string) {
 	pathWeb = *path

@@ -8,6 +8,7 @@ package cache
 
 // ListsCache хранит структуру полей - стоит продумать, как хранить еще и ключи
 var ListsCache map[string]map[string]string
+
 // GetListRecord return data map from list by {tableName}
 func GetListRecord(tableName string) map[string]string {
 	if list, ok := ListsCache[tableName]; ok {

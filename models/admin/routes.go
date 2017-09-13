@@ -25,6 +25,7 @@ var (
 		"/admin/anothersignup/": HandlerSignUpAnotherUser,
 	}
 )
+
 // RegisterRoutes link handlers in htttp.Handler
 func RegisterRoutes() {
 	for route, fnc := range routes {
@@ -32,6 +33,7 @@ func RegisterRoutes() {
 		http.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 }
+
 // CheckPermissions is not complete yet
 func CheckPermissions(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

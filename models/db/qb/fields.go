@@ -60,6 +60,7 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	return field.Value
 
 }
+
 // AddFields adding fieldsfrom map into qB
 func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 	for alias, name := range fields {
@@ -68,6 +69,7 @@ func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 
 	return table
 }
+
 // AddField add field and returns table object
 func (table *QBTable) AddField(alias, name string) *QBTable {
 

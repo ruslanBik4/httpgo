@@ -17,12 +17,14 @@ func Create(where, groupBy, orderBy string) *QueryBuilder {
 	qb := &QueryBuilder{Where: where, OrderBy: orderBy, GroupBy: groupBy}
 	return qb
 }
+
 // CreateEmpty construct empty QueryBuilder
 func CreateEmpty() *QueryBuilder {
 
 	qb := &QueryBuilder{}
 	return qb
 }
+
 // CreateFromSQL construct QueryBuilder from sql-query string
 func CreateFromSQL(sqlCommand string) *QueryBuilder {
 	qb := &QueryBuilder{sqlCommand: sqlCommand}

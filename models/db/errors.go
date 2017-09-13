@@ -6,16 +6,19 @@
 package db
 
 const messParamNotFound = "Param not found:"
+
 // ErrParamNotFound if not found requiared parameter
 type ErrParamNotFound struct {
 	Name     string
 	FuncName string
 }
+
 func (err ErrParamNotFound) Error() string {
 	return messParamNotFound + err.Name
 }
 
 const messBadParam = "Bad value in params:"
+
 // ErrBadParam is parameter not valid
 type ErrBadParam struct {
 	Name     string

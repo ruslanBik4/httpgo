@@ -5,9 +5,10 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"net/http"
 )
+
 // ReplaceDocx replaces exist output an input in map
 func ReplaceDocx(input, output string, replaces map[string]string) bool {
-	r, err := docx.ReadDocxFile(input);
+	r, err := docx.ReadDocxFile(input)
 	if err != nil {
 		logs.ErrorLog(err)
 		return false
@@ -27,9 +28,10 @@ func ReplaceDocx(input, output string, replaces map[string]string) bool {
 
 	return true
 }
+
 // RenderReplaesDoc read file with name {templatesName}, replace string from map & write to {w}
 func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string]string) error {
-	r, err := docx.ReadDocxFile(templatesName);
+	r, err := docx.ReadDocxFile(templatesName)
 	if err != nil {
 		logs.ErrorLog(err)
 		return err
@@ -41,7 +43,6 @@ func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[
 		template.Replace(search, replace, -1)
 	}
 	template.Write(w)
-
 
 	return nil
 }

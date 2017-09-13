@@ -42,6 +42,7 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 
 	return nil
 }
+
 // GetTablesProp получение таблиц
 func (ns *RecordsTables) GetTablesProp(nameDB string) error {
 

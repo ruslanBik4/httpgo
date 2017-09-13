@@ -7,6 +7,7 @@ package schema
 import (
 	"strings"
 )
+
 // FieldsTable for fields parameters in form
 type FieldsTable struct {
 	Name           string
@@ -18,6 +19,7 @@ type FieldsTable struct {
 	SaveFormEvents map[string]string
 	DataJSOM       map[string]interface{}
 }
+
 // FindField search field in table by {name} & return structure field
 func (table *FieldsTable) FindField(name string) *FieldStructure {
 	for _, field := range table.Rows {

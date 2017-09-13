@@ -10,10 +10,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/models/logs"
 	"regexp"
 	"strings"
 	"time"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 var (
@@ -120,6 +120,7 @@ func (field *FieldStructure) TypeInput() string {
 	return field.InputType
 
 }
+
 // GetSQLFromSETID return sql-query string fro field {key}
 func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string {
 	tableProps := strings.TrimPrefix(key, "setid_")
@@ -136,6 +137,7 @@ func (field *FieldStructure) GetSQLFromSETID(key, parentTable string) string {
 		tableProps, tableValue)
 
 }
+
 // GetForeignFields возвращает поле в связанной таблице, которое будет отдано пользователю
 // например, для вторичных ключей отдает не idзаписи, а name || title || какой-либо складное поле
 func (field *FieldStructure) GetForeignFields() string {
@@ -146,6 +148,7 @@ func (field *FieldStructure) GetForeignFields() string {
 
 	return field.GetParentFieldName()
 }
+
 // GetParentFieldName fro field by her name
 func (field *FieldStructure) GetParentFieldName() (name string) {
 
@@ -204,6 +207,7 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 
 	return titleFull, titlePart
 }
+
 // GetColumnTitles split title field for form render
 func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
 
@@ -258,6 +262,7 @@ func convertDatePattern(strDate string) string {
 	}
 	return strDate
 }
+
 // ParseComment извлекает из комментария к полю значимые токены
 func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
