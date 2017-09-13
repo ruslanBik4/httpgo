@@ -2,5 +2,5 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// набор стандартных роутеров дляstandalone server HTTPGO
+// Package config набор стандартных роутеров для standalone server HTTPGO
 package config

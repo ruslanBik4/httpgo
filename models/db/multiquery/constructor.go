@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// create, check & run query for children tables in main query
+// Package multiquery create, check & run queryes for children tables in main query
 package multiquery
 
 func Create(tableName string) *MultiQuery {
