@@ -8,18 +8,19 @@ import (
 	"strconv"
 	"strings"
 )
-
+// TableOptions get table properties
 type TableOptions struct {
 	TABLE_NAME    string
 	TABLE_TYPE    string
 	ENGINE        string
 	TABLE_COMMENT string
 }
+// RecordsTables get field properties
 type RecordsTables struct {
 	Rows []TableOptions
 }
 
-// получение данных для одной таблицы
+// GetTableProp получение данных для одной таблицы
 func (ns *TableOptions) GetTableProp(tableName string) error {
 
 	rows := DoQuery("SELECT TABLE_NAME, TABLE_TYPE, ENGINE, "+
@@ -40,12 +41,13 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 	return nil
 }
 
-// получение таблиц
+// GetTablesProp получение таблиц
 func (ns *RecordsTables) GetTablesProp(bd_name string) error {
 
 	return ns.GetSelectTablesProp("TABLE_SCHEMA=?", bd_name)
 
 }
+// GetSelectTablesProp получение данных таблиц по условию
 func (ns *RecordsTables) GetSelectTablesProp(where string, args ...interface{}) error {
 
 	sqlCommand := `select TABLE_NAME, IFNULL(TABLE_TYPE, 'VIEW'), IFNULL(ENGINE, 'VIEW'),
@@ -74,7 +76,7 @@ func (ns *RecordsTables) GetSelectTablesProp(where string, args ...interface{}) 
 	return nil
 
 }
-
+// FieldStructure get field properties
 type FieldStructure struct {
 	COLUMN_NAME              string
 	DATA_TYPE                string
@@ -91,16 +93,16 @@ type FieldStructure struct {
 	//IS_VIEW []uint8
 
 }
+// FieldsTable  get fields from table & options
 type FieldsTable struct {
 	Rows    []FieldStructure
 	Options TableOptions
 }
 
-// получение значений полей для форматирования данных
+// GetColumnsProp получение значений полей для форматирования данных
 // получение значений полей для таблицы
 // @param args []int{} - можно передавать ограничения выводимых полей.
 // Действует как LIMIT a или LIMIT a, b
-//
 func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 
 	valuesText := []string{}
@@ -144,7 +146,7 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 	return nil
 }
 
-// заполняет структуру для формы данными, взятыми из структуры БД
+// PutDataFrom заполняет структуру для формы данными, взятыми из структуры БД
 func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable) {
 
 	fields = &schema.FieldsTable{Name: tableName}
@@ -197,8 +199,8 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 	return fields
 }
 
-var Schema_ready bool
-
+var schemaReady bool
+// InitSchema read schema from DB & fill SchemaCache
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено
 	//go func() {
@@ -221,7 +223,7 @@ func InitSchema() {
 		//logs.StatusLog(tableName, fields)
 	}
 
-	Schema_ready = true
+	schemaReady = true
 
 	//}()
 }
