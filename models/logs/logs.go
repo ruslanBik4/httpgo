@@ -11,19 +11,19 @@ import (
 	"runtime"
 	"time"
 )
-
+// LogsType - interface for print logs record
 type LogsType interface {
 	PrintToLogs() string
 }
 
-var FDebug = flag.Bool("debug", false, "debug mode")
-var FStatus = flag.Bool("status", true, "status mode")
+var fDebug = flag.Bool("debug", false, "debug mode")
+var fStatus = flag.Bool("status", true, "status mode")
 
 // DebugLog output formated(function and line calls) debug information
 func DebugLog(args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(1)
-	if *FDebug {
+	if *fDebug {
 
 		log.Output(2, fmt.Sprintf("[DEBUG];%s;%v", changeShortName(runtime.FuncForPC(pc).Name()),
 			getArgsString(args)))
@@ -34,7 +34,7 @@ func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	if *FStatus {
+	if *fStatus {
 		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)))
 	}
 }
@@ -55,7 +55,7 @@ func ErrorLog(err error, args ...interface{}) {
 		err.Error(), getArgsString(args...)))
 
 }
-// ErrorLog - output formated(function and line calls) error information
+// ErrorLogHandler - output formated(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	pc, _, _, _ := runtime.Caller(6)
@@ -80,7 +80,7 @@ func ErrorStack() {
 		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName))
 	}
 }
-// FatalLog - output formated (function and line calls) fatal information
+// Fatal - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

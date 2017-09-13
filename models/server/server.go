@@ -29,7 +29,7 @@ type serverConfig struct {
 }
 
 var sConfig *serverConfig
-// return reference on server config structure
+// GetServerConfig return reference on server config structure
 func GetServerConfig() *serverConfig {
 
 	if sConfig != nil {
