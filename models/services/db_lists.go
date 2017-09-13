@@ -31,7 +31,7 @@ type listRowData map[string]string
 type rowField string
 
 var (
-	DBlists *dbListsService = &dbListsService{name: "DBlists", status: "create", tables: make(listTables, 0)}
+	dbLists *dbListsService = &dbListsService{name: "DBLists", status: "create", tables: make(listTables, 0)}
 )
 
 func (lRows *listRows) addRows() error {
@@ -146,5 +146,5 @@ func (DBlists *dbListsService) Status() string {
 }
 
 func init() {
-	AddService(DBlists.name, DBlists)
+	AddService(dbLists.name, dbLists)
 }
