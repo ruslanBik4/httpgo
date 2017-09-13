@@ -23,7 +23,7 @@ type mongodConfig struct {
 
 var mConfig *mongodConfig
 
-//получение конфигураций для mongod
+//GetMongodConfig функция для получения конфигураций для mongod
 func GetMongodConfig() *mongodConfig {
 
 	if mConfig != nil {

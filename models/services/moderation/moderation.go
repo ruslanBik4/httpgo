@@ -135,7 +135,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 		}
 	}
 
-	data := ToGoB64(setData.Data)
+	data := toGoB64(setData.Data)
 
 	err = cConnect.Insert(&Struct{setData.Config["key"], data})
 
@@ -173,18 +173,18 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	data := FromGoB64(response.Data)
+	data := fromGoB64(response.Data)
 
 	return data, nil
 }
 
-//получение связи к монго
+//GetMongoConnection для получение связи к монго
 func GetMongoConnection() *mongo.Session {
 	return moderation.connect
 }
 
 // go binary encoder
-func ToGoB64(m []url.Values) string {
+func toGoB64(m []url.Values) string {
 
 	b := bytes.Buffer{}
 	e := gob.NewEncoder(&b)
@@ -195,7 +195,7 @@ func ToGoB64(m []url.Values) string {
 }
 
 // go binary decoder
-func FromGoB64(str string) []url.Values {
+func fromGoB64(str string) []url.Values {
 
 	var m []url.Values
 	by, err := base64.StdEncoding.DecodeString(str)
