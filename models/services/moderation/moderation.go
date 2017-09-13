@@ -178,7 +178,7 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 	return data, nil
 }
 
-//получение связи к монго
+//GetMongoConnection для получение связи к монго
 func GetMongoConnection() *mongo.Session {
 	return moderation.connect
 }
