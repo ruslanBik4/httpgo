@@ -1,3 +1,8 @@
+// Copyright 2017 Author: Yurii Kravchuk. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package server назначение модуля - читать и отдавать конфигурационные настройки
 package server
 
 import (
@@ -18,21 +23,22 @@ type mongodConfig struct {
 
 var mConfig *mongodConfig
 
+//получение конфигураций для mongod
 func GetMongodConfig() *mongodConfig {
 
 	if mConfig != nil {
 		return mConfig
-	} else {
-		mConfig = &mongodConfig{}
 	}
+
+	mConfig = &mongodConfig{}
 
 	return mConfig
 }
-func (mConfig *mongodConfig) Init(f_static, f_web, f_session *string) error {
+func (mConfig *mongodConfig) Init(fStatic, fWeb, fSession *string) error {
 
-	mConfig.systemPath = *f_static
-	mConfig.wwwPath = *f_web
-	mConfig.SessionPath = *f_session
+	mConfig.systemPath = *fStatic
+	mConfig.wwwPath = *fWeb
+	mConfig.SessionPath = *fSession
 
 	f, err := os.Open(filepath.Join(mConfig.systemPath, "config/mongo.yml"))
 	if err != nil {

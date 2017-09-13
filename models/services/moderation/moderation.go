@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//Реализует работу с записями для последуйщей модерации
+//Package moderation Реализует работу с записями для последуйщей модерации
 package moderation
 
 import (
@@ -21,13 +21,13 @@ var (
 	moderation *mService = &mService{name: "moderation"}
 )
 
-//структура получения данных для модерации
+//Record являет собой структуру по получению данных для модерации
 type Record struct {
 	Config map[string]string
 	Data   []url.Values
 }
 
-//структура записи модерации данных
+//Struct вляет собой структуру для записи модерации данных
 type Struct struct {
 	Key  string
 	Data string
@@ -135,7 +135,7 @@ func (moderation *mService) Send(messages ...interface{}) error {
 		}
 	}
 
-	data := ToGOB64(setData.Data)
+	data := ToGoB64(setData.Data)
 
 	err = cConnect.Insert(&Struct{setData.Config["key"], data})
 
@@ -173,17 +173,18 @@ func (moderation *mService) Get(messages ...interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	data := FromGOB64(response.Data)
+	data := FromGoB64(response.Data)
 
 	return data, nil
 }
 
+//получение связи к монго
 func GetMongoConnection() *mongo.Session {
 	return moderation.connect
 }
 
 // go binary encoder
-func ToGOB64(m []url.Values) string {
+func ToGoB64(m []url.Values) string {
 
 	b := bytes.Buffer{}
 	e := gob.NewEncoder(&b)
@@ -194,7 +195,7 @@ func ToGOB64(m []url.Values) string {
 }
 
 // go binary decoder
-func FromGOB64(str string) []url.Values {
+func FromGoB64(str string) []url.Values {
 
 	var m []url.Values
 	by, err := base64.StdEncoding.DecodeString(str)

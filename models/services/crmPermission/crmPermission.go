@@ -143,9 +143,9 @@ func (crmPermission *cpService) Get(args ...interface{}) (interface{}, error) {
 		return nil, services.ErrServiceNotCorrectParamType{Name: crmPermission.name, Param: args[1], Number: 2}
 	}
 
-	connection_status := services.Status("crmPermission")
+	connectionStatus := services.Status("crmPermission")
 
-	if connection_status != "ready" {
+	if connectionStatus != "ready" {
 		return nil, services.ErrBrokenConnection{Name: crmPermission.name, Param: args}
 	}
 
