@@ -1,3 +1,4 @@
+// Package db
 // Copyright 2017
 // 	Author's: Mykhailo Sizov sizov.mykhailo@gmail.com
 // All rights reserved.
@@ -19,6 +20,7 @@ import (
 	"strings"
 )
 
+// тип данных, что хранит транзакцию
 type TxConnect struct {
 	tx *sql.Tx
 }
