@@ -11,6 +11,7 @@ import (
 
 // SchemaCache хранит структуру полей - стоит продумать, как хранить еще и ключи
 var SchemaCache map[string]*FieldsTable
+
 // ErrNotFoundTable if not found table by name {Table}
 type ErrNotFoundTable struct {
 	Table string
@@ -20,6 +21,7 @@ func (err ErrNotFoundTable) Error() string {
 
 	return fmt.Sprintf("Not table `%s` in schema ", err.Table)
 }
+
 // ErrNotFoundField if not found in table {Table} field by name {FieldName}
 type ErrNotFoundField struct {
 	Table     string
@@ -31,6 +33,7 @@ func (err ErrNotFoundField) Error() string {
 	return fmt.Sprintf("Not field `%s` for table `%s` in schema ", err.FieldName, err.Table)
 
 }
+
 // GetFieldsTable return schema table from cache
 func GetFieldsTable(tableName string) *FieldsTable {
 	table, ok := SchemaCache[tableName]
@@ -40,6 +43,7 @@ func GetFieldsTable(tableName string) *FieldsTable {
 	}
 	return table
 }
+
 // GetParentTable return name parent table
 func GetParentTable(tableName string) *FieldsTable {
 	_, ok := SchemaCache[tableName]

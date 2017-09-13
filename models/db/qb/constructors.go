@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Query Builder for manipulate SQL-queryes & check in databases schema her parameters
+// Package qb has Query Builder for manipulate SQL-queryes & check in databases schema her parameters
 package qb
 
 import (
@@ -11,17 +11,19 @@ import (
 	"strings"
 )
 
-// constructors
+// Create - constructor from some parameters
 func Create(where, groupBy, orderBy string) *QueryBuilder {
 
 	qb := &QueryBuilder{Where: where, OrderBy: orderBy, GroupBy: groupBy}
 	return qb
 }
+// CreateEmpty construct empty QueryBuilder
 func CreateEmpty() *QueryBuilder {
 
 	qb := &QueryBuilder{}
 	return qb
 }
+// CreateFromSQL construct QueryBuilder from sql-query string
 func CreateFromSQL(sqlCommand string) *QueryBuilder {
 	qb := &QueryBuilder{sqlCommand: sqlCommand}
 	var err error
@@ -176,7 +178,7 @@ func (qb *QueryBuilder) getField(text string, groupNames []string) *tSqlField {
 
 	if fieldTableName == "" && fieldName == "" {
 		return nil
-	} else {
-		return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}
 	}
+
+	return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}
 }

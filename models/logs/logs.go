@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"time"
 )
+
 // LogsType - interface for print logs record
 type LogsType interface {
 	PrintToLogs() string
@@ -29,6 +30,7 @@ func DebugLog(args ...interface{}) {
 			getArgsString(args)))
 	}
 }
+
 // StatusLog output formated information for status
 func StatusLog(args ...interface{}) {
 	//_, fn, line, _ := runtime.Caller(1)
@@ -38,6 +40,7 @@ func StatusLog(args ...interface{}) {
 		log.Output(2, fmt.Sprintf("[STATUS];;;;%s", getArgsString(args...)))
 	}
 }
+
 // ErrorLog - output formated(function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -55,6 +58,7 @@ func ErrorLog(err error, args ...interface{}) {
 		err.Error(), getArgsString(args...)))
 
 }
+
 // ErrorLogHandler - output formated(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -64,6 +68,7 @@ func ErrorLogHandler(err error, args ...interface{}) {
 		err, getArgsString(args...)))
 
 }
+
 // ErrorStack - output formated(function and line calls) error runtime stack information
 func ErrorStack() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -80,6 +85,7 @@ func ErrorStack() {
 		log.Output(i, fmt.Sprintf("[ERROR_STACK];%s;;;;", funcName))
 	}
 }
+
 // Fatal - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)

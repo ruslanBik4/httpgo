@@ -44,7 +44,6 @@ func TestConnect(t *testing.T) {
 		}
 	}
 
-
 }
 func TestSend(t *testing.T) {
 	nameServ := "permission"
@@ -104,7 +103,6 @@ func TestModConnect(t *testing.T) {
 			//	t.Log("-")
 		}
 	}
-
 
 }
 

@@ -8,11 +8,10 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
-
+// ErrNotFoundParam for errors not found requared parameters
 type ErrNotFoundParam struct {
 	Param string
 }
-
 func (err ErrNotFoundParam) Error() string {
 	return err.Param
 }

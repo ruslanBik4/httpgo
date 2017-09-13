@@ -8,7 +8,7 @@ import (
 )
 
 var enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
-
+// QueryStruct has property for form record in table view
 type QueryStruct struct {
 	HrefEdit   string
 	Href       string

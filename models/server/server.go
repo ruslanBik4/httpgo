@@ -19,16 +19,17 @@ type serverConfig struct {
 	wwwPath     string
 	SessionPath string
 	dbParams    struct {
-		DB   string `yaml:"dbName"`
-		User string `yaml:"dbUser"`
-		Pass string `yaml:"dbPass"`
-		Prot string `yaml:"dbProt"`
+		DB           string            `yaml:"dbName"`
+		User         string            `yaml:"dbUser"`
+		Pass         string            `yaml:"dbPass"`
+		Prot         string            `yaml:"dbProt"`
 		ConfigParams map[string]string `yaml:"configParams"`
 	}
 	StartTime time.Time
 }
 
 var sConfig *serverConfig
+
 // GetServerConfig return reference on server config structure
 func GetServerConfig() *serverConfig {
 

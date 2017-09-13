@@ -27,6 +27,7 @@ const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_
 const nameSession = "PHPSESSID"
 
 var store = users.Store
+
 // record user profile
 type UserRecord struct {
 	Id   int
@@ -168,6 +169,7 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 
 	return true, []byte(userName), []byte(pair[1]), userId
 }
+
 // show admin menu
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
@@ -191,6 +193,7 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 		HandlerAdmin(w, r)
 	}
 }
+
 // show admin start page
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
@@ -236,6 +239,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(401)
 	w.Write([]byte("401 Unauthorized\n"))
 }
+
 // show table from DB
 func HandlerAdminTable(w http.ResponseWriter, r *http.Request) {
 

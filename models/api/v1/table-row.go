@@ -1,6 +1,7 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+ /* Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+ Use of this source code is governed by a BSD-style
+ license that can be found in the LICENSE file.
+*/
 
 package api
 
@@ -63,6 +64,7 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
 }
+
 // HandleSchema show schema table by name {nameTable}
 // @/api/table/schema/?table={nameTable}
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
@@ -75,6 +77,7 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 // wOut - for callback render in qtpl
 var wOut http.ResponseWriter
 var comma string
@@ -158,6 +161,7 @@ func PutRowToJSON(fields []*qb.QBField) error {
 
 	return nil
 }
+
 // HandleTextRowJSON return field with text values for show in site
 // @/api/table/view/?table={nameTable}& other field in this table
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
@@ -195,6 +199,7 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.WriteJSONHeaders(w)
 	}
 }
+
 // PrepareQuery make where part for sql-query & fill args
 func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, args []interface{}) {
 
@@ -225,6 +230,7 @@ func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, ar
 	}
 	return where, args
 }
+
 // HandleRowJSON return row from nameTable from key=id
 // @/api/table/row/?table={nameTable}&id={id}
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
@@ -248,6 +254,7 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.RenderNotParamsInPOST(w, "table", "id")
 	}
 }
+
 // HandleAllRowsJSON return all rows from nameTable
 // @/api/table/rows/?table={nameTable}
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {

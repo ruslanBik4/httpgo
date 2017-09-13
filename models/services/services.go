@@ -105,7 +105,7 @@ func Close(name string, out chan<- interface{}) error {
 func Status(name string) string {
 	pService := getService(name)
 	if pService == nil {
-		return name + MessServNotFound
+		return name + messServNotFound
 	}
 
 	return pService.Status()
