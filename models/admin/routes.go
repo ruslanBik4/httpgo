@@ -10,18 +10,18 @@ import (
 var (
 	routes = map[string]http.HandlerFunc{
 
-		"/admin/":               HandlerAdmin,
-		"/admin/table/":         HandlerAdminTable,
-		"/admin/lists/":         HandlerAdminLists,
-		"/admin/row/new/":       HandlerNewRecord,
-		"/admin/row/edit/":      HandlerEditRecord,
-		"/admin/row/add/":       HandlerAddRecord,
-		"/admin/row/update/":    HandlerUpdateRecord,
-		"/admin/row/show/":      HandlerShowRecord,
-		"/admin/row/del/":       HandlerDeleteRecord,
+		"/admin/":               handlerAdmin,
+		"/admin/table/":         handlerAdminTable,
+		"/admin/lists/":         handlerAdminLists,
+		"/admin/row/new/":       handlerNewRecord,
+		"/admin/row/edit/":      handlerEditRecord,
+		"/admin/row/add/":       handlerAddRecord,
+		"/admin/row/update/":    handlerUpdateRecord,
+		"/admin/row/show/":      handlerShowRecord,
+		"/admin/row/del/":       handlerDeleteRecord,
 		"/admin/exec/":          HandlerExec,
-		"/admin/schema/":        HandlerSchema,
-		"/admin/umutable/":      HandlerUMUTables,
+		"/admin/schema/":        handlerSchema,
+		"/admin/umutable/":      handlerUMUTables,
 		"/admin/anothersignup/": HandlerSignUpAnotherUser,
 	}
 )

@@ -24,16 +24,6 @@ import (
 )
 
 const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_vuWbxsQSW_Ww8zqPG5-w6kCA"
-const nameSession = "PHPSESSID"
-
-var store = users.Store
-
-// record user profile
-type UserRecord struct {
-	Id   int
-	Name string
-	Sex  int
-}
 
 func correctURL(url string) string {
 
@@ -43,7 +33,7 @@ func correctURL(url string) string {
 
 	return url
 }
-func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
+func handlerUMUTables(w http.ResponseWriter, r *http.Request) {
 
 	/*userID  := users.IsLogin(r)
 	resultId,_ := strconv.Atoi(userID)
@@ -66,7 +56,7 @@ func HandlerUMUTables(w http.ResponseWriter, r *http.Request) {
 	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner())
 	} else {
-		HandlerAdmin(w, r)
+		handlerAdmin(w, r)
 	}
 }
 
@@ -158,20 +148,20 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 		return false, nil, nil, 0
 	}
 
-	err, userId, userName := users.CheckUserCredentials(pair[0], pair[1])
+	user, err := users.CheckUserCredentials(pair[0], pair[1])
 
 	if err != nil {
 		return false, nil, nil, 0
 	}
 
 	// session save BEFORE write page
-	users.SaveSession(w, r, userId, pair[0])
+	users.SaveSession(w, r, user.Id, pair[0])
 
-	return true, []byte(userName), []byte(pair[1]), userId
+	return true, []byte(user.Name), []byte(pair[1]), user.Id
 }
 
 // show admin menu
-func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
+func handlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
 	userID := users.IsLogin(r)
 	resultId, err := strconv.Atoi(userID)
@@ -190,12 +180,12 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 	if views.IsAJAXRequest(r) {
 		fmt.Fprint(w, p.MenuOwner())
 	} else {
-		HandlerAdmin(w, r)
+		handlerAdmin(w, r)
 	}
 }
 
 // show admin start page
-func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
+func handlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
 	result, username, password, userId := basicAuth(w, r)
@@ -241,7 +231,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 }
 
 // show table from DB
-func HandlerAdminTable(w http.ResponseWriter, r *http.Request) {
+func handlerAdminTable(w http.ResponseWriter, r *http.Request) {
 
 	/*userID  := users.IsLogin(r)
 	resultId,_ := strconv.Atoi(userID)
@@ -311,7 +301,7 @@ func HandlerAdminTable(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(query.RenderTable()))
 
 }
-func HandlerSchema(w http.ResponseWriter, r *http.Request) {
+func handlerSchema(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	var fields forms.FieldsTable
@@ -369,6 +359,7 @@ func HandlerSchema(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/exec/", "Меняем запись №"+id+" в таблице "+tableName))
 
 }
+// GetFields return field list (OBSOLETE)
 func GetFields(tableName string) (fields forms.FieldsTable) {
 
 	var ns db.FieldsTable
@@ -385,7 +376,7 @@ func GetFields(tableName string) (fields forms.FieldsTable) {
 	return fields
 
 }
-func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
+func handlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	tableName := r.URL.Path[len("/admin/row/new/") : len(r.URL.Path)-1]
@@ -393,7 +384,7 @@ func HandlerNewRecord(w http.ResponseWriter, r *http.Request) {
 	fields := GetFields(tableName)
 	fmt.Fprint(w, fields.ShowAnyForm("/admin/row/add/", "Новая запись в таблицу "+tableName))
 }
-func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
+func getRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 
 	//TODO научить данную функцию получать значения из полей типа tableid_ setid_ nodeid_
 	fields = GetFields(tableName)
@@ -438,7 +429,7 @@ func GetRecord(tableName, id string) (fields forms.FieldsTable, err error) {
 }
 
 // удаление записи - помечаем специальное поле isDel
-func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
+func handlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
@@ -453,12 +444,12 @@ func HandlerDeleteRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Успешно удалили запись с номером "+id)
 	}
 }
-func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
+func handlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
-	if fields, err := GetRecord(tableName, id); err != nil {
+	if fields, err := getRecord(tableName, id); err != nil {
 		fmt.Fprintf(w, "Error during reading record with id=%s", id)
 
 	} else {
@@ -466,13 +457,13 @@ func HandlerShowRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-func HandlerEditRecord(w http.ResponseWriter, r *http.Request) {
+func handlerEditRecord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 	tableName := r.FormValue("table")
 	id := r.FormValue("id")
 
-	if fields, err := GetRecord(tableName, id); err != nil {
+	if fields, err := getRecord(tableName, id); err != nil {
 		fmt.Fprintf(w, "Error during reading record with id=%s", id)
 
 	} else {
@@ -487,16 +478,13 @@ func checkUserLogin(w http.ResponseWriter, r *http.Request) (string, bool) {
 	return userID, true
 
 }
-func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
-
-	var arrJSON map[string]interface{}
-	arrJSON = make(map[string]interface{}, 0)
+func handlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 
 	userID, ok := checkUserLogin(w, r)
 	if !ok {
 		views.RenderUnAuthorized(w)
 		return
-	} else {
+	}
 		var err error
 		var id int
 
@@ -507,6 +495,7 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 		}
 
 		tableName := r.FormValue("table")
+		arrJSON   := make(map[string]interface{}, 0)
 		if err != nil {
 			logs.ErrorLog(err)
 			arrJSON["error"] = "true"
@@ -515,24 +504,25 @@ func HandlerRecord(w http.ResponseWriter, r *http.Request, operation string) {
 			arrJSON[operation] = id
 			arrJSON["contentURL"] = fmt.Sprintf("/admin/table/%s/", tableName)
 		}
-	}
+
 	views.RenderAnyJSON(w, arrJSON)
 }
-func HandlerAddRecord(w http.ResponseWriter, r *http.Request) {
-	HandlerRecord(w, r, "id")
+func handlerAddRecord(w http.ResponseWriter, r *http.Request) {
+	handlerRecord(w, r, "id")
 }
-func HandlerUpdateRecord(w http.ResponseWriter, r *http.Request) {
-	HandlerRecord(w, r, "rowAffected")
+func handlerUpdateRecord(w http.ResponseWriter, r *http.Request) {
+	handlerRecord(w, r, "rowAffected")
 
 }
+// HandlerExec executes sql-query on post parameters
 func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	if r.FormValue("table") > "" {
 		if r.FormValue("id") > "" {
-			HandlerUpdateRecord(w, r)
+			handlerUpdateRecord(w, r)
 		} else {
-			HandlerAddRecord(w, r)
+			handlerAddRecord(w, r)
 		}
 	} else {
 		//var params db.MultiQuery
@@ -632,7 +622,7 @@ func HandlerExec(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//проверка прав пользователя на доступ по url с учётом проверки на права администратора (доступны все области)
+// GetUserPermissionForPageByUserId проверка прав пользователя на доступ по url с учётом проверки на права администратора (доступны все области)
 func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 
 	var rows *sql.Rows
@@ -685,7 +675,7 @@ func GetUserPermissionForPageByUserId(userId int, url, action string) bool {
 	return false
 }
 
-//проверка пользователя на права администратора в екстранете
+// CheckAdminPermissions проверка пользователя на права администратора в екстранете
 func CheckAdminPermissions(userId int) bool {
 
 	rows, err := db.DoSelect("SELECT users_roles_list_has.`id_users` "+
@@ -730,7 +720,7 @@ func getMenuNameFromUrl(url string) string {
 
 	return urlParts[2]
 }
-
+// HandlerSignUpAnotherUser is TODO: comments
 func HandlerSignUpAnotherUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32000)
 

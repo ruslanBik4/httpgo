@@ -29,6 +29,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"gopkg.in/gomail.v2"
+	"database/sql"
 )
 
 const nameSession = "PHPSESSID"
@@ -190,16 +191,16 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		panic(&system.ErrNotLogin{Message: "Not enoug login parameters!"})
 	}
 
-	err, userId, userName := CheckUserCredentials(email, password)
+	user, err := CheckUserCredentials(email, password)
 
 	if err != nil {
 		panic(&system.ErrNotLogin{Message: "Wrong email or password"})
 	}
 
 	// session save BEFORE write page
-	SaveSession(w, r, userId, email)
+	SaveSession(w, r, user.Id, email)
 
-	p := &forms.PersonData{Id: userId, Login: userName, Email: email}
+	p := &forms.PersonData{Id: user.Id, Login: user.Name, Email: email}
 	fmt.Fprint(w, p.JSON())
 }
 // HandlerSignOut sign out current user & show authorization form
@@ -347,27 +348,29 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 // CheckUserCredentials check user data & return id + name
-func CheckUserCredentials(login string, password string) (error, int, string) {
+func CheckUserCredentials(login string, password string) (row UserRecord, err error) {
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password))
+	var rows *sql.Rows
+	rows, err = db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password))
 	if err != nil {
 		logs.ErrorLog(err)
-		return err, 0, ""
+		return
 	}
 	defer rows.Close()
-	var row UserRecord
 
 	for rows.Next() {
 
-		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+		err = rows.Scan(&row.Id, &row.Name, &row.Sex)
 
 		if err != nil {
 			logs.ErrorLog(err)
-			continue
+			return
 		}
 
-		return nil, row.Id, row.Name
+		return
 	}
 
-	return &system.ErrNotLogin{Message: "Wrong email or password"}, 0, ""
+	err = &system.ErrNotLogin{Message: "Wrong email or password"}
+
+	return
 }
