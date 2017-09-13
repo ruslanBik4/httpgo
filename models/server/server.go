@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// назначение модуля - читать и отдавать конфигурационные настройки
+// Package server назначение модуля - читать и отдавать конфигурационные настройки
 package server
 
 import (
@@ -29,21 +29,20 @@ type serverConfig struct {
 }
 
 var sConfig *serverConfig
-
+// return reference on server config structure
 func GetServerConfig() *serverConfig {
 
 	if sConfig != nil {
 		return sConfig
-	} else {
-		sConfig = &serverConfig{}
 	}
 
+	sConfig = &serverConfig{}
 	return sConfig
 }
-func (sConfig *serverConfig) Init(f_static, f_web, f_session *string) error {
-	sConfig.systemPath = *f_static
-	sConfig.wwwPath = *f_web
-	sConfig.SessionPath = *f_session
+func (sConfig *serverConfig) Init(fStatic, fWeb, fSession *string) error {
+	sConfig.systemPath = *fStatic
+	sConfig.wwwPath = *fWeb
+	sConfig.SessionPath = *fSession
 	sConfig.StartTime = time.Now()
 
 	f, err := os.Open(filepath.Join(sConfig.systemPath, "config/db.yml"))

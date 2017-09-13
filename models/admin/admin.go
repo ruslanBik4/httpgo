@@ -2,17 +2,15 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// подключение основных хандлеров для панели администратора
+// Package admin подключение основных хандлеров для панели администратора
 package admin
 
 import (
 	"database/sql"
 	"encoding/base64"
-	_ "errors"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
-	_ "github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
@@ -29,7 +27,7 @@ const ccApiKey = "SVwaLLaJCUSUV5XPsjmdmiV5WBakh23a7ehCFdrR68pXlT8XBTvh25OO_mUU4_
 const nameSession = "PHPSESSID"
 
 var store = users.Store
-
+// record user profile
 type UserRecord struct {
 	Id   int
 	Name string
@@ -170,7 +168,7 @@ func basicAuth(w http.ResponseWriter, r *http.Request) (bool, []byte, []byte, in
 
 	return true, []byte(userName), []byte(pair[1]), userId
 }
-
+// show admin menu
 func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 
 	userID := users.IsLogin(r)
@@ -193,6 +191,7 @@ func HandlerAdminLists(w http.ResponseWriter, r *http.Request) {
 		HandlerAdmin(w, r)
 	}
 }
+// show admin start page
 func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 
 	// pass from global variables
@@ -237,6 +236,7 @@ func HandlerAdmin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(401)
 	w.Write([]byte("401 Unauthorized\n"))
 }
+// show table from DB
 func HandlerAdminTable(w http.ResponseWriter, r *http.Request) {
 
 	/*userID  := users.IsLogin(r)

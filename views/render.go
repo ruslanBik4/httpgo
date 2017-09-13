@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// подготовка вывода данных в поток возврата
+// Package views подготовка вывода данных в поток возврата
 package views
 
 import (
@@ -11,9 +11,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	_ "github.com/ruslanBik4/httpgo/views/templates/system"
 	"net/http"
-	//	"views/templates/layouts/common"
 	"bytes"
 	"fmt"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
@@ -23,7 +21,7 @@ import (
 	"time"
 )
 
-//noinspection GoInvalidConstType
+// HEADERS - list standart header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "uStudio",
@@ -31,18 +29,18 @@ var HEADERS = map[string]string{
 	"Content-Language": "en, ru",
 	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
-
+// WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(w http.ResponseWriter) {
-	// выдаем стандартные заголовки страницы
 	for key, value := range HEADERS {
 		w.Header().Set(key, value)
 	}
 }
+// IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
 
-// NEW! эта функция позволяет определить - пришел ли запрос как AJAX
+// RenderContentFromAJAXRequest NEW! эта функция позволяет определить - пришел ли запрос как AJAX
 // и, если нет, добавить в вывод текст основной страницы
 // получает на вход функцию qtpl, которая пишет сразу в буфер вывода
 func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWrite func(w io.Writer)) {
@@ -55,7 +53,7 @@ func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWri
 
 }
 
-// deprecate
+// RenderAnyPage (deprecate)
 //TODO: replace string output by streaming
 func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 	if IsAJAXRequest(r) {
@@ -65,31 +63,34 @@ func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
 		RenderTemplate(w, r, "index", p)
 	}
 }
+// RenderSignForm show form for authorization user
 func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
 
 	signForm := &forms.SignForm{Email: email, Password: "Введите пароль, полученный по почте"}
 	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
 }
+// RenderSignUpForm show form registration user
 func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
 
 	RenderAnyPage(w, r, forms.SignUpForm(placeholder))
 }
+// RenderAnotherSignUpForm  - new form for registration
 func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
 
 	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder))
 }
-
+// ParamNotCorrect - map bad parameters on this request
 type ParamNotCorrect map[string]string
 
 // render errors
 
-// func get list params thoese not found in request
+// RenderNotParamsInPOST get list params thoese not found in request
 func RenderNotParamsInPOST(w http.ResponseWriter, params ...string) {
 	http.Error(w, strings.Join(params, ",")+": not found", http.StatusBadRequest)
 
 }
 
-// return header "BADREQUEST" & descriptors bad params
+// RenderBadRequest return header "BADREQUEST" & descriptors bad params
 func RenderBadRequest(w http.ResponseWriter, params ...ParamNotCorrect) {
 
 	description, comma := "", ""
@@ -105,30 +106,32 @@ func RenderBadRequest(w http.ResponseWriter, params ...ParamNotCorrect) {
 	http.Error(w, description, http.StatusBadRequest)
 }
 
-// для отдачи и записи в лог паники системы при работе хендлеров
+// RenderHandlerError для отдачи и записи в лог паники системы при работе хендлеров
 func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLogHandler(err, args)
 	logs.ErrorStack()
 }
 
-// для отдачи и записи в лог ошибок системы при работе хендлеров
+// RenderInternalError для отдачи и записи в лог ошибок системы при работе хендлеров
 func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLog(err, args)
 	logs.ErrorStack()
 }
+// RenderUnAuthorized - returs error code
 func RenderUnAuthorized(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
+// RenderNotFound - returs error code
 func RenderNotFound(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
 }
+// RenderNoPermissionPage - returs error code
 func RenderNoPermissionPage(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusForbidden)
 }
-
-// render from template
+// RenderTemplate render from template tmplName
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{}) error {
 
 	WriteHeaders(w)
@@ -171,7 +174,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 	}
 	return nil
 }
-
+// RenderAnyForm show form for list fields
 func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields forms.FieldsTable,
 	Inputs map[string][]string, head, foot string) error {
 
@@ -192,36 +195,39 @@ func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields 
 var jsonHEADERS = map[string]string{
 	"Content-Type": "application/json; charset=utf-8",
 }
-
+// WriteJSONHeaders return standart headers for JSON
 func WriteJSONHeaders(w http.ResponseWriter) {
 	// выдаем стандартные заголовки страницы
 	for key, value := range jsonHEADERS {
 		w.Header().Set(key, value)
 	}
 }
+// RenderAnyJSON marshal JSON from arrJSON
 func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string]interface{}) {
 
 	WriteJSONHeaders(w)
 	json.WriteAnyJSON(w, arrJSON)
 }
+// RenderAnySlice marshal JSON from slice
 func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
 
 	WriteJSONHeaders(w)
 	json.WriteArrJSON(w, arrJSON)
 }
+// RenderStringSliceJSON marshal JSON from slice strings
 func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
 
 	WriteJSONHeaders(w)
 	json.WriteStringDimension(w, arrJSON)
 }
-
+// RenderArrayJSON marshal JSON from arrJSON
 func RenderArrayJSON(w http.ResponseWriter, arrJSON []map[string]interface{}) {
 
 	WriteJSONHeaders(w)
 	json.WriteSliceJSON(w, arrJSON)
 }
 
-// render JSON for form by fields map
+// RenderJSONAnyForm render JSON for form by fields map
 func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.FormStructure,
 	AddJson json.MultiDimension) {
 
@@ -229,7 +235,7 @@ func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.Form
 	form.WriteJSONAnyForm(w, fields, AddJson)
 }
 
-// render for output file execute
+// RenderOutput render for output script execute
 func RenderOutput(w http.ResponseWriter, stdoutStderr []byte) {
 
 	WriteHeaders(w)
