@@ -209,24 +209,24 @@ func cutPartFromTitle(title, pattern, defaultStr string) (titleFull, titlePart s
 }
 
 // GetColumnTitles split title field for form render
-func (fieldStrc *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
+func (field *FieldStructure) GetColumnTitles() (titleFull, titleLabel, placeholder, pattern, dataJson string) {
 
 	counter := 1
 	comma := ""
-	for key, val := range fieldStrc.DataJSOM {
+	for key, val := range field.DataJSOM {
 
 		dataJson += comma + fmt.Sprintf(`"%s": "%s"`, key, val)
 		counter++
 		comma = ","
 	}
-	return fieldStrc.COLUMN_COMMENT, fieldStrc.COLUMN_COMMENT, fieldStrc.Placeholder, fieldStrc.Pattern, dataJson
+	return field.COLUMN_COMMENT, field.COLUMN_COMMENT, field.Placeholder, field.Pattern, dataJson
 }
-func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
+func (field *FieldStructure) parseWhere(whereJSON interface{}) {
 	switch mapWhere := whereJSON.(type) {
 	case map[string]interface{}:
 
 		comma := ""
-		fieldStrc.Where = ""
+		field.Where = ""
 
 		for key, value := range mapWhere {
 			enumVal := value.(string)
@@ -238,16 +238,16 @@ func (fieldStrc *FieldStructure) parseWhere(whereJSON interface{}) {
 			//		param = param[:j]
 			//	}
 			//	// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-			//	//if paramField := fieldStrc.Table.FindField(param); paramField == nil {
+			//	//if paramField := field.Table.FindField(param); paramField == nil {
 			//	//	continue
 			//	//}
 			//}
-			fieldStrc.Where += comma + key + " " + enumVal
+			field.Where += comma + key + " " + enumVal
 			comma = " OR "
 
 		}
 	default:
-		logs.ErrorLog(errors.New("not correct type WhereJSON !"), fieldStrc.Table.Name, fieldStrc.COLUMN_NAME, whereJSON)
+		logs.ErrorLog(errors.New("not correct type WhereJSON !"), field.Table.Name, field.COLUMN_NAME, whereJSON)
 	}
 
 }
@@ -264,9 +264,9 @@ func convertDatePattern(strDate string) string {
 }
 
 // ParseComment извлекает из комментария к полю значимые токены
-func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
+func (field *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
-	COLUMN_COMMENT, fieldStrc.Pattern = cutPartFromTitle(COLUMN_COMMENT, "//", "")
+	COLUMN_COMMENT, field.Pattern = cutPartFromTitle(COLUMN_COMMENT, "//", "")
 	if posPattern := strings.Index(COLUMN_COMMENT, "{"); posPattern > 0 {
 
 		dataJson := COLUMN_COMMENT[posPattern:]
@@ -279,42 +279,42 @@ func (fieldStrc *FieldStructure) ParseComment(COLUMN_COMMENT string) string {
 
 				switch key {
 				case "figure":
-					fieldStrc.Figure = val.(string)
+					field.Figure = val.(string)
 				case "classCSS":
-					fieldStrc.CSSClass = val.(string)
+					field.CSSClass = val.(string)
 				case "placeholder":
-					fieldStrc.Placeholder = val.(string)
+					field.Placeholder = val.(string)
 				case "pattern":
-					//fieldStrc.Pattern = getPattern( val.(string) )
+					//field.Pattern = getPattern( val.(string) )
 				case "foreingKeys":
-					fieldStrc.ForeignFields = val.(string)
+					field.ForeignFields = val.(string)
 				case "inputType":
-					fieldStrc.InputType = val.(string)
+					field.InputType = val.(string)
 				case "isHidden":
-					fieldStrc.IsHidden = val.(bool)
+					field.IsHidden = val.(bool)
 				case "linkTD":
-					fieldStrc.LinkTD = val.(string)
+					field.LinkTD = val.(string)
 				case "where":
-					fieldStrc.parseWhere(val)
+					field.parseWhere(val)
 				case "maxDate":
-					fieldStrc.MaxDate = convertDatePattern(val.(string))
+					field.MaxDate = convertDatePattern(val.(string))
 				case "minDate":
-					fieldStrc.MinDate = convertDatePattern(val.(string))
+					field.MinDate = convertDatePattern(val.(string))
 				case "events":
-					fieldStrc.Events = make(map[string]string, 0)
+					field.Events = make(map[string]string, 0)
 					for name, event := range val.(map[string]interface{}) {
-						fieldStrc.Events[name] = event.(string)
+						field.Events[name] = event.(string)
 					}
 				default:
-					fieldStrc.DataJSOM[key] = val
+					field.DataJSOM[key] = val
 				}
 			}
 		}
 
-		fieldStrc.COLUMN_COMMENT = COLUMN_COMMENT[:posPattern]
+		field.COLUMN_COMMENT = COLUMN_COMMENT[:posPattern]
 	} else {
-		fieldStrc.COLUMN_COMMENT = COLUMN_COMMENT
+		field.COLUMN_COMMENT = COLUMN_COMMENT
 	}
 
-	return fieldStrc.COLUMN_COMMENT
+	return field.COLUMN_COMMENT
 }
