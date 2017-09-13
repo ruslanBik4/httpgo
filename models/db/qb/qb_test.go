@@ -38,18 +38,18 @@ func TestQBCreate(t *testing.T) {
 }
 
 var (
-	f_port    = flag.String("port", ":8080", "host address to listen on")
-	f_static  = flag.String("path", "./", "path to static files")
-	f_web     = flag.String("web", "/Users/ruslan/PhpstormProjects/thetravel/web", "path to web files")
-	f_session = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
-	f_cache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
-	f_chePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
+	fPort    = flag.String("port", ":8080", "host address to listen on")
+	fStatic  = flag.String("path", "./", "path to static files")
+	fWeb     = flag.String("web", "/Users/ruslan/PhpstormProjects/thetravel/web", "path to web files")
+	fSession = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
+	fCache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
+	fChePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
 )
 
 func init() {
 	flag.Parse()
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		fmt.Println(err)
 	}
 	services.InitServices()
