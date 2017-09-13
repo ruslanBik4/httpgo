@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//Реализует работу с базой данных mongodb
+//Package mongod Реализует работу с базой данных mongodb
 package mongod
 
 import (
@@ -70,13 +70,13 @@ func (mongod *mdService) Status() string {
 func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 
 	if len(args) < 2 {
-		return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return nil, services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 
-	connection_status := Status("mongod")
+	connectionStatus := services.Status("mongod")
 
-	if connection_status != "ready" {
-		return nil, ErrBrokenConnection{Name: mongod.name, Param: args}
+	if connectionStatus != "ready" {
+		return nil, services.ErrBrokenConnection{Name: mongod.name, Param: args}
 	}
 
 	var collection string
@@ -84,7 +84,7 @@ func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 	case string:
 		collection = col
 	default:
-		return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: col, Number: 1}
+		return nil, services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: col, Number: 1}
 	}
 
 	connetion := mongod.connect
@@ -97,23 +97,23 @@ func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 			return findRecord(cConnect, args)
 
 		default:
-			return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 2}
+			return nil, services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 2}
 		}
 	}
 
-	return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+	return nil, services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
 func (mongod *mdService) Send(args ...interface{}) error {
 
 	if len(args) < 2 {
-		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 
-	connection_status := Status("mongod")
+	connectionStatus := services.Status("mongod")
 
-	if connection_status != "ready" {
-		return ErrBrokenConnection{Name: mongod.name, Param: args}
+	if connectionStatus != "ready" {
+		return services.ErrBrokenConnection{Name: mongod.name, Param: args}
 	}
 
 	var collection string
@@ -121,7 +121,7 @@ func (mongod *mdService) Send(args ...interface{}) error {
 	case string:
 		collection = col
 	default:
-		return ErrServiceNotCorrectParamType{Name: mongod.name, Param: col, Number: 1}
+		return services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: col, Number: 1}
 	}
 
 	connetion := mongod.connect
@@ -140,18 +140,18 @@ func (mongod *mdService) Send(args ...interface{}) error {
 			return removeRecord(cConnect, args)
 
 		default:
-			return ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 2}
+			return services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 2}
 		}
 	}
 
-	return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+	return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
 //поиск записей в mongodb
 func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, error) {
 
 	if len(args) < 4 {
-		return nil, ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return nil, services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	switch oType := args[2].(type) {
 	case string:
@@ -169,7 +169,7 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 				return response, nil
 
 			default:
-				return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
+				return nil, services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
 			}
 		case "One":
 			switch args[3].(type) {
@@ -184,10 +184,10 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 				return response, nil
 
 			default:
-				return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
+				return nil, services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 4}
 			}
 		default:
-			return nil, ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 3}
+			return nil, services.ErrServiceNotCorrectParamType{Name: mongod.name, Param: args, Number: 3}
 		}
 	}
 
@@ -198,7 +198,7 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
-		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	err := cConnect.Insert(args[2])
 	if err != nil {
@@ -212,7 +212,7 @@ func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 4 {
-		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	_, err := cConnect.UpdateAll(args[2], args[3])
 	if err != nil {
@@ -226,7 +226,7 @@ func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
-		return ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
+		return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 	}
 	err := cConnect.Remove(args[2])
 
@@ -237,6 +237,7 @@ func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
+//получение соединения к колекции по названию
 func GetMongoCollectionConnect(collection string) *mongo.Collection {
 	return mongod.connect.DB(server.GetMongodConfig().MongoDBName()).C(collection)
 }
