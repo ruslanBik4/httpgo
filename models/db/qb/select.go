@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// SelectToMultidimension
+// SelectToMultidimension - create qBuilder from sql-string, run & write result to map
 func SelectToMultidimension(sql string, args ...interface{}) (arrJSON []map[string]interface{}, err error) {
 	qBuilder := CreateFromSQL(sql)
 	qBuilder.AddArgs(args)
@@ -150,6 +150,7 @@ func (qb *QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
+// GetDataSql - run query (prepare is need) & return rows
 func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
 	if qb.Prepared == nil {
@@ -312,8 +313,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 
 	return arrJSON, nil
 }
-
-// SelectToNotChangeBoolean  Get rows not convert tinyInt fields
+// GetSelectToNotChangeBoolean  Get rows not convert tinyInt fields
 func (qb *QueryBuilder) GetSelectToNotChangeBoolean() (arrJSON []map[string]interface{}, err error) {
 
 	rows, err := qb.GetDataSql()

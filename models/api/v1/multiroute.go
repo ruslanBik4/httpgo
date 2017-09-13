@@ -10,8 +10,8 @@ import (
 	"net/http"
 )
 
+// HandleMultiRouteJSON prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 // @/api/multiroute/?route[]={routes list}
-// prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleMultiRouteJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)

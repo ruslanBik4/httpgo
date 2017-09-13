@@ -9,9 +9,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 )
 
-//InitLists() - инициализация получения информации по справочникам
-//@aurhor Ruslan Bikchentaev
-//@version 1.10 2017-05-24 Sergey Litvinov
+// InitLists - инициализация получения информации по справочникам
 func InitLists() {
 	var tables RecordsTables
 	where := `TABLE_SCHEMA=? AND (RIGHT(table_name, 5) = ?)`

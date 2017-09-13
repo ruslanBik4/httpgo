@@ -13,9 +13,9 @@ import (
 	"os/exec"
 )
 
-// @/api/update/?branch={branch}
-// update httpgo & {project} co de from git  & build new version httpgo
+// HandleUpdateServer update httpgo & {project} code from git  & build new version httpgo
 // branch - name git branch
+// @/api/update/?branch={branch}
 func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -33,9 +33,8 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
-
+// HandleRestartServer restart service
 // @/api/restart/
-// restart service
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -55,9 +54,8 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("restart server go"))
 	}
 }
-
+// HandleLogServer show log httpgo
 // @/api/log/
-// show log httpgo
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -71,9 +69,8 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderOutput(w, stdoutStderr)
 	}
 }
-
+// HandleShowErrorsServer show services errors
 // @/api/log/errors/
-// show services errors
 func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -103,9 +100,8 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
-
+// HandleShowStatusServer show services errors
 // @/api/log/errors/
-// show services errors
 func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -135,9 +131,8 @@ func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
-
+// HandleShowDebugServer show services errors
 // @/api/log/errors/
-// show services errors
 func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -168,10 +163,10 @@ func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// incremental update
-// @/api/update/source/
+// HandleUpdateSource incremental update
 // update httpgo & {project} co de from git  & build new version httpgo
 // branch - name git branch
+// @/api/update/source/
 func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -188,6 +183,7 @@ func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+// HandleUpdateTest run tests project
 func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
@@ -202,6 +198,7 @@ func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+// HandleUpdateBuild build project
 func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
 
