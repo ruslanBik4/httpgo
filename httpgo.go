@@ -290,6 +290,7 @@ func sockCatch() {
 
 const _24K = (1 << 10) * 24
 
+// HandleFirebird simple handler from Firebird testing
 func HandleFirebird(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.FBSelect("SELECT * FROM country_list")
@@ -562,6 +563,8 @@ func init() {
 
 var mainServer *http.Server
 var listener net.Listener
+
+// MyMux - this is trying recruting router from plugin
 var MyMux *http.ServeMux
 
 func main() {

@@ -4,29 +4,29 @@ import (
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
 	"net/http"
-	//	"github.com/ruslanBik4/httpgo/views"
 	"strconv"
 )
 
 var (
 	routes = map[string]http.HandlerFunc{
 
-		"/admin/":               HandlerAdmin,
-		"/admin/table/":         HandlerAdminTable,
-		"/admin/lists/":         HandlerAdminLists,
-		"/admin/row/new/":       HandlerNewRecord,
-		"/admin/row/edit/":      HandlerEditRecord,
-		"/admin/row/add/":       HandlerAddRecord,
-		"/admin/row/update/":    HandlerUpdateRecord,
-		"/admin/row/show/":      HandlerShowRecord,
-		"/admin/row/del/":       HandlerDeleteRecord,
+		"/admin/":               handlerAdmin,
+		"/admin/table/":         handlerAdminTable,
+		"/admin/lists/":         handlerAdminLists,
+		"/admin/row/new/":       handlerNewRecord,
+		"/admin/row/edit/":      handlerEditRecord,
+		"/admin/row/add/":       handlerAddRecord,
+		"/admin/row/update/":    handlerUpdateRecord,
+		"/admin/row/show/":      handlerShowRecord,
+		"/admin/row/del/":       handlerDeleteRecord,
 		"/admin/exec/":          HandlerExec,
-		"/admin/schema/":        HandlerSchema,
-		"/admin/umutable/":      HandlerUMUTables,
+		"/admin/schema/":        handlerSchema,
+		"/admin/umutable/":      handlerUMUTables,
 		"/admin/anothersignup/": HandlerSignUpAnotherUser,
 	}
 )
 
+// RegisterRoutes link handlers in htttp.Handler
 func RegisterRoutes() {
 	for route, fnc := range routes {
 		CheckPermissions(route)
@@ -34,11 +34,12 @@ func RegisterRoutes() {
 	}
 }
 
+// CheckPermissions is not complete yet
 func CheckPermissions(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user_id, _ := strconv.Atoi(users.IsLogin(r))
+		userId, _ := strconv.Atoi(users.IsLogin(r))
 
-		if !GetUserPermissionForPageByUserId(user_id, route, "View") {
+		if !GetUserPermissionForPageByUserId(userId, route, "View") {
 			//			views.RenderNoPermissionPage(w, r)
 
 		}

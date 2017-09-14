@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// для подключения сервисов и устроения взаиможействия сервисов с глаыным потоком
+// Package services для подключения сервисов и устроения взаимодействия сервисов с главным потоком
 package services
 
 import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
-// интерфейс сервиса
+// IService интерфейс сервиса
 type IService interface {
 	Init() error
 	Send(messages ...interface{}) error
@@ -25,6 +25,7 @@ type rootServices struct {
 
 var sServices = &rootServices{services: make(map[string]IService, 0)}
 
+// InitServices started all services from sServices.services in some goroutins
 func InitServices() *rootServices {
 	for name, service := range sServices.services {
 		go startService(name, service)
@@ -61,9 +62,13 @@ func catch(name string) {
 		logs.ErrorLogHandler(err, name)
 	}
 }
+
+// AddService adding new service with {name} to services list
 func AddService(name string, pService IService) {
 	sServices.services[name] = pService
 }
+
+// Send messages to service {name}
 func Send(name string, messages ...interface{}) (err error) {
 
 	pService := getService(name)
@@ -77,6 +82,8 @@ func Send(name string, messages ...interface{}) (err error) {
 
 	return pService.Send(messages...)
 }
+
+// Get messages to service {name} & return result
 func Get(name string, messages ...interface{}) (response interface{}, err error) {
 
 	pService := getService(name)
@@ -86,6 +93,8 @@ func Get(name string, messages ...interface{}) (response interface{}, err error)
 
 	return pService.Get(messages...)
 }
+
+// Connect to service {name} from channel in & return channel service
 func Connect(name string, in <-chan interface{}) (out chan interface{}, err error) {
 	pService := getService(name)
 	if pService == nil {
@@ -94,6 +103,8 @@ func Connect(name string, in <-chan interface{}) (out chan interface{}, err erro
 
 	return pService.Connect(in)
 }
+
+// Close service {name}
 func Close(name string, out chan<- interface{}) error {
 	pService := getService(name)
 	if pService == nil {
@@ -102,10 +113,12 @@ func Close(name string, out chan<- interface{}) error {
 
 	return pService.Close(out)
 }
+
+// Status service {name} return
 func Status(name string) string {
 	pService := getService(name)
 	if pService == nil {
-		return name + MessServNotFound
+		return name + messServNotFound
 	}
 
 	return pService.Status()

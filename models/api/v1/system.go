@@ -33,6 +33,7 @@ func HandleUpdateServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 // HandleRestartServer restart service
 // @/api/restart/
 func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
@@ -54,6 +55,7 @@ func HandleRestartServer(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("restart server go"))
 	}
 }
+
 // HandleLogServer show log httpgo
 // @/api/log/
 func HandleLogServer(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +71,7 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderOutput(w, stdoutStderr)
 	}
 }
+
 // HandleShowErrorsServer show services errors
 // @/api/log/errors/
 func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +103,7 @@ func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // HandleShowStatusServer show services errors
 // @/api/log/errors/
 func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
@@ -131,6 +135,7 @@ func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // HandleShowDebugServer show services errors
 // @/api/log/errors/
 func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
@@ -183,6 +188,7 @@ func HandleUpdateSource(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 // HandleUpdateTest run tests project
 func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()
@@ -198,6 +204,7 @@ func HandleUpdateTest(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 // HandleUpdateBuild build project
 func HandleUpdateBuild(w http.ResponseWriter, r *http.Request) {
 	ServerConfig := server.GetServerConfig()

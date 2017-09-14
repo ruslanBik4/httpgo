@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-// for compatabilies interface logsType
+// String for compatabilies interface LogsType
 func (field QBField) String() string {
 	mess := "&QBField{Name: " + field.Name + ", Alias: " + field.Alias + ", Table: " + field.Table.Name + ", SelectValues: "
 	for key, value := range field.SelectValues {
@@ -23,12 +23,12 @@ func (field QBField) String() string {
 	return mess + "}"
 }
 
-// getters - возвращает схему поля, взятую из БД
+// GetSchema возвращает схему поля, взятую из БД
 func (field *QBField) GetSchema() *schema.FieldStructure {
 	return field.Schema
 }
 
-// возвращает значение поля типа соответствующего типы поля в БД
+// GetNativeValue возвращает значение поля типа соответствующего типы поля в БД
 func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 	if field.Value == nil {
 		return nil
@@ -45,9 +45,9 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 		// если нужно вернуть булево значение из поля типа tinyint
 		if tinyAsBool && (dataType == "tinyint") {
 			return value == 1
-		} else {
-			return value
 		}
+
+		return value
 	case "float", "double":
 		value, err := strconv.ParseFloat(string(field.Value), 64)
 		if err != nil {
@@ -61,20 +61,7 @@ func (field QBField) GetNativeValue(tinyAsBool bool) interface{} {
 
 }
 
-// Scan implements the Scanner interface.
-//func (field *QBField) Scan(value interface{}) error {
-//	var temp sql.RawBytes
-//
-//	if err := temp.Scan(value); err != nil {
-//		field.Value = ""
-//		return err
-//	}
-//	field.Value = temp.String
-//
-//	return nil
-//}
-
-// adding fields into qB
+// AddFields adding fieldsfrom map into qB
 func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 	for alias, name := range fields {
 		table.AddField(alias, name)
@@ -83,7 +70,7 @@ func (table *QBTable) AddFields(fields map[string]string) *QBTable {
 	return table
 }
 
-// add field and returns table object
+// AddField add field and returns table object
 func (table *QBTable) AddField(alias, name string) *QBTable {
 
 	if strings.Contains(name, " AS ") {
@@ -154,7 +141,7 @@ func (table *QBTable) AddField(alias, name string) *QBTable {
 	return table
 }
 
-// записываем лист значений для поля, чтобы показывать список на форме
+// GetSelectedValues записываем лист значений для поля, чтобы показывать список на форме
 func (field *QBField) GetSelectedValues() {
 
 	defer func() {

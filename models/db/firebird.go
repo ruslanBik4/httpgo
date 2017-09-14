@@ -28,6 +28,8 @@ func fbConnect() (err error) {
 
 	return nil
 }
+
+// FBSelect run query in Firebird connection
 func FBSelect(sql string, args ...interface{}) (rows *sql.Rows, err error) {
 	if err = fbConnect(); err != nil {
 		return nil, err

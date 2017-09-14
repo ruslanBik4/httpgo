@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-// return Schema for render standart methods
+// GetFields return Schema for render standart methods
 func (qb *QueryBuilder) GetFields() (schTable QBTable) {
 
 	if len(qb.fields) == 0 {

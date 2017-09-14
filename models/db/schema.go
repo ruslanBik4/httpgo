@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 )
+
 // TableOptions get table properties
 type TableOptions struct {
 	TABLE_NAME    string
@@ -15,6 +16,7 @@ type TableOptions struct {
 	ENGINE        string
 	TABLE_COMMENT string
 }
+
 // RecordsTables get field properties
 type RecordsTables struct {
 	Rows []TableOptions
@@ -42,11 +44,12 @@ func (ns *TableOptions) GetTableProp(tableName string) error {
 }
 
 // GetTablesProp получение таблиц
-func (ns *RecordsTables) GetTablesProp(bd_name string) error {
+func (ns *RecordsTables) GetTablesProp(nameDB string) error {
 
-	return ns.GetSelectTablesProp("TABLE_SCHEMA=?", bd_name)
+	return ns.GetSelectTablesProp("TABLE_SCHEMA=?", nameDB)
 
 }
+
 // GetSelectTablesProp получение данных таблиц по условию
 func (ns *RecordsTables) GetSelectTablesProp(where string, args ...interface{}) error {
 
@@ -76,6 +79,7 @@ func (ns *RecordsTables) GetSelectTablesProp(where string, args ...interface{}) 
 	return nil
 
 }
+
 // FieldStructure get field properties
 type FieldStructure struct {
 	COLUMN_NAME              string
@@ -93,6 +97,7 @@ type FieldStructure struct {
 	//IS_VIEW []uint8
 
 }
+
 // FieldsTable  get fields from table & options
 type FieldsTable struct {
 	Rows    []FieldStructure
@@ -103,7 +108,7 @@ type FieldsTable struct {
 // получение значений полей для таблицы
 // @param args []int{} - можно передавать ограничения выводимых полей.
 // Действует как LIMIT a или LIMIT a, b
-func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
+func (ns *FieldsTable) GetColumnsProp(tableName string, args ...int) error {
 
 	valuesText := []string{}
 	for _, arg := range args {
@@ -119,7 +124,7 @@ func (ns *FieldsTable) GetColumnsProp(table_name string, args ...int) error {
 		IS_NULLABLE, CHARACTER_SET_NAME, COLUMN_COMMENT, COLUMN_TYPE, COLUMN_KEY, EXTRA, CHARACTER_MAXIMUM_LENGTH
 		FROM INFORMATION_SCHEMA.COLUMNS C
 		WHERE TABLE_SCHEMA=? AND TABLE_NAME=? ORDER BY ORDINAL_POSITION`+limiter,
-		server.GetServerConfig().DBName(), table_name)
+		server.GetServerConfig().DBName(), tableName)
 	if err != nil {
 		return err
 	}
@@ -200,6 +205,7 @@ func (ns *FieldsTable) PutDataFrom(tableName string) (fields *schema.FieldsTable
 }
 
 var schemaReady bool
+
 // InitSchema read schema from DB & fill SchemaCache
 func InitSchema() {
 	// TODO: предусмотреть флаг, обозначающий, что кеширование данных не закончено

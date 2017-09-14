@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // подготовка и выполнение запросов к php-fpm
+
 package system
 
 import (
@@ -21,6 +22,7 @@ var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
 )
 
+// FCGI structure for request in PHP-FPM
 type FCGI struct {
 	Sock string
 	Env  func(r *http.Request) map[string]string
@@ -34,6 +36,8 @@ func (c *FCGI) defaultEnv(r *http.Request) map[string]string {
 		"QUERY_STRING":    r.URL.RawQuery,
 	}
 }
+
+// Do run request
 func (c *FCGI) Do(r *http.Request) (*http.Response, error) {
 	const typeSckt = "unix" // or "unixgram" or "unixpacket"
 
@@ -56,6 +60,8 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error) {
 	}
 	return resp, err
 }
+
+// ServeHTTP get request response & render to output
 func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp, err := c.Do(r)
 	if WriteError(w, err) {
@@ -80,9 +86,12 @@ func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// NewFPM create new FCGI
 func NewFPM(sock string) *FCGI {
 	return &FCGI{Sock: sock}
 }
+
+// NewPHP create new FCGI for PHP scripts
 func NewPHP(root string, sock string) *FCGI {
 	return &FCGI{
 		Sock: sock,
@@ -154,7 +163,7 @@ func NewPHP(root string, sock string) *FCGI {
 	}
 }
 
-// не уверен, что это должно быть здесь - должен быть какой общий механизм для выдачи такого
+// WriteError не уверен, что это должно быть здесь - должен быть какой общий механизм для выдачи такого
 func WriteError(w http.ResponseWriter, err error) bool {
 	if err == nil {
 		return false

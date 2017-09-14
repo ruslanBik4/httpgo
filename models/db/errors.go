@@ -5,19 +5,21 @@
 
 package db
 
-const MessParamNotFound = "Param not found:"
+const messParamNotFound = "Param not found:"
 
+// ErrParamNotFound if not found requiared parameter
 type ErrParamNotFound struct {
 	Name     string
 	FuncName string
 }
 
 func (err ErrParamNotFound) Error() string {
-	return MessParamNotFound + err.Name
+	return messParamNotFound + err.Name
 }
 
-const MessBadParam = "Bad value in params:"
+const messBadParam = "Bad value in params:"
 
+// ErrBadParam is parameter not valid
 type ErrBadParam struct {
 	Name     string
 	BadName  string
@@ -25,5 +27,5 @@ type ErrBadParam struct {
 }
 
 func (err ErrBadParam) Error() string {
-	return MessBadParam + err.Name + ", " + err.BadName
+	return messBadParam + err.Name + ", " + err.BadName
 }

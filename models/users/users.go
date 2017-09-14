@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// авторизация, регистрация юзеров и проверка прав для раздделов сайта
+// Package users - авторизация, регистрация юзеров и проверка прав для разделов сайта
 package users
 
 import (
@@ -18,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	//"gopkg.in/gomail.v2"
+	"database/sql"
 	"github.com/gorilla/sessions"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/logs"
@@ -32,10 +33,12 @@ import (
 )
 
 const nameSession = "PHPSESSID"
+
+// NOT_AUTHORIZE message for response
 const NOT_AUTHORIZE = "Нет данных об авторизации!"
 
 var (
-	F_test            = flag.Bool("test", false, "test mode")
+	fTest             = flag.Bool("test", false, "test mode")
 	googleOauthConfig = &oauth2.Config{
 		RedirectURL:  "",
 		ClientID:     os.Getenv("googlekey"),
@@ -48,8 +51,9 @@ var (
 	Store            = sessions.NewFilesystemStore("/var/lib/php/session", []byte("travel.com.ua"))
 )
 
-func SetSessionPath(f_session string) {
-	Store = sessions.NewFilesystemStore(f_session, []byte("travel.com.ua"))
+// SetSessionPath set path for session storage
+func SetSessionPath(fSession string) {
+	Store = sessions.NewFilesystemStore(fSession, []byte("travel.com.ua"))
 }
 
 //func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +72,8 @@ func SetSessionPath(f_session string) {
 //	//resp, _ := client.Get("...")
 //	//w.Write(resp.Body)
 //}
-//Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
+
+// HandleGoogleCallback Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
 func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.FormValue("state")
 	if state != oauthStateString {
@@ -99,6 +104,7 @@ func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UserRecord for user data
 type UserRecord struct {
 	Id   int
 	Name string
@@ -107,6 +113,7 @@ type UserRecord struct {
 
 var greetings = []string{"господин", "госпожа"}
 
+// GetSession return session for cutrrent user (create is needing)
 func GetSession(r *http.Request, name string) *sessions.Session {
 	// Get a session. We're ignoring the error resulted from decoding an
 	// existing session: Get() always returns a session, even if empty.
@@ -118,8 +125,9 @@ func GetSession(r *http.Request, name string) *sessions.Session {
 	return session
 }
 
+// IsLogin return ID current user or panic()
 func IsLogin(r *http.Request) string {
-	if *F_test {
+	if *fTest {
 		return "8"
 	}
 	session := GetSession(r, nameSession)
@@ -140,6 +148,8 @@ func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 	return session.Save(r, w)
 
 }
+
+// HandlerProfile show data on profile current user
 func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
@@ -176,6 +186,8 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprint(w, p.MenuOwner())
 }
+
+// HandlerSignIn run user authorization
 func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
@@ -186,18 +198,20 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 		panic(&system.ErrNotLogin{Message: "Not enoug login parameters!"})
 	}
 
-	err, userId, userName := CheckUserCredentials(email, password)
+	user, err := CheckUserCredentials(email, password)
 
 	if err != nil {
 		panic(&system.ErrNotLogin{Message: "Wrong email or password"})
 	}
 
 	// session save BEFORE write page
-	SaveSession(w, r, userId, email)
+	SaveSession(w, r, user.Id, email)
 
-	p := &forms.PersonData{Id: userId, Login: userName, Email: email}
+	p := &forms.PersonData{Id: user.Id, Login: user.Name, Email: email}
 	fmt.Fprint(w, p.JSON())
 }
+
+// HandlerSignOut sign out current user & show authorization form
 func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 
 	if err := deleteCurrentUser(w, r); err != nil {
@@ -207,6 +221,7 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 	views.RenderSignForm(w, r, "")
 }
 
+// SaveSession save in session some data from user
 func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
 	session := sessions.NewSession(Store, nameSession)
 	session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
@@ -241,11 +256,15 @@ func GenerateRandomString(s int) (string, error) {
 	b, err := GenerateRandomBytes(s)
 	return base64.URLEncoding.EncodeToString(b), err
 }
+
+// GeneratePassword run password by email
 func GeneratePassword(email string) (string, error) {
 	logs.DebugLog("email", email)
 	return GenerateRandomString(16)
 
 }
+
+// HashPassword create hash from {password} & return checksumm
 func HashPassword(password string) interface{} {
 	// crypto password
 	crc32q := crc32.MakeTable(0xD5828281)
@@ -254,10 +273,10 @@ func HashPassword(password string) interface{} {
 
 const _2K = (1 << 10) * 2
 
-// @/user/signup/
-// регистрация нового пользователя сгенерацией пароля
+// HandlerSignUp регистрация нового пользователя с генерацией пароля
 // и отсылка письмо об регистрации
-//пароль отсылаем в письме, у себя храним только кеш
+// пароль отсылаем в письме, у себя храним только кеш
+// @/user/signup/
 func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
@@ -304,6 +323,8 @@ func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// SendMail create mail with new {password} & send to {email}
 func SendMail(email, password string) {
 
 	m := gomail.NewMessage()
@@ -323,6 +344,8 @@ func SendMail(email, password string) {
 
 	logs.DebugLog("email-", email, ", password=", password)
 }
+
+// HandlerActivateUser - obsolete
 func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
@@ -338,27 +361,30 @@ func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func CheckUserCredentials(login string, password string) (error, int, string) {
+// CheckUserCredentials check user data & return id + name
+func CheckUserCredentials(login string, password string) (row UserRecord, err error) {
 
-	rows, err := db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password))
+	var rows *sql.Rows
+	rows, err = db.DoSelect("select id, fullname, sex from users where login=? and hash=?", login, HashPassword(password))
 	if err != nil {
 		logs.ErrorLog(err)
-		return err, 0, ""
+		return
 	}
 	defer rows.Close()
-	var row UserRecord
 
 	for rows.Next() {
 
-		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
+		err = rows.Scan(&row.Id, &row.Name, &row.Sex)
 
 		if err != nil {
 			logs.ErrorLog(err)
-			continue
+			return
 		}
 
-		return nil, row.Id, row.Name
+		return
 	}
 
-	return &system.ErrNotLogin{Message: "Wrong email or password"}, 0, ""
+	err = &system.ErrNotLogin{Message: "Wrong email or password"}
+
+	return
 }

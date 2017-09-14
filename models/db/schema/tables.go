@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// FieldsTable for fields parameters in form
 type FieldsTable struct {
 	Name           string
 	ID             int
@@ -19,6 +20,7 @@ type FieldsTable struct {
 	DataJSOM       map[string]interface{}
 }
 
+// FindField search field in table by {name} & return structure field
 func (table *FieldsTable) FindField(name string) *FieldStructure {
 	for _, field := range table.Rows {
 		if field.COLUMN_NAME == name {
@@ -29,7 +31,7 @@ func (table *FieldsTable) FindField(name string) *FieldStructure {
 	return nil
 }
 
-// fill surrogate field property for API
+// FillSurroggateFields fill surrogate field property for API
 // TODO: заменить строки имена таблиц на ссылку на схему
 func (table *FieldsTable) FillSurroggateFields(tableName string) {
 

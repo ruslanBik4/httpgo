@@ -20,6 +20,8 @@ import (
 type tCommand struct {
 	command, param string
 }
+
+// ErrFailTest has not valid parameters
 type ErrFailTest struct {
 	token, param string
 }
@@ -27,8 +29,6 @@ type ErrFailTest struct {
 func (err ErrFailTest) Error() string {
 	return err.token + " with param " + err.param
 }
-
-type ErrUnknowCommand error
 
 var (
 	result    []selenium.WebElement
@@ -151,15 +151,15 @@ func getParam(param string) string {
 	if (param > "") && (param[0] == valPrefix) {
 		if value, ok := values[param[1:]]; ok {
 			return value
-		} else {
-			return ""
 		}
+
+		return ""
 	}
 
 	return param
 }
 
-// выполнение обзих команд Селениума (не привязанных к елементу страницы)
+// выполнение общих команд Селениума (не привязанных к елементу страницы)
 // возвращает ошибку исполнения, коли такая произойдет
 func wdCommand(token string, wd selenium.WebDriver, param string) (err error) {
 	switch token {

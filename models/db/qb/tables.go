@@ -8,7 +8,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
-// getters
+// GetSchema return DB schema from table
 func (table *QBTable) GetSchema() *schema.FieldsTable {
 	return table.schema
 }
@@ -23,7 +23,7 @@ func (table *QBTable) getFieldSchema(name string) *schema.FieldStructure {
 	return nil
 }
 
-// add Tables list, returns qB
+// AddTables adding table from map to list, returns qB
 func (qb *QueryBuilder) AddTables(names map[string]string) *QueryBuilder {
 	for alias, name := range names {
 		qb.AddTable(alias, name)
@@ -32,7 +32,7 @@ func (qb *QueryBuilder) AddTables(names map[string]string) *QueryBuilder {
 	return qb
 }
 
-//add Table, returns object table
+// AddTable - add Table to list, returns object table
 func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 
 	//if alias == ""  {
@@ -46,6 +46,8 @@ func (qb *QueryBuilder) AddTable(alias, name string) *QBTable {
 
 	return table
 }
+
+// FindTable search table by {name} in list
 func (qb *QueryBuilder) FindTable(name string) *QBTable {
 	for _, table := range qb.Tables {
 		if table.Name == name {

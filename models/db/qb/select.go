@@ -150,6 +150,7 @@ func (qb *QueryBuilder) unionSQL() string {
 
 	return " UNION SELECT " + qFields + " FROM " + qFrom + qb.union.getWhere()
 }
+
 // GetDataSql - run query (prepare is need) & return rows
 func (qb *QueryBuilder) GetDataSql() (rows *sql.Rows, err error) {
 
@@ -313,6 +314,7 @@ func (qb *QueryBuilder) ConvertDataNotChangeType(rows *sql.Rows) (arrJSON []map[
 
 	return arrJSON, nil
 }
+
 // GetSelectToNotChangeBoolean  Get rows not convert tinyInt fields
 func (qb *QueryBuilder) GetSelectToNotChangeBoolean() (arrJSON []map[string]interface{}, err error) {
 

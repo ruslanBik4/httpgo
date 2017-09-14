@@ -95,8 +95,8 @@ func getFrom(sql string) (*tSqlFrom, bool) {
 	var compRegEx = regexp.MustCompile(regFrom)
 	var match []string = compRegEx.FindStringSubmatch(sql)
 
-	var tableName string = ""
-	var tableAlias string = ""
+	var tableName string
+	var tableAlias string
 	for i, name := range compRegEx.SubexpNames() {
 		if name == "table" && i > 0 && i <= len(match) {
 			tableName = match[i]
@@ -108,9 +108,9 @@ func getFrom(sql string) (*tSqlFrom, bool) {
 
 	if tableName == "" && tableAlias == "" {
 		return nil, false
-	} else {
-		return &tSqlFrom{tableName: tableName, tableAlias: tableAlias}, true
 	}
+
+	return &tSqlFrom{tableName: tableName, tableAlias: tableAlias}, true
 }
 
 func getJoins(sql string) ([]*tSqlJoin, bool) {
@@ -129,12 +129,12 @@ func getJoins(sql string) ([]*tSqlJoin, bool) {
 }
 
 func getJoin(join []string, groupNames []string) (*tSqlJoin, bool) {
-	var joinTableName string = ""
-	var joinTableAlias string = ""
-	var onLeftTable string = ""
-	var onLeftField string = ""
-	var onRightTable string = ""
-	var onRightField string = ""
+	var joinTableName string
+	var joinTableAlias string
+	var onLeftTable string
+	var onLeftField string
+	var onRightTable string
+	var onRightField string
 
 	for i, name := range groupNames {
 		if name == "join_table_name" && i > 0 && i <= len(join) {
@@ -161,20 +161,20 @@ func getJoin(join []string, groupNames []string) (*tSqlJoin, bool) {
 		onLeftTable == "" || onLeftField == "" ||
 		onRightTable == "" || onRightField == "" {
 		return nil, false
-	} else {
-		return &tSqlJoin{
-			tableName:  joinTableName,
-			tableAlias: joinTableAlias,
-			onLeft: &tSqlJoinOn{
-				tableName: onLeftTable,
-				fieldName: onLeftField,
-			},
-			onRight: &tSqlJoinOn{
-				tableName: onRightTable,
-				fieldName: onRightField,
-			},
-		}, true
 	}
+
+	return &tSqlJoin{
+		tableName:  joinTableName,
+		tableAlias: joinTableAlias,
+		onLeft: &tSqlJoinOn{
+			tableName: onLeftTable,
+			fieldName: onLeftField,
+		},
+		onRight: &tSqlJoinOn{
+			tableName: onRightTable,
+			fieldName: onRightField,
+		},
+	}, true
 }
 
 func getFields(sql string) ([]*tSqlField, bool) {
@@ -199,9 +199,9 @@ func getTextSelectFields(sql string) (fields string, ok bool) {
 
 	if fields == "" {
 		return "", false
-	} else {
-		return fields, true
 	}
+
+	return fields, true
 }
 
 //func getFields(textFields string) ([]*tSqlField, bool) {
@@ -255,7 +255,7 @@ func getField(text string, groupNames []string, reg *regexp.Regexp) (*tSqlField,
 
 	if fieldTableName == "" && fieldName == "" {
 		return nil, false
-	} else {
-		return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}, true
 	}
+
+	return &tSqlField{fun: funcName, table: fieldTableName, name: fieldName, alias: fieldAlias}, true
 }

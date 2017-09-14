@@ -27,29 +27,29 @@ func TestWriteAnyJSON(t *testing.T) {
 
 func equalMaps(input, result map[string]interface{}) bool {
 	for key, val := range input {
-		if valResult, ok := result[key]; !ok {
+		valResult, ok := result[key]
+		if !ok {
 			return false
-		} else {
-			switch vv := val.(type) {
-			case map[string]interface{}:
-				switch vvResult := valResult.(type) {
-				case map[string]interface{}:
-					for key, val := range vv {
-						if valResult, ok := vvResult[key]; !ok {
-							return false
-						} else if val != valResult {
-							return false
+		}
 
-						}
+		switch vv := val.(type) {
+		case map[string]interface{}:
+			switch vvResult := valResult.(type) {
+			case map[string]interface{}:
+				for key, val := range vv {
+					if valResult, ok := vvResult[key]; !ok {
+						return false
+					} else if val != valResult {
+						return false
+
 					}
-				default:
-					return false
 				}
 			default:
-				if val != valResult {
-					return false
-				}
-
+				return false
+			}
+		default:
+			if val != valResult {
+				return false
 			}
 		}
 	}

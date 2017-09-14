@@ -4,6 +4,7 @@
 // Creating %{DATE}
 
 //Обслуживает кеш для справочников БД
+
 package services
 
 import (
@@ -15,7 +16,7 @@ import (
 	"time"
 )
 
-type DBlistsService struct {
+type dbListsService struct {
 	name   string
 	status string
 	tables listTables
@@ -30,7 +31,7 @@ type listRowData map[string]string
 type rowField string
 
 var (
-	DBlists *DBlistsService = &DBlistsService{name: "DBlists", status: "create", tables: make(listTables, 0)}
+	dbLists *dbListsService = &dbListsService{name: "DBLists", status: "create", tables: make(listTables, 0)}
 )
 
 func (lRows *listRows) addRows() error {
@@ -70,7 +71,7 @@ func (lRows *listRows) addRows() error {
 
 	return nil
 }
-func (DBlists *DBlistsService) Init() error {
+func (DBlists *dbListsService) Init() error {
 	DBlists.status = "starting"
 
 	for Status("schema") != "ready" {
@@ -92,11 +93,11 @@ func (DBlists *DBlistsService) Init() error {
 
 	return nil
 }
-func (DBlists *DBlistsService) Send(messages ...interface{}) error {
+func (DBlists *dbListsService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (DBlists *DBlistsService) Get(messages ...interface{}) (response interface{}, err error) {
+func (DBlists *dbListsService) Get(messages ...interface{}) (response interface{}, err error) {
 
 	oper, ok := messages[0].(string)
 	if !ok {
@@ -131,19 +132,19 @@ func (DBlists *DBlistsService) Get(messages ...interface{}) (response interface{
 	}
 
 }
-func (DBlists *DBlistsService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
+func (DBlists *dbListsService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
 
 	return nil, nil
 }
-func (DBlists *DBlistsService) Close(out chan<- interface{}) error {
+func (DBlists *dbListsService) Close(out chan<- interface{}) error {
 
 	return nil
 }
-func (DBlists *DBlistsService) Status() string {
+func (DBlists *dbListsService) Status() string {
 
 	return DBlists.status
 }
 
 func init() {
-	AddService(DBlists.name, DBlists)
+	AddService(dbLists.name, dbLists)
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// сервер отдачи шрифтов (пока реализовано только разделение браузеров на два виде,
+// Package fonts сервер отдачи шрифтов (пока реализовано только разделение браузеров на два виде,
 // позже планируется учитывать другие параметры пользователя
 package fonts
 
@@ -15,10 +15,11 @@ import (
 	"strings"
 )
 
-var PathWeb string
+var pathWeb string
 
+// GetPath set path with fonts files
 func GetPath(path *string) {
-	PathWeb = *path
+	pathWeb = *path
 }
 func contains(array []string, str string) bool {
 	for _, value := range array {
@@ -35,18 +36,15 @@ var fontTypes = map[string]string{
 	"woff": "x-woff",
 }
 
-// push font for some browser
+// HandleGetFont push font for some browser
 // @/fonts/{font_name}
 func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("Content-Type", "mime/type; ttf")
-
-	//PathWeb = "/home/travel/thetravel/web"
 	ext := ".ttf"
 	if browser := r.Header["User-Agent"]; contains(browser, "Safari") {
 		ext = ".woff"
 	} else {
-		//http.ServeFile(w, r, PathWeb+r.URL.Path+ext)
+		//http.ServeFile(w, r, pathWeb+r.URL.Path+ext)
 		logs.DebugLog("browser=", browser)
 	}
 
@@ -54,11 +52,11 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 	if pos := strings.Index(r.URL.Path, "."); pos > 0 {
 		filename = filename[:pos-1]
 	}
-	data, err := ioutil.ReadFile(PathWeb + filename + ext)
+	data, err := ioutil.ReadFile(pathWeb + filename + ext)
 
 	if err != nil {
 		if os.IsNotExist(err) && (ext == ".woff") {
-			data, err = ioutil.ReadFile(PathWeb + filename + ".ttf")
+			data, err = ioutil.ReadFile(pathWeb + filename + ".ttf")
 		}
 		if err != nil {
 			views.RenderInternalError(w, err)

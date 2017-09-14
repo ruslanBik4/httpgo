@@ -1,6 +1,7 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/* Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+*/
 
 package api
 
@@ -16,13 +17,12 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	_ "strings"
 )
 
 const _2K = (1 << 10) * 2
 
+// HandleFieldsJSON prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 // @/api/table/form/?table={nameTable}
-// prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"
 func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
@@ -65,8 +65,8 @@ func HandleFieldsJSON(w http.ResponseWriter, r *http.Request) {
 	views.RenderJSONAnyForm(w, qBuilder.GetFields(), new(json.FormStructure), addJSON)
 }
 
+// HandleSchema show schema table by name {nameTable}
 // @/api/table/schema/?table={nameTable}
-// показ структуры таблицы nameTable
 func HandleSchema(w http.ResponseWriter, r *http.Request) {
 	tableName := r.FormValue("table")
 	if table, err := services.Get("schema", tableName); err != nil {
@@ -78,10 +78,11 @@ func HandleSchema(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// wOut - for callback render in qtpl
 var wOut http.ResponseWriter
 var comma string
 
-// read rows and store in JSON
+// PutRowToJSON read rows and store in JSON
 func PutRowToJSON(fields []*qb.QBField) error {
 	// обрамление объекта в JSON
 	wOut.Write([]byte(comma + "{"))
@@ -161,9 +162,8 @@ func PutRowToJSON(fields []*qb.QBField) error {
 	return nil
 }
 
+// HandleTextRowJSON return field with text values for show in site
 // @/api/table/view/?table={nameTable}& other field in this table
-// return field with text values for show in site
-
 func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
@@ -199,6 +199,8 @@ func HandleTextRowJSON(w http.ResponseWriter, r *http.Request) {
 		views.WriteJSONHeaders(w)
 	}
 }
+
+// PrepareQuery make where part for sql-query & fill args
 func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, args []interface{}) {
 
 	comma := ""
@@ -229,8 +231,8 @@ func PrepareQuery(rForm url.Values, table *schema.FieldsTable) (where string, ar
 	return where, args
 }
 
+// HandleRowJSON return row from nameTable from key=id
 // @/api/table/row/?table={nameTable}&id={id}
-// return row from nameTable from key=id
 func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)
@@ -253,8 +255,8 @@ func HandleRowJSON(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// HandleAllRowsJSON return all rows from nameTable
 // @/api/table/rows/?table={nameTable}
-// return all rows from nameTable
 func HandleAllRowsJSON(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseMultipartForm(_2K)

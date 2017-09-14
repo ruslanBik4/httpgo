@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+// HandleVideos is dummy handler
 func HandleVideos(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("ok"))
 }
