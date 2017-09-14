@@ -86,7 +86,7 @@ func registerRoutes() {
 	for route, fnc := range routes {
 		MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
-	admin.RegisterRoutes()
+	admin.RegisterRoutes(MyMux)
 
 	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
 		logs.ErrorLog(err)
