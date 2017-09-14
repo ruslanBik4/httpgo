@@ -6,7 +6,7 @@ package services
 
 const messServNotFound = " service not found in list services"
 
-// ErrServiceNotFound for errors current not found service
+// ErrServiceNotFound for errors when current service not found
 type ErrServiceNotFound struct {
 	Name string
 }
