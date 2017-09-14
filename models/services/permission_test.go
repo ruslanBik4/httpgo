@@ -8,21 +8,22 @@ import (
 	"flag"
 	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services/crmPermission"
 	"testing"
 )
 
 const permissName = "crmPermission"
 
 var (
-	f_static  = flag.String("path", "/opt/lampp/htdocs/go_src/src/github.com/ruslanBik4/httpgo", "path to static files")
-	f_web     = flag.String("web", "/opt/lampp/htdocs/travel/web", "path to web files")
-	f_session = flag.String("sessionPath", "/opt/lampp/htdocs/go_sessions", "path to store sessions data")
+	fStatic  = flag.String("path", "/opt/lampp/htdocs/go_src/src/github.com/ruslanBik4/httpgo", "path to static files")
+	fWeb     = flag.String("web", "/opt/lampp/htdocs/travel/web", "path to web files")
+	fSession = flag.String("sessionPath", "/opt/lampp/htdocs/go_sessions", "path to store sessions data")
 )
 
 func TestPermissSend(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
@@ -51,7 +52,7 @@ func TestPermissSend(t *testing.T) {
 func TestPermissSendExtranet(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
@@ -59,7 +60,7 @@ func TestPermissSendExtranet(t *testing.T) {
 	startService(permissName, service)
 
 	var result interface{}
-	result = Send(permissName, EXTRANET_PART, 8, "/admin/business/", DROP_PERMISS, 52)
+	result = Send(permissName, crmPermission.EXTRANET_PART, 8, "/admin/business/", crmPermission.DROP_PERMISS, 52)
 	if result == nil {
 		t.Skipped()
 		logs.DebugLog("result", result)
@@ -80,7 +81,7 @@ func TestPermissSendExtranet(t *testing.T) {
 func TestPermissSendWrongParam(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
@@ -111,7 +112,7 @@ func TestPermissSendWrongParam(t *testing.T) {
 func TestPermissGet(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
@@ -138,7 +139,7 @@ func TestPermissGet(t *testing.T) {
 func TestPermissGetExtranet(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
@@ -165,7 +166,7 @@ func TestPermissGetExtranet(t *testing.T) {
 func TestPermissGetWrongParam(t *testing.T) {
 
 	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(f_static, f_web, f_session); err != nil {
+	if err := ServerConfig.Init(fStatic, fWeb, fSession); err != nil {
 		t.Error(err)
 	}
 
