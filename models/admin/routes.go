@@ -27,10 +27,10 @@ var (
 )
 
 // RegisterRoutes link handlers in htttp.Handler
-func RegisterRoutes() {
+func RegisterRoutes(MyMux *http.ServeMux) {
 	for route, fnc := range routes {
 		CheckPermissions(route)
-		http.HandleFunc(route, system.WrapCatchHandler(fnc))
+		MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
 	}
 }
 
