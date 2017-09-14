@@ -6,7 +6,7 @@ package services
 
 const messServNotFound = " service not found in list services"
 
-// ErrServiceNotFound for errors occurent not found service
+// ErrServiceNotFound for errors current not found service
 type ErrServiceNotFound struct {
 	Name string
 }
@@ -55,7 +55,7 @@ func (err ErrServiceNotCorrectParamType) Error() string {
 
 const photosNotEnoughParameter = " not enough parameters "
 
-// ErrServiceNotEnoughParameter for errors if not found reqared parameter
+// ErrServiceNotEnoughParameter for errors if not found required parameter
 type ErrServiceNotEnoughParameter struct {
 	Name  string
 	Param interface{}
@@ -67,7 +67,7 @@ func (err ErrServiceNotEnoughParameter) Error() string {
 
 const brokenStatus = " broken status "
 
-// ErrBrokenConnection for errors lost connection
+// ErrBrokenConnection for errors broken connection
 type ErrBrokenConnection struct {
 	Name  string
 	Param interface{}
@@ -77,7 +77,7 @@ func (err ErrBrokenConnection) Error() string {
 	return err.Name + brokenStatus
 }
 
-// ErrServiceWrongIndex for errors
+// ErrServiceWrongIndex for errors wrong index in array range
 // TODO: wrote correct comment for this type
 type ErrServiceWrongIndex struct {
 	Name  string
