@@ -6,13 +6,6 @@ package forms
 
 //line views/templates/forms/anyForm.qtpl:1
 import (
-	qtio422016 "io"
-
-	qt422016 "github.com/valyala/quicktemplate"
-)
-
-//line views/templates/forms/anyForm.qtpl:1
-import (
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,6 +13,13 @@ import (
 )
 
 // Показываем связанную таблицу RenderTable
+
+//line views/templates/forms/anyForm.qtpl:8
+import (
+	qtio422016 "io"
+
+	qt422016 "github.com/valyala/quicktemplate"
+)
 
 //line views/templates/forms/anyForm.qtpl:8
 var (

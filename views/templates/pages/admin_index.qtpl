@@ -16,28 +16,73 @@ type AdminPageBody struct {
     Title string
     Head *layouts.HeadHTMLPage
 }
+
 %}
+
 {% func (body *AdminPageBody) ShowAdminPage(activePage string) %}
+
+{% code
+Catalog := map[string]*ItemMenu{
+    "es" : &ItemMenu{Link: "/api/v1/table/form/?table=rooms"},
+    "admin" : &ItemMenu{Link: "/api/v1/table/form/?table=business"},
+};
+%}
+
 {%= body.Head.HeadHTML() %}
 <body>
 <div class="content-wrap">
-<div id="container-fluid">
+    <div id="container-fluid">
 
-    <div class="row-fluid">
-        <div class="sidebar-section">
-            <div id="catalog_pane"  class="well sidebar-nav">
-                {% for name, item := range body.Catalog %}
-                    <li><a href="{%s item.Link %}">{%s name %}</a></li>
-                {% endfor %}
-
-            </div>
+        <div class="row-fluid">
+            <app-main></app-main>
         </div>
-        <div id="content" rel="/admin/" class="content-section">{%s= body.Content %}</div>
-
     </div>
-</div>
 </div>
 
 {%= layouts.FooterHTML() %}
+
+<template id="app-main">
+    <div class="sidebar-section">
+        <div id="catalog_pane"  class="well sidebar-nav">
+            {% for name, item := range Catalog %}
+                <li><a href="{%s item.Link %}" n-on:click="func">{%s name %}</a></li>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="content" rel="/admin/" class="content-section" style="padding-bottom: 150px; border-bottom: 1px solid #666;">
+        <h2>Результат по адресу: <span> ${this.url} </span></h2>
+        <div>
+            ${ this.body }
+        </div>
+    </div>
+
+    <script src="/js/admin/native-admin.js"></script>
+</template>
+
+
+    <script src="/js/libs/system.js"></script>
+
+    <script>
+      // set our baseURL reference path/
+      System.config({
+        baseURL: "/",
+        map: {
+          native: '/js/libs/native.min.js'
+        },
+        meta: {
+          // our modules have been transpiled to commonJS
+          '*': {
+            format: 'cjs'
+          }
+        }
+      });
+      System.import('native')
+        .then(function({Native}) {
+          Native.init({
+            'app-main' : document.getElementById('app-main').innerHTML
+          });
+        }, console.error.bind(console));
+    </script>
 </body>
 {% endfunc %}

@@ -6,17 +6,17 @@ package system
 
 //line views/templates/system/schema.qtpl:1
 import (
-	qtio422016 "io"
-
-	qt422016 "github.com/valyala/quicktemplate"
-)
-
-//line views/templates/system/schema.qtpl:1
-import (
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 // Показ схемы определенной таблицы.
+
+//line views/templates/system/schema.qtpl:6
+import (
+	qtio422016 "io"
+
+	qt422016 "github.com/valyala/quicktemplate"
+)
 
 //line views/templates/system/schema.qtpl:6
 var (
