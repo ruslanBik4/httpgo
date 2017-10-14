@@ -314,18 +314,24 @@ func HandleFirebird(w http.ResponseWriter, r *http.Request) {
 
 func handleTest(w http.ResponseWriter, r *http.Request) {
 
+	w.Write([]byte("Hello\n"))
 	r.ParseMultipartForm(_24K)
+	for k,v := range r.Form {
+		w.Write([]byte(k + "=" + v[0]))
+	}
+
+	return
 	id := r.FormValue("id")
-	qBuilder := qb.Create("b.id=?", "", "")
+	qBuilder := qb.Create("id=?", "", "")
 
-	qBuilder.AddTable("b", "business")
+	qBuilder.AddTable("", "business")
 
-	qBuilder.JoinTable("cl", "currency_list", "INNER JOIN", " ON b.id_currency_list=cl.id").AddFields(map[string]string{
-		"currency_title": "title",
-	})
-	qBuilder.JoinTable("c", "country_list", "INNER JOIN", " ON b.id_country_list=c.id").AddFields(map[string]string{
-		"country_bank_title": "title",
-	})
+	//qBuilder.JoinTable("cl", "currency_list", "INNER JOIN", " ON b.id_currency_list=cl.id").AddFields(map[string]string{
+	//	"currency_title": "title",
+	//})
+	//qBuilder.JoinTable("c", "country_list", "INNER JOIN", " ON b.id_country_list=c.id").AddFields(map[string]string{
+	//	"country_bank_title": "title",
+	//})
 	qBuilder.AddArg(id)
 
 	if r.FormValue("batch") == "1" {
