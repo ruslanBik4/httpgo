@@ -4,7 +4,7 @@ After=syslog.target
 
 [Service]
 ExecStart=/root/gocode/src/github.com/ruslanBik4/httpgo/httpgo -path /root/gocode/src/github.com/ruslanBik4/httpgo/ -debug
-ExecDirectory=/root/gocode/src/github.com/ruslanBik4/httpgo/
+WorkingDirectory=/root/gocode/src/github.com/ruslanBik4/httpgo/
 RootDirectoryStartOnly=true
 Type=simple
 Restart=always

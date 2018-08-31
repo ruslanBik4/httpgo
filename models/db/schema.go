@@ -213,7 +213,7 @@ func InitSchema() {
 	var tables RecordsTables
 	tables.GetTablesProp(server.GetServerConfig().DBName())
 
-	// первый проход заполняет в кешги данными полей первого уровня
+	// первый проход заполняет в кеши данными полей первого уровня
 	for _, table := range tables.Rows {
 		var fields FieldsTable
 		fields.GetColumnsProp(table.TABLE_NAME)

@@ -24,7 +24,7 @@ import (
 // HEADERS - list standart header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
-	"author":           "uStudio",
+	"author":           "ruslanBik4",
 	"Server":           "HTTPGO/0.1 (CentOS) Go 1.8.3",
 	"Content-Language": "en, ru",
 	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),

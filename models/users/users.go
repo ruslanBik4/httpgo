@@ -113,7 +113,7 @@ type UserRecord struct {
 
 var greetings = []string{"господин", "госпожа"}
 
-// GetSession return session for cutrrent user (create is needing)
+// GetSession return session for current user (create is needing)
 func GetSession(r *http.Request, name string) *sessions.Session {
 	// Get a session. We're ignoring the error resulted from decoding an
 	// existing session: Get() always returns a session, even if empty.

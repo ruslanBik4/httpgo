@@ -8,7 +8,6 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/system"
-	"io"
 	"net/http"
 	"os/exec"
 )
@@ -71,103 +70,6 @@ func HandleLogServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderOutput(w, stdoutStderr)
 	}
 }
-
-// HandleShowErrorsServer show services errors
-// @/api/log/errors/
-func HandleShowErrorsServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("journalctl", "-u", "httpgo")
-	cmd.Dir = ServerConfig.SystemPath()
-
-	stdout, err := cmd.Output()
-	if err == nil {
-		var stdin io.WriteCloser
-		cmd := exec.Command("grep", "-oE", "httpgo.*ERROR.*")
-		stdin, err = cmd.StdinPipe()
-
-		if err == nil {
-			go func() {
-				defer stdin.Close()
-				_, err = stdin.Write(stdout)
-			}()
-			if err == nil {
-				var stdoutStderr []byte
-				stdoutStderr, err = cmd.CombinedOutput()
-				views.RenderOutput(w, stdoutStderr)
-			}
-		}
-	}
-
-	if err != nil {
-		views.RenderInternalError(w, err)
-	}
-}
-
-// HandleShowStatusServer show services errors
-// @/api/log/errors/
-func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("journalctl", "-u", "httpgo")
-	cmd.Dir = ServerConfig.SystemPath()
-
-	stdout, err := cmd.Output()
-	if err == nil {
-		var stdin io.WriteCloser
-		cmd := exec.Command("grep", "-oE", "httpgo.*STATUS.*")
-		stdin, err = cmd.StdinPipe()
-
-		if err == nil {
-			go func() {
-				defer stdin.Close()
-				_, err = stdin.Write(stdout)
-			}()
-			if err == nil {
-				var stdoutStderr []byte
-				stdoutStderr, err = cmd.CombinedOutput()
-				views.RenderOutput(w, stdoutStderr)
-			}
-		}
-	}
-
-	if err != nil {
-		views.RenderInternalError(w, err)
-	}
-}
-
-// HandleShowDebugServer show services errors
-// @/api/log/errors/
-func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
-	ServerConfig := server.GetServerConfig()
-
-	cmd := exec.Command("journalctl", "-u", "httpgo")
-	cmd.Dir = ServerConfig.SystemPath()
-
-	stdout, err := cmd.Output()
-	if err == nil {
-		var stdin io.WriteCloser
-		cmd := exec.Command("grep", "-oE", "httpgo.*DEBUG.*")
-		stdin, err = cmd.StdinPipe()
-
-		if err == nil {
-			go func() {
-				defer stdin.Close()
-				_, err = stdin.Write(stdout)
-			}()
-			if err == nil {
-				var stdoutStderr []byte
-				stdoutStderr, err = cmd.CombinedOutput()
-				views.RenderOutput(w, stdoutStderr)
-			}
-		}
-	}
-
-	if err != nil {
-		views.RenderInternalError(w, err)
-	}
-}
-
 // HandleUpdateSource incremental update
 // update httpgo & {project} co de from git  & build new version httpgo
 // branch - name git branch

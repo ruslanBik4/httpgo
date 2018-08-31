@@ -20,7 +20,7 @@ var (
 	enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)
 )
 
-//FieldStructure нужна для подготовки к отображению поля на форме (возможо, в таблице и еще других компонентах веб-старницы)
+//FieldStructure нужна для подготовки к отображению поля на форме (возможно, в таблице и еще других компонентах веб-старницы)
 //На данный момент создается на лету, в будущем
 //TODO: hfpltkbnm yf cnfnbxtcre. b lbyfvbxtcre. xfcnb
 type FieldStructure struct {
