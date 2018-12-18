@@ -116,14 +116,12 @@ func RenderBadRequest(w http.ResponseWriter, params ...ParamNotCorrect) {
 func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLogHandler(err, args)
-	logs.ErrorStack()
 }
 
 // RenderInternalError для отдачи и записи в лог ошибок системы при работе хендлеров
 func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
 	logs.ErrorLog(err, args)
-	logs.ErrorStack()
 }
 
 // RenderUnAuthorized - returs error code

@@ -91,7 +91,7 @@ func DoInsert(sql string, args ...interface{}) (int, error) {
 
 	if err != nil {
 		logs.ErrorLog(err, sql)
-		logs.ErrorStack()
+		logs.ErrorStack(err)
 		return -1, err
 	} else {
 		lastInsertId, err := resultSQL.LastInsertId()
@@ -126,7 +126,7 @@ func DoSelect(sql string, args ...interface{}) (rows *sql.Rows, err error) {
 		return dbConn.Query(sql, args...)
 	} else {
 		logs.ErrorLog(&ErrBadSelectQuery{Message: "Bad query for select -", Sql: sql})
-		logs.ErrorStack()
+		logs.ErrorStack(err)
 		return nil, err
 	}
 }

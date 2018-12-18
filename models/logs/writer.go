@@ -9,12 +9,15 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strings"
 )
 
 var (
-	ignoreFunc = []string {
+	ignoreFunc = []string{
 		"views.RenderHandlerError",
 		"views.RenderInternalError",
+		"RenderHandlerError",
+		"RenderInternalError",
 		"ErrorStack",
 		"ErrorLogHandler",
 		"v1.Catch",
@@ -28,8 +31,10 @@ var (
 		"asm_amd64",
 		"asm_amd64.s",
 		"server.go",
+		"testing.go",
 	}
 )
+
 // Fatal - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
@@ -49,25 +54,28 @@ func changeShortName(file string) (short string) {
 	}
 	return short
 }
+
 // DebugLog output formated(function and line calls) debug information
 func DebugLog(args ...interface{}) {
 	if *fDebug {
-		pc, _, _, _ := runtime.Caller(logDebug.calldepth-2)
+		pc, _, _, _ := runtime.Caller(logDebug.calldepth - 2)
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
-		logDebug.Printf(args ...)
+		logDebug.Printf(args...)
 	}
 }
+
 // DebugLog output formated(function and line calls) debug information
 func TraceLog(args ...interface{}) {
 	if *fDebug {
-		logDebug.Printf(args ...)
+		logDebug.Printf(args...)
 	}
 }
+
 // StatusLog output formated information for status
 func StatusLog(args ...interface{}) {
 	if *fStatus {
-		logStat.Printf(args ...)
+		logStat.Printf(args...)
 	}
 }
 
@@ -81,12 +89,7 @@ func ErrorLog(err error, args ...interface{}) {
 		calldepth++
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
-		isIgnore = false
-		for _, name := range ignoreFunc {
-			if isIgnore = (logErr.funcName == name); isIgnore {
-				break
-			}
-		}
+		isIgnore = isIgnoreFunc(logErr.funcName)
 	}
 	//todo: print standart
 	var message string
@@ -102,37 +105,48 @@ func ErrorLog(err error, args ...interface{}) {
 	logErr.Output(calldepth, message)
 
 }
+
 // ErrorStack - output formatted(function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
 	i := 1
-	mes := fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...) )
+	mes := fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...))
 
 	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
 		i++
 		funcName := changeShortName(runtime.FuncForPC(pc).Name())
-		isIgnore := false
 		// пропускаем рендер ошибок
-		for _, name := range ignoreFunc {
-			if isIgnore = (funcName == name); isIgnore {
-				break
-			}
-		}
+		isIgnore := isIgnoreFunc(funcName)
 		if !isIgnore {
-			for _, name := range ignoreFiles {
-				if isIgnore = (changeShortName(file) == name); isIgnore {
-					break
-				}
-			}
+			runFile := changeShortName(file)
+			isIgnore = isIgnoreFile(runFile)
 			if !isIgnore {
-				mes += fmt.Sprintf("%s:%d: %s; ", changeShortName(file), line, funcName)
+				logErr.Output(i, mes+fmt.Sprintf("%s:%d: %s; ", runFile, line, funcName))
 			}
 		}
 	}
-	logErr.Output(i, mes)
 }
+
+func isIgnoreFile(runFile string) bool {
+	for _, name := range ignoreFiles {
+		if (runFile == name) || (strings.HasPrefix(runFile, name)) {
+			return true
+		}
+	}
+	return false
+}
+
+func isIgnoreFunc(funcName string) bool {
+	for _, name := range ignoreFunc {
+		if (funcName == name) || (strings.HasSuffix(funcName, "."+name)) {
+			return true
+		}
+	}
+	return false
+}
+
 // ErrorLogHandler - output formated(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
-	ErrorStack(err, args ...)
+	ErrorStack(err, args...)
 
 }

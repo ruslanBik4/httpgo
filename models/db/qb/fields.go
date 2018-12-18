@@ -153,7 +153,7 @@ func (field *QBField) GetSelectedValues() {
 		case nil:
 		case *ErrNotFoundParam:
 			logs.ErrorLog(err, field, field.SelectQB, field.Table.Name)
-			logs.ErrorStack()
+			logs.ErrorStack(err)
 		case error:
 			logs.ErrorLog(err, field, field.SelectQB)
 		}

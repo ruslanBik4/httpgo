@@ -5,10 +5,11 @@
 package api
 
 import (
-	"os/exec"
 	"net/http"
-	"github.com/dvbogdan/analytics/views"
+	"os/exec"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 // HandleLogServer show status httpgo
@@ -60,6 +61,7 @@ func HandleShowStatusServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // HandleShowDebugServer show debug messages
 // @/api/log/debug/
 func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
@@ -77,14 +79,15 @@ func HandleShowDebugServer(w http.ResponseWriter, r *http.Request) {
 		views.RenderInternalError(w, err)
 	}
 }
+
 // logs token for journalctl
 const (
 	startLogPram = "httpgo"
-	sepLogParam = ".*"
+	sepLogParam  = ".*"
 )
 
-func runGrep(params string, stdout []byte, ) ([]byte, error) {
-	cmd := exec.Command("grep", "-oE", params )
+func runGrep(params string, stdout []byte) ([]byte, error) {
+	cmd := exec.Command("grep", "-oE", params)
 	stdin, err := cmd.StdinPipe()
 
 	if err == nil {
@@ -117,4 +120,3 @@ func runJournal() ([]byte, error) {
 	//cmd.Dir = ServerConfig.SystemPath()
 	return exec.Command("journalctl", "-u", "httpgo").Output()
 }
-

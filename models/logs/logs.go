@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 	"strings"
+	"time"
 )
 
 var (
-	fDebug = flag.Bool("debug", false, "debug mode")
-	fStatus = flag.Bool("status", true, "status mode")
+	fDebug                    = flag.Bool("debug", false, "debug mode")
+	fStatus                   = flag.Bool("status", true, "status mode")
 	logErr, logStat, logDebug *wrapKitLogger
 	//	todo: add datetime mark as option
 )
@@ -28,30 +28,33 @@ type LogsType interface {
 type wrapKitLogger struct {
 	*log.Logger
 	calldepth int
-	funcName string
-	typeLog string
+	funcName  string
+	typeLog   string
 }
-const logFlags = log.Lshortfile
-func NewWrapKitLogger(pref string, depth int)  *wrapKitLogger{
+
+const logFlags = log.Lshortfile | log.Ltime
+
+func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 	return &wrapKitLogger{
-		Logger: log.New(os.Stdout, "[[" + pref + "]]", logFlags),
-		typeLog: pref,
+		Logger:    log.New(os.Stdout, "[["+pref+"]]", logFlags),
+		typeLog:   pref,
 		calldepth: depth,
 	}
 }
+
 type logMess struct {
-	Message string `json:"message"`
+	Message string    `json:"message"`
 	Now     time.Time `json:"@timestamp"`
-	Level   string `json:"level"`
+	Level   string    `json:"level"`
 	//vars    [] interface{} `json:"vars"`
 }
 
 func NewlogMess(mess string, logger *wrapKitLogger) *logMess {
-	return &logMess{mess, time.Now(), logger.typeLog }
+	return &logMess{mess, time.Now(), logger.typeLog}
 }
 func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
-	mess := NewlogMess(getArgsString(vars ...), logger)
+	mess := NewlogMess(getArgsString(vars...), logger)
 	if logger.funcName > "" {
 		mess.Message = logger.funcName + "();" + mess.Message
 	}
@@ -74,7 +77,7 @@ func getArgsString(args ...interface{}) (message string) {
 	}
 	// first param may by format string
 	if format, ok := args[0].(string); ok && (strings.Index(format, "%") > -1) {
-		return fmt.Sprintf(format, args[1:] ...)
+		return fmt.Sprintf(format, args[1:]...)
 	}
 
 	comma := ""
@@ -94,7 +97,7 @@ func getArgsString(args ...interface{}) (message string) {
 		case time.Time:
 			message += comma + val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
 		case []interface{}:
-			message += getArgsString(val ...)
+			message += getArgsString(val...)
 		default:
 
 			message += comma + fmt.Sprintf("%#v", arg)
@@ -112,4 +115,3 @@ func init() {
 	logDebug = NewWrapKitLogger("DEBUG", 3)
 
 }
-
