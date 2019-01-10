@@ -109,7 +109,7 @@ func ErrorLog(err error, args ...interface{}) {
 // ErrorStack - output formatted(function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
-	i := 1
+	i := stackBeginWith
 	mes := fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...))
 
 	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {

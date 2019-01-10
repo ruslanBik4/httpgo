@@ -25,6 +25,7 @@ var (
 type LogsType interface {
 	PrintToLogs() string
 }
+
 type wrapKitLogger struct {
 	*log.Logger
 	calldepth int
@@ -34,12 +35,26 @@ type wrapKitLogger struct {
 
 const logFlags = log.Lshortfile | log.Ltime
 
+var stackBeginWith = 0
+
 func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 	return &wrapKitLogger{
 		Logger:    log.New(os.Stdout, "[["+pref+"]]", logFlags),
 		typeLog:   pref,
 		calldepth: depth,
 	}
+}
+
+func SetDebug(d bool) {
+	*fDebug = d
+}
+
+func SetStatus(s bool) {
+	*fStatus = s
+}
+
+func SetStackBeginWith(s int) {
+	stackBeginWith = s
 }
 
 type logMess struct {
