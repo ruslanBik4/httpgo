@@ -45,16 +45,28 @@ func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 	}
 }
 
-func SetDebug(d bool) {
+// SetDebug set debug level for log, return old value
+func SetDebug(d bool) bool {
+	old := *fDebug
 	*fDebug = d
+
+	return old
 }
 
-func SetStatus(s bool) {
+// SetStatus set status level for log, return old value
+func SetStatus(s bool) bool {
+	old := *fStatus
 	*fStatus = s
+
+	return old
 }
 
-func SetStackBeginWith(s int) {
+// SetStackBeginWith set stackBeginWith level for log, return old value
+func SetStackBeginWith(s int) int {
+	old := stackBeginWith
 	stackBeginWith = s
+
+	return old
 }
 
 type logMess struct {
