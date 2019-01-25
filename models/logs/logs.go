@@ -97,6 +97,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	//	logger.Output(2, fmt.Sprintf("%s. %#v", err.Error(), put))
 	//}
 }
+
 func getArgsString(args ...interface{}) (message string) {
 
 	if len(args) < 1 {
@@ -136,9 +137,57 @@ func getArgsString(args ...interface{}) (message string) {
 	return message
 }
 
-func init() {
-	logErr = NewWrapKitLogger("ERROR", 1)
-	logStat = NewWrapKitLogger("INFO", 3)
-	logDebug = NewWrapKitLogger("DEBUG", 3)
+type Level int
 
+const (
+	CRITICAL Level = iota
+	ERROR
+	WARNING
+	NOTICE
+	INFO
+	DEBUG
+)
+
+type color int
+
+const (
+	colorBlack = (iota + 30)
+	colorRed
+	colorGreen
+	colorYellow
+	colorBlue
+	colorMagenta
+	colorCyan
+	colorWhite
+)
+
+var (
+	colors = []string{
+		CRITICAL: colorSeq(colorMagenta),
+		ERROR:    colorSeq(colorRed),
+		WARNING:  colorSeq(colorYellow),
+		NOTICE:   colorSeq(colorGreen),
+		DEBUG:    colorSeq(colorCyan),
+	}
+	boldcolors = []string{
+		CRITICAL: colorSeqBold(colorMagenta),
+		ERROR:    colorSeqBold(colorRed),
+		WARNING:  colorSeqBold(colorYellow),
+		NOTICE:   colorSeqBold(colorGreen),
+		DEBUG:    colorSeqBold(colorCyan),
+	}
+)
+
+func colorSeq(color color) string {
+	return fmt.Sprintf("\033[%dm", int(color))
+}
+
+func colorSeqBold(color color) string {
+	return fmt.Sprintf("\033[%d;1m", int(color))
+}
+
+func init() {
+	logErr = NewWrapKitLogger(colors[ERROR]+"ERROR"+"\033[0m", 1)
+	logStat = NewWrapKitLogger("INFO", 3)
+	logDebug = NewWrapKitLogger(colors[DEBUG]+"DEBUG"+"\033[0m", 3)
 }
