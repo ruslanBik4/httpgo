@@ -6,6 +6,7 @@ package logs
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"log"
 	"os"
 	"runtime"
@@ -26,12 +27,21 @@ var (
 		"runtime.call32",
 		"runtime.panicdottypeE",
 		"v1.WrapAPIHandler.func1",
+		"fasthttp.(*workerPool).workerFunc",
+		"apis.(*Apis).Handler",
+		"apis.(*Apis).Handler-fm",
+		"apis.(*Apis).renderError",
 	}
 	ignoreFiles = []string{
 		"asm_amd64",
 		"asm_amd64.s",
+		"iface.go",
+		"map_fast32.go",
+		"panic.go",
 		"server.go",
+		"signal_unix.go",
 		"testing.go",
+		"workerpool.go",
 	}
 )
 
@@ -110,19 +120,35 @@ func ErrorLog(err error, args ...interface{}) {
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
-	mes := fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...))
+	logErr.Output(i+1, fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...)))
+
+	type stackTracer interface {
+		StackTrace() errors.StackTrace
+	}
+	ErrFmt, ok := errors.Cause(err).(stackTracer)
+	if ok {
+		frames := ErrFmt.StackTrace()
+		// logErr.Output(i, fmt.Sprintf("%+v", frames))
+		for i, f := range frames {
+			printStack(f.File, f.PC, i, f.Line)
+		}
+		return
+	}
 
 	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
 		i++
-		funcName := changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
-		isIgnore := isIgnoreFunc(funcName)
-		if !isIgnore {
-			runFile := changeShortName(file)
-			isIgnore = isIgnoreFile(runFile)
-			if !isIgnore {
-				logErr.Output(i, mes+fmt.Sprintf("%s:%d: %s; ", runFile, line, funcName))
-			}
+		printStack(file, pc, i, line)
+	}
+}
+
+func printStack(file string, pc uintptr, i int, line int) {
+	runFile := changeShortName(file)
+	isIgnore := isIgnoreFile(runFile)
+	if !isIgnore {
+		funcName := changeShortName(runtime.FuncForPC(pc).Name())
+		if !isIgnoreFunc(funcName) {
+			logErr.Output(i, fmt.Sprintf("%s:%d: %s; ", runFile, line, funcName))
 		}
 	}
 }

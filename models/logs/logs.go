@@ -35,7 +35,7 @@ type wrapKitLogger struct {
 
 const logFlags = log.Lshortfile | log.Ltime
 
-var stackBeginWith = 0
+var stackBeginWith = 1
 
 func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 	return &wrapKitLogger{
