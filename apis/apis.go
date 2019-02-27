@@ -250,7 +250,9 @@ func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (*APIRoute, 
 		}
 	}
 
-	return a.routes["/"], false
+	route, ok := a.routes["/"]
+
+	return route, ok
 }
 
 func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
