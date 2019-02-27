@@ -186,8 +186,9 @@ func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 	for _, param := range route.Params {
 		value := ctx.UserValue(param.Name)
 		if value == nil {
+			value = route.defaultValueOfParams(ctx, param)
 			//  not present required param
-			if param.Req && !route.isHasPartRegParam(ctx, param) {
+			if (value == nil) && param.Req && !route.isHasPartRegParam(ctx, param) {
 				badParams = append(badParams, param.Name+": is required parameter")
 			}
 		} else if name, val := route.isHasIncompatibleParams(ctx, param); name > "" {
@@ -197,6 +198,17 @@ func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 	}
 
 	return
+}
+
+type DefValueCalcFnc func(ctx *fasthttp.RequestCtx) interface{}
+
+func (route *APIRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InParam) interface{} {
+	switch def := param.DefValue.(type) {
+	case DefValueCalcFnc:
+		return def(ctx)
+	}
+
+	return param.DefValue
 }
 
 func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {

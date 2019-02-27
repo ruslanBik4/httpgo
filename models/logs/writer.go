@@ -11,6 +11,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"time"
 )
 
 var (
@@ -71,7 +72,7 @@ func DebugLog(args ...interface{}) {
 		pc, _, _, _ := runtime.Caller(logDebug.calldepth - 2)
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
-		logDebug.Printf(args...)
+		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
 	}
 }
 
@@ -80,6 +81,7 @@ func TraceLog(args ...interface{}) {
 	if *fDebug {
 		logDebug.Printf(args...)
 	}
+	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 }
 
 // StatusLog output formated information for status
