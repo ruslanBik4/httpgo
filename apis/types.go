@@ -62,7 +62,14 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	switch t.BasicKind {
 	case types.Bool:
 		return value == "true", nil
-	case types.Int, types.Int8, types.Int16:
+	case types.Int:
+		return strconv.Atoi(value)
+	case types.Int8:
+		p, err := strconv.ParseInt(value, 10, 8)
+		return int8(p), err
+	case types.Int16:
+		p, err := strconv.ParseInt(value, 10, 16)
+		return int16(p), err
 	case types.Int32:
 		p, err := strconv.ParseInt(value, 10, 32)
 		return int32(p), err

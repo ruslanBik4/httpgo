@@ -213,7 +213,7 @@ func (route *APIRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InPa
 }
 
 func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
-	// find param in InParams list & convert accordint to Type
+	// find param in InParams list & convert according to Type
 	for _, param := range route.Params {
 		if param.Name == name {
 

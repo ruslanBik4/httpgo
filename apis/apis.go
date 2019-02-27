@@ -80,28 +80,11 @@ func NewApis(ctx CtxApis, routes APIRoutes, fncAuth func(ctx *fasthttp.RequestCt
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
 	path := string(ctx.Path())
-	route, ok := a.isValidPath(path)
+	route, ok := a.isValidPath(ctx, path)
 	if !ok {
 		ctx.NotFound()
 		logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
 		return
-	}
-
-	// check method
-	if !route.isValidMethod(ctx) {
-		route = nil
-		for key, apiRoute := range a.routes {
-			// todo: create ierarchie
-			if strings.HasPrefix(path, key) && apiRoute.isValidMethod(ctx) {
-				route = apiRoute
-				break
-			}
-		}
-		if route == nil {
-			ctx.NotFound()
-			logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
-			return
-		}
 	}
 
 	// add Cfg params to requestCtx
@@ -145,7 +128,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
 }
 
-//WriteJSON write JSON to response
+// WriteJSON write JSON to response
 func (a *Apis) WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 
 	defer func() {
@@ -250,23 +233,24 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return a.routes, nil
 }
 
-func (a *Apis) isValidPath(path string) (*APIRoute, bool) {
+func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bool) {
 	route, ok := a.routes[path]
-	if ok {
+	// check method
+	if ok && route.isValidMethod(ctx) {
 		return route, ok
 	}
 
-	return a.findRootRoute(path)
+	return a.findRootRoute(ctx, path)
 }
 
-func (a *Apis) findRootRoute(path string) (*APIRoute, bool) {
+func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bool) {
 	for key, route := range a.routes {
-		if strings.HasPrefix(path, key) {
+		if strings.HasPrefix(path, key) && route.isValidMethod(ctx) {
 			return route, true
 		}
 	}
 
-	return nil, false
+	return a.routes["/"], false
 }
 
 func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
