@@ -105,11 +105,17 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 	if !route.isValidMethod(ctx) {
 		return nil, errMethodNotAllowed
 	}
+
 	// check auth is needed
-	if route.NeedAuth && ((route.FncAuth != nil) && !route.FncAuth(ctx) ||
-		(route.FncAuth == nil) && !fncAuth(ctx)) {
-		return nil, ErrRouteForbidden
+	if route.NeedAuth && (route.FncAuth != nil) {
+		// route has his auth method
+		if !route.FncAuth(ctx) {
+			return nil, ErrRouteForbidden
+		}
+	} else if route.NeedAuth && !fncAuth(ctx) {
+		return nil, ErrUnAuthorized
 	}
+
 	// compliance check local request is needed
 	if route.OnlyLocal && isNotLocalRequest(ctx) {
 		return nil, errRouteOnlyLocal
