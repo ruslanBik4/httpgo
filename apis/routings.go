@@ -101,11 +101,6 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 // CheckAndRun check & run route handler
 func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *fasthttp.RequestCtx) bool) (resp interface{}, err error) {
 
-	// check method
-	if !route.isValidMethod(ctx) {
-		return nil, errMethodNotAllowed
-	}
-
 	// check auth is needed
 	if route.FncAuth != nil {
 		// route has his auth method

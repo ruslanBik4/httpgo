@@ -78,52 +78,71 @@ func NewApis(ctx CtxApis, routes APIRoutes, fncAuth func(ctx *fasthttp.RequestCt
 
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
+
 	path := string(ctx.Path())
 	route, ok := a.isValidPath(path)
-
 	if !ok {
 		ctx.NotFound()
 		logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
-	} else {
-		// add Cfg params to requestCtx
-		for name, val := range a.Ctx {
-			ctx.SetUserValue(name, val)
-		}
+		return
+	}
 
-		defer func() {
-			errRec := recover()
-			switch errRec := errRec.(type) {
-			case error:
-				params := ctx.UserValue(JSONParams)
-				if route.Multipart {
-					params = ctx.UserValue(MultiPartParams)
-				}
-				logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
-				errRec = errors.Wrapf(errRec, "route.CheckAndRun")
-				a.renderError(ctx, errRec, nil)
-			case string:
-				a.renderError(ctx, errors.New(errRec), nil)
-			case nil:
-			default:
-				logs.StatusLog(errRec)
+	// check method
+	if !route.isValidMethod(ctx) {
+		route = nil
+		for key, apiRoute := range a.routes {
+			// todo: create ierarchie
+			if strings.HasPrefix(path, key) && apiRoute.isValidMethod(ctx) {
+				route = apiRoute
+				break
 			}
-		}()
+		}
+		if route == nil {
+			ctx.NotFound()
+			logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
+			return
+		}
+	}
 
-		resp, err := route.CheckAndRun(ctx, a.fncAuth)
+	// add Cfg params to requestCtx
+	for name, val := range a.Ctx {
+		ctx.SetUserValue(name, val)
+	}
 
-		// success execution
-		if err != nil {
-			logs.DebugLog("route not run successfully - '%s', %v, %s", path, resp, ctx.Request.Header.String())
-			a.renderError(ctx, err, resp)
-		} else {
-			if resp != nil {
-				err = a.WriteJSON(ctx, resp)
-				if err != nil {
-					a.renderError(ctx, err, resp)
-				}
+	defer func() {
+		errRec := recover()
+		switch errRec := errRec.(type) {
+		case error:
+			params := ctx.UserValue(JSONParams)
+			if route.Multipart {
+				params = ctx.UserValue(MultiPartParams)
+			}
+			logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
+			errRec = errors.Wrapf(errRec, "route.CheckAndRun")
+			a.renderError(ctx, errRec, nil)
+		case string:
+			a.renderError(ctx, errors.New(errRec), nil)
+		case nil:
+		default:
+			logs.StatusLog(errRec)
+		}
+	}()
+
+	resp, err := route.CheckAndRun(ctx, a.fncAuth)
+
+	// success execution
+	if err != nil {
+		logs.DebugLog("route not run successfully - '%s', %v, %s", path, resp, ctx.Request.Header.String())
+		a.renderError(ctx, err, resp)
+	} else {
+		if resp != nil {
+			err = a.WriteJSON(ctx, resp)
+			if err != nil {
+				a.renderError(ctx, err, resp)
 			}
 		}
 	}
+
 }
 
 //WriteJSON write JSON to response
@@ -237,6 +256,10 @@ func (a *Apis) isValidPath(path string) (*APIRoute, bool) {
 		return route, ok
 	}
 
+	return a.findRootRoute(path)
+}
+
+func (a *Apis) findRootRoute(path string) (*APIRoute, bool) {
 	for key, route := range a.routes {
 		if strings.HasPrefix(path, key) {
 			return route, true
