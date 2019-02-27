@@ -221,6 +221,11 @@ func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 	// find param in InParams list & convert accordint to Type
 	for _, param := range route.Params {
 		if param.Name == name {
+
+			if param.Type == nil {
+				return values, nil
+			}
+
 			if param.Type.IsSlice() {
 				return param.Type.ConvertSlice(ctx, values)
 			}
@@ -293,7 +298,7 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 // routingToJSON produces a human-friendly description of Apis.
 //Based on real data of the executable application, does not require additional documentation.
 func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-	//todo: add description of the test-based return data
+	// todo: add description of the test-based return data
 	route := (*APIRoute)(ptr)
 
 	stream.WriteObjectStart()
@@ -302,14 +307,13 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	AddFieldToJSON(stream, "method", methodNames[route.Method])
 	if route.NeedAuth {
-		if route.FncAuth != nil {
-			AddFieldToJSON(stream, "Auth", "use custom method for checking autorization")
-		} else {
-			AddFieldToJSON(stream, "Auth", "use standart method 'fncAuth' for checking autorization")
-		}
+		AddFieldToJSON(stream, "Auth", "use standart method 'fncAuth' for checking autorization")
+	}
+	if route.FncAuth != nil {
+		AddFieldToJSON(stream, "AuthCustom", "use custom method for checking autorization")
 	}
 	if route.OnlyLocal {
-		AddFieldToJSON(stream, "local", "only local request be allowed")
+		AddFieldToJSON(stream, "localOnly", "only local request be allowed")
 	}
 
 	// print parameters
@@ -321,20 +325,21 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			if i > 0 {
 				stream.WriteMore()
 			}
+
 			stream.WriteObjectField(param.Name)
 			stream.WriteObjectStart()
 			FirstFieldToJSON(stream, "Descriptor", param.Desc)
 
-			AddFieldToJSON(stream, "Type", param.Type.String())
+			if param.Type != nil {
+				AddFieldToJSON(stream, "Type", param.Type.String())
+			}
 
 			if param.Req {
-				stream.WriteMore()
-				stream.WriteObjectField("required")
 				if len(param.PartReq) > 0 {
 					s := strings.Join(param.PartReq, ",")
-					stream.WriteString("one of " + s + " and " + param.Name + " is required")
+					AddFieldToJSON(stream, "required", "one of "+s+" and "+param.Name+" is required")
 				} else {
-					stream.WriteTrue()
+					AddObjectToJSON(stream, "required", true)
 				}
 
 			}
@@ -351,14 +356,12 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if route.Resp != nil {
 		if resp, ok := route.Resp.(string); ok {
 			AddFieldToJSON(stream, "response", resp)
-
 		} else {
 			AddFieldToJSON(stream, "response", fmt.Sprintf("%+#v", route.Resp))
 		}
 	}
 
 	stream.WriteObjectEnd()
-
 }
 
 func AddFieldToJSON(stream *jsoniter.Stream, field string, s string) {
