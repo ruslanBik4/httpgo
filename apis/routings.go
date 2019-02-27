@@ -107,7 +107,7 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 	}
 
 	// check auth is needed
-	if route.NeedAuth && (route.FncAuth != nil) {
+	if route.FncAuth != nil {
 		// route has his auth method
 		if !route.FncAuth(ctx) {
 			return nil, ErrRouteForbidden

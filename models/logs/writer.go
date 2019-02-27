@@ -72,14 +72,14 @@ func DebugLog(args ...interface{}) {
 		pc, _, _, _ := runtime.Caller(logDebug.calldepth - 2)
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
-		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
+		logDebug.Printf(args...)
 	}
 }
 
 // DebugLog output formated(function and line calls) debug information
 func TraceLog(args ...interface{}) {
 	if *fDebug {
-		logDebug.Printf(args...)
+		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 }
@@ -131,9 +131,6 @@ func ErrorStack(err error, args ...interface{}) {
 	if ok {
 		frames := ErrFmt.StackTrace()
 		logErr.Output(i, fmt.Sprintf("%+v", frames))
-		// for i, f := range frames {
-		// 	printStack(f.File, f.PC, i, f.Line)
-		// }
 		return
 	}
 
