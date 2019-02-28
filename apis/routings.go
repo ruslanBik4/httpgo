@@ -225,7 +225,7 @@ func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 				return param.Type.ConvertSlice(ctx, values)
 			}
 
-			return param.Type.ConvertValue(nil, values[0])
+			return param.Type.ConvertValue(ctx, values[0])
 		}
 	}
 	if len(values) == 1 {
