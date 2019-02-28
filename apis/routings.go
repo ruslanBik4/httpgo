@@ -158,7 +158,7 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 		} else {
 			args = ctx.QueryArgs()
 		}
-		badParams := make([]string, args.Len())
+		badParams := make([]string, 0)
 
 		args.VisitAll(func(k, v []byte) {
 

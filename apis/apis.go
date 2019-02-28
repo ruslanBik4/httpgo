@@ -187,7 +187,8 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultipArt)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
-		} else if ctx.IsPost() {
+		}
+		if ctx.IsPost() {
 			logs.DebugLog(ctx.PostArgs().String())
 		} else {
 			logs.DebugLog(ctx.QueryArgs().String())
