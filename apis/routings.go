@@ -352,7 +352,7 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		if resp, ok := route.Resp.(string); ok {
 			AddFieldToJSON(stream, "response", resp)
 		} else {
-			AddFieldToJSON(stream, "response", fmt.Sprintf("%+#v", route.Resp))
+			AddObjectToJSON(stream, "response", route.Resp)
 		}
 	}
 
