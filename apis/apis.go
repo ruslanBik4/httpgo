@@ -244,16 +244,23 @@ func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bo
 	return a.findRootRoute(ctx, path)
 }
 
-func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bool) {
-	for key, route := range a.routes {
+func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (route *APIRoute, ok bool) {
+	lenRoute := len(path)
+	for key, r := range a.routes {
 		if strings.HasPrefix(path, key) && route.isValidMethod(ctx) {
-			return route, true
+			if len(key) < lenRoute {
+				route = r
+				ok = true
+				lenRoute = len(key)
+			}
 		}
 	}
 
-	route, ok := a.routes["/"]
+	if ok {
+		route, ok = a.routes["/"]
+	}
 
-	return route, ok
+	return
 }
 
 func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
