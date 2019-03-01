@@ -245,19 +245,13 @@ func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bo
 }
 
 func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (route *APIRoute, ok bool) {
-	lenRoute := len(path)
-	for key, r := range a.routes {
-		if strings.HasPrefix(path, key) && route.isValidMethod(ctx) {
-			if len(key) < lenRoute {
-				route = r
-				ok = true
-				lenRoute = len(key)
-			}
+	for n := strings.LastIndex(path, "/"); n > -1; n = strings.LastIndex(strings.TrimSuffix(path, "/"), "/") {
+		path = path[:n+1]
+		route, ok = a.routes[path]
+		// check method
+		if ok && route.isValidMethod(ctx) {
+			return route, ok
 		}
-	}
-
-	if ok {
-		route, ok = a.routes["/"]
 	}
 
 	return
