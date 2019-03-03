@@ -128,6 +128,7 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 
 		ctx.SetUserValue(MultiPartParams, mf.Value)
 
+		badParams := make([]string, 0)
 		for key, value := range mf.Value {
 			val, err := route.checkTypeParam(ctx, key, value)
 			if err != nil {
@@ -135,9 +136,13 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 					return val, errors.Wrap(ErrWrongParamsList, err.Error())
 				}
 
-				return key, errors.Wrap(ErrWrongParamsList, err.Error())
+				badParams = append(badParams, key+" wrong type "+strings.Join(value, ",")+err.Error())
 			}
 			ctx.SetUserValue(key, val)
+		}
+
+		if len(badParams) > 0 {
+			return badParams, ErrWrongParamsList
 		}
 
 	} else if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
@@ -165,7 +170,7 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 			key := string(k)
 			val, err := route.checkTypeParam(ctx, key, []string{string(v)})
 			if err != nil {
-				badParams = append(badParams, val.(string)+" wrong type "+err.Error())
+				badParams = append(badParams, key+" wrong type "+val.(string)+err.Error())
 			} else {
 				ctx.SetUserValue(key, val)
 			}

@@ -181,19 +181,18 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		statusCode = http.StatusBadRequest
 
 		errMsg := fmt.Sprintf(err.Error(), resp)
-		if _, err := ctx.WriteString(errMsg); err != nil {
-			logs.ErrorLog(err)
-		}
+		ctx.Error(errMsg, statusCode)
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultipArt)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
+			logs.DebugLog(ctx.Request.String())
 		}
 		if ctx.IsPost() {
 			logs.DebugLog(ctx.PostArgs().String())
 		} else {
 			logs.DebugLog(ctx.QueryArgs().String())
 		}
-		ctx.Error(errMsg, statusCode)
+
 		return
 	default:
 		logs.ErrorStack(err, resp)
