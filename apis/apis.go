@@ -111,6 +111,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		}
 	}()
 
+	logs.DebugLog(ctx.Request.String())
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
 
 	// success execution
