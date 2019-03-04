@@ -111,7 +111,6 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		}
 	}()
 
-	logs.DebugLog(ctx.Request.String())
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
 
 	// success execution
@@ -186,7 +185,6 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultipArt)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
-			logs.DebugLog(ctx.Request.String())
 		}
 		if ctx.IsPost() {
 			logs.DebugLog(ctx.PostArgs().String())
