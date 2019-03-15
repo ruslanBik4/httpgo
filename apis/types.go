@@ -42,7 +42,7 @@ func NewSliceTypeInParam(bk types.BasicKind) TypeInParam {
 func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	switch t.BasicKind {
 	case types.String:
-		return value > "", nil
+		return nil
 	case types.Bool:
 		return value == "true" || value == "false"
 	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64:
