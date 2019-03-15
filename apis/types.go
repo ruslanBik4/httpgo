@@ -6,6 +6,7 @@ package apis
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"go/types"
 	"strconv"
@@ -40,6 +41,8 @@ func NewSliceTypeInParam(bk types.BasicKind) TypeInParam {
 // CheckType check of value computable with the TypeInParam
 func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	switch t.BasicKind {
+	case types.String:
+		return value > "", nil
 	case types.Bool:
 		return value == "true" || value == "false"
 	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64:
@@ -60,6 +63,8 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 // CheckType check of value compatable with the TypeInParam
 func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error) {
 	switch t.BasicKind {
+	case types.String:
+		return value, nil
 	case types.Bool:
 		return value == "true", nil
 	case types.Int:
@@ -79,6 +84,8 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return strconv.ParseUint(value, 10, 64)
 	case types.Float32, types.Float64:
 		return strconv.ParseFloat(value, 64)
+	default:
+		panic(errors.New("convert this type not implement"))
 	}
 
 	return value, nil
@@ -86,7 +93,18 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {
 	switch t.BasicKind {
+	case types.String:
+		return values, nil
 	case types.Int, types.Int8, types.Int16:
+		arr := make([]int, len(values))
+		for key, val := range values {
+			v, err := t.ConvertValue(ctx, val)
+			if err != nil {
+				return nil, err
+			}
+			arr[key] = v.(int)
+		}
+		return arr, nil
 	case types.Int32:
 		arr := make([]int32, len(values))
 		for key, val := range values {
@@ -127,6 +145,8 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(float32)
 		}
 		return arr, nil
+	default:
+		panic(errors.New("convert this type not implement"))
 	}
 
 	return nil, nil

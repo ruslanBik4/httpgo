@@ -130,7 +130,7 @@ func ErrorStack(err error, args ...interface{}) {
 	ErrFmt, ok := errors.Cause(err).(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
-		logErr.Output(i, fmt.Sprintf("%+v", frames))
+		logErr.Output(i, fmt.Sprintf("%+v", frames[1:]))
 		return
 	}
 
