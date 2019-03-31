@@ -134,7 +134,7 @@ func (a *Apis) WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 	defer func() {
 		errR := recover()
 		if errR != nil {
-			err = errR.(error)
+			err = errors.Wrap(errR.(error), "marshal json")
 		}
 	}()
 
@@ -239,20 +239,29 @@ func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bo
 		return route, ok
 	}
 
-	return a.findRootRoute(ctx, path)
+	return a.findParentRoute(ctx, path)
 }
 
-func (a *Apis) findRootRoute(ctx *fasthttp.RequestCtx, path string) (route *APIRoute, ok bool) {
-	for n := strings.LastIndex(path, "/"); n > -1; n = strings.LastIndex(strings.TrimSuffix(path, "/"), "/") {
-		path = path[:n+1]
-		route, ok = a.routes[path]
+func (a *Apis) findParentRoute(ctx *fasthttp.RequestCtx, path string) (route *APIRoute, ok bool) {
+	for p := getParentPath(path); p > ""; p = getParentPath(p) {
+		route, ok = a.routes[p]
 		// check method
 		if ok && route.isValidMethod(ctx) {
+			ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(path, p))
 			return route, ok
 		}
 	}
 
 	return
+}
+
+func getParentPath(path string) string {
+	n := strings.LastIndex(strings.TrimSuffix(path, "/"), "/")
+	if n < 0 {
+		return ""
+	}
+
+	return path[:n+1]
 }
 
 func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {

@@ -44,4 +44,5 @@ var methodNames = []string{
 const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
+	ChildRoutePath  = "lastSegment"
 )
