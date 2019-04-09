@@ -91,11 +91,26 @@ func StatusLog(args ...interface{}) {
 	}
 }
 
+type stackTracer interface {
+	StackTrace() errors.StackTrace
+}
+
 // ErrorLog - output formated(function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 	calldepth := logErr.calldepth
 
 	isIgnore := true
+
+	ErrFmt, ok := err.(stackTracer)
+	if ok {
+		frames := ErrFmt.StackTrace()
+		for _, frame := range frames {
+			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
+				logErr.Printf("%v %[1]n %v", frame, err)
+				return
+			}
+		}
+	}
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 		calldepth++
@@ -124,13 +139,15 @@ func ErrorStack(err error, args ...interface{}) {
 	i := stackBeginWith
 	logErr.Output(i+1, fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...)))
 
-	type stackTracer interface {
-		StackTrace() errors.StackTrace
-	}
-	ErrFmt, ok := errors.Cause(err).(stackTracer)
+	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
-		logErr.Output(i, fmt.Sprintf("%+v", frames[1:]))
+		for _, frame := range frames[:len(frames)-2] {
+			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
+				logErr.Printf("%v %[1]n", frame)
+			}
+		}
+
 		return
 	}
 

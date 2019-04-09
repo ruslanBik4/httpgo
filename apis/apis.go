@@ -101,7 +101,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 				params = ctx.UserValue(MultiPartParams)
 			}
 			logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
-			errRec = errors.Wrapf(errRec, "route.CheckAndRun")
+			// errRec = errors.Wrapf(errRec, "route.CheckAndRun")
 			a.renderError(ctx, errRec, nil)
 		case string:
 			a.renderError(ctx, errors.New(errRec), nil)
