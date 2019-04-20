@@ -106,7 +106,7 @@ func ErrorLog(err error, args ...interface{}) {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames {
 			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
-				logErr.Printf("%v %[1]n %v", frame, err)
+				fmt.Printf("%s %v:%[1]n: %v", logErr.Prefix(), frame, err)
 				return
 			}
 		}
@@ -144,7 +144,7 @@ func ErrorStack(err error, args ...interface{}) {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
 			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
-				logErr.Printf("%v %[1]n", frame)
+				fmt.Printf(" %v:%[1]n: ", frame)
 			}
 		}
 

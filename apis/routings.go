@@ -141,6 +141,10 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 			ctx.SetUserValue(key, val)
 		}
 
+		for key, files := range mf.File {
+			ctx.SetUserValue(key, files)
+		}
+
 		if len(badParams) > 0 {
 			return badParams, ErrWrongParamsList
 		}
