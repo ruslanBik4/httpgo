@@ -316,7 +316,7 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte("Hello\n"))
 	r.ParseMultipartForm(_24K)
-	for k,v := range r.Form {
+	for k, v := range r.Form {
 		w.Write([]byte(k + "=" + v[0]))
 	}
 
