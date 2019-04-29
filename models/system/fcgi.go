@@ -72,7 +72,7 @@ func (c *FCGI) Do(ctx *RequestCtx) (*http.Response, error) {
 func (c *FCGI) ServeHTTP(ctx *RequestCtx) (interface{}, error) {
 	resp, err := c.Do(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "")
+		return nil, err
 	}
 
 	status, isStatus := resp.Header["Status"]
@@ -96,7 +96,7 @@ func NewFPM(sock string) *FCGI {
 }
 
 // NewPHP create new FCGI for PHP scripts
-func NewPHP(root string, sock string) *FCGI {
+func NewPHP(root string, priScript, sock string) *FCGI {
 	return &FCGI{
 		Sock: sock,
 		Env: func(ctx *RequestCtx) map[string]string {
@@ -138,8 +138,8 @@ func NewPHP(root string, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": filepath.Join(root, "app_dev.php"),
-				"SCRIPT_NAME":     "app_dev.php",
+				"SCRIPT_FILENAME": filepath.Join(root, priScript),
+				"SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
