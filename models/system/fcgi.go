@@ -106,7 +106,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				port = ip[idx+1:]
 				ip = ip[:idx]
 			}
-			pathInfo, docURI := "", string(ctx.RequestURI())
+			pathInfo, docURI := " ", string(ctx.RequestURI())
 
 			if idx := strings.Index(docURI, pathInfo); idx > -1 {
 				docURI = docURI[len(pathInfo):]
@@ -130,7 +130,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
 				"SERVER_PORT":       ":80", //TODO
-				"SERVER_PROTOCOL":   "HTTP 1.1",
+				"SERVER_PROTOCOL":   "HTTP/1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 
 				// Other variables
@@ -138,7 +138,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": priScript,
+				"SCRIPT_FILENAME": path.Join(root, priScript),
 				"SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
@@ -151,7 +151,6 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 			// Some web apps rely on knowing HTTPS or not
 			if ctx.IsTLS() {
 				env["HTTPS"] = "on"
-				env["test"] = path.Base(root)
 			}
 
 			// Add all HTTP headers (except Caddy-Rewrite-Original-URI ) to env variables
