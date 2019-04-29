@@ -9,6 +9,23 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	. "github.com/valyala/fasthttp"
+	"io/ioutil"
+	"net"
+	_ "net/http/pprof"
+	"os"
+	// "syscall"
+	"os/exec"
+	"os/signal"
+	"path"
+	"path/filepath"
+	"plugin"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+
 	"github.com/ruslanBik4/httpgo/models/admin"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -23,22 +40,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"io/ioutil"
-	"net"
-	"net/http"
-	_ "net/http/pprof"
-	"os"
-	"os/signal"
-	"path"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
-	//"syscall"
-	"os/exec"
-	"plugin"
-	"syscall"
 )
 
 //go:generate qtc -dir=views/templates
@@ -52,7 +53,7 @@ var (
 
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
-	routes  = map[string]http.HandlerFunc{
+	routes  = map[string]HandlerFunc{
 		"/godoc/":        handlerGoDoc,
 		"/recache":       handlerRecache,
 		"/update/":       handleUpdate,
@@ -118,7 +119,7 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err, routes := symb.(func(MyMux *http.ServeMux) (error, map[string]http.HandlerFunc))(MyMux)
+		err, routes := symb.(func(MyMux *ServeMux) (error, map[string]HandlerFunc))(MyMux)
 		if err != nil {
 			return err
 		}
@@ -145,7 +146,7 @@ type DefaultHandler struct {
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
 		fpm: system.NewFPM(fpmSocket),
-		php: system.NewPHP(*fWeb, fpmSocket),
+		php: system.NewPHP(*fWeb, "index.php", fpmSocket),
 		cache: []string{
 			".svg", ".css", ".js", ".map", ".ico",
 		},
@@ -180,13 +181,13 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
-func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *DefaultHandler) ServeHTTP(ctx *fasthttp.RequestCtx) {
 
-	defer system.Catch(w, r)
+	defer system.Catch(ctx)
 
 	switch r.URL.Path {
 	case "/":
-		http.Redirect(w, r, "/customer/", http.StatusTemporaryRedirect)
+		ctx.Redirect("/customer/", StatusTemporaryRedirect)
 		return
 
 		//p := &pages.IndexPageBody{Title: "Главная страница"}
@@ -203,13 +204,13 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		//views.RenderTemplate(w, r, "index", p)
 		// спецвойска
 	case "/polymer.html":
-		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer.html"))
+		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer.html"))
 	case "/polymer-mini.html":
-		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-mini.html"))
+		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-mini.html"))
 	case "/polymer-micro.html":
-		http.ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-micro.html"))
+		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-micro.html"))
 	case "/status", "/ping", "/pong":
-		h.fpm.ServeHTTP(w, r)
+		h.fpm.ServeHTTP(ctx)
 	default:
 		filename := strings.TrimLeft(r.URL.Path, "/")
 		ext := filepath.Ext(filename)
@@ -219,19 +220,19 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if h.toCache(ext) {
 			serveAndCache(filename, w, r)
 		} else if h.toServe(ext) {
-			http.ServeFile(w, r, filepath.Join(*fWeb, filename))
+			ServeFile(w, r, filepath.Join(*fWeb, filename))
 		} else if fileName := filepath.Join(*fWeb, filename); ext == "" {
-			http.ServeFile(w, r, fileName)
+			ServeFile(w, r, fileName)
 		} else {
 			h.php.ServeHTTP(w, r)
 		}
 	}
 }
-func handlerComponents(w http.ResponseWriter, r *http.Request) {
+func handlerComponents(w ResponseWriter, r *Request) {
 
 	filename := strings.TrimLeft(r.URL.Path, "/")
 
-	http.ServeFile(w, r, filepath.Join(*fSystem+"/views", filename))
+	ServeFile(w, r, filepath.Join(*fSystem+"/views", filename))
 
 }
 
@@ -253,7 +254,7 @@ func emptyCache() {
 	cacheMu.RUnlock()
 
 }
-func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
+func serveAndCache(filename string, w ResponseWriter, r *Request) {
 	keyName := path.Base(filename)
 
 	data, ok := getCache(keyName)
@@ -280,7 +281,7 @@ func serveAndCache(filename string, w http.ResponseWriter, r *http.Request) {
 		setCache(keyName, data)
 		logs.DebugLog("recache file", filename)
 	}
-	http.ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
+	ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
 }
 
 func sockCatch() {
@@ -291,7 +292,7 @@ func sockCatch() {
 const _24K = (1 << 10) * 24
 
 // HandleFirebird simple handler from Firebird testing
-func HandleFirebird(w http.ResponseWriter, r *http.Request) {
+func HandleFirebird(w ResponseWriter, r *Request) {
 
 	rows, err := db.FBSelect("SELECT * FROM country_list")
 
@@ -312,7 +313,7 @@ func HandleFirebird(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleTest(w http.ResponseWriter, r *http.Request) {
+func handleTest(w ResponseWriter, r *Request) {
 
 	w.Write([]byte("Hello\n"))
 	r.ParseMultipartForm(_24K)
@@ -413,17 +414,17 @@ func handleTest(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handleUpdate(w http.ResponseWriter, r *http.Request) {
+func handleUpdate(w ResponseWriter, r *Request) {
 
 }
 
-func handlerForms(w http.ResponseWriter, r *http.Request) {
+func handlerForms(w ResponseWriter, r *Request) {
 	views.RenderTemplate(w, r, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
 }
-func isAJAXRequest(r *http.Request) bool {
+func isAJAXRequest(r *Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
-func handlerMenu(w http.ResponseWriter, r *http.Request) {
+func handlerMenu(w ResponseWriter, r *Request) {
 
 	userID := users.IsLogin(r)
 	resultID, err := strconv.Atoi(userID)
@@ -514,7 +515,7 @@ func cacheFiles() {
 
 // show doc
 // @/godoc/
-func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
+func handlerGoDoc(w ResponseWriter, r *Request) {
 	ServerConfig := server.GetServerConfig()
 
 	cmd := exec.Command("godoc", "http=:6060", "index")
@@ -530,12 +531,12 @@ func handlerGoDoc(w http.ResponseWriter, r *http.Request) {
 		} else {
 			views.RenderOutput(w, output)
 		}
-		http.Redirect(w, r, "http://localhost:6060", http.StatusPermanentRedirect)
+		Redirect(w, r, "http://localhost:6060", StatusPermanentRedirect)
 	}
 }
 
 // rereads files to cache directive
-func handlerRecache(w http.ResponseWriter, r *http.Request) {
+func handlerRecache(w ResponseWriter, r *Request) {
 
 	emptyCache()
 	cacheFiles()
@@ -567,11 +568,11 @@ func init() {
 	services.InitServices()
 }
 
-var mainServer *http.Server
+var mainServer *Server
 var listener net.Listener
 
 // MyMux - this is trying recruting router from plugin
-var MyMux *http.ServeMux
+var MyMux *ServeMux
 
 func main() {
 	users.SetSessionPath(*fSession)
@@ -600,10 +601,10 @@ func main() {
 		logs.Fatal(err)
 	}
 
-	MyMux = http.NewServeMux()
+	MyMux = NewServeMux()
 	registerRoutes()
 	//travel_git.InitPlugin()
-	mainServer = &http.Server{Handler: MyMux}
+	mainServer = &Server{Handler: MyMux}
 
 	logs.ErrorLog(mainServer.Serve(listener))
 	//logs.Fatal(http.ListenAndServe(*fPort, nil))

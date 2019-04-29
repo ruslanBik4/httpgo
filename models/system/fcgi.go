@@ -7,8 +7,11 @@
 package system
 
 import (
+	"bufio"
 	"bytes"
+	"io"
 	"net/http"
+	"net/textproto"
 	"os"
 	"path"
 	"strconv"
@@ -44,12 +47,12 @@ func (c *FCGI) defaultEnv(ctx *RequestCtx) map[string]string {
 }
 
 // Do run request
-func (c *FCGI) Do(ctx *RequestCtx) (*http.Response, error) {
+func (c *FCGI) Do(ctx *RequestCtx) error {
 	const typeSckt = "unix" // or "unixgram" or "unixpacket"
 
 	fcgi, err := fcgiclient.Dial(typeSckt, c.Sock)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	env := c.Env
 	if env == nil {
@@ -57,35 +60,63 @@ func (c *FCGI) Do(ctx *RequestCtx) (*http.Response, error) {
 	}
 	params := env(ctx)
 
+	var req io.Reader
+
 	switch string(ctx.Method()) {
 	case "GET":
-		return fcgi.Get(params)
+		req = nil
 	case "POST":
 		b := ctx.PostBody()
-		return fcgi.Post(params, params["CONTENT_TYPE"], bytes.NewReader(b), len(b))
+		req = bytes.NewReader(b)
 	}
 
-	return nil, apis.ErrWrongParamsList
+	r, err := fcgi.Do(params, req)
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
+	rb := bufio.NewReader(r)
+	tp := textproto.NewReader(rb)
+
+	// Parse the response headers.
+	mimeHeader, err := tp.ReadMIMEHeader()
+	if err != nil {
+		logs.ErrorLog(err, tp)
+		// return
+	}
+
+	for key, val := range mimeHeader {
+		switch key {
+		case "Content-Length":
+			contentLength, _ := strconv.Atoi(val[0])
+			ctx.Response.Header.SetContentLength(contentLength)
+		case "Content-Type":
+			ctx.Response.Header.SetContentType(val[0])
+		case "Status":
+			c, _ := strconv.Atoi(val[0])
+			ctx.Response.SetStatusCode(c)
+		default:
+			ctx.Response.Header.Add(key, strings.Join(val, ";"))
+		}
+	}
+
+	ctx.Response.SetBodyStream(rb, int(ctx.Response.Header.ContentLength()))
+
+	return apis.ErrWrongParamsList
 }
 
 // ServeHTTP get request response & render to output
 func (c *FCGI) ServeHTTP(ctx *RequestCtx) (interface{}, error) {
-	resp, err := c.Do(ctx)
+	err := c.Do(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	status, isStatus := resp.Header["Status"]
-	location, isURL := resp.Header["Location"]
-	if isStatus && (status[0] == "302 Found") && isURL {
-		ctx.Redirect(location[0], StatusTemporaryRedirect)
-		return nil, nil
-	}
-
-	for key, val := range resp.Header {
-		ctx.Response.Header.Set(key, strings.Join(val, ";"))
-	}
-	ctx.Response.SetBodyStream(resp.Body, int(resp.ContentLength))
+	// status, isStatus := resp.Header[]
+	// location, isURL := ctx.Response.Header["Location"]
+	// if isStatus && (status[0] == "302 Found") && isURL {
+	// 	ctx.Redirect(location[0], StatusTemporaryRedirect)
+	// 	return nil, nil
+	// }
 
 	return nil, nil
 }
