@@ -2,18 +2,24 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// подготовка и выполнение запросов к php-fpm
+// prepare & run request into php-fpm
 
 package system
 
 import (
-	"bitbucket.org/PinIdea/fcgi_client"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"io"
+	"bytes"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"bitbucket.org/PinIdea/fcgi_client"
+	"github.com/pkg/errors"
+	. "github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 const internalRewriteFieldName = "travel"
@@ -25,20 +31,20 @@ var (
 // FCGI structure for request in PHP-FPM
 type FCGI struct {
 	Sock string
-	Env  func(r *http.Request) map[string]string
+	Env  func(ctx *RequestCtx) map[string]string
 }
 
-func (c *FCGI) defaultEnv(r *http.Request) map[string]string {
+func (c *FCGI) defaultEnv(ctx *RequestCtx) map[string]string {
 	return map[string]string{
-		"REQUEST_METHOD":  r.Method,
-		"SCRIPT_FILENAME": r.URL.Path,
-		"SCRIPT_NAME":     r.URL.Path,
-		"QUERY_STRING":    r.URL.RawQuery,
+		"REQUEST_METHOD":  string(ctx.Method()),
+		"SCRIPT_FILENAME": string(ctx.URI().Path()),
+		"SCRIPT_NAME":     string(ctx.URI().Path()),
+		"QUERY_STRING":    string(ctx.URI().QueryString()),
 	}
 }
 
 // Do run request
-func (c *FCGI) Do(r *http.Request) (*http.Response, error) {
+func (c *FCGI) Do(ctx *RequestCtx) (*http.Response, error) {
 	const typeSckt = "unix" // or "unixgram" or "unixpacket"
 
 	fcgi, err := fcgiclient.Dial(typeSckt, c.Sock)
@@ -49,41 +55,39 @@ func (c *FCGI) Do(r *http.Request) (*http.Response, error) {
 	if env == nil {
 		env = c.defaultEnv
 	}
-	params := env(r)
+	params := env(ctx)
 
-	var resp *http.Response
-	switch r.Method {
+	switch string(ctx.Method()) {
 	case "GET":
-		resp, err = fcgi.Get(params)
+		return fcgi.Get(params)
 	case "POST":
-		resp, err = fcgi.Post(params, params["CONTENT_TYPE"], r.Body, int(r.ContentLength))
+		b := ctx.PostBody()
+		return fcgi.Post(params, params["CONTENT_TYPE"], bytes.NewReader(b), len(b))
 	}
-	return resp, err
+
+	return nil, apis.ErrWrongParamsList
 }
 
 // ServeHTTP get request response & render to output
-func (c *FCGI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	resp, err := c.Do(r)
-	if WriteError(w, err) {
-		logs.ErrorLog(err, r.RequestURI, r)
-		return
+func (c *FCGI) ServeHTTP(ctx *RequestCtx) (interface{}, error) {
+	resp, err := c.Do(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "")
 	}
+
 	status, isStatus := resp.Header["Status"]
 	location, isURL := resp.Header["Location"]
 	if isStatus && (status[0] == "302 Found") && isURL {
-		http.Redirect(w, r, location[0], http.StatusTemporaryRedirect)
-		return
+		ctx.Redirect(location[0], StatusTemporaryRedirect)
+		return nil, nil
 	}
 
-	defer resp.Body.Close()
-	headers := w.Header()
 	for key, val := range resp.Header {
-		headers[key] = val
+		ctx.Response.Header.Set(key, strings.Join(val, ";"))
 	}
-	if _, err := io.Copy(w, resp.Body); WriteError(w, err) {
+	ctx.Response.SetBodyStream(resp.Body, int(resp.ContentLength))
 
-		logs.ErrorLog(err, r.RequestURI)
-	}
+	return nil, nil
 }
 
 // NewFPM create new FCGI
@@ -95,14 +99,14 @@ func NewFPM(sock string) *FCGI {
 func NewPHP(root string, sock string) *FCGI {
 	return &FCGI{
 		Sock: sock,
-		Env: func(r *http.Request) map[string]string {
+		Env: func(ctx *RequestCtx) map[string]string {
 
-			ip, port := r.RemoteAddr, ""
+			ip, port := ctx.RemoteAddr().String(), ""
 			if idx := strings.LastIndex(ip, ":"); idx > -1 {
 				port = ip[idx+1:]
 				ip = ip[:idx]
 			}
-			pathInfo, docURI := "", r.URL.RequestURI()
+			pathInfo, docURI := "", string(ctx.RequestURI())
 
 			if idx := strings.Index(docURI, pathInfo); idx > -1 {
 				docURI = docURI[len(pathInfo):]
@@ -113,27 +117,27 @@ func NewPHP(root string, sock string) *FCGI {
 
 				// Variables defined in CGI 1.1 spec
 				"AUTH_TYPE":         "", // Not used
-				"CONTENT_LENGTH":    r.Header.Get("Content-Length"),
-				"CONTENT_TYPE":      r.Header.Get("Content-Type"),
+				"CONTENT_LENGTH":    strconv.Itoa(ctx.Request.Header.ContentLength()),
+				"CONTENT_TYPE":      string(ctx.Request.Header.ContentType()),
 				"GATEWAY_INTERFACE": "CGI/1.1",
 				//"PATH_INFO":         pathInfo,
-				"QUERY_STRING":    r.URL.RawQuery,
+				"QUERY_STRING":    string(ctx.URI().QueryString()),
 				"REMOTE_ADDR":     ip,
 				"REMOTE_HOST":     ip, // For speed, remote host lookups disabled
 				"REMOTE_PORT":     port,
 				"REMOTE_IDENT":    "", // Not used
 				"REMOTE_USER":     "", // Not used
-				"REQUEST_METHOD":  r.Method,
-				"SERVER_NAME":     r.Host,
+				"REQUEST_METHOD":  string(ctx.Method()),
+				"SERVER_NAME":     string(ctx.Host()),
 				"SERVER_PORT":     ":80", //TODO
-				"SERVER_PROTOCOL": r.Proto,
+				"SERVER_PROTOCOL": "http",
 				"SERVER_SOFTWARE": "httpGo 0.01",
 
 				// Other variables
 				"DOCUMENT_ROOT":   root,
 				"DOCUMENT_URI":    docURI,
-				"HTTP_HOST":       r.Host, // added here, since not always part of headers
-				"REQUEST_URI":     r.URL.RequestURI(),
+				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
+				"REQUEST_URI":     ctx.URI().String(),
 				"SCRIPT_FILENAME": filepath.Join(root, "index.php"),
 				"SCRIPT_NAME":     "/index.php",
 			}
@@ -145,34 +149,40 @@ func NewPHP(root string, sock string) *FCGI {
 			//}
 
 			// Some web apps rely on knowing HTTPS or not
-			if r.TLS != nil {
-				env["HTTPS"] = "on"
-			}
+			// if ctx.Request.TLS != nil {
+			// 	env["HTTPS"] = "on"
+			// }
 
 			// Add all HTTP headers (except Caddy-Rewrite-Original-URI ) to env variables
-			for field, val := range r.Header {
+			ctx.Request.Header.VisitAll(func(key, value []byte) {
+				field, val := string(key), string(value)
+				// /observe
 				if strings.ToLower(field) == strings.ToLower(internalRewriteFieldName) {
-					continue
+					return
 				}
 				header := strings.ToUpper(field)
 				header = headerNameReplacer.Replace(header)
-				env["HTTP_"+header] = strings.Join(val, ", ")
-			}
+				env["HTTP_"+header] = val
+			})
+
 			return env
 		},
 	}
 }
 
 // WriteError не уверен, что это должно быть здесь - должен быть какой общий механизм для выдачи такого
-func WriteError(w http.ResponseWriter, err error) bool {
+func WriteError(ctx *RequestCtx, err error) bool {
 	if err == nil {
 		return false
 	}
+
 	if os.IsNotExist(err) {
-		w.WriteHeader(http.StatusNotFound)
+		ctx.SetStatusCode(http.StatusNotFound)
 		return true
 	}
-	w.WriteHeader(http.StatusInternalServerError)
+
+	ctx.SetStatusCode(http.StatusInternalServerError)
 	logs.ErrorLog(err.(error))
+
 	return true
 }
