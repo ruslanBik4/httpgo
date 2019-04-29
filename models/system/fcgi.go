@@ -182,7 +182,7 @@ func WriteError(ctx *RequestCtx, err error) bool {
 	}
 
 	ctx.SetStatusCode(http.StatusInternalServerError)
-	logs.ErrorLog(err.(error))
+	logs.ErrorLog(errors.Wrap(err, "SetStatusCode"))
 
 	return true
 }
