@@ -138,8 +138,8 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": filepath.Join(root, priScript),
-				"SCRIPT_NAME":     filepath.Join(root, priScript),
+				"SCRIPT_FILENAME": priScript,
+				"SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
