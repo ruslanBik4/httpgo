@@ -21,7 +21,6 @@ import (
 	"github.com/pkg/errors"
 	. "github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
@@ -80,7 +79,7 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 	// Parse the response headers.
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
-		logs.ErrorLog(err, tp)
+		logs.ErrorLog(err, mimeHeader)
 		// return
 	}
 
@@ -101,7 +100,7 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 
 	ctx.Response.SetBodyStream(rb, int(ctx.Response.Header.ContentLength()))
 
-	return apis.ErrWrongParamsList
+	return nil
 }
 
 // ServeHTTP get request response & render to output
