@@ -125,8 +125,8 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"REMOTE_ADDR":       ip,
 				"REMOTE_HOST":       ip, // For speed, remote host lookups disabled
 				"REMOTE_PORT":       port,
-				"REMOTE_IDENT":      ctx.Rem, // Not used
-				"REMOTE_USER":       "",      // Not used
+				"REMOTE_IDENT":      "", // Not used
+				"REMOTE_USER":       "", // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
 				"SERVER_PORT":       ":80", //TODO
