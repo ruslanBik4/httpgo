@@ -125,12 +125,12 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"REMOTE_ADDR":       ip,
 				"REMOTE_HOST":       ip, // For speed, remote host lookups disabled
 				"REMOTE_PORT":       port,
-				"REMOTE_IDENT":      "", // Not used
-				"REMOTE_USER":       "", // Not used
+				"REMOTE_IDENT":      ctx.Rem, // Not used
+				"REMOTE_USER":       "",      // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
 				"SERVER_PORT":       ":80", //TODO
-				"SERVER_PROTOCOL":   "http",
+				"SERVER_PROTOCOL":   "HTTP 1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 
 				// Other variables
@@ -139,7 +139,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
 				"SCRIPT_FILENAME": filepath.Join(root, priScript),
-				"SCRIPT_NAME":     priScript,
+				"SCRIPT_NAME":     filepath.Join(root, priScript),
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
@@ -149,9 +149,9 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 			//}
 
 			// Some web apps rely on knowing HTTPS or not
-			// if ctx.Request.TLS != nil {
-			// 	env["HTTPS"] = "on"
-			// }
+			if ctx.IsTLS() {
+				env["HTTPS"] = "on"
+			}
 
 			// Add all HTTP headers (except Caddy-Rewrite-Original-URI ) to env variables
 			ctx.Request.Header.VisitAll(func(key, value []byte) {

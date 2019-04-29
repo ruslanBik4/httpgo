@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	httpgo "github.com/dvbogdan/analytics/httpsgo"
+	main2 "github.com/ruslanBik4/httpgo"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/apis"
@@ -32,7 +32,7 @@ var (
 	fCfgPath = flag.String("config path", "cfg", "path to cfg files")
 	fWeb     = flag.String("web", "front", "path to web files")
 
-	httpServer *httpgo.Httpgo
+	httpServer *main2.Httpgo
 )
 
 func init() {
@@ -54,12 +54,12 @@ func init() {
 		logs.Fatal(err)
 	}
 
-	cfg, err := httpgo.NewCfgHttp(path.Join(*fSystem, *fCfgPath, "httpgo.yml"))
+	cfg, err := main2.NewCfgHttp(path.Join(*fSystem, *fCfgPath, "httpgo.yml"))
 	if err != nil {
 		// not work without correct config
 		logs.Fatal(err)
 	}
-	httpServer = httpgo.NewHttpgo(cfg, listener, apis)
+	httpServer = main2.NewHttpgo(cfg, listener, apis)
 
 }
 
