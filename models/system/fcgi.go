@@ -120,26 +120,26 @@ func NewPHP(root string, sock string) *FCGI {
 				"CONTENT_LENGTH":    strconv.Itoa(ctx.Request.Header.ContentLength()),
 				"CONTENT_TYPE":      string(ctx.Request.Header.ContentType()),
 				"GATEWAY_INTERFACE": "CGI/1.1",
-				//"PATH_INFO":         pathInfo,
-				"QUERY_STRING":    string(ctx.URI().QueryString()),
-				"REMOTE_ADDR":     ip,
-				"REMOTE_HOST":     ip, // For speed, remote host lookups disabled
-				"REMOTE_PORT":     port,
-				"REMOTE_IDENT":    "", // Not used
-				"REMOTE_USER":     "", // Not used
-				"REQUEST_METHOD":  string(ctx.Method()),
-				"SERVER_NAME":     string(ctx.Host()),
-				"SERVER_PORT":     ":80", //TODO
-				"SERVER_PROTOCOL": "http",
-				"SERVER_SOFTWARE": "httpGo 0.01",
+				"PATH_INFO":         pathInfo,
+				"QUERY_STRING":      string(ctx.URI().QueryString()),
+				"REMOTE_ADDR":       ip,
+				"REMOTE_HOST":       ip, // For speed, remote host lookups disabled
+				"REMOTE_PORT":       port,
+				"REMOTE_IDENT":      "", // Not used
+				"REMOTE_USER":       "", // Not used
+				"REQUEST_METHOD":    string(ctx.Method()),
+				"SERVER_NAME":       string(ctx.Host()),
+				"SERVER_PORT":       ":80", //TODO
+				"SERVER_PROTOCOL":   "http",
+				"SERVER_SOFTWARE":   "httpGo 0.01",
 
 				// Other variables
 				"DOCUMENT_ROOT":   root,
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": filepath.Join(root, "app.php"),
-				"SCRIPT_NAME":     "/app.php",
+				"SCRIPT_FILENAME": filepath.Join(root, "app_dev.php"),
+				"SCRIPT_NAME":     "app_dev.php",
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
