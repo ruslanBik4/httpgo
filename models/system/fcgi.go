@@ -10,7 +10,6 @@ import (
 	"bytes"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -151,6 +150,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 			// Some web apps rely on knowing HTTPS or not
 			if ctx.IsTLS() {
 				env["HTTPS"] = "on"
+				env["test"] = path.Base(root)
 			}
 
 			// Add all HTTP headers (except Caddy-Rewrite-Original-URI ) to env variables
