@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/textproto"
 	"os"
@@ -98,7 +99,7 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 		}
 	}
 
-	ctx.Response.SetBodyStream(rb, int(ctx.Response.Header.ContentLength()))
+	ctx.Response.SetBodyStream(ioutil.NopCloser(rb), -3)
 
 	return nil
 }
