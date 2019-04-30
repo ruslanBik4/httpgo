@@ -95,7 +95,7 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-// ErrorLog - output formated(function and line calls) error information
+// ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 	calldepth := logErr.calldepth
 
@@ -133,18 +133,22 @@ func ErrorLog(err error, args ...interface{}) {
 
 }
 
+const prefErrStack = "[ERROR_STACK]"
+
 // ErrorStack - output formatted(function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
-	logErr.Output(i+1, fmt.Sprintf("[ERROR_STACK];%s;%s ", err, getArgsString(args...)))
+	logErr.Output(i+1, fmt.Sprintf("%s;%s;%s ", prefErrStack, err, getArgsString(args...)))
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
 			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
-				fmt.Printf(" %v:%[1]n: ", frame)
+
+				hh, mm, ss := time.Now().Clock()
+				fmt.Printf("%s %d %d %d %v:%[4]n: ", prefErrStack, hh, mm, ss, frame)
 			}
 		}
 

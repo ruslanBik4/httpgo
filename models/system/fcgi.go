@@ -166,6 +166,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 
 				// Other variables
 				"DOCUMENT_ROOT":   root,
+				"DOCUMENT_INDEX":  priScript,
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
@@ -175,9 +176,9 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
 			// Info: https://www.ietf.org/rfc/rfc3875 Page 14
-			//if env["PATH_INFO"] != "" {
-			//	env["PATH_TRANSLATED"] = filepath.Join(pathToYii, pathInfo) // Info: http://www.oreilly.com/openbook/cgi/ch02_04.html
-			//}
+			if env["PATH_INFO"] != "" {
+				env["PATH_TRANSLATED"] = path.Join(root, pathInfo) // Info: http://www.oreilly.com/openbook/cgi/ch02_04.html
+			}
 
 			// Some web apps rely on knowing HTTPS or not
 			if ctx.IsTLS() {
