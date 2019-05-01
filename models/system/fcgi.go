@@ -16,6 +16,7 @@ import (
 	"net/textproto"
 	"os"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -82,12 +83,12 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
 		logs.ErrorLog(err, mimeHeader)
-		ctx.Response.AppendBodyString("<html>")
+		ctx.Response.AppendBodyString("<html><body>")
 		for key, val := range params {
-			str := fmt.Sprintf("%s = %s <br>", key, val)
+			str := fmt.Sprintf("<p>%s = %s </p>", key, val)
 			ctx.Response.AppendBodyString(str)
 		}
-		ctx.Response.AppendBodyString("</html>")
+		ctx.Response.AppendBodyString("</body></html>")
 
 		return nil
 	}
@@ -134,6 +135,8 @@ func NewFPM(sock string) *FCGI {
 	return &FCGI{Sock: sock}
 }
 
+var pathinfoRe = regexp.MustCompile(`^(.+\.php)(/?.+)$`)
+
 // NewPHP create new FCGI for PHP scripts
 func NewPHP(root string, priScript, port, sock string) *FCGI {
 	return &FCGI{
@@ -145,10 +148,17 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				port = ip[idx+1:]
 				ip = ip[:idx]
 			}
-			pathInfo, docURI := "", string(ctx.RequestURI())
+			pathInfo, docURI, scriptName := "", string(ctx.RequestURI()), string(ctx.Request.URI().Path())
+
+			if matches := pathinfoRe.FindStringSubmatch(scriptName); len(matches) > 0 {
+				scriptName, pathInfo = matches[1], matches[2]
+			}
 
 			if idx := strings.Index(docURI, pathInfo); idx > -1 {
 				docURI = docURI[len(pathInfo):]
+			}
+			if strings.HasSuffix(scriptName, "/") {
+				scriptName = path.Join(scriptName, priScript)
 			}
 			// Some variables are unused but cleared explicitly to prevent
 			// the parent environment from interfering.
@@ -178,8 +188,8 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": path.Join(root, priScript),
-				"SCRIPT_NAME":     priScript,
+				"SCRIPT_FILENAME": scriptName,
+				// "SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
