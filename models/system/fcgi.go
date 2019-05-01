@@ -177,9 +177,11 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"REMOTE_IDENT":      "", // Not used
 				"REMOTE_USER":       "", // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
+				"REDIRECT_STATUS":   "200",
+				"REQUEST_SCHEME":    string(ctx.Request.URI().Scheme()),
 				"SERVER_NAME":       string(ctx.Host()),
 				"SERVER_PORT":       "80",
-				"SERVER_PROTOCOL":   string(ctx.Request.Header.Peek("proto")), // "HTTP/1.1",
+				"SERVER_PROTOCOL":   "HTTP/1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 
 				// Other variables
@@ -187,7 +189,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_INDEX":  priScript,
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
-				"REQUEST_URI":     ctx.URI().String(),
+				"REQUEST_URI":     path.Join(root, ctx.URI().String()),
 				"SCRIPT_FILENAME": scriptName,
 				// "SCRIPT_NAME":     priScript,
 			}
