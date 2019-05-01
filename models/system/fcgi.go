@@ -191,7 +191,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"SCRIPT_FILENAME": path.Join(root, scriptName),
-				// "SCRIPT_NAME":     priScript,
+				"SCRIPT_NAME":     scriptName,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
@@ -213,6 +213,9 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 					return
 				}
 				header := strings.ToUpper(field)
+				if header == "CONTENT_TYPE" || header == "CONTENT_LENGTH" {
+					return
+				}
 				header = headerNameReplacer.Replace(header)
 				env["HTTP_"+header] = val
 			})
