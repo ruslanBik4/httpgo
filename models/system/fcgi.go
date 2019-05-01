@@ -9,6 +9,7 @@ package system
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -81,7 +82,12 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
 		logs.ErrorLog(err, mimeHeader)
-		// return
+		for key, val := range params {
+			str := fmt.Sprintf("%s = %s <br>", key, val)
+			ctx.Response.AppendBodyString(str)
+		}
+
+		return nil
 	}
 
 	for key, val := range mimeHeader {
@@ -170,8 +176,8 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": path.Join(root, priScript),
-				"SCRIPT_NAME":     priScript,
+				"SCRIPT_FILENAME": path.Join(root, "/"),
+				"SCRIPT_NAME":     "/",
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.

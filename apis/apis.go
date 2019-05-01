@@ -119,9 +119,17 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		a.renderError(ctx, err, resp)
 	} else {
 		if resp != nil {
-			err = a.WriteJSON(ctx, resp)
-			if err != nil {
-				a.renderError(ctx, err, resp)
+			switch resp := resp.(type) {
+			case []byte:
+				ctx.Response.SetBodyString(string(resp))
+			case string:
+				ctx.Response.SetBodyString(resp)
+			default:
+
+				err = a.WriteJSON(ctx, resp)
+				if err != nil {
+					a.renderError(ctx, err, resp)
+				}
 			}
 		}
 	}
