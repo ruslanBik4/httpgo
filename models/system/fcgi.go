@@ -176,6 +176,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"REMOTE_PORT":       port,
 				"REMOTE_IDENT":      "", // Not used
 				"REMOTE_USER":       "", // Not used
+				"REQUEST_URI":       ctx.URI().String(),
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"REDIRECT_STATUS":   "200",
 				"REQUEST_SCHEME":    string(ctx.Request.URI().Scheme()),
@@ -189,8 +190,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_INDEX":  priScript,
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
-				"REQUEST_URI":     path.Join(root, ctx.URI().String()),
-				"SCRIPT_FILENAME": scriptName,
+				"SCRIPT_FILENAME": path.Join(root, scriptName),
 				// "SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
