@@ -168,8 +168,8 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"REMOTE_USER":       "", // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
-				"SERVER_PORT":       ":80",
-				"SERVER_PROTOCOL":   "HTTP/1.1",
+				"SERVER_PORT":       "80",
+				"SERVER_PROTOCOL":   string(ctx.Request.Header.Peek("proto")), // "HTTP/1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 
 				// Other variables
