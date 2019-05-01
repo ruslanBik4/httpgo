@@ -89,7 +89,7 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 		}
 		ctx.Response.AppendBodyString("</html>")
 
-		return err
+		return nil
 	}
 
 	for key, val := range mimeHeader {
@@ -179,7 +179,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
 				"SCRIPT_FILENAME": path.Join(root, priScript),
-				"SCRIPT_NAME":     "/",
+				"SCRIPT_NAME":     priScript,
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
 			// should only exist if PATH_INFO is defined.
