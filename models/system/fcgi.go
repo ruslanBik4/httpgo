@@ -101,7 +101,7 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 
 	ctx.Response.SetBodyStream(ioutil.NopCloser(rb), -3)
 
-	return nil
+	return err
 }
 
 // ServeHTTP get request response & render to output
@@ -127,7 +127,7 @@ func NewFPM(sock string) *FCGI {
 }
 
 // NewPHP create new FCGI for PHP scripts
-func NewPHP(root string, priScript, sock string) *FCGI {
+func NewPHP(root string, priScript, port, sock string) *FCGI {
 	return &FCGI{
 		Sock: sock,
 		Env: func(ctx *RequestCtx) map[string]string {
@@ -137,7 +137,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				port = ip[idx+1:]
 				ip = ip[:idx]
 			}
-			pathInfo, docURI := " ", string(ctx.RequestURI())
+			pathInfo, docURI := "", string(ctx.RequestURI())
 
 			if idx := strings.Index(docURI, pathInfo); idx > -1 {
 				docURI = docURI[len(pathInfo):]
@@ -160,7 +160,7 @@ func NewPHP(root string, priScript, sock string) *FCGI {
 				"REMOTE_USER":       "", // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
-				"SERVER_PORT":       ":80", //TODO
+				"SERVER_PORT":       port,
 				"SERVER_PROTOCOL":   "HTTP/1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 

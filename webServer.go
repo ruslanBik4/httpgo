@@ -26,6 +26,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/models/admin"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -53,7 +54,7 @@ var (
 
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
-	routes  = map[string]HandlerFunc{
+	routes  = map[string]apis.APIRouteHandler{
 		"/godoc/":        handlerGoDoc,
 		"/recache":       handlerRecache,
 		"/update/":       handleUpdate,
@@ -146,7 +147,7 @@ type DefaultHandler struct {
 func NewDefaultHandler() *DefaultHandler {
 	handler := &DefaultHandler{
 		fpm: system.NewFPM(fpmSocket),
-		php: system.NewPHP(*fWeb, "index.php", fpmSocket),
+		php: system.NewPHP(*fWeb, "index.php", *fPort, fpmSocket),
 		cache: []string{
 			".svg", ".css", ".js", ".map", ".ico",
 		},
@@ -181,11 +182,11 @@ func (h *DefaultHandler) toServe(ext string) bool {
 	}
 	return false
 }
-func (h *DefaultHandler) ServeHTTP(ctx *fasthttp.RequestCtx) {
+func (h *DefaultHandler) ServeHTTP(ctx *RequestCtx) {
 
 	defer system.Catch(ctx)
 
-	switch r.URL.Path {
+	switch ctx.URI().String() {
 	case "/":
 		ctx.Redirect("/customer/", StatusTemporaryRedirect)
 		return
@@ -201,38 +202,38 @@ func (h *DefaultHandler) ServeHTTP(ctx *fasthttp.RequestCtx) {
 		//	p.TopMenu[item.Title] = "/menu/" + item.Name + "/"
 		//
 		//}
-		//views.RenderTemplate(w, r, "index", p)
+		//views.RenderTemplate(ctx, "index", p)
 		// спецвойска
 	case "/polymer.html":
-		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer.html"))
+		ServeFile(ctx, filepath.Join(*fSystem, "views/components/polymer/polymer.html"))
 	case "/polymer-mini.html":
-		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-mini.html"))
+		ServeFile(ctx, filepath.Join(*fSystem, "views/components/polymer/polymer-mini.html"))
 	case "/polymer-micro.html":
-		ServeFile(w, r, filepath.Join(*fSystem, "views/components/polymer/polymer-micro.html"))
+		ServeFile(ctx, filepath.Join(*fSystem, "views/components/polymer/polymer-micro.html"))
 	case "/status", "/ping", "/pong":
 		h.fpm.ServeHTTP(ctx)
 	default:
-		filename := strings.TrimLeft(r.URL.Path, "/")
+		filename := strings.TrimLeft(ctx.URI().String(), "/")
 		ext := filepath.Ext(filename)
 
 		if strings.HasPrefix(ext, ".php") {
-			h.php.ServeHTTP(w, r)
+			h.php.ServeHTTP(ctx)
 		} else if h.toCache(ext) {
-			serveAndCache(filename, w, r)
+			serveAndCache(filename, ctx)
 		} else if h.toServe(ext) {
-			ServeFile(w, r, filepath.Join(*fWeb, filename))
+			ServeFile(ctx, filepath.Join(*fWeb, filename))
 		} else if fileName := filepath.Join(*fWeb, filename); ext == "" {
-			ServeFile(w, r, fileName)
+			ServeFile(ctx, fileName)
 		} else {
-			h.php.ServeHTTP(w, r)
+			h.php.ServeHTTP(ctx)
 		}
 	}
 }
-func handlerComponents(w ResponseWriter, r *Request) {
+func handlerComponents(ctx *RequestCtx) {
 
-	filename := strings.TrimLeft(r.URL.Path, "/")
+	filename := strings.TrimLeft(ctx.URI().String(), "/")
 
-	ServeFile(w, r, filepath.Join(*fSystem+"/views", filename))
+	ServeFile(ctx, filepath.Join(*fSystem+"/views", filename))
 
 }
 
@@ -254,7 +255,7 @@ func emptyCache() {
 	cacheMu.RUnlock()
 
 }
-func serveAndCache(filename string, w ResponseWriter, r *Request) {
+func serveAndCache(filename string, ctx *RequestCtx) {
 	keyName := path.Base(filename)
 
 	data, ok := getCache(keyName)
@@ -281,7 +282,7 @@ func serveAndCache(filename string, w ResponseWriter, r *Request) {
 		setCache(keyName, data)
 		logs.DebugLog("recache file", filename)
 	}
-	ServeContent(w, r, filename, time.Time{}, bytes.NewReader(data))
+	ServeContent(ctx, filename, time.Time{}, bytes.NewReader(data))
 }
 
 func sockCatch() {
@@ -292,7 +293,7 @@ func sockCatch() {
 const _24K = (1 << 10) * 24
 
 // HandleFirebird simple handler from Firebird testing
-func HandleFirebird(w ResponseWriter, r *Request) {
+func HandleFirebird(ctx *RequestCtx) {
 
 	rows, err := db.FBSelect("SELECT * FROM country_list")
 
@@ -313,7 +314,7 @@ func HandleFirebird(w ResponseWriter, r *Request) {
 	}
 }
 
-func handleTest(w ResponseWriter, r *Request) {
+func handleTest(ctx *RequestCtx) {
 
 	w.Write([]byte("Hello\n"))
 	r.ParseMultipartForm(_24K)
@@ -414,28 +415,28 @@ func handleTest(w ResponseWriter, r *Request) {
 
 }
 
-func handleUpdate(w ResponseWriter, r *Request) {
+func handleUpdate(ctx *RequestCtx) {
 
 }
 
-func handlerForms(w ResponseWriter, r *Request) {
-	views.RenderTemplate(w, r, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
+func handlerForms(ctx *RequestCtx) {
+	views.RenderTemplate(ctx, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
 }
 func isAJAXRequest(r *Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
 }
-func handlerMenu(w ResponseWriter, r *Request) {
+func handlerMenu(ctx *RequestCtx) {
 
 	userID := users.IsLogin(r)
 	resultID, err := strconv.Atoi(userID)
-	if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, r.URL.Path, "View") {
+	if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, ctx.URI().String(), "View") {
 		views.RenderNoPermissionPage(w)
 		return
 	}
 	var menu db.MenuItems
 
-	idx := strings.LastIndex(r.URL.Path, "menu/") + 5
-	idMenu := r.URL.Path[idx : len(r.URL.Path)-1]
+	idx := strings.LastIndex(ctx.URI().String(), "menu/") + 5
+	idMenu := ctx.URI().String()[idx : len(ctx.URI().String())-1]
 
 	//отдаем полный список меню для фронтового фреймворка
 	if idMenu == "all" {
@@ -471,7 +472,7 @@ func handlerMenu(w ResponseWriter, r *Request) {
 	if menu.Self.Link > "" {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
-	views.RenderAnyPage(w, r, catalog+content)
+	views.RenderAnyPage(ctx, catalog+content)
 }
 
 // считываю части из папки
@@ -515,7 +516,7 @@ func cacheFiles() {
 
 // show doc
 // @/godoc/
-func handlerGoDoc(w ResponseWriter, r *Request) {
+func handlerGoDoc(ctx *RequestCtx) {
 	ServerConfig := server.GetServerConfig()
 
 	cmd := exec.Command("godoc", "http=:6060", "index")
@@ -531,12 +532,12 @@ func handlerGoDoc(w ResponseWriter, r *Request) {
 		} else {
 			views.RenderOutput(w, output)
 		}
-		Redirect(w, r, "http://localhost:6060", StatusPermanentRedirect)
+		Redirect(ctx, "http://localhost:6060", StatusPermanentRedirect)
 	}
 }
 
 // rereads files to cache directive
-func handlerRecache(w ResponseWriter, r *Request) {
+func handlerRecache(ctx *RequestCtx) {
 
 	emptyCache()
 	cacheFiles()
