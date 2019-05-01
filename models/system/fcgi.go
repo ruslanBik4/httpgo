@@ -82,12 +82,14 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
 		logs.ErrorLog(err, mimeHeader)
+		ctx.Response.AppendBodyString("<html>")
 		for key, val := range params {
 			str := fmt.Sprintf("%s = %s <br>", key, val)
 			ctx.Response.AppendBodyString(str)
 		}
+		ctx.Response.AppendBodyString("</html>")
 
-		return nil
+		return err
 	}
 
 	for key, val := range mimeHeader {
@@ -166,7 +168,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"REMOTE_USER":       "", // Not used
 				"REQUEST_METHOD":    string(ctx.Method()),
 				"SERVER_NAME":       string(ctx.Host()),
-				"SERVER_PORT":       port,
+				"SERVER_PORT":       ":80",
 				"SERVER_PROTOCOL":   "HTTP/1.1",
 				"SERVER_SOFTWARE":   "httpGo 0.01",
 
@@ -176,7 +178,7 @@ func NewPHP(root string, priScript, port, sock string) *FCGI {
 				"DOCUMENT_URI":    docURI,
 				"HTTP_HOST":       string(ctx.Host()), // added here, since not always part of headers
 				"REQUEST_URI":     ctx.URI().String(),
-				"SCRIPT_FILENAME": path.Join(root, "/"),
+				"SCRIPT_FILENAME": path.Join(root, priScript),
 				"SCRIPT_NAME":     "/",
 			}
 			// compliance with the CGI specification that PATH_TRANSLATED
