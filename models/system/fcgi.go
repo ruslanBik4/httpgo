@@ -9,7 +9,6 @@ package system
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	. "github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
@@ -83,14 +83,15 @@ func (c *FCGI) Do(ctx *RequestCtx) error {
 	mimeHeader, err := tp.ReadMIMEHeader()
 	if err != nil {
 		logs.ErrorLog(err, mimeHeader)
-		ctx.Response.AppendBodyString("<html><body>")
-		for key, val := range params {
-			str := fmt.Sprintf("<p>%s = %s </p>", key, val)
-			ctx.Response.AppendBodyString(str)
-		}
-		ctx.Response.AppendBodyString("</body></html>")
+		err = apis.WriteJSON(ctx, params)
+		// ctx.Response.AppendBodyString("<html><body>")
+		// for key, val := range params {
+		// 	str := fmt.Sprintf("<p>%s = %s </p>", key, val)
+		// 	ctx.Response.AppendBodyString(str)
+		// }
+		// ctx.Response.AppendBodyString("</body></html>")
 
-		return nil
+		return err
 	}
 
 	for key, val := range mimeHeader {

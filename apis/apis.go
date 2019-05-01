@@ -126,7 +126,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 				ctx.Response.SetBodyString(resp)
 			default:
 
-				err = a.WriteJSON(ctx, resp)
+				err = WriteJSON(ctx, resp)
 				if err != nil {
 					a.renderError(ctx, err, resp)
 				}
@@ -137,7 +137,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 }
 
 // WriteJSON write JSON to response
-func (a *Apis) WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
+func WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 
 	defer func() {
 		errR := recover()
