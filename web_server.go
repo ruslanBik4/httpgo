@@ -55,23 +55,23 @@ var (
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
 	routes  = map[string]apis.APIRouteHandler{
-		"/godoc/":        handlerGoDoc,
-		"/recache":       handlerRecache,
-		"/update/":       handleUpdate,
-		"/test/":         handleTest,
-		"/api/firebird/": HandleFirebird,
-		"/fonts/":        fonts.HandleGetFont,
-		"/query/":        db.HandlerDBQuery,
-		"/menu/":         handlerMenu,
-		"/show/forms/":   handlerForms,
-		"/user/signup/":  users.HandlerSignUp,
-		"/user/signin/":  users.HandlerSignIn,
-		"/user/signout/": users.HandlerSignOut,
-		"/user/active/":  users.HandlerActivateUser,
-		"/user/profile/": users.HandlerProfile,
-		//"/user/oauth/":    users.HandlerQauth2,
-		"/user/GoogleCallback/": users.HandleGoogleCallback,
-		"/components/":          handlerComponents,
+		// "/godoc/":        handlerGoDoc,
+		// "/recache":       handlerRecache,
+		// "/update/":       handleUpdate,
+		// "/test/":         handleTest,
+		// "/api/firebird/": HandleFirebird,
+		// "/fonts/":        fonts.HandleGetFont,
+		// "/query/":        db.HandlerDBQuery,
+		// "/menu/":         handlerMenu,
+		// "/show/forms/":   handlerForms,
+		// "/user/signup/":  users.HandlerSignUp,
+		// "/user/signin/":  users.HandlerSignIn,
+		// "/user/signout/": users.HandlerSignOut,
+		// "/user/active/":  users.HandlerActivateUser,
+		// "/user/profile/": users.HandlerProfile,
+		// //"/user/oauth/":    users.HandlerQauth2,
+		// "/user/GoogleCallback/": users.HandleGoogleCallback,
+		// "/components/":          handlerComponents,
 	}
 )
 
@@ -84,10 +84,10 @@ func registerRoutes() {
 			logs.ErrorLog(err)
 		}
 	}()
-	MyMux.Handle("/", NewDefaultHandler())
-	for route, fnc := range routes {
-		MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
-	}
+	// MyMux.Handle("/", NewDefaultHandler())
+	// for route, fnc := range routes {
+	// 	MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+	// }
 	admin.RegisterRoutes(MyMux)
 
 	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
@@ -120,14 +120,14 @@ func attachPlugin(path string, info os.FileInfo, err error) error {
 	symb, err := travel.Lookup("InitPlugin")
 	logs.StatusLog(symb, err)
 	if err == nil {
-		err, routes := symb.(func(MyMux *ServeMux) (error, map[string]HandlerFunc))(MyMux)
-		if err != nil {
-			return err
-		}
-		for route, fnc := range routes {
-			MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
-			fnc(nil, nil)
-		}
+		// err, routes := symb.(func(MyMux *ServeMux) (error, map[string]HandlerFunc))(MyMux)
+		// if err != nil {
+		// 	return err
+		// }
+		// for route, fnc := range routes {
+		// 	MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
+		// 	fnc(nil, nil)
+		// }
 	} else {
 		logs.ErrorLog(err)
 	}
@@ -276,13 +276,13 @@ func serveAndCache(filename string, ctx *RequestCtx) {
 		if os.IsNotExist(err) {
 			data, err = ioutil.ReadFile(filepath.Join(*fWeb, filename))
 		}
-		if system.WriteError(w, err) {
-			return
-		}
+		// if system.WriteError(w, err) {
+		// 	return
+		// }
 		setCache(keyName, data)
 		logs.DebugLog("recache file", filename)
 	}
-	ServeContent(ctx, filename, time.Time{}, bytes.NewReader(data))
+	// ServeContent(ctx, filename, time.Time{}, bytes.NewReader(data))
 }
 
 func sockCatch() {
@@ -298,121 +298,20 @@ func HandleFirebird(ctx *RequestCtx) {
 	rows, err := db.FBSelect("SELECT * FROM country_list")
 
 	if err != nil {
-		views.RenderInternalError(w, err)
+		// views.RenderInternalError(w, err)
 	} else {
 		defer rows.Close()
 		for rows.Next() {
 			var id int
 			var title string
 			if err := rows.Scan(&id, &title); err != nil {
-				views.RenderInternalError(w, err)
+				// views.RenderInternalError(w, err)
 				break
 			}
-			fmt.Fprintf(w, "id=%d, title =%s", id, title)
+			ctx.Response.AppendBodyString(fmt.Sprintf("id=%d, title =%s", id, title))
 
 		}
 	}
-}
-
-func handleTest(ctx *RequestCtx) {
-
-	w.Write([]byte("Hello\n"))
-	r.ParseMultipartForm(_24K)
-	for k, v := range r.Form {
-		w.Write([]byte(k + "=" + v[0]))
-	}
-
-	return
-	id := r.FormValue("id")
-	qBuilder := qb.Create("id=?", "", "")
-
-	qBuilder.AddTable("", "business")
-
-	//qBuilder.JoinTable("cl", "currency_list", "INNER JOIN", " ON b.id_currency_list=cl.id").AddFields(map[string]string{
-	//	"currency_title": "title",
-	//})
-	//qBuilder.JoinTable("c", "country_list", "INNER JOIN", " ON b.id_country_list=c.id").AddFields(map[string]string{
-	//	"country_bank_title": "title",
-	//})
-	qBuilder.AddArg(id)
-
-	if r.FormValue("batch") == "1" {
-		arrJSON, err := qBuilder.SelectToMultidimension()
-		if err != nil {
-			views.RenderInternalError(w, err)
-			return
-		}
-		views.RenderArrayJSON(w, arrJSON)
-
-		return
-	}
-
-	w.Write([]byte("{"))
-
-	err := qBuilder.SelectRunFunc(func(fields []*qb.QBField) error {
-		for idx, field := range fields {
-			if idx > 0 {
-				w.Write([]byte(","))
-			}
-
-			w.Write([]byte(`"` + fields[idx].Alias + `":`))
-			if field.Value == nil {
-				w.Write([]byte("null"))
-			} else {
-				json.WriteElement(w, field.GetNativeValue(true))
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		views.RenderInternalError(w, err)
-		return
-	}
-	views.WriteJSONHeaders(w)
-	w.Write([]byte("}"))
-	return
-
-	//qBuilder = qb.Create("hs.id_hotels=?", "", "")
-	//
-	//qBuilder.AddTable("hs", "hotels_services").AddField("", "id_services_list AS id_services_list").AddField("", "id_hotels")
-	//qBuilder.Join("sl", "services_list", "ON (sl.id = hs.id_services_list)").AddField("", "id_services_category_list")
-	//
-	////qBuilder.Union("SELECT sl.id AS id_services_list,  0 AS id_hotels, sl.id_services_category_list FROM services_list AS sl")
-	//
-	//qBuilder.AddArg(r.FormValue("id_hotels"))
-	//arrJSON, err := qBuilder.SelectToMultidimension()
-	//
-	//if err != nil {
-	//	logs.ErrorLog(err)
-	//	return
-	//}
-	//
-	//views.RenderArrayJSON(w, arrJSON)
-	//return
-	////qBuilder := qb.Create("", "", "")
-	//
-	//logs.DebugLog(r)
-	//r.ParseMultipartForm(_24K)
-	//for _, headers := range r.MultipartForm.File {
-	//	for _, header := range headers {
-	//		var err interface{}
-	//		inFile, _ := header.Open()
-	//
-	//		err = services.Send("photos", "save", header.Filename, inFile)
-	//		if err != nil {
-	//			switch err.(type) {
-	//			case services.ErrServiceNotCorrectOperation:
-	//				logs.ErrorLog(err.(error))
-	//			}
-	//			w.Write([]byte(err.(error).Error()))
-	//
-	//		} else {
-	//			w.Write([]byte("Succesfull"))
-	//		}
-	//	}
-	//}
-
 }
 
 func handleUpdate(ctx *RequestCtx) {
@@ -420,11 +319,12 @@ func handleUpdate(ctx *RequestCtx) {
 }
 
 func handlerForms(ctx *RequestCtx) {
-	views.RenderTemplate(ctx, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
+	// views.RenderTemplate(ctx, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
 }
-func isAJAXRequest(r *Request) bool {
-	return len(r.Header["X-Requested-With"]) > 0
-}
+
+// func isAJAXRequest(r *Request) bool {
+// 	return len(r.Header["X-Requested-With"]) > 0
+// }
 func handlerMenu(ctx *RequestCtx) {
 
 	userID := users.IsLogin(r)
@@ -516,7 +416,7 @@ func cacheFiles() {
 
 // show doc
 // @/godoc/
-func handlerGoDoc(ctx *RequestCtx) {
+func handlerGoDoc(ctx *RequestCtx) (interface{}, error) {
 	ServerConfig := server.GetServerConfig()
 
 	cmd := exec.Command("godoc", "http=:6060", "index")
@@ -524,24 +424,24 @@ func handlerGoDoc(ctx *RequestCtx) {
 
 	err := cmd.Run()
 	if err != nil {
-		views.RenderInternalError(w, err)
+		// views.RenderInternalError(w, err)
 	} else {
 		output, err := cmd.Output()
 		if err != nil {
-			views.RenderInternalError(w, err)
+			return nil, err
 		} else {
-			views.RenderOutput(w, output)
+			return output, nil
 		}
-		Redirect(ctx, "http://localhost:6060", StatusPermanentRedirect)
+		ctx.Redirect("http://localhost:6060", StatusPermanentRedirect)
 	}
 }
 
 // rereads files to cache directive
-func handlerRecache(ctx *RequestCtx) {
+func handlerRecache(ctx *RequestCtx) (interface{}, error) {
 
 	emptyCache()
 	cacheFiles()
-	w.Write([]byte("recache succesfull!"))
+	return "recache succesfull!", nil
 }
 
 var (
@@ -572,9 +472,6 @@ func init() {
 var mainServer *Server
 var listener net.Listener
 
-// MyMux - this is trying recruting router from plugin
-var MyMux *ServeMux
-
 func main() {
 	users.SetSessionPath(*fSession)
 	go cacheFiles()
@@ -583,13 +480,6 @@ func main() {
 
 	logs.StatusLog("Static files found in ", *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
-
-	ch := make(chan os.Signal)
-
-	KillSignal := syscall.Signal(15)
-	//syscall.SIGTTIN
-	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal)
-	go listenOnShutdown(ch)
 
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
@@ -602,20 +492,11 @@ func main() {
 		logs.Fatal(err)
 	}
 
-	MyMux = NewServeMux()
 	registerRoutes()
-	//travel_git.InitPlugin()
-	mainServer = &Server{Handler: MyMux}
-
-	logs.ErrorLog(mainServer.Serve(listener))
+	// //travel_git.InitPlugin()
+	// mainServer = &Server{Handler: MyMux}
+	//
+	// logs.ErrorLog(mainServer.Serve(listener))
 	//logs.Fatal(http.ListenAndServe(*fPort, nil))
 
-}
-func listenOnShutdown(ch <-chan os.Signal) {
-	//var signShut os.Signal
-	signShut := <-ch
-
-	mainServer.SetKeepAlivesEnabled(false)
-	listener.Close()
-	logs.StatusLog(signShut.String())
 }
