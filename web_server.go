@@ -6,28 +6,23 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	. "github.com/valyala/fasthttp"
 	"io/ioutil"
 	"net"
 	_ "net/http/pprof"
 	"os"
 	// "syscall"
 	"os/exec"
-	"os/signal"
 	"path"
 	"path/filepath"
 	"plugin"
-	"strconv"
 	"strings"
 	"sync"
-	"syscall"
-	"time"
+
+	. "github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/models/admin"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
@@ -36,11 +31,8 @@ import (
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/users"
-	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/fonts"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
 //go:generate qtc -dir=views/templates
@@ -88,12 +80,10 @@ func registerRoutes() {
 	// for route, fnc := range routes {
 	// 	MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
 	// }
-	admin.RegisterRoutes(MyMux)
 
 	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
 		logs.ErrorLog(err)
 	}
-	logs.StatusLog("httpgo", MyMux)
 
 }
 func attachPlugin(path string, info os.FileInfo, err error) error {
@@ -184,7 +174,7 @@ func (h *DefaultHandler) toServe(ext string) bool {
 }
 func (h *DefaultHandler) ServeHTTP(ctx *RequestCtx) {
 
-	defer system.Catch(ctx)
+	// defer system.Catch(ctx)
 
 	switch ctx.URI().String() {
 	case "/":
@@ -261,14 +251,14 @@ func serveAndCache(filename string, ctx *RequestCtx) {
 	data, ok := getCache(keyName)
 	if ok {
 		// if found header no-cache - reread resource
-		cache, found := r.Header["Cache-Control"]
-		if found {
-			for _, val := range cache {
-				if val == "no-cache" {
-					ok = false
-					break
-				}
-			}
+		cache := ctx.Request.Header.Peek("Cache-Control")
+		if len(cache) > 0 {
+			// for _, val := range cache {
+			// 	if val == "no-cache" {
+			// 		ok = false
+			// 		break
+			// 	}
+			// }
 		}
 	}
 	if !ok {
@@ -282,6 +272,7 @@ func serveAndCache(filename string, ctx *RequestCtx) {
 		setCache(keyName, data)
 		logs.DebugLog("recache file", filename)
 	}
+	logs.DebugLog(" %+v", data)
 	// ServeContent(ctx, filename, time.Time{}, bytes.NewReader(data))
 }
 
@@ -325,14 +316,14 @@ func handlerForms(ctx *RequestCtx) {
 // func isAJAXRequest(r *Request) bool {
 // 	return len(r.Header["X-Requested-With"]) > 0
 // }
-func handlerMenu(ctx *RequestCtx) {
+func handlerMenu(ctx *RequestCtx) (interface{}, error) {
 
-	userID := users.IsLogin(r)
-	resultID, err := strconv.Atoi(userID)
-	if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, ctx.URI().String(), "View") {
-		views.RenderNoPermissionPage(w)
-		return
-	}
+	// userID := users.IsLogin(r)
+	// resultID, err := strconv.Atoi(userID)
+	// if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, ctx.URI().String(), "View") {
+	// 	views.RenderNoPermissionPage(w)
+	// 	return
+	// }
 	var menu db.MenuItems
 
 	idx := strings.LastIndex(ctx.URI().String(), "menu/") + 5
@@ -343,12 +334,12 @@ func handlerMenu(ctx *RequestCtx) {
 		qBuilder := qb.CreateEmpty()
 		qBuilder.AddTable("", "menu_items")
 
-		if arrJSON, err := qBuilder.SelectToMultidimension(); err != nil {
-			logs.ErrorLog(err.(error))
-		} else {
-			views.RenderArrayJSON(w, arrJSON)
+		arrJSON, err := qBuilder.SelectToMultidimension()
+		if err != nil {
+			return nil, err
 		}
-		return
+
+		return arrJSON, nil
 	}
 
 	var catalog, content string
@@ -372,7 +363,7 @@ func handlerMenu(ctx *RequestCtx) {
 	if menu.Self.Link > "" {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
-	views.RenderAnyPage(ctx, catalog+content)
+	return catalog + content, nil
 }
 
 // считываю части из папки
@@ -434,6 +425,8 @@ func handlerGoDoc(ctx *RequestCtx) (interface{}, error) {
 		}
 		ctx.Redirect("http://localhost:6060", StatusPermanentRedirect)
 	}
+
+	return nil, nil
 }
 
 // rereads files to cache directive
