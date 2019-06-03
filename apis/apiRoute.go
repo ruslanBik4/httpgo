@@ -196,9 +196,16 @@ func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 	for _, param := range route.Params {
 		value := ctx.UserValue(param.Name)
 		if value == nil {
+			// param is part of group required params
+			if route.isHasPartRegParam(ctx, param) {
+				return
+			}
+
 			value = route.defaultValueOfParams(ctx, param)
 			//  not present required param
-			if (value == nil) && param.Req && !route.isHasPartRegParam(ctx, param) {
+			if value != nil {
+				ctx.SetUserValue(param.Name, value)
+			} else if param.Req {
 				badParams = append(badParams, param.Name+": is required parameter")
 			}
 		} else if name, val := route.isHasIncompatibleParams(ctx, param); name > "" {
@@ -210,15 +217,16 @@ func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 	return
 }
 
-type DefValueCalcFnc func(ctx *fasthttp.RequestCtx) interface{}
+type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) interface{}
 
+// defaultValueOfParams return value as default for param, it is only for single required param
 func (route *APIRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InParam) interface{} {
 	switch def := param.DefValue.(type) {
 	case DefValueCalcFnc:
 		return def(ctx)
+	default:
+		return param.DefValue
 	}
-
-	return param.DefValue
 }
 
 func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
@@ -237,6 +245,7 @@ func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 			return param.Type.ConvertValue(ctx, values[0])
 		}
 	}
+
 	if len(values) == 1 {
 		return values[0], nil
 	}
@@ -256,19 +265,20 @@ func (route *APIRoute) isHasIncompatibleParams(ctx *fasthttp.RequestCtx, param I
 	return "", nil
 }
 
-// chech 'param' is one part of list requared params
+// check 'param' is one part of list required params AND one of other params is present
 func (route *APIRoute) isHasPartRegParam(ctx *fasthttp.RequestCtx, param InParam) bool {
 	isPartReq := param.isPartReq()
 
 	if isPartReq {
 		// Looking for parameters associated with the original 'param'
 		for _, name := range param.PartReq {
-			val := ctx.UserValue(name)
-			isPartReq = (val != nil)
-			if isPartReq {
+			// param 'name' is present
+			if ctx.UserValue(name) != nil {
 				return true
 			}
 		}
+
+		return false
 	}
 
 	return isPartReq

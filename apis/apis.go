@@ -115,7 +115,12 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
 	// success execution
 	if err != nil {
-		logs.DebugLog("route not run successfully - '%s', %v, %s", path, resp, ctx.Request.Header.String())
+		logs.DebugLog("'%s' failure - %v, %s, %s, %s",
+			path,
+			resp,
+			ctx.Request.Header.ContentType(),
+			ctx.Request.Header.Referer(),
+			ctx.Request.Header.UserAgent())
 		a.renderError(ctx, err, resp)
 	} else {
 		if resp != nil {
@@ -193,8 +198,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultipArt)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
-		}
-		if ctx.IsPost() {
+		} else if ctx.IsPost() {
 			logs.DebugLog(ctx.PostArgs().String())
 		} else {
 			logs.DebugLog(ctx.QueryArgs().String())

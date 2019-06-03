@@ -145,10 +145,15 @@ func ErrorStack(err error, args ...interface{}) {
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
-			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
+			file := fmt.Sprintf("%s", frame)
+			fncName := fmt.Sprintf("%n", frame)
+			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 
 				hh, mm, ss := time.Now().Clock()
-				fmt.Printf("%s %d %d %d %v:%[4]n: ", prefErrStack, hh, mm, ss, frame)
+				fmt.Printf("%s %d:%d:%d %s:%d: %s()", prefErrStack, hh, mm, ss, file, frame, fncName)
+				if *fDebug {
+					fmt.Println()
+				}
 			}
 		}
 
