@@ -19,41 +19,41 @@ import (
 )
 
 func init() {
-	jsoniter.RegisterTypeEncoderFunc("apis.APIRoute", routingToJSON, func(pointer unsafe.Pointer) bool {
+	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", routingToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
-	jsoniter.RegisterTypeEncoderFunc("apis.APIRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
+	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
 }
 
-// BuildRouteOptions implement 'Functional Option' pattern for APIRoute settings
-type BuildRouteOptions func(route *APIRoute)
+// BuildRouteOptions implement 'Functional Option' pattern for ApiRoute settings
+type BuildRouteOptions func(route *ApiRoute)
 
-// RouteAuth set custom auth method on APIRoute
-func RouteAuth(fncAuth func(ctx *fasthttp.RequestCtx) bool) BuildRouteOptions {
-	return func(route *APIRoute) {
+// RouteAuth set custom auth method on ApiRoute
+func RouteAuth(fncAuth ApiRouteFuncAuth) BuildRouteOptions {
+	return func(route *ApiRoute) {
 		route.FncAuth = fncAuth
 	}
 }
 
 // OnlyLocal set flag of only local response routing
 func OnlyLocal() BuildRouteOptions {
-	return func(route *APIRoute) {
+	return func(route *ApiRoute) {
 		route.OnlyLocal = true
 	}
 }
 
 // DTO set custom struct on response params
 func DTO(dto RouteDTO) BuildRouteOptions {
-	return func(route *APIRoute) {
+	return func(route *ApiRoute) {
 		route.DTO = dto
 	}
 }
 
 // MultiPartForm set flag of multipart checking
 func MultiPartForm() BuildRouteOptions {
-	return func(route *APIRoute) {
+	return func(route *ApiRoute) {
 		route.Multipart = true
 	}
 }
@@ -64,25 +64,28 @@ type RouteDTO interface {
 	NewValue() interface{}
 }
 
-type APIRouteHandler func(ctx *fasthttp.RequestCtx) (interface{}, error)
+type (
+	ApiRouteHandler  func(ctx *fasthttp.RequestCtx) (interface{}, error)
+	ApiRouteFuncAuth func(ctx *fasthttp.RequestCtx) error
+)
 
-// APIRoute implement endpoint info & handler on request
-type APIRoute struct {
-	Desc                           string                              `json:"descriptor"`
-	DTO                            RouteDTO                            `json:"dto"`
-	Fnc                            APIRouteHandler                     `json:"-"`
-	FncAuth                        func(ctx *fasthttp.RequestCtx) bool `json:"-"`
-	Method                         tMethod                             `json:"method,string"`
+// ApiRoute implement endpoint info & handler on request
+type ApiRoute struct {
+	Desc                           string           `json:"descriptor"`
+	DTO                            RouteDTO         `json:"dto"`
+	Fnc                            ApiRouteHandler  `json:"-"`
+	FncAuth                        ApiRouteFuncAuth `json:"-"`
+	Method                         tMethod          `json:"method,string"`
 	Multipart, NeedAuth, OnlyLocal bool
 	Params                         []InParam   `json:"parameters,omitempty"`
 	Resp                           interface{} `json:"response"`
 	lock                           sync.RWMutex
 }
 
-// NewAPIRoute create customizing APIRoute
-func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, fnc APIRouteHandler,
-	resp interface{}, Options ...BuildRouteOptions) *APIRoute {
-	route := &APIRoute{
+// NewAPIRoute create customizing ApiRoute
+func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, fnc ApiRouteHandler,
+	resp interface{}, Options ...BuildRouteOptions) *ApiRoute {
+	route := &ApiRoute{
 		Desc:     desc,
 		Fnc:      fnc,
 		Method:   method,
@@ -99,13 +102,13 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 }
 
 // CheckAndRun check & run route handler
-func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *fasthttp.RequestCtx) bool) (resp interface{}, err error) {
+func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *fasthttp.RequestCtx) bool) (resp interface{}, err error) {
 
 	// check auth is needed
 	if route.FncAuth != nil {
 		// route has his auth method
-		if !route.FncAuth(ctx) {
-			return nil, ErrRouteForbidden
+		if err := route.FncAuth(ctx); err != nil {
+			return nil, err
 		}
 	} else if route.NeedAuth && !fncAuth(ctx) {
 		return nil, ErrUnAuthorized
@@ -192,7 +195,7 @@ func (route *APIRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 }
 
 // CheckParams check param of request
-func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string) {
+func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string) {
 	for _, param := range route.Params {
 		value := ctx.UserValue(param.Name)
 		if value == nil {
@@ -220,7 +223,7 @@ func (route *APIRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) interface{}
 
 // defaultValueOfParams return value as default for param, it is only for single required param
-func (route *APIRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InParam) interface{} {
+func (route *ApiRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InParam) interface{} {
 	switch def := param.DefValue.(type) {
 	case DefValueCalcFnc:
 		return def(ctx)
@@ -229,7 +232,7 @@ func (route *APIRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InPa
 	}
 }
 
-func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
+func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
 	// find param in InParams list & convert according to Type
 	for _, param := range route.Params {
 		if param.Name == name {
@@ -254,7 +257,7 @@ func (route *APIRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 }
 
 // found params incompatible with 'param'
-func (route *APIRoute) isHasIncompatibleParams(ctx *fasthttp.RequestCtx, param InParam) (string, interface{}) {
+func (route *ApiRoute) isHasIncompatibleParams(ctx *fasthttp.RequestCtx, param InParam) (string, interface{}) {
 	for _, name := range param.IncompatibleWiths {
 		val := ctx.FormValue(name)
 		if len(val) > 0 {
@@ -266,7 +269,7 @@ func (route *APIRoute) isHasIncompatibleParams(ctx *fasthttp.RequestCtx, param I
 }
 
 // check 'param' is one part of list required params AND one of other params is present
-func (route *APIRoute) isHasPartRegParam(ctx *fasthttp.RequestCtx, param InParam) bool {
+func (route *ApiRoute) isHasPartRegParam(ctx *fasthttp.RequestCtx, param InParam) bool {
 	isPartReq := param.isPartReq()
 
 	if isPartReq {
@@ -284,14 +287,14 @@ func (route *APIRoute) isHasPartRegParam(ctx *fasthttp.RequestCtx, param InParam
 	return isPartReq
 }
 
-func (route *APIRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
+func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
 	return methodNames[route.Method] == string(ctx.Method())
 }
 
 // routingToJSON produces a human-friendly description of Apis.
 //Based on real data of the executable application, does not require additional documentation.
 func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-	routes := *(*APIRoutes)(ptr)
+	routes := *(*ApiRoutes)(ptr)
 
 	sortList := make([]string, 0, len(routes))
 	for name := range routes {
@@ -313,7 +316,7 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 //Based on real data of the executable application, does not require additional documentation.
 func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	// todo: add description of the test-based return data
-	route := (*APIRoute)(ptr)
+	route := (*ApiRoute)(ptr)
 
 	stream.WriteObjectStart()
 
@@ -394,16 +397,16 @@ func FirstFieldToJSON(stream *jsoniter.Stream, field string, s string) {
 	stream.WriteString(s)
 }
 
-// APIRoutes is hair of APIROute
-type APIRoutes map[string]*APIRoute
+// ApiRoutes is hair of APIROute
+type ApiRoutes map[string]*ApiRoute
 
 // NewAPIRoutes create APIRotes instance
-func NewAPIRoutes() APIRoutes {
-	return make(map[string]*APIRoute, 0)
+func NewAPIRoutes() ApiRoutes {
+	return make(map[string]*ApiRoute, 0)
 }
 
-// AddRoutes add APIRoute into hair onsafe
-func (s APIRoutes) AddRoutes(routes APIRoutes) (badRouting []string) {
+// AddRoutes add ApiRoute into hair onsafe
+func (s ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 	for path, route := range routes {
 		_, ok := s[path]
 		if ok {

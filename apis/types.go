@@ -21,7 +21,7 @@ type APIRouteParamsType interface {
 	IsSlice() bool
 }
 
-// TypeInParam has type definition of params APIRoute
+// TypeInParam has type definition of params ApiRoute
 type TypeInParam struct {
 	types.BasicKind
 	isSlice bool

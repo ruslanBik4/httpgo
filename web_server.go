@@ -46,7 +46,7 @@ var (
 
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
-	routes  = map[string]apis.APIRouteHandler{
+	routes  = map[string]apis.ApiRouteHandler{
 		// "/godoc/":        handlerGoDoc,
 		// "/recache":       handlerRecache,
 		// "/update/":       handleUpdate,

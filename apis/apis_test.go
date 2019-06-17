@@ -17,15 +17,15 @@ var (
 
 func TestApis_AddRoute(t *testing.T) {
 
-	err := apis.addRoute("test", &APIRoute{})
+	err := apis.addRoute("test", &ApiRoute{})
 	assert.Nil(t, err)
-	err = apis.addRoute("test", &APIRoute{})
+	err = apis.addRoute("test", &ApiRoute{})
 	assert.NotNil(t, err)
 }
 
 func TestRenderApis(t *testing.T) {
 
-	apis.addRoute("test", &APIRoute{Desc: "test route"})
+	apis.addRoute("test", &ApiRoute{Desc: "test route"})
 	resp, err := apis.renderApis(NewCtxApis(0))
 	assert.Nil(t, err)
 	t.Log(resp)

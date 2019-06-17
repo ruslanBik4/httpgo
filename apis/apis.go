@@ -54,12 +54,12 @@ type Apis struct {
 	// authentication method
 	fncAuth func(ctx *fasthttp.RequestCtx) bool
 	// list of endpoints
-	routes APIRoutes
+	routes ApiRoutes
 	lock   sync.RWMutex
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
-func NewApis(ctx CtxApis, routes APIRoutes, fncAuth func(ctx *fasthttp.RequestCtx) bool) *Apis {
+func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth func(ctx *fasthttp.RequestCtx) bool) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
@@ -67,7 +67,7 @@ func NewApis(ctx CtxApis, routes APIRoutes, fncAuth func(ctx *fasthttp.RequestCt
 		fncAuth: fncAuth,
 	}
 
-	apisRoute := &APIRoute{Desc: "full routers list", Fnc: apis.renderApis}
+	apisRoute := &ApiRoute{Desc: "full routers list", Fnc: apis.renderApis}
 	err := apis.addRoute("/apis", apisRoute)
 	if err != nil {
 		logs.ErrorLog(err)
@@ -212,7 +212,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 }
 
 // addRoute with safe on concurents
-func (a *Apis) addRoute(path string, route *APIRoute) error {
+func (a *Apis) addRoute(path string, route *ApiRoute) error {
 	_, ok := a.routes[path]
 	if ok {
 		return ErrPathAlreadyExists
@@ -227,7 +227,7 @@ func (a *Apis) addRoute(path string, route *APIRoute) error {
 
 // AddRoutes add routes to Apis for handling service
 // return slice with name routes which not adding
-func (a *Apis) AddRoutes(routes APIRoutes) (badRouting []string) {
+func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
 	for path, route := range routes {
 		err := a.addRoute(path, route)
 		if err != nil {
@@ -244,7 +244,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return a.routes, nil
 }
 
-func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bool) {
+func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*ApiRoute, bool) {
 	route, ok := a.routes[path]
 	// check method
 	if ok && route.isValidMethod(ctx) {
@@ -254,7 +254,7 @@ func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*APIRoute, bo
 	return a.findParentRoute(ctx, path)
 }
 
-func (a *Apis) findParentRoute(ctx *fasthttp.RequestCtx, path string) (route *APIRoute, ok bool) {
+func (a *Apis) findParentRoute(ctx *fasthttp.RequestCtx, path string) (route *ApiRoute, ok bool) {
 	for p := getParentPath(path); p > ""; p = getParentPath(p) {
 		route, ok = a.routes[p]
 		// check method

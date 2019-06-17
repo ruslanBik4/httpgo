@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	routes = apis.APIRoutes{
-		"/": &apis.APIRoute{
+	routes = apis.ApiRoutes{
+		"/": &apis.ApiRoute{
 			Desc: "default endpoint",
 			Fnc:  HandleIndex,
 		},
