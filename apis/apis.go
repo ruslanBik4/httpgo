@@ -178,6 +178,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 	case errMethodNotAllowed:
 		statusCode = http.StatusMethodNotAllowed
 	case ErrUnAuthorized:
+		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 		statusCode = http.StatusUnauthorized
 	case ErrRouteForbidden:
 		statusCode = http.StatusForbidden

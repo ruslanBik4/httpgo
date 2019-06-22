@@ -105,8 +105,11 @@ func ErrorLog(err error, args ...interface{}) {
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames {
-			if !isIgnoreFunc(fmt.Sprintf("%s", frame)) {
-				fmt.Printf("%s %v:%[1]n: %v", logErr.Prefix(), frame, err)
+			file := fmt.Sprintf("%s", frame)
+			fncName := fmt.Sprintf("%n", frame)
+			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
+				hh, mm, ss := time.Now().Clock()
+				fmt.Printf("%s %d:%d:%d %s:%d: %s() %v", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
 				return
 			}
 		}
