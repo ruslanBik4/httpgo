@@ -327,7 +327,7 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	if route.FncAuth != nil {
 		t := reflect.TypeOf(route.FncAuth)
-		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.Name()+"' for checking autorization")
+		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.PkgPath()+"' for checking autorization")
 	} else if route.NeedAuth {
 		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
 
@@ -357,8 +357,8 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 			if param.Req {
 				if len(param.PartReq) > 0 {
-					s := strings.Join(param.PartReq, ",")
-					AddFieldToJSON(stream, "Required", "one of "+s+" and "+param.Name+" is required")
+					s := strings.Join(param.PartReq, ", ")
+					AddFieldToJSON(stream, "Required", "one of {"+s+" and "+param.Name+"} is required")
 				} else {
 					AddObjectToJSON(stream, "Required", true)
 				}
