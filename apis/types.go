@@ -157,7 +157,12 @@ func (t TypeInParam) IsSlice() bool {
 }
 
 func (t TypeInParam) String() string {
-	return stringTypeKinds[t.BasicKind]
+	res := stringTypeKinds[t.BasicKind]
+	if t.isSlice {
+		return "[]" + res
+	}
+
+	return res
 }
 
 var stringTypeKinds = map[types.BasicKind]string{

@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/pkg/errors"
+	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -322,15 +323,18 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	FirstFieldToJSON(stream, "Descriptor", route.Desc)
 
-	AddFieldToJSON(stream, "method", methodNames[route.Method])
-	if route.NeedAuth {
-		AddFieldToJSON(stream, "Auth", "use standart method 'fncAuth' for checking autorization")
-	}
+	AddFieldToJSON(stream, "Method", methodNames[route.Method])
+
 	if route.FncAuth != nil {
-		AddFieldToJSON(stream, "AuthCustom", "use custom method for checking autorization")
+		t := reflect.TypeOf(route.FncAuth)
+		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.Name()+"' for checking autorization")
+	} else if route.NeedAuth {
+		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
+
 	}
+
 	if route.OnlyLocal {
-		AddFieldToJSON(stream, "localOnly", "only local request be allowed")
+		AddFieldToJSON(stream, "LocalOnly", "only local request be allowed")
 	}
 
 	// print parameters
@@ -354,9 +358,9 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			if param.Req {
 				if len(param.PartReq) > 0 {
 					s := strings.Join(param.PartReq, ",")
-					AddFieldToJSON(stream, "required", "one of "+s+" and "+param.Name+" is required")
+					AddFieldToJSON(stream, "Required", "one of "+s+" and "+param.Name+" is required")
 				} else {
-					AddObjectToJSON(stream, "required", true)
+					AddObjectToJSON(stream, "Required", true)
 				}
 
 			}
@@ -366,15 +370,15 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	}
 
 	if route.DTO != nil {
-		AddObjectToJSON(stream, "dtoFromJSON", route.DTO.GetValue())
-		AddFieldToJSON(stream, "dtoFromJSONType", fmt.Sprintf("%+#v", route.DTO.GetValue()))
+		AddObjectToJSON(stream, "DtoFromJSON", route.DTO.GetValue())
+		AddFieldToJSON(stream, "DtoFromJSONType", fmt.Sprintf("%+#v", route.DTO.GetValue()))
 	}
 
 	if route.Resp != nil {
 		if resp, ok := route.Resp.(string); ok {
-			AddFieldToJSON(stream, "response", resp)
+			AddFieldToJSON(stream, "Response", resp)
 		} else {
-			AddObjectToJSON(stream, "response", route.Resp)
+			AddObjectToJSON(stream, "Response", route.Resp)
 		}
 	}
 
