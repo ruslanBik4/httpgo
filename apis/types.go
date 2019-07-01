@@ -95,7 +95,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 	switch t.BasicKind {
 	case types.String:
 		return values, nil
-	case types.Int, types.Int8, types.Int16:
+	case types.Int:
 		arr := make([]int, len(values))
 		for key, val := range values {
 			v, err := t.ConvertValue(ctx, val)
@@ -103,6 +103,26 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 				return nil, err
 			}
 			arr[key] = v.(int)
+		}
+		return arr, nil
+	case types.Int8:
+		arr := make([]int8, len(values))
+		for key, val := range values {
+			v, err := t.ConvertValue(ctx, val)
+			if err != nil {
+				return nil, err
+			}
+			arr[key] = v.(int8)
+		}
+		return arr, nil
+	case types.Int16:
+		arr := make([]int16, len(values))
+		for key, val := range values {
+			v, err := t.ConvertValue(ctx, val)
+			if err != nil {
+				return nil, err
+			}
+			arr[key] = v.(int16)
 		}
 		return arr, nil
 	case types.Int32:
