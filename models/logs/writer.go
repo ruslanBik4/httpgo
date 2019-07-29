@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -109,7 +110,7 @@ func ErrorLog(err error, args ...interface{}) {
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				hh, mm, ss := time.Now().Clock()
-				fmt.Printf("%s %d:%d:%d %s:%d: %s() %v", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
+				fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
 				return
 			}
 		}
@@ -136,28 +137,23 @@ func ErrorLog(err error, args ...interface{}) {
 
 }
 
-const prefErrStack = "[ERROR_STACK]"
+const prefErrStack = "[[ERR_STACK]]"
 
 // ErrorStack - output formatted(function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
-	logErr.Output(i+1, fmt.Sprintf("%s;%s;%s ", prefErrStack, err, getArgsString(args...)))
+	err = logErr.Output(i+1, fmt.Sprintf("%s; %s", err, getArgsString(args...)))
+	if err != nil {
+		fmt.Printf("%s during log printing", err)
+		return
+	}
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
-			file := fmt.Sprintf("%s", frame)
-			fncName := fmt.Sprintf("%n", frame)
-			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-
-				hh, mm, ss := time.Now().Clock()
-				fmt.Printf("%s %d:%d:%d %s:%d: %s()", prefErrStack, hh, mm, ss, file, frame, fncName)
-				if *fDebug {
-					fmt.Println()
-				}
-			}
+			printStackLine(fmt.Sprintf("%s", frame), fmt.Sprintf("%d", frame), fmt.Sprintf("%n", frame))
 		}
 
 		return
@@ -166,17 +162,18 @@ func ErrorStack(err error, args ...interface{}) {
 	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
 		i++
 		// пропускаем рендер ошибок
-		printStack(file, pc, i, line)
+		printStackLine(changeShortName(file), strconv.Itoa(line), changeShortName(runtime.FuncForPC(pc).Name()))
 	}
 }
 
-func printStack(file string, pc uintptr, i int, line int) {
-	runFile := changeShortName(file)
-	isIgnore := isIgnoreFile(runFile)
-	if !isIgnore {
-		funcName := changeShortName(runtime.FuncForPC(pc).Name())
-		if !isIgnoreFunc(funcName) {
-			logErr.Output(i, fmt.Sprintf("%s:%d: %s; ", runFile, line, funcName))
+func printStackLine(file string, line string, fncName string) {
+	if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
+		if *fDebug {
+			hh, mm, ss := time.Now().Clock()
+			fmt.Printf("%s %d:%d:%d %s:%s: %s()", prefErrStack, hh, mm, ss, file, line, fncName)
+			fmt.Println()
+		} else {
+			fmt.Printf("%s:%s: %s()", file, line, fncName)
 		}
 	}
 }
@@ -202,5 +199,4 @@ func isIgnoreFunc(funcName string) bool {
 // ErrorLogHandler - output formated(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	ErrorStack(err, args...)
-
 }
