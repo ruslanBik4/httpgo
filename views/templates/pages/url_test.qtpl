@@ -1,0 +1,98 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+{% import (
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+)
+%}
+{% code
+type ParamUrlTestPage struct{
+                         Name string
+                         Value interface{}
+                         Type string
+                         Comment string
+                         }
+
+type URLTestPage struct {
+    Path string
+    Language string
+    Charset string
+    LinkStyles []string
+    MetaTags []string
+    Params [] ParamUrlTestPage
+    Resp string
+}
+%}
+{% func (u *URLTestPage) ShowURlTestPage() %}
+{%= layouts.AdminHead(u.Path + " - test examples") %}
+<body>
+<div class="content-wrap">
+<div id="container-fluid">
+
+    <div class="row-fluid">
+        <div class="sidebar-section">
+            <div id="catalog_pane"  class="well sidebar-nav">
+         <div id="content" rel="/admin/" class="content-section">
+           <span>  Phyton code </span>
+           <pre >
+            import requests
+
+            WEBKIT = '------WebKitFormBoundary7MA4YWxkTrZu0gW'
+            HEADERS = {
+                    'Bearer': "2571020569",
+                    'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
+                }
+
+            def ta_request(path, params):
+                payload = ''
+                for p in params:
+                    payload += '%s\r\nContent-Disposition: form-data; name=\"%s\"\r\n\r\n%s\r\n' % (WEBKIT, p[0], p[1])
+
+                payload += '%s--' % WEBKIT
+
+                response = requests.request("POST", path, data=payload, headers=HEADERS).json()
+
+
+            if __name__ == '__main__':
+                ta_request("https://ta.lexxinfo.com/{%s u.Path %}", [
+                 {% for _, param := range u.Params %}
+                    ('{%s param.Name %}','{%v param.Value %}'), // type: {%s param.Type %},  {%s param.Comment %}
+                 {% endfor %}
+                ])
+                </pre>
+
+           <span>  JS code </span>
+           <pre>
+           request({
+             'multipart/form-data',
+             'POST',
+             processData = true,
+             "{%s u.Path %}",
+             {
+                   {% for _, param := range u.Params %}
+                      "{%s param.Name %}": {%v param.Value %},// type: {%s param.Type %},  {%s param.Comment %}
+                   {% endfor %}
+              },
+             beforeSend = null,
+             complete = null,
+             error = null,
+             success = null,
+             withoutAPI = false,
+             onprogress = null
+           })
+           </pre>
+           {% if u.Resp > "" %}
+            <span>  Response example </span>
+          <div>
+             {%s u.Resp %}
+           </div>
+           {%endif%}
+            </div>
+        </div>
+        </div>
+
+    </div>
+</div>
+</div>
+
+</body>
+{% endfunc %}

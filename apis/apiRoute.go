@@ -7,7 +7,7 @@ package apis
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
+	"path"
 	"reflect"
 	"sort"
 	"strings"
@@ -15,8 +15,11 @@ import (
 	"unsafe"
 
 	"github.com/json-iterator/go"
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
 func init() {
@@ -76,6 +79,7 @@ type ApiRoute struct {
 	DTO                            RouteDTO         `json:"dto"`
 	Fnc                            ApiRouteHandler  `json:"-"`
 	FncAuth                        ApiRouteFuncAuth `json:"-"`
+	TestFncAuth                    ApiRouteFuncAuth `json:"-"`
 	Method                         tMethod          `json:"method,string"`
 	Multipart, NeedAuth, OnlyLocal bool
 	Params                         []InParam   `json:"parameters,omitempty"`
@@ -410,16 +414,101 @@ func NewAPIRoutes() ApiRoutes {
 }
 
 // AddRoutes add ApiRoute into hair onsafe
-func (s ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
-	for path, route := range routes {
-		_, ok := s[path]
+func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
+	for url, route := range routes {
+		_, ok := r[url]
 		if ok {
-			logs.ErrorLog(ErrPathAlreadyExists, path)
-			badRouting = append(badRouting, path)
+			logs.ErrorLog(ErrPathAlreadyExists, url)
+			badRouting = append(badRouting, url)
 		} else {
-			s[path] = route
+			r[url] = route
+			testRoute := &ApiRoute{
+				Desc:      "test handler for " + url,
+				DTO:       nil,
+				Fnc:       nil,
+				FncAuth:   route.TestFncAuth,
+				Method:    GET,
+				Multipart: false,
+				NeedAuth:  false,
+				OnlyLocal: false,
+				Params:    make([]InParam, len(route.Params)),
+				Resp:      route.Resp,
+			}
+			for i, param := range route.Params {
+				testRoute.Params[i] = param
+				if param.Req {
+					testRoute.Params[i].Req = false
+					// testRoute.Params[i].DefValue = param.TestValue
+				}
+			}
+
+			testRoute.Fnc = func(url string, route *ApiRoute) ApiRouteHandler {
+				return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+					// if route.Multipart {
+					// 	var b bytes.Buffer
+					// 	w := multipart.NewWriter(&b)
+					// 	for _, param := range route.Params {
+					// 		err := w.WriteField(param.Name, param.TestValue)
+					// 		if err != nil {
+					// 			return nil, err
+					// 		}
+					// 	}
+					// 	if err := w.Close(); err != nil {
+					// 		return nil, errors.Wrap(err, "w.Close")
+					// 	}
+					//
+					// 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
+					// 	ctx.Request.Header.Set("Content-Type", w.FormDataContentType())
+					// 	ctx.Request.SetBody(b.Bytes())
+					// 	return route.Fnc(ctx)
+					// }
+					WriteHeaders(ctx)
+					s, err := jsoniter.MarshalToString(testRoute.Resp)
+					if err != nil {
+						logs.ErrorLog(err, "MarshalToString")
+					}
+					page := pages.URLTestPage{
+						Path:       url,
+						Language:   "",
+						Charset:    "",
+						LinkStyles: nil,
+						MetaTags:   nil,
+						Params:     make([]pages.ParamUrlTestPage, len(testRoute.Params)),
+						Resp:       s,
+					}
+					for i, val := range testRoute.Params {
+						page.Params[i] = pages.ParamUrlTestPage{
+							Name:    val.Name,
+							Value:   val.TestValue,
+							Type:    val.Type.String(),
+							Comment: val.Desc,
+						}
+					}
+					page.WriteShowURlTestPage(ctx.Response.BodyWriter())
+					return nil, nil
+				}
+			}(url, route)
+
+			r[path.Join(url, "_test")] = testRoute
+			logs.DebugLog(" %+v", testRoute)
 		}
 	}
 
 	return
+}
+
+// HEADERS - list standart header for html page - noinspection GoInvalidConstType
+var HEADERS = map[string]string{
+	"Content-Type":     "text/html; charset=utf-8",
+	"author":           "ruslanBik4",
+	"Server":           "HTTPGO/0.9 (CentOS) Go 1.12",
+	"Content-Language": "en, ru",
+	// "Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
+}
+
+// WriteHeaders выдаем стандартные заголовки страницы
+func WriteHeaders(ctx *fasthttp.RequestCtx) {
+	for key, value := range HEADERS {
+		ctx.Response.Header.Set(key, value)
+	}
 }

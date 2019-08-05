@@ -13,6 +13,7 @@ type InParam struct {
 	Type              APIRouteParamsType
 	DefValue          interface{}
 	IncompatibleWiths []string
+	TestValue         string
 }
 
 func (param *InParam) isPartReq() bool {

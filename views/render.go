@@ -25,7 +25,7 @@ import (
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
-	"Server":           "HTTPGO/0.1 (CentOS) Go 1.8.3",
+	"Server":           "HTTPGO/0.9 (CentOS) Go 1.12",
 	"Content-Language": "en, ru",
 	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
