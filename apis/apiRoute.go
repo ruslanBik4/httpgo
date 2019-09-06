@@ -22,15 +22,6 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
-func init() {
-	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", routingToJSON, func(pointer unsafe.Pointer) bool {
-		return false
-	})
-	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
-		return false
-	})
-}
-
 // BuildRouteOptions implement 'Functional Option' pattern for ApiRoute settings
 type BuildRouteOptions func(route *ApiRoute)
 
@@ -126,7 +117,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *f
 
 	// check multipart params
 	if route.Multipart {
-		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultipArt)) {
+		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
 		mf, err := ctx.Request.MultipartForm()
@@ -296,7 +287,7 @@ func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
 	return methodNames[route.Method] == string(ctx.Method())
 }
 
-// routingToJSON produces a human-friendly description of Apis.
+// apiRouteToJSON produces a human-friendly description of Apis.
 //Based on real data of the executable application, does not require additional documentation.
 func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	routes := *(*ApiRoutes)(ptr)
@@ -317,9 +308,9 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 }
 
-// routingToJSON produces a human-friendly description of Apis.
+// apiRouteToJSON produces a human-friendly description of Apis.
 //Based on real data of the executable application, does not require additional documentation.
-func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	// todo: add description of the test-based return data
 	route := (*ApiRoute)(ptr)
 
@@ -331,7 +322,7 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	if route.FncAuth != nil {
 		t := reflect.TypeOf(route.FncAuth)
-		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.PkgPath()+"' for checking autorization")
+		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.PkgPath()+"' for checking authorization")
 	} else if route.NeedAuth {
 		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
 
@@ -356,7 +347,12 @@ func routingToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			FirstFieldToJSON(stream, "Descriptor", param.Desc)
 
 			if param.Type != nil {
-				AddFieldToJSON(stream, "Type", param.Type.String())
+				if t, ok := param.Type.(jsoniter.ValEncoder); ok {
+					stream.WriteMore()
+					t.Encode(unsafe.Pointer(&t), stream)
+				} else {
+					AddFieldToJSON(stream, "Type", param.Type.String())
+				}
 			}
 
 			if param.Req {
@@ -490,7 +486,6 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			}(url, route)
 
 			r[path.Join(url, "_test")] = testRoute
-			logs.DebugLog(" %+v", testRoute)
 		}
 	}
 
@@ -501,7 +496,7 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
-	"Server":           "HTTPGO/0.9 (CentOS) Go 1.12",
+	"Server":           "HTTPGO/0.9 (CentOS) Go 1.129",
 	"Content-Language": "en, ru",
 	// "Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
@@ -511,4 +506,13 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 	for key, value := range HEADERS {
 		ctx.Response.Header.Set(key, value)
 	}
+}
+
+func init() {
+	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", apiRouteToJSON, func(pointer unsafe.Pointer) bool {
+		return false
+	})
+	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
+		return false
+	})
 }

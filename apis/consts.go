@@ -6,7 +6,7 @@ package apis
 
 const (
 	ctJSON      = "application/json"
-	ctMultipArt = "multipart/form-data"
+	ctMultiPart = "multipart/form-data"
 )
 
 type tMethod uint8
