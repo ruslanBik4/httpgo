@@ -362,7 +362,11 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 				} else {
 					AddObjectToJSON(stream, "Required", true)
 				}
+			}
 
+			if len(param.IncompatibleWiths) > 0 {
+				s := strings.Join(param.PartReq, ", ")
+				AddFieldToJSON(stream, "Required", "only one of {"+s+" and "+param.Name+"} may use for request")
 			}
 			stream.WriteObjectEnd()
 		}
@@ -473,8 +477,13 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 						Resp:       s,
 					}
 					for i, val := range testRoute.Params {
+						var arrReq map[bool] string{
+							true: "(require)",
+							false: "",
+						}
+
 						page.Params[i] = pages.ParamUrlTestPage{
-							Name:    val.Name,
+							Name:    val.Name +arrReq[val.Req],
 							Value:   val.TestValue,
 							Type:    val.Type.String(),
 							Comment: val.Desc,
