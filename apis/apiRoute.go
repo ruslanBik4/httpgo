@@ -477,13 +477,13 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 						Resp:       s,
 					}
 					for i, val := range testRoute.Params {
-						var arrReq map[bool] string{
-							true: "(require)",
+						arrReq := map[bool]string{
+							true:  "(require)",
 							false: "",
 						}
 
 						page.Params[i] = pages.ParamUrlTestPage{
-							Name:    val.Name +arrReq[val.Req],
+							Name:    val.Name + arrReq[val.Req],
 							Value:   val.TestValue,
 							Type:    val.Type.String(),
 							Comment: val.Desc,
