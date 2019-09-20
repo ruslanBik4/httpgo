@@ -370,7 +370,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 			if len(param.IncompatibleWiths) > 0 {
 				s := strings.Join(param.IncompatibleWiths, ", ")
-				AddFieldToJSON(stream, "Incompatible", "only one of {"+s+" and "+param.Name+"} may use for request")
+				AddFieldToJSON(stream, "IncompatibleWith", "only one of {"+s+" and "+param.Name+"} may use for request")
 			}
 
 			stream.WriteObjectEnd()
