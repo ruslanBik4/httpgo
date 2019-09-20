@@ -7,15 +7,17 @@ package apis
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/json-iterator/go"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 type ApisRender interface {
@@ -174,7 +176,7 @@ const jsonHEADERSContentType = "application/json; charset=utf-8"
 func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}) {
 
 	statusCode := http.StatusInternalServerError
-	switch errors.Cause(err) {
+	switch errDeep := errors.Cause(err); errDeep {
 	case errMethodNotAllowed:
 		statusCode = http.StatusMethodNotAllowed
 	case ErrUnAuthorized:
@@ -206,18 +208,21 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		}
 
 		return
+
 	default:
-		logs.ErrorStack(err, resp)
+		logs.ErrorStack(errDeep, resp)
 	}
+
 	ctx.Error(err.Error(), statusCode)
 }
 
-// addRoute with safe on concurents
+// addRoute with safe on concurrent
 func (a *Apis) addRoute(path string, route *ApiRoute) error {
 	_, ok := a.routes[path]
 	if ok {
 		return ErrPathAlreadyExists
 	}
+
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
