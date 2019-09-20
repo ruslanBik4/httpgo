@@ -364,10 +364,15 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 				}
 			}
 
-			if len(param.IncompatibleWiths) > 0 {
-				s := strings.Join(param.PartReq, ", ")
-				AddFieldToJSON(stream, "Required", "only one of {"+s+" and "+param.Name+"} may use for request")
+			if param.DefValue != nil {
+				AddObjectToJSON(stream, "Default", param.DefValue)
 			}
+
+			if len(param.IncompatibleWiths) > 0 {
+				s := strings.Join(param.IncompatibleWiths, ", ")
+				AddFieldToJSON(stream, "Incompatible", "only one of {"+s+" and "+param.Name+"} may use for request")
+			}
+
 			stream.WriteObjectEnd()
 		}
 		stream.WriteObjectEnd()
