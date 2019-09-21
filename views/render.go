@@ -21,7 +21,7 @@ import (
 	"time"
 )
 
-// HEADERS - list standart header for html page - noinspection GoInvalidConstType
+// HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
