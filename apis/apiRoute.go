@@ -73,7 +73,7 @@ type ApiRoute struct {
 	Method                                    tMethod         `json:"method,string"`
 	Multipart, NeedAuth, OnlyAdmin, OnlyLocal bool
 	Params                                    []InParam   `json:"parameters,omitempty"`
-	Resp                                      interface{} `json:"response"`
+	Resp                                      interface{} `json:"response,omitempty"`
 	lock                                      sync.RWMutex
 }
 
@@ -320,6 +320,10 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
 	} else if route.NeedAuth {
 		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
+	}
+
+	if route.OnlyAdmin {
+		AddFieldToJSON(stream, "AdminOnly", "only admin request be allowed")
 	}
 
 	if route.OnlyLocal {
