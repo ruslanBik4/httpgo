@@ -297,6 +297,7 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "Descriptor", "routers description, params response format, ect")
 	for _, name := range sortList {
+		logs.DebugLog(" %+v %[1]T", routes[name])
 		AddObjectToJSON(stream, name, *(*ApiRoute)(routes[name]))
 	}
 
