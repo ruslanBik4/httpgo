@@ -26,7 +26,7 @@ func TestApis_AddRoute(t *testing.T) {
 func TestRenderApis(t *testing.T) {
 
 	apis.addRoute("test", &ApiRoute{Desc: "test route"})
-	resp, err := apis.renderApis(NewCtxApis(0))
+	resp, err := apis.renderApis(nil)
 	assert.Nil(t, err)
 	t.Log(resp)
 
@@ -43,6 +43,5 @@ func TestRenderApis(t *testing.T) {
 
 	for key, val := range res {
 		t.Logf(`"%s"=%#v`, key, val)
-
 	}
 }
