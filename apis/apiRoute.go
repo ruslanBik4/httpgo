@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"path"
-	"reflect"
 	"sort"
 	"strings"
 	"sync"
@@ -318,7 +317,6 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	AddFieldToJSON(stream, "Method", methodNames[route.Method])
 
 	if route.FncAuth != nil {
-		t := reflect.TypeOf(route.FncAuth)
 		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
 	} else if route.NeedAuth {
 		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
@@ -465,6 +463,7 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 					// 	ctx.Request.SetBody(b.Bytes())
 					// 	return route.Fnc(ctx)
 					// }
+
 					WriteHeaders(ctx)
 					s, err := jsoniter.MarshalToString(testRoute.Resp)
 					if err != nil {
