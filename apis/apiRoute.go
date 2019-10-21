@@ -432,6 +432,7 @@ func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 				Method:    GET,
 				Multipart: false,
 				NeedAuth:  false,
+				OnlyAdmin: false,
 				OnlyLocal: false,
 				Params:    make([]InParam, len(route.Params)),
 				Resp:      route.Resp,
