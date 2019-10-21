@@ -20,10 +20,6 @@ import (
 	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
-type ApisRender interface {
-	WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) bool
-}
-
 type CtxApis map[string]interface{}
 
 func NewCtxApis(cap int) CtxApis {
@@ -49,19 +45,25 @@ func (c CtxApis) Value(key interface{}) interface{} {
 	return nil
 }
 
+type FncAuth interface {
+	Auth(ctx *fasthttp.RequestCtx) bool
+	AdminAuth(ctx *fasthttp.RequestCtx) bool
+	String() string
+}
+
 // Apis encapsulates REST API configuration and endpoints
 // in calling it checks for the presence, validation of parameters and access privileges
 type Apis struct {
 	Ctx CtxApis
 	// authentication method
-	fncAuth func(ctx *fasthttp.RequestCtx) bool
+	fncAuth FncAuth
 	// list of endpoints
 	routes ApiRoutes
 	lock   sync.RWMutex
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
-func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth func(ctx *fasthttp.RequestCtx) bool) *Apis {
+func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
@@ -103,7 +105,6 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 				params = ctx.UserValue(MultiPartParams)
 			}
 			logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
-			// errRec = errors.Wrapf(errRec, "route.CheckAndRun")
 			a.renderError(ctx, errRec, nil)
 		case string:
 			a.renderError(ctx, errors.New(errRec), nil)

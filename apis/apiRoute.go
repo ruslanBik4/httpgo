@@ -26,7 +26,7 @@ import (
 type BuildRouteOptions func(route *ApiRoute)
 
 // RouteAuth set custom auth method on ApiRoute
-func RouteAuth(fncAuth ApiRouteFuncAuth) BuildRouteOptions {
+func RouteAuth(fncAuth FncAuth) BuildRouteOptions {
 	return func(route *ApiRoute) {
 		route.FncAuth = fncAuth
 	}
@@ -66,16 +66,16 @@ type (
 
 // ApiRoute implement endpoint info & handler on request
 type ApiRoute struct {
-	Desc                           string           `json:"descriptor"`
-	DTO                            RouteDTO         `json:"dto"`
-	Fnc                            ApiRouteHandler  `json:"-"`
-	FncAuth                        ApiRouteFuncAuth `json:"-"`
-	TestFncAuth                    ApiRouteFuncAuth `json:"-"`
-	Method                         tMethod          `json:"method,string"`
-	Multipart, NeedAuth, OnlyLocal bool
-	Params                         []InParam   `json:"parameters,omitempty"`
-	Resp                           interface{} `json:"response"`
-	lock                           sync.RWMutex
+	Desc                                      string          `json:"descriptor"`
+	DTO                                       RouteDTO        `json:"dto"`
+	Fnc                                       ApiRouteHandler `json:"-"`
+	FncAuth                                   FncAuth         `json:"-"`
+	TestFncAuth                               FncAuth         `json:"-"`
+	Method                                    tMethod         `json:"method,string"`
+	Multipart, NeedAuth, OnlyAdmin, OnlyLocal bool
+	Params                                    []InParam   `json:"parameters,omitempty"`
+	Resp                                      interface{} `json:"response"`
+	lock                                      sync.RWMutex
 }
 
 // NewAPIRoute create customizing ApiRoute
@@ -98,15 +98,12 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 }
 
 // CheckAndRun check & run route handler
-func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth func(ctx *fasthttp.RequestCtx) bool) (resp interface{}, err error) {
+func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp interface{}, err error) {
 
 	// check auth is needed
-	if route.FncAuth != nil {
-		// route has his auth method
-		if err := route.FncAuth(ctx); err != nil {
-			return nil, err
-		}
-	} else if route.NeedAuth && !fncAuth(ctx) {
+	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
+		(route.FncAuth == nil) && (route.OnlyAdmin && !fncAuth.AdminAuth(ctx) ||
+			!route.OnlyAdmin && route.NeedAuth && !fncAuth.Auth(ctx)) {
 		return nil, ErrUnAuthorized
 	}
 
@@ -322,7 +319,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	if route.FncAuth != nil {
 		t := reflect.TypeOf(route.FncAuth)
-		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+t.PkgPath()+"' for checking authorization")
+		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
 	} else if route.NeedAuth {
 		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
 
