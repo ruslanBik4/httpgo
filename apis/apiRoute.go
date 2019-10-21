@@ -297,7 +297,7 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "Descriptor", "routers description, params response format, ect")
 	for _, name := range sortList {
-		AddObjectToJSON(stream, name, routes[name])
+		AddObjectToJSON(stream, name, (*ApiRoute)(routes[name]))
 	}
 
 	stream.WriteObjectEnd()
@@ -523,7 +523,7 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 }
 
 func init() {
-	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", apiRouteToJSON, func(pointer unsafe.Pointer) bool {
+	jsoniter.RegisterTypeEncoderFunc("*apis.ApiRoute", apiRouteToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
 	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
