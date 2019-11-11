@@ -82,10 +82,11 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return strconv.ParseInt(value, 10, 64)
 	case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
 		return strconv.ParseUint(value, 10, 64)
+	// 	check type convert float64
 	case types.Float32, types.Float64:
 		return strconv.ParseFloat(value, 64)
 	default:
-		panic(errors.New("convert this type not implement"))
+		return nil, errors.New("convert this type not implement")
 	}
 
 	return value, nil

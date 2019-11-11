@@ -196,7 +196,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 				return
 			}
 
-			value = route.defaultValueOfParams(ctx, param)
+			value = param.defaultValueOfParams(ctx)
 			//  not present required param
 			if value != nil {
 				ctx.SetUserValue(param.Name, value)
@@ -210,18 +210,6 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 	}
 
 	return
-}
-
-type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) interface{}
-
-// defaultValueOfParams return value as default for param, it is only for single required param
-func (route *ApiRoute) defaultValueOfParams(ctx *fasthttp.RequestCtx, param InParam) interface{} {
-	switch def := param.DefValue.(type) {
-	case DefValueCalcFnc:
-		return def(ctx)
-	default:
-		return param.DefValue
-	}
 }
 
 func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
@@ -295,14 +283,13 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	sort.Strings(sortList)
 
 	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
 	FirstFieldToJSON(stream, "Descriptor", "routers description, params response format, ect")
 	for _, name := range sortList {
 		logs.DebugLog(" %+v %[1]T", routes[name])
-		AddObjectToJSON(stream, name, *(*ApiRoute)(routes[name]))
+		AddObjectToJSON(stream, name, *(routes[name]))
 	}
-
-	stream.WriteObjectEnd()
-
 }
 
 // apiRouteToJSON produces a human-friendly description of Apis.
@@ -312,6 +299,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	route := (*ApiRoute)(ptr)
 
 	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
 
 	FirstFieldToJSON(stream, "Descriptor", route.Desc)
 
@@ -333,48 +321,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	// print parameters
 	if len(route.Params) > 0 {
-		stream.WriteMore()
-		stream.WriteObjectField("parameters")
-		stream.WriteObjectStart()
-		for i, param := range route.Params {
-			if i > 0 {
-				stream.WriteMore()
-			}
-
-			stream.WriteObjectField(param.Name)
-			stream.WriteObjectStart()
-			FirstFieldToJSON(stream, "Descriptor", param.Desc)
-
-			if param.Type != nil {
-				if t, ok := param.Type.(jsoniter.ValEncoder); ok {
-					stream.WriteMore()
-					t.Encode(unsafe.Pointer(&t), stream)
-				} else {
-					AddFieldToJSON(stream, "Type", param.Type.String())
-				}
-			}
-
-			if param.Req {
-				if len(param.PartReq) > 0 {
-					s := strings.Join(param.PartReq, ", ")
-					AddFieldToJSON(stream, "Required", "one of {"+s+" and "+param.Name+"} is required")
-				} else {
-					AddObjectToJSON(stream, "Required", true)
-				}
-			}
-
-			if param.DefValue != nil {
-				AddObjectToJSON(stream, "Default", param.DefValue)
-			}
-
-			if len(param.IncompatibleWiths) > 0 {
-				s := strings.Join(param.IncompatibleWiths, ", ")
-				AddFieldToJSON(stream, "IncompatibleWith", "only one of {"+s+" and "+param.Name+"} may use for request")
-			}
-
-			stream.WriteObjectEnd()
-		}
-		stream.WriteObjectEnd()
+		AddObjectToJSON(stream, "parameters", route.Params) // param.Name, param)
 	}
 
 	if route.DTO != nil {
@@ -389,8 +336,6 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			AddObjectToJSON(stream, "Response", route.Resp)
 		}
 	}
-
-	stream.WriteObjectEnd()
 }
 
 func AddFieldToJSON(stream *jsoniter.Stream, field string, s string) {

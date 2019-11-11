@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unsafe"
 
 	"github.com/pkg/errors"
 
@@ -248,7 +249,7 @@ func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
 
 // renderApis show list routers for developers (as JSON)
 func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
-	return a.routes, nil
+	return *a, nil
 }
 
 func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*ApiRoute, bool) {
@@ -283,8 +284,36 @@ func getParentPath(path string) string {
 	return path[:n+1]
 }
 
+func getLastSegment(path string) string {
+	n := strings.LastIndex(strings.TrimSuffix(path, "/"), "/")
+	if n < 0 {
+		return ""
+	}
+
+	return path[n+1:]
+}
+
 func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
 	host := string(ctx.Request.Header.Host())
 
 	return !strings.Contains(host, "127.0.0.1") && !strings.Contains(host, "localhost")
+}
+
+// apiRouteToJSON produces a human-friendly description of Apis.
+//Based on real data of the executable application, does not require additional documentation.
+func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	apis := *(*Apis)(ptr)
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
+	FirstFieldToJSON(stream, "Descriptor", "API Specification, include endpoints description, ect")
+	AddObjectToJSON(stream, "ctx", apis.Ctx)
+	AddObjectToJSON(stream, "auth", apis.fncAuth)
+	AddObjectToJSON(stream, "routes", apis.routes)
+}
+
+func init() {
+	jsoniter.RegisterTypeEncoderFunc("apis.Apis", apisToJSON, func(pointer unsafe.Pointer) bool {
+		return false
+	})
 }
