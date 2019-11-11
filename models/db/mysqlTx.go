@@ -12,12 +12,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"io"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/go-sql-driver/mysql"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // TxConnect - тип данных, что хранит транзакцию

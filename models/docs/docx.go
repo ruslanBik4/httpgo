@@ -8,9 +8,10 @@ package docs
 import (
 	"archive/zip"
 	"errors"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"io"
 	"os"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // Docx struct that contains data from a docs

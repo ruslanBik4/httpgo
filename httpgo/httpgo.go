@@ -11,9 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // HttpGo implement rest api http/https server for operation with storage

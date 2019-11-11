@@ -7,6 +7,8 @@ package users
 
 import (
 	"crypto/rand"
+	// "gopkg.in/gomail.v2"
+	"database/sql"
 	"encoding/base64"
 	"errors"
 	"flag"
@@ -17,19 +19,19 @@ import (
 	"net/mail"
 	"os"
 	"strconv"
-	//"gopkg.in/gomail.v2"
-	"database/sql"
+
 	"github.com/gorilla/sessions"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"gopkg.in/gomail.v2"
+
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"gopkg.in/gomail.v2"
 )
 
 const nameSession = "PHPSESSID"

@@ -8,9 +8,10 @@ package docs
 import (
 	"database/sql"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 func GetReplaces(person map[string]*sql.NullString, signSerf string) (replaces map[string]string) {

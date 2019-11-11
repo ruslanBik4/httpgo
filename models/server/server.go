@@ -7,11 +7,13 @@ package server
 
 import (
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	yaml "gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
 	"time"
+
+	yaml "gopkg.in/yaml.v2"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type serverConfig struct {

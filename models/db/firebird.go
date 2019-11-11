@@ -6,8 +6,10 @@ package db
 
 import (
 	"database/sql"
+
 	_ "github.com/nakagami/firebirdsql"
-	"github.com/ruslanBik4/httpgo/models/logs"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 var (

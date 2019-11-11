@@ -5,12 +5,13 @@
 package api
 
 import (
-	"github.com/ruslanBik4/httpgo/models/db/qb"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/views"
 	"net/http"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db/qb"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 // HandlerSearch  prepare JSON with fields type from structere DB and + 1 row with data if issue parameter "id"

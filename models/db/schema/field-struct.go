@@ -10,10 +10,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 var (

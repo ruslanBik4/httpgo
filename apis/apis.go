@@ -8,8 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"reflect"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -20,7 +18,7 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type CtxApis map[string]interface{}
@@ -311,14 +309,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	FirstFieldToJSON(stream, "Descriptor", "API Specification, include endpoints description, ect")
 	AddObjectToJSON(stream, "ctx", apis.Ctx)
 	if apis.fncAuth != nil {
-		fnc := runtime.FuncForPC(reflect.ValueOf(apis.fncAuth.Auth).Pointer())
-		fName, line := fnc.FileLine(0)
-		desc := fmt.Sprintf(": all %s:%d %s()", fName, line, getLastSegment(fnc.Name()))
-
-		fnc = runtime.FuncForPC(reflect.ValueOf(apis.fncAuth.AdminAuth).Pointer())
-		fName, line = fnc.FileLine(0)
-		desc += fmt.Sprintf(" admin %s:%d %s()", fName, line, getLastSegment(fnc.Name()))
-		AddObjectToJSON(stream, "auth", apis.fncAuth.String()+desc)
+		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
 	}
 	AddObjectToJSON(stream, "routes", apis.routes)
 }

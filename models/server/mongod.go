@@ -6,10 +6,12 @@
 package server
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
-	yaml "gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
+
+	yaml "gopkg.in/yaml.v2"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type mongodConfig struct {

@@ -6,10 +6,11 @@ package services
 
 import (
 	"flag"
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"testing"
+
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/services/crmPermission"
-	"testing"
 )
 
 const permissName = "crmPermission"

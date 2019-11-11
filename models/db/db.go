@@ -9,13 +9,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db/multiquery"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db/multiquery"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 type argsRAW []interface{}

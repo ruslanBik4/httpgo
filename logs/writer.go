@@ -6,13 +6,15 @@ package logs
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"log"
 	"os"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -77,7 +79,7 @@ func DebugLog(args ...interface{}) {
 	}
 }
 
-// DebugLog output formated(function and line calls) debug information
+// DebugLog output formatted(function and line calls) debug information
 func TraceLog(args ...interface{}) {
 	if *fDebug {
 		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
@@ -85,7 +87,7 @@ func TraceLog(args ...interface{}) {
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 }
 
-// StatusLog output formated information for status
+// StatusLog output formatted information for status
 func StatusLog(args ...interface{}) {
 	if *fStatus {
 		logStat.Printf(args...)
@@ -98,6 +100,9 @@ type stackTracer interface {
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
+
+	mesSentry := sentry.CaptureException(err)
+
 	calldepth := logErr.calldepth
 
 	isIgnore := true
@@ -133,7 +138,7 @@ func ErrorLog(err error, args ...interface{}) {
 
 	}
 
-	logErr.Output(calldepth, message)
+	logErr.Output(calldepth, message+string(*mesSentry))
 
 }
 

@@ -5,9 +5,10 @@
 package services
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"log"
 	"testing"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 const serviceName = "photos"

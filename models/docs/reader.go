@@ -1,9 +1,11 @@
 package docs
 
 import (
-	"github.com/nguyenthenguyen/docx"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"net/http"
+
+	"github.com/nguyenthenguyen/docx"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // ReplaceDocx replaces exist output an input in map

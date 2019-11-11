@@ -6,9 +6,10 @@ package qb
 
 import (
 	"database/sql"
-	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 // SelectToMultidimension - create qBuilder from sql-string, run & write result to map

@@ -23,10 +23,10 @@ import (
 	. "github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/logs"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/system"

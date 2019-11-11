@@ -7,12 +7,14 @@ package services
 
 import (
 	"errors"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"gopkg.in/gomail.v2"
-	"gopkg.in/yaml.v2"
 	netMail "net/mail"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/gomail.v2"
+	"gopkg.in/yaml.v2"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type mailService struct {

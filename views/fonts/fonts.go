@@ -7,12 +7,13 @@
 package fonts
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/views"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 var pathWeb string

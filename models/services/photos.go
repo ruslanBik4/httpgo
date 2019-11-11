@@ -6,12 +6,13 @@ package services
 
 import (
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/server"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/server"
 )
 
 type photosService struct {

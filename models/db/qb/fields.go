@@ -6,10 +6,11 @@ package qb
 
 import (
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 // String for compatabilies interface LogsType

@@ -6,7 +6,8 @@ package schema
 
 import (
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/logs"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // SchemaCache хранит структуру полей - стоит продумать, как хранить еще и ключи

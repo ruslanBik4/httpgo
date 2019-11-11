@@ -8,17 +8,17 @@ package forms
 //todo необходима вариативность вывода в input select значений из енумов и справочников,пример - есть енум из 9-ти позиций а вывести нужно только 1,5,6(соответственно и юзер может что либо делать только с ними а не со всем списком 1-9)
 
 import (
-	"errors"
-	"strings"
-
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"regexp"
 	_ "strconv"
+	"strings"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 var (

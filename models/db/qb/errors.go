@@ -5,8 +5,8 @@
 package qb
 
 import (
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
 )
 
 // ErrNotFoundParam for errors not found requared parameters

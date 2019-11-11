@@ -5,9 +5,6 @@
 package api
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/services"
-	"github.com/ruslanBik4/httpgo/views"
 	"image"
 	"image/jpeg"
 	"io"
@@ -15,6 +12,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 // HandleAddPhoto добавление фото к обьекту (по имени таблицы и Айди)

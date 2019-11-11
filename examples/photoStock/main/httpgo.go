@@ -12,11 +12,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	main2 "github.com/ruslanBik4/httpgo"
 	"github.com/valyala/fasthttp"
 
+	main2 "github.com/ruslanBik4/httpgo"
+
 	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 var (

@@ -5,7 +5,7 @@
 package db
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 )
 

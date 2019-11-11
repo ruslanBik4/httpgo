@@ -2,11 +2,12 @@ package db
 
 import (
 	"database/sql"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/models/server"
 	"strconv"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/httpgo/models/server"
 )
 
 // TableOptions get table properties

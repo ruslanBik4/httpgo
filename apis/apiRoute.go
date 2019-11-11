@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
@@ -256,7 +256,6 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	FirstFieldToJSON(stream, "Descriptor", "routers description, params response format, ect")
 	for _, name := range sortList {
-		logs.DebugLog(" %+v %[1]T", routes[name])
 		AddObjectToJSON(stream, name, *(routes[name]))
 	}
 }

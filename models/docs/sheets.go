@@ -20,7 +20,7 @@ import (
 	"golang.org/x/oauth2/google"
 	sheets "google.golang.org/api/sheets/v4"
 
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 )
 

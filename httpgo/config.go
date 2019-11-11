@@ -8,9 +8,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // CfgHttp has some options for Acceptor work

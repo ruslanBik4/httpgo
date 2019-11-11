@@ -2,9 +2,10 @@ package tables
 
 import (
 	"database/sql"
-	"github.com/ruslanBik4/httpgo/models/logs"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"regexp"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
 )
 
 var enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)

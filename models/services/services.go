@@ -6,7 +6,7 @@
 package services
 
 import (
-	"github.com/ruslanBik4/httpgo/models/logs"
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // IService интерфейс сервиса

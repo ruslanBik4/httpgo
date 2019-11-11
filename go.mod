@@ -4,6 +4,7 @@ go 1.13.4
 
 require (
 	bitbucket.org/PinIdea/fcgi_client v0.0.0-20150922054231-df86e856bb91
+	github.com/getsentry/sentry-go v0.3.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/gorilla/sessions v1.2.0

@@ -8,17 +8,18 @@ package views
 import (
 	"bytes"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"io"
-	"net/http"
-	"strings"
-	"time"
 )
 
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType

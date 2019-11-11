@@ -6,10 +6,11 @@ package multiquery
 
 import (
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
-	"github.com/ruslanBik4/httpgo/models/logs"
 	"strconv"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 // ArgsQuery аргументы для запроса, формируются дирнамичекски по полученным данным
