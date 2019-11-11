@@ -308,7 +308,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	FirstFieldToJSON(stream, "Descriptor", "API Specification, include endpoints description, ect")
 	AddObjectToJSON(stream, "ctx", apis.Ctx)
-	AddObjectToJSON(stream, "auth", apis.fncAuth.String())
+	AddObjectToJSON(stream, "auth", apis.fncAuth)
 	AddObjectToJSON(stream, "routes", apis.routes)
 }
 

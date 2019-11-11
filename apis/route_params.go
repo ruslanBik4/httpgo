@@ -33,6 +33,31 @@ func (param *InParam) isPartReq() bool {
 	return len(param.PartReq) > 0
 }
 
+// found params incompatible with 'param'
+func (param InParam) isHasIncompatibleParams(ctx *fasthttp.RequestCtx) (string, interface{}) {
+	for _, name := range param.IncompatibleWiths {
+		val := ctx.FormValue(name)
+		if len(val) > 0 {
+			return name, val
+		}
+	}
+
+	return "", nil
+}
+
+// check 'param' is one part of list required params AND one of other params is present
+func (param InParam) presentOtherRegParam(ctx *fasthttp.RequestCtx) bool {
+	// Looking for parameters associated with the original 'param'
+	for _, name := range param.PartReq {
+		// param 'name' is present
+		if ctx.UserValue(name) != nil {
+			return true
+		}
+	}
+
+	return false
+}
+
 // defaultValueOfParams return value as default for param, it is only for single required param
 func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx) interface{} {
 	switch def := param.DefValue.(type) {
@@ -41,8 +66,8 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx) interface{}
 			return def(ctx)
 		}
 		fnc := runtime.FuncForPC(reflect.ValueOf(def).Pointer())
-		fName, len := fnc.FileLine(0)
-		return fmt.Sprintf("%s:%d %s()", fName, len, getLastSegment(fnc.Name()))
+		fName, line := fnc.FileLine(0)
+		return fmt.Sprintf("%s:%d %s()", fName, line, getLastSegment(fnc.Name()))
 	default:
 		return param.DefValue
 	}

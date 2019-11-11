@@ -192,7 +192,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 		value := ctx.UserValue(param.Name)
 		if value == nil {
 			// param is part of group required params
-			if route.isHasPartRegParam(ctx, param) {
+			if param.presentOtherRegParam(ctx) {
 				return
 			}
 
@@ -203,7 +203,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 			} else if param.Req {
 				badParams = append(badParams, param.Name+": is required parameter")
 			}
-		} else if name, val := route.isHasIncompatibleParams(ctx, param); name > "" {
+		} else if name, val := param.isHasIncompatibleParams(ctx); name > "" {
 			// has present param which not compatible with 'param'
 			badParams = append(badParams, fmt.Sprintf("incompatible params: %s=%s & %s=%s", param.Name, value, name, val))
 		}
@@ -234,37 +234,6 @@ func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 	}
 
 	return values, nil
-}
-
-// found params incompatible with 'param'
-func (route *ApiRoute) isHasIncompatibleParams(ctx *fasthttp.RequestCtx, param InParam) (string, interface{}) {
-	for _, name := range param.IncompatibleWiths {
-		val := ctx.FormValue(name)
-		if len(val) > 0 {
-			return name, val
-		}
-	}
-
-	return "", nil
-}
-
-// check 'param' is one part of list required params AND one of other params is present
-func (route *ApiRoute) isHasPartRegParam(ctx *fasthttp.RequestCtx, param InParam) bool {
-	isPartReq := param.isPartReq()
-
-	if isPartReq {
-		// Looking for parameters associated with the original 'param'
-		for _, name := range param.PartReq {
-			// param 'name' is present
-			if ctx.UserValue(name) != nil {
-				return true
-			}
-		}
-
-		return false
-	}
-
-	return isPartReq
 }
 
 func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
