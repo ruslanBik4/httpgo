@@ -12,6 +12,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -31,6 +34,7 @@ type wrapKitLogger struct {
 	calldepth int
 	funcName  string
 	typeLog   string
+	toSentry  bool
 }
 
 const logFlags = log.Lshortfile | log.Ltime
@@ -59,6 +63,30 @@ func SetStatus(s bool) bool {
 	*fStatus = s
 
 	return old
+}
+
+// SetSentry set SetSentry output for error
+func SetSentry(dns string) error {
+	err := sentry.Init(sentry.ClientOptions{Dsn: dns})
+	if err != nil {
+		return errors.Wrap(err, "sentry.Init")
+	}
+
+	logErr.toSentry = true
+
+	return nil
+}
+
+// SetLogFlags set logger flags & return old flags
+func SetLogFlags(f int) int {
+
+	flags := logErr.Flags()
+
+	logErr.SetFlags(f)
+	logDebug.SetFlags(f)
+	logStat.SetFlags(f)
+
+	return flags
 }
 
 // SetStackBeginWith set stackBeginWith level for log, return old value
