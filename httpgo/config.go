@@ -6,7 +6,6 @@ package httpgo
 
 import (
 	"io/ioutil"
-	"os"
 
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
@@ -24,25 +23,15 @@ type CfgHttp struct {
 // NewCfgHttp create CfgHttp from config file
 func NewCfgHttp(filename string) (cfgGlobal *CfgHttp, err error) {
 
-	f, err := os.Open(filename)
-	if err == nil {
+	var buf []byte
 
-		defer func() {
-			err := f.Close()
-			if err != nil {
-				logs.ErrorLog(err)
-			}
-		}()
-		var buf []byte
-		buf, err = ioutil.ReadAll(f)
-		if err == nil {
-			err = yaml.Unmarshal(buf, &cfgGlobal)
-		}
-	}
+	buf, err = ioutil.ReadFile(filename)
 	if err != nil {
 		logs.ErrorLog(err)
 		return nil, err
 	}
+
+	err = yaml.Unmarshal(buf, &cfgGlobal)
 
 	return
 }

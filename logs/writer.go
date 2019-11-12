@@ -101,7 +101,12 @@ type stackTracer interface {
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 
-	mesSentry := sentry.CaptureException(err)
+	//todo: print standart
+	var message string
+
+	if logErr.toSentry {
+		message = string(*(sentry.CaptureException(err)))
+	}
 
 	calldepth := logErr.calldepth
 
@@ -127,18 +132,17 @@ func ErrorLog(err error, args ...interface{}) {
 		// пропускаем рендер ошибок
 		isIgnore = isIgnoreFunc(logErr.funcName)
 	}
-	//todo: print standart
-	var message string
+
 	if err != nil {
-		message = fmt.Sprintf("%s;%s;%s", logErr.funcName,
+		message += fmt.Sprintf("%s;%s;%s", logErr.funcName,
 			err.Error(), getArgsString(args...))
 	} else {
-		message = fmt.Sprintf("%s;%s", logErr.funcName,
+		message += fmt.Sprintf("%s;%s", logErr.funcName,
 			getArgsString(args...))
 
 	}
 
-	logErr.Output(calldepth, message+string(*mesSentry))
+	logErr.Output(calldepth, message)
 
 }
 

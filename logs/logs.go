@@ -18,10 +18,11 @@ import (
 )
 
 var (
-	fDebug                    = flag.Bool("debug", false, "debug mode")
-	fStatus                   = flag.Bool("status", true, "status mode")
-	logErr, logStat, logDebug *wrapKitLogger
-	//	todo: add datetime mark as option
+	fDebug   = flag.Bool("debug", false, "debug mode")
+	fStatus  = flag.Bool("status", true, "status mode")
+	logErr   = NewWrapKitLogger(colors[ERROR]+"ERROR"+"\033[0m", 1)
+	logStat  = NewWrapKitLogger("INFO", 3)
+	logDebug = NewWrapKitLogger(colors[DEBUG]+"DEBUG"+"\033[0m", 3)
 )
 
 // LogsType - interface for print logs record
@@ -212,10 +213,4 @@ func colorSeq(color color) string {
 
 func colorSeqBold(color color) string {
 	return fmt.Sprintf("\033[%d;1m", int(color))
-}
-
-func init() {
-	logErr = NewWrapKitLogger(colors[ERROR]+"ERROR"+"\033[0m", 1)
-	logStat = NewWrapKitLogger("INFO", 3)
-	logDebug = NewWrapKitLogger(colors[DEBUG]+"DEBUG"+"\033[0m", 3)
 }

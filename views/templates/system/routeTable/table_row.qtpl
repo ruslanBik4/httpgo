@@ -1,0 +1,103 @@
+{% import (
+	"time"
+	)
+%}
+{% func TableRow(columns []string, rows [][] interface{}) %}
+<style>
+{%= TableCSS() %}}
+</style>
+<div class="usr-table">
+    <div class="usr-table-header">
+        <div class="usr-table__t-head  usr-table-row">
+        {% for i, col := range columns %}
+            <div class="usr-table-col" a={%d i %}>
+                {%s string(col) %}
+            </div>
+        {% endfor %}
+        </div>
+
+        <div class="usr-table__filter  usr-table-row">
+            <div class="usr-table-col"></div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top  active" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col"></div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+
+            <div class="usr-table-col">
+                <div class="filt-arrow">
+                    <a class="filt-arrow__link arrow-top" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="usr-table-content">
+        <div class="usr-table-content-scroll">
+            <div class="usr-table-row-cont">
+
+               {% for _, row  := range rows %}
+
+                    <div  class="usr-table-row">
+
+                    {% for i := range columns %}
+                        <div class="usr-table-col">
+                            {% switch r := row[i].(type) %}
+                            {% case time.Time %}  {%s r.Format("2006-01-02") %}
+                            {% case float32 %}   {%v= r %}
+                            {% case float64 %}   {%f.2 r %}
+                            {% default %}        {%v= row[i] %}
+                            {% endswitch %}
+                        </div>
+                    {% endfor %}
+
+                  </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endfunc %}

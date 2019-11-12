@@ -8,6 +8,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"go/types"
 	"io/ioutil"
 	"net"
 	_ "net/http/pprof"
@@ -16,22 +17,19 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"plugin"
 	"strings"
 	"sync"
 
 	. "github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/apis"
+	. "github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/httpgo"
 	"github.com/ruslanBik4/httpgo/logs"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/services"
 	"github.com/ruslanBik4/httpgo/models/system"
-	"github.com/ruslanBik4/httpgo/models/users"
-	"github.com/ruslanBik4/httpgo/views/fonts"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 
@@ -46,7 +44,43 @@ var (
 
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
-	routes  = map[string]apis.ApiRouteHandler{
+	routes  = ApiRoutes{
+		"moreParams": {
+			Desc:      "test route",
+			Method:    POST,
+			Multipart: true,
+			NeedAuth:  true,
+			Params: []InParam{
+				{
+					Name: "globalTags",
+					Desc: "data of dashboard -> filter 'Global Tags'",
+					Req:  false,
+					Type: NewSliceTypeInParam(types.Int32),
+				},
+				{
+					Name:     "group",
+					Desc:     "type grouping data of ohlc (month, week, day)",
+					Req:      true,
+					Type:     NewTypeInParam(types.String),
+					DefValue: "day",
+				},
+				{
+					Name:     "account",
+					Desc:     "account numbers to filter data",
+					Req:      true,
+					Type:     NewTypeInParam(types.Bool),
+					DefValue: testValue,
+				},
+			},
+			Resp: struct {
+				Hours map[string]float64
+			}{
+				map[string]float64{"after 16:00": 15.2,
+					"13:30 - 15:30": 1570.86,
+					"9:30 - 9:50":   1672.54,
+				},
+			},
+		},
 		// "/godoc/":        handlerGoDoc,
 		// "/recache":       handlerRecache,
 		// "/update/":       handleUpdate,
@@ -67,62 +101,8 @@ var (
 	}
 )
 
-// registerRoutes
-// connect routers list ti http.Handle
-func registerRoutes() {
-	defer func() {
-		err := recover()
-		if err, ok := err.(error); ok {
-			logs.ErrorLog(err)
-		}
-	}()
-	// MyMux.Handle("/", NewDefaultHandler())
-	// for route, fnc := range routes {
-	// 	MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
-	// }
-
-	if err := filepath.Walk(filepath.Join(*fSystem, "plugin"), attachPlugin); err != nil {
-		logs.ErrorLog(err)
-	}
-
-}
-func attachPlugin(path string, info os.FileInfo, err error) error {
-
-	defer func() {
-		err := recover()
-		if err, ok := err.(error); ok {
-			logs.ErrorLog(err)
-		}
-	}()
-	if (info != nil) && info.IsDir() {
-		//log.Println(err, info)
-		return nil
-	}
-
-	logs.StatusLog("loading plugin", path)
-	err = nil
-	travel, err := plugin.Open(path)
-	logs.StatusLog(travel, err)
-	if err != nil {
-		return err
-	}
-
-	symb, err := travel.Lookup("InitPlugin")
-	logs.StatusLog(symb, err)
-	if err == nil {
-		// err, routes := symb.(func(MyMux *ServeMux) (error, map[string]HandlerFunc))(MyMux)
-		// if err != nil {
-		// 	return err
-		// }
-		// for route, fnc := range routes {
-		// 	MyMux.HandleFunc(route, system.WrapCatchHandler(fnc))
-		// 	fnc(nil, nil)
-		// }
-	} else {
-		logs.ErrorLog(err)
-	}
-
-	return err
+func testValue(ctx *RequestCtx) interface{} {
+	return ctx.Method()
 }
 
 // DefaultHandler работа по умолчанию - кеширования общих файлов в частности, обработчики для php-fpm & php
@@ -440,56 +420,70 @@ func handlerRecache(ctx *RequestCtx) (interface{}, error) {
 var (
 	fPort    = flag.String("port", ":80", "host address to listen on")
 	fSystem  = flag.String("path", "./", "path to static files")
+	fCfgPath = flag.String("config path", "config", "path to cfg files")
 	fWeb     = flag.String("web", "/home/travel/web/", "path to web files")
 	fSession = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	fCache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
 	fChePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
-	fTest    = flag.Bool("user8", false, "test mode")
 )
 
 func init() {
 	flag.Parse()
-	ServerConfig := server.GetServerConfig()
-	if err := ServerConfig.Init(fSystem, fWeb, fSession); err != nil {
-		logs.ErrorLog(err)
-	}
+	// ServerConfig := server.GetServerConfig()
+	// if err := ServerConfig.Init(fSystem, fWeb, fSession); err != nil {
+	// 	logs.ErrorLog(err)
+	// }
 
-	MongoConfig := server.GetMongodConfig()
-	if err := MongoConfig.Init(fSystem, fWeb, fSession); err != nil {
-		logs.ErrorLog(err)
-	}
-	logs.StatusLog("Server starting", ServerConfig.StartTime)
-	services.InitServices()
+	// MongoConfig := server.GetMongodConfig()
+	// if err := MongoConfig.Init(fSystem, fWeb, fSession); err != nil {
+	// 	logs.ErrorLog(err)
+	// }
+	// logs.StatusLog("Server starting", ServerConfig.StartTime)
+	// services.InitServices()
 }
 
-var mainServer *Server
-var listener net.Listener
-
 func main() {
-	users.SetSessionPath(*fSession)
-	go cacheFiles()
+	// users.SetSessionPath(*fSession)
+	// go cacheFiles()
+	//
+	// fonts.GetPath(fWeb)
 
-	fonts.GetPath(fWeb)
-
-	logs.StatusLog("Static files found in ", *fWeb)
+	logs.StatusLog("Static files found in " + *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
 
 	defer func() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
-	var err error
-
-	listener, err = net.Listen("tcp", *fPort)
+	listener, err := net.Listen("tcp", *fPort)
 	if err != nil {
 		logs.Fatal(err)
 	}
 
-	registerRoutes()
-	// //travel_git.InitPlugin()
-	// mainServer = &Server{Handler: MyMux}
-	//
-	// logs.ErrorLog(mainServer.Serve(listener))
-	//logs.Fatal(http.ListenAndServe(*fPort, nil))
+	// badRoutings := AddRoutes(routes)
+	// if len(badRoutings) > 0 {
+	// 	logs.ErrorLog(apis.ErrRouteForbidden, badRoutings)
+	// }
+
+	ctxApis := NewCtxApis(0)
+
+	apis := NewApis(ctxApis, routes, nil)
+	logs.StatusLog(os.Getwd())
+	cfg, err := httpgo.NewCfgHttp(path.Join(*fSystem, *fCfgPath, "httpgo.yml"))
+	if err != nil {
+		// not work without correct config
+		logs.Fatal(err)
+	}
+	httpServer := httpgo.NewHttpgo(cfg, listener, apis)
+	// services.InitServices("db_schema", "mail")
+
+	err = httpServer.Run(
+		false, "", "")
+	// path.Join(*fSystem, *fCfgPath, "server.crt"),
+	// path.Join(*fSystem, *fCfgPath, "server.key"))
+
+	if err != nil {
+		logs.ErrorLog(err)
+	}
 
 }

@@ -19,6 +19,9 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
 
 type CtxApis map[string]interface{}
@@ -72,7 +75,15 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 		fncAuth: fncAuth,
 	}
 
-	apisRoute := &ApiRoute{Desc: "full routers list", Fnc: apis.renderApis}
+	apisRoute := &ApiRoute{
+		Desc: "full routers list",
+		Fnc:  apis.renderApis,
+		Params: []InParam{
+			{
+				Name: "json",
+			},
+		},
+	}
 	err := apis.addRoute("/apis", apisRoute)
 	if err != nil {
 		logs.ErrorLog(err)
@@ -249,7 +260,87 @@ func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
 
 // renderApis show list routers for developers (as JSON)
 func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
-	return *a, nil
+	if ctx.UserValue("json") != nil {
+		return *a, nil
+	}
+
+	columns := []string{
+		"path - Method",
+		"Descriptor",
+		"Auth",
+		"required parameters",
+		"others parameters",
+		"DtoFromJSON",
+		"Response",
+	}
+
+	rows := make([][]interface{}, len(a.routes))
+
+	i := 0
+	for url, route := range a.routes {
+		row := make([]interface{}, len(columns))
+		row[0] = url + " - " + route.Method.String()
+		row[1] = route.Desc
+
+		s := ""
+		if route.FncAuth != nil {
+			s += "use custom method '" + route.FncAuth.String() + "' for checking authorization"
+		} else if route.NeedAuth {
+			s += " use standard method for checking authorization"
+		}
+
+		if route.OnlyAdmin {
+			s += " only admin request be allowed"
+		}
+
+		if route.OnlyLocal {
+			s += " only local request be allowed"
+		}
+
+		if s > "" {
+			row[2] = s
+		} else {
+			row[2] = false
+		}
+
+		r, p := "", ""
+		for _, param := range route.Params {
+			s := fmt.Sprintf(`<div>"%s": <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
+			if param.DefValue != nil {
+				s += fmt.Sprintf("Def: '%v'", param.defaultValueOfParams(nil))
+			}
+
+			if len(param.PartReq) > 0 {
+				s += "one of {" + strings.Join(param.PartReq, ", ") + " and " + param.Name + "} is required"
+			}
+
+			if len(param.IncompatibleWiths) > 0 {
+				s += "only one of {" + strings.Join(param.IncompatibleWiths, ", ") + " and " + param.Name + "} may use for request"
+			}
+
+			if param.Req {
+				r += s + "</div>"
+			} else {
+				p += s + "</div>"
+			}
+		}
+
+		row[3] = r
+		row[4] = p
+
+		if route.DTO != nil {
+			row[5] = route.DTO.NewValue()
+		}
+		row[6] = route.Resp
+
+		rows[i] = row
+		i++
+	}
+	views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
+
+	routeTable.WriteTableRow(ctx, columns, rows)
+
+	return nil, nil
 }
 
 func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*ApiRoute, bool) {

@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
@@ -38,6 +40,12 @@ func WriteHeaders(w http.ResponseWriter) {
 	}
 }
 
+func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
+	for key, value := range HEADERS {
+		ctx.Response.Header.Set(key, value)
+	}
+}
+
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *http.Request) bool {
 	return len(r.Header["X-Requested-With"]) > 0
@@ -54,6 +62,14 @@ func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWri
 		RenderTemplate(w, r, "index", p)
 	}
 
+}
+
+// RenderOutput render for output script execute
+func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
+
+	WriteHeadersHTML(ctx)
+
+	fncWrite(ctx)
 }
 
 // RenderAnyPage (deprecate)
