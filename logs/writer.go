@@ -119,8 +119,12 @@ func ErrorLog(err error, args ...interface{}) {
 			file := fmt.Sprintf("%s", frame)
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-				hh, mm, ss := time.Now().Clock()
-				fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
+				if logErr.Flags()&log.Ltime != 0 {
+					hh, mm, ss := time.Now().Clock()
+					fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
+				} else {
+					fmt.Printf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
+				}
 				return
 			}
 		}
