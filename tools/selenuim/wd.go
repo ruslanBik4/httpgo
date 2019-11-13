@@ -13,13 +13,13 @@ import (
 )
 
 type WD struct {
-	brouwsers string
-	path      string
-	wd        selenium.WebDriver
+	browsers string
+	path     string
+	wd       selenium.WebDriver
 }
 
-func NewWD(brouwsers string, path string) (*WD, error) {
-	caps := selenium.Capabilities{"browserName": brouwsers}
+func NewWD(browsers string, path string) (*WD, error) {
+	caps := selenium.Capabilities{"browserName": browsers}
 	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
@@ -29,14 +29,27 @@ func NewWD(brouwsers string, path string) (*WD, error) {
 				wd, err = selenium.NewRemote(caps, "http://localhost:9515")
 			}
 		}
-		logs.ErrorLog(err, err.Error())
+
 		if err != nil {
+			logs.ErrorLog(err, err.Error())
 			return nil, err
 		}
 	}
 	return &WD{
-		brouwsers: brouwsers,
-		path:      path,
-		wd:        wd,
+		browsers: browsers,
+		path:     path,
+		wd:       wd,
 	}, nil
+}
+
+// find element by selector & panic if error occupiers
+func (wd *WD) findElementBySelector(token string) []selenium.WebElement {
+	wElements, err := wd.wd.FindElements(selenium.ByCSSSelector, token)
+	if err != nil {
+		logs.ErrorLog(err, token)
+		return nil
+	}
+
+	logs.DebugLog(" %+v", wElements[0])
+	return wElements
 }
