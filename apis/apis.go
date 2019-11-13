@@ -265,11 +265,11 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	}
 
 	columns := []string{
-		"path - Method",
+		"Path - Method",
 		"Descriptor",
 		"Auth",
-		"required parameters",
-		"others parameters",
+		"Required parameters",
+		"Others parameters",
 		"DtoFromJSON",
 		"Response",
 	}
