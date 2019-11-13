@@ -9,12 +9,15 @@ import (
 	"bytes"
 	"errors"
 	"flag"
-	"github.com/tebeka/selenium"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	wd "github.com/ruslanBik4/httpgo/tools/selenium"
+	"github.com/tebeka/selenium"
 )
 
 type tCommand struct {
@@ -46,6 +49,8 @@ const valPrefix = '@'
 
 func main() {
 	flag.Parse()
+
+	wd.NewWD("chrome", "/Users/ruslan/chromedriver")
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
@@ -192,7 +197,8 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error) {
 // открыть URL
 func openURL(wd selenium.WebDriver, param string) {
 	// Navigate to the simple playground interface.
-	if err := wd.Get("http://" + param); err != nil {
+	logs.DebugLog(" %+v",param)
+	if err := wd.Get( param); err != nil {
 		panic(err)
 	}
 	if status, err := wd.Status(); err != nil {
@@ -354,7 +360,7 @@ func runCommand(token, param string, wElem selenium.WebElement) bool {
 		}
 		log.Print(token + ":" + param)
 	} else {
-		log.Print("unknow command", token)
+		log.Print("unknown command", token)
 	}
 
 	return true

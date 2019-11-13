@@ -7,11 +7,14 @@ package main
 import (
 	"flag"
 	"github.com/tebeka/selenium"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
-	_ "time"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type currentElem struct {
@@ -22,7 +25,7 @@ type currentElem struct {
 var (
 	//command [] tCommand
 	fFileName = flag.String("filename", "new.sln", "file with css selenium rules")
-	fURL      = flag.String("url", "vps-20777.vps-default-host.net/extranet/", "path to screenshot files")
+	fURL      = flag.String("url", "https://ta.lexxinfo.com/", "path to screenshot files")
 )
 
 func main() {
@@ -30,22 +33,34 @@ func main() {
 		err := recover()
 		if err, ok := err.(error); ok {
 			//wd.SetAlertText(err.Error())
-			log.Printf("%#v, %T", err, err)
+			logs.ErrorLog(err, "stop my work %#v, %T", err)
 			time.Sleep(time.Millisecond * 5000)
 		}
 	}()
+
 	flag.Parse()
+
 	// Connect to the WebDriver instance running locally.
 	caps := selenium.Capabilities{"browserName": "chrome"}
 	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err, err.Error())
+		if strings.Contains(err.Error(), "connection refused") {
+			cmd := exec.Command("/Users/ruslan/chromedriver")
+			err = cmd.Start()
+			if err == nil {
+				wd, err = selenium.NewRemote(caps, "http://localhost:9515")
+			}
+		}
+		if err != nil {
+			panic(err) // panic is used only as an example and is not otherwise recommended.
+		}
 	}
 	defer wd.Quit()
 
-	if !strings.HasPrefix(*fURL, "http://") {
-		*fURL = "http://" + *fURL
-	}
+	// if !strings.HasPrefix(*fURL, "http://") {
+	// 	*fURL = "http://" + *fURL
+	// }
 
 	if err := wd.Get(*fURL); err != nil {
 		panic(err)
@@ -58,19 +73,51 @@ func main() {
 
 	wd.MaximizeWindow("")
 
+
+
 	var activeElem = currentElem{}
 	time.Sleep(time.Millisecond * 1000)
 
-	resp, err := wd.ExecuteScriptRaw(`$("body").click(function() {
-		$(".sln_writer").removeClass("sln_writer");
-		$(event.target).addClass("sln_writer").focus();
-		return true;})`, nil)
-	time.Sleep(time.Millisecond * 1000)
-	log.Print(string(resp))
-	log.Print(wd.Status())
+	email := findElementBySelector(wd, `input[name=email]`)
+
+	err = email[0].SendKeys("bik4ruslan@gmail.com")
 	if err != nil {
-		log.Print(err)
+		logs.ErrorLog(err)
 	}
+
+
+	pass := findElementBySelector(wd, `input[name=password]`)
+	err = pass[0].SendKeys("41i1U9Ojlv0lBcy58J_cRA==")
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+
+	btn := findElementBySelector(wd, `button.btn-success`)
+
+	btn[0].Click()
+
+	resp, err := wd.ExecuteScriptRaw(`document.body.addEventListener("click", 
+		function(event){
+		document.getElementsByClassName("sln_writer").classList.remove("sln_writer");
+		event.target.classList.add("sln_writer");
+		event.target.focus();
+		// return true;
+})`, nil)
+
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+
+	logs.DebugLog(string(resp))
+	time.Sleep(time.Millisecond * 1000)
+
+	var s string
+	_, err = fmt.Scanln(&s)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+	logs.DebugLog(" %+v",s)
+	logs.DebugLog(wd.Status())
 	for count, url := 0, *fURL; (url > "") && (count < 1000) && (err == nil); url, err = wd.CurrentURL() {
 		wd.AcceptAlert()
 		elem, err := wd.FindElement(selenium.ByClassName, "sln_writer")
@@ -140,3 +187,16 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 
 	return
 }
+
+// find element by selector & panic if error occupiers
+func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebElement {
+	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
+	if err != nil {
+		logs.ErrorLog(err,token)
+		return nil
+	}
+
+	logs.DebugLog(" %+v", wElements[0])
+	return wElements
+}
+
