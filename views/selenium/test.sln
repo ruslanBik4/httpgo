@@ -2,7 +2,7 @@ maximize
 url: https://reports.irongenius.com/
 @hotelName: Алупкав
 @userName: bik4ruslan@gmail.com
-@password: 41i1U9Ojlv0lBcy58J_cRA==
+@password: {{password}}
 
 screenshot
 input[type="email"]::visible {
