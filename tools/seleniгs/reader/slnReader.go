@@ -18,7 +18,7 @@ import (
 	"github.com/tebeka/selenium"
 
 	"github.com/ruslanBik4/httpgo/logs"
-	wd "github.com/ruslanBik4/httpgo/tools/selenuis"
+	wd "github.com/ruslanBik4/httpgo/tools/seleniгs"
 )
 
 type tCommand struct {
@@ -39,6 +39,7 @@ var (
 	command   []tCommand
 	values    = map[string]string{}
 	fFilename = flag.String("filename", "test.sln", "file with css selenium rules")
+	fWDPath   = flag.String("wd_path", "/Users/ruslan/chromedriver", "full path of chrome web-driver")
 	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
 )
 
@@ -52,7 +53,7 @@ func main() {
 	flag.Parse()
 
 	// Connect to the WebDriver instance running locally.
-	wd, err := wd.NewWD("chrome", "/Users/ruslan/chromedriver")
+	wd, err := wd.NewWD("chrome", *fWDPath)
 	if err != nil {
 		logs.ErrorLog(err)
 		return

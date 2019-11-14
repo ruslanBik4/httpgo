@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package selenuis
+package seleniгs
 
 import (
 	"log"
@@ -26,7 +26,7 @@ func NewWD(browsers string, path string) (*WD, error) {
 	wd, err := NewRemote(caps, "http://localhost:9515")
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
-			cmd := exec.Command("/Users/ruslan/chromedriver")
+			cmd := exec.Command(path)
 			err = cmd.Start()
 			if err == nil {
 				wd, err = NewRemote(caps, "http://localhost:9515")
