@@ -15,9 +15,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ruslanBik4/httpgo/logs"
-	wd "github.com/ruslanBik4/httpgo/tools/selenium"
 	"github.com/tebeka/selenium"
+
+	"github.com/ruslanBik4/httpgo/logs"
+	wd "github.com/ruslanBik4/httpgo/tools/selenuim"
 )
 
 type tCommand struct {
@@ -50,37 +51,26 @@ const valPrefix = '@'
 func main() {
 	flag.Parse()
 
-	wd.NewWD("chrome", "/Users/ruslan/chromedriver")
 	// Connect to the WebDriver instance running locally.
-	caps := selenium.Capabilities{"browserName": "chrome"}
-	wd, err := selenium.NewRemote(caps, "http://localhost:9515")
+	wd, err := wd.NewWD("chrome", "/Users/ruslan/chromedriver")
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err)
+		return
 	}
-	defer wd.Quit()
-	defer func() {
-		saveScreenShoot(wd)
-		err := recover()
-		if err, ok := err.(error); ok {
-			wd.SetAlertText(err.Error())
-			log.Print(err)
-			time.Sleep(time.Millisecond * 5000)
-		}
-	}()
 
 	ioReader, err := os.Open(*fFilename)
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
 	}
 	stat, err := ioReader.Stat()
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
 	}
 
 	b := make([]byte, stat.Size())
 	n, err := ioReader.Read(b)
 	if err != nil {
-		panic(err) // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
 	}
 
 	log.Print(n)
@@ -99,7 +89,7 @@ func main() {
 				for _, val := range command {
 					err := wdCommand(val.command, wd, val.param)
 					if err != nil {
-						if err.Error() == "unknow command" {
+						if err.Error() == "unknown command" {
 							if !runCommand(val.command, val.param, elem) {
 								log.Print(val.command)
 							}
@@ -124,6 +114,9 @@ func main() {
 			tokens = bytes.Split(line, []byte(":"))
 			if len(tokens) > 1 {
 				token, param = string(tokens[0]), string(tokens[1])
+				if len(tokens) > 2 {
+					param += ":" + string(tokens[2])
+				}
 			} else {
 				token, param = string(line), ""
 			}
@@ -166,16 +159,16 @@ func getParam(param string) string {
 
 // выполнение общих команд Селениума (не привязанных к елементу страницы)
 // возвращает ошибку исполнения, коли такая произойдет
-func wdCommand(token string, wd selenium.WebDriver, param string) (err error) {
+func wdCommand(token string, wd *wd.WD, param string) (err error) {
 	switch token {
 	case "url":
-		openURL(wd, param)
+		return openURL(wd, param)
 	case "getalert":
 		err = wd.AcceptAlert()
 	case "maximize":
 		err = wd.MaximizeWindow("")
 	case "screenshot":
-		saveScreenShoot(wd)
+		wd.SaveScreenShoot(*fScrPath + time.Now().String() + ".jpg")
 	case "pause":
 		pInt, err := strconv.Atoi(param)
 		if err != nil {
@@ -188,60 +181,36 @@ func wdCommand(token string, wd selenium.WebDriver, param string) (err error) {
 		log.Print("script ", result)
 		return err
 	default:
-		return errors.New("unknow command")
+		return errors.New("unknown command")
 	}
 
 	return err
 }
 
 // открыть URL
-func openURL(wd selenium.WebDriver, param string) {
+func openURL(wd *wd.WD, url string) error {
 	// Navigate to the simple playground interface.
-	logs.DebugLog(" %+v",param)
-	if err := wd.Get( param); err != nil {
-		panic(err)
+	logs.DebugLog(" %+v", url)
+	if err := wd.Get(url); err != nil {
+		logs.ErrorLog(err, url)
+		return err
 	}
 	if status, err := wd.Status(); err != nil {
-		panic(err)
+		logs.ErrorLog(err, "")
 	} else {
 		log.Printf("%#v", status)
 	}
-	log.Print("open " + param)
-}
+	log.Print("open " + url)
 
-// создает скриншот текущего окна браузера и сохраняет его в папке программы
-func saveScreenShoot(wd selenium.WebDriver) {
-	img, err := wd.Screenshot()
-	if err == nil {
-		var output *os.File
-		output, err = os.Create(*fScrPath + time.Now().String() + ".jpg")
-		if err == nil {
-			defer output.Close()
-			_, err = output.Write(img)
-		}
-	}
-	if err != nil {
-		log.Print(err)
-	}
-}
-
-// find element by selector & panic if error occupiers
-func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebElement {
-	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
-	if err != nil {
-		log.Print(token)
-		panic(err)
-	}
-
-	return wElements
+	return nil
 }
 
 // webElement select
-func getElement(wd selenium.WebDriver, token string) (result []selenium.WebElement) {
+func getElement(wd *wd.WD, token string) (result []selenium.WebElement) {
 
 	if token == "activeElement" {
 		if wElem, err := wd.ActiveElement(); err != nil {
-			panic(err)
+			logs.ErrorLog(err, "")
 		} else {
 			result = append(result, wElem)
 		}
@@ -253,13 +222,13 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 	token = list[0]
 	if len(list) > 1 {
 		stat := strings.TrimSpace(list[1])
-		result = findElementBySelector(wd, token)
+		result = wd.FindElementBySelector(token)
 		// addition parameters filtering result set
 		switch stat {
 		case "while":
 			wd.SetAlertText("Ждем появления элемента \n" + token + `
 			если долго не будет ничего происходит - просто закройте браузер!`)
-			for ; len(result) < 1; result = findElementBySelector(wd, token) {
+			for ; len(result) < 1; result = wd.FindElementBySelector(token) {
 				log.Print("while for element " + token)
 				time.Sleep(time.Millisecond * 100)
 			}
@@ -278,7 +247,7 @@ func getElement(wd selenium.WebDriver, token string) (result []selenium.WebEleme
 			result = temp
 		}
 	} else {
-		result = findElementBySelector(wd, token)
+		result = wd.FindElementBySelector(token)
 	}
 	log.Print("select ", len(result), " from ", token)
 
@@ -305,13 +274,13 @@ func runCommand(token, param string, wElem selenium.WebElement) bool {
 	if command, ok := slnCommands[token]; ok {
 		if err := command(); err != nil {
 			log.Print(token)
-			panic(err)
+			logs.ErrorLog(err, "")
 		}
 		log.Print("run command ", token)
 	} else if command, ok := slnStat[token]; ok {
 		if ok, err := command(); err != nil {
 			log.Print(token)
-			panic(err)
+			logs.ErrorLog(err, "")
 		} else {
 
 			if strings.HasPrefix(param, "!") {
@@ -333,14 +302,14 @@ func runCommand(token, param string, wElem selenium.WebElement) bool {
 	} else if command, ok := slnText[token]; ok {
 		if str, err := command(); err != nil {
 			log.Print(token)
-			panic(err)
+			logs.ErrorLog(err, "")
 		} else {
 			log.Print(token + "=" + str)
 		}
 	} else if command, ok := slnCSS[token]; ok {
 		if ok, err := command(param); err != nil {
 			log.Print(token)
-			panic(err)
+			logs.ErrorLog(err, "")
 		} else {
 			log.Print(token + " is " + string(ok))
 		}
@@ -348,7 +317,7 @@ func runCommand(token, param string, wElem selenium.WebElement) bool {
 
 		pInt, err := strconv.Atoi(param)
 		if err != nil {
-			panic(err)
+			logs.ErrorLog(err, "")
 		}
 		log.Print("pause ", pInt)
 		time.Sleep(time.Millisecond * time.Duration(pInt))
@@ -356,7 +325,14 @@ func runCommand(token, param string, wElem selenium.WebElement) bool {
 	} else if token == "sendkey" {
 		if err := wElem.SendKeys(param); err != nil {
 			log.Print("sendkey err", err, param)
-			panic(err)
+			logs.ErrorLog(err, "")
+		}
+		log.Print(token + ":" + param)
+	} else if token == "active" {
+		p, _ := wElem.LocationInView()
+		if err := wElem.MoveTo(p.X, p.Y); err != nil {
+			log.Print("moveto err", err, param)
+			logs.ErrorLog(err, "")
 		}
 		log.Print(token + ":" + param)
 	} else {

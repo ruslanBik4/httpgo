@@ -6,8 +6,8 @@ package main
 
 import (
 	"flag"
-	"github.com/tebeka/selenium"
 	"fmt"
+	"github.com/tebeka/selenium"
 	"log"
 	"os"
 	"os/exec"
@@ -25,7 +25,7 @@ type currentElem struct {
 var (
 	//command [] tCommand
 	fFileName = flag.String("filename", "new.sln", "file with css selenium rules")
-	fURL      = flag.String("url", "https://ta.lexxinfo.com/", "path to screenshot files")
+	fURL      = flag.String("url", "https://reports.irongenius.com/", "path to screenshot files")
 )
 
 func main() {
@@ -73,26 +73,33 @@ func main() {
 
 	wd.MaximizeWindow("")
 
-
-
-	var activeElem = currentElem{}
+	st, err := wd.Status()
+	logs.DebugLog(" %+v", st)
 	time.Sleep(time.Millisecond * 1000)
 
-	email := findElementBySelector(wd, `input[name=email]`)
-
-	err = email[0].SendKeys("bik4ruslan@gmail.com")
-	if err != nil {
-		logs.ErrorLog(err)
+	for activeElem, err := wd.ActiveElement(); err == nil && activeElem == nil; {
+		logs.DebugLog(" %+v", activeElem)
+		activeElem, err = wd.ActiveElement()
 	}
 
-
-	pass := findElementBySelector(wd, `input[name=password]`)
-	err = pass[0].SendKeys("41i1U9Ojlv0lBcy58J_cRA==")
-	if err != nil {
-		logs.ErrorLog(err)
+	var types = map[string]string{
+		"email":    "bik4ruslan@gmail.com",
+		"password": "41i1U9Ojlv0lBcy58J_cRA==",
 	}
 
-	btn := findElementBySelector(wd, `button.btn-success`)
+	pass := findElementBySelector(wd, `input`)
+	for _, elem := range pass {
+		typeName, err := elem.GetAttribute("type")
+		elem.Click()
+		elem.Clear()
+		err = elem.SendKeys(types[typeName])
+		if err != nil {
+			logs.ErrorLog(err, typeName, types[typeName])
+		}
+
+	}
+
+	btn := findElementBySelector(wd, `button`)
 
 	btn[0].Click()
 
@@ -116,8 +123,10 @@ func main() {
 	if err != nil {
 		logs.ErrorLog(err)
 	}
-	logs.DebugLog(" %+v",s)
+	logs.DebugLog(" %+v", s)
 	logs.DebugLog(wd.Status())
+
+	var activeElem = currentElem{}
 	for count, url := 0, *fURL; (url > "") && (count < 1000) && (err == nil); url, err = wd.CurrentURL() {
 		wd.AcceptAlert()
 		elem, err := wd.FindElement(selenium.ByClassName, "sln_writer")
@@ -190,13 +199,11 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 
 // find element by selector & panic if error occupiers
 func findElementBySelector(wd selenium.WebDriver, token string) []selenium.WebElement {
-	wElements, err := wd.FindElements(selenium.ByCSSSelector, token)
+	wElements, err := wd.FindElements(selenium.ByTagName, token)
 	if err != nil {
-		logs.ErrorLog(err,token)
+		logs.ErrorLog(err, token)
 		return nil
 	}
 
-	logs.DebugLog(" %+v", wElements[0])
 	return wElements
 }
-

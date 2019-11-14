@@ -1,65 +1,49 @@
 maximize
-url: vps-20777.vps-default-host.net/extranet/
+url: https://reports.irongenius.com/
 @hotelName: Алупкав
-@userName: ruslan-bik@yandex.ru
-@password: kRnZBweSNEjr-8VJY0htTw==
-#searchField {
-    clear:
-    pause: 2000
-    sendkey: @hotelName
-}
+@userName: bik4ruslan@gmail.com
+@password: 41i1U9Ojlv0lBcy58J_cRA==
 
-#resultSearchWhenIsEmpty {
-    visible : fail
-}
-#app_aside_parent_list div.panel[style='']::first {
-    text:
-    click
-}
 screenshot
-#app_aside_parent_list > div > div.panel-collapse[aria-expanded='true'] > div > ul > li:nth-child(1) > a::while {
-    click:
-    text:
-    pause: 100
-}
-screenshot
-input[name=login]::visible {
+input[type="email"]::visible {
     sendkey: @userName
 }
-input[name=password]::visible {
+input[type="password"]::visible {
     sendkey: @password
 }
+button {
+    click:
+    pause: 200
+}
 screenshot
-.modal-footer > button::visible{
-    click
-    pause: 100
+#outer-container > div > div > div.c-homepage__filters.response > form > ul > li:nth-child(1) > div > label:nth-child(1) > span {
+    click:
+}
+screenshot
+#outer-container > div > div > div.c-homepage__filters.response > form > div.recalculate > button {
+    click:
+    pause: 400
     getalert
+
 }
-select[name=id_prop_hotels_type_list]::while {
-    text
-}
-.main-tabs >li > a {
-    click
-    pause: 1000
-}
-#decor > div.col-xs-5.left-padding > div > div > div.for-photo-container.data-table-id.clearfix > div:nth-child(2)  {
-    click
-    /*pause: 100*/
-}
-#carousel-example-generic > a.right.object-gallery-right::while {
-    click
+
+#outer-container > header > div.left > div > div > div.bm-menu-wrap > div.bm-menu > nav > div > ul > li:nth-child(2) > a  {
+    click:
     pause: 200
+    getalert
+
 }
-#carousel-example-generic > a.right.object-gallery-right::visible {
-    click
-    pause: 200
+
+#start-date0 {
+    click:
+            getalert
+
 }
-#carousel-example-generic > a.right.object-gallery-right::visible {
-    click
-    pause: 200
-}
-#carousel-example-generic > a.right.object-gallery-right::visible {
-    click
-    pause: 200
+
+#outer-container > header > div.left > div > div > div.bm-menu-wrap > div.bm-menu > nav > div > ul > li:nth-child(3) > a > span {
+    click:
+    getalert:
+
+
 }
 pause: 2000
