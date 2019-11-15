@@ -23,7 +23,7 @@ import (
 	. "github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/httpgo"
+	"github.com/ruslanBik4/httpgo/httpGo"
 	"github.com/ruslanBik4/httpgo/logs"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
@@ -469,12 +469,12 @@ func main() {
 
 	apis := NewApis(ctxApis, routes, nil)
 	logs.StatusLog(os.Getwd())
-	cfg, err := httpgo.NewCfgHttp(path.Join(*fSystem, *fCfgPath, "httpgo.yml"))
+	cfg, err := httpGo.NewCfgHttp(path.Join(*fSystem, *fCfgPath, "httpgo.yml"))
 	if err != nil {
 		// not work without correct config
 		logs.Fatal(err)
 	}
-	httpServer := httpgo.NewHttpgo(cfg, listener, apis)
+	httpServer := httpGo.NewHttpgo(cfg, listener, apis)
 	// services.InitServices("db_schema", "mail")
 
 	err = httpServer.Run(
