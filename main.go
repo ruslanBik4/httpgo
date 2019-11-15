@@ -263,28 +263,6 @@ func sockCatch() {
 
 const _24K = (1 << 10) * 24
 
-// HandleFirebird simple handler from Firebird testing
-func HandleFirebird(ctx *RequestCtx) {
-
-	rows, err := db.FBSelect("SELECT * FROM country_list")
-
-	if err != nil {
-		// views.RenderInternalError(w, err)
-	} else {
-		defer rows.Close()
-		for rows.Next() {
-			var id int
-			var title string
-			if err := rows.Scan(&id, &title); err != nil {
-				// views.RenderInternalError(w, err)
-				break
-			}
-			ctx.Response.AppendBodyString(fmt.Sprintf("id=%d, title =%s", id, title))
-
-		}
-	}
-}
-
 func handleUpdate(ctx *RequestCtx) {
 
 }
