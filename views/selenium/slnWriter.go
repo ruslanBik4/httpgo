@@ -25,6 +25,7 @@ type currentElem struct {
 var (
 	//command [] tCommand
 	fFileName = flag.String("filename", "new.sln", "file with css selenium rules")
+	fWDPath   = flag.String("wd_path", "/Users/ruslan/chromedriver", "full path of chrome web-driver")
 	fURL      = flag.String("url", "https://reports.irongenius.com/", "path to screenshot files")
 )
 
@@ -46,7 +47,7 @@ func main() {
 	if err != nil {
 		logs.ErrorLog(err, err.Error())
 		if strings.Contains(err.Error(), "connection refused") {
-			cmd := exec.Command("/Users/ruslan/chromedriver")
+			cmd := exec.Command(*fWDPath)
 			err = cmd.Start()
 			if err == nil {
 				wd, err = selenium.NewRemote(caps, "http://localhost:9515")
@@ -59,7 +60,7 @@ func main() {
 	defer wd.Quit()
 
 	// if !strings.HasPrefix(*fURL, "http://") {
-	// 	*fURL = "http://" + *fURL
+	// 	*fURL = "http://" + *fURL41i1U9Ojlv0lBcy58J_cRA==
 	// }
 
 	if err := wd.Get(*fURL); err != nil {
