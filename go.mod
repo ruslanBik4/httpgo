@@ -10,7 +10,6 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/json-iterator/go v1.1.7
 	github.com/klauspost/compress v1.8.4 // indirect
-	github.com/nakagami/firebirdsql v0.0.0-20190824054517-c3a44fa12b19
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.4.0
