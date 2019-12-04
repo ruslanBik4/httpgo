@@ -8,13 +8,14 @@ package logs
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"strings"
-	"time"
+	"time"	
 
 	"github.com/getsentry/sentry-go"
-	"github.com/pkg/errors"
+	"github.com/pkg/errors"	
 )
 
 var (
@@ -36,6 +37,7 @@ type wrapKitLogger struct {
 	funcName  string
 	typeLog   string
 	toSentry  bool
+	toOther io.Writer
 }
 
 const logFlags = log.Lshortfile | log.Ltime
@@ -65,6 +67,33 @@ func SetStatus(s bool) bool {
 
 	return old
 }
+
+type fgLogWriter int8
+
+const (
+	fgAll fgLogWriter = iota
+	fgErr 
+	fgInfo 
+	fgDebug
+
+)
+
+// SetWriters
+func SetWriters(newWriter io.Writer, logFlag fgLogWriter) {
+	switch logFlag {	
+	case fgAll:
+		logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
+		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
+		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
+	case fgErr:
+		logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
+	case fgInfo:
+		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
+	case fgDebug:
+		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
+	}	
+}
+
 
 // SetSentry set SetSentry output for error
 func SetSentry(dns string) error {
@@ -108,6 +137,7 @@ type logMess struct {
 func NewlogMess(mess string, logger *wrapKitLogger) *logMess {
 	return &logMess{mess, time.Now(), logger.typeLog}
 }
+
 func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
 	mess := NewlogMess(getArgsString(vars...), logger)

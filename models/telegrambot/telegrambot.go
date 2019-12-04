@@ -2,14 +2,14 @@ package telegrambot
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
-	"gopkg.in/yaml.v2"
+
 	"github.com/ruslanBik4/httpgo/logs"
+	"gopkg.in/yaml.v2"
 )
 
 type TelegramBot struct {
-	Token string `yaml:"BotToken"`
+	Token  string `yaml:"BotToken"`
 	ChatID string `yaml:"ChatID"`
 }
 
@@ -19,7 +19,7 @@ func (tbot TelegramBot) TelegramRequest(action string) string {
 }
 
 // SendMessage is used for sending messages
-func (tbot TelegramBot) SendMessage(message string, markdown bool) {
+func (tbot TelegramBot) SendMessage(message string, markdown bool) error {
 	sendRequestURL := (tbot.TelegramRequest("sendMessage") + "chat_id=" + tbot.ChatID + "&text=" + message)
 
 	// For using bold and italic font in message sent
@@ -27,24 +27,27 @@ func (tbot TelegramBot) SendMessage(message string, markdown bool) {
 		sendRequestURL += "&parse_mode=Markdown"
 	}
 
-	log.Println(MakeRequest(sendRequestURL))
+	err := MakeRequest(sendRequestURL)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-// MakeRequest executes request and gets response? converting it to string
-func MakeRequest(url string) string {
+// MakeRequest executes request and gets response converting it to string
+func MakeRequest(url string) error {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		logs.ErrorLog(err, "TelegramBot")
+		return err
 	}
+	return nil
 
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		logs.ErrorLog(err, "TelegramBot")
-	}
-
-	return string(body)
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	logs.ErrorLog(err, "TelegramBot")
+	// }
+	// return string(body)
 }
 
 // GetNewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
@@ -60,4 +63,14 @@ func GetNewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 	}
 
 	return
+}
+
+// TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
+func (tbot TelegramBot) Write(message []byte) error {
+	mess := string(message)
+	err := tbot.SendMessage(mess, false)
+	if err != nil {
+		return err
+	}
+	return nil
 }

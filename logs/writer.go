@@ -76,21 +76,30 @@ func DebugLog(args ...interface{}) {
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
 		logDebug.Printf(args...)
+		message := fmt.Sprintf("%v", args...)
+		logDebug.toOther.Write([]byte(message))
 	}
 }
 
 // DebugLog output formatted(function and line calls) debug information
 func TraceLog(args ...interface{}) {
+	var message string
 	if *fDebug {
 		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
+		message = fmt.Sprintf("%v ", args...)
+		logDebug.toOther.Write([]byte(message))
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
+	message = fmt.Sprintf("%v %s: %s:", time.Now(), args[0], args[1])
+	logDebug.toOther.Write([]byte(message))
 }
 
 // StatusLog output formatted information for status
 func StatusLog(args ...interface{}) {
 	if *fStatus {
 		logStat.Printf(args...)
+		message := fmt.Sprintf("%v ", args...)
+		logStat.toOther.Write([]byte(message))
 	}
 }
 
@@ -100,9 +109,10 @@ type stackTracer interface {
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
-
+	
 	//todo: print standart
 	var message string
+	defer func() {logErr.toOther.Write([]byte(message))}()
 
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
@@ -121,14 +131,18 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
 					hh, mm, ss := time.Now().Clock()
+					message = fmt.Sprintf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
 					fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
 				} else {
+					message = fmt.Sprintf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
 					fmt.Printf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
 				}
 				return
 			}
 		}
 	}
+
+	
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 		calldepth++
