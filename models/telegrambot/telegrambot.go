@@ -13,6 +13,21 @@ type TelegramBot struct {
 	ChatID string `yaml:"ChatID"`
 }
 
+// NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
+func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
+
+	yamlFile, err := ioutil.ReadFile(confPath)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+	err = yaml.Unmarshal(yamlFile, &tb)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+
+	return
+}
+
 // TelegramRequest makes base url for request
 func (tbot TelegramBot) TelegramRequest(action string) string {
 	return ("https://api.telegram.org/bot" + tbot.Token + "/" + action + "?")
@@ -36,7 +51,7 @@ func (tbot TelegramBot) SendMessage(message string, markdown bool) error {
 
 // MakeRequest executes request and gets response converting it to string
 func MakeRequest(url string) error {
-	resp, err := http.Get(url)
+	_, err := http.Get(url)
 
 	if err != nil {
 		return err
@@ -50,20 +65,7 @@ func MakeRequest(url string) error {
 	// return string(body)
 }
 
-// GetNewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
-func GetNewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
-	yamlFile, err := ioutil.ReadFile(confPath)
-	if err != nil {
-		logs.ErrorLog(err)
-	}
-	err = yaml.Unmarshal(yamlFile, &tb)
-	if err != nil {
-		logs.ErrorLog(err)
-	}
-
-	return
-}
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot TelegramBot) Write(message []byte) error {
