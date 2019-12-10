@@ -13,6 +13,7 @@ import (
 
 const baseURL string = "https://api.telegram.org/bot"
 
+// TelegramBot struct with tiken and one chatid
 type TelegramBot struct {
 	Token      		string `yaml:"BotToken"`
 	ChatID     		string `yaml:"ChatID"`
@@ -48,15 +49,13 @@ func (tbot *TelegramBot) SetRequestURL(action string, otherRequest string, markd
 	if markdown {
 		tbot.RequestURL += "&parse_mode=Markdown"
 	}
+	tbot.Request.SetRequestURI(tbot.RequestURL)
 
 }
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
 	tbot.SetRequestURL("sendMessage", ("chat_id=" + tbot.ChatID + "&text=" + message), markdown)
-
-	//log.Println("message:    ", message)
-	//log.Println(tbot.RequestURL)
 
 	//err := tbot.MakeRequest()
 	err := tbot.FastRequest()
@@ -94,7 +93,6 @@ func (tbot *TelegramBot) Write(message []byte) error {
 
 // FastRequest make fasthttp
 func (tbot *TelegramBot) FastRequest() error {
-	tbot.Request.SetRequestURI(tbot.RequestURL)
 	tbot.FastHTTPClient = &fasthttp.Client{}
 	for {
 

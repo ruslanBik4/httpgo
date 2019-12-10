@@ -76,18 +76,18 @@ func DebugLog(args ...interface{}) {
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
 		logDebug.Printf(args...)
-		message := fmt.Sprintf("%v", args...)
-		logDebug.toOther.Write([]byte(message))
+		//message := fmt.Sprintf("%v", args...)
+		//logDebug.toOther.Write([]byte(message))
 	}
 }
 
-// DebugLog output formatted(function and line calls) debug information
+// TraceLog output formatted(function and line calls) debug information
 func TraceLog(args ...interface{}) {
-	var message string
+	//var message string
 	if *fDebug {
 		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
-		message = fmt.Sprintf("%v ", args...)
-		logDebug.toOther.Write([]byte(message))
+		//message = fmt.Sprintf("%v ", args...)
+		//logDebug.toOther.Write([]byte(message))
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 	//message = fmt.Sprintf("%v %s: %s:", time.Now(), args[0], args[1])
@@ -98,8 +98,8 @@ func TraceLog(args ...interface{}) {
 func StatusLog(args ...interface{}) {
 	if *fStatus {
 		logStat.Printf(args...)
-		message := fmt.Sprintf("%v ", args...)
-		logStat.toOther.Write([]byte(message))
+		//message := fmt.Sprintf("%v ", args...)
+		//logStat.toOther.Write([]byte(message))
 	}
 }
 
