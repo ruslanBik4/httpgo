@@ -90,8 +90,8 @@ func TraceLog(args ...interface{}) {
 		logDebug.toOther.Write([]byte(message))
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
-	message = fmt.Sprintf("%v %s: %s:", time.Now(), args[0], args[1])
-	logDebug.toOther.Write([]byte(message))
+	//message = fmt.Sprintf("%v %s: %s:", time.Now(), args[0], args[1])
+	//logDebug.toOther.Write([]byte(message))
 }
 
 // StatusLog output formatted information for status
