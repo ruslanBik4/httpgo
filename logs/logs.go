@@ -146,6 +146,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	logger.Output(logger.calldepth, mess.Message)
+	logger.toOther.Write([]byte(mess.Message))
 
 	//if indService == nil {
 	//
