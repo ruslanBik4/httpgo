@@ -78,8 +78,6 @@ func DebugLog(args ...interface{}) {
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
 		logDebug.Printf(args...)
-		//message := fmt.Sprintf("%v", args...)
-		//logDebug.toOther.Write([]byte(message))
 	}
 }
 
@@ -87,21 +85,15 @@ func DebugLog(args ...interface{}) {
 func TraceLog(args ...interface{}) {
 	//var message string
 	if *fDebug {
-		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
-		//message = fmt.Sprintf("%v ", args...)
-		//logDebug.toOther.Write([]byte(message))
+		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)		
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
-	//message = fmt.Sprintf("%v %s: %s:", time.Now(), args[0], args[1])
-	//logDebug.toOther.Write([]byte(message))
 }
 
 // StatusLog output formatted information for status
 func StatusLog(args ...interface{}) {
 	if *fStatus {
 		logStat.Printf(args...)
-		//message := fmt.Sprintf("%v ", args...)
-		//logStat.toOther.Write([]byte(message))
 	}
 }
 
@@ -119,8 +111,6 @@ func ErrorLog(err error, args ...interface{}) {
 	)
 
 	errorPrint = true 
-	
-	//defer func() {go logErr.toOther.Write([]byte(message))}()
 
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
@@ -139,14 +129,11 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
 					hh, mm, ss := time.Now().Clock()
-					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d:", hh, mm, ss, file, frame)					
-					//fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
-					logErr.Printf(errorPrint, logErr.Prefix(), timeFrameString, fncName, err)
+					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d:", hh, mm, ss, file, frame)
 				} else {
-					timeFrameString = fmt.Sprintf("%s:%d:", file, frame)							
-					//fmt.Printf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
-					logErr.Printf(errorPrint, logErr.Prefix(), timeFrameString, fncName, err)
+					timeFrameString = fmt.Sprintf("%s:%d:", file, frame)	
 				}
+				logErr.Printf(errorPrint, logErr.Prefix(), timeFrameString, fncName, err)
 				return
 			}
 		}
@@ -171,8 +158,6 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 	logErr.Printf(message)
-	//logErr.Output(calldepth, message)
-
 }
 
 const prefErrStack = "[[ERR_STACK]]"
