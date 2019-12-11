@@ -140,10 +140,10 @@ func NewlogMess(mess string, logger *wrapKitLogger) *logMess {
 
 func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
-	_, ok := vars[0].(errLogPrint)
+	checkprint, checktype := vars[0].(errLogPrint)
 
-	if ok == true {
-		vars = vars[1:]
+	if checktype == true {
+		vars = vars[1:]		
 	}
 
 	mess := NewlogMess(getArgsString(vars...), logger)
@@ -151,7 +151,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		mess.Message = logger.funcName + "();" + mess.Message
 	}
 
-	if ok == true {
+	if checkprint == true && checktype == true {
 		fmt.Printf(mess.Message)
 	} else {
 		logger.Output(logger.calldepth, mess.Message)
@@ -159,8 +159,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
 	if logger.toOther != nil {
 		go logger.toOther.Write([]byte(mess.Message))
-	}
-	
+	}	
 
 	//if indService == nil {
 	//
