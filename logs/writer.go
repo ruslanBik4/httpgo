@@ -49,6 +49,8 @@ var (
 	}
 )
 
+type errLogPrint bool
+
 // Fatal - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
@@ -79,10 +81,11 @@ func DebugLog(args ...interface{}) {
 	}
 }
 
-// DebugLog output formatted(function and line calls) debug information
+// TraceLog output formatted(function and line calls) debug information
 func TraceLog(args ...interface{}) {
+	//var message string
 	if *fDebug {
-		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
+		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)		
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 }
@@ -100,9 +103,14 @@ type stackTracer interface {
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
-
 	//todo: print standart
-	var message string
+	var (
+		message 		string
+		timeFrameString string
+		errorPrint 		errLogPrint
+	)
+
+	errorPrint = true 
 
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
@@ -121,14 +129,17 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
 					hh, mm, ss := time.Now().Clock()
-					fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
+					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d:", hh, mm, ss, file, frame)
 				} else {
-					fmt.Printf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
+					timeFrameString = fmt.Sprintf("%s:%d:", file, frame)	
 				}
+				logErr.Printf(errorPrint, logErr.Prefix(), timeFrameString, fncName, err)
 				return
 			}
 		}
 	}
+
+	
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 		calldepth++
@@ -146,8 +157,7 @@ func ErrorLog(err error, args ...interface{}) {
 
 	}
 
-	logErr.Output(calldepth, message)
-
+	logErr.Printf(message)
 }
 
 const prefErrStack = "[[ERR_STACK]]"
