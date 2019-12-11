@@ -151,8 +151,13 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		mess.Message = logger.funcName + "();" + mess.Message
 	}
 
-	if checkprint == true && checktype == true {
-		fmt.Printf(mess.Message)
+	if checktype == true {
+		if checkprint == true { 
+			fmt.Printf(mess.Message) 
+		}  else {
+			logger.Output(logger.calldepth, mess.Message)
+		}
+		
 	} else {
 		logger.Output(logger.calldepth, mess.Message)
 	}
