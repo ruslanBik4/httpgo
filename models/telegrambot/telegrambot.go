@@ -93,7 +93,7 @@ func (tbot *TelegramBot) Write(message []byte) error {
 
 // FastRequest make fasthttp
 func (tbot *TelegramBot) FastRequest() error {
-	tbot.FastHTTPClient = &fasthttp.Client{}
+	//tbot.FastHTTPClient = &fasthttp.Client{}
 	for {
 
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)

@@ -146,7 +146,11 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	logger.Output(logger.calldepth, mess.Message)
-	logger.toOther.Write([]byte(mess.Message))
+	
+	if logger.toOther != nil {
+		go logger.toOther.Write([]byte(mess.Message))
+	}
+	
 
 	//if indService == nil {
 	//
@@ -185,7 +189,9 @@ func getArgsString(args ...interface{}) (message string) {
 		case time.Time:
 			message += comma + val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
 		case []interface{}:
-			message += getArgsString(val...)
+			message += getArgsString(val...)		
+		case error:
+			message += comma + fmt.Sprintf("%v", arg)
 		default:
 
 			message += comma + fmt.Sprintf("%#v", arg)
