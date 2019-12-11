@@ -65,26 +65,9 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
 	return nil
 }
 
-// MakeRequest executes request and gets response converting it to string
-func (tbot *TelegramBot) MakeRequest() error {
-	_, err := http.Get(tbot.RequestURL)
-
-	if err != nil {
-		return err
-	}
-	return nil
-
-	// body, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	logs.ErrorLog(err, "TelegramBot")
-	// }
-	// return string(body)
-}
-
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot *TelegramBot) Write(message []byte) error {
-	mess := string(message)
-	err := tbot.SendMessage(mess, false)
+	err := tbot.SendMessage(string(message), false)
 	if err != nil {
 		return err
 	}

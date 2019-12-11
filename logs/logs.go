@@ -166,14 +166,6 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		go logger.toOther.Write([]byte(mess.Message))
 	}	
 
-	//if indService == nil {
-	//
-	//	return
-	//}
-	//put, err := client.Index().Index("reports").Type("test").BodyJson(mess).Do(context.Background())
-	//if err != nil {
-	//	logger.Output(2, fmt.Sprintf("%s. %#v", err.Error(), put))
-	//}
 }
 
 func getArgsString(args ...interface{}) (message string) {
