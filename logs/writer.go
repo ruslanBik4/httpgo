@@ -49,6 +49,8 @@ var (
 	}
 )
 
+type errLogPrint bool
+
 // Fatal - output formated (function and line calls) fatal information
 func Fatal(err error, args ...interface{}) {
 	pc, _, _, _ := runtime.Caller(2)
@@ -109,13 +111,15 @@ type stackTracer interface {
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
-	
 	//todo: print standart
 	var (
 		message string
 		timeString string
+		errorPrint errLogPrint
 	)
 
+	errorPrint = true 
+	
 	//defer func() {go logErr.toOther.Write([]byte(message))}()
 
 	if logErr.toSentry {
@@ -135,14 +139,12 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
 					hh, mm, ss := time.Now().Clock()
-					timeString = fmt.Sprintf("%d:%d:%d", hh, mm, ss)
-					//message = fmt.Sprintf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
+					timeString = fmt.Sprintf("%d:%d:%d", hh, mm, ss)					
 					//fmt.Printf("%s %d:%d:%d %s:%d: %s() %v \n", logErr.Prefix(), hh, mm, ss, file, frame, fncName, err)
-					logErr.Printf(logErr.Prefix(), timeString, file, frame, fncName, err)
-				} else {
-					//message = fmt.Sprintf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
+					logErr.Printf(errorPrint, logErr.Prefix(), timeString, file, frame, fncName, err)
+				} else {					
 					//fmt.Printf("%s %s:%d: %s() %v \n", logErr.Prefix(), file, frame, fncName, err)
-					logErr.Printf(logErr.Prefix(), file, frame, fncName, err)
+					logErr.Printf(errorPrint, logErr.Prefix(), file, frame, fncName, err)
 				}
 				return
 			}

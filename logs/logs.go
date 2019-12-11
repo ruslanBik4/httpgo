@@ -140,13 +140,23 @@ func NewlogMess(mess string, logger *wrapKitLogger) *logMess {
 
 func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
+	_, ok := vars[0].(errLogPrint)
+
+	if ok == true {
+		vars = vars[1:]
+	}
+
 	mess := NewlogMess(getArgsString(vars...), logger)
 	if logger.funcName > "" {
 		mess.Message = logger.funcName + "();" + mess.Message
 	}
 
-	logger.Output(logger.calldepth, mess.Message)
-	
+	if ok == true {
+		fmt.Printf(mess.Message)
+	} else {
+		logger.Output(logger.calldepth, mess.Message)
+	}
+
 	if logger.toOther != nil {
 		go logger.toOther.Write([]byte(mess.Message))
 	}
