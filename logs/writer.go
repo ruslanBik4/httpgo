@@ -85,7 +85,7 @@ func DebugLog(args ...interface{}) {
 func TraceLog(args ...interface{}) {
 	//var message string
 	if *fDebug {
-		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)		
+		logDebug.Printf(append([]interface{}{"%+v"}, args...)...)
 	}
 	logDebug.Printf("%v %s: %s:", time.Now(), args[0], args[1])
 }
@@ -103,14 +103,14 @@ type stackTracer interface {
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
-	//todo: print standart
+
 	var (
-		message 		string
+		message         string
 		timeFrameString string
-		errorPrint 		errLogPrint
+		errorPrint      errLogPrint
 	)
 
-	errorPrint = true 
+	errorPrint = true
 
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
@@ -129,17 +129,16 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
 					hh, mm, ss := time.Now().Clock()
-					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d:", hh, mm, ss, file, frame)
+					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d: %s()", hh, mm, ss, file, frame, fncName)
 				} else {
-					timeFrameString = fmt.Sprintf("%s:%d:", file, frame)	
+					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
 				}
-				logErr.Printf(errorPrint, logErr.Prefix(), timeFrameString, fncName, err)
+				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, getArgsString(args...), "\n")
+
 				return
 			}
 		}
 	}
-
-	
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 		calldepth++

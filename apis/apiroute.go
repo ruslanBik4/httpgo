@@ -169,7 +169,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 			key := string(k)
 			val, err := route.checkTypeParam(ctx, key, []string{string(v)})
 			if err != nil {
-				badParams = append(badParams, key+" wrong type "+val.(string)+err.Error())
+				badParams = append(badParams, fmt.Sprintf("'%s' wrong type %v (%s)", key, val, err))
 			} else {
 				ctx.SetUserValue(key, val)
 			}
@@ -289,7 +289,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	// print parameters
 	if len(route.Params) > 0 {
-		AddObjectToJSON(stream, "parameters", route.Params) // param.Name, param)
+		AddObjectToJSON(stream, "parameters", route.Params)
 	}
 
 	if route.DTO != nil {

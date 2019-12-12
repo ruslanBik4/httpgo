@@ -9,8 +9,8 @@ import (
 	"bytes"
 	"errors"
 	"flag"
+	"io/ioutil"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -38,7 +38,7 @@ var (
 	result    []selenium.WebElement
 	command   []tCommand
 	values    = map[string]string{}
-	fFilename = flag.String("filename", "test.sln", "file with css selenium rules")
+	fFilename = flag.String("filename", "/Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/selenium/test.sln", "file with css selenium rules")
 	fWDPath   = flag.String("wd_path", "/Users/ruslan/chromedriver", "full path of chrome web-driver")
 	fScrPath  = flag.String("path_scr", "./", "path to screenshot files")
 )
@@ -59,22 +59,12 @@ func main() {
 		return
 	}
 
-	ioReader, err := os.Open(*fFilename)
+	b, err := ioutil.ReadFile(*fFilename)
 	if err != nil {
-		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
-	}
-	stat, err := ioReader.Stat()
-	if err != nil {
-		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
+		logs.ErrorLog(err, "")
+		return
 	}
 
-	b := make([]byte, stat.Size())
-	n, err := ioReader.Read(b)
-	if err != nil {
-		logs.ErrorLog(err, "") // panic is used only as an example and is not otherwise recommended.
-	}
-
-	log.Print(n)
 	b = bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
 	slBytes := bytes.Split(b, []byte("\n"))
 

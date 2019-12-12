@@ -81,7 +81,8 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
-	FirstFieldToJSON(stream, "Descriptor", param.Desc)
+	FirstFieldToJSON(stream, "Name", param.Name)
+	AddFieldToJSON(stream, "Descriptor", param.Desc)
 
 	if param.Type != nil {
 		if t, ok := param.Type.(jsoniter.ValEncoder); ok {

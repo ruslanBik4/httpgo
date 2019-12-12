@@ -1,9 +1,13 @@
 package apis
 
 import (
-	"github.com/json-iterator/go"
+	"bufio"
 	"go/types"
+	"net"
+	"sync"
 	"testing"
+
+	"github.com/json-iterator/go"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
@@ -95,4 +99,62 @@ func TestRenderApis(t *testing.T) {
 
 func testValue(ctx *fasthttp.RequestCtx) interface{} {
 	return ctx.Method()
+}
+
+func TestOnboarding(t *testing.T) {
+
+	fPort := ":8989"
+	listener, err := net.Listen("tcp", fPort)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+
+	t.Log("start")
+
+	// go func() {
+	// 	c, err := net.Dial("tcp", "127.0.0.1" +fPort)
+	// 	if err != nil {
+	// 		t.Fatal(err)
+	// 	}
+	//
+	// 	b := []byte("hello\n")
+	// 	c.Write(b)
+	// 	c.Close()
+	// 	// wg.Done()
+	// }()
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		reader := bufio.NewReader(conn)
+
+		str, _ := reader.ReadString('\n')
+		t.Log(str)
+
+		const head = `HTTP/1.1 200 Success 
+Content-Type: text/html; \n Retry-After: 60
+<meta http-equiv="Refresh" content="15" />
+
+
+`
+		w := bufio.NewWriter(conn)
+		_, err = w.WriteString(head + "<html>hello</html>")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		w.Flush()
+		conn.Close()
+		// break	// 	//
+		// wg.Done()
+	}
+
+	wg.Wait()
+
 }

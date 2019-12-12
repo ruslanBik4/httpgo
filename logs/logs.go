@@ -12,10 +12,10 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"	
+	"time"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/pkg/errors"	
+	"github.com/pkg/errors"
 )
 
 var (
@@ -37,7 +37,7 @@ type wrapKitLogger struct {
 	funcName  string
 	typeLog   string
 	toSentry  bool
-	toOther io.Writer
+	toOther   io.Writer
 }
 
 const logFlags = log.Lshortfile | log.Ltime
@@ -72,28 +72,30 @@ type fgLogWriter int8
 
 const (
 	fgAll fgLogWriter = iota
-	fgErr 
-	fgInfo 
+	fgErr
+	fgInfo
 	fgDebug
-
 )
 
 // SetWriters
 func SetWriters(newWriter io.Writer, logFlag fgLogWriter) {
-	switch logFlag {	
+	switch logFlag {
 	case fgAll:
 		logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
 		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
 		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
 	case fgErr:
-		logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
+		if logErr.toOther == nil {
+			logErr.toOther = newWriter
+		} else {
+			logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
+		}
 	case fgInfo:
 		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
 	case fgDebug:
 		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
-	}	
+	}
 }
-
 
 // SetSentry set SetSentry output for error
 func SetSentry(dns string) error {
@@ -140,26 +142,26 @@ func NewlogMess(mess string, logger *wrapKitLogger) *logMess {
 
 func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
-	checkprint, checktype := vars[0].(errLogPrint)
+	checkPrint, checkType := vars[0].(errLogPrint)
 
-	if checktype == true {
-		vars = vars[1:]		
+	if checkType == true {
+		vars = vars[1:]
 	}
 
-	mess := NewlogMess(getArgsString(vars...), logger)
-	if logger.funcName > "" {
-		mess.Message = logger.funcName + "();" + mess.Message
-	}
-
-	if checktype && (checkprint == true) {
-		fmt.Printf(mess.Message) 
+	mess := getArgsString(vars...)
+	if checkType && (checkPrint == true) {
+		fmt.Printf(mess)
 	} else {
-		logger.Output(logger.calldepth, mess.Message)
+		if logger.funcName > "" {
+			mess = logger.funcName + "();" + mess
+		}
+
+		logger.Output(logger.calldepth, mess)
 	}
 
 	if logger.toOther != nil {
-		go logger.toOther.Write([]byte(mess.Message))
-	}	
+		go logger.toOther.Write([]byte(mess))
+	}
 
 }
 
@@ -190,7 +192,7 @@ func getArgsString(args ...interface{}) (message string) {
 		case time.Time:
 			message += comma + val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
 		case []interface{}:
-			message += getArgsString(val...)		
+			message += getArgsString(val...)
 		case error:
 			message += comma + fmt.Sprintf("%v", arg)
 		default:
