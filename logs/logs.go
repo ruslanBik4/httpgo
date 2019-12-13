@@ -77,23 +77,28 @@ const (
 	fgDebug
 )
 
-// SetWriters
+func (logger *wrapKitLogger) addWriters(newWriter io.Writer) {
+	if logger.toOther == nil {
+		logger.toOther = newWriter
+	} else {
+		logger.toOther = io.MultiWriter(logger.toOther, newWriter)
+	}
+}
+
+// SetWriters for logs
 func SetWriters(newWriter io.Writer, logFlag fgLogWriter) {
+	
 	switch logFlag {
 	case fgAll:
-		logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
-		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
-		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
+		logErr.addWriters(newWriter)
+		logStat.addWriters(newWriter)
+		logDebug.addWriters(newWriter)
 	case fgErr:
-		if logErr.toOther == nil {
-			logErr.toOther = newWriter
-		} else {
-			logErr.toOther = io.MultiWriter(logErr.toOther, newWriter)
-		}
+		logErr.addWriters(newWriter)
 	case fgInfo:
-		logStat.toOther = io.MultiWriter(logStat.toOther, newWriter)
+		logStat.addWriters(newWriter)
 	case fgDebug:
-		logDebug.toOther = io.MultiWriter(logDebug.toOther, newWriter)
+		logDebug.addWriters(newWriter)
 	}
 }
 
