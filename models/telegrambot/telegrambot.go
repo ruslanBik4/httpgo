@@ -2,25 +2,23 @@ package telegrambot
 
 import (
 	"io/ioutil"
-	"net/http"
-	"time"
 	"strings"
+	"time"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-)
 
-const baseURL string = "https://api.telegram.org/bot"
+	"github.com/ruslanBik4/httpgo/logs"
+)
 
 // TelegramBot struct with tiken and one chatid
 type TelegramBot struct {
-	Token      		string `yaml:"BotToken"`
-	ChatID     		string `yaml:"ChatID"`
-	RequestURL 		string
-	Request    		*fasthttp.Request
-	Response   		*fasthttp.Response
-	FastHTTPClient 	*fasthttp.Client
+	Token          string `yaml:"BotToken"`
+	ChatID         string `yaml:"ChatID"`
+	RequestURL     string
+	Request        *fasthttp.Request
+	Response       *fasthttp.Response
+	FastHTTPClient *fasthttp.Client
 }
 
 // NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
@@ -55,7 +53,7 @@ func (tbot *TelegramBot) SetRequestURL(action string, otherRequest string, markd
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
-	tbot.SetRequestURL("sendMessage", ("chat_id=" + tbot.ChatID + "&text=" + message), markdown)
+	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + message), markdown)
 
 	//err := tbot.MakeRequest()
 	err := tbot.FastRequest()
@@ -92,7 +90,7 @@ func (tbot *TelegramBot) FastRequest() error {
 			if strings.Contains(err.Error(), "connection reset by peer") {
 				<-time.After(time.Minute * 2)
 				continue
-			} else {				
+			} else {
 				return err
 			}
 		}
