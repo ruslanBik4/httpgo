@@ -1,6 +1,8 @@
 FROM golang:1.13.4
+FROM git:2.23.0
 WORKDIR /go/src/app
 COPY . .
-RUN make all
-CMD ["go-wrapper", "run"]
+RUN mv config/httpgo.yml.sample config/httpgo.yml
+RUN make build
+CMD ["httpgo", "run"]
 EXPOSE 80

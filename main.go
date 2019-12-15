@@ -399,7 +399,7 @@ var (
 	fPort    = flag.String("port", ":80", "host address to listen on")
 	fSystem  = flag.String("path", "./", "path to static files")
 	fCfgPath = flag.String("config path", "config", "path to cfg files")
-	fWeb     = flag.String("web", "/home/travel/web/", "path to web files")
+	fWeb     = flag.String("web", "/home/web/", "path to web files")
 	fSession = flag.String("sessionPath", "/var/lib/php/session", "path to store sessions data")
 	fCache   = flag.String("cacheFileExt", `.eot;.ttf;.woff;.woff2;.otf;`, "file extensions for caching HTTPGO")
 	fChePath = flag.String("cachePath", "css;js;fonts;images", "path to cached files")
