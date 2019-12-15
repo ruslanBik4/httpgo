@@ -7,8 +7,6 @@ import (
 
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // TelegramBot struct with tiken and one chatid
@@ -26,11 +24,12 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
 	yamlFile, err := ioutil.ReadFile(confPath)
 	if err != nil {
-		logs.ErrorLog(err)
+		return nil, err
 	}
+
 	err = yaml.Unmarshal(yamlFile, &tb)
 	if err != nil {
-		logs.ErrorLog(err)
+		return nil, err
 	}
 
 	tb.RequestURL = baseURL

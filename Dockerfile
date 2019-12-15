@@ -1,4 +1,5 @@
 FROM golang:1.13.4
+FROM alpine
 RUN apk --update add git
 WORKDIR /go/src/app
 COPY . .
