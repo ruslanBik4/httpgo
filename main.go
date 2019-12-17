@@ -465,3 +465,17 @@ func main() {
 	}
 
 }
+
+// version
+var (
+	Version string
+	Build   string
+	Branch  string
+)
+
+// HandleLogServer show status httpgo
+// @/api/version/
+// func HandleVersion(ctx *fasthttp.RequestCtx) (interface{}, error) {
+//
+// 	return fmt.Sprintf("analytics-%s Version: %s, Build Time: %s", Branch, Version, Build), nil
+// }
