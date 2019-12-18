@@ -3,6 +3,7 @@ package telegrambot
 import (
 	"bytes"
 	"io/ioutil"
+	"os"
 	"strings"
 	"time"
 
@@ -42,6 +43,26 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 	tb.RequestURL = baseURL
 	tb.Request = &fasthttp.Request{}
 	tb.Response = &fasthttp.Response{}
+	tb.Request.Header.SetMethod(fasthttp.MethodGet)
+	tb.FastHTTPClient = &fasthttp.Client{}
+
+	return
+}
+
+// NewTelegramBot is a constructor from ENV
+func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
+	tb = &TelegramBot{}
+
+	if os.Getenv("TBTOKEN") != "" && os.Getenv("TBCHATID") != "" {
+		tb.Token = os.Getenv("TBTOKEN")	
+		tb.ChatID = os.Getenv("TBCHATID")
+	} else {
+		err = errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
+		return nil, err
+	}
+
+	tb.RequestURL = baseURL
+	tb.Request = &fasthttp.Request{}
 	tb.Request.Header.SetMethod(fasthttp.MethodGet)
 	tb.FastHTTPClient = &fasthttp.Client{}
 
