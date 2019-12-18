@@ -20,6 +20,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
 	. "github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
@@ -30,12 +31,14 @@ import (
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/system"
+	"github.com/ruslanBik4/httpgo/models/telegrambot"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 
 //go:generate qtc -dir=views/templates
 
 const fpmSocket = "/var/run/php5-fpm.sock"
+const ShowVersion = "/api/version()"
 
 var (
 	headerNameReplacer = strings.NewReplacer(" ", "_", "-", "_")
@@ -45,6 +48,28 @@ var (
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
 	routes  = ApiRoutes{
+		ShowVersion: {
+			Fnc:  HandleVersion,
+			Desc: "view version server",
+		},
+		"/api/tb/group_count": {
+			Fnc: func(ctx *RequestCtx) (i interface{}, err error) {
+				b, err := telegrambot.NewTelegramBot("tb.yml")
+				if err != nil {
+					return nil, errors.Wrap(err, "NewTelegramBot")
+				}
+
+				err = b.GetChatMemberCount(b.ChatID)
+				if err != nil {
+					return nil, errors.Wrap(err, "GetChatMemberCount")
+				}
+
+				return b.GetResult(), nil
+			},
+			Desc:      "test route",
+			Method:    POST,
+			Multipart: true,
+		},
 		"moreParams": {
 			Desc:      "test route",
 			Method:    POST,
@@ -475,7 +500,7 @@ var (
 
 // HandleLogServer show status httpgo
 // @/api/version/
-// func HandleVersion(ctx *fasthttp.RequestCtx) (interface{}, error) {
-//
-// 	return fmt.Sprintf("analytics-%s Version: %s, Build Time: %s", Branch, Version, Build), nil
-// }
+func HandleVersion(ctx *RequestCtx) (interface{}, error) {
+
+	return fmt.Sprintf("analytics-%s Version: %s, Build Time: %s", Branch, Version, Build), nil
+}

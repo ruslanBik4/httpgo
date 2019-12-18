@@ -23,24 +23,26 @@ func TestNewTelegramBot(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(b.props["result"])
+	t.Log(b.props)
 
 	err = b.GetChat(b.ChatID)
 	if !assert.Nil(t, err) {
 		t.Fatal(err)
 	}
-	t.Log(b.props["result"])
+	t.Log(b.props)
 
 	err = b.GetChatMemberCount(b.ChatID)
 	if !assert.Nil(t, err) {
 		t.Fatal(err)
+		fmt.Println()
 	}
 
 	c := b.props["result"].(float64)
+	t.Log(fmt.Sprintf("try to sum users of group - %.0f", c))
 	// for i := ; i < c; i++ {
 	b.GetChatMember(b.ChatID, "91653754")
-	b.SendMessage(fmt.Sprintf("user - %v", b.props["result"]), true)
+	// b.SendMessage(fmt.Sprintf("user - %v", b.props["result"]), true)
 	// }
-	b.SendMessage(fmt.Sprintf("try to sum users of group - %f", c), true)
+	// b.SendMessage(fmt.Sprintf("try to sum users of group - %f", c), true)
 	t.Log(b.Response.String())
 }

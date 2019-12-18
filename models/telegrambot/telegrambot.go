@@ -35,6 +35,7 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
 	err = yaml.Unmarshal(yamlFile, &tb)
 	if err != nil {
+		logs.DebugLog(" %+v", string(yamlFile))
 		return nil, err
 	}
 
@@ -176,4 +177,8 @@ func (tbot *TelegramBot) FastRequest() error {
 			}
 		}
 	}
+}
+func (tbot *TelegramBot) GetResult() interface{} {
+
+	return tbot.props["result"]
 }

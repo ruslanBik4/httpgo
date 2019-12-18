@@ -333,6 +333,9 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	for url, route := range a.routes {
 		row := make([]interface{}, len(columns))
 		row[0] = url + " - " + route.Method.String()
+		if route.Multipart {
+			row[0] = row[0].(string) + ", MULTIPART"
+		}
 		row[1] = route.Desc
 
 		s := ""
