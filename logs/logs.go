@@ -68,13 +68,13 @@ func SetStatus(s bool) bool {
 	return old
 }
 
-type fgLogWriter int8
+type FgLogWriter int8
 
 const (
-	fgAll fgLogWriter = iota
-	fgErr
-	fgInfo
-	fgDebug
+	FgAll FgLogWriter = iota
+	FgErr
+	FgInfo
+	FgDebug
 )
 
 func (logger *wrapKitLogger) addWriters(newWriter io.Writer) {
@@ -86,18 +86,18 @@ func (logger *wrapKitLogger) addWriters(newWriter io.Writer) {
 }
 
 // SetWriters for logs
-func SetWriters(newWriter io.Writer, logFlag fgLogWriter) {
-	
+func SetWriters(newWriter io.Writer, logFlag FgLogWriter) {
+
 	switch logFlag {
-	case fgAll:
+	case FgAll:
 		logErr.addWriters(newWriter)
 		logStat.addWriters(newWriter)
 		logDebug.addWriters(newWriter)
-	case fgErr:
+	case FgErr:
 		logErr.addWriters(newWriter)
-	case fgInfo:
+	case FgInfo:
 		logStat.addWriters(newWriter)
-	case fgDebug:
+	case FgDebug:
 		logDebug.addWriters(newWriter)
 	}
 }

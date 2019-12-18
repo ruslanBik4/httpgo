@@ -59,7 +59,7 @@ func TestErrorLogOthers(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
-	SetWriters(fakeWriter{wg}, fgErr)
+	SetWriters(fakeWriter{wg}, FgErr)
 
 	var err fakeErr
 
