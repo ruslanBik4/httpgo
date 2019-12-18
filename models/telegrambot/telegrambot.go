@@ -168,12 +168,13 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
 }
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
-func (tbot *TelegramBot) Write(message []byte) error {
+func (tbot *TelegramBot) Write(message []byte) (int, error) {
 	err := tbot.SendMessage(string(message), false)
 	if err != nil {
-		return err
+		return -1, err
 	}
-	return nil
+
+	return 1, nil
 }
 
 // FastRequest make fasthttp
