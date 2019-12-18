@@ -23,7 +23,7 @@ func TestNewTelegramBot(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(b.props)
+	t.Log("updates", b.props)
 
 	err = b.GetChat(b.ChatID)
 	if !assert.Nil(t, err) {

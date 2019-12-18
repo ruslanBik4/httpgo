@@ -8,6 +8,7 @@ import (
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
 
@@ -51,22 +52,23 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
 // NewTelegramBot is a constructor from ENV
 func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
-	tb = &TelegramBot{}
 
-	if os.Getenv("TBTOKEN") != "" && os.Getenv("TBCHATID") != "" {
-		tb.Token = os.Getenv("TBTOKEN")	
-		tb.ChatID = os.Getenv("TBCHATID")
-	} else {
-		err = errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
-		return nil, err
+	if os.Getenv("TBTOKEN") == "" || os.Getenv("TBCHATID") == "" {
+		return nil, errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
 	}
 
-	tb.RequestURL = baseURL
-	tb.Request = &fasthttp.Request{}
-	tb.Request.Header.SetMethod(fasthttp.MethodGet)
-	tb.FastHTTPClient = &fasthttp.Client{}
+	req := &fasthttp.Request{}
+	req.Header.SetMethod(fasthttp.MethodGet)
 
-	return
+	return &TelegramBot{
+		Token:          os.Getenv("TBTOKEN"),
+		ChatID:         os.Getenv("TBCHATID"),
+		Response:       &fasthttp.Response{},
+		RequestURL:     baseURL,
+		Request:        req,
+		FastHTTPClient: &fasthttp.Client{},
+	}, nil
+
 }
 
 // SetRequestURL makes url for request
@@ -75,6 +77,7 @@ func (tbot *TelegramBot) SetRequestURL(action string, otherRequest string, markd
 	if markdown {
 		tbot.RequestURL += "&parse_mode=Markdown"
 	}
+
 	tbot.Request.SetRequestURI(tbot.RequestURL)
 
 }
