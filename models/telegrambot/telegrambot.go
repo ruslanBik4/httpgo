@@ -169,6 +169,10 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot *TelegramBot) Write(message []byte) (int, error) {
+	if tbot == nil {
+		return -1, errors.New("Telegram bot is nil.")
+	}
+
 	err := tbot.SendMessage(string(message), false)
 	if err != nil {
 		return -1, err
@@ -203,6 +207,7 @@ func (tbot *TelegramBot) FastRequest() error {
 		}
 	}
 }
+
 func (tbot *TelegramBot) GetResult() interface{} {
 
 	return tbot.props["result"]

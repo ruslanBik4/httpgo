@@ -7,6 +7,7 @@ package telegrambot
 import (
 	"io"
 	"testing"
+	"log"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,3 +17,11 @@ func TestISWrite(t *testing.T) {
 
 	assert.Implements(t, (*io.Writer)(nil), b)
 }
+
+func TestNilWrite(t *testing.T) {
+	tb, err := NewTelegramBotFromEnv()
+	log.Println(tb, err)
+	code, errr := tb.Write([]byte("try mess"))
+	log.Println(code, errr)
+}
+
