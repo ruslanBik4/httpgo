@@ -102,6 +102,16 @@ type stackTracer interface {
 }
 
 
+func timeFormating() string {
+	hh, mm, ss := time.Now().Clock()
+	hhStr, minStr, ssStr := strconv.Itoa(hh), strconv.Itoa(mm), strconv.Itoa(ss)
+	if hh < 10 { hhStr = "0" + hhStr }
+	if mm < 10 { minStr = "0" + minStr }
+	if ss < 10 { ssStr = "0" + ssStr }
+	return hhStr + ":" + minStr + ":" + ssStr
+}
+
+
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 
@@ -125,8 +135,8 @@ func ErrorLog(err error, args ...interface{}) {
 
 	isIgnore := true
 
-	hh, mm, ss := time.Now().Clock()
-	timeStr := fmt.Sprintf("%d:%d:%d", hh, mm, ss)
+	timeStr := timeFormating()
+	
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
@@ -140,7 +150,7 @@ func ErrorLog(err error, args ...interface{}) {
 				} else {
 					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
 				}
-
+				log.Println(timeStr)
 				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, args)
 				return
 			}
