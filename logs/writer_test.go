@@ -36,7 +36,7 @@ func TestErrorLog(t *testing.T) {
 
 	var err fakeErr
 
-	ErrorLog(err, "test err", 1)
+	ErrorLog(err, "test err", 2)
 
 	err1 := errors.Wrap(err, "mess for error")
 	ErrorLog(err1, "test err wrap", 1)
@@ -66,4 +66,33 @@ func TestErrorLogOthers(t *testing.T) {
 	ErrorLog(err, "test err", 1)
 
 	wg.Wait()
+}
+
+
+func FirstFunc() error{
+	number := 4
+	err := SecondFunc(number)
+	if number < 5 && err != nil {
+		return errors.New("number < 5 and SecondFunc error")
+	}
+	if number >= 5 && err != nil {
+		return err
+	}
+	
+	return nil
+	
+}
+
+func SecondFunc(number int) error{
+	if number < 3 {
+		return nil
+	}
+
+	return errors.New("SecondFuncError")	
+}
+
+func TestLogErr(t *testing.T) {
+	err := FirstFunc()
+	ErrorLog(err)
+
 }

@@ -101,8 +101,13 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
+
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
+
+	if err == nil {
+		return 
+	}
 
 	var (
 		message         string
@@ -120,6 +125,9 @@ func ErrorLog(err error, args ...interface{}) {
 
 	isIgnore := true
 
+	hh, mm, ss := time.Now().Clock()
+	timeStr := fmt.Sprintf("%d:%d:%d", hh, mm, ss)
+
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
@@ -128,35 +136,27 @@ func ErrorLog(err error, args ...interface{}) {
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
-					hh, mm, ss := time.Now().Clock()
-					timeFrameString = fmt.Sprintf("%d:%d:%d %s:%d: %s()", hh, mm, ss, file, frame, fncName)
+					timeFrameString = fmt.Sprintf("%s %s:%d: %s()", timeStr, file, frame, fncName)
 				} else {
 					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
 				}
-				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, getArgsString(args...), "\n")
 
+				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, args)
 				return
 			}
 		}
 	}
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
-		calldepth++
+		calldepth += 2
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		isIgnore = isIgnoreFunc(logErr.funcName)
 	}
 
-	if err != nil {
-		message += fmt.Sprintf("%s;%s;%s", logErr.funcName,
-			err.Error(), getArgsString(args...))
-	} else {
-		message += fmt.Sprintf("%s;%s", logErr.funcName,
-			getArgsString(args...))
+	logErr.calldepth = calldepth
 
-	}
-
-	logErr.Printf(message)
+	logErr.Printf(message+logErr.funcName+"()", err, args)
 }
 
 const prefErrStack = "[[ERR_STACK]]"
