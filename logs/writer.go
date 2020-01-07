@@ -103,12 +103,8 @@ type stackTracer interface {
 
 
 func timeFormating() string {
-	hh, mm, ss := time.Now().Clock()
-	hhStr, minStr, ssStr := strconv.Itoa(hh), strconv.Itoa(mm), strconv.Itoa(ss)
-	if hh < 10 { hhStr = "0" + hhStr }
-	if mm < 10 { minStr = "0" + minStr }
-	if ss < 10 { ssStr = "0" + ssStr }
-	return hhStr + ":" + minStr + ":" + ssStr
+	hh, mm, ss := time.Now().Clock()	
+	return fmt.Sprintf("%.2d:%.2d:%.2d", hh, mm, ss)
 }
 
 
@@ -150,7 +146,6 @@ func ErrorLog(err error, args ...interface{}) {
 				} else {
 					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
 				}
-				log.Println(timeStr)
 				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, args)
 				return
 			}
@@ -158,13 +153,13 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
-		calldepth += 2
+		calldepth ++
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		isIgnore = isIgnoreFunc(logErr.funcName)
 	}
 
-	logErr.calldepth = calldepth
+	logErr.calldepth = calldepth+1
 
 	logErr.Printf(message+logErr.funcName+"()", err, args)
 }
