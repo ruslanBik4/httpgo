@@ -127,12 +127,9 @@ func ErrorLog(err error, args ...interface{}) {
 		message = string(*(sentry.CaptureException(err)))
 	}
 
-	calldepth := logErr.calldepth
+	calldepth := 0
 
 	isIgnore := true
-
-	timeStr := timeFormating()
-	
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
@@ -142,7 +139,7 @@ func ErrorLog(err error, args ...interface{}) {
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 				if logErr.Flags()&log.Ltime != 0 {
-					timeFrameString = fmt.Sprintf("%s %s:%d: %s()", timeStr, file, frame, fncName)
+					timeFrameString = fmt.Sprintf("%s %s:%d: %s()", timeFormating(), file, frame, fncName)
 				} else {
 					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
 				}
@@ -153,7 +150,7 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
-		calldepth ++
+		calldepth++
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		isIgnore = isIgnoreFunc(logErr.funcName)
