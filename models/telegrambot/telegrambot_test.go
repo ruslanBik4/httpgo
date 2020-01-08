@@ -6,7 +6,6 @@ package telegrambot
 
 import (
 	"io"
-	"log"
 	"os"
 	"testing"
 
@@ -25,33 +24,21 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 	tb, err := NewTelegramBotFromEnv()
 	as := assert.New(t)
 
-	if err != nil {
-		log.Println(err)
-		t.Fail()
-	}
-
-	if tb.Token != "bottoken" || tb.ChatID != "chatid" {
-		log.Println(err)
-		t.Fail()
-	}
+	as.Nil(err, "%v", err)
+	as.Equal("bottoken", tb.Token, "Token from env wrong") 
+	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
+	
 
 	err = tb.SendMessage("some mess", false)
-	if err != nil {
-		log.Println(err)
-		t.Fail()
-	}
+	as.Nil(err, "%v", err)
 
 	_, err = tb.Write([]byte("some mess"))
-	if err != nil {
-		log.Println(err)
-		t.Fail()
-	}
+	as.Nil(err, "%v", err)
 
 	tb = &TelegramBot{}
 
 	_, err = tb.Write([]byte("some mess"))
 	if as.NotNil(err) {
-		as.EqualError(err, "TelegramBot{} is empty struct")
+		as.EqualError(err, "TelegramBot.Token empty")
 	}
-
 }

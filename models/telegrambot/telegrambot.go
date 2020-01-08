@@ -169,13 +169,22 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot *TelegramBot) Write(message []byte) (int, error) {
-	if tbot == nil {
-		return -1, errors.New("TelegramBot is nil")
+	if tbot.Token == "" {
+		return -1, errors.New("TelegramBot.Token empty")
+	}
+	if tbot.ChatID == "" {
+		return -1, errors.New("TelegramBot.ChatID empty")
+	}
+	if tbot.FastHTTPClient == nil {
+		return -1, errors.New("TelegramBot.FastHTTPClient == nil")
+	}
+	if tbot.Request == nil {
+		return -1, errors.New("TelegramBot.Request == nil")
+	}
+	if tbot.Response == nil {
+		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
-	if tbot.Token == "" || tbot.ChatID == "" || tbot.FastHTTPClient == nil || tbot.Request == nil || tbot.Response == nil {
-		return -1, errors.New("TelegramBot{} is empty struct")
-	}
 
 	err := tbot.SendMessage(string(message), false)
 	if err != nil {
