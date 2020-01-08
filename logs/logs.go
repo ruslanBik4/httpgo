@@ -21,9 +21,9 @@ import (
 var (
 	fDebug   = flag.Bool("debug", false, "debug mode")
 	fStatus  = flag.Bool("status", true, "status mode")
-	logErr   = NewWrapKitLogger(colors[ERROR]+"ERROR"+"\033[0m", 1)
+	logErr   = NewWrapKitLogger(colors[ERROR]+"ERROR"+LogEndColor, 1)
 	logStat  = NewWrapKitLogger("INFO", 3)
-	logDebug = NewWrapKitLogger(colors[DEBUG]+"DEBUG"+"\033[0m", 3)
+	logDebug = NewWrapKitLogger(colors[DEBUG]+"DEBUG"+LogEndColor, 3)
 )
 
 // LogsType - interface for print logs record
@@ -196,7 +196,7 @@ func getArgsString(args ...interface{}) (message string) {
 		case []interface{}:
 			if len(val) > 0 {
 				message += comma + getArgsString(val...)
-			}			
+			}
 		case error:
 			message += comma + fmt.Sprintf("%v", arg)
 		default:
@@ -208,53 +208,4 @@ func getArgsString(args ...interface{}) (message string) {
 	}
 
 	return message
-}
-
-type Level int
-
-const (
-	CRITICAL Level = iota
-	ERROR
-	WARNING
-	NOTICE
-	INFO
-	DEBUG
-)
-
-type color int
-
-const (
-	colorBlack = (iota + 30)
-	colorRed
-	colorGreen
-	colorYellow
-	colorBlue
-	colorMagenta
-	colorCyan
-	colorWhite
-)
-
-var (
-	colors = []string{
-		CRITICAL: colorSeq(colorMagenta),
-		ERROR:    colorSeq(colorRed),
-		WARNING:  colorSeq(colorYellow),
-		NOTICE:   colorSeq(colorGreen),
-		DEBUG:    colorSeq(colorCyan),
-	}
-	boldcolors = []string{
-		CRITICAL: colorSeqBold(colorMagenta),
-		ERROR:    colorSeqBold(colorRed),
-		WARNING:  colorSeqBold(colorYellow),
-		NOTICE:   colorSeqBold(colorGreen),
-		DEBUG:    colorSeqBold(colorCyan),
-	}
-)
-
-func colorSeq(color color) string {
-	return fmt.Sprintf("\033[%dm", int(color))
-}
-
-func colorSeqBold(color color) string {
-	return fmt.Sprintf("\033[%d;1m", int(color))
 }

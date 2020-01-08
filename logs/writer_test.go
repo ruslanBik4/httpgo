@@ -46,8 +46,15 @@ type fakeWriter struct {
 	wg *sync.WaitGroup
 }
 
+func newFakeWriter(wg *sync.WaitGroup) *fakeWriter {
+	wg.Add(1)
+
+	return &fakeWriter{wg: wg}
+}
+
 func (w fakeWriter) Write(b []byte) (int, error) {
-	fmt.Println(boldcolors[WARNING] + "fake writer" + string(b) + "\033[0m")
+
+	fmt.Println(boldcolors[WARNING] + "fake writer" + string(b) + LogEndColor)
 
 	w.wg.Done()
 
@@ -94,6 +101,20 @@ func TestLogErr(t *testing.T) {
 }
 
 func BenchmarkErrorLog(b *testing.B) {
-	ErrorLog(errors.New("BenchmarkErrorLog testing"), 1)
-}
 
+	b.Run("single log", func(b *testing.B) {
+		ErrorLog(errors.New("BenchmarkErrorLog testing"), 1)
+		b.ReportAllocs()
+	})
+
+	wg := &sync.WaitGroup{}
+	b.Run("fakewriter", func(b *testing.B) {
+
+		SetWriters(newFakeWriter(wg), FgErr)
+		ErrorLog(errors.New("BenchmarkErrorLog testing with "), 1)
+
+		b.ReportAllocs()
+	})
+	wg.Wait()
+
+}
