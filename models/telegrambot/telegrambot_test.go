@@ -6,8 +6,9 @@ package telegrambot
 
 import (
 	"io"
-	"testing"
 	"log"
+	"os"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -18,10 +19,39 @@ func TestISWrite(t *testing.T) {
 	assert.Implements(t, (*io.Writer)(nil), b)
 }
 
-func TestNilWrite(t *testing.T) {
+func TestNewTelegramBotFromEnv(t *testing.T) {
+	os.Setenv("TBTOKEN", "bottoken")
+	os.Setenv("TBCHATID", "chatid")
 	tb, err := NewTelegramBotFromEnv()
-	log.Println(tb, err)
-	code, errr := tb.Write([]byte("try mess"))
-	log.Println(code, errr)
-}
+	as := assert.New(t)
 
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+	if tb.Token != "bottoken" || tb.ChatID != "chatid" {
+		log.Println(err)
+		t.Fail()
+	}
+
+	err = tb.SendMessage("some mess", false)
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+	_, err = tb.Write([]byte("some mess"))
+	if err != nil {
+		log.Println(err)
+		t.Fail()
+	}
+
+	tb = &TelegramBot{}
+
+	_, err = tb.Write([]byte("some mess"))
+	if as.NotNil(err) {
+		as.EqualError(err, "TelegramBot{} is empty struct")
+	}
+
+}

@@ -47,7 +47,7 @@ type fakeWriter struct {
 }
 
 func (w fakeWriter) Write(b []byte) (int, error) {
-	fmt.Println(boldcolors[WARNING]+"fake writer"+string(b)+"\033[0m")
+	fmt.Println(boldcolors[WARNING] + "fake writer" + string(b) + "\033[0m")
 
 	w.wg.Done()
 
@@ -69,26 +69,31 @@ func TestErrorLogOthers(t *testing.T) {
 }
 
 // Func to check error occurance line
-func FuncStack(number int) error{
+func FuncStack(number int) error {
 	err := InnerErrorFunc(number)
 	if number < 5 && err != nil {
 		return errors.New("number < 5 and InnerErrorFunc() error occured")
 	}
 	if number >= 5 && err != nil {
 		return err
-	}	
-	return nil	
+	}
+	return nil
 }
 
 // Func to raise error inside
-func InnerErrorFunc(number int) error{
+func InnerErrorFunc(number int) error {
 	if number < 5 {
 		return nil
 	}
-	return errors.New("InnerErrorFunc() error occured")	
+	return errors.New("InnerErrorFunc() error occured")
 }
 
 func TestLogErr(t *testing.T) {
 	err := FuncStack(7)
 	ErrorLog(err)
 }
+
+func BenchmarkErrorLog(b *testing.B) {
+	ErrorLog(errors.New("BenchmarkErrorLog testing"), 1)
+}
+
