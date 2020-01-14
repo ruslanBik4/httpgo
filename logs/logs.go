@@ -14,8 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acarl005/stripansi"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
+	
 )
 
 var (
@@ -154,16 +156,15 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	mess := getArgsString(vars...)
-	mess += "\n"
 	if checkType && (checkPrint == true) {
-		fmt.Printf(mess)
+		fmt.Printf(mess + "\n")
 	} else {
 		logger.Output(logger.calldepth, mess)
 	}
 
 	if logger.toOther != nil {
-		go logger.toOther.Write([]byte(mess))
-	}
+		go logger.toOther.Write([]byte(stripansi.Strip(mess)))
+	}	
 
 }
 
