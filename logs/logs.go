@@ -154,15 +154,18 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	mess := getArgsString(vars...)
+
+	// changed for TestErrorLogTelegramWrite() because localhost 
+	// doesn't hear the request with "\n" at the end
+	if logger.toOther != nil {
+		go logger.toOther.Write([]byte(mess))
+	}	
+
 	mess += "\n"
 	if checkType && (checkPrint == true) {
 		fmt.Printf(mess)
 	} else {
 		logger.Output(logger.calldepth, mess)
-	}
-
-	if logger.toOther != nil {
-		go logger.toOther.Write([]byte(mess))
 	}
 
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
+	"github.com/acarl005/stripansi"
 
 	"github.com/ruslanBik4/httpgo/logs"
 )
@@ -44,7 +45,6 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 	tb.RequestURL = baseURL
 	tb.Request = &fasthttp.Request{}
 	tb.Response = &fasthttp.Response{}
-	tb.Request.Header.SetMethod(fasthttp.MethodGet)
 	tb.FastHTTPClient = &fasthttp.Client{}
 
 	return
@@ -52,20 +52,16 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
 // NewTelegramBot is a constructor from ENV
 func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
-
 	if os.Getenv("TBTOKEN") == "" || os.Getenv("TBCHATID") == "" {
 		return nil, errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
 	}
-
-	req := &fasthttp.Request{}
-	req.Header.SetMethod(fasthttp.MethodGet)
 
 	return &TelegramBot{
 		Token:          os.Getenv("TBTOKEN"),
 		ChatID:         os.Getenv("TBCHATID"),
 		Response:       &fasthttp.Response{},
 		RequestURL:     baseURL,
-		Request:        req,
+		Request:        &fasthttp.Request{},
 		FastHTTPClient: &fasthttp.Client{},
 	}, nil
 
@@ -73,12 +69,12 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 
 // SetRequestURL makes url for request
 func (tbot *TelegramBot) SetRequestURL(action string, otherRequest string, markdown bool) {
-	tbot.RequestURL = (baseURL + tbot.Token + "/" + action + "?" + otherRequest)
+	newUrl := (tbot.RequestURL + tbot.Token + "/" + action + "?" + otherRequest)
 	if markdown {
-		tbot.RequestURL += "&parse_mode=Markdown"
+		newUrl += "&parse_mode=Markdown"
 	}
 
-	tbot.Request.SetRequestURI(tbot.RequestURL)
+	tbot.Request.SetRequestURI(newUrl)
 
 }
 
@@ -157,8 +153,8 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
-	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + message), markdown)
-
+	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + stripansi.Strip(strings.Replace(message, " ", "%20", -1))), markdown)
+	
 	err := tbot.FastRequest()
 	if err != nil {
 		return err
@@ -194,10 +190,9 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 	return 1, nil
 }
 
-// FastRequest make fasthttp
+// FastRequest make fasthttp request
 func (tbot *TelegramBot) FastRequest() error {
 	for {
-
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
 		switch err {
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
@@ -208,7 +203,7 @@ func (tbot *TelegramBot) FastRequest() error {
 			continue
 		case nil:
 			// todo: сделать анализ ответа
-			logs.DebugLog(" %+v", tbot.Response)
+			//logs.DebugLog(" %+v", tbot.Response)
 			return nil
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
@@ -221,7 +216,7 @@ func (tbot *TelegramBot) FastRequest() error {
 	}
 }
 
+//GetResult
 func (tbot *TelegramBot) GetResult() interface{} {
-
 	return tbot.props["result"]
 }
