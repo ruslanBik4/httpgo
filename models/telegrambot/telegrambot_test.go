@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"bufio"
 
 	"github.com/valyala/fasthttp"
 
@@ -22,6 +23,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
+
+var useTestLocalPort string = ":21476"
 
 func TestISWrite(t *testing.T) {
 	b := &TelegramBot{}
@@ -60,12 +63,12 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 
 //server from fasthttp example
 func FastHTTPServer() {
-	ln, err := net.Listen("tcp", ":21476")
+	ln, err := net.Listen("tcp", useTestLocalPort)
 	if err != nil {
 		log.Fatalf("error in net.Listen: %s", err)
 	}
 	requestHandler := func(ctx *fasthttp.RequestCtx) {
-		fmt.Println(ctx, "Requested path is")
+		fmt.Println(ctx, "Requested path is")	
 	}
 	if err := fasthttp.Serve(ln, requestHandler); err != nil {
 		log.Fatalf("error in Serve: %s", err)
@@ -77,13 +80,12 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	os.Setenv("TBCHATID", "chatid")
 	tb, err := NewTelegramBotFromEnv()
 	as := assert.New(t)
-	fmt.Println("tb")
 
 	as.Nil(err, "%v", err)
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
 
-	tb.RequestURL = "http://localhost:21476/"
+	tb.RequestURL = "http://localhost" + useTestLocalPort + "/"
 
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
@@ -119,7 +121,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 				}
 			}
 		})
-	go http.ListenAndServe(":21476", nil)
+	go http.ListenAndServe(useTestLocalPort, nil)
 	// =========================================
 
 	//// another server version, but hadler hasn't written for the errors and waitgroup
@@ -133,3 +135,63 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	wg.Wait()
 
 }
+
+func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {	
+
+	os.Setenv("TBTOKEN", "bottoken")
+	os.Setenv("TBCHATID", "chatid")
+	tb, err := NewTelegramBotFromEnv()
+	as := assert.New(t)
+
+	as.Nil(err, "%v", err)
+	as.Equal("bottoken", tb.Token, "Token from env wrong")
+	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
+
+	tb.RequestURL = "http://localhost" + useTestLocalPort + "/"
+
+	newError := errors.New("NewERROR")
+	newErrorWraped := errors.Wrap(newError, "Wraped")
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
+
+	l, err := net.Listen("tcp", useTestLocalPort)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	//defer l.Close()
+
+	go func() {
+		for {
+			c, err := l.Accept()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			reader := bufio.NewReader(c)
+
+			netData, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			if strings.Contains(netData, newError.Error()) || strings.Contains(netData, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+					fmt.Println("strings.Contains(netData, Error())")
+					wg.Done()
+			}			
+		}
+	}()
+	
+	logs.SetWriters(tb, logs.FgErr)
+
+	logs.ErrorLog(newError)
+	logs.ErrorLog(newErrorWraped)
+
+	wg.Wait()
+
+}
+
+

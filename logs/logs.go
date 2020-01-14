@@ -14,8 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acarl005/stripansi"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
+	
 )
 
 var (
@@ -160,10 +162,8 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		logger.Output(logger.calldepth, mess)
 	}
 
-	// changed for TestErrorLogTelegramWrite() because localhost 
-	// doesn't hear the request with "\n" at the end
 	if logger.toOther != nil {
-		go logger.toOther.Write([]byte(mess))
+		go logger.toOther.Write([]byte(stripansi.Strip(mess)))
 	}	
 
 }

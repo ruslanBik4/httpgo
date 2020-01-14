@@ -11,8 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-	"github.com/acarl005/stripansi"
-
+	
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
@@ -153,7 +152,7 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
-	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + stripansi.Strip(strings.Replace(message, " ", "%20", -1))), markdown)
+	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + strings.Replace(message, " ", "%20", -1)), markdown)
 	
 	err := tbot.FastRequest()
 	if err != nil {
