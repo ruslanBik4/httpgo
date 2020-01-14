@@ -11,13 +11,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+
+
 func TestNewTelegramBot(t *testing.T) {
 	b, err := NewTelegramBot("bot_test_vals.yml")
 	if !assert.Nil(t, err) {
 		t.Fatal(err)
 	}
-	assert.NotEmpty(t, b.Token)
-	if assert.Equal(t, "bottoken", b.Token) && assert.Equal(t,"chatid", b.ChatID) {return}
+	assert.NotNil(t, b.Token)
+
+	if assert.NotEmpty(t, b.Token) && assert.NotEmpty(t, b.ChatID) {
+		if assert.Equal(t, "bottoken", b.Token) && assert.Equal(t,"chatid", b.ChatID) {return}
+	}
 
 	err = b.GetUpdates()
 	if !assert.Nil(t, err) {

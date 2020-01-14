@@ -60,7 +60,7 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 
 //server from fasthttp example
 func FastHTTPServer() {
-	ln, err := net.Listen("tcp", ":8080")
+	ln, err := net.Listen("tcp", ":21476")
 	if err != nil {
 		log.Fatalf("error in net.Listen: %s", err)
 	}
@@ -83,7 +83,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
 
-	tb.RequestURL = "http://localhost:8080/"
+	tb.RequestURL = "http://localhost:21476/"
 
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
@@ -93,7 +93,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 
-	// ===== Simple net.http/ListenAndServe server =====
+	// ===== Simple net.http/ListenAndServe server with specific handler to read out telgrambot request =====
 	http.HandleFunc("/bottoken/sendMessage",
 		func(w http.ResponseWriter, r *http.Request) {
 			log.Println("HandleFunc r.URL", r.URL)
@@ -119,7 +119,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 				}
 			}
 		})
-	go http.ListenAndServe(":8080", nil)
+	go http.ListenAndServe(":21476", nil)
 	// =========================================
 
 	//// another server version, but hadler hasn't written for the errors and waitgroup

@@ -203,7 +203,7 @@ func (tbot *TelegramBot) FastRequest() error {
 			continue
 		case nil:
 			// todo: сделать анализ ответа
-			//logs.DebugLog(" %+v", tbot.Response)
+			logs.DebugLog(" %+v", tbot.Response)
 			return nil
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
