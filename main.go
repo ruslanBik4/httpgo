@@ -54,7 +54,7 @@ var (
 		},
 		"/api/tb/group_count": {
 			Fnc: func(ctx *RequestCtx) (i interface{}, err error) {
-				b, err := telegrambot.HandleGetFontNewTelegramBotFromEnv()
+				b, err := telegrambot.NewTelegramBotFromEnv()
 				if err != nil {
 					return nil, errors.Wrap(err, "NewTelegramBot")
 				}
