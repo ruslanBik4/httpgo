@@ -2,7 +2,10 @@ package telegrambot
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"mime/multipart"
 	"os"
 	"strings"
 	"time"
@@ -11,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-	
+
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
@@ -25,6 +28,13 @@ type TelegramBot struct {
 	FastHTTPClient *fasthttp.Client
 
 	props map[string]interface{}
+}
+
+//struct for telegram reply_markup keyboard
+type TelegramKeyboard struct {
+	Keyboard        [][]string `json:"keyboard"`
+	OneTimeKeyboard bool       `json:"one_time_keyboard"`
+	ResizeKeyboard  bool       `json:"resize_keyboard"`
 }
 
 // NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
@@ -55,33 +65,49 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 		return nil, errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
 	}
 
-	return &TelegramBot{
+	tb = &TelegramBot{
 		Token:          os.Getenv("TBTOKEN"),
 		ChatID:         os.Getenv("TBCHATID"),
 		Response:       &fasthttp.Response{},
 		RequestURL:     baseURL,
 		Request:        &fasthttp.Request{},
 		FastHTTPClient: &fasthttp.Client{},
-	}, nil
+	}
+
+	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+	return tb, nil
 
 }
 
-// SetRequestURL makes url for request
-func (tbot *TelegramBot) SetRequestURL(action string, otherRequest string, markdown bool) {
-	newUrl := (tbot.RequestURL + tbot.Token + "/" + action + "?" + otherRequest)
-	if markdown {
-		newUrl += "&parse_mode=Markdown"
+// setRequestURL makes url for request
+func (tbot *TelegramBot) setRequestURL(action string) {
+	newUrl := (tbot.RequestURL + tbot.Token + "/" + action + "?")
+	tbot.Request.SetRequestURI(newUrl)
+}
+
+// Set multipart data for request
+func (tbot *TelegramBot) setMultipartData(params map[string]string) error {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+	for name, val := range params {
+		err := w.WriteField(name, val)
+		if err != nil {
+			return err
+		}
 	}
 
-	tbot.Request.SetRequestURI(newUrl)
+	if err := w.Close(); err != nil {
+		return err
+	}
 
+	tbot.Request.Header.Set("Content-Type", w.FormDataContentType())
+	tbot.Request.SetBody(b.Bytes())
+	return nil
 }
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetUpdates() error {
-	tbot.SetRequestURL(cmdgetUpdates, "", true)
-
-	err := tbot.FastRequest()
+	err := tbot.FastRequest(cmdgetUpdates, map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -104,9 +130,10 @@ func (tbot *TelegramBot) readResponse(err error) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChat(name string) error {
-	tbot.SetRequestURL(cmdGetChat, "chat_id="+name, true)
-
-	err := tbot.FastRequest()
+	err := tbot.FastRequest(cmdGetChat,
+		map[string]string{
+			"chat_id": name,
+		})
 	if err != nil {
 		return err
 	}
@@ -116,9 +143,10 @@ func (tbot *TelegramBot) GetChat(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChatMemberCount(name string) error {
-	tbot.SetRequestURL(cmdGetChMbrsCount, "chat_id="+name, true)
-
-	err := tbot.FastRequest()
+	err := tbot.FastRequest(cmdGetChMbrsCount,
+		map[string]string{
+			"chat_id": name,
+		})
 	if err != nil {
 		return err
 	}
@@ -128,9 +156,11 @@ func (tbot *TelegramBot) GetChatMemberCount(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChatMember(name string, user string) error {
-	tbot.SetRequestURL(cmdGetChMbr, "chat_id="+name+"&user_id="+user, true)
-
-	err := tbot.FastRequest()
+	err := tbot.FastRequest(cmdGetChMbr,
+		map[string]string{
+			"chat_id": name,
+			"user_id": user,
+		})
 	if err != nil {
 		return err
 	}
@@ -140,9 +170,10 @@ func (tbot *TelegramBot) GetChatMember(name string, user string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) InviteUser(name string) error {
-	tbot.SetRequestURL(cmdInlineMThd, "chat_id="+name, true)
-
-	err := tbot.FastRequest()
+	err := tbot.FastRequest(cmdInlineMThd,
+		map[string]string{
+			"chat_id": name,
+		})
 	if err != nil {
 		return err
 	}
@@ -150,11 +181,31 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 	return nil
 }
 
-// SendMessage is used for sending messages
-func (tbot *TelegramBot) SendMessage(message string, markdown bool) error {
-	tbot.SetRequestURL(cmdSendMes, ("chat_id=" + tbot.ChatID + "&text=" + strings.Replace(message, " ", "%20", -1)), markdown)
-	
-	err := tbot.FastRequest()
+// SendMessage is used for sending messages. Arguments keys must contain TelegramKeyboard{} to add keys to your message
+func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) error {
+	requestparams := map[string]string{
+		"chat_id": tbot.ChatID,
+		"text":    strings.Replace(message, " ", "%20", -1),
+	}
+	if markdown {
+		requestparams["parse_mode"] = "Markdown"
+	}
+
+	if keys != nil {
+		replyMarkup, checkType := keys[0].(TelegramKeyboard)
+
+		if checkType == true {
+			keysJsonString, err := json.Marshal(replyMarkup)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				requestparams["reply_markup"] = string(keysJsonString)
+			}
+		}
+	}
+
+	err := tbot.FastRequest(cmdSendMes, requestparams)
+
 	if err != nil {
 		return err
 	}
@@ -180,7 +231,6 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
-
 	err := tbot.SendMessage(string(message), false)
 	if err != nil {
 		return -1, err
@@ -190,7 +240,14 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 }
 
 // FastRequest make fasthttp request
-func (tbot *TelegramBot) FastRequest() error {
+func (tbot *TelegramBot) FastRequest(action string, params map[string]string) error {
+	fmt.Println("FastRequest+++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+	tbot.setRequestURL(action)
+	err := tbot.setMultipartData(params)
+	if err != nil {
+		return err
+	}
+
 	for {
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
 		switch err {

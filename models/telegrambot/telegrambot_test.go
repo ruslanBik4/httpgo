@@ -5,6 +5,7 @@
 package telegrambot
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -14,7 +15,6 @@ import (
 	"strings"
 	"sync"
 	"testing"
-	"bufio"
 
 	"github.com/valyala/fasthttp"
 
@@ -38,11 +38,14 @@ func TestSome(t *testing.T) {
 }
 
 func TestNewTelegramBotFromEnv(t *testing.T) {
-	os.Setenv("TBTOKEN", "bottoken")
-	os.Setenv("TBCHATID", "chatid")
-	tb, err := NewTelegramBotFromEnv()
 	as := assert.New(t)
 
+	err := os.Setenv("TBTOKEN", "bottoken")
+	as.Nil(err, "%v", err)
+	err = os.Setenv("TBCHATID", "chatid")
+	as.Nil(err, "%v", err)
+
+	tb, err := NewTelegramBotFromEnv()
 	as.Nil(err, "%v", err)
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
@@ -68,7 +71,7 @@ func FastHTTPServer() {
 		log.Fatalf("error in net.Listen: %s", err)
 	}
 	requestHandler := func(ctx *fasthttp.RequestCtx) {
-		fmt.Println(ctx, "Requested path is")	
+		fmt.Println(ctx, "Requested path is")
 	}
 	if err := fasthttp.Serve(ln, requestHandler); err != nil {
 		log.Fatalf("error in Serve: %s", err)
@@ -76,11 +79,14 @@ func FastHTTPServer() {
 }
 
 func TestErrorLogTelegramWrite(t *testing.T) {
-	os.Setenv("TBTOKEN", "bottoken")
-	os.Setenv("TBCHATID", "chatid")
-	tb, err := NewTelegramBotFromEnv()
 	as := assert.New(t)
 
+	err := os.Setenv("TBTOKEN", "bottoken")
+	as.Nil(err, "%v", err)
+	err = os.Setenv("TBCHATID", "chatid")
+	as.Nil(err, "%v", err)
+
+	tb, err := NewTelegramBotFromEnv()
 	as.Nil(err, "%v", err)
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
@@ -100,27 +106,40 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 		func(w http.ResponseWriter, r *http.Request) {
 			log.Println("HandleFunc r.URL", r.URL)
 
-			for i, paramName := range parametrsCheck {
-				params, ok := r.URL.Query()[paramName]
+			if r.Method == "GET" {
+				for i, paramName := range parametrsCheck {
+					params, ok := r.URL.Query()[paramName]
 
-				if !ok || len(params[0]) < 1 {
-					log.Println("Url Param", paramName, "is missing")
-					t.Fail()
-					wg.Done()
-					return
+					if !ok || len(params[0]) < 1 {
+						log.Println("Url Param", paramName, "is missing")
+						t.Fail()
+						wg.Done()
+						return
+					}
+
+					if i == 0 {
+						as.Equal(string(params[0]), tb.ChatID, "ChatID in request is wrong")
+					} else {
+						if strings.Contains(string(params[0]), strings.Replace(newError.Error(), " ", "%20", -1)) ||
+							strings.Contains(string(params[0]), strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+							wg.Done()
+							return
+						}
+					}
 				}
+			}
 
-				if i == 0 {
-					as.Equal(string(params[0]), tb.ChatID, "ChatID in request is wrong")
-				} else {
-					if strings.Contains(string(params[0]), strings.Replace(newError.Error(), " ", "%20", -1)) ||
-						strings.Contains(string(params[0]), strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+			if r.Method == "POST" {
+				if as.Equal(r.FormValue("chat_id"), tb.ChatID, "ChatID in request is wrong") {
+					if strings.Contains(r.FormValue("text"), strings.Replace(newError.Error(), " ", "%20", -1)) ||
+						strings.Contains(r.FormValue("text"), strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
 						wg.Done()
 						return
 					}
 				}
 			}
 		})
+
 	go http.ListenAndServe(useTestLocalPort, nil)
 	// =========================================
 
@@ -136,13 +155,15 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 
 }
 
-func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {	
-
-	os.Setenv("TBTOKEN", "bottoken")
-	os.Setenv("TBCHATID", "chatid")
-	tb, err := NewTelegramBotFromEnv()
+func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	as := assert.New(t)
 
+	err := os.Setenv("TBTOKEN", "bottoken")
+	as.Nil(err, "%v", err)
+	err = os.Setenv("TBCHATID", "chatid")
+	as.Nil(err, "%v", err)
+
+	tb, err := NewTelegramBotFromEnv()
 	as.Nil(err, "%v", err)
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
@@ -179,12 +200,12 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 			}
 
 			if strings.Contains(netData, newError.Error()) || strings.Contains(netData, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
-					fmt.Println("strings.Contains(netData, Error())")
-					wg.Done()
-			}			
+				fmt.Println("strings.Contains(netData, Error())")
+				wg.Done()
+			}
 		}
 	}()
-	
+
 	logs.SetWriters(tb, logs.FgErr)
 
 	logs.ErrorLog(newError)
@@ -193,5 +214,3 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	wg.Wait()
 
 }
-
-
