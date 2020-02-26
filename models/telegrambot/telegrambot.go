@@ -241,7 +241,6 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 
 // FastRequest make fasthttp request
 func (tbot *TelegramBot) FastRequest(action string, params map[string]string) error {
-	fmt.Println("FastRequest+++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 	tbot.setRequestURL(action)
 	err := tbot.setMultipartData(params)
 	if err != nil {
