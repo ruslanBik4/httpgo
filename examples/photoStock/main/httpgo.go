@@ -14,7 +14,7 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	main2 "github.com/ruslanBik4/httpgo"
+	main2 "github.com/ruslanBik4/httpgo/httpGo"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/logs"

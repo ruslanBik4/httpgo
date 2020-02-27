@@ -40,3 +40,5 @@ views/components/polymer/LICENSE.txt~Updated upstream
 
 node_modules
 
+/last_test.log
+/.sshignore

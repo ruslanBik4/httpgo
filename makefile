@@ -1,4 +1,4 @@
-all: run
+all: build test
 
 # This how we want to name the binary output
 BINARY=httpgo
@@ -16,11 +16,14 @@ LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION} -X main.Build=${BUILD} -X mai
 # Builds the project
 run:
 	go run ${LDFLAGS} main.go
-
+file:///private/var/mobile/Containers/Shared/AppGroup/A0529CC3-7C01-4871-B4A7-3C506B028A60/File%20Provider%20Storage/Repositories/analytics/.sshignore
 # Builds the project
 build:
 	go build -i ${LDFLAGS} -o ${BINARY}
 
+test:
+	go test -v ./... > last_test.log
+	
 # Builds the project
 linux:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -i ${LDFLAGS} -o ${BINARY}

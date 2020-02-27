@@ -36,7 +36,7 @@ func TestReadGoogleSheets(t *testing.T) {
 			for idx := range row {
 				fmt.Printf("%s | ", row[idx])
 			}
-			fmt.Printf(", %s\n", idx)
+			fmt.Printf(", %d\n", idx)
 		}
 
 	}
