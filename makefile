@@ -24,6 +24,8 @@ build:
 test:
 	go test -v ./... > last_test.log
 	
+mod:
+	go mod tidy
 # Builds the project
 linux:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -i ${LDFLAGS} -o ${BINARY}
