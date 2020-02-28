@@ -78,26 +78,50 @@ func TestErrorLogOthers(t *testing.T) {
 // Func to check error occurance line
 func FuncStack(number int) error {
 	err := InnerErrorFunc(number)
+	//if 3 <= number && number < 5 && err != nil {
+	//	return err
+	//}
 	if number < 5 && err != nil {
-		return errors.New("number < 5 and InnerErrorFunc() error occured")
+		err = errors.New("number < 5 and InnerErrorFunc() error occured")
+		ErrorLog(err)
+		return err
 	}
 	if number >= 5 && err != nil {
 		return err
 	}
-	return nil
+	return err
 }
 
 // Func to raise error inside
 func InnerErrorFunc(number int) error {
+	err := InnerErrorFuncLower(number)
+	if number < 5 && err != nil {
+		ErrorLog(err)
+		return err
+	}
+
 	if number < 5 {
 		return nil
 	}
-	return errors.New("InnerErrorFunc() error occured")
+	err = errors.New("-InnerErrorFunc()- error occured")
+	ErrorLog(err)
+	return err
+}
+
+func InnerErrorFuncLower(number int) error {
+	if number < 3 {
+		return nil
+	}
+	err := errors.New("-InnerErrorFuncLower()- error occured")
+	ErrorLog(err)
+	return err
 }
 
 func TestLogErr(t *testing.T) {
 	err := FuncStack(7)
-	ErrorLog(err)
+	ErrorLog(errors.Wrap(err, "uhd3ekuiwe"))
+	err = FuncStack(3)
+	ErrorLog(errors.Wrap(err, "yw"))
 }
 
 func BenchmarkErrorLog(b *testing.B) {

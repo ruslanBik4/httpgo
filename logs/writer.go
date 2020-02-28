@@ -101,18 +101,16 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-
 func timeFormating() string {
-	hh, mm, ss := time.Now().Clock()	
+	hh, mm, ss := time.Now().Clock()
 	return fmt.Sprintf("%.2d:%.2d:%.2d", hh, mm, ss)
 }
-
 
 // ErrorLog - output formatted (function and line calls) error information
 func ErrorLog(err error, args ...interface{}) {
 
 	if err == nil {
-		return 
+		return
 	}
 
 	var (
@@ -126,8 +124,6 @@ func ErrorLog(err error, args ...interface{}) {
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
 	}
-
-	calldepth := 0
 
 	isIgnore := true
 
@@ -149,14 +145,15 @@ func ErrorLog(err error, args ...interface{}) {
 		}
 	}
 
+	calldepth := 1
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
-		calldepth++
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		isIgnore = isIgnoreFunc(logErr.funcName)
+		calldepth++
 	}
 
-	logErr.calldepth = calldepth+1
+	logErr.calldepth = calldepth
 
 	logErr.Printf(message+logErr.funcName+"()", err, args)
 }
