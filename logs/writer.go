@@ -153,7 +153,7 @@ func ErrorLog(err error, args ...interface{}) {
 		calldepth++
 	}
 
-	logErr.calldepth = calldepth
+	logErr.calldepth = calldepth + 1
 
 	logErr.Printf(message+logErr.funcName+"()", err, args)
 }
