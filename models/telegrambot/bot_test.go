@@ -11,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-
-
 func TestNewTelegramBot(t *testing.T) {
 	b, err := NewTelegramBot("bot_test_vals.yml")
 	if !assert.Nil(t, err) {
@@ -21,7 +19,9 @@ func TestNewTelegramBot(t *testing.T) {
 	assert.NotNil(t, b.Token)
 
 	if assert.NotEmpty(t, b.Token) && assert.NotEmpty(t, b.ChatID) {
-		if assert.Equal(t, "bottoken", b.Token) && assert.Equal(t,"chatid", b.ChatID) {return}
+		if assert.Equal(t, "bottoken", b.Token) && assert.Equal(t, "chatid", b.ChatID) {
+			return
+		}
 	}
 
 	err = b.GetUpdates()
@@ -40,13 +40,12 @@ func TestNewTelegramBot(t *testing.T) {
 	err = b.GetChatMemberCount(b.ChatID)
 	if !assert.Nil(t, err) {
 		t.Fatal(err)
-		fmt.Println()
 	}
 
 	c := b.props["result"].(float64)
 	t.Log(fmt.Sprintf("try to sum users of group - %.0f", c))
 	// for i := ; i < c; i++ {
-	b.GetChatMember(b.ChatID, "91653754")
+	err = b.GetChatMember(b.ChatID, "91653754")
 	// b.SendMessage(fmt.Sprintf("user - %v", b.props["result"]), true)
 	// }
 	// b.SendMessage(fmt.Sprintf("try to sum users of group - %f", c), true)

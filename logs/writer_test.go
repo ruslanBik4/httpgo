@@ -78,9 +78,6 @@ func TestErrorLogOthers(t *testing.T) {
 // Func to check error occurance line
 func FuncStack(number int) error {
 	err := InnerErrorFunc(number)
-	//if 3 <= number && number < 5 && err != nil {
-	//	return err
-	//}
 	if number < 5 && err != nil {
 		err = errors.New("number < 5 and InnerErrorFunc() error occured")
 		ErrorLog(err)
