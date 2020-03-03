@@ -146,10 +146,11 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	//// another server version, but hadler hasn't written for the errors and waitgroup
 	//go FastHTTPServer()
 
-	logs.SetWriters(tb, logs.FgErr)
+	_, err = tb.Write([]byte(newError.Error()))
+	as.Nil(err, "error writing tb.Write([]byte(newError.Error()))")
 
-	logs.ErrorLog(newError)
-	logs.ErrorLog(newErrorWraped)
+	_, err = tb.Write([]byte(newErrorWraped.Error()))
+	as.Nil(err, "error writing tb.Write([]byte(newErrorWraped.Error()))")
 
 	wg.Wait()
 
