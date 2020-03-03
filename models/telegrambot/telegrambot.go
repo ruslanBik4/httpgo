@@ -61,21 +61,25 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 
 // NewTelegramBot is a constructor from ENV
 func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
-	if os.Getenv("TBTOKEN") == "" || os.Getenv("TBCHATID") == "" {
-		return nil, errors.New("Empty environment variables (TBTOKEN or TBCHATID) for TelegramBot creation.")
+	if os.Getenv("TBTOKEN") == "" {
+		return nil, errors.New("Empty environment variable TBTOKEN TelegramBot creation.")
 	}
 
-	tb = &TelegramBot{
+	if os.Getenv("TBCHATID") == "" {
+		return nil, errors.New("Empty environment variable TBCHATID for TelegramBot creation.")
+	}
+
+	req := &fasthttp.Request{}
+	req.Header.SetMethod(fasthttp.MethodPost)
+
+	return &TelegramBot{
 		Token:          os.Getenv("TBTOKEN"),
 		ChatID:         os.Getenv("TBCHATID"),
 		Response:       &fasthttp.Response{},
 		RequestURL:     baseURL,
-		Request:        &fasthttp.Request{},
+		Request:        req,
 		FastHTTPClient: &fasthttp.Client{},
-	}
-
-	tb.Request.Header.SetMethod(fasthttp.MethodPost)
-	return tb, nil
+	}, nil
 
 }
 
