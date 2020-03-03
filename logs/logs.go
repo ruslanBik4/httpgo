@@ -17,7 +17,6 @@ import (
 	"github.com/acarl005/stripansi"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
-	
 )
 
 var (
@@ -159,12 +158,12 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	if checkType && (checkPrint == true) {
 		fmt.Printf(mess + "\n")
 	} else {
-		logger.Output(logger.calldepth, mess)
+		_ = logger.Output(logger.calldepth, mess)
 	}
 
 	if logger.toOther != nil {
 		go logger.toOther.Write([]byte(stripansi.Strip(mess)))
-	}	
+	}
 
 }
 
@@ -199,7 +198,7 @@ func getArgsString(args ...interface{}) (message string) {
 				message += comma + getArgsString(val...)
 			}
 		case error:
-			message += comma + fmt.Sprintf("%v", arg)
+			message += comma + val.Error()
 		default:
 
 			message += comma + fmt.Sprintf("%#v", arg)
