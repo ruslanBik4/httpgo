@@ -116,6 +116,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
+		
 		mf, err := ctx.Request.MultipartForm()
 		if err != nil {
 			return nil, err
