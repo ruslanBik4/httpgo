@@ -58,15 +58,18 @@ func (w fakeWriter) Write(b []byte) (int, error) {
 
 	w.wg.Done()
 
-	return 0, nil
+	return len(b), nil
 }
 
 func TestErrorLogOthers(t *testing.T) {
-
 	wg := &sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 
-	SetWriters(fakeWriter{wg}, FgErr)
+	fwriter := fakeWriter{wg}
+
+	SetWriters(fwriter, FgErr)
+	SetWriters(fwriter, FgErr)
+	defer DeleteWriters(fwriter, FgErr)
 
 	var err fakeErr
 
@@ -119,6 +122,67 @@ func TestLogErr(t *testing.T) {
 	ErrorLog(errors.Wrap(err, "uhd3ekuiwe"))
 	err = FuncStack(3)
 	ErrorLog(errors.Wrap(err, "yw"))
+}
+
+func TestLogstoOther(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	a := testWriter{wg, "first"}
+	b := testWriter2{wg, "Second"}
+	SetWriters(a, FgErr)
+	SetWriters(b, FgErr)
+	SetWriters(a, FgErr)
+	DeleteWriters(a, FgErr)
+	ErrorLog(errors.New("test multiwriters"))
+	wg.Wait()
+}
+
+func TestLogsMultiwriter(t *testing.T) {
+	//var m io.Writer
+	wg := &sync.WaitGroup{}
+	wg.Add(3)
+	a := testWriter{wg, "first"}
+	b := testWriter2{wg, "Second"}
+	m := MultiWriter(a, a)
+	m = MultiWriter(m, a)
+	mw := m.(*multiWriter)
+	mw.Append(a, b)
+	mw.Append(b)
+	mw.Remove(a)
+
+	data := []byte("Hello ")
+	_, e := m.Write(data)
+	if e != nil {
+		panic(e)
+	}
+
+}
+
+type testWriter struct {
+	wg   *sync.WaitGroup
+	name string
+}
+
+func (tw testWriter) Write(b []byte) (int, error) {
+	fmt.Println(boldcolors[WARNING] + tw.name + "|| testWriter writer: " + string(b) + LogEndColor)
+	return len(b), nil
+}
+
+type testWriter2 struct {
+	wg   *sync.WaitGroup
+	name string
+}
+
+func (tw2 testWriter2) Write(b []byte) (int, error) {
+	fmt.Println(boldcolors[DEBUG] + tw2.name + "|| testWriter2 writer: " + string(b) + LogEndColor)
+	tw2.wg.Done()
+	return len(b), nil
+}
+
+func TestLogsWithSentry(t *testing.T) {
+	err := SetSentry("https://thfthtyhuytjutjintry.io/1813325")
+	fmt.Println(err)
+	ErrorLog(errors.New("Test SetSentry"))
 }
 
 func BenchmarkErrorLog(b *testing.B) {

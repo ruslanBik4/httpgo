@@ -50,6 +50,7 @@ func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 		Logger:    log.New(os.Stdout, "[["+pref+"]]", logFlags),
 		typeLog:   pref,
 		calldepth: depth,
+		toOther:   &multiWriter{},
 	}
 }
 
@@ -78,28 +79,52 @@ const (
 	FgDebug
 )
 
-func (logger *wrapKitLogger) addWriters(newWriter io.Writer) {
-	if logger.toOther == nil {
-		logger.toOther = newWriter
-	} else {
-		logger.toOther = io.MultiWriter(logger.toOther, newWriter)
+func (logger *wrapKitLogger) addWriter(newWriters ...io.Writer) {
+	loggermultiwriter := logger.toOther.(*multiWriter)
+	for _, newWriter := range newWriters {
+		loggermultiwriter.Append(newWriter)
+	}
+}
+
+func (logger *wrapKitLogger) deleteWriter(writersToDelete ...io.Writer) {
+	loggermultiwriter := logger.toOther.(*multiWriter)
+	for _, newWriter := range writersToDelete {
+		loggermultiwriter.Remove(newWriter)
 	}
 }
 
 // SetWriters for logs
 func SetWriters(newWriter io.Writer, logFlag FgLogWriter) {
+	// todo: можно поменять местами аргументы и дать возможность добавлять неограниченное количество врайтеров
 
 	switch logFlag {
 	case FgAll:
-		logErr.addWriters(newWriter)
-		logStat.addWriters(newWriter)
-		logDebug.addWriters(newWriter)
+		logErr.addWriter(newWriter)
+		logStat.addWriter(newWriter)
+		logDebug.addWriter(newWriter)
 	case FgErr:
-		logErr.addWriters(newWriter)
+		logErr.addWriter(newWriter)
 	case FgInfo:
-		logStat.addWriters(newWriter)
+		logStat.addWriter(newWriter)
 	case FgDebug:
-		logDebug.addWriters(newWriter)
+		logDebug.addWriter(newWriter)
+	}
+}
+
+// DeleteWriters deletes mentioned writer from writers for mentioned logFlag
+func DeleteWriters(writerToDelete io.Writer, logFlag FgLogWriter) {
+
+	switch logFlag {
+	case FgAll:
+		logErr.deleteWriter(writerToDelete)
+		logStat.deleteWriter(writerToDelete)
+		logDebug.deleteWriter(writerToDelete)
+	case FgErr:
+		logErr.deleteWriter(writerToDelete)
+	case FgInfo:
+		logStat.deleteWriter(writerToDelete)
+	case FgDebug:
+		logDebug.deleteWriter(writerToDelete)
 	}
 }
 

@@ -245,7 +245,7 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, err
 	}
 
-	return 1, nil
+	return len(message), nil
 }
 
 // FastRequest make fasthttp request
