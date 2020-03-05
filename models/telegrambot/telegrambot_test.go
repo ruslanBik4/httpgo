@@ -130,9 +130,9 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 			}
 
 			if r.Method == "POST" {
-				if as.Equal(r.FormValue("chat_id"), tb.ChatID, "ChatID in request is wrong") {
-					if strings.Contains(r.FormValue("text"), strings.Replace(newError.Error(), " ", "%20", -1)) ||
-						strings.Contains(r.FormValue("text"), strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+				if as.Equal(tb.ChatID, r.FormValue("chat_id"), "ChatID in request is wrong") {
+					if strings.Contains(r.FormValue("text"), newError.Error()) ||
+						strings.Contains(r.FormValue("text"), newErrorWraped.Error()) {
 						wg.Done()
 						return
 					}
@@ -145,6 +145,11 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 
 	//// another server version, but hadler hasn't written for the errors and waitgroup
 	//go FastHTTPServer()
+
+	//// === check with logs
+	//logs.SetWriters(tb, logs.FgErr)
+	//logs.ErrorLog(newError)
+	//logs.ErrorLog(newErrorWraped)
 
 	_, err = tb.Write([]byte(newError.Error()))
 	as.Nil(err, "error writing tb.Write([]byte(newError.Error()))")
@@ -200,7 +205,8 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 				return
 			}
 
-			if strings.Contains(netData, newError.Error()) || strings.Contains(netData, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+			if strings.Contains(netData, newError.Error()) ||
+				strings.Contains(netData, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
 				fmt.Println("strings.Contains(netData, Error())")
 				wg.Done()
 			}

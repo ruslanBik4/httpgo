@@ -192,9 +192,13 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 
 // SendMessage is used for sending messages. Arguments keys must contain TelegramKeyboard{} to add keys to your message
 func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) error {
+	if string(tbot.Request.Header.Method()) == "GET" {
+		strings.Replace(message, " ", "%20", -1)
+	}
+
 	requestParams := map[string]string{
 		"chat_id": tbot.ChatID,
-		"text":    strings.Replace(message, " ", "%20", -1),
+		"text":    message,
 	}
 	if markdown {
 		requestParams["parse_mode"] = "Markdown"

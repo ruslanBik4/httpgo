@@ -94,37 +94,42 @@ func (logger *wrapKitLogger) deleteWriter(writersToDelete ...io.Writer) {
 }
 
 // SetWriters for logs
-func SetWriters(newWriter io.Writer, logFlag FgLogWriter) {
+func SetWriters(newWriter io.Writer, logFlags ...FgLogWriter) {
 	// todo: можно поменять местами аргументы и дать возможность добавлять неограниченное количество врайтеров
 
-	switch logFlag {
-	case FgAll:
-		logErr.addWriter(newWriter)
-		logStat.addWriter(newWriter)
-		logDebug.addWriter(newWriter)
-	case FgErr:
-		logErr.addWriter(newWriter)
-	case FgInfo:
-		logStat.addWriter(newWriter)
-	case FgDebug:
-		logDebug.addWriter(newWriter)
+	for _, logFlag := range logFlags {
+		switch logFlag {
+		case FgAll:
+			logErr.addWriter(newWriter)
+			logStat.addWriter(newWriter)
+			logDebug.addWriter(newWriter)
+		case FgErr:
+			logErr.addWriter(newWriter)
+		case FgInfo:
+			logStat.addWriter(newWriter)
+		case FgDebug:
+			logDebug.addWriter(newWriter)
+		}
 	}
+
 }
 
 // DeleteWriters deletes mentioned writer from writers for mentioned logFlag
-func DeleteWriters(writerToDelete io.Writer, logFlag FgLogWriter) {
+func DeleteWriters(writerToDelete io.Writer, logFlags ...FgLogWriter) {
 
-	switch logFlag {
-	case FgAll:
-		logErr.deleteWriter(writerToDelete)
-		logStat.deleteWriter(writerToDelete)
-		logDebug.deleteWriter(writerToDelete)
-	case FgErr:
-		logErr.deleteWriter(writerToDelete)
-	case FgInfo:
-		logStat.deleteWriter(writerToDelete)
-	case FgDebug:
-		logDebug.deleteWriter(writerToDelete)
+	for _, logFlag := range logFlags {
+		switch logFlag {
+		case FgAll:
+			logErr.deleteWriter(writerToDelete)
+			logStat.deleteWriter(writerToDelete)
+			logDebug.deleteWriter(writerToDelete)
+		case FgErr:
+			logErr.deleteWriter(writerToDelete)
+		case FgInfo:
+			logStat.deleteWriter(writerToDelete)
+		case FgDebug:
+			logDebug.deleteWriter(writerToDelete)
+		}
 	}
 }
 

@@ -169,9 +169,9 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			if route.Multipart {
 				params = ctx.UserValue(MultiPartParams)
 			}
-			
+
 			logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
-			a.renderError(ctx, errors.Wrap(errRec, route.Desc), nil)
+			a.renderError(ctx, errRec, nil)
 		case string:
 			a.renderError(ctx, errors.New(errRec), nil)
 		case nil:
