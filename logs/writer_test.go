@@ -180,9 +180,12 @@ func (tw2 testWriter2) Write(b []byte) (int, error) {
 }
 
 func TestLogsWithSentry(t *testing.T) {
-	err := SetSentry("https://thfthtyhuytjutjintry.io")
+	err := SetSentry("https://5gerstge5rgtry.io/18wstger4tge5rg13325", "ertgesrg")
 	fmt.Println(err)
 	ErrorLog(errors.New("Test SetSentry"))
+
+	err = fakeErr{}
+	ErrorLog(err)
 }
 
 func BenchmarkErrorLog(b *testing.B) {

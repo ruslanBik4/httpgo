@@ -38,6 +38,7 @@ type wrapKitLogger struct {
 	funcName  string
 	typeLog   string
 	toSentry  bool
+	sentryOrg string
 	toOther   io.Writer
 }
 
@@ -134,13 +135,14 @@ func DeleteWriters(writerToDelete io.Writer, logFlags ...FgLogWriter) {
 }
 
 // SetSentry set SetSentry output for error
-func SetSentry(dns string) error {
+func SetSentry(dns string, org string) error {
 	err := sentry.Init(sentry.ClientOptions{Dsn: dns})
 	if err != nil {
 		return errors.Wrap(err, "sentry.Init")
 	}
 
 	logErr.toSentry = true
+	logErr.sentryOrg = org
 
 	return nil
 }
