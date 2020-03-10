@@ -102,7 +102,7 @@ type fastHTTPLogger struct {
 }
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
-	if strings.Contain(mess, "error") {
+	if strings.Contains(mess, "error") {
 		logs.ErrorLog(errors.New(mess), args...)
 	} else {
 		args = append([]interface{}{mess}, args...)
