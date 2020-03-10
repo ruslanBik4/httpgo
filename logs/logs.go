@@ -201,11 +201,8 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
 func getArgsString(args ...interface{}) (message string) {
 
-	if len(args) < 1 {
-		return ""
-	}
 	// if first param is formating string
-	if format := getFormatString(args[0]); format > "" {
+	if format := getFormatString(args); format > "" {
 		return fmt.Sprintf(format, args[1:]...)
 	}
 
@@ -242,8 +239,12 @@ func getArgsString(args ...interface{}) (message string) {
 	return message
 }
 
-func getFormatString(arg interface{}) string {
-	if format, ok := arg.(string); ok && (strings.Index(format, "%") > -1) {
+func getFormatString(args []interface{}) string {
+	if len(args) < 1 {
+		return ""
+	}
+	
+	if format, ok := args[0].(string); ok && (strings.Index(format, "%") > -1) {
 		return format
 	}
 	

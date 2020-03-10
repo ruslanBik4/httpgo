@@ -118,7 +118,7 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 
-	format := getFormatString(args[0])
+	format := getFormatString(args)
 	if format > "" {
 		args = args[1:]
 		//todo: check count arguments in format string
@@ -129,7 +129,7 @@ func ErrorLog(err error, args ...interface{}) {
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
 		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))) ) 
-		format += "https://sentry.io/organizations/%s/?query=%s"
+		format += " https://sentry.io/organizations/%s/?query=%s"
 	}
 
 	ErrFmt, ok := err.(stackTracer)

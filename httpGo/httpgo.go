@@ -75,11 +75,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 					return 
 				}
 			}
-			
+		
 			logs.DebugLog(addr, ctx.Request.Header.String() )
-			ctx.Error(`DataBase is currently updating. 
-It may took from a few minutes to half an hour. 
-We are sorry for inconvenience.`, fasthttp.StatusForbidden)
+			ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
 		}
 		
 		// add cfg refresh routers, ignore errors
