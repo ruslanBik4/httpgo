@@ -121,15 +121,15 @@ func ErrorLog(err error, args ...interface{}) {
 	format := getFormatString(args[0])
 	if format > "" {
 		args = args[1:]
+		//todo: check count arguments in format string
 	} else {
 		format = "%v"
 	}
 	
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
-		args = append(args, fmt.Sprintf("https://sentry.io/organizations/%s/?query=%s",
-			logErr.sentryOrg, string(*(sentry.CaptureException(err)))) )
-		format += " %s"
+		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))) ) 
+		format += "https://sentry.io/organizations/%s/?query=%s"
 	}
 
 	ErrFmt, ok := err.(stackTracer)
@@ -152,30 +152,32 @@ func ErrorLog(err error, args ...interface{}) {
 								},
 								args... )
 				
-				logErr.Printf(args...) 
-					
-				return
+				break
 			}
 		}
-	}
+	} else {
 
-	calldepth := 1
-	isIgnore := true
+		calldepth := 1
+		isIgnore := true
+		
+		for pc, _, _, ok := runtime.Caller(calldepth); 
+				ok && isIgnore; 
+				pc, _, _, ok = runtime.Caller(calldepth) {
+			logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
+			// пропускаем рендер ошибок
+			isIgnore = isIgnoreFunc(logErr.funcName)
+			calldepth++
+		}
+
+		logErr.calldepth = calldepth + 1
+
+		args = append([]interface{}{
+							logErr.funcName+"() " + format,
+							err,
+							},
+						args... )
+	}
 	
-	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
-		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
-		// пропускаем рендер ошибок
-		isIgnore = isIgnoreFunc(logErr.funcName)
-		calldepth++
-	}
-
-	logErr.calldepth = calldepth + 1
-
-	args = append([]interface{}{
-						logErr.funcName+"() " + format,
-						err,
-						},
-					args... )
 	logErr.Printf(args...)
 }
 

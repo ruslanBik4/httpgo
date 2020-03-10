@@ -187,7 +187,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	mess := getArgsString(vars...)
-	if checkType && checkPrint.(bool) {
+	if checkType && bool(checkPrint) {
 		fmt.Printf(mess + "\n")
 	} else {
 		_ = logger.Output(logger.calldepth, mess)
@@ -216,7 +216,7 @@ func getArgsString(args ...interface{}) (message string) {
 		case nil:
 			message += comma + " is nil"
 		case string:
-			message += comma + val
+			message += comma + strings.TrimPrefix(val, "ERROR:")
 		case []string:
 			for _, value := range val {
 				message += value + "\n"
