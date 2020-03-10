@@ -17,7 +17,7 @@ type AccessConf struct {
 	ChkConn		bool		`yaml:"ChkConn"`
 	Allow		[]string	`yaml:"Allow"`
 	Deny		[]string	`yaml:"Deny"`
-	Mess		[]string	`yaml:"Mess"`
+	Mess		string	`yaml:"Mess"`
 }
 
 // CfgHttp has some options for Acceptor work

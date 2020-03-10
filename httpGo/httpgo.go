@@ -77,7 +77,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			}
 		
 			logs.DebugLog(addr, ctx.Request.Header.String() )
-			ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
+			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
 		}
 		
 		// add cfg refresh routers, ignore errors
