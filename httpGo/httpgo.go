@@ -48,7 +48,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
 	
-	if cfg.AccessConf.ChkConn {
+	if cfg.Access.ChkConn {
 		listener = &blockListener{
 						listener,
 						cfg.Access.Allow,
@@ -71,10 +71,11 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 			
 			for _, str := range cfg.Access.Allow {
 				if strings.HasPrefix(addr, str) {
-					return c, nil
+					apis.Handler(ctx)
+					return 
 				}
 			}
-			apis.Handler(ctx)
+			
 		}
 	}
 
