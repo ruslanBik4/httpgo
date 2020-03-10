@@ -18,7 +18,9 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
-// TelegramBot struct with tiken and one chatid
+var BadTelegramBot = errors.New("Bad TelegramBot parameters")
+
+// TelegramBot struct with token and one chatid
 type TelegramBot struct {
 	Token          string `yaml:"BotToken"`
 	ChatID         string `yaml:"ChatID"`
@@ -74,17 +76,27 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 		return nil, errors.New("Empty environment variables: " + errmess + "for TelegramBot creation.")
 	}
 
-	req := &fasthttp.Request{}
-	req.Header.SetMethod(fasthttp.MethodPost)
-
-	return &TelegramBot{
+	tb = &TelegramBot{
 		Token:          tbtoken,
 		ChatID:         tbchatid,
 		Response:       &fasthttp.Response{},
 		RequestURL:     baseURL,
-		Request:        req,
+		Request:        &fasthttp.Request{},
 		FastHTTPClient: &fasthttp.Client{},
-	}, nil
+	}
+	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+
+	err, resp := tb.SendMessage("Telegram Bot successfully crated and ready for work", false)
+	if err != nil {
+		if err == BadTelegramBot {
+			return nil, errors.Errorf("%s, StatusCode: %d Description: %s",
+				BadTelegramBot.Error(),
+				resp.ErrorCode,
+				resp.Description)
+		}
+	}
+
+	return tb, nil
 
 }
 
@@ -116,7 +128,7 @@ func (tbot *TelegramBot) setMultipartData(params map[string]string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetUpdates() error {
-	err := tbot.FastRequest(cmdgetUpdates, map[string]string{})
+	err, _ := tbot.FastRequest(cmdgetUpdates, map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -139,7 +151,7 @@ func (tbot *TelegramBot) readResponse(err error) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChat(name string) error {
-	err := tbot.FastRequest(cmdGetChat,
+	err, _ := tbot.FastRequest(cmdGetChat,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -152,7 +164,7 @@ func (tbot *TelegramBot) GetChat(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChatMemberCount(name string) error {
-	err := tbot.FastRequest(cmdGetChMbrsCount,
+	err, _ := tbot.FastRequest(cmdGetChMbrsCount,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -165,7 +177,7 @@ func (tbot *TelegramBot) GetChatMemberCount(name string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) GetChatMember(name string, user string) error {
-	err := tbot.FastRequest(cmdGetChMbr,
+	err, _ := tbot.FastRequest(cmdGetChMbr,
 		map[string]string{
 			"chat_id": name,
 			"user_id": user,
@@ -179,7 +191,7 @@ func (tbot *TelegramBot) GetChatMember(name string, user string) error {
 
 // SendMessage is used for sending messages
 func (tbot *TelegramBot) InviteUser(name string) error {
-	err := tbot.FastRequest(cmdInlineMThd,
+	err, _ := tbot.FastRequest(cmdInlineMThd,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -191,7 +203,7 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 }
 
 // SendMessage is used for sending messages. Arguments keys must contain TelegramKeyboard{} to add keys to your message
-func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) error {
+func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) (error, *TbResponseMessageStruct) {
 	if string(tbot.Request.Header.Method()) == "GET" {
 		strings.Replace(message, " ", "%20", -1)
 	}
@@ -217,13 +229,13 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		}
 	}
 
-	err := tbot.FastRequest(cmdSendMes, requestParams)
+	err, response := tbot.FastRequest(cmdSendMes, requestParams)
 
 	if err != nil {
-		return err
+		return err, response
 	}
 
-	return nil
+	return nil, response
 }
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
@@ -244,20 +256,41 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
-	err := tbot.SendMessage(string(message), false)
+	err, _ := tbot.SendMessage(string(message), false)
 	if err != nil {
+		if err == BadTelegramBot {
+			return len(message), logs.BadWriter
+		}
 		return -1, err
 	}
 
 	return len(message), nil
 }
 
+// json struct to parse response
+type TbResponseMessageStruct struct {
+	Ok          bool   `json:"ok"`
+	ErrorCode   int    `json:"error_code"`
+	Description string `json:"description"`
+	Result      struct {
+		MessageId int `json:"message_id"`
+		Chat      struct {
+			Id       int64  `json:"id"`
+			Title    string `json:"title"`
+			Username string `json:"username"`
+			Type     string `json:"type"`
+		} `json:"chat"`
+		Date int64  `json:"date"`
+		Text string `json:"text"`
+	} `json:"result"`
+}
+
 // FastRequest make fasthttp request
-func (tbot *TelegramBot) FastRequest(action string, params map[string]string) error {
+func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (error, *TbResponseMessageStruct) {
 	tbot.setRequestURL(action)
 	err := tbot.setMultipartData(params)
 	if err != nil {
-		return err
+		return err, nil
 	}
 
 	for {
@@ -270,15 +303,24 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) er
 			<-time.After(time.Minute * 2)
 			continue
 		case nil:
-			// todo: сделать анализ ответа
-			logs.DebugLog(" %+v", tbot.Response)
-			return nil
+			var resp = &TbResponseMessageStruct{}
+			err = json.Unmarshal(tbot.Response.Body(), resp)
+
+			switch tbot.Response.StatusCode() {
+			case 400:
+				return BadTelegramBot, resp
+			case 404:
+				return BadTelegramBot, resp
+			default:
+				return nil, resp
+			}
+
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
 				<-time.After(time.Minute * 2)
 				continue
 			} else {
-				return err
+				return err, nil
 			}
 		}
 	}

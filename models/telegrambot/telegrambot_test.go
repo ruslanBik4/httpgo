@@ -46,21 +46,23 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 	as.Nil(err, "%v", err)
 
 	tb, err := NewTelegramBotFromEnv()
-	as.Nil(err, "%v", err)
-	as.Equal("bottoken", tb.Token, "Token from env wrong")
-	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
+	as.EqualError(err, "Bad TelegramBot parameters, StatusCode: 404 Description: Not Found")
 
-	err = tb.SendMessage("some mess", false)
-	as.Nil(err, "%v", err)
+	if tb != nil {
+		as.Equal("bottoken", tb.Token, "Token from env wrong")
+		as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
+		err, _ = tb.SendMessage("some mess", false)
+		as.EqualError(err, BadTelegramBot.Error())
 
-	_, err = tb.Write([]byte("some mess"))
-	as.Nil(err, "%v", err)
+		_, err = tb.Write([]byte("some mess"))
+		as.Nil(err, "%v", err)
 
-	tb = &TelegramBot{}
+		tb = &TelegramBot{}
 
-	_, err = tb.Write([]byte("some mess"))
-	if as.NotNil(err) {
-		as.EqualError(err, "TelegramBot.Token empty")
+		_, err = tb.Write([]byte("some mess"))
+		if as.NotNil(err) {
+			as.EqualError(err, "TelegramBot.Token empty")
+		}
 	}
 }
 
@@ -86,12 +88,22 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	err = os.Setenv("TBCHATID", "chatid")
 	as.Nil(err, "%v", err)
 
-	tb, err := NewTelegramBotFromEnv()
-	as.Nil(err, "%v", err)
+	tbtoken := os.Getenv("TBTOKEN")
+	tbchatid := os.Getenv("TBCHATID")
+
+	//tb, err := NewTelegramBotFromEnv()
+	tb := &TelegramBot{
+		Token:          tbtoken,
+		ChatID:         tbchatid,
+		Response:       &fasthttp.Response{},
+		RequestURL:     "http://localhost" + useTestLocalPort + "/",
+		Request:        &fasthttp.Request{},
+		FastHTTPClient: &fasthttp.Client{},
+	}
+	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
-
-	tb.RequestURL = "http://localhost" + useTestLocalPort + "/"
 
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
@@ -164,12 +176,22 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	err = os.Setenv("TBCHATID", "chatid")
 	as.Nil(err, "%v", err)
 
-	tb, err := NewTelegramBotFromEnv()
-	as.Nil(err, "%v", err)
+	tbtoken := os.Getenv("TBTOKEN")
+	tbchatid := os.Getenv("TBCHATID")
+
+	//tb, err := NewTelegramBotFromEnv()
+	tb := &TelegramBot{
+		Token:          tbtoken,
+		ChatID:         tbchatid,
+		Response:       &fasthttp.Response{},
+		RequestURL:     "http://localhost" + useTestLocalPort + "/",
+		Request:        &fasthttp.Request{},
+		FastHTTPClient: &fasthttp.Client{},
+	}
+	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
-
-	tb.RequestURL = "http://localhost" + useTestLocalPort + "/"
 
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
