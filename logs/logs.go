@@ -17,7 +17,6 @@ import (
 	"github.com/acarl005/stripansi"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
-	
 )
 
 var (
@@ -39,6 +38,7 @@ type wrapKitLogger struct {
 	funcName  string
 	typeLog   string
 	toSentry  bool
+	sentryOrg string
 	toOther   io.Writer
 }
 
@@ -51,6 +51,7 @@ func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 		Logger:    log.New(os.Stdout, "[["+pref+"]]", logFlags),
 		typeLog:   pref,
 		calldepth: depth,
+		toOther:   &multiWriter{},
 	}
 }
 
@@ -79,39 +80,69 @@ const (
 	FgDebug
 )
 
-func (logger *wrapKitLogger) addWriters(newWriter io.Writer) {
-	if logger.toOther == nil {
-		logger.toOther = newWriter
-	} else {
-		logger.toOther = io.MultiWriter(logger.toOther, newWriter)
+func (logger *wrapKitLogger) addWriter(newWriters ...io.Writer) {
+	loggermultiwriter := logger.toOther.(*multiWriter)
+	for _, newWriter := range newWriters {
+		loggermultiwriter.Append(newWriter)
+	}
+}
+
+func (logger *wrapKitLogger) deleteWriter(writersToDelete ...io.Writer) {
+	loggermultiwriter := logger.toOther.(*multiWriter)
+	for _, newWriter := range writersToDelete {
+		loggermultiwriter.Remove(newWriter)
 	}
 }
 
 // SetWriters for logs
-func SetWriters(newWriter io.Writer, logFlag FgLogWriter) {
+func SetWriters(newWriter io.Writer, logFlags ...FgLogWriter) {
+	// todo: можно поменять местами аргументы и дать возможность добавлять неограниченное количество врайтеров
 
-	switch logFlag {
-	case FgAll:
-		logErr.addWriters(newWriter)
-		logStat.addWriters(newWriter)
-		logDebug.addWriters(newWriter)
-	case FgErr:
-		logErr.addWriters(newWriter)
-	case FgInfo:
-		logStat.addWriters(newWriter)
-	case FgDebug:
-		logDebug.addWriters(newWriter)
+	for _, logFlag := range logFlags {
+		switch logFlag {
+		case FgAll:
+			logErr.addWriter(newWriter)
+			logStat.addWriter(newWriter)
+			logDebug.addWriter(newWriter)
+		case FgErr:
+			logErr.addWriter(newWriter)
+		case FgInfo:
+			logStat.addWriter(newWriter)
+		case FgDebug:
+			logDebug.addWriter(newWriter)
+		}
+	}
+
+}
+
+// DeleteWriters deletes mentioned writer from writers for mentioned logFlag
+func DeleteWriters(writerToDelete io.Writer, logFlags ...FgLogWriter) {
+
+	for _, logFlag := range logFlags {
+		switch logFlag {
+		case FgAll:
+			logErr.deleteWriter(writerToDelete)
+			logStat.deleteWriter(writerToDelete)
+			logDebug.deleteWriter(writerToDelete)
+		case FgErr:
+			logErr.deleteWriter(writerToDelete)
+		case FgInfo:
+			logStat.deleteWriter(writerToDelete)
+		case FgDebug:
+			logDebug.deleteWriter(writerToDelete)
+		}
 	}
 }
 
 // SetSentry set SetSentry output for error
-func SetSentry(dns string) error {
+func SetSentry(dns string, org string) error {
 	err := sentry.Init(sentry.ClientOptions{Dsn: dns})
 	if err != nil {
 		return errors.Wrap(err, "sentry.Init")
 	}
 
 	logErr.toSentry = true
+	logErr.sentryOrg = org
 
 	return nil
 }
@@ -159,12 +190,12 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	if checkType && (checkPrint == true) {
 		fmt.Printf(mess + "\n")
 	} else {
-		logger.Output(logger.calldepth, mess)
+		_ = logger.Output(logger.calldepth, mess)
 	}
 
 	if logger.toOther != nil {
 		go logger.toOther.Write([]byte(stripansi.Strip(mess)))
-	}	
+	}
 
 }
 
@@ -199,7 +230,7 @@ func getArgsString(args ...interface{}) (message string) {
 				message += comma + getArgsString(val...)
 			}
 		case error:
-			message += comma + fmt.Sprintf("%v", arg)
+			message += comma + val.Error()
 		default:
 
 			message += comma + fmt.Sprintf("%#v", arg)

@@ -114,7 +114,7 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 	var (
-		message         := ""
+		message         = ""
 		timeFrameString string
 		errorPrint      errLogPrint
 	)
@@ -122,7 +122,9 @@ func ErrorLog(err error, args ...interface{}) {
 	errorPrint := true
 
 	if logErr.toSentry {
-		message = string(*(sentry.CaptureException(err)))
+		defer sentry.Flush(2 * time.Second)
+		message = fmt.Sprintf("https://sentry.io/organizations/%s/?query=%s",
+			logErr.sentryOrg, string(*(sentry.CaptureException(err))))
 	}
 
 	isIgnore := true
@@ -155,7 +157,7 @@ func ErrorLog(err error, args ...interface{}) {
 
 	logErr.calldepth = calldepth + 1
 
-	logErr.Printf(message+logErr.funcName+"()", err, args)
+	logErr.Printf(message+" "+logErr.funcName+"()", err, args)
 }
 
 const prefErrStack = "[[ERR_STACK]]"
