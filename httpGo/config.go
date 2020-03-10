@@ -14,6 +14,7 @@ import (
 )
 
 type AccessConf struct {
+	ChkConn		bool		`yaml:"ChkConn"`
 	Allow		[]string	`yaml:"Allow"`
 	Deny		[]string	`yaml:"Deny"`
 }

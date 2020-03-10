@@ -118,11 +118,18 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 
-	message    := ""
+	format := getFormatString(args[0])
+	if format > "" {
+		args = args[1:]
+	} else {
+		format = "%v"
+	}
+	
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
-		message = fmt.Sprintf("https://sentry.io/organizations/%s/?query=%s",
-			logErr.sentryOrg, string(*(sentry.CaptureException(err))))
+		args = append(args, fmt.Sprintf("https://sentry.io/organizations/%s/?query=%s",
+			logErr.sentryOrg, string(*(sentry.CaptureException(err)))) )
+		format += " %s"
 	}
 
 	ErrFmt, ok := err.(stackTracer)
@@ -134,13 +141,19 @@ func ErrorLog(err error, args ...interface{}) {
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 
-				logErr.Printf(errorPrint, 
-					logErr.Prefix() + 
-					fmt.Sprintf("%s%s:%d: %s()", timeLogFormat(), file, frame, fncName) +
-					message,
-					err, 
-					args)
+				args = append([]interface{}{
+									errorPrint,
+									logErr.Prefix() + "%s%s:%d: %s()" + format,
+									timeLogFormat(), 
+									file, 
+									frame, 
+									fncName,
+									err,
+								},
+								args... )
 				
+				logErr.Printf(args...) 
+					
 				return
 			}
 		}
@@ -158,7 +171,12 @@ func ErrorLog(err error, args ...interface{}) {
 
 	logErr.calldepth = calldepth + 1
 
-	logErr.Printf(logErr.funcName+"() " + message, err, args)
+	args = append([]interface{}{
+						logErr.funcName+"() " + format,
+						err,
+						},
+					args... )
+	logErr.Printf(args...)
 }
 
 const prefErrStack = "[[ERR_STACK]]"

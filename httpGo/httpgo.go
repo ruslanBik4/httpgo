@@ -28,6 +28,7 @@ type HttpGo struct {
 	cfg        *CfgHttp
 }
 
+var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
@@ -46,12 +47,34 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
 	
-	if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
+	if cfg.ChkConn {
 		listener = &blockListener{
 						listener,
 						cfg.Access.Allow,
 						cfg.Access.Deny,
 					}
+	} else if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
+		cfg.Server.Handler = func (ctx *fasthttp.RequestCtx) {
+			ipClient := ctx.Request.Header.Pike("X-Forwarded-For")
+			addr := string(ipClient)
+			if len(ipClient) == 0 {
+				ipClient = ctx.Request.Header.Pike("Forwarded")
+				ips := regIp.FindSubmatch(ipClient)
+				
+				if len(ips) == 0 {
+					addr = string( ctx.Request.Header.Pike("X-ProxyUser-Ip") )
+				} else {
+					addr = string(ips[0])
+				}
+			}
+			
+			for _, str := range cfg.Access.Allow {
+				if strings.HasPrefix(addr, str) {
+					return c, nil
+				}
+			}
+			apis.Handler(ctx)
+		}
 	}
 
 	return &HttpGo{
