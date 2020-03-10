@@ -16,7 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/apis"
+	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
@@ -25,14 +25,14 @@ type HttpGo struct {
 	mainServer *fasthttp.Server
 	listener   net.Listener
 	broadcast  chan string
-	apis       *apis.Apis
+	apis       *Apis
 	cfg        *CfgHttp
 }
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
-func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
+func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	if apis.Ctx == nil {
 		apis.Ctx = make(map[string]interface{}, 0)
@@ -78,7 +78,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 		}
 		
 		// add cfg refresh routers, ignore errors
-		apisRoute := apis.ApiRoutes{
+		apisRoute := ApiRoutes{
 			"/httpgo/cfg/reload": {
 				Desc: "full routers list",
 				Fnc:  func (ctx *fasthttp.RequestCtx) (interface{}, error) {
