@@ -250,11 +250,11 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 		statusCode = http.StatusUnauthorized
 	case ErrRouteForbidden:
-		statusCode = http.StatusForbidden
+		statusCode = fasthttp.StatusForbidden
 	case errRouteOnlyLocal:
-		statusCode = http.StatusForbidden
+		statusCode = fasthttp.StatusForbidden
 	case fasthttp.ErrNoMultipartForm:
-		statusCode = http.StatusBadRequest
+		statusCode = fasthttp.StatusBadRequest
 		_, err := ctx.WriteString("must be multipart-form")
 		if err != nil {
 			logs.StatusLog(err)
