@@ -113,6 +113,7 @@ func (a *HttpGo) listenOnShutdown() {
 	if err != nil {
 		logs.ErrorLog(err)
 	}
+	
 	err = a.listener.Close()
 	if err != nil {
 		logs.ErrorLog(err)
@@ -125,10 +126,11 @@ type fastHTTPLogger struct {
 }
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
+	args = append([]interface{}{mess}, args...)
+	
 	if strings.Contains(mess, "error") {
-		logs.ErrorLog(errors.New(mess), args...)
+		logs.ErrorLog(errors.New("fasthttp"), args...)
 	} else {
-		args = append([]interface{}{mess}, args...)
 		logs.DebugLog(args...)
 	}
 }
