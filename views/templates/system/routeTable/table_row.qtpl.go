@@ -30,8 +30,75 @@ func StreamTableRow(qw422016 *qt422016.Writer, columns []string, rows [][]interf
 `)
 	//line views/templates/system/routeTable/table_row.qtpl:7
 	StreamTableCSS(qw422016)
+	//line views/templates/tables/table_row.qtpl:8
+	qw422016.N().S(`
+`)
+//line views/templates/tables/table_row.qtpl:10
+	colLen := make([]int, len(columns))
+	allWidth := 10
+	for i, col := range columns {
+		if col.CharacterMaximumLength < 0 {
+			colLen[i] = 100
+		} else if col.CharacterMaximumLength < 50 {
+			colLen[i] = col.CharacterMaximumLength * 5
+		} else {
+			colLen[i] = 250
+		}
+
+		allWidth += colLen[i]
+	}
+
+//line views/templates/tables/table_row.qtpl:23
+	qw422016.N().S(`
+.table-custom{
+    width: `)
+//line views/templates/tables/table_row.qtpl:25
+	qw422016.N().D(allWidth)
+//line views/templates/tables/table_row.qtpl:25
+	qw422016.N().S(`px;
+}
+`)
+//line views/templates/tables/table_row.qtpl:27
+	for i, cLen := range colLen {
+//line views/templates/tables/table_row.qtpl:27
+		qw422016.N().S(`
+.table-col-`)
+//line views/templates/tables/table_row.qtpl:28
+		qw422016.N().D(i)
+//line views/templates/tables/table_row.qtpl:28
+		qw422016.N().S(`{
+    width: `)
+//line views/templates/tables/table_row.qtpl:29
+		qw422016.N().D(cLen)
+//line views/templates/tables/table_row.qtpl:29
+		qw422016.N().S(`px;
+}
+.usr-table-row{
+ .table-col-`)
+//line views/templates/tables/table_row.qtpl:32
+		qw422016.N().D(i)
+//line views/templates/tables/table_row.qtpl:32
+		qw422016.N().S(`{
+   text-align: `)
+//line views/templates/tables/table_row.qtpl:33
+		if columns[i].CharacterMaximumLength > 0 {
+//line views/templates/tables/table_row.qtpl:33
+			qw422016.N().S(` left `)
+//line views/templates/tables/table_row.qtpl:33
+		} else {
+//line views/templates/tables/table_row.qtpl:33
+			qw422016.N().S(` right `)
+//line views/templates/tables/table_row.qtpl:33
+		}
+//line views/templates/tables/table_row.qtpl:33
+		qw422016.N().S(`;
+  }
+}
+`)
+//line views/templates/tables/table_row.qtpl:36
+	}
 	//line views/templates/system/routeTable/table_row.qtpl:7
-	qw422016.N().S(`}
+	qw422016.N().S(`
 </style>
 <div class="usr-table">
     <div class="usr-table-header">

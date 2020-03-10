@@ -13,11 +13,17 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
+type AccessConf struct {
+	Allow		[]string	`yaml:"Allow"`
+	Deny		[]string	`yaml:"Deny"`
+}
+
 // CfgHttp has some options for Acceptor work
 type CfgHttp struct {
 	// list tokens to check requests
 	KillSignal int              `yaml:"KillSignal"`
 	Server     *fasthttp.Server `yaml:"Server"`
+	Access		AccessConf		`yaml:"Access"`
 }
 
 // NewCfgHttp create CfgHttp from config file

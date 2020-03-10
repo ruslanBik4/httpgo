@@ -5,12 +5,14 @@
 package httpGo
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/apis"
@@ -42,6 +44,10 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 	cfg.Server.Logger = &fastHTTPLogger{}
 
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
+	
+	if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
+		listener = &blockListener{listener}
+	}
 
 	return &HttpGo{
 		mainServer: cfg.Server,
@@ -91,6 +97,10 @@ type fastHTTPLogger struct {
 }
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
-	args = append([]interface{}{mess}, args...)
-	logs.DebugLog(args...)
+	if strings.Contain(mess, 'error') {
+		logs.ErrorLog(errors.New(mess), args...)
+	} else {
+		args = append([]interface{}{mess}, args...)
+		logs.DebugLog(args...)
+	}
 }

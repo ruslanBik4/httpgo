@@ -114,12 +114,12 @@ func ErrorLog(err error, args ...interface{}) {
 	}
 
 	var (
-		message         string
+		message         := ""
 		timeFrameString string
 		errorPrint      errLogPrint
 	)
 
-	errorPrint = true
+	errorPrint := true
 
 	if logErr.toSentry {
 		message = string(*(sentry.CaptureException(err)))
