@@ -101,9 +101,13 @@ type stackTracer interface {
 	StackTrace() errors.StackTrace
 }
 
-func timeFormating() string {
-	hh, mm, ss := time.Now().Clock()
-	return fmt.Sprintf("%.2d:%.2d:%.2d", hh, mm, ss)
+func timeLogFormat() string {
+	if logErr.Flags()&log.Ltime != 0 {
+		hh, mm, ss := time.Now().Clock()
+		return fmt.Sprintf("%.2d:%.2d:%.2d ", hh, mm, ss)
+	}
+	
+	return ""
 }
 
 // ErrorLog - output formatted (function and line calls) error information
@@ -113,41 +117,38 @@ func ErrorLog(err error, args ...interface{}) {
 		return
 	}
 
-	var (
-		message         = ""
-		timeFrameString string
-		errorPrint      errLogPrint
-	)
 
-	errorPrint := true
-
+	message    := ""
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
 		message = fmt.Sprintf("https://sentry.io/organizations/%s/?query=%s",
 			logErr.sentryOrg, string(*(sentry.CaptureException(err))))
 	}
 
-	isIgnore := true
-
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
+		errorPrint := errLogPrint(true)
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames {
 			file := fmt.Sprintf("%s", frame)
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-				if logErr.Flags()&log.Ltime != 0 {
-					timeFrameString = fmt.Sprintf("%s %s:%d: %s()", timeFormating(), file, frame, fncName)
-				} else {
-					timeFrameString = fmt.Sprintf("%s:%d: %s()", file, frame, fncName)
-				}
-				logErr.Printf(errorPrint, logErr.Prefix()+timeFrameString, err, args)
+
+				logErr.Printf(errorPrint, 
+					logErr.Prefix() + 
+					fmt.Sprintf("%s%s:%d: %s()", timeLogFormat(), file, frame, fncName) +
+					message,
+					err, 
+					args)
+				
 				return
 			}
 		}
 	}
 
 	calldepth := 1
+	isIgnore := true
+	
 	for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 		logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
@@ -157,7 +158,7 @@ func ErrorLog(err error, args ...interface{}) {
 
 	logErr.calldepth = calldepth + 1
 
-	logErr.Printf(message+" "+logErr.funcName+"()", err, args)
+	logErr.Printf(logErr.funcName+"() " + message, err, args)
 }
 
 const prefErrStack = "[[ERR_STACK]]"

@@ -36,11 +36,13 @@ func StreamTableRow(qw422016 *qt422016.Writer, columns []string, rows [][]interf
 //line views/templates/tables/table_row.qtpl:10
 	colLen := make([]int, len(columns))
 	allWidth := 10
+
 	for i, col := range columns {
-		if col.CharacterMaximumLength < 0 {
+		CharacterMaximumLength := len(col)
+		if CharacterMaximumLength < 0 {
 			colLen[i] = 100
-		} else if col.CharacterMaximumLength < 50 {
-			colLen[i] = col.CharacterMaximumLength * 5
+		} else if CharacterMaximumLength < 50 {
+			colLen[i] = CharacterMaximumLength * 5
 		} else {
 			colLen[i] = 250
 		}
