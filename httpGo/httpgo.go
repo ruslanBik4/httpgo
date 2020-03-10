@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 	"time"
 
@@ -47,7 +48,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
 	
-	if cfg.ChkConn {
+	if cfg.AccessConf.ChkConn {
 		listener = &blockListener{
 						listener,
 						cfg.Access.Allow,
@@ -55,14 +56,14 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 					}
 	} else if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
 		cfg.Server.Handler = func (ctx *fasthttp.RequestCtx) {
-			ipClient := ctx.Request.Header.Pike("X-Forwarded-For")
+			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
 			addr := string(ipClient)
 			if len(ipClient) == 0 {
-				ipClient = ctx.Request.Header.Pike("Forwarded")
+				ipClient = ctx.Request.Header.Peek("Forwarded")
 				ips := regIp.FindSubmatch(ipClient)
 				
 				if len(ips) == 0 {
-					addr = string( ctx.Request.Header.Pike("X-ProxyUser-Ip") )
+					addr = string( ctx.Request.Header.Peek("X-ProxyUser-Ip") )
 				} else {
 					addr = string(ips[0])
 				}
