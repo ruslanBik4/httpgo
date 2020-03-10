@@ -79,17 +79,13 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 		
 		// add cfg refresh routers, ignore errors
 		apisRoute := apis.ApiRoutes{
-			"/httpgo/cfg/reload": {Desc: "full routers list",
-			Fnc:  func (ctx *fasthttp.RequestCtx) (interface{}, error) {
-					//err = yaml.Unmarshal(buf, &cfg)
-					return "config reload", nil
-			},
-			Params: []InParam{
-				{
-					Name: "json",
+			"/httpgo/cfg/reload": {
+				Desc: "full routers list",
+				Fnc:  func (ctx *fasthttp.RequestCtx) (interface{}, error) {
+						//err = yaml.Unmarshal(buf, &cfg)
+						return "config reload", nil
 				},
 			},
-		}
 		}
 
 		_ = apis.AddRoutes(apisRoute)
