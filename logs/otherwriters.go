@@ -1,8 +1,11 @@
 package logs
 
 import (
+	"errors"
 	"io"
 )
+
+var BadWriter = errors.New("BadWriter, needs to be deleted from mutiwriter")
 
 type multiWriter struct {
 	writers []io.Writer
@@ -12,7 +15,13 @@ func (t *multiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range t.writers {
 		n, err = w.Write(p)
 		if err != nil {
-			return
+			if err == BadWriter {
+				ErrorLog(BadWriter, w)
+				t.Remove(w)
+				err = nil
+			} else {
+				return
+			}
 		}
 		if n != len(p) {
 			err = io.ErrShortWrite

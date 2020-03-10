@@ -106,7 +106,7 @@ func timeLogFormat() string {
 		hh, mm, ss := time.Now().Clock()
 		return fmt.Sprintf("%.2d:%.2d:%.2d ", hh, mm, ss)
 	}
-	
+
 	return ""
 }
 
@@ -117,18 +117,20 @@ func ErrorLog(err error, args ...interface{}) {
 		return
 	}
 
-
-	format := getFormatString(args[0])
-	if format > "" {
-		args = args[1:]
-		//todo: check count arguments in format string
-	} else {
-		format = "%v"
+	format := ""
+	if args != nil {
+		format = getFormatString(args[0])
+		if format > "" {
+			args = args[1:]
+			//todo: check count arguments in format string
+		} else {
+			format = "%v"
+		}
 	}
-	
+
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
-		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))) ) 
+		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))))
 		format += "https://sentry.io/organizations/%s/?query=%s"
 	}
 
@@ -142,16 +144,16 @@ func ErrorLog(err error, args ...interface{}) {
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
 
 				args = append([]interface{}{
-									errorPrint,
-									logErr.Prefix() + "%s%s:%d: %s()" + format,
-									timeLogFormat(), 
-									file, 
-									frame, 
-									fncName,
-									err,
-								},
-								args... )
-				
+					errorPrint,
+					logErr.Prefix() + "%s%s:%d: %s()" + format,
+					timeLogFormat(),
+					file,
+					frame,
+					fncName,
+					err,
+				},
+					args...)
+
 				break
 			}
 		}
@@ -159,10 +161,8 @@ func ErrorLog(err error, args ...interface{}) {
 
 		calldepth := 1
 		isIgnore := true
-		
-		for pc, _, _, ok := runtime.Caller(calldepth); 
-				ok && isIgnore; 
-				pc, _, _, ok = runtime.Caller(calldepth) {
+
+		for pc, _, _, ok := runtime.Caller(calldepth); ok && isIgnore; pc, _, _, ok = runtime.Caller(calldepth) {
 			logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 			// пропускаем рендер ошибок
 			isIgnore = isIgnoreFunc(logErr.funcName)
@@ -172,12 +172,12 @@ func ErrorLog(err error, args ...interface{}) {
 		logErr.calldepth = calldepth + 1
 
 		args = append([]interface{}{
-							logErr.funcName+"() " + format,
-							err,
-							},
-						args... )
+			logErr.funcName + "() " + format,
+			err,
+		},
+			args...)
 	}
-	
+
 	logErr.Printf(args...)
 }
 
