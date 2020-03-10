@@ -2,7 +2,7 @@
 // See https://github.com/valyala/quicktemplate for details.
 
 //line views/templates/tables/table_row.css.qtpl:1
-package tables
+package routeTable
 
 //line views/templates/tables/table_row.css.qtpl:1
 import (
