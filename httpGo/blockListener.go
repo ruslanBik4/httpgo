@@ -14,6 +14,8 @@ import (
 
 type blockListener struct {
 	net.Listener
+	allow		[]string
+	deny		[]string
 }
 
 func (m *blockListener) Addr() net.Addr {
@@ -29,8 +31,8 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		}
 		
 		addr := c.RemoteAddr().String()
-		
-		for _, str := range allowed {
+		//todo: add chk deny later
+		for _, str := range allow {
 			if strings.HasPrefix(addr, str) {
 				logs.DebugLog("allow %s (%s)", addr, c.RemoteAddr().Network())
 				return c, nil

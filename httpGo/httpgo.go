@@ -5,7 +5,7 @@
 package httpGo
 
 import (
-	"fmt"
+	"strings"
 	"net"
 	"os"
 	"os/signal"
@@ -35,6 +35,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 	if apis.Ctx == nil {
 		apis.Ctx = make(map[string]interface{}, 0)
 	}
+	
 	apis.Ctx["ACC_VERSION"] = httpgoVersion
 
 	cfg.Server.Handler = apis.Handler
@@ -46,7 +47,11 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *apis.Apis) *HttpGo {
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
 	
 	if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
-		listener = &blockListener{listener}
+		listener = &blockListener{
+						listener,
+						cfg.Access.Allow,
+						cfg.Access.Deny,
+					}
 	}
 
 	return &HttpGo{
@@ -97,7 +102,7 @@ type fastHTTPLogger struct {
 }
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
-	if strings.Contain(mess, 'error') {
+	if strings.Contain(mess, "error") {
 		logs.ErrorLog(errors.New(mess), args...)
 	} else {
 		args = append([]interface{}{mess}, args...)
