@@ -83,7 +83,7 @@ func StreamTableRow(qw422016 *qt422016.Writer, columns []string, rows [][]interf
 		qw422016.N().S(`{
    text-align: `)
 //line views/templates/tables/table_row.qtpl:33
-		if columns[i].CharacterMaximumLength > 0 {
+		if len(columns[i]) > 0 {
 //line views/templates/tables/table_row.qtpl:33
 			qw422016.N().S(` left `)
 //line views/templates/tables/table_row.qtpl:33
