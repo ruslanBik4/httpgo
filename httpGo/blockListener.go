@@ -34,7 +34,6 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		//todo: add chk deny later
 		for _, str := range m.allow {
 			if strings.HasPrefix(addr, str) {
-				logs.DebugLog("allow %s (%s)", addr, c.RemoteAddr().Network())
 				return c, nil
 			}
 		}
