@@ -47,9 +47,7 @@ func init() {
 
 	ctxApis := apis.NewCtxApis(0)
 	ctxApis.AddValue("version", "0.2")
-	apis := apis.NewApis(ctxApis, routes, func(ctx *fasthttp.RequestCtx) bool {
-		return false
-	})
+	apis := apis.NewApis(ctxApis, routes, nil)
 	if err != nil {
 		// not work without correct config
 		logs.Fatal(err)
