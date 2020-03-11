@@ -83,7 +83,9 @@ const (
 func (logger *wrapKitLogger) addWriter(newWriters ...io.Writer) {
 	loggermultiwriter := logger.toOther.(*multiWriter)
 	for _, newWriter := range newWriters {
-		loggermultiwriter.Append(newWriter)
+		if newWriter != nil {
+			loggermultiwriter.Append(newWriter)
+		}
 	}
 }
 

@@ -135,6 +135,7 @@ func TestLogstoOther(t *testing.T) {
 	a := testWriter{wg, "first"}
 	b := testWriter2{wg, "Second"}
 	SetWriters(a, FgErr)
+	SetWriters(nil, FgErr)
 	SetWriters(b, FgErr)
 	SetWriters(a, FgErr)
 	DeleteWriters(a, FgErr)
