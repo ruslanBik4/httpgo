@@ -194,59 +194,74 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	}
 
 	if logger.toOther != nil {
-		go logger.toOther.Write([]byte(stripansi.Strip(mess)))
+		go func() {
+			_, err := logger.toOther.Write([]byte(stripansi.Strip(mess)))
+			if err != nil {
+				_ = logger.Output(logger.calldepth, getArgsString("during write other", err))
+			}
+		}()
 	}
-
 }
 
-func getArgsString(args ...interface{}) (message string) {
+func getArgsString(args ...interface{}) string {
 
-	// if first param is formating string
-	if format := getFormatString(args); format > "" {
+	// if first param is formatting string
+	if format, c := getFormatString(args); c > 0 {
 		return fmt.Sprintf(format, args[1:]...)
 	}
 
-	comma := ""
+	return argsToString(args...)
+}
+
+func argsToString(args ...interface{}) string {
+	comma, message := "", ""
 	for _, arg := range args {
-
-		switch val := arg.(type) {
-		case nil:
-			message += comma + " is nil"
-		case string:
-			message += comma + strings.TrimPrefix(val, "ERROR:")
-		case []string:
-			for _, value := range val {
-				message += value + "\n"
-			}
-		case LogsType:
-			message += comma + val.PrintToLogs()
-		case time.Time:
-			message += comma + val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
-		case []interface{}:
-			if len(val) > 0 {
-				message += comma + getArgsString(val...)
-			}
-		case error:
-			message += comma + val.Error()
-		default:
-
-			message += comma + fmt.Sprintf("%#v", arg)
-		}
-
+		message += comma + argToString(arg)
 		comma = ", "
 	}
-
 	return message
 }
 
-func getFormatString(args []interface{}) string {
-	if len(args) < 1 {
+func argToString(arg interface{}) string {
+	switch val := arg.(type) {
+	case nil:
+		return " is nil"
+	case string:
+		return strings.TrimPrefix(val, "ERROR:")
+	case []string:
+		return strings.Join(val, "\n")
+	case LogsType:
+		return val.PrintToLogs()
+	case time.Time:
+		return val.Format("Mon Jan 2 15:04:05 -0700 MST 2006")
+	case []interface{}:
+		if len(val) > 1 {
+			return getArgsString(val...)
+		} else if len(val) > 0 {
+			return argToString(val[0])
+		}
+
 		return ""
+	case error:
+		return strings.TrimPrefix(val.Error(), "ERROR:")
+	default:
+		return fmt.Sprintf("%#v", arg)
 	}
-	
-	if format, ok := args[0].(string); ok && (strings.Index(format, "%") > -1) {
-		return format
+}
+
+func getFormatString(args []interface{}) (string, int) {
+	if len(args) < 2 {
+		return "", 0
 	}
-	
-	return ""
+
+	if format, ok := args[0].(string); ok {
+		c := strings.Count(format, "%")
+		if c < len(args)-1 {
+			format += strings.Repeat(", %v", len(args)-c-1)
+		}
+
+		return format, c
+	}
+
+	return "", 0
 }

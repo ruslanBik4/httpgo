@@ -13,7 +13,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/stretchr/testify v1.4.0
 	github.com/tebeka/selenium v0.9.9
-	github.com/valyala/fasthttp v1.6.0
+	github.com/valyala/fasthttp v1.8.0
 	github.com/valyala/quicktemplate v1.4.1
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45

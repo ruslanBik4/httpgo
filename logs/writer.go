@@ -60,6 +60,7 @@ func Fatal(err error, args ...interface{}) {
 	os.Exit(1)
 
 }
+
 func changeShortName(file string) (short string) {
 	short = file
 	for i := len(file) - 1; i > 0; i-- {
@@ -117,18 +118,23 @@ func ErrorLog(err error, args ...interface{}) {
 		return
 	}
 
-
-	format := getFormatString(args)
-	if format > "" {
-		args = args[1:]
-		//todo: check count arguments in format string
+	format, c := getFormatString(args)
+	if c > 0 {
+		// add format for error
+		if c < len(args) {
+			format = argToString(err) + "," + format
+			args = args[1:]
+		} else {
+			args[0] = err
+		}
 	} else {
-		format = "%v"
+		format = argsToString(err, args)
+		args = args[:0]
 	}
 
 	if logErr.toSentry {
 		defer sentry.Flush(2 * time.Second)
-		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))) ) 
+		args = append(args, logErr.sentryOrg, string(*(sentry.CaptureException(err))))
 		format += " https://sentry.io/organizations/%s/?query=%s"
 	}
 
@@ -143,12 +149,11 @@ func ErrorLog(err error, args ...interface{}) {
 
 				args = append([]interface{}{
 					errorPrint,
-					logErr.Prefix() + "%s%s:%d: %s()" + format,
+					logErr.Prefix() + "%s%s:%d: %s() " + format,
 					timeLogFormat(),
 					file,
 					frame,
 					fncName,
-					err,
 				},
 					args...)
 
@@ -171,7 +176,6 @@ func ErrorLog(err error, args ...interface{}) {
 
 		args = append([]interface{}{
 			logErr.funcName + "() " + format,
-			err,
 		},
 			args...)
 	}

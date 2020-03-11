@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -37,9 +38,13 @@ func TestErrorLog(t *testing.T) {
 	var err fakeErr
 
 	ErrorLog(err, "test err", 2)
+	ErrorLog(err, "test err %s format %d", 2)
+	ErrorLog(err, "test err format missing %d", 2, time.Now())
 
 	err1 := errors.Wrap(err, "mess for error")
 	ErrorLog(err1, "test err wrap", 1)
+	ErrorLog(err1, "test err wrap format %d", 1)
+	ErrorLog(err1, "test err wrap format missing %d", 1, 3)
 }
 
 type fakeWriter struct {
