@@ -110,7 +110,9 @@ func StreamTableRow(qw422016 *qt422016.Writer, columns []string, rows [][]interf
 	for i, col := range columns {
 		//line views/templates/system/routeTable/table_row.qtpl:12
 		qw422016.N().S(`
-            <div class="usr-table-col" a=`)
+            <div class="usr-table-col-`)
+        qw422016.N().D(i)
+        qw422016.N().S(`" a=`)
 		//line views/templates/system/routeTable/table_row.qtpl:13
 		qw422016.N().D(i)
 		//line views/templates/system/routeTable/table_row.qtpl:13
@@ -201,7 +203,9 @@ func StreamTableRow(qw422016 *qt422016.Writer, columns []string, rows [][]interf
 		for i := range columns {
 			//line views/templates/system/routeTable/table_row.qtpl:83
 			qw422016.N().S(`
-                        <div class="usr-table-col">
+                        <div class="usr-table-col-`)
+        qw422016.N().D(i)
+        qw422016.N().S(`">
                             `)
 			//line views/templates/system/routeTable/table_row.qtpl:85
 			switch r := row[i].(type) {
