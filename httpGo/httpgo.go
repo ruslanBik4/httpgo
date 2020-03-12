@@ -5,11 +5,11 @@
 package httpGo
 
 import (
-	"strings"
 	"net"
 	"os"
 	"os/signal"
 	"regexp"
+	"strings"
 	"syscall"
 	"time"
 
@@ -30,6 +30,7 @@ type HttpGo struct {
 }
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
+
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
@@ -37,7 +38,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	if apis.Ctx == nil {
 		apis.Ctx = make(map[string]interface{}, 0)
 	}
-	
+
 	apis.Ctx["ACC_VERSION"] = httpgoVersion
 
 	cfg.Server.Handler = apis.Handler
@@ -47,46 +48,46 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.Logger = &fastHTTPLogger{}
 
 	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
-	
+
 	if cfg.Access.ChkConn {
 		listener = &blockListener{
-						listener,
-						cfg.Access.Allow,
-						cfg.Access.Deny,
-					}
+			listener,
+			cfg.Access.Allow,
+			cfg.Access.Deny,
+		}
 	} else if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
-		cfg.Server.Handler = func (ctx *fasthttp.RequestCtx) {
+		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
 			addr := string(ipClient)
 			if len(ipClient) == 0 {
 				ipClient = ctx.Request.Header.Peek("Forwarded")
 				ips := regIp.FindSubmatch(ipClient)
-				
+
 				if len(ips) == 0 {
-					addr = string( ctx.Request.Header.Peek("X-ProxyUser-Ip") )
+					addr = string(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
 				} else {
 					addr = string(ips[0])
 				}
 			}
-			
+
 			for _, str := range cfg.Access.Allow {
 				if strings.HasPrefix(addr, str) {
 					apis.Handler(ctx)
-					return 
+					return
 				}
 			}
-		
-			logs.DebugLog(addr, ctx.Request.Header.String() )
+
+			logs.DebugLog(addr, ctx.Request.Header.String())
 			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
 		}
-		
+
 		// add cfg refresh routers, ignore errors
 		apisRoute := ApiRoutes{
 			"/httpgo/cfg/reload": {
 				Desc: "full routers list",
-				Fnc:  func (ctx *fasthttp.RequestCtx) (interface{}, error) {
-						//err = yaml.Unmarshal(buf, &cfg)
-						return "config reload", nil
+				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+					//err = yaml.Unmarshal(buf, &cfg)
+					return "config reload", nil
 				},
 			},
 		}
@@ -131,7 +132,7 @@ func (a *HttpGo) listenOnShutdown() {
 	if err != nil {
 		logs.ErrorLog(err)
 	}
-	
+
 	err = a.listener.Close()
 	if err != nil {
 		logs.ErrorLog(err)
@@ -145,9 +146,13 @@ type fastHTTPLogger struct {
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
 	args = append([]interface{}{mess}, args...)
-	
+
 	if strings.Contains(mess, "error") {
-		logs.ErrorLog(errors.New("fasthttp"), args...)
+		if strings.Contains(mess, "serving connection") {
+			logs.StatusLog(errors.New("fasthttp"), args)
+		} else {
+			logs.ErrorLog(errors.New("fasthttp"), args...)
+		}
 	} else {
 		logs.DebugLog(args...)
 	}

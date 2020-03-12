@@ -119,6 +119,7 @@ func InnerErrorFuncLower(number int) error {
 	}
 	err := errors.New("-InnerErrorFuncLower()- error occured")
 	ErrorLog(err)
+	ErrorStack(err)
 	return err
 }
 
@@ -127,6 +128,13 @@ func TestLogErr(t *testing.T) {
 	ErrorLog(errors.Wrap(err, "uhd3ekuiwe"))
 	err = FuncStack(3)
 	ErrorLog(errors.Wrap(err, "yw"))
+}
+
+func TestErrStack(t *testing.T) {
+	err := FuncStack(7)
+	ErrorStack(errors.Wrap(err, "uhd3ekuiwe"))
+	err = FuncStack(3)
+	ErrorStack(errors.Wrap(err, "yw"), "khef")
 }
 
 func TestLogstoOther(t *testing.T) {

@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -189,39 +188,52 @@ const prefErrStack = "[[ERR_STACK]]"
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
-	err = logErr.Output(i+1, fmt.Sprintf("%s; %s", err, getArgsString(args...)))
-	if err != nil {
-		fmt.Printf("%s during log printing", err)
-		return
-	}
+	logErr.calldepth = i + 1
+	logErr.Printf(err, args)
 
+	stackLines := []string{}
+	stackline := ""
+	sep := ""
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
-			printStackLine(fmt.Sprintf("%s", frame), fmt.Sprintf("%d", frame), fmt.Sprintf("%n", frame))
+			file := fmt.Sprintf("%s", frame)
+			fncName := fmt.Sprintf("%n", frame)
+			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
+				newLine := fmt.Sprintf("%s%s:%d %s()", sep, file, frame, fncName)
+				stackLines = append(stackLines, newLine)
+				stackline += newLine
+				sep = " <- "
+			}
 		}
-
+		printStackLine(stackLines, stackline)
 		return
 	}
 
 	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
 		i++
+		fileName := changeShortName(file)
+		fncName := changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
-		printStackLine(changeShortName(file), strconv.Itoa(line), changeShortName(runtime.FuncForPC(pc).Name()))
+		if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
+			newLine := fmt.Sprintf("%s%s:%d %s(), ", sep, fileName, line, fncName)
+			stackLines = append(stackLines, newLine)
+			stackline += newLine
+			sep = " <- "
+		}
+		printStackLine(stackLines, stackline)
 	}
 }
 
-func printStackLine(file string, line string, fncName string) {
-	if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-		if *fDebug {
-			hh, mm, ss := time.Now().Clock()
-			fmt.Printf("%s %d:%d:%d %s:%s: %s()", prefErrStack, hh, mm, ss, file, line, fncName)
-			fmt.Println()
-		} else {
-			fmt.Printf("%s:%s: %s()", file, line, fncName)
+func printStackLine(stackLines []string, line string) {
+	logErr.Printf("%s %s", prefErrStack, line)
+	if *fDebug {
+		for i, fncLine := range stackLines {
+			logDebug.Printf("%s%s %s [%d stackLevel]", prefErrStack, timeLogFormat(), fncLine, i)
 		}
 	}
+
 }
 
 func isIgnoreFile(runFile string) bool {
