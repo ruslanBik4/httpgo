@@ -113,7 +113,7 @@ func (cfg *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 	return false
 }
 
-func (cfg *CfgHttp) IsAccess(addr string) bool {
+func (cfg *CfgHttp) IsAccess() bool {
 	return len(cfg.Access.AllowIP) > 0 || len(cfg.Access.DenyIP) > 0
 }
 
@@ -121,15 +121,16 @@ func (cfg *CfgHttp) Reload() error {
 
 	buf, err := ioutil.ReadFile(cfg.fileCfg)
 	if err != nil {
-		logs.ErrorLog(err)
-		return nil, err
+		return err
 	}
 
 	var cfgGlobal CfgHttp
 	err = yaml.Unmarshal(buf, &cfgGlobal)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	cfg.Access = cfgGlobal.Access
+	
+	return nil
 }
