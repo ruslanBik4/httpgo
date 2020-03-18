@@ -6,7 +6,8 @@ package httpGo
 
 import (
 	"io/ioutil"
-
+	"strings"
+	
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
 
@@ -112,7 +113,7 @@ func (cfg *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 	return false
 }
 
-func (cfg *CfgHttp) isAccess(addr string) bool {
+func (cfg *CfgHttp) IsAccess(addr string) bool {
 	return len(cfg.Access.AllowIP) > 0 || len(cfg.Access.DenyIP) > 0
 }
 

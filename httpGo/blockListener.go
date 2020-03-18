@@ -7,7 +7,6 @@ package httpGo
 import (
 	"fmt"
 	"net"
-	"strings"
 	
 	"github.com/ruslanBik4/httpgo/logs"
 )
