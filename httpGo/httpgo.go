@@ -69,14 +69,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 					addr = string(ips[0])
 				}
 			}
-
-			for _, str := range cfg.Access.Allow {
-				if strings.HasPrefix(addr, str) {
-					apis.Handler(ctx)
-					return
-				}
+			
+			if cfg.Allow(ctx, addr) && !cfg.Deny(ctx, addr) {
+				apis.Handler(ctx)
+				return
 			}
-
+			
 			logs.DebugLog(addr, ctx.Request.Header.String())
 			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
 		}
@@ -86,8 +84,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			"/httpgo/cfg/reload": {
 				Desc: "full routers list",
 				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-					//err = yaml.Unmarshal(buf, &cfg)
-					return "config reload", nil
+					return "config reload", cfg.Reload()
 				},
 			},
 		}

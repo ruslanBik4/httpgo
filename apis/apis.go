@@ -148,8 +148,7 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
-	path := string(ctx.Path())
-	route, ok := a.isValidPath(ctx, path)
+	route, ok := a.isValidPath(ctx)
 	if !ok {
 		ctx.NotFound()
 		logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
@@ -400,7 +399,8 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return nil, nil
 }
 
-func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx, path string) (*ApiRoute, bool) {
+func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx) (*ApiRoute, bool) {
+		path := string(ctx.Path())
 	route, ok := a.routes[path]
 	// check method
 	if ok && route.isValidMethod(ctx) {
