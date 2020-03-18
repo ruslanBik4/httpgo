@@ -151,7 +151,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	route, ok := a.isValidPath(ctx)
 	if !ok {
 		ctx.NotFound()
-		logs.ErrorLog(errNotFoundPage, path, ctx.String(), ctx.Request.String())
+		logs.StatusLog("Not Found Page %+v", ctx.Request.String())
 		return
 	}
 

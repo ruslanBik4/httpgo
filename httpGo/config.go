@@ -110,7 +110,7 @@ func (c *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 
 func (c *CfgHttp) Reload() error {
 
-	buf, err := ioutil.ReadFile(filename)
+	buf, err := ioutil.ReadFile(c.fileCfg)
 	if err != nil {
 		logs.ErrorLog(err)
 		return nil, err
