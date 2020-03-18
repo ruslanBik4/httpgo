@@ -180,30 +180,28 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	}()
 
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
-
-	// success execution
 	if err != nil {
 		logs.DebugLog("'%s' failure - %v, %s, %s, %s",
-			path,
+			string(ctx.Path()),
 			resp,
 			ctx.Request.Header.ContentType(),
 			ctx.Request.Header.Referer(),
 			ctx.Request.Header.UserAgent())
 		a.renderError(ctx, err, resp)
-	} else {
-		if resp != nil {
-			switch resp := resp.(type) {
-			case []byte:
-				ctx.Response.SetBodyString(string(resp))
-			case string:
-				ctx.Response.SetBodyString(resp)
-			default:
-
-				err = WriteJSON(ctx, resp)
-				if err != nil {
-					a.renderError(ctx, err, resp)
-				}
-			}
+		return
+	} 
+	
+	// success execution
+	switch resp := resp.(type) {
+	case nil:
+	case []byte:
+		ctx.Response.SetBodyString(string(resp))
+	case string:
+		ctx.Response.SetBodyString(resp)
+	default:
+		err = WriteJSON(ctx, resp)
+		if err != nil {
+			a.renderError(ctx, err, resp)
 		}
 	}
 
@@ -400,7 +398,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 }
 
 func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx) (*ApiRoute, bool) {
-		path := string(ctx.Path())
+	path := string(ctx.Path())
 	route, ok := a.routes[path]
 	// check method
 	if ok && route.isValidMethod(ctx) {
