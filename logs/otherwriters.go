@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-var BadWriter = errors.New("BadWriter, needs to be deleted from mutiwriter")
+var BadWriter = errors.New("BadWriter, it will delete from multiwriter")
 
 type multiWriter struct {
 	writers []io.Writer
@@ -14,20 +14,22 @@ type multiWriter struct {
 func (t *multiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range t.writers {
 		n, err = w.Write(p)
-		if err != nil {
-			if err == BadWriter {
-				ErrorLog(BadWriter, w)
-				t.Remove(w)
-				err = nil
-			} else {
-				return
-			}
+		
+		if err == BadWriter {
+			t.Remove(w)
+			ErrorLog(BadWriter, w)
+			err = nil
+		} else if err != nil {
+			return
 		}
+		
 		if n != len(p) {
+		//todo: other writers won't run!
 			err = io.ErrShortWrite
 			return
 		}
 	}
+	
 	return len(p), nil
 }
 
@@ -51,24 +53,26 @@ func (t *multiWriter) Append(writers ...io.Writer) {
 var _ io.StringWriter = (*multiWriter)(nil)
 
 func (t *multiWriter) WriteString(s string) (n int, err error) {
-	var p []byte
+	p := []byte(s)
+	
 	for _, w := range t.writers {
 		if sw, ok := w.(io.StringWriter); ok {
 			n, err = sw.WriteString(s)
 		} else {
-			if p == nil {
-				p = []byte(s)
-			}
 			n, err = w.Write(p)
 		}
+		
 		if err != nil {
 			return
 		}
+		
 		if n != len(s) {
+		//todo: other writers won't run!
 			err = io.ErrShortWrite
 			return
 		}
 	}
+	
 	return len(s), nil
 }
 
@@ -81,5 +85,6 @@ func MultiWriter(writers ...io.Writer) io.Writer {
 			allWriters = append(allWriters, w)
 		}
 	}
+	
 	return &multiWriter{allWriters}
 }
