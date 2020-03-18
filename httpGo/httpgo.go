@@ -52,10 +52,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	if cfg.Access.ChkConn {
 		listener = &blockListener{
 			listener,
-			cfg.Access.Allow,
-			cfg.Access.Deny,
+			cfg,
 		}
-	} else if len(cfg.Access.Allow) > 0 || len(cfg.Access.Deny) > 0 {
+	} else if cfg.IsAccess() {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
 			addr := string(ipClient)

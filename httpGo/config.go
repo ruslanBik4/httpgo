@@ -52,7 +52,7 @@ func NewCfgHttp(filename string) (cfgGlobal *CfgHttp, err error) {
 	return
 }
 
-func (c *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
+func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.AllowRoute {
 		if strings.HasPrefix(path, str) {
@@ -63,7 +63,7 @@ func (c *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	return false
 }
 
-func (c *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
+func (cfg *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.DenyRoute {
 		if strings.HasPrefix(path, str) {
@@ -74,14 +74,18 @@ func (c *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	return false
 }
 
-func (c *CfgHttp) Allow(ctx *fasthttp.RequestCtx, addr string) bool {
+func (cfg *CfgHttp) Allow(ctx *fasthttp.RequestCtx, addr string) bool {
 
-	if len(c.Access.DenyRoute) > 0 {
-		if !c.isDenyRoute(ctx) {
+	if len(cfg.Access.DenyRoute) > 0 {
+		if !cfg.isDenyRoute(ctx) {
 			return true
 		}
 	}
 	
+	return cfg.isAllowIP(addr)
+}
+
+func (cfg *CfgHttp) isAllowIP(addr string) bool {
 	for _, str := range cfg.Access.AllowIP {
 		if strings.HasPrefix(addr, str) {
 			return true
@@ -91,10 +95,10 @@ func (c *CfgHttp) Allow(ctx *fasthttp.RequestCtx, addr string) bool {
 	return false
 }
 
-func (c *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
+func (cfg *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 
-	if len(c.Access.AllowRoute) > 0 {
-		if c.isAllowRoute(ctx) {
+	if len(cfg.Access.AllowRoute) > 0 {
+		if cfg.isAllowRoute(ctx) {
 			return false
 		}
 	}
@@ -108,9 +112,13 @@ func (c *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 	return false
 }
 
-func (c *CfgHttp) Reload() error {
+func (cfg *CfgHttp) isAccess(addr string) bool {
+	return len(cfg.Access.AllowIP) > 0 || len(cfg.Access.DenyIP) > 0
+}
 
-	buf, err := ioutil.ReadFile(c.fileCfg)
+func (cfg *CfgHttp) Reload() error {
+
+	buf, err := ioutil.ReadFile(cfg.fileCfg)
 	if err != nil {
 		logs.ErrorLog(err)
 		return nil, err
@@ -122,5 +130,5 @@ func (c *CfgHttp) Reload() error {
 		return nil, err
 	}
 
-	c.Access = cfgGlobal.Access
+	cfg.Access = cfgGlobal.Access
 }

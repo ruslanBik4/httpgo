@@ -14,8 +14,7 @@ import (
 
 type blockListener struct {
 	net.Listener
-	allow		[]string
-	deny		[]string
+	*CfgHttp
 }
 
 func (m *blockListener) Addr() net.Addr {
@@ -32,10 +31,8 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		
 		addr := c.RemoteAddr().String()
 		//todo: add chk deny later
-		for _, str := range m.allow {
-			if strings.HasPrefix(addr, str) {
-				return c, nil
-			}
+		if m.isAllowIP(addr) {
+			return c, nil
 		}
 		
 		logs.ErrorLog(fmt.Errorf("Deny connect from addr %s", addr))
