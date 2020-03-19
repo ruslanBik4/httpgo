@@ -74,16 +74,16 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				return
 			}
 			
-			logs.DebugLog(addr, ctx.Request.Header.String())
+			logs.DebugLog(addr, ctx.Request.Header.String(), cfg)
 			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
 		}
 
 		// add cfg refresh routers, ignore errors
 		apisRoute := ApiRoutes{
 			"/httpgo/cfg/reload": {
-				Desc: "full routers list",
+				Desc: "reload cfg of httpgo from starting config file",
 				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-					return "config reload", cfg.Reload()
+					return cfg.Reload()
 				},
 			},
 		}
@@ -145,7 +145,7 @@ func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
 
 	if strings.Contains(mess, "error") {
 		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(errors.New("fasthttp"), args)
+			logs.StatusLog(args...)
 		} else {
 			logs.ErrorLog(errors.New("fasthttp"), args...)
 		}
