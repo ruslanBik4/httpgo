@@ -154,7 +154,7 @@ func TestLogstoOther(t *testing.T) {
 func TestLogsMultiwriter(t *testing.T) {
 	//var m io.Writer
 	wg := &sync.WaitGroup{}
-	wg.Add(3)
+	wg.Add(2)
 	a := testWriter{wg, "first"}
 	b := testWriter2{wg, "Second"}
 	m := MultiWriter(a, a)
