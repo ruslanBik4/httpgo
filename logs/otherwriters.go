@@ -14,22 +14,21 @@ type multiWriter struct {
 func (t *multiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range t.writers {
 		n, err = w.Write(p)
-		
+
 		if err == BadWriter {
 			t.Remove(w)
 			ErrorLog(BadWriter, w)
 			err = nil
 		} else if err != nil {
-			return
+			ErrorLog(err, w)
+			err = nil
 		}
-		
+
 		if n != len(p) {
-		//todo: other writers won't run!
-			err = io.ErrShortWrite
-			return
+			ErrorLog(io.ErrShortWrite, "while Write() to single Writer in multiWriter", w)
 		}
 	}
-	
+
 	return len(p), nil
 }
 
@@ -54,25 +53,24 @@ var _ io.StringWriter = (*multiWriter)(nil)
 
 func (t *multiWriter) WriteString(s string) (n int, err error) {
 	p := []byte(s)
-	
+
 	for _, w := range t.writers {
 		if sw, ok := w.(io.StringWriter); ok {
 			n, err = sw.WriteString(s)
 		} else {
 			n, err = w.Write(p)
 		}
-		
+
 		if err != nil {
-			return
+			ErrorLog(err, w)
+			err = nil
 		}
-		
+
 		if n != len(s) {
-		//todo: other writers won't run!
-			err = io.ErrShortWrite
-			return
+			ErrorLog(io.ErrShortWrite, "while WriteString() to single Writer in multiWriter", w)
 		}
 	}
-	
+
 	return len(s), nil
 }
 
@@ -85,6 +83,6 @@ func MultiWriter(writers ...io.Writer) io.Writer {
 			allWriters = append(allWriters, w)
 		}
 	}
-	
+
 	return &multiWriter{allWriters}
 }
