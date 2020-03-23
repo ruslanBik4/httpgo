@@ -7,11 +7,25 @@ import (
 
 var BadWriter = errors.New("BadWriter, it will delete from multiwriter")
 
+type MultiwriterErr struct {
+	ErrorsList []WriterErr
+}
+
+func (mwe MultiwriterErr) Error() string {
+	return "MultiwriterErr: some writers have errors"
+}
+
+type WriterErr struct {
+	Err error
+	Wr  io.Writer
+}
+
 type multiWriter struct {
 	writers []io.Writer
 }
 
 func (t *multiWriter) Write(p []byte) (n int, err error) {
+	errList := []WriterErr{}
 	for _, w := range t.writers {
 		n, err = w.Write(p)
 
@@ -20,13 +34,17 @@ func (t *multiWriter) Write(p []byte) (n int, err error) {
 			ErrorLog(BadWriter, w)
 			err = nil
 		} else if err != nil {
-			ErrorLog(err, w)
+			errList = append(errList, WriterErr{err, w})
 			err = nil
 		}
 
 		if n != len(p) {
-			ErrorLog(io.ErrShortWrite, "while Write() to single Writer in multiWriter", w)
+			errList = append(errList, WriterErr{io.ErrShortWrite, w})
 		}
+	}
+
+	if len(errList) > 0 {
+		return len(p), MultiwriterErr{errList}
 	}
 
 	return len(p), nil

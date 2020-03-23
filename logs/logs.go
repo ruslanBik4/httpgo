@@ -198,9 +198,15 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	if logger.toOther != nil {
 		go func() {
 			_, err := logger.toOther.Write([]byte(stripansi.Strip(mess)))
-			if err != nil {
-				_ = logger.Output(logger.calldepth, getArgsString("during write other", err))
+			if errMultiwriter, ok := err.(MultiwriterErr); ok {
+				for _, writerErr := range errMultiwriter.ErrorsList {
+					_ = logger.Output(logger.calldepth, getArgsString("during write toOther: %v, writer: %v",
+						writerErr.Err, writerErr.Wr))
+				}
+			} else if err != nil {
+				_ = logger.Output(logger.calldepth, getArgsString("during write toOther", err))
 			}
+
 		}()
 	}
 }
@@ -221,7 +227,7 @@ func argsToString(args ...interface{}) string {
 		message += comma + argToString(arg)
 		comma = ", "
 	}
-	
+
 	return message
 }
 

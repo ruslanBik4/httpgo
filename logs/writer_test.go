@@ -6,6 +6,7 @@ package logs
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"sync"
 	"testing"
 	"time"
@@ -170,6 +171,42 @@ func TestLogsMultiwriter(t *testing.T) {
 		panic(e)
 	}
 
+}
+
+func TestErrorsMultiwriter(t *testing.T) {
+	a := testErrorWriter{}
+	b := testBadWriter{}
+	m := MultiWriter(a, a)
+	m = MultiWriter(m, a)
+	m = MultiWriter(m, b)
+
+	for i := 0; i < 2; i++ {
+		_, e := m.Write([]byte("Hello "))
+		if errMultiwriter, ok := e.(MultiwriterErr); ok {
+			assert.Equal(t, 3, len(errMultiwriter.ErrorsList))
+			for _, writerErr := range errMultiwriter.ErrorsList {
+				fmt.Printf("error: %v, writer:%v\n", writerErr.Err, writerErr.Wr)
+			}
+		} else if e != nil {
+			fmt.Println("error: ", e)
+		}
+	}
+
+	assert.Equal(t, 3, len(m.(*multiWriter).writers))
+}
+
+type testErrorWriter struct{}
+
+func (tew testErrorWriter) Write(b []byte) (int, error) {
+	fmt.Println("testErrorWriter: ", string(b))
+	return len(b), errors.New("TestErrorWrite Error occured")
+}
+
+type testBadWriter struct{}
+
+func (tbw testBadWriter) Write(b []byte) (int, error) {
+	fmt.Println("testBadWriter: ", string(b))
+	return len(b), BadWriter
 }
 
 type testWriter struct {
