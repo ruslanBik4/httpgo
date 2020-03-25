@@ -191,7 +191,6 @@ func ErrorStack(err error, args ...interface{}) {
 	logErr.calldepth = i + 1
 	logErr.Printf(err, args)
 
-	stackLines := []string{}
 	stackline := ""
 
 	ErrFmt, ok := err.(stackTracer)
@@ -201,37 +200,24 @@ func ErrorStack(err error, args ...interface{}) {
 			file := fmt.Sprintf("%s", frame)
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-				stackline += fmt.Sprintf("%s:%d %s %s()", file, frame, prefErrStack, fncName)
-				stackLines = append(stackLines, newLine)
+				stackline += fmt.Sprintf("%s:%d %s %s()\n", file, frame, prefErrStack, fncName)
 			}
 		}
-		printStackLine(stackLines, stackline)
-		return
-	}
+	} else {
+		for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
+			i++
+			fileName := changeShortName(file)
+			fncName := changeShortName(runtime.FuncForPC(pc).Name())
+			// пропускаем рендер ошибок
+			if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
+				stackline += fmt.Sprintf("%s:%d %s %s()\n", fileName, line, prefErrStack, fncName)
 
-	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
-		i++
-		fileName := changeShortName(file)
-		fncName := changeShortName(runtime.FuncForPC(pc).Name())
-		// пропускаем рендер ошибок
-		if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
-			stackline += fmt.Sprintf("%s:%d %s %s(), ", fileName, line, prefErrStack, fncName)
-			stackLines = append(stackLines, newLine)
+			}
+
 		}
-		printStackLine(stackLines, stackline)
 	}
-}
-
-func printStackLine(stackLines []string, line string) {
+	
 	logErr.Printf(errLogPrint(true), line)
-	if *fDebug {
-		sep := ""		
-		for i, fncLine := range stackLines {
-			logDebug.Printf("%s%s %s%s [%d stackLevel]", prefErrStack, timeLogFormat(), sep, fncLine, i)
-			sep = " <- "
-		}
-	}
-
 }
 
 func isIgnoreFile(runFile string) bool {
