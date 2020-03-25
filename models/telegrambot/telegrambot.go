@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -69,9 +70,11 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 	if tbtoken == "" {
 		errmess += "TBTOKEN "
 	}
+	
 	if tbchatid == "" {
 		errmess += "TBCHATID "
 	}
+	
 	if errmess != "" {
 		return nil, errors.New("Empty environment variables: " + errmess + "for TelegramBot creation.")
 	}
@@ -86,14 +89,15 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 	}
 	tb.Request.Header.SetMethod(fasthttp.MethodPost)
 
-	err, resp := tb.SendMessage("Telegram Bot successfully crated and ready for work", false)
-	if err != nil {
-		if err == BadTelegramBot {
-			return nil, errors.Errorf("%s, StatusCode: %d Description: %s",
+	err, resp := tb.SendMessage("Telegram Bot ready for "+filepath.Base(os.Args[0]), false)
+	if err == BadTelegramBot {
+		return nil, errors.Wrapf(
 				BadTelegramBot.Error(),
+				"StatusCode: %d Description: %s",
 				resp.ErrorCode,
 				resp.Description)
-		}
+	} else if err != nil {
+		return nil, err
 	}
 
 	return tb, nil
@@ -312,6 +316,11 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			case 404:
 				return BadTelegramBot, resp
 			default:
+				if !resp.ok {
+				// todo: add parsing error response
+					logs.DebugLog(resp)
+				}
+				
 				return nil, resp
 			}
 

@@ -136,5 +136,5 @@ func (cfg *CfgHttp) Reload() (interface{}, error) {
 
 	cfg.Access = cfgGlobal.Access
 	
-	return cfg, nil
+	return cfg.Access, nil
 }

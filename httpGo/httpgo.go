@@ -47,7 +47,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	}
 	cfg.Server.Logger = &fastHTTPLogger{}
 
-	logs.DebugLog("Server get files under %db size", cfg.Server.MaxRequestBodySize)
+	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
 
 	if cfg.Access.ChkConn {
 		listener = &blockListener{

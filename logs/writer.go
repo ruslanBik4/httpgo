@@ -184,7 +184,7 @@ func ErrorLog(err error, args ...interface{}) {
 
 const prefErrStack = "[[ERR_STACK]]"
 
-// ErrorStack - output formatted(function and line calls) error runtime stack information
+// ErrorStack - output formatted (function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
@@ -193,7 +193,7 @@ func ErrorStack(err error, args ...interface{}) {
 
 	stackLines := []string{}
 	stackline := ""
-	sep := ""
+
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
@@ -201,10 +201,8 @@ func ErrorStack(err error, args ...interface{}) {
 			file := fmt.Sprintf("%s", frame)
 			fncName := fmt.Sprintf("%n", frame)
 			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-				newLine := fmt.Sprintf("%s%s:%d %s()", sep, file, frame, fncName)
+				stackline += fmt.Sprintf("%s:%d %s %s()", file, frame, prefErrStack, fncName)
 				stackLines = append(stackLines, newLine)
-				stackline += newLine
-				sep = " <- "
 			}
 		}
 		printStackLine(stackLines, stackline)
@@ -217,20 +215,20 @@ func ErrorStack(err error, args ...interface{}) {
 		fncName := changeShortName(runtime.FuncForPC(pc).Name())
 		// пропускаем рендер ошибок
 		if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
-			newLine := fmt.Sprintf("%s%s:%d %s(), ", sep, fileName, line, fncName)
+			stackline += fmt.Sprintf("%s:%d %s %s(), ", fileName, line, prefErrStack, fncName)
 			stackLines = append(stackLines, newLine)
-			stackline += newLine
-			sep = " <- "
 		}
 		printStackLine(stackLines, stackline)
 	}
 }
 
 func printStackLine(stackLines []string, line string) {
-	logErr.Printf("%s %s", prefErrStack, line)
+	logErr.Printf(errLogPrint(true), line)
 	if *fDebug {
+		sep := ""		
 		for i, fncLine := range stackLines {
-			logDebug.Printf("%s%s %s [%d stackLevel]", prefErrStack, timeLogFormat(), fncLine, i)
+			logDebug.Printf("%s%s %s%s [%d stackLevel]", prefErrStack, timeLogFormat(), sep, fncLine, i)
+			sep = " <- "
 		}
 	}
 
