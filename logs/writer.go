@@ -217,7 +217,7 @@ func ErrorStack(err error, args ...interface{}) {
 		}
 	}
 	
-	logErr.Printf(errLogPrint(true), line)
+	logErr.Printf(errLogPrint(true), stackline)
 }
 
 func isIgnoreFile(runFile string) bool {
