@@ -92,7 +92,7 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 	err, resp := tb.SendMessage("Telegram Bot ready for "+filepath.Base(os.Args[0]), false)
 	if err == BadTelegramBot {
 		return nil, errors.Wrapf(
-				BadTelegramBot.Error(),
+				BadTelegramBot,
 				"StatusCode: %d Description: %s",
 				resp.ErrorCode,
 				resp.Description)
@@ -316,7 +316,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			case 404:
 				return BadTelegramBot, resp
 			default:
-				if !resp.ok {
+				if !resp.Ok {
 				// todo: add parsing error response
 					logs.DebugLog(resp)
 				}
