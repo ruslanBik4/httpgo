@@ -9,7 +9,7 @@ import (
 	"strings"
 	
 	"github.com/valyala/fasthttp"
-		"github.com/pkg/errors"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ruslanBik4/httpgo/logs"
@@ -63,7 +63,7 @@ func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	for _, str := range cfg.Access.AllowRoute {
 		if strings.HasPrefix(path, str) ||
 			((strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + ctx.QueryArgs().String(), str) ) {
+				strings.HasPrefix(path + "?" + ctx.QueryArgs().String(), str) ) {
 				
 			return true
 		}
@@ -77,7 +77,7 @@ func (cfg *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	for _, str := range cfg.Access.DenyRoute {
 		if strings.HasPrefix(path, str) ||
 			((strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + ctx.QueryArgs().String(), str) ) {
+				strings.HasPrefix(path + "?" + ctx.QueryArgs().String(), str) ) {
 				
 			return true
 		}
