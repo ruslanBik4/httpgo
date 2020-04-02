@@ -57,8 +57,8 @@ func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.AllowRoute {
 		if strings.HasPrefix(path, str) ||
-			(strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + ctx.QueryArgs().String(), str) {
+			((strings.Index(str, "?") > -1) &&
+				strings.HasPrefix(path + ctx.QueryArgs().String(), str) ) {
 				
 			return true
 		}
@@ -71,8 +71,8 @@ func (cfg *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.DenyRoute {
 		if strings.HasPrefix(path, str) ||
-			(strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + ctx.QueryArgs().String(), str) {
+			((strings.Index(str, "?") > -1) &&
+				strings.HasPrefix(path + ctx.QueryArgs().String(), str) ) {
 				
 			return true
 		}

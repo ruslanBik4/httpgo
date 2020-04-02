@@ -1,6 +1,6 @@
 module github.com/ruslanBik4/httpgo
 
-go 1.14
+go 1.14.1
 
 require (
 	bitbucket.org/PinIdea/fcgi_client v0.0.0-20150922054231-df86e856bb91

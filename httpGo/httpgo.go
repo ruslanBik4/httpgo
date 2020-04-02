@@ -41,7 +41,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	apis.Ctx["ACC_VERSION"] = httpgoVersion
 
-	cfg.Server.Handler = apis.Handler
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
 	}
@@ -54,6 +53,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			listener,
 			cfg,
 		}
+		cfg.Server.Handler = apis.Handler
 	} else if cfg.IsAccess() {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
