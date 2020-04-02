@@ -117,3 +117,15 @@ Server:
   # The default Content-Type header value is the internal default value. When
   # set to true, the Content-Type will not be present.
   nodefaultcontenttype: false
+Access:
+  ChkConn: true
+  Allow:
+    - all.ow.ip
+  Deny:
+    - den.yip
+  AllowRoute:
+    - /stat
+  DenyRoute:
+    - /deny_path
+  Mess: |
+    message about forbidden. 
