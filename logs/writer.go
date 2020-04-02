@@ -165,7 +165,7 @@ func ErrorLog(err error, args ...interface{}) {
 		isIgnore := true
 
 		for pc, file, line, ok := runtime.Caller(calldepth); ok && isIgnore; pc, file, line, ok = runtime.Caller(calldepth) {
-			logErr.fileName := changeShortName(file)			
+			logErr.fileName = changeShortName(file)			
 			logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 			logErr.line = line
 			// пропускаем рендер ошибок
