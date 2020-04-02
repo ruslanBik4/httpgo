@@ -16,17 +16,15 @@ LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION} -X main.Build=${BUILD} -X mai
 # Builds the project
 run:
 	go run ${LDFLAGS} main.go
-file:///private/var/mobile/Containers/Shared/AppGroup/A0529CC3-7C01-4871-B4A7-3C506B028A60/File%20Provider%20Storage/Repositories/analytics/.sshignore
 # Builds the project
 build:
 	go build -i ${LDFLAGS} -o ${BINARY}
-
 test:
 	go test -v ./... > last_test.log
 	
 mod:
 	go mod tidy
-	chown ruslan:progs *
+	chown ruslan:progs go.*
 # Builds the project
 linux:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -i ${LDFLAGS} -o ${BINARY}
