@@ -56,7 +56,9 @@ func NewCfgHttp(filename string) (cfgGlobal *CfgHttp, err error) {
 func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.AllowRoute {
-		if strings.HasPrefix(path, str) {
+		if strings.HasPrefix(path, str) ||
+			(strings.Index(str, "?") > -1) &&
+				strings.HasPrefix(path + ctx.QueryArgs().String(), str) {
 			return true
 		}
 	}
@@ -67,9 +69,10 @@ func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 func (cfg *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	path := string(ctx.Path())
 	for _, str := range cfg.Access.DenyRoute {
-		if strings.HasPrefix(path, str) {
-			return true
-		}
+		if strings.HasPrefix(path, str) ||
+			(strings.Index(str, "?") > -1) &&
+				strings.HasPrefix(path + ctx.QueryArgs().String(), str) {
+		return true
 	}
 
 	return false

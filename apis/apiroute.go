@@ -163,6 +163,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		} else {
 			args = ctx.QueryArgs()
 		}
+		
 		badParams := make([]string, 0)
 
 		args.VisitAll(func(k, v []byte) {
@@ -175,6 +176,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 				ctx.SetUserValue(key, val)
 			}
 		})
+		
 		if len(badParams) > 0 {
 			return badParams, ErrWrongParamsList
 		}
