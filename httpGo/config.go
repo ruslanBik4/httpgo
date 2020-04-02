@@ -9,6 +9,7 @@ import (
 	"strings"
 	
 	"github.com/valyala/fasthttp"
+		"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ruslanBik4/httpgo/logs"
@@ -46,6 +47,10 @@ func NewCfgHttp(filename string) (cfgGlobal *CfgHttp, err error) {
 	err = yaml.Unmarshal(buf, &cfgGlobal)
 	if err != nil {
 		return nil, err
+	}
+	
+	if cfgGlobal == nil {
+		return nil, errors.New("cfg httpgo is nil")
 	}
 	
 	cfgGlobal.fileCfg = filename
