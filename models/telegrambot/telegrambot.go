@@ -32,7 +32,7 @@ type TelegramBot struct {
 
 	props map[string]interface{}
 
-	messagesStack struct {
+	messagesStack []struct {
 		messageText string
 		messageTime time.Time
 	}
@@ -265,6 +265,19 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
+	if tbot.messagesStack[len(tbot.messagesStack)-1].messageTime != time.Now().Round(1*time.Second) {
+		tbot.messagesStack = []struct {
+			messageText string
+			messageTime time.Time
+		}{}
+	} else {
+		for _, v := range tbot.messagesStack {
+			if v.messageText == string(message) {
+				return len(message), nil
+			}
+		}
+	}
+
 	err, _ := tbot.SendMessage(string(message), false)
 	if err != nil {
 		if err == BadTelegramBot {
@@ -272,6 +285,13 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		}
 		return -1, err
 	}
+
+	tbot.messagesStack = append(tbot.messagesStack, struct {
+		messageText string
+		messageTime time.Time
+	}{
+		messageText: string(message),
+		messageTime: time.Now().Round(1 * time.Second)})
 
 	return len(message), nil
 }
