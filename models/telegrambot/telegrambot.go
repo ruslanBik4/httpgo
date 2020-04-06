@@ -31,6 +31,11 @@ type TelegramBot struct {
 	FastHTTPClient *fasthttp.Client
 
 	props map[string]interface{}
+
+	messagesStack struct {
+		messageText string
+		messageTime time.Time
+	}
 }
 
 //struct for telegram reply_markup keyboard
@@ -70,11 +75,11 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 	if tbtoken == "" {
 		errmess += "TBTOKEN "
 	}
-	
+
 	if tbchatid == "" {
 		errmess += "TBCHATID "
 	}
-	
+
 	if errmess != "" {
 		return nil, errors.New("Empty environment variables: " + errmess + "for TelegramBot creation.")
 	}
@@ -92,10 +97,10 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 	err, resp := tb.SendMessage("Telegram Bot ready for "+filepath.Base(os.Args[0]), false)
 	if err == BadTelegramBot {
 		return nil, errors.Wrapf(
-				BadTelegramBot,
-				"StatusCode: %d Description: %s",
-				resp.ErrorCode,
-				resp.Description)
+			BadTelegramBot,
+			"StatusCode: %d Description: %s",
+			resp.ErrorCode,
+			resp.Description)
 	} else if err != nil {
 		return nil, err
 	}
@@ -289,6 +294,14 @@ type TbResponseMessageStruct struct {
 	} `json:"result"`
 }
 
+func (tbResp *TbResponseMessageStruct) String() string {
+	if tbResp.Ok == true {
+		return fmt.Sprintf("message request is Ok, message_id:%v; chat:%v; date:%v; text:%v",
+			tbResp.Result.MessageId, tbResp.Result.Chat, tbResp.Result.Date, tbResp.Result.Text)
+	}
+	return fmt.Sprintf("message request is not Ok, ErrorCode:%v, %v", tbResp.ErrorCode, tbResp.Description)
+}
+
 // FastRequest make fasthttp request
 func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (error, *TbResponseMessageStruct) {
 	tbot.setRequestURL(action)
@@ -317,10 +330,10 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 				return BadTelegramBot, resp
 			default:
 				if !resp.Ok {
-				// todo: add parsing error response
+					// todo: add parsing error response
 					logs.DebugLog(resp)
 				}
-				
+
 				return nil, resp
 			}
 
