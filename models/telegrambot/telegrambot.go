@@ -19,7 +19,10 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
-var ErrBadTelegramBot = errors.New("Bad TelegramBot parameters")
+var (
+	ErrBadTelegramBot         = errors.New("Bad TelegramBot parameters")
+	ErrTelegramBotMultiple500 = errors.New("Telegram does not response, multiple 500")
+)
 
 // TelegramBot struct with token and one chatid
 type TelegramBot struct {
@@ -134,7 +137,10 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 
 // setRequestURL makes url for request
 func (tbot *TelegramBot) setRequestURL(action string) {
-	newUrl := (tbot.RequestURL + tbot.Token + "/" + action + "?")
+	newUrl := tbot.RequestURL + tbot.Token + "/" + action
+	if string(tbot.Request.Header.Method()) == "GET" {
+		newUrl += "?"
+	}
 	tbot.Request.SetRequestURI(newUrl)
 }
 
@@ -333,6 +339,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 	if err != nil {
 		return err, nil
 	}
+	tryCounter := 0
 
 	for {
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
@@ -349,13 +356,20 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 
 			switch tbot.Response.StatusCode() {
 			case 400:
+				logs.DebugLog("tb response 400, ResponseStruct:", resp.ErrorCode, resp.Description)
 				return ErrBadTelegramBot, resp
 			case 404:
+				logs.DebugLog("tb response 404, ResponseStruct:", resp.ErrorCode, resp.Description)
 				return ErrBadTelegramBot, resp
 			case 429:
 				<-time.After(time.Second * 1)
 			case 500:
-				<-time.After(time.Second * 10)
+				if tryCounter > 100 {
+					return ErrTelegramBotMultiple500, resp
+				} else {
+					tryCounter += 1
+					<-time.After(time.Second * 10)
+				}
 			default:
 				if !resp.Ok {
 					// todo: add parsing error response

@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-var BadWriter = errors.New("BadWriter, it will delete from multiwriter")
+var BadWriter = errors.New("BadWriter, it will be deleted from multiwriter")
 
 type MultiwriterErr struct {
 	ErrorsList []WriterErr

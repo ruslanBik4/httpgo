@@ -35,7 +35,7 @@ type LogsType interface {
 type wrapKitLogger struct {
 	*log.Logger
 	calldepth int
-	line 	int
+	line      int
 	fileName  string
 	funcName  string
 	typeLog   string
@@ -195,11 +195,12 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		fmt.Printf(mess + "\n")
 	} else {
 		_ = logger.Output(logger.calldepth, mess)
-		mess = fmt.Sprintf("%s%s:%d",
-					timeLogFormat(),
-					logger.fileName,
-					logger.line) + mess
-					
+		mess = fmt.Sprintf("%s%s:%d %s",
+			timeLogFormat(),
+			logger.fileName,
+			logger.line,
+			mess)
+
 	}
 
 	if logger.toOther != nil {

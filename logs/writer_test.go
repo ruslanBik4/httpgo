@@ -257,3 +257,7 @@ func BenchmarkErrorLog(b *testing.B) {
 	wg.Wait()
 
 }
+
+func TestDebug(t *testing.T) {
+	DebugLog("deiwhd", "sduh")
+}
