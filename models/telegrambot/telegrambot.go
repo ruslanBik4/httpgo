@@ -288,7 +288,7 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
-	if len(tbot.messagesStack) > 0 {
+	if len(tbot.messagesStack) > 0 && len(tbot.messagesStack) < 30 {
 		if tbot.messagesStack[len(tbot.messagesStack)-1].messageTime != time.Now().Round(1*time.Second) {
 			tbot.messagesStack = []tbMessageBuffer{}
 		} else {
@@ -298,6 +298,9 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 				}
 			}
 		}
+	} else if len(tbot.messagesStack) >= 30 {
+		time.Sleep(1 * time.Second)
+		tbot.messagesStack = []tbMessageBuffer{}
 	}
 
 	err, _ := tbot.SendMessage(string(message), false)
@@ -349,6 +352,10 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 				return ErrBadTelegramBot, resp
 			case 404:
 				return ErrBadTelegramBot, resp
+			case 429:
+				<-time.After(time.Second * 1)
+			case 500:
+				<-time.After(time.Second * 10)
 			default:
 				if !resp.Ok {
 					// todo: add parsing error response
