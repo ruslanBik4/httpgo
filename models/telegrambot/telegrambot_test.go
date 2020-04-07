@@ -45,14 +45,25 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 	err = os.Setenv("TBCHATID", "chatid")
 	as.Nil(err, "%v", err)
 
+	fmt.Println(ErrBadTelegramBot)
+
+	e := errors.Wrapf(
+		ErrBadTelegramBot,
+		"StatusCode: %d Description: %s",
+		404,
+		"Not Found")
+
+	fmt.Println(e)
+
 	tb, err := NewTelegramBotFromEnv()
+	fmt.Println(err)
 	as.EqualError(err, "Bad TelegramBot parameters, StatusCode: 404 Description: Not Found")
 
 	if tb != nil {
 		as.Equal("bottoken", tb.Token, "Token from env wrong")
 		as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
 		err, _ = tb.SendMessage("some mess", false)
-		as.EqualError(err, BadTelegramBot.Error())
+		as.EqualError(err, ErrBadTelegramBot.Error())
 
 		_, err = tb.Write([]byte("some mess"))
 		as.Nil(err, "%v", err)

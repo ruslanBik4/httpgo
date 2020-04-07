@@ -19,7 +19,7 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
-var BadTelegramBot = errors.New("Bad TelegramBot parameters")
+var ErrBadTelegramBot = errors.New("Bad TelegramBot parameters")
 
 // TelegramBot struct with token and one chatid
 type TelegramBot struct {
@@ -32,10 +32,8 @@ type TelegramBot struct {
 
 	props map[string]interface{}
 
-	messagesStack []struct {
-		messageText string
-		messageTime time.Time
-	}
+	messagesStack []tbMessageBuffer
+	instance      string
 }
 
 //struct for telegram reply_markup keyboard
@@ -43,6 +41,30 @@ type TelegramKeyboard struct {
 	Keyboard        [][]string `json:"keyboard"`
 	OneTimeKeyboard bool       `json:"one_time_keyboard"`
 	ResizeKeyboard  bool       `json:"resize_keyboard"`
+}
+
+// json struct to parse response
+type TbResponseMessageStruct struct {
+	Ok          bool   `json:"ok"`
+	ErrorCode   int    `json:"error_code"`
+	Description string `json:"description"`
+	Result      struct {
+		MessageId int `json:"message_id"`
+		Chat      struct {
+			Id       int64  `json:"id"`
+			Title    string `json:"title"`
+			Username string `json:"username"`
+			Type     string `json:"type"`
+		} `json:"chat"`
+		Date int64  `json:"date"`
+		Text string `json:"text"`
+	} `json:"result"`
+}
+
+//
+type tbMessageBuffer struct {
+	messageText []byte
+	messageTime time.Time
 }
 
 // NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
@@ -91,14 +113,15 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 		RequestURL:     baseURL,
 		Request:        &fasthttp.Request{},
 		FastHTTPClient: &fasthttp.Client{},
+		instance:       "[[" + filepath.Base(os.Args[0]) + "]] ",
 	}
 	tb.Request.Header.SetMethod(fasthttp.MethodPost)
 
-	err, resp := tb.SendMessage("Telegram Bot ready for "+filepath.Base(os.Args[0]), false)
-	if err == BadTelegramBot {
-		return nil, errors.Wrapf(
-			BadTelegramBot,
-			"StatusCode: %d Description: %s",
+	err, resp := tb.SendMessage("Telegram Bot ready", false)
+	if err == ErrBadTelegramBot {
+		return nil, errors.Errorf(
+			"%s, StatusCode: %d Description: %s",
+			ErrBadTelegramBot,
 			resp.ErrorCode,
 			resp.Description)
 	} else if err != nil {
@@ -219,7 +242,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 
 	requestParams := map[string]string{
 		"chat_id": tbot.ChatID,
-		"text":    message,
+		"text":    tbot.instance + message,
 	}
 	if markdown {
 		requestParams["parse_mode"] = "Markdown"
@@ -265,53 +288,31 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, errors.New("TelegramBot.Response == nil")
 	}
 
-	if tbot.messagesStack[len(tbot.messagesStack)-1].messageTime != time.Now().Round(1*time.Second) {
-		tbot.messagesStack = []struct {
-			messageText string
-			messageTime time.Time
-		}{}
-	} else {
-		for _, v := range tbot.messagesStack {
-			if v.messageText == string(message) {
-				return len(message), nil
+	if len(tbot.messagesStack) > 0 {
+		if tbot.messagesStack[len(tbot.messagesStack)-1].messageTime != time.Now().Round(1*time.Second) {
+			tbot.messagesStack = []tbMessageBuffer{}
+		} else {
+			for _, v := range tbot.messagesStack {
+				if bytes.Equal(v.messageText, message) {
+					return len(message), nil
+				}
 			}
 		}
 	}
 
 	err, _ := tbot.SendMessage(string(message), false)
 	if err != nil {
-		if err == BadTelegramBot {
+		if err == ErrBadTelegramBot {
 			return len(message), logs.BadWriter
 		}
 		return -1, err
 	}
 
-	tbot.messagesStack = append(tbot.messagesStack, struct {
-		messageText string
-		messageTime time.Time
-	}{
-		messageText: string(message),
+	tbot.messagesStack = append(tbot.messagesStack, tbMessageBuffer{
+		messageText: message,
 		messageTime: time.Now().Round(1 * time.Second)})
 
 	return len(message), nil
-}
-
-// json struct to parse response
-type TbResponseMessageStruct struct {
-	Ok          bool   `json:"ok"`
-	ErrorCode   int    `json:"error_code"`
-	Description string `json:"description"`
-	Result      struct {
-		MessageId int `json:"message_id"`
-		Chat      struct {
-			Id       int64  `json:"id"`
-			Title    string `json:"title"`
-			Username string `json:"username"`
-			Type     string `json:"type"`
-		} `json:"chat"`
-		Date int64  `json:"date"`
-		Text string `json:"text"`
-	} `json:"result"`
 }
 
 func (tbResp *TbResponseMessageStruct) String() string {
@@ -345,9 +346,9 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 
 			switch tbot.Response.StatusCode() {
 			case 400:
-				return BadTelegramBot, resp
+				return ErrBadTelegramBot, resp
 			case 404:
-				return BadTelegramBot, resp
+				return ErrBadTelegramBot, resp
 			default:
 				if !resp.Ok {
 					// todo: add parsing error response
