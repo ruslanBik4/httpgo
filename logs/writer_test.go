@@ -7,6 +7,8 @@ package logs
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"io"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -68,20 +70,32 @@ func (w fakeWriter) Write(b []byte) (int, error) {
 }
 
 func TestErrorLogOthers(t *testing.T) {
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	runtime.GOMAXPROCS(3)
+	t.Run("testErrtoOthers", func(t *testing.T) {
+		wg := &sync.WaitGroup{}
+		wg.Add(2)
 
-	fwriter := fakeWriter{wg}
+		fwriter := fakeWriter{wg}
+		mw := logErr.toOther.(*multiWriter)
 
-	SetWriters(fwriter, FgErr)
-	SetWriters(fwriter, FgErr)
-	defer DeleteWriters(fwriter, FgErr)
+		SetWriters(fwriter, FgErr)
+		SetWriters(fwriter, FgErr)
 
-	var err fakeErr
+		var err fakeErr
 
-	ErrorLog(err, "test err", 1)
+		ErrorLog(err, "test err", 1)
 
-	wg.Wait()
+		wg.Wait()
+
+		wg.Add(1)
+		DeleteWriters(fwriter, FgErr)
+		if len(mw.writers) == 0 {
+			wg.Done()
+		}
+
+		wg.Wait()
+	})
+
 }
 
 // Func to check error occurance line
@@ -138,39 +152,56 @@ func TestErrStack(t *testing.T) {
 	ErrorStack(errors.Wrap(err, "yw"), "khef")
 }
 
-func TestLogstoOther(t *testing.T) {
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	a := testWriter{wg, "first"}
-	b := testWriter2{wg, "Second"}
-	SetWriters(a, FgErr)
-	SetWriters(nil, FgErr)
-	SetWriters(b, FgErr)
-	SetWriters(a, FgErr)
-	DeleteWriters(a, FgErr)
-	ErrorLog(errors.New("test multiwriters"))
-	wg.Wait()
+func RemoveTest(mw *multiWriter, w io.Writer, wg *sync.WaitGroup) {
+	old_len := len(mw.writers)
+	mw.Remove(w)
+	if old_len == len(mw.writers)+1 {
+		wg.Done()
+	}
 }
 
-func TestLogsMultiwriter(t *testing.T) {
-	//var m io.Writer
+func TestRemoveOneMultiwriter(t *testing.T) {
+	runtime.GOMAXPROCS(2)
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
-	a := testWriter{wg, "first"}
+	wg.Add(1)
 	b := testWriter2{wg, "Second"}
-	m := MultiWriter(a, a)
-	m = MultiWriter(m, a)
+	m := MultiWriter(b)
+
 	mw := m.(*multiWriter)
-	mw.Append(a, b)
-	mw.Append(b)
-	mw.Remove(a)
+
+	RemoveTest(mw, b, wg)
 
 	data := []byte("Hello ")
 	_, e := m.Write(data)
 	if e != nil {
 		panic(e)
 	}
+	time.Sleep(10 * time.Millisecond)
+	wg.Wait()
+}
 
+func TestLogsMultiwriter(t *testing.T) {
+	runtime.GOMAXPROCS(3)
+	wg := &sync.WaitGroup{}
+
+	wg.Add(2)
+	a := testWriter{wg, "first"}
+	b := testWriter2{wg, "Second"}
+	m := MultiWriter(a, a)
+	m = MultiWriter(m, a)
+
+	mw := m.(*multiWriter)
+
+	mw.Append(a, b)
+	mw.Remove(a)
+	mw.Append(b)
+
+	data := []byte("Hello ")
+	_, e := m.Write(data)
+	if e != nil {
+		panic(e)
+	}
+	wg.Wait()
 }
 
 func TestErrorsMultiwriter(t *testing.T) {
