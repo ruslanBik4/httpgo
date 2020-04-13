@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-var BadWriter = errors.New("BadWriter, it will be deleted from multiwriter")
+var ErrBadWriter = errors.New("ErrBadWriter, it will be deleted from multiwriter")
 
 type MultiwriterErr struct {
 	ErrorsList []WriterErr
@@ -29,9 +29,9 @@ func (t *multiWriter) Write(p []byte) (n int, err error) {
 	for _, w := range t.writers {
 		n, err = w.Write(p)
 
-		if err == BadWriter {
+		if err == ErrBadWriter {
 			t.Remove(w)
-			ErrorLog(BadWriter, w)
+			ErrorLog(ErrBadWriter, w)
 			err = nil
 		} else if err != nil {
 			errList = append(errList, WriterErr{err, w})
@@ -52,7 +52,6 @@ func (t *multiWriter) Write(p []byte) (n int, err error) {
 
 // Removes all writers that are identical to the writer we need to remove
 func (t *multiWriter) Remove(writers ...io.Writer) {
-	//todo: если нужно будет, чтоб удалялся только один врайтер, то можно поменять местами циклы
 	for i := len(t.writers) - 1; i >= 0; i-- {
 		for _, v := range writers {
 			if t.writers[i] == v {
@@ -63,8 +62,20 @@ func (t *multiWriter) Remove(writers ...io.Writer) {
 	}
 }
 
+// Appends each writer passed as single writer entity. If multiwriter is passed, appends it as single writer.
 func (t *multiWriter) Append(writers ...io.Writer) {
 	t.writers = append(t.writers, writers...)
+}
+
+// If multiwriter is passed, appends each writer of multiwriter separately
+func (t *multiWriter) AppendWritersSeparately(writers ...io.Writer) {
+	for _, w := range writers {
+		if mw, ok := w.(*multiWriter); ok {
+			t.writers = append(t.writers, mw.writers...)
+		} else {
+			t.writers = append(t.writers, w)
+		}
+	}
 }
 
 var _ io.StringWriter = (*multiWriter)(nil)
@@ -92,6 +103,7 @@ func (t *multiWriter) WriteString(s string) (n int, err error) {
 	return len(s), nil
 }
 
+//creates a multiwriter
 func MultiWriter(writers ...io.Writer) io.Writer {
 	allWriters := make([]io.Writer, 0, len(writers))
 	for _, w := range writers {

@@ -312,7 +312,7 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 	err, _ := tbot.SendMessage(string(message), false)
 	if err != nil {
 		if err == ErrBadTelegramBot {
-			return len(message), logs.BadWriter
+			return len(message), logs.ErrBadWriter
 		}
 		return -1, err
 	}
