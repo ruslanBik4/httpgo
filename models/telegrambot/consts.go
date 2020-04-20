@@ -4,6 +4,8 @@
 
 package telegrambot
 
+import "github.com/pkg/errors"
+
 const baseURL string = "https://api.telegram.org/bot"
 
 const (
@@ -50,4 +52,21 @@ const (
 	cmdanswerCallbackQuery       = "answerCallbackQuery"
 	cmdInlineMThd                = "Inline mode methods"
 	cmdgetUpdates                = "getUpdates"
+)
+
+const errMessBadBotParams = "TelegramBot struct param missing"
+
+type ErrBadBotParams struct {
+	BadParam string
+}
+
+func (err ErrBadBotParams) Error() string {
+	return errMessBadBotParams + ": " + err.BadParam
+}
+
+var (
+	ErrBadTelegramBot         = errors.New("Bad TelegramBot parameters")
+	ErrTelegramBotMultiple500 = errors.New("Telegram does not response, multiple 500")
+	ErrEmptyMessText          = errors.New("Telegram message is empty")
+	ErrTooLongMessText        = errors.New("Telegram message is too long")
 )

@@ -116,7 +116,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
-		
+
 		mf, err := ctx.Request.MultipartForm()
 		if err != nil {
 			return nil, err
@@ -163,7 +163,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		} else {
 			args = ctx.QueryArgs()
 		}
-		
+
 		badParams := make([]string, 0)
 
 		args.VisitAll(func(k, v []byte) {
@@ -176,7 +176,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 				ctx.SetUserValue(key, val)
 			}
 		})
-		
+
 		if len(badParams) > 0 {
 			return badParams, ErrWrongParamsList
 		}
