@@ -7,6 +7,7 @@ package telegrambot
 import "github.com/pkg/errors"
 
 const baseURL string = "https://api.telegram.org/bot"
+const maxMessLength int = 4050
 
 const (
 	cmdGetMe                     = "getMe"
