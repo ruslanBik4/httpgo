@@ -21,7 +21,8 @@ build:
 	go build -i ${LDFLAGS} -o ${BINARY}
 test:
 	go test -v ./... > last_test.log
-	
+dto:
+	go test ./apis
 mod:
 	go mod tidy
 	sudo chown ruslan:progs go.*

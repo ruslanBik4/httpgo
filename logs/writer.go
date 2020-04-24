@@ -190,10 +190,22 @@ const prefErrStack = "[[ERR_STACK]]"
 func ErrorStack(err error, args ...interface{}) {
 
 	i := stackBeginWith
-	logErr.calldepth = i + 1
-	logErr.Printf(err, args)
 
-	stackline := ""
+
+	stackline, c := getFormatString(args)
+	if c > 0 {
+		// add format for error
+		if c < len(args) {
+			stackline = argToString(err) + "," + format
+			args = args[1:]
+		} else {
+			args[0] = err
+		}
+	} else {
+		stackline = argsToString(err, args)
+		args = args[:0]
+	}
+
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {

@@ -42,7 +42,3 @@ func (m *blockListener) Accept() (net.Conn, error) {
 	
 	return nil, nil
 }
-
-func (m *blockListener) Close() error {
-	return m.Close()
-}

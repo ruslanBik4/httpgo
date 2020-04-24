@@ -7,7 +7,6 @@ package apis
 import (
 	"bytes"
 	"fmt"
-	"go/types"
 	"net/http"
 	"strings"
 	"sync"
@@ -88,59 +87,11 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 	}
 
 	_ = apis.addRoute("/apis", apisRoute)
-
-	onboardingRoute := &ApiRoute{
+	_ = apis.addRoute("/onboarding", &ApiRoute{
 		Desc:      "onboarding routes from local services into APIS",
 		Fnc:       apis.onboarding,
 		OnlyLocal: true,
-		Params: []InParam{
-			{
-				Name: "path",
-				Req:  true,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "desc",
-				Req:  false,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "params",
-				Req:  true,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "port",
-				Req:  true,
-				Type: NewTypeInParam(types.Int32),
-			},
-			{
-				Name:     "method",
-				Req:      true,
-				Type:     NewTypeInParam(types.String),
-				DefValue: "POST",
-			},
-			{
-				Name:     "multipart",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-			{
-				Name:     "auth",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-			{
-				Name:     "admin",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-		},
-	}
-	_ = apis.addRoute("/onboarding", onboardingRoute)
+		Params: onboardParams})
 
 	return apis
 }
