@@ -302,7 +302,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 				end = len(oldMess)
 			}
 			requestParams["text"] = prefix + oldMess[i:end] + endix
-			if len(len(requestParams["text"])) == 0 {
+			if len(requestParams["text"]) == 0 {
 				logs.ErrorStack(errors.Wrap(ErrEmptyMessText, message), i, end)
 				return nil, nil
 			}
@@ -404,7 +404,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			switch tbot.Response.StatusCode() {
 			case 400:
 				if strings.Contains(resp.Description, "message text is empty") {
-					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params...)
+					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params)
 					return nil, resp
 				} else if strings.Contains(resp.Description, "message is too long") {
 					logs.ErrorStack(errors.Wrap(ErrTooLongMessText, ""))
