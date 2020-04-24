@@ -196,7 +196,7 @@ func ErrorStack(err error, args ...interface{}) {
 	if c > 0 {
 		// add format for error
 		if c < len(args) {
-			stackline = argToString(err) + "," + format
+			stackline = argToString(err) + "," + stackline
 			args = args[1:]
 		} else {
 			args[0] = err
