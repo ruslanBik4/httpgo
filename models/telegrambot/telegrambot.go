@@ -290,7 +290,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		logs.ErrorStack(errors.Wrap(ErrEmptyMessText, message))
 		return nil, nil
 	case messLen > 4090:
-		oldMess := requestParams["text"]
+		oldMess := []byte(requestParams["text"])
 		rand.Seed(time.Now().UnixNano())
 		messageId := rand.Intn(9999)
 		prefix := ""
@@ -301,7 +301,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 			if end > len(oldMess) {
 				end = len(oldMess)
 			}
-			requestParams["text"] = prefix + oldMess[i:end] + endix
+			requestParams["text"] = prefix + string(oldMess[i:end]) + endix
 			if len(requestParams["text"]) == 0 {
 				logs.ErrorStack(errors.Wrap(ErrEmptyMessText, message), i, end)
 				return nil, nil
@@ -309,7 +309,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 
 			err, response = tbot.FastRequest(cmdSendMes, requestParams)
 			if err != nil {
-				
+
 				return err, response
 			}
 
