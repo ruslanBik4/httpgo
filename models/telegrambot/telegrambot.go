@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/acarl005/stripansi"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // TelegramBot struct with token and one chatid
@@ -266,7 +266,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 
 	requestParams := map[string]string{
 		"chat_id": tbot.ChatID,
-		"text":    tbot.instance + message,
+		"text":    tbot.instance + stripansi.Strip(strings.TrimSpace(message)),
 	}
 	if markdown {
 		requestParams["parse_mode"] = "Markdown"
@@ -404,7 +404,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			switch tbot.Response.StatusCode() {
 			case 400:
 				if strings.Contains(resp.Description, "message text is empty") {
-					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params)
+					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params, resp)
 					return nil, resp
 				} else if strings.Contains(resp.Description, "message is too long") {
 					logs.ErrorStack(errors.Wrap(ErrTooLongMessText, ""))

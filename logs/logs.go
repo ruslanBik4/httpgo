@@ -14,7 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acarl005/stripansi"
 	"github.com/getsentry/sentry-go"
 	"github.com/pkg/errors"
 )
@@ -205,16 +204,8 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 
 	if logger.toOther != nil {
 		go func() {
-			_, err := logger.toOther.Write([]byte(stripansi.Strip(mess)))
-			if errMultiwriter, ok := err.(MultiwriterErr); ok {
-				for _, writerErr := range errMultiwriter.ErrorsList {
-					_ = logger.Output(logger.calldepth, getArgsString("during write toOther: %v, writer: %v",
-						writerErr.Err, writerErr.Wr))
-				}
-			} else if err != nil {
-				_ = logger.Output(logger.calldepth, getArgsString("during write toOther", err))
-			}
-
+			_, err := logger.toOther.Write([]byte(mess))
+			_ = logger.Output(logger.calldepth, getArgsString("Write toOther: %v,", err))
 		}()
 	}
 }
