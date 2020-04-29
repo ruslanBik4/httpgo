@@ -205,7 +205,9 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	if logger.toOther != nil {
 		go func() {
 			_, err := logger.toOther.Write([]byte(mess))
-			_ = logger.Output(logger.calldepth, getArgsString("Write toOther: %v,", err))
+			if err != nil {
+				_ = logger.Output(logger.calldepth, getArgsString("Write toOther: %v,", err))
+			}
 		}()
 	}
 }
