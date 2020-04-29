@@ -404,7 +404,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			switch tbot.Response.StatusCode() {
 			case 400:
 				if strings.Contains(resp.Description, "message text is empty") {
-					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params)
+					logs.ErrorStack(errors.Wrap(ErrEmptyMessText, ""), params, resp.ErrorCode, resp.Description)
 					return nil, resp
 				} else if strings.Contains(resp.Description, "message is too long") {
 					logs.ErrorStack(errors.Wrap(ErrTooLongMessText, ""))
