@@ -2,6 +2,7 @@ package logs
 
 import (
 	"errors"
+	"fmt"
 	"io"
 )
 
@@ -12,7 +13,19 @@ type MultiwriterErr struct {
 }
 
 func (mwe MultiwriterErr) Error() string {
-	return "MultiwriterErr: some writers have errors"
+	return "MultiwriterErr: some writers have errors:\n" + mwe.String()
+}
+
+func (mwe MultiwriterErr) String() string {
+	endl := ""
+	retStr := ""
+	for _, writerErr := range mwe.ErrorsList {
+		retStr += fmt.Sprintf("%sError during write toOther: %v, writer: %v",
+			endl, writerErr.Err, writerErr.Wr)
+		endl = "\n"
+	}
+
+	return retStr
 }
 
 type WriterErr struct {

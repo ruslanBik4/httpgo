@@ -5,19 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/acarl005/stripansi"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
-
-	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // TelegramBot struct with token and one chatid
@@ -33,6 +33,8 @@ type TelegramBot struct {
 
 	messagesStack []tbMessageBuffer
 	instance      string
+	messId        int64
+	lock          sync.RWMutex
 }
 
 //struct for telegram reply_markup keyboard
@@ -266,7 +268,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 
 	requestParams := map[string]string{
 		"chat_id": tbot.ChatID,
-		"text":    tbot.instance + message,
+		"text":    tbot.instance + stripansi.Strip(strings.TrimSpace(message)),
 	}
 	if markdown {
 		requestParams["parse_mode"] = "Markdown"
@@ -291,10 +293,8 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		return nil, nil
 	case messLen > 4090:
 		oldMess := []byte(requestParams["text"])
-		rand.Seed(time.Now().UnixNano())
-		messageId := rand.Intn(9999)
 		prefix := ""
-		endix := fmt.Sprintf(" MESS %v CONTINUE->", messageId)
+		endix := fmt.Sprintf(" MESS %v CONTINUE->", tbot.messId)
 
 		for i := 0; i < len(oldMess); i += maxMessLength {
 			end := i + maxMessLength
@@ -313,9 +313,9 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 				return err, response
 			}
 
-			prefix = fmt.Sprintf("MESS %v CONTINUE->", messageId)
+			prefix = fmt.Sprintf("MESS %v CONTINUE->", tbot.messId)
 			if len(oldMess)-(i+maxMessLength) <= maxMessLength {
-				endix = fmt.Sprintf("MESS %v ENDED", messageId)
+				endix = fmt.Sprintf("MESS %v ENDED", tbot.messId)
 			}
 		}
 		return err, response
@@ -381,6 +381,9 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 
 // FastRequest make fasthttp request
 func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (error, *TbResponseMessageStruct) {
+	tbot.lock.Lock()
+	defer tbot.lock.Unlock()
+
 	tbot.setRequestURL(action)
 	err := tbot.setMultipartData(params)
 	if err != nil {
@@ -430,6 +433,9 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 					logs.DebugLog(resp)
 				}
 
+				if action == cmdSendMes {
+					tbot.messId += 1
+				}
 				return nil, resp
 			}
 
