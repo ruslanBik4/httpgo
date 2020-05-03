@@ -204,6 +204,10 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
 
+	if tb.Request.Header.IsPost() {
+		return
+	}
+
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
 	wg := &sync.WaitGroup{}
