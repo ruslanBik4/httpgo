@@ -32,6 +32,7 @@ var (
 		"v1.WrapAPIHandler.func1",
 		"fasthttp.(*workerPool).workerFunc",
 		"apis.(*Apis).Handler",
+		"apis.(*Apis).Handler.func1()",
 		"apis.(*Apis).Handler-fm",
 		"apis.(*Apis).renderError",
 	}
@@ -74,7 +75,7 @@ func changeShortName(file string) (short string) {
 // DebugLog output formated(function and line calls) debug information
 func DebugLog(args ...interface{}) {
 	if *fDebug {
-		pc, _, _, _ := runtime.Caller(logDebug.calldepth - 2)
+		pc, _, _, _ := runtime.Caller(logDebug.callDepth - 2)
 		logDebug.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 
 		logDebug.Printf(args...)
@@ -161,19 +162,19 @@ func ErrorLog(err error, args ...interface{}) {
 		}
 	} else {
 
-		calldepth := 1
+		callDepth := 1
 		isIgnore := true
 
-		for pc, file, line, ok := runtime.Caller(calldepth); ok && isIgnore; pc, file, line, ok = runtime.Caller(calldepth) {
-			logErr.fileName = changeShortName(file)			
+		for pc, file, line, ok := runtime.Caller(callDepth); ok && isIgnore; pc, file, line, ok = runtime.Caller(callDepth) {
+			logErr.fileName = changeShortName(file)
 			logErr.funcName = changeShortName(runtime.FuncForPC(pc).Name())
 			logErr.line = line
 			// пропускаем рендер ошибок
 			isIgnore = isIgnoreFile(logErr.fileName) || isIgnoreFunc(logErr.funcName)
-			calldepth++
+			callDepth++
 		}
 
-		logErr.calldepth = calldepth + 1
+		logErr.callDepth = callDepth + 1
 
 		args = append([]interface{}{
 			logErr.funcName + "() " + format,
@@ -189,49 +190,51 @@ const prefErrStack = "[[ERR_STACK]]"
 // ErrorStack - output formatted (function and line calls) error runtime stack information
 func ErrorStack(err error, args ...interface{}) {
 
-	i := stackBeginWith
-
-
-	stackline, c := getFormatString(args)
+	stackLine, c := getFormatString(args)
 	if c > 0 {
 		// add format for error
 		if c < len(args) {
-			stackline = prefErrStack + argToString(err) + "," + stackline
+			stackLine = prefErrStack + argToString(err) + "," + stackLine
 			args = args[1:]
 		} else {
 			args[0] = err
 		}
 	} else {
-		stackline = argsToString(err, args)
+		stackLine = argsToString(err, args)
 		args = args[:0]
 	}
 
+	stackLine += "\n"
 
 	ErrFmt, ok := err.(stackTracer)
 	if ok {
 		frames := ErrFmt.StackTrace()
 		for _, frame := range frames[:len(frames)-2] {
-			file := fmt.Sprintf("%s", frame)
+			fileName := fmt.Sprintf("%s", frame)
 			fncName := fmt.Sprintf("%n", frame)
-			if !isIgnoreFile(file) && !isIgnoreFunc(fncName) {
-				stackline += fmt.Sprintf("%s:%d %s %s()\n", file, frame, prefErrStack, fncName)
+			if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
+				stackLine += fmt.Sprintf("%s:%d %s %s()\n", fileName, frame, prefErrStack, fncName)
 			}
 		}
 	} else {
-		for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
-			i++
-			fileName := changeShortName(file)
-			fncName := changeShortName(runtime.FuncForPC(pc).Name())
-			// пропускаем рендер ошибок
-			if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
-				stackline += fmt.Sprintf("%s:%d %s %s()\n", fileName, line, prefErrStack, fncName)
+		stackLine = GetStack(stackBeginWith, stackLine)
+	}
 
-			}
+	logErr.Printf(errLogPrint(true), stackLine)
+}
 
+func GetStack(i int, stackLine string) string {
+	for pc, file, line, ok := runtime.Caller(i); ok; pc, file, line, ok = runtime.Caller(i) {
+		i++
+		fileName := changeShortName(file)
+		fncName := changeShortName(runtime.FuncForPC(pc).Name())
+		// пропускаем рендер ошибок
+		if !isIgnoreFile(fileName) && !isIgnoreFunc(fncName) {
+			stackLine += fmt.Sprintf("%s:%d %s %s()\n", fileName, line, prefErrStack, fncName)
 		}
 	}
-	
-	logErr.Printf(errLogPrint(true), stackline)
+
+	return stackLine
 }
 
 func isIgnoreFile(runFile string) bool {
@@ -249,10 +252,11 @@ func isIgnoreFunc(funcName string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
-// ErrorLogHandler - output formated(function and line calls) error information
+// ErrorLogHandler - output formatted(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	ErrorStack(err, args...)
 }

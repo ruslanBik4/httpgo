@@ -33,7 +33,7 @@ type LogsType interface {
 
 type wrapKitLogger struct {
 	*log.Logger
-	calldepth int
+	callDepth int
 	line      int
 	fileName  string
 	funcName  string
@@ -51,7 +51,7 @@ func NewWrapKitLogger(pref string, depth int) *wrapKitLogger {
 	return &wrapKitLogger{
 		Logger:    log.New(os.Stdout, "[["+pref+"]]", logFlags),
 		typeLog:   pref,
-		calldepth: depth,
+		callDepth: depth,
 		toOther:   &multiWriter{},
 	}
 }
@@ -193,7 +193,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 	if checkType && bool(checkPrint) {
 		fmt.Printf(mess + "\n")
 	} else {
-		_ = logger.Output(logger.calldepth, mess)
+		_ = logger.Output(logger.callDepth, mess)
 		mess = fmt.Sprintf("%s%s:%d %s",
 			timeLogFormat(),
 			logger.fileName,
@@ -206,7 +206,7 @@ func (logger *wrapKitLogger) Printf(vars ...interface{}) {
 		go func() {
 			_, err := logger.toOther.Write([]byte(mess))
 			if err != nil {
-				_ = logger.Output(logger.calldepth, getArgsString("Write toOther: %v,", err))
+				_ = logger.Output(logger.callDepth, getArgsString("Write toOther: %v,", err))
 			}
 		}()
 	}
