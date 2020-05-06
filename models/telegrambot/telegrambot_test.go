@@ -221,33 +221,19 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	_, err = tb.Write([]byte(newError.Error()))
 	as.Nil(err, "%v", err)
 	<-ch
-	//for isRun := true; isRun; {
-	//	select {
-	//	case _, ok := <-ch:
-	//		t.Log("request finished")
-	//		if !ok {
-	//			isRun = false
-	//		}
-	//	case <-time.After(time.Second * 10):
-	//		t.Log("timeout")
-	//		isRun = false
-	//	}
+	//select {
+	//case <-ch:
+	//case <-time.After(time.Second*10):
+	//	t.Error("timeout")
 	//}
 
 	_, err = tb.Write([]byte(newErrorWrapped.Error()))
 	as.Nil(err, "%v", err)
 	<-ch
-	//for isRun := true; isRun; {
-	//	select {
-	//	case _, ok := <-ch:
-	//		t.Log("request finished")
-	//		if !ok {
-	//			isRun = false
-	//		}
-	//	case <-time.After(time.Second * 10):
-	//		t.Log("timeout")
-	//		isRun = false
-	//	}
+	//select {
+	//case <-ch:
+	//case <-time.After(time.Second*10):
+	//	t.Error("timeout")
 	//}
 
 }
@@ -284,7 +270,6 @@ func TestTelegramBot_SendMessage(t *testing.T) {
 		}
 	}
 }
-
 
 func TestTelegramBot_SendEmptyMessage(t *testing.T) {
 	ch := make(chan struct{})
