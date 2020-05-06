@@ -267,25 +267,24 @@ func TestTelegramBot_SendMessage(t *testing.T) {
 		err, resp := tb.SendMessage(longMess, true)
 
 		assert.Nil(t, err, "error must be nil")
-		t.Log("response", resp)
+		t.Log(resp)
+		close(ch)
 	}()
 
-	<-ch
-	<-ch
-	//for isRun := true; isRun; {
-	//	select {
-	//	case _, ok := <-ch:
-	//		t.Log("request finished")
-	//		if !ok {
-	//			isRun = false
-	//		}
-	//	case <-time.After(time.Second * 10):
-	//		t.Log("timeout")
-	//		isRun = false
-	//	}
-	//}
-
+	for isRun := true; isRun; {
+		select {
+		case _, ok := <-ch:
+			t.Log("request finished")
+			if !ok {
+				isRun = false
+			}
+		case <-time.After(time.Second * 10):
+			t.Log("timeout")
+			isRun = false
+		}
+	}
 }
+
 
 func TestTelegramBot_SendEmptyMessage(t *testing.T) {
 	ch := make(chan struct{})
@@ -367,13 +366,11 @@ func mockTelegramServer(t *testing.T, ch chan struct{}) (string, error) {
 		for {
 			c, err := l.Accept()
 			if err != nil {
-				fmt.Println(err)
 				t.Error(err)
 				return
 			}
-
+			t.Log("con begin")
 			go mockHandling(t, ch, c)
-
 		}
 	}()
 
@@ -410,30 +407,20 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 		}
 
 		ch <- struct{}{}
-
 	}()
 
 	r := bufio.NewReader(conn)
-	//for  {
-	//	ine, _, err := r.ReadLine()
-	//	if err != nil {
-	//		break
-	//	}
-	//	fmt.Println(string(ine))
-	//}
 	proto, _, err := r.ReadLine()
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	text := ""
-	chat := ""
-	isChatId := 0
-	l := 0
+	text, chat, isChatId, l := "", "", 0, 0
 	assert.Equal(t, eProto, proto, "proto is wrong")
 
 	for isRun, mode := true, 0; isRun; {
+
 		switch line, isPrefix, err := r.ReadLine(); {
 		case err != nil:
 			t.Error(err)
@@ -501,4 +488,5 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 	if err != nil {
 		t.Error(err)
 	}
+
 }
