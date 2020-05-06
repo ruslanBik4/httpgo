@@ -6,6 +6,7 @@ package telegrambot
 
 import (
 	"fmt"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,6 +18,7 @@ func TestNewTelegramBot(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.NotNil(t, b.Token)
+	assert.Implements(t, (*io.Writer)(nil), b, "must implements Write interface")
 
 	if assert.NotEmpty(t, b.Token) && assert.NotEmpty(t, b.ChatID) {
 		if assert.Equal(t, "bottoken", b.Token) && assert.Equal(t, "chatid", b.ChatID) {

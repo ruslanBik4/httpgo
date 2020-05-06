@@ -6,19 +6,21 @@ package telegrambot
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/httpgo/logs"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -77,7 +79,7 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 	}
 }
 
-//server from fasthttp example
+// server from fasthttp example
 func FastHTTPServer() {
 	ln, err := net.Listen("tcp", useTestLocalPort)
 	if err != nil {
@@ -179,74 +181,297 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 
 }
 
+const (
+	botToken = "bottoken"
+	chatId   = "chatid"
+)
+
+var (
+	newError        = errors.New("NewERROR")
+	newErrorWrapped = errors.Wrap(newError, "Wrapped")
+	longMess        = "begin" + strings.Repeat("o", maxMessLength-8) + "end"
+)
+
 func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	as := assert.New(t)
 
-	err := os.Setenv("TBTOKEN", "bottoken")
+	err := os.Setenv("TBTOKEN", botToken)
 	as.Nil(err, "%v", err)
-	err = os.Setenv("TBCHATID", "chatid")
+	err = os.Setenv("TBCHATID", chatId)
 	as.Nil(err, "%v", err)
 
 	tbtoken := os.Getenv("TBTOKEN")
 	tbchatid := os.Getenv("TBCHATID")
 
-	//tb, err := NewTelegramBotFromEnv()
+	ch := make(chan struct{})
+
+	p, err := mockTelegramServer(t, ch)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	// tb, err := NewTelegramBotFromEnv()
+	tb := newTestBot(tbtoken, tbchatid, p)
+
+	as.Equal(botToken, tb.Token, "Token from env wrong")
+	as.Equal(chatId, tb.ChatID, "ChatID from env wrong")
+
+	// todo: remove logs methods!
+	_, err = tb.Write([]byte(newError.Error()))
+	as.Nil(err, "%v", err)
+	<-ch
+	//select {
+	//case <-ch:
+	//case <-time.After(time.Second*10):
+	//	t.Error("timeout")
+	//}
+
+	_, err = tb.Write([]byte(newErrorWrapped.Error()))
+	as.Nil(err, "%v", err)
+	<-ch
+	//select {
+	//case <-ch:
+	//case <-time.After(time.Second*10):
+	//	t.Error("timeout")
+	//}
+
+}
+
+func TestTelegramBot_SendMessage(t *testing.T) {
+	ch := make(chan struct{})
+
+	p, err := mockTelegramServer(t, ch)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	tb := newTestBot(botToken, chatId, p)
+
+	go func() {
+		err, resp := tb.SendMessage(longMess, true)
+
+		assert.Nil(t, err, "error must be nil")
+		t.Log(resp)
+		close(ch)
+	}()
+
+	for isRun := true; isRun; {
+		select {
+		case _, ok := <-ch:
+			t.Log("request finished")
+			if !ok {
+				isRun = false
+			}
+		case <-time.After(time.Second * 10):
+			t.Log("timeout")
+			isRun = false
+		}
+	}
+}
+
+func TestTelegramBot_SendEmptyMessage(t *testing.T) {
+	ch := make(chan struct{})
+
+	p, err := mockTelegramServer(t, ch)
+	if err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
+
+	tb := newTestBot(botToken, chatId, p)
+
+	err, resp := tb.SendMessage("", true)
+
+	assert.Nil(t, err, "error must be nil")
+	t.Log("response", resp)
+
+}
+
+func TestTelegramBot_getPartMes(t *testing.T) {
+	tb := newTestBot(botToken, chatId, "")
+	prefix := " part 1 "
+	r := strings.NewReader(longMess)
+
+	num := tb.messId
+
+	for i := 1; r.Len() > 0; i++ {
+		mes, err := tb.getPartMes(r, prefix, num+1)
+		assert.Nil(t, err)
+		t.Log(len(mes), strings.Replace(mes, "o", "", -1))
+		prefix = fmt.Sprintf(" MESS #%v part %d ", tb.messId, i+1)
+	}
+}
+
+func newTestBot(tbtoken string, tbchatid string, port string) *TelegramBot {
 	tb := &TelegramBot{
 		Token:          tbtoken,
 		ChatID:         tbchatid,
 		Response:       &fasthttp.Response{},
-		RequestURL:     "http://localhost" + useTestLocalPort + "/",
+		RequestURL:     "http://localhost" + port + "/",
 		Request:        &fasthttp.Request{},
 		FastHTTPClient: &fasthttp.Client{},
+		instance:       "test",
 	}
 	tb.Request.Header.SetMethod(fasthttp.MethodPost)
 
-	as.Equal("bottoken", tb.Token, "Token from env wrong")
-	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
+	return tb
+}
 
-	newError := errors.New("NewERROR")
-	newErrorWraped := errors.Wrap(newError, "Wraped")
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
-
-	l, err := net.Listen("tcp", useTestLocalPort)
+// GetFreePort asks the kernel for a free open port that is ready to use.
+func GetFreePort() (int, error) {
+	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
 	if err != nil {
-		fmt.Println(err)
-		return
+		return 0, err
 	}
 
-	//defer l.Close()
+	l, err := net.ListenTCP("tcp", addr)
+	if err != nil {
+		return 0, err
+	}
+	defer l.Close()
+
+	return l.Addr().(*net.TCPAddr).Port, nil
+}
+
+func mockTelegramServer(t *testing.T, ch chan struct{}) (string, error) {
+	p, err := GetFreePort()
+	if err != nil {
+		return "", err
+	}
+
+	s := ":" + strconv.Itoa(p)
+	l, err := net.Listen("tcp", s)
+	if err != nil {
+		return "", err
+	}
 
 	go func() {
 		for {
 			c, err := l.Accept()
 			if err != nil {
-				fmt.Println(err)
+				t.Error(err)
 				return
 			}
-
-			reader := bufio.NewReader(c)
-
-			netData, err := reader.ReadString('\n')
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-
-			if strings.Contains(netData, newError.Error()) ||
-				strings.Contains(netData, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
-				fmt.Println("strings.Contains(netData, Error())")
-				wg.Done()
-			}
+			t.Log("con begin")
+			go mockHandling(t, ch, c)
 		}
 	}()
 
-	//// === check with logs
-	logs.SetWriters(tb, logs.FgErr)
+	return s, nil
+}
 
-	logs.ErrorLog(newError)
-	logs.ErrorLog(newErrorWraped)
+const (
+	headStatus = `HTTP/1.1 200 OK`
+	headBody   = `
+Host: localhost;
+Content-Type: application/json;
+Content-Length:12;
 
-	wg.Wait()
+`
+)
+
+var (
+	eProto        = []byte("POST /bottoken/sendMessage HTTP/1.1")
+	cntType       = []byte("Content-Type")
+	cntLen        = []byte("Content-Length:")
+	mpType        = []byte("multipart/form-data")
+	mpStart       = []byte("--")
+	regForm       = regexp.MustCompile(`Content-Disposition:\s*form-data;\s*name\="text"`)
+	regFormChatId = regexp.MustCompile(`Content-Disposition:\s*form-data;\s*name\="chat_id"`)
+	regNewError   = regexp.MustCompile(`(test)*(.*?)(NewERROR)*?`)
+)
+
+func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		ch <- struct{}{}
+	}()
+
+	r := bufio.NewReader(conn)
+	proto, _, err := r.ReadLine()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	text, chat, isChatId, l := "", "", 0, 0
+	assert.Equal(t, eProto, proto, "proto is wrong")
+
+	for isRun, mode := true, 0; isRun; {
+
+		switch line, isPrefix, err := r.ReadLine(); {
+		case err != nil:
+			t.Error(err)
+			isRun = false
+		case mode == 1:
+			mode++
+		case mode == 2:
+			if !assert.True(t, regNewError.Match(line), "wrong error message") {
+				t.Log(string(line))
+			}
+			text = string(line)
+			mode = 0
+			// isRun = false
+		case bytes.HasPrefix(line, cntType):
+			assert.True(t, bytes.Contains(line, mpType), " Content-Type is wrong")
+		case bytes.HasPrefix(line, cntLen):
+			l, err = strconv.Atoi(string(bytes.Trim(bytes.TrimPrefix(line, cntLen), " ")))
+			if err != nil {
+				t.Errorf("%v %s", err, line)
+			} else {
+				t.Log(l)
+			}
+		case bytes.HasPrefix(line, mpStart) && bytes.HasSuffix(line, mpStart):
+			t.Log(string(line))
+			isRun = false
+			b, err := r.Peek(r.Buffered())
+			if err != nil {
+				t.Errorf("%v %s", err, line)
+			} else if len(b) < l {
+				t.Logf("read only %d from %d", len(b), l)
+			}
+		case regForm.Match(line):
+			mode++
+		case regFormChatId.Match(line):
+			isChatId++
+		case isPrefix:
+			t.Log("line too long", string(line))
+		default:
+			if isChatId == 2 {
+				chat = string(line)
+			}
+			if isChatId >= 1 {
+				isChatId++
+			}
+			t.Log(string(line))
+		}
+	}
+
+	resp := ""
+	if len(text) == 0 {
+		resp = `HTTP/1.1 400 Bad Request` + headBody + `{"ok":false,"error_code":400,"description":"Bad Request: message text is empty"}`
+	} else if len(text) > 4050 {
+		resp = `HTTP/1.1 400 Bad Request` + headBody + `{"ok":false,"error_code":400,"description":"Bad Request: message is too long"}`
+	} else {
+		resp = headStatus + headBody + `{"ok":true,"result":{"message_id":324,"chat":{"id":"` + chat + `","title":"","username":"","type":"channel"},"date":` + strconv.FormatInt(time.Now().Unix(), 10) + `,"text":"` + text + `"}}`
+	}
+
+	w := bufio.NewWriter(conn)
+	_, err = w.Write([]byte(resp))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = w.Flush()
+	if err != nil {
+		t.Error(err)
+	}
 
 }

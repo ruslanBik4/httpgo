@@ -91,7 +91,7 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 		Desc:      "onboarding routes from local services into APIS",
 		Fnc:       apis.onboarding,
 		OnlyLocal: true,
-		Params: onboardParams})
+		Params:    onboardParams})
 
 	return apis
 }
@@ -139,9 +139,10 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			ctx.Request.Header.Referer(),
 			ctx.Request.Header.UserAgent())
 		a.renderError(ctx, err, resp)
+
 		return
-	} 
-	
+	}
+
 	// success execution
 	switch resp := resp.(type) {
 	case nil:
@@ -179,7 +180,7 @@ func WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 	return nil
 }
 
-// WriteJSONHeaders return standart headers for JSON
+// WriteJSONHeaders return standard headers for JSON
 func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
 }
@@ -187,7 +188,7 @@ func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 // render JSON from any data type
 const jsonHEADERSContentType = "application/json; charset=utf-8"
 
-// renderError send error message into responce
+// renderError send error message into response
 func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}) {
 
 	statusCode := http.StatusInternalServerError
