@@ -415,18 +415,21 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 	tryCounter := 0
 
 	for {
+		logs.DebugLog("strt request")
+
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
 		switch err {
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
+			logs.DebugLog("eErrTimeout")
 			<-time.After(time.Minute * 2)
 			continue
 		case fasthttp.ErrNoFreeConns:
+			logs.DebugLog("ErrTimeout")
 			<-time.After(time.Minute * 2)
 			continue
 		case nil:
 			var resp = &TbResponseMessageStruct{}
 			err = json.Unmarshal(tbot.Response.Body(), resp)
-
 			switch tbot.Response.StatusCode() {
 			case 400:
 				if strings.Contains(resp.Description, "message text is empty") {
@@ -459,11 +462,13 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 				if action == cmdSendMes {
 					tbot.messId += 1
 				}
+
 				return nil, resp
 			}
 
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
+				logs.DebugLog(err.Error())
 				<-time.After(time.Minute * 2)
 				continue
 			} else {

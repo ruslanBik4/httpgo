@@ -18,6 +18,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/valyala/fasthttp"
 
@@ -77,20 +78,6 @@ func TestNewTelegramBotFromEnv(t *testing.T) {
 		if as.NotNil(err) {
 			as.EqualError(err, "TelegramBot.Token empty")
 		}
-	}
-}
-
-// server from fasthttp example
-func FastHTTPServer() {
-	ln, err := net.Listen("tcp", useTestLocalPort)
-	if err != nil {
-		log.Fatalf("error in net.Listen: %s", err)
-	}
-	requestHandler := func(ctx *fasthttp.RequestCtx) {
-		fmt.Println(ctx, "Requested path is")
-	}
-	if err := fasthttp.Serve(ln, requestHandler); err != nil {
-		log.Fatalf("error in Serve: %s", err)
 	}
 }
 
@@ -222,10 +209,18 @@ func TestErrorLogTelegramWritesSecondVersion(t *testing.T) {
 	logs.SetWriters(tb, logs.FgErr)
 
 	logs.ErrorLog(newError)
-	<-ch
+	select {
+	case <-ch:
+	case <-time.After(time.Second * 10):
+		t.Log("timeout")
+	}
 
 	logs.ErrorLog(newErrorWrapped)
-	<-ch
+	select {
+	case <-ch:
+	case <-time.After(time.Second * 10):
+		t.Log("timeout")
+	}
 }
 
 func TestTelegramBot_SendMessage(t *testing.T) {
@@ -237,6 +232,7 @@ func TestTelegramBot_SendMessage(t *testing.T) {
 		t.FailNow()
 	}
 
+	logs.SetDebug(true)
 	tb := newTestBot(botToken, chatId, p)
 
 	go func() {
@@ -246,7 +242,12 @@ func TestTelegramBot_SendMessage(t *testing.T) {
 	}()
 
 	<-ch
-	<-ch
+	select {
+	case <-ch:
+	case <-time.After(time.Second * 10):
+		t.Log("timeout")
+	}
+
 }
 
 func TestTelegramBot_getPartMes(t *testing.T) {
@@ -312,7 +313,7 @@ func mockTelegramServer(t *testing.T, ch chan struct{}) (string, error) {
 				t.Error(err)
 				return
 			}
-
+			t.Log("con begin")
 			go mockHandling(t, ch, c)
 		}
 	}()
@@ -324,9 +325,7 @@ const (
 	head = `HTTP/1.1 200 OK 
 Host: localhost;
 Content-Type: application/json;
-Content-Length:12;
-
-`
+Content-Length:`
 )
 
 var (
@@ -359,6 +358,7 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 
 	assert.Equal(t, eProto, proto, "proto is wrong")
 
+	l, desc := 0, ""
 	for isRun, mode := true, 0; isRun; {
 
 		switch line, isPrefix, err := r.ReadLine(); {
@@ -368,12 +368,33 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 		case mode == 1:
 			mode++
 		case mode == 2:
-			assert.True(t, regNewError.Match(line), "wrong error message")
-			isRun = false
+			if !regNewError.Match(line) {
+				t.Log(string(line))
+			}
+			mode = 0
+			desc = string(line)
+			// isRun = false
 		case bytes.HasPrefix(line, cntType):
 			assert.True(t, bytes.Contains(line, mpType), " Content-Type is wrong")
 		case bytes.HasPrefix(line, cntLen):
-		case bytes.HasPrefix(line, mpStart):
+			l, err = strconv.Atoi(string(bytes.Trim(bytes.TrimPrefix(line, cntLen), " ")))
+			if err != nil {
+				t.Errorf("%v %s", err, line)
+			} else {
+				t.Log(l)
+			}
+		// case bytes.HasPrefix(line, mpStart):
+		// 	t.Log(string(line))
+		case bytes.HasPrefix(line, mpStart) && bytes.HasSuffix(line, mpStart):
+			t.Log(string(line))
+			isRun = false
+			// b := make([]byte, l)
+			b, err := r.Peek(r.Buffered())
+			if err != nil {
+				t.Errorf("%v %s", err, line)
+			} else if len(b) < l {
+				t.Logf("read only %d from %d", len(b), l)
+			}
 		case regForm.Match(line):
 			mode++
 		case isPrefix:
@@ -389,7 +410,10 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 	// }
 
 	w := bufio.NewWriter(conn)
-	_, err = w.Write([]byte(head + `{"ok": true}`))
+	s := `{"ok": true, "description":"` + desc + `"}`
+	_, err = w.Write([]byte(head + strconv.Itoa(len(s)) + `
+
+` + s))
 	if err != nil {
 		t.Error(err)
 	}
@@ -398,4 +422,5 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 	if err != nil {
 		t.Error(err)
 	}
+
 }
