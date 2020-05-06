@@ -291,6 +291,8 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		}
 	}
 
+	messNum := tbot.messId
+
 	switch messLen := len(message); {
 	case messLen == 0:
 		logs.ErrorStack(errors.Wrap(ErrEmptyMessText, message))
@@ -301,7 +303,7 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 
 		for i := 1; r.Len() > 0; i++ {
 
-			requestParams["text"], err = tbot.getPartMes(r, prefix)
+			requestParams["text"], err = tbot.getPartMes(r, prefix, messNum+1)
 			if err == ErrEmptyMessText {
 				logs.GetStack(2, fmt.Sprintf("%v (%s) part#%d", err, message, i))
 				return
@@ -324,8 +326,8 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 	return
 }
 
-func (tbot *TelegramBot) getPartMes(r *strings.Reader, prefix string) (string, error) {
-	suffix := fmt.Sprintf(" MESS #%v  CONTINUE->", tbot.messId)
+func (tbot *TelegramBot) getPartMes(r *strings.Reader, prefix string, num int64) (string, error) {
+	suffix := fmt.Sprintf(" MESS #%v  CONTINUE->", num)
 	buf := make([]byte, maxMessLength-len(tbot.instance)-len(prefix)-len(suffix))
 
 	c, err := r.Read(buf)
