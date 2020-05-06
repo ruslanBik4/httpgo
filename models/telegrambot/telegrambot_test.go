@@ -239,15 +239,21 @@ func TestTelegramBot_SendMessage(t *testing.T) {
 		err, resp := tb.SendMessage(longMess, true)
 		assert.Nil(t, err, "error must be nil")
 		t.Log(resp)
+		close(ch)
 	}()
 
-	<-ch
-	select {
-	case <-ch:
-	case <-time.After(time.Second * 10):
-		t.Log("timeout")
+	for isRun := true; isRun; {
+		select {
+		case _, ok := <-ch:
+			t.Log("request finished")
+			if !ok {
+				isRun = false
+			}
+		case <-time.After(time.Second * 10):
+			t.Log("timeout")
+			isRun = false
+		}
 	}
-
 }
 
 func TestTelegramBot_getPartMes(t *testing.T) {
@@ -410,7 +416,11 @@ func mockHandling(t *testing.T, ch chan struct{}, conn net.Conn) {
 	// }
 
 	w := bufio.NewWriter(conn)
-	s := `{"ok": true, "description":"` + desc + `"}`
+	s := fmt.Sprintf(`{"ok": true, "description":"%s", "error_code": -1, 
+		"result":{"date": %d },
+		"chat":{"title":"%s"}
+		}`,
+		desc, time.Now().Unix(), chatId)
 	_, err = w.Write([]byte(head + strconv.Itoa(len(s)) + `
 
 ` + s))

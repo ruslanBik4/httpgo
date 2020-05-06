@@ -71,11 +71,16 @@ type tbMessageBuffer struct {
 
 func (tbResp *TbResponseMessageStruct) String() string {
 	if tbResp.Ok == true {
-		return fmt.Sprintf("message request is Ok, ResponseStruct: {Ok: %v, Result: {MessageId: %v, Chat:{Id: %v, Title: %v, Username: %v, Type: %v}, Date: %v, Text: %v }}",
-			tbResp.Ok, tbResp.Result.MessageId, tbResp.Result.Chat.Id, tbResp.Result.Chat.Title,
-			tbResp.Result.Chat.Username, tbResp.Result.Chat.Type, tbResp.Result.Date, tbResp.Result.Text)
+		return fmt.Sprintf(`message request is Ok, 
+ResponseStruct: {Desc: %s, 
+Result: {MessageId: %v, 
+Chat:{Id: %v, Title: %s, Username: %v, Type: %v}, Date: %.19s, Text: %v }}`,
+			tbResp.Description, tbResp.Result.MessageId, tbResp.Result.Chat.Id, tbResp.Result.Chat.Title,
+			tbResp.Result.Chat.Username, tbResp.Result.Chat.Type,
+			time.Unix(tbResp.Result.Date, 0), tbResp.Result.Text)
 	}
-	return fmt.Sprintf("message request is not Ok, ErrorCode:%v, %v", tbResp.ErrorCode, tbResp.Description)
+
+	return fmt.Sprintf("message request is not Ok, ErrorCode:%v, %s", tbResp.ErrorCode, tbResp.Description)
 }
 
 func (tbot *TelegramBot) String() string {
