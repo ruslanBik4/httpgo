@@ -1,18 +1,19 @@
 {% import (
 	"time"
+	"github.com/ruslanBik4/httpgo/dbEngine"
 	)
 %}
-{% func TableRow(columns []string, rows [][] interface{}) %}
+{% func TableRow(columns []dbEngine.Column, rows [][] interface{}) %}
 <style>
 {%= TableCSS() %}
 {%code
    colLen := make([]int, len(columns))
    allWidth := 10
    for i, col := range columns {
-        if col.CharacterMaximumLength < 0 {
+        if col.CharacterMaximumLength() < 0 {
           colLen[i] = 100
-        } else if col.CharacterMaximumLength < 50 {
-         colLen[i] = col.CharacterMaximumLength * 5
+        } else if col.CharacterMaximumLength() < 50 {
+         colLen[i] = col.CharacterMaximumLength() * 5
         } else {
           colLen[i] = 250
         }
@@ -29,7 +30,7 @@
 }
 .usr-table-row{
  .table-col-{%d i%}{
-   text-align: {% if columns[i].CharacterMaximumLength > 0 %} left {% else %} right {%endif %};
+   text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left {% else %} right {%endif %};
   }
 }
 {% endfor %}
@@ -39,7 +40,7 @@
         <div class="usr-table__t-head  usr-table-row">
         {% for i, col := range columns %}
             <div class="usr-table-col" a={%d i %}>
-                {%s string(col) %}
+                {%s col.Name() %}
             </div>
         {% endfor %}
         </div>

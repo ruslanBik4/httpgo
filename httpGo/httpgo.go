@@ -104,6 +104,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 // Run starting http or https server according to secure
 // certFile and keyFile are paths to TLS certificate and key files for https server
 func (a *HttpGo) Run(secure bool, certFile, keyFile string) error {
+//todo change patameters type on 
 	go a.listenOnShutdown()
 	if secure {
 		return a.mainServer.ServeTLS(a.listener, certFile, keyFile)

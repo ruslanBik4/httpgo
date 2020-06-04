@@ -1,7 +1,6 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
-
 {% stripspace %}
 {% collapsespace %}
 
@@ -27,7 +26,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     {% switch vv := value.(type) %}
       {% case string %} "{%j= vv %}"
       {% case bool %} {%v vv %}
-      {% case int, uint, int32, int64 %} {%d vv.(int) %}
+      {% case int %} {%d vv %} 
+      {% case uint %} {%d int(vv) %} 
+      {% case int32 %} {%d int(vv) %} 
+      {% case int64 %} {%dl vv %}
+      {% case float32 %} {%f float64(vv) %}
       {% case float64 %} {%f vv %}
       {% case nil %}  null
       {% case stringDimension %}

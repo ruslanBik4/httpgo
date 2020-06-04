@@ -18,6 +18,7 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
+	. "github.com/ruslanBik4/httpgo/dbEngine"
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
@@ -267,14 +268,14 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		return *a, nil
 	}
 
-	columns := []string{
-		"Path - Method",
-		"Descriptor",
-		"Auth",
-		"Required parameters",
-		"Others parameters",
-		"DtoFromJSON",
-		"Response",
+	columns := []Column{
+		NewStringColumn("Path - Method"),
+		NewStringColumn("Descriptor"),
+		NewStringColumn("Auth"),
+		NewStringColumn("Required parameters"),
+		NewStringColumn("Others parameters"),
+		NewStringColumn("DtoFromJSON"),
+		NewStringColumn("Response"),
 	}
 
 	rows := make([][]interface{}, len(a.routes))

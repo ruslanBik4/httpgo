@@ -18,6 +18,7 @@ run:
 	go run ${LDFLAGS} main.go
 # Builds the project
 build:
+	go generate
 	go build -i ${LDFLAGS} -o ${BINARY}
 test:
 	go test -v ./... > last_test.log

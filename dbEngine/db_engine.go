@@ -1,4 +1,4 @@
-package db_engine
+package dbEngine
 
 type DB struct {
     Cfg         map[string] interface{}
@@ -16,11 +16,13 @@ type Routine interface {
     Call()
 }
 
-type Field interface{
+type Column interface{
+    CharacterMaximumLength() int
+    Name() string
 }
 
 
 type RowScanner interface {
-	GetFields([] Field) []interface{}
+	GetFields([] Column) []interface{}
 }
 
