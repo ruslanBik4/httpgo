@@ -422,8 +422,6 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 	tryCounter := 0
 
 	for {
-		logs.DebugLog("strt request")
-
 		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
 		switch err {
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
