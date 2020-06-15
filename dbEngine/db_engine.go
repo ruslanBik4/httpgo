@@ -1,28 +1,33 @@
 package dbEngine
 
 type DB struct {
-    Cfg         map[string] interface{}
-    Tables      []*Table
-    Routines    []*Routine
+	Cfg      map[string]interface{}
+	Tables   []*Table
+	Routines []*Routine
 }
 
 type Table interface {
-    Select()
-    Insert()
+	Columns() []Column
+	Insert()
+	Select()
+	SelectAndScanEach(each func() error, rowValue RowScanner) error
+	SelectAndRunEach(each func(values []interface{}, columns []Column) error) error
 }
 
 type Routine interface {
-    Select()
-    Call()
+	Select()
+	Call()
+	Params()
 }
 
-type Column interface{
-    CharacterMaximumLength() int
-    Name() string
+type Column interface {
+	CharacterMaximumLength() int
+	Comment() string
+	Name() string
+	Type() string
+	Required() bool
 }
-
 
 type RowScanner interface {
-	GetFields([] Column) []interface{}
+	GetFields([]Column) []interface{}
 }
-

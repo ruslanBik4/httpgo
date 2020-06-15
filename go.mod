@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	bitbucket.org/PinIdea/fcgi_client v0.0.0-20150922054231-df86e856bb91
+	github.com/ababo/idiot v0.0.0-20151122182405-18a7bbf16d00
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/go-sql-driver/mysql v1.5.0

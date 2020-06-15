@@ -47,13 +47,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.Logger = &fastHTTPLogger{}
 
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
-
+	cfg.Server.Handler = apis.Handler
 	if cfg.Access.ChkConn {
 		listener = &blockListener{
 			listener,
 			cfg,
 		}
-		cfg.Server.Handler = apis.Handler
 	} else if cfg.IsAccess() {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
@@ -68,12 +67,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 					addr = string(ips[0])
 				}
 			}
-			
+
 			if cfg.Allow(ctx, addr) && !cfg.Deny(ctx, addr) {
 				apis.Handler(ctx)
 				return
 			}
-			
+
 			logs.DebugLog(addr, ctx.Request.Header.String(), cfg)
 			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
 		}
@@ -89,7 +88,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		}
 
 		_ = apis.AddRoutes(apisRoute)
-
 	}
 
 	return &HttpGo{
@@ -104,7 +102,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 // Run starting http or https server according to secure
 // certFile and keyFile are paths to TLS certificate and key files for https server
 func (a *HttpGo) Run(secure bool, certFile, keyFile string) error {
-//todo change patameters type on 
+	//todo change patameters type on
 	go a.listenOnShutdown()
 	if secure {
 		return a.mainServer.ServeTLS(a.listener, certFile, keyFile)
@@ -142,15 +140,14 @@ type fastHTTPLogger struct {
 }
 
 func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
-	args = append([]interface{}{mess}, args...)
 
 	if strings.Contains(mess, "error") {
 		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(args...)
+			logs.StatusLog("%s %+v", mess, args)
 		} else {
-			logs.ErrorLog(errors.New("fasthttp"), args...)
+			logs.ErrorLog(errors.New(mess), args...)
 		}
 	} else {
-		logs.DebugLog(args...)
+		logs.DebugLog(append([]interface{}{mess}, args...)...)
 	}
 }

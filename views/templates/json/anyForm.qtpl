@@ -41,8 +41,8 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
         {% if field.CSSClass > "" %} "CSSClass": "{%j field.CSSClass %}",{% endif %}
         {% if field.CSSStyle > "" %} "CSSStyle": "{%j field.CSSStyle %}",{% endif %}
         {% if field.Figure > "" %}   "Figure": "{%j field.Figure %}",      {% endif %}
-        {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength":{%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
-        {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %}"min":0,{% endif %}
+        {% if field.CHARACTER_MAXIMUM_LENGTH>0 %} "maxLength": {%d field.CHARACTER_MAXIMUM_LENGTH %}, {% endif %}
+        {% if strings.Contains(field.COLUMN_TYPE, "unsigned") %} "min":0, {% endif %}
         {% if field.MinDate > "" %} "minDate": "{%j= field.MinDate %}",  {% endif %}
         {% if field.MaxDate > "" %} "maxDate": "{%j= field.MaxDate %}",  {% endif %}
         {% if len(field.Events) > 0 %}

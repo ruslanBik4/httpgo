@@ -24,6 +24,8 @@ import (
 	. "github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/dbEngine/psql"
 	"github.com/ruslanBik4/httpgo/httpGo"
 	"github.com/ruslanBik4/httpgo/logs"
 	_ "github.com/ruslanBik4/httpgo/models/api/v1"
@@ -32,6 +34,7 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/telegrambot"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 
@@ -104,6 +107,30 @@ var (
 					"13:30 - 15:30": 1570.86,
 					"9:30 - 9:50":   1672.54,
 				},
+			},
+		},
+		"/test/forms/": {
+			Fnc: func(ctx *RequestCtx) (interface{}, error) {
+				s := dbEngine.SimpleColumns("test 1", "test 2")
+				s = append(s, dbEngine.NewStringColumn("req", "required", true))
+				s = append(s, dbEngine.NewNumberColumn("number", "number required", true))
+				p := psql.NewColumnPone("psql", "psql column", 0)
+				p.UdtName = "_int4"
+				s = append(s, p)
+
+				p1 := p
+				p.UdtName = "bool"
+				s = append(s, p1)
+
+				logs.StatusLog(s[0].Name())
+				forms.WriteFormJSON(
+					ctx.Response.BodyWriter(),
+					"test form",
+					"/",
+					"POST",
+					s)
+
+				return nil, nil
 			},
 		},
 		// "/godoc/":        handlerGoDoc,

@@ -1,0 +1,54 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+{% import (
+	"github.com/ruslanBik4/httpgo/dbEngine"
+	)
+%}
+
+{% stripspace %}
+{% collapsespace %}
+json for front forms.
+{% func FormJSON(title, action, method string, columns [] dbEngine.Column) %}
+  {
+    "title" : '{%s= title %}',
+    "action": '{%s= action %}',
+    "method": '{%s= method %}',
+    "fields": [
+                {% for i, col := range columns %}
+
+                    {% if i > 0 %}
+                        ,
+                    {% endif %}
+                    {
+                        "name": "{%s col.Name() %}",
+                        "required": {%v col.Required() %},
+                        "type": {%= ConvertType( col.Type() )%}
+                        {% if col.CharacterMaximumLength() > 0 %}
+                        , "maxLength": {%d col.CharacterMaximumLength() %}
+                        {% endif %}
+
+                        {% if col.Comment() > "" %}
+                        , "title": "{%s col.Comment() %}"
+                        {% endif %}
+                    }
+                {% endfor %}
+               ]
+  }
+{% endfunc %}
+
+{% func ConvertType(t string)  %}
+    {% switch t %}
+    {% case "int", "int4", "_int4", "int8", "_int8", "float4", "_float4", "float8", "_float8", "numeric", "decimal" %}
+     "number"
+    {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
+     "datetime"
+    {% case "boolean", "bool" %}  "checkbox"
+    {% case "tel"%} "tel"
+    {% case "password" %} "password"
+    {% default %} "text"
+    {% endswitch %}
+{% endfunc %}
+
+{% endstripspace %}
+{% endcollapsespace %}

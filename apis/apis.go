@@ -268,15 +268,15 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		return *a, nil
 	}
 
-	columns := []Column{
-		NewStringColumn("Path - Method"),
-		NewStringColumn("Descriptor"),
-		NewStringColumn("Auth"),
-		NewStringColumn("Required parameters"),
-		NewStringColumn("Others parameters"),
-		NewStringColumn("DtoFromJSON"),
-		NewStringColumn("Response"),
-	}
+	columns := SimpleColumns(
+		"Path - Method",
+		"Descriptor",
+		"Auth",
+		"Required parameters",
+		"Others parameters",
+		"DtoFromJSON",
+		"Response",
+	)
 
 	rows := make([][]interface{}, len(a.routes))
 
