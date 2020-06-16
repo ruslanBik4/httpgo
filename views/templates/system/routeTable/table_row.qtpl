@@ -1,5 +1,7 @@
 {% import (
 	"time"
+
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/dbEngine"
 	)
 %}
@@ -8,97 +10,47 @@
 {%= TableCSS() %}
 {%code
    colLen := make([]int, len(columns))
-   allWidth := 10
+   allWidth := 0
+    lSymb := 7
    for i, col := range columns {
-        if col.CharacterMaximumLength() < 0 {
-          colLen[i] = 100
-        } else if col.CharacterMaximumLength() < 50 {
-         colLen[i] = col.CharacterMaximumLength() * 5
-        } else {
-          colLen[i] = 250
+        colLen[i] = len(col.Name())
+        if col.CharacterMaximumLength() <= 0 {
+          switch col.Type() {
+          case "json":
+            colLen[i] = 50
+          case "integer":
+            colLen[i] = 10
+          case "bigint":
+            colLen[i] = 15
+          default:
+            colLen[i] = 20
+          }
         }
-
-        allWidth += colLen[i]
    }
 %}
-.table-custom{
-    width: {%d allWidth %}px;
-}
-{% for i, cLen := range colLen %}
-.table-col-{%d i%}{
-    width: {%d cLen %}px;
-}
-.usr-table-row{
- .table-col-{%d i%}{
-   text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left {% else %} right {%endif %};
-  }
-}
-{% endfor %}
 </style>
-<div class="usr-table">
+<div class="usr-table  table-custom">
     <div class="usr-table-header">
         <div class="usr-table__t-head  usr-table-row">
         {% for i, col := range columns %}
-            <div class="usr-table-col" a={%d i %}>
+            <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
                 {%s col.Name() %}
             </div>
         {% endfor %}
         </div>
 
         <div class="usr-table__filter  usr-table-row">
-            <div class="usr-table-col"></div>
+         {% for i, col := range columns %}
+           <div class="usr-table-col table-col-{%d i%}">
+                <div class="filt-arrow" style="word-break: break-word;">
 
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top  active" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
+                    <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
+                        {%s col.Comment() %}
+                    </a>
                 </div>
             </div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-
-            <div class="usr-table-col"></div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-
-            <div class="usr-table-col">
-                <div class="filt-arrow">
-                    <a class="filt-arrow__link arrow-top" href="#"></a>
-                    <a class="filt-arrow__link arrow-bottom" href="#"></a>
-                </div>
-            </div>
-        </div>
+          {% endfor %}
+         </div>
     </div>
 
     <div class="usr-table-content">
@@ -110,12 +62,34 @@
                     <div  class="usr-table-row">
 
                     {% for i := range columns %}
-                        <div class="usr-table-col">
+                        <div class="usr-table-col  table-col-{%d i%}">
                             {% switch r := row[i].(type) %}
                             {% case time.Time %}  {%s r.Format("2006-01-02") %}
+                            {% case string %}
+                              {%s= r %}
+                              {%code
+                                if len(r) > colLen[i] {
+                                  colLen[i] = len(r)
+                                }
+                              %}
                             {% case float32 %}   {%v= r %}
                             {% case float64 %}   {%f.2 r %}
-                            {% default %}        {%v= row[i] %}
+                            {% default %}
+                              {% if r, ok := r.([]interface{}); ok %}
+                                 {% for _, value := range r %}
+                                  <p>{
+                                    {% if m, ok := value.(map[string]interface{}); ok %}
+                                      {% for key, value := range m %}
+                                        <b>{%s key %}</b>: {%= json.Element(value)%},
+                                      {% endfor %}
+                                    {% else %}
+                                          {%= json.Element(value) %}
+                                    {% endif %}
+                                  } </p>
+                                {% endfor %}
+                              {% else %}
+                                    {%= json.Element(row[i]) %}
+                              {% endif %}
                             {% endswitch %}
                         </div>
                     {% endfor %}
@@ -128,5 +102,30 @@
         </div>
     </div>
 </div>
-
+<style>
+{% for i, cLen := range colLen %}
+  {% code
+    if cLen > 50 {
+        cLen = 50
+    }
+    allWidth += cLen
+  %}
+.table-col-{%d i%}{
+    width: {%d cLen * lSymb %}px;
+    {% if columns[i].Type() == "timestamp" %}
+    word-break: break-all;
+    {% endif %}
+}
+.usr-table-row{
+ .table-col-{%d i%}{
+   text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left
+                {% else %} right
+              {% endif %};
+  }
+}
+{% endfor %}
+.table-custom{
+    width: {%d allWidth * lSymb %}px;
+}
+</style>
 {% endfunc %}
