@@ -4,6 +4,10 @@
 
 package dbEngine
 
+import (
+	"go/types"
+)
+
 type NumberColumn struct {
 	comment, name string
 	req           bool
@@ -31,4 +35,12 @@ func (s *NumberColumn) Name() string {
 
 func (s *NumberColumn) CharacterMaximumLength() int {
 	return 0
+}
+
+func (s *NumberColumn) BasicType() types.BasicKind	{
+	return types.Int
+}
+
+func (s *NumberColumn) BasicTypeInfo() types.BasicInfo	{
+	return types.IsInteger
 }

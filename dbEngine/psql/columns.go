@@ -5,7 +5,9 @@
 package psql
 
 import (
+	"go/types"
 	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
 type Column struct {
@@ -42,22 +44,69 @@ func NewColumn(table dbEngine.Table, name string, dataType string, columnDefault
 	}
 }
 
-func (c Column) CharacterMaximumLength() int {
+func (c *Column) BasicTypeInfo() types.BasicInfo {
+	switch c.BasicType() {
+	case types.Bool:
+		return types.IsBoolean
+	case types.Int32, types.Int64:
+		return types.IsInteger
+	case types.Float32, types.Float64:
+		return types.IsFloat
+	case types.String:
+		return types.IsString
+	default:
+		return types.IsUntyped
+	}
+}
+	
+func (c *Column) BasicType() types.BasicKind	{
+	switch c.UdtName {
+	case "bool":
+		return types.Bool
+	case "int4", "_int4":
+		return types.Int32
+	case "int8", "_int8":
+		return types.Int64
+	case "float4", "_float4":
+		return types.Float32
+	case "float8", "_float8":
+		return types.Float64
+	case "numeric", "decimal":
+		// todo add check field length
+		return types.Float64
+	case "date", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time":
+		return types.String
+	case "json":
+		return typesExt.TMap
+	case "timerange", "tsrange":
+		// todo add check ranges
+		return types.String
+	case "varchar", "_varchar", "text":
+		return types.String
+	case "bytea", "_bytea":
+		return types.UnsafePointer
+	default:
+		return types.Invalid
+	}
+}
+
+func (c *Column) CharacterMaximumLength() int {
 	return c.characterMaximumLength
 }
 
-func (c Column) Comment() string {
+func (c *Column) Comment() string {
 	return c.comment
 }
 
-func (c Column) Name() string {
+func (c *Column) Name() string {
 	return c.name
 }
 
-func (c Column) Type() string {
+func (c *Column) Type() string {
 	return c.UdtName
 }
 
-func (c Column) Required() bool {
+func (c *Column) Required() bool {
 	return c.IsNullable && ((c.ColumnDefault == "") || (c.ColumnDefault == "NULL"))
 }
+

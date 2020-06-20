@@ -1,5 +1,9 @@
 package dbEngine
 
+import (
+	"go/types"
+)
+
 type StringColumn struct {
 	comment, name string
 	req           bool
@@ -7,6 +11,14 @@ type StringColumn struct {
 
 func NewStringColumn(name, comment string, req bool) *StringColumn {
 	return &StringColumn{comment, name, req}
+}
+
+func (s *StringColumn) BasicType() types.BasicKind	{
+	return types.String
+}
+
+func (s *StringColumn) BasicTypeInfo() types.BasicInfo	 {
+	return types.IsString
 }
 
 func (s *StringColumn) Comment() string {
