@@ -5,20 +5,24 @@ import (
 )
 
 type StringColumn struct {
-	comment, name string
-	req           bool
+	comment, name   string
+	req, IsNullable bool
 }
 
 func NewStringColumn(name, comment string, req bool) *StringColumn {
-	return &StringColumn{comment, name, req}
+	return &StringColumn{comment, name, req, false}
 }
 
-func (s *StringColumn) BasicType() types.BasicKind	{
+func (s *StringColumn) BasicType() types.BasicKind {
 	return types.String
 }
 
-func (s *StringColumn) BasicTypeInfo() types.BasicInfo	 {
+func (s *StringColumn) BasicTypeInfo() types.BasicInfo {
 	return types.IsString
+}
+
+func (s *StringColumn) CheckAttr(fieldDefine string) string {
+	return ""
 }
 
 func (s *StringColumn) Comment() string {
@@ -39,6 +43,10 @@ func (s *StringColumn) Name() string {
 
 func (s *StringColumn) CharacterMaximumLength() int {
 	return len(s.name)
+}
+
+func (c *StringColumn) SetNullable(f bool) {
+	c.IsNullable = f
 }
 
 func SimpleColumns(names ...string) []Column {

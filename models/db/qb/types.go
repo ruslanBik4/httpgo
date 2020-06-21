@@ -26,7 +26,7 @@ type QBField struct {
 }
 
 // table in QB for incapsulate SQL & Schema propertyes
-// ha map Fields as links field query
+// ha map columns as links field query
 type QBTable struct {
 	Name   string
 	Alias  string
@@ -60,7 +60,7 @@ func (qb *QueryBuilder) PrintToLogs() string {
 	for _, table := range qb.Tables {
 		mess += table.Name + ", "
 	}
-	mess += " Fields: "
+	mess += " columns: "
 	for _, alias := range qb.Aliases {
 		mess += alias + ", "
 	}

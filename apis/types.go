@@ -10,7 +10,7 @@ import (
 	"github.com/valyala/fasthttp"
 	"go/types"
 	"strconv"
-	
+
 	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
@@ -31,6 +31,7 @@ type TypeInParam struct {
 
 // NewTypeInParam create TypeInParam
 func NewTypeInParam(bk types.BasicKind) TypeInParam {
+
 	return TypeInParam{
 		BasicKind: bk}
 }
@@ -187,5 +188,3 @@ func (t TypeInParam) String() string {
 
 	return res
 }
-
-

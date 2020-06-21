@@ -5,7 +5,10 @@
 package psql
 
 import (
+	"fmt"
 	"go/types"
+	"strings"
+
 	"github.com/ruslanBik4/httpgo/dbEngine"
 	"github.com/ruslanBik4/httpgo/typesExt"
 )
@@ -58,8 +61,8 @@ func (c *Column) BasicTypeInfo() types.BasicInfo {
 		return types.IsUntyped
 	}
 }
-	
-func (c *Column) BasicType() types.BasicKind	{
+
+func (c *Column) BasicType() types.BasicKind {
 	switch c.UdtName {
 	case "bool":
 		return types.Bool
@@ -90,6 +93,53 @@ func (c *Column) BasicType() types.BasicKind	{
 	}
 }
 
+const isNotNullable = "not null"
+
+var dataTypeAlias = map[string][]string{
+	"character varying":           {"varchar(255)", "varchar"},
+	"character":                   {"char"},
+	"integer":                     {"serial", "int"},
+	"bigint":                      {"bigserial"},
+	"double precision":            {"float", "real"},
+	"timestamp without time zone": {"timestamp"},
+	"timestamp with time zone":    {"timestamptz"},
+	//todo: add check user-defined types
+	"USER-DEFINED": {"timerange"},
+	"ARRAY":        {"integer[]", "character varying[]"},
+}
+
+// todo: add check arrays
+func (c *Column) CheckAttr(fieldDefine string) (res string) {
+	fieldDefine = strings.ToLower(fieldDefine)
+	isMayNull := strings.Contains(fieldDefine, isNotNullable)
+	if c.IsNullable && isMayNull {
+		res += " is nullable "
+	} else if !c.IsNullable && !isMayNull {
+		res += " is not nullable "
+	}
+
+	isTypeValid := strings.HasPrefix(fieldDefine, c.DataType)
+	if !isTypeValid {
+		for _, alias := range dataTypeAlias[c.DataType] {
+			if isTypeValid = strings.HasPrefix(fieldDefine, alias); isTypeValid {
+				break
+			}
+		}
+	}
+
+	if isTypeValid {
+		l := c.CharacterMaximumLength()
+		if strings.HasPrefix(c.DataType, "character") &&
+			(l > 0) &&
+			!strings.Contains(fieldDefine, fmt.Sprintf("char(%d)", l)) {
+			res += fmt.Sprintf(" has length %d symbols", l)
+		}
+	} else {
+		res += " has type " + c.DataType
+	}
+
+	return
+}
 func (c *Column) CharacterMaximumLength() int {
 	return c.characterMaximumLength
 }
@@ -110,3 +160,6 @@ func (c *Column) Required() bool {
 	return c.IsNullable && ((c.ColumnDefault == "") || (c.ColumnDefault == "NULL"))
 }
 
+func (c *Column) SetNullable(f bool) {
+	c.IsNullable = f
+}

@@ -4,11 +4,13 @@ go 1.14
 
 require (
 	bitbucket.org/PinIdea/fcgi_client v0.0.0-20150922054231-df86e856bb91
-	github.com/ababo/idiot v0.0.0-20151122182405-18a7bbf16d00
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/sessions v1.2.0
+	github.com/jackc/pgconn v1.6.0
+	github.com/jackc/pgproto3/v2 v2.0.2
+	github.com/jackc/pgx/v4 v4.6.0
 	github.com/json-iterator/go v1.1.9
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.9.1

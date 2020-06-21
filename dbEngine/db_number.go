@@ -9,12 +9,16 @@ import (
 )
 
 type NumberColumn struct {
-	comment, name string
-	req           bool
+	comment, name   string
+	req, IsNullable bool
 }
 
 func NewNumberColumn(name, comment string, req bool) *NumberColumn {
 	return &NumberColumn{comment: comment, name: name, req: req}
+}
+
+func (s *NumberColumn) CheckAttr(fieldDefine string) string {
+	return ""
 }
 
 func (s *NumberColumn) Comment() string {
@@ -37,10 +41,14 @@ func (s *NumberColumn) CharacterMaximumLength() int {
 	return 0
 }
 
-func (s *NumberColumn) BasicType() types.BasicKind	{
+func (s *NumberColumn) BasicType() types.BasicKind {
 	return types.Int
 }
 
-func (s *NumberColumn) BasicTypeInfo() types.BasicInfo	{
+func (s *NumberColumn) BasicTypeInfo() types.BasicInfo {
 	return types.IsInteger
+}
+
+func (c *NumberColumn) SetNullable(f bool) {
+	c.IsNullable = f
 }

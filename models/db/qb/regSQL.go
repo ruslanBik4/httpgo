@@ -47,7 +47,7 @@ type tSqlJoinOn struct {
 func main() {
 	sqlStructure, ok := parse(sqlCommand1)
 	if ok {
-		fmt.Println("***** Fields *****")
+		fmt.Println("***** columns *****")
 		for _, field := range sqlStructure.Fields {
 			fmt.Println(fmt.Sprintf("Function Name: '%s', Table Name: '%s', Field Name: '%s', Alias: '%s'", field.fun, field.table, field.name, field.alias))
 		}

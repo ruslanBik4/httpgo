@@ -6,6 +6,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"go/types"
@@ -476,6 +477,25 @@ func main() {
 	// go cacheFiles()
 	//
 	// fonts.GetPath(fWeb)
+
+	conn := psql.NewConn(nil, nil)
+	ctx := context.WithValue(context.Background(), "dbURL", "")
+	ctx = context.WithValue(ctx, "fillSchema", true)
+	ctx = context.WithValue(ctx, "migration", "table")
+	db, err := dbEngine.NewDB(ctx, conn)
+	// err = conn.InitConn(context.Background(), "")
+	if err != nil {
+		logs.ErrorLog(err, "")
+		return
+	}
+
+	for key, val := range db.Tables {
+		logs.StatusLog(key, val.Name())
+	}
+
+	for key, val := range db.Routines {
+		logs.StatusLog(key, val.Name())
+	}
 
 	logs.StatusLog("Static files found in " + *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
