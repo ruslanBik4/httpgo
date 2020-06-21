@@ -126,7 +126,7 @@ func (c *Conn) GetRoutinesProp(ctx context.Context) (RoutinesCache map[string]db
 }
 
 func (c *Conn) NewTable(name, typ string) dbEngine.Table {
-	return &Table{name: name, Type: typ}
+	return &Table{conn: c, name: name, Type: typ}
 }
 
 func (c *Conn) SelectAndScanEach(ctx context.Context, each func() error, rowValue dbEngine.RowScanner,

@@ -483,7 +483,6 @@ func main() {
 	ctx = context.WithValue(ctx, "fillSchema", true)
 	ctx = context.WithValue(ctx, "migration", "table")
 	db, err := dbEngine.NewDB(ctx, conn)
-	// err = conn.InitConn(context.Background(), "")
 	if err != nil {
 		logs.ErrorLog(err, "")
 		return

@@ -135,7 +135,7 @@ func (p ParserTableDDL) updateTable(ddl string) bool {
 
 		switch name {
 		case "":
-		case "p":
+		case "name":
 			if fields[i] != p.Name() {
 				p.err = errors.New("bad p name! " + fields[i])
 				return false
@@ -289,15 +289,16 @@ func (p ParserTableDDL) createIndex(fields []string) (Index, error) {
 
 	}
 
-	return ind, nil
+	// todo: chg after implement method
+	return ind, ErrNotFoundField{}
 }
 
 func (p ParserTableDDL) addColumn(sAlter string, fieldName string) error {
 	err := p.Conn.ExecDDL(context.TODO(), "ALTER TABLE "+p.Name()+sAlter)
 	if err != nil {
-		logs.ErrorLog(err, `. Field %s.%s`, p.Name, fieldName)
+		logs.ErrorLog(err, `. Field %s.%s`, p.Name(), fieldName)
 	} else {
-		logs.StatusLog("[DB CONFIG] ", p.Name, sAlter)
+		logs.StatusLog("[DB CONFIG] ", p.Name(), sAlter)
 		p.RecacheField(fieldName)
 	}
 
