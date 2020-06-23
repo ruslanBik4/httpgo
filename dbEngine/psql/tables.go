@@ -51,7 +51,12 @@ func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 		}
 	}
 
-	comTag, err := t.conn.Exec(ctx, b.InsertSql(), b.Args...)
+	sql, err := b.InsertSql()
+	if err != nil {
+		return err
+	}
+
+	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
 
 	logs.DebugLog(comTag)
 
@@ -75,8 +80,12 @@ func (t *Table) SelectAndScanEach(ctx context.Context, each func() error, row db
 			return errors.Wrap(err, "setOption")
 		}
 	}
+	sql, err := b.SelectSql()
+	if err != nil {
+		return err
+	}
 
-	return t.conn.SelectAndScanEach(ctx, each, row, b.SelectSql(), b.Args...)
+	return t.conn.SelectAndScanEach(ctx, each, row, sql, b.Args...)
 }
 
 func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
@@ -88,12 +97,17 @@ func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, 
 		}
 	}
 
+	sql, err := b.SelectSql()
+	if err != nil {
+		return err
+	}
+
 	return t.conn.SelectAndRunEach(
 		ctx,
 		func(values []interface{}, columns []pgproto3.FieldDescription) error {
 			return each(values, b.SelectColumns)
 		},
-		b.SelectSql(),
+		sql,
 		b.Args...)
 }
 

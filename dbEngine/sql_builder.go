@@ -17,12 +17,20 @@ type SQLBuilder struct {
 	SelectColumns []Column
 }
 
-func (b SQLBuilder) InsertSql() string {
-	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES " + b.values()
+func (b SQLBuilder) InsertSql() (string, error) {
+	if len(b.columns) != len(b.Args) {
+		return "", NewErrWrongArgsLen(b.Table.Name(), b.columns, b.Args)
+	}
+
+	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES (" + b.values() + ")", nil
 }
 
-func (b SQLBuilder) SelectSql() string {
-	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where()
+func (b SQLBuilder) SelectSql() (string, error) {
+	if len(b.Filter) != len(b.Args) {
+		return "", NewErrWrongArgsLen(b.Table.Name(), b.Filter, b.Args)
+	}
+
+	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where(), nil
 }
 
 func (b SQLBuilder) Select() string {
@@ -34,9 +42,9 @@ func (b SQLBuilder) Select() string {
 }
 
 func (b SQLBuilder) values() string {
-	s, comma := "(", ""
+	s, comma := "", ""
 	for i := range b.Args {
-		s += fmt.Sprintf("%s$%d", comma, i)
+		s += fmt.Sprintf("%s$%d", comma, i+1)
 		comma = ","
 	}
 
@@ -68,6 +76,7 @@ func ColumnsForSelect(columns ...string) BuildSqlOptions {
 		}
 
 		b.columns = columns
+
 		return nil
 	}
 }
@@ -88,11 +97,11 @@ func WhereForSelect(columns ...string) BuildSqlOptions {
 
 					switch pre {
 					case '$':
-						b.Filter[i] = fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, i)
+						b.Filter[i] = fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, i+1)
 					case '^':
-						b.Filter[i] = fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, i)
+						b.Filter[i] = fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, i+1)
 					default:
-						b.Filter[i] = fmt.Sprintf(" %s %s $%d", name, pre, i)
+						b.Filter[i] = fmt.Sprintf(" %s %s $%d", name, pre, i+1)
 					}
 				default:
 
@@ -100,7 +109,7 @@ func WhereForSelect(columns ...string) BuildSqlOptions {
 						return NewErrNotFoundColumn(b.Table.Name(), name)
 					}
 
-					b.Filter[i] = fmt.Sprintf(" %s=$%d", name, i)
+					b.Filter[i] = fmt.Sprintf(" %s=$%d", name, i+1)
 
 				}
 			}
@@ -112,10 +121,6 @@ func WhereForSelect(columns ...string) BuildSqlOptions {
 
 func ArgsForSelect(args ...interface{}) BuildSqlOptions {
 	return func(b *SQLBuilder) error {
-
-		if len(b.Filter) != len(args) {
-			return NewErrWrongArgsLen(b.Table.Name(), b.Filter, args)
-		}
 
 		b.Args = args
 
