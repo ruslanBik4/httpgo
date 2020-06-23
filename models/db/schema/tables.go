@@ -20,7 +20,7 @@ type FieldsTable struct {
 	DataJSOM       map[string]interface{}
 }
 
-// FindField search field in table by {name} & return structure field
+// FindColumn search field in table by {name} & return structure field
 func (table *FieldsTable) FindField(name string) *FieldStructure {
 	for _, field := range table.Rows {
 		if field.COLUMN_NAME == name {

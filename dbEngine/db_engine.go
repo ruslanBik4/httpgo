@@ -94,23 +94,104 @@ type Connection interface {
 	NewTable(name, typ string) Table
 }
 
+type SQLBuilder struct {
+	Args          []interface{}
+	columns       []string
+	Filter        []string
+	Table         Table
+	SelectColumns []Column
+}
+
+func (b SQLBuilder) Sql() string {
+	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where()
+}
+
+func (b SQLBuilder) Select() string {
+	if len(b.columns) == 0 {
+		return "*"
+	}
+
+	return strings.Join(b.columns, ",")
+}
+
+func (b SQLBuilder) Where() string {
+	if len(b.Filter) == 0 {
+		return ""
+	}
+
+	return " WHERE " + strings.Join(b.Filter, " AND ")
+}
+
+type BuildSqlOptions func(b SQLBuilder) error
+
+func ColumnsForSelect(columns ...string) BuildSqlOptions {
+	return func(b SQLBuilder) error {
+
+		if b.Table != nil {
+			b.SelectColumns = make([]Column, len(columns))
+			for i, name := range columns {
+				if col := b.Table.FindColumn(name); col == nil {
+					return NewErrNotFoundColumn(b.Table.Name(), name)
+				} else {
+					b.SelectColumns[i] = col
+				}
+			}
+		}
+
+		b.columns = columns
+		return nil
+	}
+}
+
+func WhereForSelect(columns ...string) BuildSqlOptions {
+	return func(b SQLBuilder) error {
+
+		if b.Table != nil {
+			for _, name := range columns {
+				if b.Table.FindColumn(name) == nil {
+					return NewErrNotFoundColumn(b.Table.Name(), name)
+				}
+			}
+		}
+
+		b.Filter = columns
+
+		return nil
+	}
+}
+
+func ArgsForSelect(args ...interface{}) BuildSqlOptions {
+	return func(b SQLBuilder) error {
+
+		if len(b.Filter) != len(args) {
+			return NewErrWrongArgsLen(b.Table.Name(), b.Filter, args)
+		}
+
+		b.Args = args
+
+		return nil
+	}
+}
+
+type FncEachRow func(values []interface{}, columns []Column) error
+
 type Table interface {
 	Columns() []Column
-	FindField(name string) Column
-	FindIndex(name string) Index
+	FindColumn(name string) Column
+	FindIndex(name string) *Index
 	GetColumns(ctx context.Context) error
 	Insert(ctx context.Context)
 	Name() string
-	RecacheField(nameColumn string) Column
-	Select(ctx context.Context)
-	SelectAndScanEach(ctx context.Context, each func() error, rowValue RowScanner) error
-	SelectAndRunEach(ctx context.Context, each func(values []interface{}, columns []Column) error) error
+	RereadColumn(name string) Column
+	Select(ctx context.Context, args ...interface{})
+	SelectAndScanEach(ctx context.Context, each func() error, rowValue RowScanner, Option ...BuildSqlOptions) error
+	SelectAndRunEach(ctx context.Context, each FncEachRow, Option ...BuildSqlOptions) error
 }
 
 type Routine interface {
 	Name() string
-	Select() error
-	Call()
+	Select(ctx context.Context, args ...interface{}) error
+	Call(ctx context.Context)
 	Params()
 }
 
@@ -126,8 +207,9 @@ type Column interface {
 	SetNullable(bool)
 }
 
-type Index interface {
-	Name() string
+type Index struct {
+	Name    string
+	Columns []string
 }
 
 type RowScanner interface {

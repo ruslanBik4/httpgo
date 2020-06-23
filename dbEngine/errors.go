@@ -21,15 +21,36 @@ func (err ErrNotFoundTable) Error() string {
 	return fmt.Sprintf("Not table `%s` in schema ", err.Table)
 }
 
-// ErrNotFoundField if not found in table {Table} field by name {FieldName}
-type ErrNotFoundField struct {
-	Table     string
-	FieldName string
+// ErrNotFoundColumn if not found in table {Table} field by name {Column}
+type ErrNotFoundColumn struct {
+	Table  string
+	Column string
 }
 
-func (err ErrNotFoundField) Error() string {
+func NewErrNotFoundColumn(table string, column string) *ErrNotFoundColumn {
+	return &ErrNotFoundColumn{Table: table, Column: column}
+}
 
-	return fmt.Sprintf("Not field `%s` for table `%s` in schema ", err.FieldName, err.Table)
+func (err ErrNotFoundColumn) Error() string {
+
+	return fmt.Sprintf("Not field `%s` for table `%s` in schema ", err.Column, err.Table)
+
+}
+
+// ErrNotFoundColumn if not found in table {Table} field by name {Column}
+type ErrWrongArgsLen struct {
+	Table  string
+	Filter []string
+	Args   []interface{}
+}
+
+func NewErrWrongArgsLen(table string, column []string, args []interface{}) *ErrWrongArgsLen {
+	return &ErrWrongArgsLen{Table: table, Filter: column, Args: args}
+}
+
+func (err ErrWrongArgsLen) Error() string {
+
+	return fmt.Sprintf("Wrong argument len `%d` (expect %d) for table `%s` ", len(err.Args), len(err.Filter), err.Table)
 
 }
 

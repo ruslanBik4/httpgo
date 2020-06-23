@@ -239,7 +239,7 @@ func (field *FieldStructure) parseWhere(whereJSON interface{}) {
 			//		param = param[:j]
 			//	}
 			//	// мы добавим условие созначением пол текущей записи, если это поле найдено и в нем установлено значение
-			//	//if paramField := field.Table.FindField(param); paramField == nil {
+			//	//if paramField := field.Table.FindColumn(param); paramField == nil {
 			//	//	continue
 			//	//}
 			//}

@@ -153,7 +153,7 @@ func (p ParserTableDDL) updateTable(ddl string) bool {
 				}
 
 				fieldName := title[1]
-				if fs := p.FindField(fieldName); fs == nil {
+				if fs := p.FindColumn(fieldName); fs == nil {
 					sql := " ADD COLUMN " + name
 					err = p.addColumn(sql, fieldName)
 				} else {
@@ -172,9 +172,9 @@ func (p ParserTableDDL) checkColumn(title string, fs Column) (err error) {
 	res := fs.CheckAttr(title)
 	fieldName := fs.Name()
 	if res > "" {
-		err = ErrNotFoundField{
-			Table:     p.Name(),
-			FieldName: fieldName,
+		err = ErrNotFoundColumn{
+			Table:  p.Name(),
+			Column: fieldName,
 		}
 		// change length
 		if strings.Contains(res, "has length") {
@@ -230,19 +230,19 @@ func (p ParserTableDDL) checkColumn(title string, fs Column) (err error) {
 }
 
 func (p ParserTableDDL) updateIndex(ddl string) bool {
-	fields := ddlIndex.FindStringSubmatch(ddl)
-	if len(fields) == 0 {
+	columns := ddlIndex.FindStringSubmatch(ddl)
+	if len(columns) == 0 {
 		return false
 	}
 
-	ind, err := p.createIndex(fields)
+	ind, err := p.createIndex(columns)
 	if err != nil {
 		logs.ErrorLog(err, ddl)
 		return true
 	}
 
-	if p.FindIndex(ind.Name()) != nil {
-		logs.StatusLog("index '%s' exists! ", ind.Name())
+	if p.FindIndex(ind.Name) != nil {
+		logs.StatusLog("index '%s' exists! ", ind.Name)
 		//todo: check columns of index
 		return true
 	}
@@ -261,36 +261,37 @@ func (p ParserTableDDL) updateIndex(ddl string) bool {
 
 var ddlIndex = regexp.MustCompile(`create(?:\s+unique)?\s+index(?:\s+if\s+not\s+exists)?\s+(?P<index>\w+)\s+on\s+(?P<table>\w+)(?:\s+using\s+\w+)?\s*\((?P<columns>[^;]+?)\)\s*(where\s+[^)]\))?`)
 
-func (p ParserTableDDL) createIndex(fields []string) (Index, error) {
+func (p ParserTableDDL) createIndex(columns []string) (*Index, error) {
 
 	var ind Index
 	for i, name := range ddlIndex.SubexpNames() {
-		if !(i < len(fields)) {
-			return nil, errors.New("out if fields!" + name)
+		if !(i < len(columns)) {
+			return nil, errors.New("out if columns!" + name)
 		}
 
 		switch name {
 		case "":
-		case "p":
-			if fields[i] != p.Name() {
-				return nil, errors.New("bad p name! " + fields[i])
+		case "table":
+			if columns[i] != p.Name() {
+				return nil, errors.New("bad p name! " + columns[i])
 			}
 		case "index":
 			// todo implement
-			// ind.Name = fields[i]
+			ind.Name = columns[i]
 		case "columns":
-			//nameFields := strings.Split(fields[i], ",")
-			//for _, name := range nameFields {
-			logs.StatusLog("new index column: ", fields[i])
-			//}
+			ind.Columns = strings.Split(columns[i], ",")
+			for _, name := range ind.Columns {
+				logs.StatusLog("new index column: ", name)
+			}
+
 		default:
-			logs.StatusLog("%s %s", name, fields[i])
+			logs.StatusLog("%s %s", name, columns[i])
 		}
 
 	}
 
 	// todo: chg after implement method
-	return ind, ErrNotFoundField{}
+	return &ind, ErrNotFoundColumn{}
 }
 
 func (p ParserTableDDL) addColumn(sAlter string, fieldName string) error {
@@ -299,7 +300,7 @@ func (p ParserTableDDL) addColumn(sAlter string, fieldName string) error {
 		logs.ErrorLog(err, `. Field %s.%s`, p.Name(), fieldName)
 	} else {
 		logs.StatusLog("[DB CONFIG] ", p.Name(), sAlter)
-		p.RecacheField(fieldName)
+		p.RereadColumn(fieldName)
 	}
 
 	return err
@@ -314,7 +315,7 @@ func (p ParserTableDDL) alterColumn(sAlter string, fieldName, title string, fs C
 			p.Name, fieldName, title, fs, sql)
 	} else {
 		logs.StatusLog("[DB CONFIG] %s ", sql)
-		p.RecacheField(fieldName)
+		p.RereadColumn(fieldName)
 	}
 
 	return err

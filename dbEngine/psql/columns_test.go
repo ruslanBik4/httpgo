@@ -1034,7 +1034,7 @@ func TestTable_Columns(t1 *testing.T) {
 				PK:      tt.fields.PK,
 			}
 			if got := t.Columns(); !assert.Equal(t1, got, tt.want) {
-				t1.Errorf("Columns() = %v, want %v", got, tt.want)
+				t1.Errorf("columns() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -23,7 +23,7 @@ func (err ErrNotFoundTable) Error() string {
 	return fmt.Sprintf("Not table `%s` in schema ", err.Table)
 }
 
-// ErrNotFoundField if not found in table {Table} field by name {FieldName}
+// ErrNotFoundField if not found in table {Table} field by name {Column}
 type ErrNotFoundField struct {
 	Table     string
 	FieldName string

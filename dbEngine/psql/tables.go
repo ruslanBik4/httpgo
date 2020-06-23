@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/jackc/pgproto3/v2"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/httpgo/dbEngine"
@@ -43,19 +44,42 @@ func (t Table) Name() string {
 	return t.name
 }
 
-func (t Table) Select(ctx context.Context) {
-	panic("implement me")
+func (t Table) Select(ctx context.Context, args ...interface{}) {
+	t.conn.Query(ctx, "sql", args...)
 }
 
-func (t Table) SelectAndScanEach(ctx context.Context, each func() error, rowValue dbEngine.RowScanner) error {
-	panic("implement me")
+func (t Table) SelectAndScanEach(ctx context.Context, each func() error, row dbEngine.RowScanner, Options ...dbEngine.BuildSqlOptions) error {
+
+	b := dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return errors.Wrap(err, "setOption")
+		}
+	}
+
+	return t.conn.SelectAndScanEach(ctx, each, row, b.Sql(), b.Args...)
 }
 
-func (t Table) SelectAndRunEach(ctx context.Context, each func(values []interface{}, columns []dbEngine.Column) error) error {
-	panic("implement me")
+func (t Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
+	b := dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return errors.Wrap(err, "setOption")
+		}
+	}
+
+	return t.conn.SelectAndRunEach(
+		ctx,
+		func(values []interface{}, columns []pgproto3.FieldDescription) error {
+			return each(values, b.SelectColumns)
+		},
+		b.Sql(),
+		b.Args...)
 }
 
-func (t Table) FindField(name string) dbEngine.Column {
+func (t Table) FindColumn(name string) dbEngine.Column {
 	for _, col := range t.columns {
 		if col.Name() == name {
 			return col
@@ -80,7 +104,7 @@ func (t Table) GetColumns(ctx context.Context) error {
 	//
 	// 	ind.columns = make([]*TableColumn, len(ind.col))
 	// 	for i, col := range ind.col {
-	// 		ind.columns[i] = t.FindField(col)
+	// 		ind.columns[i] = t.FindColumn(col)
 	// 	}
 	//
 	// 	t.Indexes = append(t.Indexes, &Index{
@@ -93,18 +117,19 @@ func (t Table) GetColumns(ctx context.Context) error {
 	// 	ind, sqlGetIndexes, t.Name)
 }
 
-func (table Table) FindIndex(name string) dbEngine.Index {
+func (table Table) FindIndex(name string) *dbEngine.Index {
+	// todo implements in future
 	return nil
 }
 
-func (table Table) RecacheField(nameColumn string) dbEngine.Column {
+func (table Table) RereadColumn(name string) dbEngine.Column {
 	table.lock.RLock()
 	defer table.lock.RUnlock()
 
-	column := table.FindField(nameColumn)
+	column := table.FindColumn(name)
 	if column == nil {
 		column := NewColumnPone(
-			nameColumn,
+			name,
 			"new column",
 			0,
 		)

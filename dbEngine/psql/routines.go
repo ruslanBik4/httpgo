@@ -39,11 +39,11 @@ func (r *Routine) Name() string {
 	return r.name
 }
 
-func (r *Routine) Select() error {
+func (r *Routine) Select(ctx context.Context, args ...interface{}) error {
 	panic("implement me")
 }
 
-func (r *Routine) Call() {
+func (r *Routine) Call(context.Context) {
 	panic("implement me")
 }
 
