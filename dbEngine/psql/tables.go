@@ -43,7 +43,7 @@ func (t *Table) Columns() []dbEngine.Column {
 }
 
 func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
-	b := dbEngine.SQLBuilder{Table: t}
+	b := &dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
 		if err != nil {
@@ -68,7 +68,7 @@ func (t *Table) Select(ctx context.Context, args ...interface{}) {
 
 func (t *Table) SelectAndScanEach(ctx context.Context, each func() error, row dbEngine.RowScanner, Options ...dbEngine.BuildSqlOptions) error {
 
-	b := dbEngine.SQLBuilder{Table: t}
+	b := &dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
 		if err != nil {
@@ -80,7 +80,7 @@ func (t *Table) SelectAndScanEach(ctx context.Context, each func() error, row db
 }
 
 func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
-	b := dbEngine.SQLBuilder{Table: t}
+	b := &dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
 		if err != nil {

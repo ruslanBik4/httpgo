@@ -51,10 +51,10 @@ func (b SQLBuilder) Where() string {
 	return " WHERE " + strings.Join(b.Filter, " AND ")
 }
 
-type BuildSqlOptions func(b SQLBuilder) error
+type BuildSqlOptions func(b *SQLBuilder) error
 
 func ColumnsForSelect(columns ...string) BuildSqlOptions {
-	return func(b SQLBuilder) error {
+	return func(b *SQLBuilder) error {
 
 		if b.Table != nil {
 			b.SelectColumns = make([]Column, len(columns))
@@ -73,7 +73,7 @@ func ColumnsForSelect(columns ...string) BuildSqlOptions {
 }
 
 func WhereForSelect(columns ...string) BuildSqlOptions {
-	return func(b SQLBuilder) error {
+	return func(b *SQLBuilder) error {
 
 		b.Filter = make([]string, len(columns))
 		if b.Table != nil {
@@ -111,7 +111,7 @@ func WhereForSelect(columns ...string) BuildSqlOptions {
 }
 
 func ArgsForSelect(args ...interface{}) BuildSqlOptions {
-	return func(b SQLBuilder) error {
+	return func(b *SQLBuilder) error {
 
 		if len(b.Filter) != len(args) {
 			return NewErrWrongArgsLen(b.Table.Name(), b.Filter, args)
