@@ -12,6 +12,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 // FieldsTable for fields parameters in form
@@ -33,11 +34,28 @@ func (t *Table) GetFields(columns []dbEngine.Column) []interface{} {
 }
 
 func (t Table) Columns() []dbEngine.Column {
-	panic("implement me")
+	res := make([]dbEngine.Column, len(t.columns))
+	for i, col := range t.columns {
+		res[i] = col
+	}
+
+	return res
 }
 
-func (t Table) Insert(ctx context.Context) {
-	panic("implement me")
+func (t Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+	b := dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return errors.Wrap(err, "setOption")
+		}
+	}
+
+	comTag, err := t.conn.Exec(ctx, b.InsertSql(), b.Args...)
+
+	logs.DebugLog(comTag)
+
+	return err
 }
 
 func (t Table) Name() string {
@@ -58,7 +76,7 @@ func (t Table) SelectAndScanEach(ctx context.Context, each func() error, row dbE
 		}
 	}
 
-	return t.conn.SelectAndScanEach(ctx, each, row, b.Sql(), b.Args...)
+	return t.conn.SelectAndScanEach(ctx, each, row, b.SelectSql(), b.Args...)
 }
 
 func (t Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
@@ -75,7 +93,7 @@ func (t Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, O
 		func(values []interface{}, columns []pgproto3.FieldDescription) error {
 			return each(values, b.SelectColumns)
 		},
-		b.Sql(),
+		b.SelectSql(),
 		b.Args...)
 }
 

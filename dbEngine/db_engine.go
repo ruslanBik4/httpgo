@@ -1,6 +1,7 @@
 package dbEngine
 
 import (
+	"fmt"
 	"go/types"
 	"io/ioutil"
 	"os"
@@ -102,7 +103,11 @@ type SQLBuilder struct {
 	SelectColumns []Column
 }
 
-func (b SQLBuilder) Sql() string {
+func (b SQLBuilder) InsertSql() string {
+	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES " + b.values()
+}
+
+func (b SQLBuilder) SelectSql() string {
 	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where()
 }
 
@@ -112,6 +117,16 @@ func (b SQLBuilder) Select() string {
 	}
 
 	return strings.Join(b.columns, ",")
+}
+
+func (b SQLBuilder) values() string {
+	s, comma := "(", ""
+	for i := range b.Args {
+		s += fmt.Sprintf("%s$%d", comma, i)
+		comma = ","
+	}
+
+	return s
 }
 
 func (b SQLBuilder) Where() string {
@@ -146,15 +161,36 @@ func ColumnsForSelect(columns ...string) BuildSqlOptions {
 func WhereForSelect(columns ...string) BuildSqlOptions {
 	return func(b SQLBuilder) error {
 
+		b.Filter = make([]string, len(columns))
 		if b.Table != nil {
-			for _, name := range columns {
-				if b.Table.FindColumn(name) == nil {
-					return NewErrNotFoundColumn(b.Table.Name(), name)
+			for i, name := range columns {
+				switch pre := name[0]; pre {
+				case '>', '<', '$', '~', '^':
+
+					name = name[1:]
+					if b.Table.FindColumn(name) == nil {
+						return NewErrNotFoundColumn(b.Table.Name(), name)
+					}
+
+					switch pre {
+					case '$':
+						b.Filter[i] = fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, i)
+					case '^':
+						b.Filter[i] = fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, i)
+					default:
+						b.Filter[i] = fmt.Sprintf(" %s %s $%d", name, pre, i)
+					}
+				default:
+
+					if b.Table.FindColumn(name) == nil {
+						return NewErrNotFoundColumn(b.Table.Name(), name)
+					}
+
+					b.Filter[i] = fmt.Sprintf(" %s=$%d", name, i)
+
 				}
 			}
 		}
-
-		b.Filter = columns
 
 		return nil
 	}
@@ -180,12 +216,12 @@ type Table interface {
 	FindColumn(name string) Column
 	FindIndex(name string) *Index
 	GetColumns(ctx context.Context) error
-	Insert(ctx context.Context)
+	Insert(ctx context.Context, Options ...BuildSqlOptions) error
 	Name() string
 	RereadColumn(name string) Column
 	Select(ctx context.Context, args ...interface{})
-	SelectAndScanEach(ctx context.Context, each func() error, rowValue RowScanner, Option ...BuildSqlOptions) error
-	SelectAndRunEach(ctx context.Context, each FncEachRow, Option ...BuildSqlOptions) error
+	SelectAndScanEach(ctx context.Context, each func() error, rowValue RowScanner, Options ...BuildSqlOptions) error
+	SelectAndRunEach(ctx context.Context, each FncEachRow, Options ...BuildSqlOptions) error
 }
 
 type Routine interface {
