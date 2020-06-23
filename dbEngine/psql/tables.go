@@ -33,7 +33,7 @@ func (t *Table) GetFields(columns []dbEngine.Column) []interface{} {
 	panic("implement me")
 }
 
-func (t Table) Columns() []dbEngine.Column {
+func (t *Table) Columns() []dbEngine.Column {
 	res := make([]dbEngine.Column, len(t.columns))
 	for i, col := range t.columns {
 		res[i] = col
@@ -42,7 +42,7 @@ func (t Table) Columns() []dbEngine.Column {
 	return res
 }
 
-func (t Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
 	b := dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
@@ -58,15 +58,15 @@ func (t Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) 
 	return err
 }
 
-func (t Table) Name() string {
+func (t *Table) Name() string {
 	return t.name
 }
 
-func (t Table) Select(ctx context.Context, args ...interface{}) {
+func (t *Table) Select(ctx context.Context, args ...interface{}) {
 	t.conn.Query(ctx, "sql", args...)
 }
 
-func (t Table) SelectAndScanEach(ctx context.Context, each func() error, row dbEngine.RowScanner, Options ...dbEngine.BuildSqlOptions) error {
+func (t *Table) SelectAndScanEach(ctx context.Context, each func() error, row dbEngine.RowScanner, Options ...dbEngine.BuildSqlOptions) error {
 
 	b := dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
@@ -79,7 +79,7 @@ func (t Table) SelectAndScanEach(ctx context.Context, each func() error, row dbE
 	return t.conn.SelectAndScanEach(ctx, each, row, b.SelectSql(), b.Args...)
 }
 
-func (t Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
+func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, Options ...dbEngine.BuildSqlOptions) error {
 	b := dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
@@ -97,7 +97,7 @@ func (t Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, O
 		b.Args...)
 }
 
-func (t Table) FindColumn(name string) dbEngine.Column {
+func (t *Table) FindColumn(name string) dbEngine.Column {
 	for _, col := range t.columns {
 		if col.Name() == name {
 			return col
@@ -109,7 +109,7 @@ func (t Table) FindColumn(name string) dbEngine.Column {
 
 // GetColumns получение значений полей для форматирования данных
 // получение значений полей для таблицы
-func (t Table) GetColumns(ctx context.Context) error {
+func (t *Table) GetColumns(ctx context.Context) error {
 
 	err := t.conn.SelectAndRunEach(ctx, t.readColumnRow, sqlGetTablesColumns+" ORDER BY C.ordinal_position", t.name)
 	if err != nil {
@@ -135,16 +135,16 @@ func (t Table) GetColumns(ctx context.Context) error {
 	// 	ind, sqlGetIndexes, t.Name)
 }
 
-func (table Table) FindIndex(name string) *dbEngine.Index {
+func (t *Table) FindIndex(name string) *dbEngine.Index {
 	// todo implements in future
 	return nil
 }
 
-func (table Table) RereadColumn(name string) dbEngine.Column {
-	table.lock.RLock()
-	defer table.lock.RUnlock()
+func (t *Table) RereadColumn(name string) dbEngine.Column {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
 
-	column := table.FindColumn(name)
+	column := t.FindColumn(name)
 	if column == nil {
 		column := NewColumnPone(
 			name,
@@ -152,15 +152,15 @@ func (table Table) RereadColumn(name string) dbEngine.Column {
 			0,
 		)
 
-		column.Table = table
+		column.Table = t
 
-		table.columns = append(table.columns, column)
+		t.columns = append(t.columns, column)
 	}
 
 	// todo implement
 	// var CharacterMaximumLength int
 	// sql := sqlGetColumnAttr
-	// rows := SelectToRow(sql, table.Name, nameColumn)
+	// rows := SelectToRow(sql, t.Name, nameColumn)
 	// //todo chg len
 	// err := rows.Scan(&column.DataType, &column.ColumnDefault, &column.IsNullable,
 	// 	&column.CharacterSetName, &CharacterMaximumLength, &column.UdtName)
@@ -172,7 +172,7 @@ func (table Table) RereadColumn(name string) dbEngine.Column {
 	return column
 }
 
-func (t Table) readColumnRow(values []interface{}, columns []pgproto3.FieldDescription) error {
+func (t *Table) readColumnRow(values []interface{}, columns []pgproto3.FieldDescription) error {
 
 	pk, isPK := values[7].(string)
 	if isPK {
