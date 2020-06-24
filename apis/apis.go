@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -104,7 +105,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
-		a.renderError(ctx, err, route.Method)
+		a.renderError(ctx, err, route)
 		return
 	}
 
@@ -201,8 +202,8 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		switch r := resp.(type) {
 		case string:
 			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
-		case tMethod:
-			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
+		case *ApiRoute:
+			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r.Method)
 		default:
 			errMsg = fmt.Sprintf(errMsg+"%+v", string(ctx.Method()), "", resp)
 		}
@@ -263,15 +264,7 @@ func (a *Apis) addRoute(path string, route *ApiRoute) error {
 // AddRoutes add routes to Apis for handling service
 // return slice with name routes which not adding
 func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
-	for path, route := range routes {
-		err := a.addRoute(path, route)
-		if err != nil {
-			logs.ErrorLog(err, path)
-			badRouting = append(badRouting, path)
-		}
-	}
-
-	return
+	return a.routes.AddRoutes(routes)
 }
 
 // renderApis show list routers for developers (as JSON)
@@ -290,13 +283,19 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		"Response",
 	)
 
-	rows := make([][]interface{}, len(a.routes))
+	rows := make([][]interface{}, 0)
 
 	i := 0
 	for method, routes := range a.routes {
 		for url, route := range routes {
+			if url == string(ctx.Path()) || strings.HasSuffix(url, testRouteSuffix) {
+				continue
+			}
+
 			row := make([]interface{}, len(columns))
-			row[0] = url + " - " + method.String()
+			testURL := path.Join(url, a.routes.GetTestRouteSuffix(route))
+
+			row[0] = fmt.Sprintf(`<a href="%s" title="see test">%s</a> - %s`, testURL, url, method)
 			if route.Multipart {
 				row[0] = row[0].(string) + ", MULTIPART"
 			}
@@ -325,7 +324,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 			r, p := "", ""
 			for _, param := range route.Params {
-				s := fmt.Sprintf(`<div>"%s": <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
+				s := fmt.Sprintf(`<div>"%s" <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
 				if param.DefValue != nil {
 					s += fmt.Sprintf("Def: '%v'", param.defaultValueOfParams(nil))
 				}
@@ -353,7 +352,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 			}
 			row[6] = route.Resp
 
-			rows[i] = row
+			rows = append(rows, row)
 			i++
 		}
 	}

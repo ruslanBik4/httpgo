@@ -9,31 +9,39 @@ package pages
 
 //line views/templates/pages/url_test.qtpl:3
 import (
+	"go/types"
+
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 
-//line views/templates/pages/url_test.qtpl:7
+//line views/templates/pages/url_test.qtpl:9
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/pages/url_test.qtpl:7
+//line views/templates/pages/url_test.qtpl:9
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/pages/url_test.qtpl:8
+//line views/templates/pages/url_test.qtpl:10
 type ParamUrlTestPage struct {
+	Basic   *types.Basic
 	Name    string
+	IsSlice bool
 	Value   interface{}
+	Req     bool
 	Type    string
 	Comment string
 }
 
 type URLTestPage struct {
+	Host       string
+	Method     string
+	Multipart  bool
 	Path       string
 	Language   string
 	Charset    string
@@ -43,23 +51,220 @@ type URLTestPage struct {
 	Resp       string
 }
 
-//line views/templates/pages/url_test.qtpl:25
+//line views/templates/pages/url_test.qtpl:35
+func (p *ParamUrlTestPage) StreamTypeInput(qw422016 *qt422016.Writer) {
+//line views/templates/pages/url_test.qtpl:36
+	switch p.Basic.Info() {
+//line views/templates/pages/url_test.qtpl:37
+	case types.IsInteger, types.IsFloat, types.IsComplex:
+//line views/templates/pages/url_test.qtpl:37
+		qw422016.N().S(`number`)
+//line views/templates/pages/url_test.qtpl:39
+	case types.IsString:
+//line views/templates/pages/url_test.qtpl:39
+		qw422016.N().S(`text`)
+//line views/templates/pages/url_test.qtpl:41
+	case types.IsBoolean:
+//line views/templates/pages/url_test.qtpl:41
+		qw422016.N().S(`checkbox`)
+//line views/templates/pages/url_test.qtpl:43
+	default:
+//line views/templates/pages/url_test.qtpl:44
+		qw422016.E().V(p.Basic.Info())
+//line views/templates/pages/url_test.qtpl:45
+	}
+//line views/templates/pages/url_test.qtpl:46
+}
+
+//line views/templates/pages/url_test.qtpl:46
+func (p *ParamUrlTestPage) WriteTypeInput(qq422016 qtio422016.Writer) {
+//line views/templates/pages/url_test.qtpl:46
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line views/templates/pages/url_test.qtpl:46
+	p.StreamTypeInput(qw422016)
+//line views/templates/pages/url_test.qtpl:46
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/pages/url_test.qtpl:46
+}
+
+//line views/templates/pages/url_test.qtpl:46
+func (p *ParamUrlTestPage) TypeInput() string {
+//line views/templates/pages/url_test.qtpl:46
+	qb422016 := qt422016.AcquireByteBuffer()
+//line views/templates/pages/url_test.qtpl:46
+	p.WriteTypeInput(qb422016)
+//line views/templates/pages/url_test.qtpl:46
+	qs422016 := string(qb422016.B)
+//line views/templates/pages/url_test.qtpl:46
+	qt422016.ReleaseByteBuffer(qb422016)
+//line views/templates/pages/url_test.qtpl:46
+	return qs422016
+//line views/templates/pages/url_test.qtpl:46
+}
+
+//line views/templates/pages/url_test.qtpl:48
+func (u *URLTestPage) StreamURL(qw422016 *qt422016.Writer) {
+//line views/templates/pages/url_test.qtpl:49
+	qw422016.E().S(u.Host)
+//line views/templates/pages/url_test.qtpl:49
+	qw422016.E().S(u.Path)
+//line views/templates/pages/url_test.qtpl:50
+}
+
+//line views/templates/pages/url_test.qtpl:50
+func (u *URLTestPage) WriteURL(qq422016 qtio422016.Writer) {
+//line views/templates/pages/url_test.qtpl:50
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line views/templates/pages/url_test.qtpl:50
+	u.StreamURL(qw422016)
+//line views/templates/pages/url_test.qtpl:50
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/pages/url_test.qtpl:50
+}
+
+//line views/templates/pages/url_test.qtpl:50
+func (u *URLTestPage) URL() string {
+//line views/templates/pages/url_test.qtpl:50
+	qb422016 := qt422016.AcquireByteBuffer()
+//line views/templates/pages/url_test.qtpl:50
+	u.WriteURL(qb422016)
+//line views/templates/pages/url_test.qtpl:50
+	qs422016 := string(qb422016.B)
+//line views/templates/pages/url_test.qtpl:50
+	qt422016.ReleaseByteBuffer(qb422016)
+//line views/templates/pages/url_test.qtpl:50
+	return qs422016
+//line views/templates/pages/url_test.qtpl:50
+}
+
+//line views/templates/pages/url_test.qtpl:52
+func (u *URLTestPage) StreamEncType(qw422016 *qt422016.Writer) {
+//line views/templates/pages/url_test.qtpl:53
+	if u.Multipart {
+//line views/templates/pages/url_test.qtpl:53
+		qw422016.N().S(`multipart/form-data`)
+//line views/templates/pages/url_test.qtpl:55
+	} else {
+//line views/templates/pages/url_test.qtpl:56
+	}
+//line views/templates/pages/url_test.qtpl:57
+}
+
+//line views/templates/pages/url_test.qtpl:57
+func (u *URLTestPage) WriteEncType(qq422016 qtio422016.Writer) {
+//line views/templates/pages/url_test.qtpl:57
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line views/templates/pages/url_test.qtpl:57
+	u.StreamEncType(qw422016)
+//line views/templates/pages/url_test.qtpl:57
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/pages/url_test.qtpl:57
+}
+
+//line views/templates/pages/url_test.qtpl:57
+func (u *URLTestPage) EncType() string {
+//line views/templates/pages/url_test.qtpl:57
+	qb422016 := qt422016.AcquireByteBuffer()
+//line views/templates/pages/url_test.qtpl:57
+	u.WriteEncType(qb422016)
+//line views/templates/pages/url_test.qtpl:57
+	qs422016 := string(qb422016.B)
+//line views/templates/pages/url_test.qtpl:57
+	qt422016.ReleaseByteBuffer(qb422016)
+//line views/templates/pages/url_test.qtpl:57
+	return qs422016
+//line views/templates/pages/url_test.qtpl:57
+}
+
+//line views/templates/pages/url_test.qtpl:63
 func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
-//line views/templates/pages/url_test.qtpl:25
-	qw422016.N().S(`
-`)
-//line views/templates/pages/url_test.qtpl:26
-	layouts.StreamAdminHead(qw422016, u.Path+" - test examples")
-//line views/templates/pages/url_test.qtpl:26
+//line views/templates/pages/url_test.qtpl:63
 	qw422016.N().S(`
 <body>
+`)
+//line views/templates/pages/url_test.qtpl:65
+	layouts.StreamPutStyles(qw422016)
+//line views/templates/pages/url_test.qtpl:65
+	qw422016.N().S(`
 <div class="content-wrap">
 <div id="container-fluid">
-
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
-         <div id="content" rel="/admin/" class="content-section">
+            <form action="`)
+//line views/templates/pages/url_test.qtpl:71
+	u.StreamURL(qw422016)
+//line views/templates/pages/url_test.qtpl:71
+	qw422016.N().S(`" method="`)
+//line views/templates/pages/url_test.qtpl:71
+	qw422016.E().S(u.Method)
+//line views/templates/pages/url_test.qtpl:71
+	qw422016.N().S(`" enctype="`)
+//line views/templates/pages/url_test.qtpl:71
+	u.StreamEncType(qw422016)
+//line views/templates/pages/url_test.qtpl:71
+	qw422016.N().S(`" target="_blank">
+                  `)
+//line views/templates/pages/url_test.qtpl:72
+	for _, param := range u.Params {
+//line views/templates/pages/url_test.qtpl:72
+		qw422016.N().S(`
+                     <p>`)
+//line views/templates/pages/url_test.qtpl:73
+		qw422016.E().S(param.Comment)
+//line views/templates/pages/url_test.qtpl:73
+		qw422016.N().S(`</p>
+                     <input name='`)
+//line views/templates/pages/url_test.qtpl:74
+		qw422016.E().S(param.Name)
+//line views/templates/pages/url_test.qtpl:74
+		qw422016.N().S(`
+                     `)
+//line views/templates/pages/url_test.qtpl:75
+		if param.IsSlice {
+//line views/templates/pages/url_test.qtpl:75
+			qw422016.N().S(` [] `)
+//line views/templates/pages/url_test.qtpl:75
+		}
+//line views/templates/pages/url_test.qtpl:75
+		qw422016.N().S(`
+                     ' value='`)
+//line views/templates/pages/url_test.qtpl:76
+		qw422016.E().V(param.Value)
+//line views/templates/pages/url_test.qtpl:76
+		qw422016.N().S(`' type='`)
+//line views/templates/pages/url_test.qtpl:76
+		param.StreamTypeInput(qw422016)
+//line views/templates/pages/url_test.qtpl:76
+		qw422016.N().S(`'
+                     `)
+//line views/templates/pages/url_test.qtpl:77
+		if param.Req {
+//line views/templates/pages/url_test.qtpl:77
+			qw422016.N().S(`
+                     required
+                     `)
+//line views/templates/pages/url_test.qtpl:79
+		}
+//line views/templates/pages/url_test.qtpl:79
+		qw422016.N().S(`
+                     />
+                  `)
+//line views/templates/pages/url_test.qtpl:81
+	}
+//line views/templates/pages/url_test.qtpl:81
+	qw422016.N().S(`
+                  <button> Send real URL "`)
+//line views/templates/pages/url_test.qtpl:82
+	u.StreamURL(qw422016)
+//line views/templates/pages/url_test.qtpl:82
+	qw422016.N().S(`"</button>
+           </form>
+            </div>
+        </div>
+        <div class="content-sep"> </div>
+         <div class="content-section">
+         <div id="content" rel="/admin/">
            <span>  Phyton code </span>
            <pre >
             import requests
@@ -81,37 +286,37 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
 
 
             if __name__ == '__main__':
-                ta_request("https://ta.lexxinfo.com/`)
-//line views/templates/pages/url_test.qtpl:56
-	qw422016.E().S(u.Path)
-//line views/templates/pages/url_test.qtpl:56
+                ta_request("`)
+//line views/templates/pages/url_test.qtpl:110
+	u.StreamURL(qw422016)
+//line views/templates/pages/url_test.qtpl:110
 	qw422016.N().S(`", [
                  `)
-//line views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:111
 	for _, param := range u.Params {
-//line views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:111
 		qw422016.N().S(`
                     ('`)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.E().S(param.Name)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.N().S(`','`)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.E().V(param.Value)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.N().S(`'), // type: `)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.E().S(param.Type)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.N().S(`,  `)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.E().S(param.Comment)
-//line views/templates/pages/url_test.qtpl:58
+//line views/templates/pages/url_test.qtpl:112
 		qw422016.N().S(`
                  `)
-//line views/templates/pages/url_test.qtpl:59
+//line views/templates/pages/url_test.qtpl:113
 	}
-//line views/templates/pages/url_test.qtpl:59
+//line views/templates/pages/url_test.qtpl:113
 	qw422016.N().S(`
                 ])
                 </pre>
@@ -123,37 +328,37 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
              'POST',
              processData = true,
              "`)
-//line views/templates/pages/url_test.qtpl:69
-	qw422016.E().S(u.Path)
-//line views/templates/pages/url_test.qtpl:69
+//line views/templates/pages/url_test.qtpl:123
+	u.StreamURL(qw422016)
+//line views/templates/pages/url_test.qtpl:123
 	qw422016.N().S(`",
              {
                    `)
-//line views/templates/pages/url_test.qtpl:71
+//line views/templates/pages/url_test.qtpl:125
 	for _, param := range u.Params {
-//line views/templates/pages/url_test.qtpl:71
+//line views/templates/pages/url_test.qtpl:125
 		qw422016.N().S(`
                       "`)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.E().S(param.Name)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.N().S(`": `)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.E().V(param.Value)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.N().S(`,// type: `)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.E().S(param.Type)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.N().S(`,  `)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.E().S(param.Comment)
-//line views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:126
 		qw422016.N().S(`
                    `)
-//line views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:127
 	}
-//line views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:127
 	qw422016.N().S(`
               },
              beforeSend = null,
@@ -165,58 +370,57 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
            })
            </pre>
            `)
-//line views/templates/pages/url_test.qtpl:83
+//line views/templates/pages/url_test.qtpl:137
 	if u.Resp > "" {
-//line views/templates/pages/url_test.qtpl:83
+//line views/templates/pages/url_test.qtpl:137
 		qw422016.N().S(`
             <span>  Response example </span>
           <div>
              `)
-//line views/templates/pages/url_test.qtpl:86
+//line views/templates/pages/url_test.qtpl:140
 		qw422016.E().S(u.Resp)
-//line views/templates/pages/url_test.qtpl:86
+//line views/templates/pages/url_test.qtpl:140
 		qw422016.N().S(`
            </div>
            `)
-//line views/templates/pages/url_test.qtpl:88
+//line views/templates/pages/url_test.qtpl:142
 	}
-//line views/templates/pages/url_test.qtpl:88
+//line views/templates/pages/url_test.qtpl:142
 	qw422016.N().S(`
             </div>
         </div>
         </div>
+        </div>
 
-    </div>
-</div>
 </div>
 
 </body>
 `)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 }
 
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 func (u *URLTestPage) WriteShowURlTestPage(qq422016 qtio422016.Writer) {
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	u.StreamShowURlTestPage(qw422016)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 }
 
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 func (u *URLTestPage) ShowURlTestPage() string {
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	u.WriteShowURlTestPage(qb422016)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	qs422016 := string(qb422016.B)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 	return qs422016
-//line views/templates/pages/url_test.qtpl:98
+//line views/templates/pages/url_test.qtpl:151
 }

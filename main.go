@@ -54,7 +54,7 @@ var (
 			Fnc:  HandleVersion,
 			Desc: "view version server",
 		},
-		"/api/tb/group_count": {
+		"/api/tb/group_count/": {
 			Fnc: func(ctx *RequestCtx) (i interface{}, err error) {
 				b, err := telegrambot.NewTelegramBotFromEnv()
 				if err != nil {
@@ -72,7 +72,7 @@ var (
 			Method:    POST,
 			Multipart: true,
 		},
-		"moreParams": {
+		"/moreParams/": {
 			Desc:      "test route",
 			Method:    POST,
 			Multipart: true,
@@ -312,16 +312,6 @@ func sockCatch() {
 	logs.ErrorLog(err.(error))
 }
 
-const _24K = (1 << 10) * 24
-
-func handleUpdate(ctx *RequestCtx) {
-
-}
-
-func handlerForms(ctx *RequestCtx) {
-	// views.RenderTemplate(ctx, r.FormValue("name")+"Form", &pages.IndexPageBody{Title: r.FormValue("email")})
-}
-
 // func isAJAXRequest(r *Request) bool {
 // 	return len(r.Header["X-Requested-With"]) > 0
 // }
@@ -424,18 +414,18 @@ func handlerGoDoc(ctx *RequestCtx) (interface{}, error) {
 
 	err := cmd.Run()
 	if err != nil {
-		// views.RenderInternalError(w, err)
-	} else {
-		output, err := cmd.Output()
-		if err != nil {
-			return nil, err
-		} else {
-			return output, nil
-		}
-		ctx.Redirect("http://localhost:6060", StatusPermanentRedirect)
+		return nil, err
 	}
 
-	return nil, nil
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	return output, nil
+	// }
+	// ctx.Redirect("http://localhost:6060", StatusPermanentRedirect)
+	//
+	// return nil, nil
 }
 
 // rereads files to cache directive

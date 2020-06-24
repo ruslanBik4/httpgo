@@ -58,3 +58,5 @@ const (
 	MultiPartParams = "MultiPartParams"
 	ChildRoutePath  = "lastSegment"
 )
+
+const testRouteSuffix = "_test"

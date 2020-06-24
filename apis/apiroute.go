@@ -7,6 +7,7 @@ package apis
 import (
 	"bytes"
 	"fmt"
+	"go/types"
 	"path"
 	"sort"
 	"strings"
@@ -355,7 +356,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			DTO:       nil,
 			Fnc:       nil,
 			FncAuth:   route.TestFncAuth,
-			Method:    route.Method,
+			Method:    GET,
 			Multipart: false,
 			NeedAuth:  false,
 			OnlyAdmin: false,
@@ -398,6 +399,9 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 					logs.ErrorLog(err, "MarshalToString")
 				}
 				page := pages.URLTestPage{
+					Host:       string(ctx.Host()),
+					Method:     methodNames[route.Method],
+					Multipart:  route.Multipart,
 					Path:       url,
 					Language:   "",
 					Charset:    "",
@@ -413,10 +417,17 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 					}
 
 					page.Params[i] = pages.ParamUrlTestPage{
+						Basic:   types.Typ[types.Invalid],
 						Name:    val.Name + arrReq[val.Req],
 						Value:   val.TestValue,
+						Req:     val.Req,
 						Type:    val.Type.String(),
 						Comment: val.Desc,
+					}
+					t, ok := val.Type.(TypeInParam)
+					if ok {
+						page.Params[i].Basic = types.Typ[t.BasicKind]
+						page.Params[i].IsSlice = t.isSlice
 					}
 				}
 				page.WriteShowURlTestPage(ctx.Response.BodyWriter())
@@ -424,13 +435,22 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			}
 		}(url, route)
 
-		r[route.Method][path.Join(url, "_test")] = testRoute
+		r[GET][path.Join(url, r.GetTestRouteSuffix(route))] = testRoute
+		logs.DebugLog(testRoute)
 
 	}
 
 	return
 }
 
+func (r MapRoutes) GetTestRouteSuffix(route *ApiRoute) string {
+
+	if route.Method != GET {
+		return methodNames[route.Method] + testRouteSuffix
+	}
+
+	return testRouteSuffix
+}
 func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 	path := string(ctx.Path())
 	method := methodFromName(string(ctx.Method()))

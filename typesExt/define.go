@@ -5,9 +5,9 @@ import (
 )
 
 const (
-    TArray types.BasicKind = -1
-    TMap    types.BasicKind = -2
-    TStruct  types.BasicKind = -3
+	TArray  types.BasicKind = -1
+	TMap    types.BasicKind = -2
+	TStruct types.BasicKind = -3
 )
 
 var StringTypeKinds = map[types.BasicKind]string{
@@ -42,7 +42,22 @@ var StringTypeKinds = map[types.BasicKind]string{
 	types.UntypedString:  "string",
 	types.UntypedNil:     "nil",
 	TArray:               "array",
-	TMap:				  "map",
-	TStruct: 			  "struct",
+	TMap:                 "map",
+	TStruct:              "struct",
+}
 
+func BasicInfo(typ types.BasicKind) types.BasicInfo {
+	switch typ {
+	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
+		types.Uint8, types.Uint16, types.Uint32, types.Uint64:
+		return types.IsInteger
+	case types.Float32, types.Float64:
+		return types.IsFloat
+	case types.String:
+		return types.IsString
+	case types.Complex64, types.Complex128:
+		return types.IsComplex
+	default:
+		return types.Typ[typ].Info()
+	}
 }

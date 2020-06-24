@@ -1,18 +1,26 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% import (
+    	"go/types"
+
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 %}
 {% code
 type ParamUrlTestPage struct{
-                         Name string
-                         Value interface{}
-                         Type string
-                         Comment string
-                         }
+         Basic *types.Basic
+         Name string
+    IsSlice bool
+         Value interface{}
+         Req bool
+         Type string
+         Comment string
+}
 
 type URLTestPage struct {
+    Host string
+    Method string
+    Multipart bool
     Path string
     Language string
     Charset string
@@ -22,16 +30,62 @@ type URLTestPage struct {
     Resp string
 }
 %}
+{% stripspace %}
+{% collapsespace %}
+{% func (p *ParamUrlTestPage) TypeInput() %}
+       {% switch p.Basic.Info() %}
+       {% case types.IsInteger, types.IsFloat, types.IsComplex %}
+           number
+       {% case types.IsString %}
+           text
+       {% case types.IsBoolean %}
+           checkbox
+       {% default %}
+           {%v p.Basic.Info() %}
+       {% endswitch %}
+{% endfunc %}
+
+{% func (u *URLTestPage) URL()  %}
+    {%s u.Host %}{%s u.Path %}
+{% endfunc %}
+
+{% func (u *URLTestPage) EncType()  %}
+    {% if u.Multipart %}
+        multipart/form-data
+    {% else %}
+    {% endif %}
+{% endfunc %}
+
+
+{% endstripspace %}
+{% endcollapsespace %}
+
 {% func (u *URLTestPage) ShowURlTestPage() %}
-{%= layouts.AdminHead(u.Path + " - test examples") %}
 <body>
+{%= layouts.PutStyles() %}
 <div class="content-wrap">
 <div id="container-fluid">
-
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
-         <div id="content" rel="/admin/" class="content-section">
+            <form action="{%= u.URL() %}" method="{%s u.Method %}" enctype="{%= u.EncType() %}" target="_blank">
+                  {% for _, param := range u.Params %}
+                     <p>{%s param.Comment %}</p>
+                     <input name='{%s param.Name %}
+                     {% if param.IsSlice %} [] {% endif %}
+                     ' value='{%v param.Value %}' type='{%= param.TypeInput() %}'
+                     {% if param.Req %}
+                     required
+                     {% endif %}
+                     />
+                  {% endfor %}
+                  <button> Send real URL "{%= u.URL() %}"</button>
+           </form>
+            </div>
+        </div>
+        <div class="content-sep"> </div>
+         <div class="content-section">
+         <div id="content" rel="/admin/">
            <span>  Phyton code </span>
            <pre >
             import requests
@@ -53,7 +107,7 @@ type URLTestPage struct {
 
 
             if __name__ == '__main__':
-                ta_request("https://ta.lexxinfo.com/{%s u.Path %}", [
+                ta_request("{%= u.URL() %}", [
                  {% for _, param := range u.Params %}
                     ('{%s param.Name %}','{%v param.Value %}'), // type: {%s param.Type %},  {%s param.Comment %}
                  {% endfor %}
@@ -66,7 +120,7 @@ type URLTestPage struct {
              'multipart/form-data',
              'POST',
              processData = true,
-             "{%s u.Path %}",
+             "{%= u.URL() %}",
              {
                    {% for _, param := range u.Params %}
                       "{%s param.Name %}": {%v param.Value %},// type: {%s param.Type %},  {%s param.Comment %}
@@ -89,9 +143,8 @@ type URLTestPage struct {
             </div>
         </div>
         </div>
+        </div>
 
-    </div>
-</div>
 </div>
 
 </body>

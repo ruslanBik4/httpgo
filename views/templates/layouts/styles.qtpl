@@ -1,0 +1,65 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+standart styles .
+{% func PutStyles() %}
+<style>
+body {
+    color: rgb(10, 28, 59);
+}
+.content-wrap {
+    width: 100%;
+}
+.content-sep {
+    width: 5%;
+}
+.sidebar-section {
+    width: 15%;
+    display: table-cell;
+}
+.row-fluid {
+    width: 100%;
+    display: table-row;
+}
+.content-section {
+    width: 80%;
+    display: table-cell;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #111111;
+}
+
+input[type=text] {
+    padding: 8px;
+    border: 1px solid #c2c7d1;
+    border-radius: 3px;
+    transition: all .3s ease;
+    margin-top: 5px;
+    width: 80%;
+    color: #0a1c3b;
+}
+input[type=file] {
+    display: inline;
+}
+</style>
+{% endfunc %}
