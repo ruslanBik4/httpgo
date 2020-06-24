@@ -128,7 +128,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 
 	// ===== Simple net.http/ListenAndServe server with specific handler to read out telgrambot request =====
 	http.HandleFunc("/bottoken/sendMessage",
-		func(w http.ResponseWriter, r *http.Request) {
+		func(ctx *fasthttp.RequestCtx) {
 			log.Println("HandleFunc r.URL", r.URL)
 
 			if r.Method == "GET" {

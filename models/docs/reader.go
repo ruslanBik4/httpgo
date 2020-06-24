@@ -32,7 +32,7 @@ func ReplaceDocx(input, output string, replaces map[string]string) bool {
 }
 
 // RenderReplaesDoc read file with name {templatesName}, replace string from map & write to {w}
-func RenderReplaesDoc(w http.ResponseWriter, templatesName string, replaces map[string]string) error {
+func RenderReplaesDoc(ctx *fasthttp.RequestCtx, templatesName string, replaces map[string]string) error {
 	r, err := docx.ReadDocxFile(templatesName)
 	if err != nil {
 		logs.ErrorLog(err)

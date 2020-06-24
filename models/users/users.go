@@ -58,7 +58,7 @@ func SetSessionPath(fSession string) {
 	Store = sessions.NewFilesystemStore(fSession, []byte("travel.com.ua"))
 }
 
-//func HandlerQauth2(w http.ResponseWriter, r *http.Request) {
+//func HandlerQauth2(ctx *fasthttp.RequestCtx) {
 //
 //
 //	googleOauthConfig.RedirectURL = r.Host +  "/user/GoogleCallback/"
@@ -76,7 +76,7 @@ func SetSessionPath(fSession string) {
 //}
 
 // HandleGoogleCallback Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
-func HandleGoogleCallback(w http.ResponseWriter, r *http.Request) {
+func HandleGoogleCallback(ctx *fasthttp.RequestCtx) {
 	state := r.FormValue("state")
 	if state != oauthStateString {
 		fmt.Printf("invalid oauth state, expected '%s', got '%s'\n", oauthStateString, state)
@@ -143,7 +143,7 @@ func IsLogin(r *http.Request) string {
 
 	return strconv.Itoa(userID.(int))
 }
-func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
+func deleteCurrentUser(ctx *fasthttp.RequestCtx) error {
 	session := GetSession(r, nameSession)
 	delete(session.Values, "id")
 	delete(session.Values, "email")
@@ -152,7 +152,7 @@ func deleteCurrentUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 // HandlerProfile show data on profile current user
-func HandlerProfile(w http.ResponseWriter, r *http.Request) {
+func HandlerProfile(ctx *fasthttp.RequestCtx) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	session := GetSession(r, nameSession)
@@ -190,7 +190,7 @@ func HandlerProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandlerSignIn run user authorization
-func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
+func HandlerSignIn(ctx *fasthttp.RequestCtx) {
 
 	r.ParseForm()
 	email := r.FormValue("login")
@@ -214,7 +214,7 @@ func HandlerSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandlerSignOut sign out current user & show authorization form
-func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
+func HandlerSignOut(ctx *fasthttp.RequestCtx) {
 
 	if err := deleteCurrentUser(w, r); err != nil {
 		logs.ErrorLog(err)
@@ -224,7 +224,7 @@ func HandlerSignOut(w http.ResponseWriter, r *http.Request) {
 }
 
 // SaveSession save in session some data from user
-func SaveSession(w http.ResponseWriter, r *http.Request, id int, email string) {
+func SaveSession(ctx *fasthttp.RequestCtx, id int, email string) {
 	session := sessions.NewSession(Store, nameSession)
 	session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
 	session.Values["id"] = id
@@ -279,7 +279,7 @@ const _2K = (1 << 10) * 2
 // и отсылка письмо об регистрации
 // пароль отсылаем в письме, у себя храним только кеш
 // @/user/signup/
-func HandlerSignUp(w http.ResponseWriter, r *http.Request) {
+func HandlerSignUp(ctx *fasthttp.RequestCtx) {
 
 	r.ParseMultipartForm(_2K)
 
@@ -348,7 +348,7 @@ func SendMail(email, password string) {
 }
 
 // HandlerActivateUser - obsolete
-func HandlerActivateUser(w http.ResponseWriter, r *http.Request) {
+func HandlerActivateUser(ctx *fasthttp.RequestCtx) {
 	r.ParseForm()
 
 	if r.FormValue("email") == "" {

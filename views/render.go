@@ -9,13 +9,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"net/http"
-	"strings"
 	"time"
 
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
@@ -28,15 +25,15 @@ import (
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
-	"Server":           "HTTPGO/0.9 (CentOS) Go 1.12",
+	"Server":           "HTTPGO/0.9 (CentOS) Go 1.14",
 	"Content-Language": "en, ru",
 	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
 
 // WriteHeaders выдаем стандартные заголовки страницы
-func WriteHeaders(w http.ResponseWriter) {
+func WriteHeaders(ctx *fasthttp.RequestCtx) {
 	for key, value := range HEADERS {
-		w.Header().Set(key, value)
+		ctx.Response.Header.Set(key, value)
 	}
 }
 
@@ -47,21 +44,8 @@ func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 }
 
 // IsAJAXRequest - is this AJAX-request
-func IsAJAXRequest(r *http.Request) bool {
-	return len(r.Header["X-Requested-With"]) > 0
-}
-
-// RenderContentFromAJAXRequest NEW! эта функция позволяет определить - пришел ли запрос как AJAX
-// и, если нет, добавить в вывод текст основной страницы
-// получает на вход функцию qtpl, которая пишет сразу в буфер вывода
-func RenderContentFromAJAXRequest(w http.ResponseWriter, r *http.Request, fncWrite func(w io.Writer)) {
-	if IsAJAXRequest(r) {
-		fncWrite(w)
-	} else {
-		p := &pages.IndexPageBody{ContentWrite: fncWrite, Route: r.URL.Path, Buff: w}
-		RenderTemplate(w, r, "index", p)
-	}
-
+func IsAJAXRequest(r *fasthttp.Request) bool {
+	return len(r.Header.Peek("X-Requested-With")) > 0
 }
 
 // RenderOutput render for output script execute
@@ -74,92 +58,42 @@ func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
 
 // RenderAnyPage (deprecate)
 //TODO: replace string output by streaming
-func RenderAnyPage(w http.ResponseWriter, r *http.Request, strContent string) {
-	if IsAJAXRequest(r) {
-		w.Write([]byte(strContent))
-	} else {
-		p := &pages.IndexPageBody{Content: strContent, Route: r.URL.Path, Buff: w}
-		RenderTemplate(w, r, "index", p)
+func RenderAnyPage(ctx *fasthttp.RequestCtx, strContent string) error {
+	if IsAJAXRequest(&ctx.Request) {
+		_, err := ctx.Write([]byte(strContent))
+		return err
 	}
+	p := &pages.IndexPageBody{Content: strContent, Route: string(ctx.Path()), Buff: ctx}
+
+	return RenderTemplate(ctx, "index", p)
 }
 
 // RenderSignForm show form for authorization user
-func RenderSignForm(w http.ResponseWriter, r *http.Request, email string) {
+func RenderSignForm(ctx *fasthttp.RequestCtx, email string) {
 
 	signForm := &forms.SignForm{Email: email, Password: "Введите пароль, полученный по почте"}
-	RenderContentFromAJAXRequest(w, r, signForm.WriteSigninForm)
+	RenderHTMLPage(ctx, signForm.WriteSigninForm)
 }
 
 // RenderSignUpForm show form registration user
-func RenderSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
+func RenderSignUpForm(ctx *fasthttp.RequestCtx, placeholder string) {
 
-	RenderAnyPage(w, r, forms.SignUpForm(placeholder))
+	RenderAnyPage(ctx, forms.SignUpForm(placeholder))
 }
 
 // RenderAnotherSignUpForm  - new form for registration
-func RenderAnotherSignUpForm(w http.ResponseWriter, r *http.Request, placeholder string) {
+func RenderAnotherSignUpForm(ctx *fasthttp.RequestCtx, placeholder string) {
 
-	RenderAnyPage(w, r, forms.AnotherSignUpForm(placeholder))
+	RenderAnyPage(ctx, forms.AnotherSignUpForm(placeholder))
 }
 
 // ParamNotCorrect - map bad parameters on this request
 type ParamNotCorrect map[string]string
 
-// render errors
-
-// RenderNotParamsInPOST get list params thoese not found in request
-func RenderNotParamsInPOST(w http.ResponseWriter, params ...string) {
-	http.Error(w, strings.Join(params, ",")+": not found", http.StatusBadRequest)
-
-}
-
-// RenderBadRequest return header "BADREQUEST" & descriptors bad params
-func RenderBadRequest(w http.ResponseWriter, params ...ParamNotCorrect) {
-
-	description, comma := "", ""
-	for _, param := range params {
-		description += comma
-		for key, value := range param {
-			description += key + "=" + value
-		}
-
-		comma = "; "
-	}
-
-	http.Error(w, description, http.StatusBadRequest)
-}
-
-// RenderHandlerError для отдачи и записи в лог паники системы при работе хендлеров
-func RenderHandlerError(w http.ResponseWriter, err error, args ...interface{}) {
-	http.Error(w, err.Error(), http.StatusInternalServerError)
-	logs.ErrorLogHandler(err, args)
-}
-
-// RenderInternalError для отдачи и записи в лог ошибок системы при работе хендлеров
-func RenderInternalError(w http.ResponseWriter, err error, args ...interface{}) {
-	http.Error(w, err.Error(), http.StatusInternalServerError)
-	logs.ErrorLog(err, args)
-}
-
-// RenderUnAuthorized - returs error code
-func RenderUnAuthorized(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusUnauthorized)
-}
-
-// RenderNotFound - returs error code
-func RenderNotFound(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusNotFound)
-}
-
-// RenderNoPermissionPage - returs error code
-func RenderNoPermissionPage(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusForbidden)
-}
-
 // RenderTemplate render from template tmplName
-func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Content interface{}) error {
+func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface{}) error {
 
-	WriteHeaders(w)
+	WriteHeaders(ctx)
 
 	headPage := &layouts.HeadHTMLPage{
 		Charset:  "charset=utf-8",
@@ -178,43 +112,40 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, Con
 			p.Route = "/"
 		}
 		if p.Buff == nil {
-			p.Buff = w
+			p.Buff = ctx
 		}
 
-		headPage.WriteHeadHTML(w)
-		p.WriteIndexHTML(w)
+		headPage.WriteHeadHTML(ctx)
+		p.WriteIndexHTML(ctx)
 	case "signinForm":
-		RenderSignForm(w, r, "Введите пароль, полученный по почте")
+		RenderSignForm(ctx, "Введите пароль, полученный по почте")
 	case "signupForm":
-		RenderSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
+		RenderSignUpForm(ctx, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
 	case "anothersignupForm":
-		RenderAnotherSignUpForm(w, r, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
+		RenderAnotherSignUpForm(ctx, "Введите ФАМИЛИЮ ИМЯ ОТЧЕСТВО")
 
 	case "adminPage":
 		var p *pages.AdminPageBody = Content.(*pages.AdminPageBody)
 
-		p.WriteShowAdminPage(w, "")
+		p.WriteShowAdminPage(ctx, "")
 	default:
-		w.Write([]byte("no rendering with page " + tmplName))
+		ctx.Write([]byte("no rendering with page " + tmplName))
 	}
 	return nil
 }
 
 // RenderAnyForm show form for list fields
-func RenderAnyForm(w http.ResponseWriter, r *http.Request, Title string, fields forms.FieldsTable,
+func RenderAnyForm(ctx *fasthttp.RequestCtx, Title string, fields forms.FieldsTable,
 	Inputs map[string][]string, head, foot string) error {
 
-	WriteHeaders(w)
+	WriteHeaders(ctx)
 
 	if Inputs != nil {
 		head += layouts.DadataHead()
 		foot += layouts.DadataScript(Inputs)
 	}
 	//TODO: replace on stream buffer function
-	RenderAnyPage(w, r, head+layouts.PutHeadForm()+fields.ShowAnyForm("/admin/exec/", Title)+layouts.PutEndForm()+foot)
-
-	return nil
-
+	return RenderAnyPage(ctx, head+layouts.PutHeadForm()+fields.ShowAnyForm("/admin/exec/", Title)+layouts.PutEndForm()+foot)
 }
 
 // render JSON from any data type
@@ -223,43 +154,43 @@ var jsonHEADERS = map[string]string{
 }
 
 // WriteJSONHeaders return standart headers for JSON
-func WriteJSONHeaders(w http.ResponseWriter) {
+func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	// выдаем стандартные заголовки страницы
 	for key, value := range jsonHEADERS {
-		w.Header().Set(key, value)
+		ctx.Response.Header.Set(key, value)
 	}
 }
 
 // RenderAnyJSON marshal JSON from arrJSON
-func RenderAnyJSON(w http.ResponseWriter, arrJSON map[string]interface{}) {
+func RenderAnyJSON(w *fasthttp.RequestCtx, arrJSON map[string]interface{}) {
 
 	WriteJSONHeaders(w)
 	json.WriteAnyJSON(w, arrJSON)
 }
 
 // RenderAnySlice marshal JSON from slice
-func RenderAnySlice(w http.ResponseWriter, arrJSON []interface{}) {
+func RenderAnySlice(w *fasthttp.RequestCtx, arrJSON []interface{}) {
 
 	WriteJSONHeaders(w)
 	json.WriteArrJSON(w, arrJSON)
 }
 
 // RenderStringSliceJSON marshal JSON from slice strings
-func RenderStringSliceJSON(w http.ResponseWriter, arrJSON []string) {
+func RenderStringSliceJSON(w *fasthttp.RequestCtx, arrJSON []string) {
 
 	WriteJSONHeaders(w)
 	json.WriteStringDimension(w, arrJSON)
 }
 
 // RenderArrayJSON marshal JSON from arrJSON
-func RenderArrayJSON(w http.ResponseWriter, arrJSON []map[string]interface{}) {
+func RenderArrayJSON(ctx *fasthttp.RequestCtx, arrJSON []map[string]interface{}) {
 
-	WriteJSONHeaders(w)
-	json.WriteSliceJSON(w, arrJSON)
+	WriteJSONHeaders(ctx)
+	json.WriteSliceJSON(ctx, arrJSON)
 }
 
 // RenderJSONAnyForm render JSON for form by fields map
-func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.FormStructure,
+func RenderJSONAnyForm(w *fasthttp.RequestCtx, fields qb.QBTable, form *json.FormStructure,
 	AddJson json.MultiDimension) {
 
 	WriteJSONHeaders(w)
@@ -267,7 +198,7 @@ func RenderJSONAnyForm(w http.ResponseWriter, fields qb.QBTable, form *json.Form
 }
 
 // RenderOutput render for output script execute
-func RenderOutput(w http.ResponseWriter, stdoutStderr []byte) {
+func RenderOutput(w *fasthttp.RequestCtx, stdoutStderr []byte) {
 
 	WriteHeaders(w)
 	w.Write([]byte("<pre>"))

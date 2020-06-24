@@ -26,6 +26,7 @@ const (
 	CONNECT
 	OPTIONS
 	TRACE
+	UNKNOW
 )
 
 var methodNames = []string{
@@ -38,6 +39,17 @@ var methodNames = []string{
 	"CONNECT",
 	"OPTIONS",
 	"TRACE",
+	"UNKNOW",
+}
+
+func methodFromName(nameMethod string) tMethod {
+	for method, name := range methodNames {
+		if name == nameMethod {
+			return tMethod(method)
+		}
+	}
+
+	return UNKNOW
 }
 
 //  const of values ctx parameters names

@@ -39,7 +39,7 @@ var fontTypes = map[string]string{
 
 // HandleGetFont push font for some browser
 // @/fonts/{font_name}
-func HandleGetFont(w http.ResponseWriter, r *http.Request) {
+func HandleGetFont(ctx *fasthttp.RequestCtx) {
 
 	ext := ".ttf"
 	if browser := r.Header["User-Agent"]; contains(browser, "Safari") {
@@ -71,6 +71,6 @@ func HandleGetFont(w http.ResponseWriter, r *http.Request) {
 }
 
 // set header on font type
-func setHeaderFromFontType(w http.ResponseWriter, ext string) {
+func setHeaderFromFontType(ctx *fasthttp.RequestCtx, ext string) {
 	w.Header().Set("Content-Type", "mime/type: font/"+fontTypes[ext[:1]])
 }

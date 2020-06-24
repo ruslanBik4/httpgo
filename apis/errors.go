@@ -9,7 +9,7 @@ import "errors"
 // errors declaration
 var (
 	errNotFoundPage     = errors.New("path not found")
-	errMethodNotAllowed = errors.New("method not allowed")
+	errMethodNotAllowed = errors.New("method %s not allowed, try %s")
 
 	ErrUnAuthorized       = errors.New("user is UnAuthorized")
 	ErrRouteForbidden     = errors.New("not allow permission")

@@ -28,7 +28,6 @@ import (
 	"github.com/ruslanBik4/httpgo/dbEngine/psql"
 	"github.com/ruslanBik4/httpgo/httpGo"
 	"github.com/ruslanBik4/httpgo/logs"
-	_ "github.com/ruslanBik4/httpgo/models/api/v1"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"

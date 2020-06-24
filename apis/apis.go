@@ -63,7 +63,7 @@ type Apis struct {
 	// authentication method
 	fncAuth FncAuth
 	// list of endpoints
-	routes ApiRoutes
+	routes MapRoutes
 	lock   sync.RWMutex
 }
 
@@ -72,7 +72,7 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
-		routes:  routes,
+		routes:  NewMapRoutes(),
 		fncAuth: fncAuth,
 	}
 
@@ -94,16 +94,17 @@ func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
 		OnlyLocal: true,
 		Params:    onboardParams})
 
+	apis.AddRoutes(routes)
+
 	return apis
 }
 
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
-	route, ok := a.isValidPath(ctx)
-	if !ok {
-		ctx.NotFound()
-		logs.StatusLog("Not Found Page %+v", ctx.Request.String())
+	route, err := a.routes.GetRoute(ctx)
+	if err != nil {
+		a.renderError(ctx, err, route.Method)
 		return
 	}
 
@@ -193,9 +194,19 @@ const jsonHEADERSContentType = "application/json; charset=utf-8"
 func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}) {
 
 	statusCode := http.StatusInternalServerError
+	errMsg := err.Error()
 	switch errDeep := errors.Cause(err); errDeep {
 	case errMethodNotAllowed:
 		statusCode = http.StatusMethodNotAllowed
+		switch r := resp.(type) {
+		case string:
+			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
+		case tMethod:
+			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
+		default:
+			errMsg = fmt.Sprintf(errMsg+"%+v", string(ctx.Method()), "", resp)
+		}
+
 	case ErrUnAuthorized:
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 		statusCode = http.StatusUnauthorized
@@ -212,9 +223,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 	case ErrWrongParamsList:
 		statusCode = http.StatusBadRequest
-
-		errMsg := fmt.Sprintf(err.Error(), resp)
-		ctx.Error(errMsg, statusCode)
+		errMsg = fmt.Sprintf(errMsg, resp)
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
@@ -224,18 +233,21 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 			logs.DebugLog(ctx.QueryArgs().String())
 		}
 
+	case errNotFoundPage:
+		ctx.NotFound()
+		logs.StatusLog("Not Found Page %+v", ctx.Request.String())
 		return
 
 	default:
 		logs.ErrorStack(errDeep, resp)
 	}
 
-	ctx.Error(err.Error(), statusCode)
+	ctx.Error(errMsg, statusCode)
 }
 
 // addRoute with safe on concurrent
 func (a *Apis) addRoute(path string, route *ApiRoute) error {
-	_, ok := a.routes[path]
+	_, ok := a.routes[route.Method][path]
 	if ok {
 		return ErrPathAlreadyExists
 	}
@@ -243,7 +255,7 @@ func (a *Apis) addRoute(path string, route *ApiRoute) error {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	a.routes[path] = route
+	a.routes[route.Method][path] = route
 
 	return nil
 }
@@ -281,106 +293,76 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	rows := make([][]interface{}, len(a.routes))
 
 	i := 0
-	for url, route := range a.routes {
-		row := make([]interface{}, len(columns))
-		row[0] = url + " - " + route.Method.String()
-		if route.Multipart {
-			row[0] = row[0].(string) + ", MULTIPART"
-		}
-		row[1] = route.Desc
+	for method, routes := range a.routes {
+		for url, route := range routes {
+			row := make([]interface{}, len(columns))
+			row[0] = url + " - " + method.String()
+			if route.Multipart {
+				row[0] = row[0].(string) + ", MULTIPART"
+			}
+			row[1] = route.Desc
 
-		s := ""
-		if route.FncAuth != nil {
-			s += "use custom method '" + route.FncAuth.String() + "' for checking authorization"
-		} else if route.NeedAuth {
-			s += " use standard method for checking authorization"
-		}
-
-		if route.OnlyAdmin {
-			s += " only admin request be allowed"
-		}
-
-		if route.OnlyLocal {
-			s += " only local request be allowed"
-		}
-
-		if s > "" {
-			row[2] = s
-		} else {
-			row[2] = false
-		}
-
-		r, p := "", ""
-		for _, param := range route.Params {
-			s := fmt.Sprintf(`<div>"%s": <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
-			if param.DefValue != nil {
-				s += fmt.Sprintf("Def: '%v'", param.defaultValueOfParams(nil))
+			s := ""
+			if route.FncAuth != nil {
+				s += "use custom method '" + route.FncAuth.String() + "' for checking authorization"
+			} else if route.NeedAuth {
+				s += " use standard method for checking authorization"
 			}
 
-			if len(param.PartReq) > 0 {
-				s += "one of {" + strings.Join(param.PartReq, ", ") + " and " + param.Name + "} is required"
+			if route.OnlyAdmin {
+				s += " only admin request be allowed"
 			}
 
-			if len(param.IncompatibleWiths) > 0 {
-				s += "only one of {" + strings.Join(param.IncompatibleWiths, ", ") + " and " + param.Name + "} may use for request"
+			if route.OnlyLocal {
+				s += " only local request be allowed"
 			}
 
-			if param.Req {
-				r += s + "</div>"
+			if s > "" {
+				row[2] = s
 			} else {
-				p += s + "</div>"
+				row[2] = false
 			}
+
+			r, p := "", ""
+			for _, param := range route.Params {
+				s := fmt.Sprintf(`<div>"%s": <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
+				if param.DefValue != nil {
+					s += fmt.Sprintf("Def: '%v'", param.defaultValueOfParams(nil))
+				}
+
+				if len(param.PartReq) > 0 {
+					s += "one of {" + strings.Join(param.PartReq, ", ") + " and " + param.Name + "} is required"
+				}
+
+				if len(param.IncompatibleWiths) > 0 {
+					s += "only one of {" + strings.Join(param.IncompatibleWiths, ", ") + " and " + param.Name + "} may use for request"
+				}
+
+				if param.Req {
+					r += s + "</div>"
+				} else {
+					p += s + "</div>"
+				}
+			}
+
+			row[3] = r
+			row[4] = p
+
+			if route.DTO != nil {
+				row[5] = route.DTO.NewValue()
+			}
+			row[6] = route.Resp
+
+			rows[i] = row
+			i++
 		}
-
-		row[3] = r
-		row[4] = p
-
-		if route.DTO != nil {
-			row[5] = route.DTO.NewValue()
-		}
-		row[6] = route.Resp
-
-		rows[i] = row
-		i++
 	}
+
 	views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
 
 	routeTable.WriteTableRow(ctx, columns, rows)
 
 	return nil, nil
-}
-
-func (a *Apis) isValidPath(ctx *fasthttp.RequestCtx) (*ApiRoute, bool) {
-	path := string(ctx.Path())
-	route, ok := a.routes[path]
-	// check method
-	if ok && route.isValidMethod(ctx) {
-		return route, ok
-	}
-
-	return a.findParentRoute(ctx, path)
-}
-
-func (a *Apis) findParentRoute(ctx *fasthttp.RequestCtx, path string) (route *ApiRoute, ok bool) {
-	for p := getParentPath(path); p > ""; p = getParentPath(p) {
-		route, ok = a.routes[p]
-		// check method
-		if ok && route.isValidMethod(ctx) {
-			ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(path, p))
-			return route, ok
-		}
-	}
-
-	return
-}
-
-func getParentPath(path string) string {
-	n := strings.LastIndex(strings.TrimSuffix(path, "/"), "/")
-	if n < 0 {
-		return ""
-	}
-
-	return path[:n+1]
 }
 
 func getLastSegment(path string) string {

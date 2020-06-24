@@ -8,7 +8,6 @@ package db
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -406,51 +405,6 @@ func createCommand(sqlCommand string, r *http.Request, typeQuery string) (row ar
 	}
 
 	return row, sqlCommand + where
-}
-
-func HandlerDBQuery(w http.ResponseWriter, r *http.Request) {
-
-	var rows *sql.Rows
-
-	_ = r.ParseForm()
-	var row []interface{}
-	var sqlCommand string
-
-	if command, isSelect := r.Form["sql"]; isSelect {
-		row, sqlCommand = createCommand(command[0], r, "select")
-	} else if command, isUpdate := r.Form["update"]; isUpdate {
-		row, sqlCommand = createCommand("update "+command[0]+" set ", r, "update")
-	} else if command, isCall := r.Form["call"]; isCall {
-		row, sqlCommand = createCommand("call "+command[0], r, "call")
-	} else {
-		var command, isInsert = r.Form["insert"]
-		if isInsert {
-			row, sqlCommand = createCommand(command[0], r, "insert")
-		}
-	}
-
-	if sqlCommand > "" {
-
-		//defer main.Catch(w)
-		switch len(row) {
-		case 0:
-			rows = DoQuery(sqlCommand)
-		default:
-			rows = DoQuery(sqlCommand, row...)
-
-		}
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		if rows == nil {
-			w.WriteHeader(http.StatusConflict)
-			w.Write([]byte("Что-то пошло не так" + sqlCommand))
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write(GetResultToJSON(rows))
-	} else {
-		fmt.Fprintf(w, "%q", row)
-	}
-
 }
 
 type menuItem struct {

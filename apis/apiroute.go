@@ -18,6 +18,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
@@ -240,7 +241,7 @@ func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, val
 }
 
 func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
-	return methodNames[route.Method] == string(ctx.Method())
+	return route.Method == methodFromName(string(ctx.Method()))
 }
 
 // apiRouteToJSON produces a human-friendly description of Apis.
@@ -325,125 +326,165 @@ func FirstFieldToJSON(stream *jsoniter.Stream, field string, s string) {
 	stream.WriteString(s)
 }
 
-// ApiRoutes is hair of APIROute
+// ApiRoutes is hair of APIRoute
 type ApiRoutes map[string]*ApiRoute
+type MapRoutes map[tMethod]map[string]*ApiRoute
 
-// NewAPIRoutes create APIRotes instance
-func NewAPIRoutes() ApiRoutes {
-	return make(map[string]*ApiRoute, 0)
+// NewMapRoutes create APIRotes instance
+func NewMapRoutes() MapRoutes {
+	m := make(MapRoutes, 0)
+	for method := range methodNames {
+		m[tMethod(method)] = make(ApiRoutes, 0)
+	}
+
+	return m
 }
 
 // AddRoutes add ApiRoute into hair onsafe
-func (r ApiRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
+func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 	for url, route := range routes {
-		_, ok := r[url]
+		_, ok := r[route.Method][url]
 		if ok {
 			logs.ErrorLog(ErrPathAlreadyExists, url)
 			badRouting = append(badRouting, url)
-		} else {
-			r[url] = route
-			testRoute := &ApiRoute{
-				Desc:      "test handler for " + url,
-				DTO:       nil,
-				Fnc:       nil,
-				FncAuth:   route.TestFncAuth,
-				Method:    GET,
-				Multipart: false,
-				NeedAuth:  false,
-				OnlyAdmin: false,
-				OnlyLocal: false,
-				Params:    make([]InParam, len(route.Params)),
-				Resp:      route.Resp,
-			}
-			for i, param := range route.Params {
-				testRoute.Params[i] = param
-				if param.Req {
-					testRoute.Params[i].Req = false
-					// testRoute.Params[i].DefValue = param.TestValue
-				}
-			}
-
-			testRoute.Fnc = func(url string, route *ApiRoute) ApiRouteHandler {
-				return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-					// if route.Multipart {
-					// 	var b bytes.Buffer
-					// 	w := multipart.NewWriter(&b)
-					// 	for _, param := range route.Params {
-					// 		err := w.WriteField(param.Name, param.TestValue)
-					// 		if err != nil {
-					// 			return nil, err
-					// 		}
-					// 	}
-					// 	if err := w.Close(); err != nil {
-					// 		return nil, errors.Wrap(err, "w.Close")
-					// 	}
-					//
-					// 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
-					// 	ctx.Request.Header.Set("Content-Type", w.FormDataContentType())
-					// 	ctx.Request.SetBody(b.Bytes())
-					// 	return route.Fnc(ctx)
-					// }
-
-					WriteHeaders(ctx)
-					s, err := jsoniter.MarshalToString(testRoute.Resp)
-					if err != nil {
-						logs.ErrorLog(err, "MarshalToString")
-					}
-					page := pages.URLTestPage{
-						Path:       url,
-						Language:   "",
-						Charset:    "",
-						LinkStyles: nil,
-						MetaTags:   nil,
-						Params:     make([]pages.ParamUrlTestPage, len(testRoute.Params)),
-						Resp:       s,
-					}
-					for i, val := range testRoute.Params {
-						arrReq := map[bool]string{
-							true:  "(require)",
-							false: "",
-						}
-
-						page.Params[i] = pages.ParamUrlTestPage{
-							Name:    val.Name + arrReq[val.Req],
-							Value:   val.TestValue,
-							Type:    val.Type.String(),
-							Comment: val.Desc,
-						}
-					}
-					page.WriteShowURlTestPage(ctx.Response.BodyWriter())
-					return nil, nil
-				}
-			}(url, route)
-
-			r[path.Join(url, "_test")] = testRoute
+			continue
 		}
+		r[route.Method][url] = route
+		testRoute := &ApiRoute{
+			Desc:      "test handler for " + url,
+			DTO:       nil,
+			Fnc:       nil,
+			FncAuth:   route.TestFncAuth,
+			Method:    route.Method,
+			Multipart: false,
+			NeedAuth:  false,
+			OnlyAdmin: false,
+			OnlyLocal: false,
+			Params:    make([]InParam, len(route.Params)),
+			Resp:      route.Resp,
+		}
+		for i, param := range route.Params {
+			testRoute.Params[i] = param
+			if param.Req {
+				testRoute.Params[i].Req = false
+				// testRoute.Params[i].DefValue = param.TestValue
+			}
+		}
+
+		testRoute.Fnc = func(url string, route *ApiRoute) ApiRouteHandler {
+			return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				// if route.Multipart {
+				// 	var b bytes.Buffer
+				// 	w := multipart.NewWriter(&b)
+				// 	for _, param := range route.Params {
+				// 		err := w.WriteField(param.Name, param.TestValue)
+				// 		if err != nil {
+				// 			return nil, err
+				// 		}
+				// 	}
+				// 	if err := w.Close(); err != nil {
+				// 		return nil, errors.Wrap(err, "w.Close")
+				// 	}
+				//
+				// 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
+				// 	ctx.Request.Header.Set("Content-Type", w.FormDataContentType())
+				// 	ctx.Request.SetBody(b.Bytes())
+				// 	return route.Fnc(ctx)
+				// }
+
+				views.WriteHeaders(ctx)
+				s, err := jsoniter.MarshalToString(testRoute.Resp)
+				if err != nil {
+					logs.ErrorLog(err, "MarshalToString")
+				}
+				page := pages.URLTestPage{
+					Path:       url,
+					Language:   "",
+					Charset:    "",
+					LinkStyles: nil,
+					MetaTags:   nil,
+					Params:     make([]pages.ParamUrlTestPage, len(testRoute.Params)),
+					Resp:       s,
+				}
+				for i, val := range testRoute.Params {
+					arrReq := map[bool]string{
+						true:  "(require)",
+						false: "",
+					}
+
+					page.Params[i] = pages.ParamUrlTestPage{
+						Name:    val.Name + arrReq[val.Req],
+						Value:   val.TestValue,
+						Type:    val.Type.String(),
+						Comment: val.Desc,
+					}
+				}
+				page.WriteShowURlTestPage(ctx.Response.BodyWriter())
+				return nil, nil
+			}
+		}(url, route)
+
+		r[route.Method][path.Join(url, "_test")] = testRoute
+
 	}
 
 	return
 }
 
-// HEADERS - list standart header for html page - noinspection GoInvalidConstType
-var HEADERS = map[string]string{
-	"Content-Type":     "text/html; charset=utf-8",
-	"author":           "ruslanBik4",
-	"Server":           "HTTPGO/0.9 (CentOS) Go 1.129",
-	"Content-Language": "en, ru",
-	// "Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
+func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
+	path := string(ctx.Path())
+	method := methodFromName(string(ctx.Method()))
+
+	// check exactly
+	if route, ok := r[method][path]; ok {
+		return route, nil
+	}
+
+	// find parent path with some method
+	if route, parent := r.findParentRoute(method, path); route != nil {
+		ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(path, parent))
+		return route, nil
+	}
+
+	for m, routes := range r {
+		if method == m {
+			continue
+		}
+		route, ok := routes[path]
+		if ok {
+			return route, errMethodNotAllowed
+		}
+	}
+
+	return nil, errNotFoundPage
 }
 
-// WriteHeaders выдаем стандартные заголовки страницы
-func WriteHeaders(ctx *fasthttp.RequestCtx) {
-	for key, value := range HEADERS {
-		ctx.Response.Header.Set(key, value)
+func (r MapRoutes) findParentRoute(method tMethod, path string) (*ApiRoute, string) {
+	for p := getParentPath(path); p > ""; p = getParentPath(p) {
+		route, ok := r[method][p]
+		// check method
+		if ok {
+			return route, p
+		}
 	}
+
+	return nil, ""
+}
+
+func getParentPath(path string) string {
+	n := strings.LastIndex(strings.TrimSuffix(path, "/"), "/")
+	if n < 0 {
+		return ""
+	}
+
+	return path[:n+1]
 }
 
 func init() {
 	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", apiRouteToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
-	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
+	jsoniter.RegisterTypeEncoderFunc("apis.MapRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
 }

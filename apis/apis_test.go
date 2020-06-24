@@ -16,7 +16,7 @@ import (
 var (
 	ctx  = &fasthttp.RequestCtx{}
 	apis = &Apis{
-		routes: NewAPIRoutes(),
+		routes: NewMapRoutes(),
 	}
 )
 
@@ -26,7 +26,6 @@ func TestApis_AddRoute(t *testing.T) {
 	assert.Nil(t, err)
 	err = apis.addRoute("test", &ApiRoute{})
 	assert.NotNil(t, err)
-	
 
 }
 
