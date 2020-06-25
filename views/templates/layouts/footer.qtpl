@@ -1,4 +1,4 @@
-{% func FooterHTML() %}
+{% func FooterHTML(email, phone1, phone2 string) %}
 <footer class="main-footer">
 		<div class="footer-inner-wrap">
             <div class="footer-block">
@@ -9,15 +9,15 @@
             <div class="footer-block">
             	<div class="footer-phones">
             		<div class="first-phone clearfix">
-            			<span class="phone-numbers">8-800-700-82-82 &ensp;- &ensp;бесплатно по РФ</span>
+            			<span class="phone-numbers">{%s phone1 %} &ensp;- &ensp;free on country</span>
             		</div>
             		<div class="second-phone clearfix">
-            			<span class="phone-numbers2">+7-978-978-82-82</span>
+            			<span class="phone-numbers2">{%s phone2 %}</span>
             			<span class="phone-descr">&ensp;&ensp; - &ensp;согласно тарифам</span>
             			<div class="perenos">Вашего оператора</div>
             		</div>
             		<div class="mail">
-            			<a href="mailto:ingo@82RU.ru" class="footer-mail">ingo@82RU.ru</a>
+            			<a href="mailto:ingo@82RU.ru" class="footer-mail">{%s email %}</a>
             		</div>
             	</div>
             	<div class="footer-social">

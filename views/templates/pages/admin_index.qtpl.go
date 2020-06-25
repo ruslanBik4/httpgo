@@ -88,7 +88,7 @@ func (body *AdminPageBody) StreamShowAdminPage(qw422016 *qt422016.Writer, active
 
 `)
 //line views/templates/pages/admin_index.qtpl:41
-	layouts.StreamFooterHTML(qw422016)
+	layouts.StreamFooterHTML(qw422016, "test@email.net", "8-000-00-00", "+380(00)000-00-00")
 //line views/templates/pages/admin_index.qtpl:41
 	qw422016.N().S(`
 </body>

@@ -38,6 +38,6 @@ type AdminPageBody struct {
 </div>
 </div>
 
-{%= layouts.FooterHTML() %}
+{%= layouts.FooterHTML("test@email.net", "8-000-00-00", "+380(00)000-00-00") %}
 </body>
 {% endfunc %}

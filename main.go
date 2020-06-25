@@ -33,8 +33,10 @@ import (
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/models/telegrambot"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
 
 //go:generate qtc -dir=views/templates
@@ -50,6 +52,20 @@ var (
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
 	routes  = ApiRoutes{
+		"/": {
+			Fnc: func(ctx *RequestCtx) (interface{}, error) {
+				body := &pages.IndexPageBody{
+					TopMenu: map[string]string{
+						"Search": "/form/search/",
+						"View":   "/form/show/",
+					},
+					Title: "Index page of test server",
+				}
+				views.RenderHTMLPage(ctx, body.WriteIndexHTML)
+
+				return nil, nil
+			},
+		},
 		ShowVersion: {
 			Fnc:  HandleVersion,
 			Desc: "view version server",

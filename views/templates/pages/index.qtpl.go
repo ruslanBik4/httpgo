@@ -88,7 +88,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 
     `)
 //line views/templates/pages/index.qtpl:49
-	layouts.StreamFooterHTML(qw422016)
+	layouts.StreamFooterHTML(qw422016, "test@email.net", "8-000-00-00", "+380(00)000-00-00")
 //line views/templates/pages/index.qtpl:49
 	qw422016.N().S(`
 

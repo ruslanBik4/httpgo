@@ -46,7 +46,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 </div>
 </div>
 
-    {%= layouts.FooterHTML() %}
+    {%= layouts.FooterHTML("test@email.net", "8-000-00-00", "+380(00)000-00-00") %}
 
 </body>
 {% endfunc %}

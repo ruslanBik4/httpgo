@@ -18,7 +18,7 @@ var (
 )
 
 //line views/templates/layouts/footer.qtpl:1
-func StreamFooterHTML(qw422016 *qt422016.Writer) {
+func StreamFooterHTML(qw422016 *qt422016.Writer, email, phone1, phone2 string) {
 //line views/templates/layouts/footer.qtpl:1
 	qw422016.N().S(`
 <footer class="main-footer">
@@ -31,15 +31,27 @@ func StreamFooterHTML(qw422016 *qt422016.Writer) {
             <div class="footer-block">
             	<div class="footer-phones">
             		<div class="first-phone clearfix">
-            			<span class="phone-numbers">8-800-700-82-82 &ensp;- &ensp;бесплатно по РФ</span>
+            			<span class="phone-numbers">`)
+//line views/templates/layouts/footer.qtpl:12
+	qw422016.E().S(phone1)
+//line views/templates/layouts/footer.qtpl:12
+	qw422016.N().S(` &ensp;- &ensp;free on country</span>
             		</div>
             		<div class="second-phone clearfix">
-            			<span class="phone-numbers2">+7-978-978-82-82</span>
+            			<span class="phone-numbers2">`)
+//line views/templates/layouts/footer.qtpl:15
+	qw422016.E().S(phone2)
+//line views/templates/layouts/footer.qtpl:15
+	qw422016.N().S(`</span>
             			<span class="phone-descr">&ensp;&ensp; - &ensp;согласно тарифам</span>
             			<div class="perenos">Вашего оператора</div>
             		</div>
             		<div class="mail">
-            			<a href="mailto:ingo@82RU.ru" class="footer-mail">ingo@82RU.ru</a>
+            			<a href="mailto:ingo@82RU.ru" class="footer-mail">`)
+//line views/templates/layouts/footer.qtpl:20
+	qw422016.E().S(email)
+//line views/templates/layouts/footer.qtpl:20
+	qw422016.N().S(`</a>
             		</div>
             	</div>
             	<div class="footer-social">
@@ -72,22 +84,22 @@ func StreamFooterHTML(qw422016 *qt422016.Writer) {
 }
 
 //line views/templates/layouts/footer.qtpl:48
-func WriteFooterHTML(qq422016 qtio422016.Writer) {
+func WriteFooterHTML(qq422016 qtio422016.Writer, email, phone1, phone2 string) {
 //line views/templates/layouts/footer.qtpl:48
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line views/templates/layouts/footer.qtpl:48
-	StreamFooterHTML(qw422016)
+	StreamFooterHTML(qw422016, email, phone1, phone2)
 //line views/templates/layouts/footer.qtpl:48
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/layouts/footer.qtpl:48
 }
 
 //line views/templates/layouts/footer.qtpl:48
-func FooterHTML() string {
+func FooterHTML(email, phone1, phone2 string) string {
 //line views/templates/layouts/footer.qtpl:48
 	qb422016 := qt422016.AcquireByteBuffer()
 //line views/templates/layouts/footer.qtpl:48
-	WriteFooterHTML(qb422016)
+	WriteFooterHTML(qb422016, email, phone1, phone2)
 //line views/templates/layouts/footer.qtpl:48
 	qs422016 := string(qb422016.B)
 //line views/templates/layouts/footer.qtpl:48

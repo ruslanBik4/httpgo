@@ -68,6 +68,8 @@ type URLTestPage struct {
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
+{% stripspace %}
+{% collapsespace %}
             <form action="{%= u.URL() %}" method="{%s u.Method %}" enctype="{%= u.EncType() %}" target="_blank">
                   {% for _, param := range u.Params %}
                      <p>{%s param.Comment %}</p>
@@ -81,6 +83,9 @@ type URLTestPage struct {
                   {% endfor %}
                   <button> Send real URL "{%= u.URL() %}"</button>
            </form>
+{% endstripspace %}
+{% endcollapsespace %}
+
             </div>
         </div>
         <div class="content-sep"> </div>
