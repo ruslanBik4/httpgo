@@ -25,7 +25,6 @@ _testmain.go
 *.prof
 .idea/
 bootstrap/
-css/
 dadata.go
 test.html
 Would skip repository
