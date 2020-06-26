@@ -75,10 +75,11 @@ func (b SQLBuilder) Where() string {
 
 	where, comma := "", ""
 	for _, name := range b.filter {
+		b.posFilter++
+
 		switch pre := name[0]; pre {
 		case '>', '<', '$', '~', '^':
 
-			b.posFilter++
 			name = name[1:]
 			switch pre {
 			case '$':

@@ -150,6 +150,8 @@ func StreamFormHTML(qw422016 *qt422016.Writer, title, action, method string, col
 //line views/templates/forms/json.qtpl:46
 		qw422016.N().S(`">`)
 //line views/templates/forms/json.qtpl:46
+		qw422016.E().S(col.Name())
+//line views/templates/forms/json.qtpl:46
 		qw422016.E().S(col.Comment())
 //line views/templates/forms/json.qtpl:46
 		qw422016.N().S(`</label><input type="`)
