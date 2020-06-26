@@ -102,6 +102,7 @@ type Table interface {
 	FindIndex(name string) *Index
 	GetColumns(ctx context.Context) error
 	Insert(ctx context.Context, Options ...BuildSqlOptions) error
+	Update(ctx context.Context, Options ...BuildSqlOptions) error
 	Name() string
 	RereadColumn(name string) Column
 	Select(ctx context.Context, args ...interface{})

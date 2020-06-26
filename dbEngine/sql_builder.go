@@ -12,7 +12,8 @@ import (
 type SQLBuilder struct {
 	Args          []interface{}
 	columns       []string
-	Filter        []string
+	filter        []string
+	posFilter     int
 	Table         Table
 	SelectColumns []Column
 }
@@ -25,9 +26,17 @@ func (b SQLBuilder) InsertSql() (string, error) {
 	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES (" + b.values() + ")", nil
 }
 
+func (b SQLBuilder) UpdateSql() (string, error) {
+	if len(b.columns)+len(b.filter) != len(b.Args) {
+		return "", NewErrWrongArgsLen(b.Table.Name(), b.columns, b.Args)
+	}
+
+	return "UPDATE " + b.Table.Name() + b.Set() + b.Where(), nil
+}
+
 func (b SQLBuilder) SelectSql() (string, error) {
-	if len(b.Filter) != len(b.Args) {
-		return "", NewErrWrongArgsLen(b.Table.Name(), b.Filter, b.Args)
+	if len(b.filter) != len(b.Args) {
+		return "", NewErrWrongArgsLen(b.Table.Name(), b.filter, b.Args)
 	}
 
 	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where(), nil
@@ -41,6 +50,52 @@ func (b SQLBuilder) Select() string {
 	return strings.Join(b.columns, ",")
 }
 
+func (b SQLBuilder) Set() string {
+	s := "SET "
+	if len(b.columns) == 0 {
+		for _, col := range b.Table.Columns() {
+			b.posFilter++
+			s += fmt.Sprintf(" %s=$%d", col.Name(), b.posFilter)
+		}
+
+		return s
+	}
+
+	for _, name := range b.columns {
+		b.posFilter++
+		s += fmt.Sprintf(" %s=$%d", name, b.posFilter)
+	}
+
+	return s
+}
+
+func (b SQLBuilder) Where() string {
+
+	where, comma := "", ""
+	for _, name := range b.filter {
+		switch pre := name[0]; pre {
+		case '>', '<', '$', '~', '^':
+
+			b.posFilter++
+			name = name[1:]
+			switch pre {
+			case '$':
+				where += fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, b.posFilter)
+			case '^':
+				where += fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, b.posFilter)
+			default:
+				where += fmt.Sprintf(" %s %s $%d", name, pre, b.posFilter)
+			}
+		default:
+			where += fmt.Sprintf(" %s=$%d", name, b.posFilter)
+		}
+		where += comma
+		comma = " AND "
+	}
+
+	return " WHERE " + where
+}
+
 func (b SQLBuilder) values() string {
 	s, comma := "", ""
 	for i := range b.Args {
@@ -49,14 +104,6 @@ func (b SQLBuilder) values() string {
 	}
 
 	return s
-}
-
-func (b SQLBuilder) Where() string {
-	if len(b.Filter) == 0 {
-		return ""
-	}
-
-	return " WHERE " + strings.Join(b.Filter, " AND ")
 }
 
 type BuildSqlOptions func(b *SQLBuilder) error
@@ -84,36 +131,23 @@ func ColumnsForSelect(columns ...string) BuildSqlOptions {
 func WhereForSelect(columns ...string) BuildSqlOptions {
 	return func(b *SQLBuilder) error {
 
-		b.Filter = make([]string, len(columns))
+		b.filter = make([]string, len(columns))
 		if b.Table != nil {
-			for i, name := range columns {
+			for _, name := range columns {
+
 				switch pre := name[0]; pre {
 				case '>', '<', '$', '~', '^':
-
 					name = name[1:]
-					if b.Table.FindColumn(name) == nil {
-						return NewErrNotFoundColumn(b.Table.Name(), name)
-					}
-
-					switch pre {
-					case '$':
-						b.Filter[i] = fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, i+1)
-					case '^':
-						b.Filter[i] = fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, i+1)
-					default:
-						b.Filter[i] = fmt.Sprintf(" %s %s $%d", name, pre, i+1)
-					}
-				default:
-
-					if b.Table.FindColumn(name) == nil {
-						return NewErrNotFoundColumn(b.Table.Name(), name)
-					}
-
-					b.Filter[i] = fmt.Sprintf(" %s=$%d", name, i+1)
-
 				}
+
+				if b.Table.FindColumn(name) == nil {
+					return NewErrNotFoundColumn(b.Table.Name(), name)
+				}
+
 			}
 		}
+
+		b.filter = columns
 
 		return nil
 	}

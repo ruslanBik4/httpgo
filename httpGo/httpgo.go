@@ -41,8 +41,29 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	apis.Ctx["ACC_VERSION"] = httpgoVersion
 
+	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
+	// 	uri := header.RequestURI()
+	// 	if bytes.HasPrefix(uri, []byte("https")) {
+	//
+	// 	}
+	// 	logs.StatusLog(string(uri))
+	// 	return fasthttp.RequestConfig{}
+	// }
+	// cfg.Server.NextProto("https", func(c net.Conn) error {
+	// 	n := c.LocalAddr().Network()
+	// 	if strings.HasPrefix(n, "https") {
+	//
+	// 	}
+	// 	logs.StatusLog(n)
+	// 	return nil
+	// })
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
+		// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
+		// 	uri := ctx.Request.URI()
+		// 	uri.SetScheme("http")
+		// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
+		// }
 	}
 	cfg.Server.Logger = &fastHTTPLogger{}
 
@@ -143,7 +164,7 @@ func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
 
 	if strings.Contains(mess, "error") {
 		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog("%s %+v", mess, args)
+			logs.StatusLog(append([]interface{}{mess}, args...)...)
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}

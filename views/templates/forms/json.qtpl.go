@@ -118,60 +118,155 @@ func FormJSON(title, action, method string, columns []dbEngine.Column) string {
 }
 
 //line views/templates/forms/json.qtpl:40
-func StreamConvertType(qw422016 *qt422016.Writer, t string) {
+func StreamFormHTML(qw422016 *qt422016.Writer, title, action, method string, columns []dbEngine.Column) {
+//line views/templates/forms/json.qtpl:40
+	qw422016.N().S(`<form id="`)
 //line views/templates/forms/json.qtpl:41
-	switch t {
+	qw422016.E().S(title)
+//line views/templates/forms/json.qtpl:41
+	qw422016.N().S(`form" name="`)
+//line views/templates/forms/json.qtpl:41
+	qw422016.E().S(title)
+//line views/templates/forms/json.qtpl:41
+	qw422016.N().S(`" role='form' class="form-horizontal row-fluid" target="content"action="`)
 //line views/templates/forms/json.qtpl:42
-	case "int", "int4", "_int4", "int8", "_int8", "float4", "_float4", "float8", "_float8", "numeric", "decimal":
+	qw422016.E().S(action)
 //line views/templates/forms/json.qtpl:42
-		qw422016.N().S(`"number"`)
-//line views/templates/forms/json.qtpl:44
-	case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time":
-//line views/templates/forms/json.qtpl:44
-		qw422016.N().S(`"datetime"`)
+	qw422016.N().S(`" method="`)
+//line views/templates/forms/json.qtpl:42
+	qw422016.N().S(method)
+//line views/templates/forms/json.qtpl:42
+	qw422016.N().S(`"onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
+//line views/templates/forms/json.qtpl:43
+	qw422016.E().S(title)
+//line views/templates/forms/json.qtpl:43
+	qw422016.N().S(`" >`)
+//line views/templates/forms/json.qtpl:45
+	for _, col := range columns {
+//line views/templates/forms/json.qtpl:45
+		qw422016.N().S(`<label class="input-label" for="`)
 //line views/templates/forms/json.qtpl:46
-	case "boolean", "bool":
+		qw422016.E().S(col.Name())
 //line views/templates/forms/json.qtpl:46
-		qw422016.N().S(`"checkbox"`)
+		qw422016.N().S(`">`)
+//line views/templates/forms/json.qtpl:46
+		qw422016.E().S(col.Comment())
+//line views/templates/forms/json.qtpl:46
+		qw422016.N().S(`</label><input type="`)
 //line views/templates/forms/json.qtpl:47
-	case "tel":
+		StreamConvertType(qw422016, col.Type())
 //line views/templates/forms/json.qtpl:47
-		qw422016.N().S(`"tel"`)
+		qw422016.N().S(`" name="`)
+//line views/templates/forms/json.qtpl:47
+		qw422016.E().S(col.Name())
+//line views/templates/forms/json.qtpl:47
+		qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:48
-	case "password":
+		if col.Required() {
 //line views/templates/forms/json.qtpl:48
-		qw422016.N().S(`"password"`)
+			qw422016.N().S(`required`)
+//line views/templates/forms/json.qtpl:48
+		}
 //line views/templates/forms/json.qtpl:49
-	default:
+		if col.CharacterMaximumLength() > 0 {
 //line views/templates/forms/json.qtpl:49
-		qw422016.N().S(`"text"`)
+			qw422016.N().S(`"max"= "`)
 //line views/templates/forms/json.qtpl:50
+			qw422016.N().D(col.CharacterMaximumLength())
+//line views/templates/forms/json.qtpl:50
+			qw422016.N().S(`"`)
+//line views/templates/forms/json.qtpl:51
+		}
+//line views/templates/forms/json.qtpl:51
+		qw422016.N().S(`>`)
+//line views/templates/forms/json.qtpl:53
 	}
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:53
+	qw422016.N().S(`<div class="form-actions"><button class="main-btn" type="submit">Сохранить</button></div></form>`)
+//line views/templates/forms/json.qtpl:59
 }
 
-//line views/templates/forms/json.qtpl:51
-func WriteConvertType(qq422016 qtio422016.Writer, t string) {
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
+func WriteFormHTML(qq422016 qtio422016.Writer, title, action, method string, columns []dbEngine.Column) {
+//line views/templates/forms/json.qtpl:59
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/forms/json.qtpl:51
-	StreamConvertType(qw422016, t)
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
+	StreamFormHTML(qw422016, title, action, method, columns)
+//line views/templates/forms/json.qtpl:59
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
 }
 
-//line views/templates/forms/json.qtpl:51
-func ConvertType(t string) string {
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
+func FormHTML(title, action, method string, columns []dbEngine.Column) string {
+//line views/templates/forms/json.qtpl:59
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/forms/json.qtpl:51
-	WriteConvertType(qb422016, t)
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
+	WriteFormHTML(qb422016, title, action, method, columns)
+//line views/templates/forms/json.qtpl:59
 	qs422016 := string(qb422016.B)
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
 	return qs422016
-//line views/templates/forms/json.qtpl:51
+//line views/templates/forms/json.qtpl:59
+}
+
+//line views/templates/forms/json.qtpl:61
+func StreamConvertType(qw422016 *qt422016.Writer, t string) {
+//line views/templates/forms/json.qtpl:62
+	switch t {
+//line views/templates/forms/json.qtpl:63
+	case "int", "int4", "_int4", "int8", "_int8", "float4", "_float4", "float8", "_float8", "numeric", "decimal":
+//line views/templates/forms/json.qtpl:63
+		qw422016.N().S(`"number"`)
+//line views/templates/forms/json.qtpl:65
+	case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time":
+//line views/templates/forms/json.qtpl:65
+		qw422016.N().S(`"datetime"`)
+//line views/templates/forms/json.qtpl:67
+	case "boolean", "bool":
+//line views/templates/forms/json.qtpl:67
+		qw422016.N().S(`"checkbox"`)
+//line views/templates/forms/json.qtpl:68
+	case "tel":
+//line views/templates/forms/json.qtpl:68
+		qw422016.N().S(`"tel"`)
+//line views/templates/forms/json.qtpl:69
+	case "password":
+//line views/templates/forms/json.qtpl:69
+		qw422016.N().S(`"password"`)
+//line views/templates/forms/json.qtpl:70
+	default:
+//line views/templates/forms/json.qtpl:70
+		qw422016.N().S(`"text"`)
+//line views/templates/forms/json.qtpl:71
+	}
+//line views/templates/forms/json.qtpl:72
+}
+
+//line views/templates/forms/json.qtpl:72
+func WriteConvertType(qq422016 qtio422016.Writer, t string) {
+//line views/templates/forms/json.qtpl:72
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line views/templates/forms/json.qtpl:72
+	StreamConvertType(qw422016, t)
+//line views/templates/forms/json.qtpl:72
+	qt422016.ReleaseWriter(qw422016)
+//line views/templates/forms/json.qtpl:72
+}
+
+//line views/templates/forms/json.qtpl:72
+func ConvertType(t string) string {
+//line views/templates/forms/json.qtpl:72
+	qb422016 := qt422016.AcquireByteBuffer()
+//line views/templates/forms/json.qtpl:72
+	WriteConvertType(qb422016, t)
+//line views/templates/forms/json.qtpl:72
+	qs422016 := string(qb422016.B)
+//line views/templates/forms/json.qtpl:72
+	qt422016.ReleaseByteBuffer(qb422016)
+//line views/templates/forms/json.qtpl:72
+	return qs422016
+//line views/templates/forms/json.qtpl:72
 }

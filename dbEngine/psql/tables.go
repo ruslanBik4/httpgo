@@ -63,6 +63,27 @@ func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 	return err
 }
 
+func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+	b := &dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return errors.Wrap(err, "setOption")
+		}
+	}
+
+	sql, err := b.UpdateSql()
+	if err != nil {
+		return err
+	}
+
+	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
+
+	logs.DebugLog(comTag)
+
+	return err
+}
+
 func (t *Table) Name() string {
 	return t.name
 }
