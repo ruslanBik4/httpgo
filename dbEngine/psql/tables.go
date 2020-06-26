@@ -88,8 +88,22 @@ func (t *Table) Name() string {
 	return t.name
 }
 
-func (t *Table) Select(ctx context.Context, args ...interface{}) {
-	t.conn.Query(ctx, "sql", args...)
+func (t *Table) Select(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+	b := &dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return errors.Wrap(err, "setOption")
+		}
+	}
+	sql, err := b.SelectSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = t.conn.Query(ctx, sql, b.Args...)
+
+	return err
 }
 
 func (t *Table) SelectAndScanEach(ctx context.Context, each func() error, row dbEngine.RowScanner, Options ...dbEngine.BuildSqlOptions) error {

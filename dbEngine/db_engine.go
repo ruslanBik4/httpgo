@@ -105,7 +105,7 @@ type Table interface {
 	Update(ctx context.Context, Options ...BuildSqlOptions) error
 	Name() string
 	RereadColumn(name string) Column
-	Select(ctx context.Context, args ...interface{})
+	Select(ctx context.Context, Options ...BuildSqlOptions) error
 	SelectAndScanEach(ctx context.Context, each func() error, rowValue RowScanner, Options ...BuildSqlOptions) error
 	SelectAndRunEach(ctx context.Context, each FncEachRow, Options ...BuildSqlOptions) error
 }

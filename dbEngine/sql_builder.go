@@ -51,11 +51,12 @@ func (b SQLBuilder) Select() string {
 }
 
 func (b SQLBuilder) Set() string {
-	s := "SET "
+	s, comma := " SET ", ""
 	if len(b.columns) == 0 {
 		for _, col := range b.Table.Columns() {
 			b.posFilter++
-			s += fmt.Sprintf(" %s=$%d", col.Name(), b.posFilter)
+			s += fmt.Sprintf(comma+" %s=$%d", col.Name(), b.posFilter)
+			comma = ","
 		}
 
 		return s
@@ -63,7 +64,8 @@ func (b SQLBuilder) Set() string {
 
 	for _, name := range b.columns {
 		b.posFilter++
-		s += fmt.Sprintf(" %s=$%d", name, b.posFilter)
+		s += fmt.Sprintf(comma+" %s=$%d", name, b.posFilter)
+		comma = ","
 	}
 
 	return s
@@ -80,16 +82,15 @@ func (b SQLBuilder) Where() string {
 			name = name[1:]
 			switch pre {
 			case '$':
-				where += fmt.Sprintf(" %s ~ '.*' + $%d + '$' ", name, b.posFilter)
+				where += fmt.Sprintf(comma+" %s ~ '.*' + $%d + '$' ", name, b.posFilter)
 			case '^':
-				where += fmt.Sprintf(" %s ~ '^.*' + $%d + '.*' ", name, b.posFilter)
+				where += fmt.Sprintf(comma+" %s ~ '^.*' + $%d + '.*' ", name, b.posFilter)
 			default:
-				where += fmt.Sprintf(" %s %s $%d", name, pre, b.posFilter)
+				where += fmt.Sprintf(comma+" %s %s $%d", name, pre, b.posFilter)
 			}
 		default:
-			where += fmt.Sprintf(" %s=$%d", name, b.posFilter)
+			where += fmt.Sprintf(comma+" %s=$%d", name, b.posFilter)
 		}
-		where += comma
 		comma = " AND "
 	}
 
@@ -98,8 +99,9 @@ func (b SQLBuilder) Where() string {
 
 func (b SQLBuilder) values() string {
 	s, comma := "", ""
-	for i := range b.Args {
-		s += fmt.Sprintf("%s$%d", comma, i+1)
+	for _ = range b.Args {
+		b.posFilter++
+		s += fmt.Sprintf("%s$%d", comma, b.posFilter)
 		comma = ","
 	}
 
