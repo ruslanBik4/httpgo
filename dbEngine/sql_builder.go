@@ -42,7 +42,7 @@ func (b SQLBuilder) SelectSql() (string, error) {
 	return "SELECT " + b.Select() + " FROM " + b.Table.Name() + b.Where(), nil
 }
 
-func (b SQLBuilder) Select() string {
+func (b *SQLBuilder) Select() string {
 	if len(b.columns) == 0 {
 		return "*"
 	}
@@ -50,7 +50,7 @@ func (b SQLBuilder) Select() string {
 	return strings.Join(b.columns, ",")
 }
 
-func (b SQLBuilder) Set() string {
+func (b *SQLBuilder) Set() string {
 	s, comma := " SET ", ""
 	if len(b.columns) == 0 {
 		for _, col := range b.Table.Columns() {
@@ -71,7 +71,7 @@ func (b SQLBuilder) Set() string {
 	return s
 }
 
-func (b SQLBuilder) Where() string {
+func (b *SQLBuilder) Where() string {
 
 	where, comma := "", ""
 	for _, name := range b.filter {
@@ -98,7 +98,7 @@ func (b SQLBuilder) Where() string {
 	return " WHERE " + where
 }
 
-func (b SQLBuilder) values() string {
+func (b *SQLBuilder) values() string {
 	s, comma := "", ""
 	for _ = range b.Args {
 		b.posFilter++

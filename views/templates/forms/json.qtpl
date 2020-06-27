@@ -9,7 +9,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% stripspace %}
 {% collapsespace %}
 json for front forms.
-{% func FormJSON(title, action, method string, columns [] dbEngine.Column) %}
+{% func FormJSON(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
   {
     "title" : '{%s= title %}',
     "action": '{%s= action %}',
@@ -27,6 +27,9 @@ json for front forms.
                         {% if col.CharacterMaximumLength() > 0 %}
                         , "maxLength": {%d col.CharacterMaximumLength() %}
                         {% endif %}
+                        {% if i < len(values) && values[i] != nil %}
+                        , "value": "{%v values[i] %}"
+                        {% endif %}
 
                         {% if col.Comment() > "" %}
                         , "title": "{%s col.Comment() %}"
@@ -37,17 +40,20 @@ json for front forms.
   }
 {% endfunc %}
 
-{% func FormHTML(title, action, method string, columns [] dbEngine.Column) %}
+{% func FormHTML(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
 <form id="{%s title %}form" name="{%s title %}" role='form' class="form-horizontal row-fluid" target="content"
         action="{%s action %}" method="{%s= method %}"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s title %}" >
 
-                {% for _, col := range columns %}
+                {% for i, col := range columns %}
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Name() %} {%s col.Comment() %}</label>
                     <input type="{%= ConvertType( col.Type() )%}" name="{%s col.Name() %}"
                         {% if col.Required() %}required{% endif %}
                         {% if col.CharacterMaximumLength() > 0 %}
-                         "max"= "{%d col.CharacterMaximumLength() %}"
+                         max = "{%d col.CharacterMaximumLength() %}"
+                        {% endif %}
+                        {% if i < len(values) && values[i] != nil %}
+                         value = "{%v values[i] %}"
                         {% endif %}
                         >
                 {% endfor %}

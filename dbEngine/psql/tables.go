@@ -60,7 +60,7 @@ func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 
 	logs.DebugLog(comTag)
 
-	return err
+	return errors.Wrap(err, sql)
 }
 
 func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
@@ -81,7 +81,7 @@ func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 
 	logs.DebugLog(comTag)
 
-	return err
+	return errors.Wrap(err, sql)
 }
 
 func (t *Table) Name() string {
