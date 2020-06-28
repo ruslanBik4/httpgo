@@ -68,6 +68,7 @@ func (c *Conn) GetSchema(ctx context.Context) (map[string]dbEngine.Table, map[st
 
 // GetTablesProp получение данных таблиц по условию
 func (c *Conn) GetTablesProp(ctx context.Context) (SchemaCache map[string]dbEngine.Table, err error) {
+	// buf for scan table fileds from query
 	row := &Table{
 		conn: c,
 	}
@@ -78,17 +79,19 @@ func (c *Conn) GetTablesProp(ctx context.Context) (SchemaCache map[string]dbEngi
 		ctx,
 		func() error {
 
-			err := row.GetColumns(ctx)
+			t := &Table{
+				conn:    c,
+				name:    row.Name(),
+				Type:    row.Type,
+				Comment: row.Comment,
+			}
+
+			err := t.GetColumns(ctx)
 			if err != nil {
 				return errors.Wrap(err, "during get columns")
 			}
 
-			SchemaCache[row.Name()] = row
-
-			// create new instance
-			row = &Table{
-				conn: c,
-			}
+			SchemaCache[row.Name()] = t
 
 			return nil
 		},

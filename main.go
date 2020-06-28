@@ -494,7 +494,9 @@ func main() {
 	}
 
 	for key, val := range db.Tables {
-		logs.StatusLog(key, val.Name())
+		if key != val.Name() {
+			logs.StatusLog(key, val.Name())
+		}
 	}
 
 	for key, val := range db.Routines {
