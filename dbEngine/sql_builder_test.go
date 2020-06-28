@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestArgsForSelect(t *testing.T) {
@@ -241,6 +243,32 @@ func TestSQLBuilder_SelectSql(t *testing.T) {
 		{
 			"simple select",
 			fields{
+				nil,
+				nil,
+				nil,
+				0,
+				tableString{},
+				nil,
+			},
+			"SELECT * FROM StringTable",
+			false,
+		},
+		{
+			"select full columns",
+			fields{
+				[]interface{}{1},
+				nil,
+				[]string{"id"},
+				0,
+				tableString{},
+				nil,
+			},
+			"SELECT * FROM StringTable WHERE  id=$1",
+			false,
+		},
+		{
+			"one columns &one filter select",
+			fields{
 				[]interface{}{1},
 				[]string{"last_login"},
 				[]string{"id"},
@@ -302,13 +330,9 @@ func TestSQLBuilder_SelectSql(t *testing.T) {
 				SelectColumns: tt.fields.SelectColumns,
 			}
 			got, err := b.SelectSql()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SelectSql() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("SelectSql() got = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.wantErr, (err != nil), "SelectSql() error = %v, wantErr %v")
+			assert.Equal(t, got, tt.want, "SelectSql() got = %v, want %v", got, tt.want)
+
 		})
 	}
 }

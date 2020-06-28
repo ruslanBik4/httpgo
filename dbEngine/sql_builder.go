@@ -95,7 +95,11 @@ func (b *SQLBuilder) Where() string {
 		comma = " AND "
 	}
 
-	return " WHERE " + where
+	if where > "" {
+		return " WHERE " + where
+	}
+
+	return ""
 }
 
 func (b *SQLBuilder) values() string {
