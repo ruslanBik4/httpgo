@@ -37,7 +37,10 @@ json for front forms.
                         {% if col.Comment() > "" %}
                         , "title": "{%s col.Comment() %}"
                         {% endif %}
-                    }
+                        {% if col.Primary() %}
+                         , "hidden": "hidden"
+                        {% endif %}
+                   }
                 {% endfor %}
                ]
   }
@@ -45,20 +48,25 @@ json for front forms.
 
 {% func FormHTML(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
 <form id="{%s title %}form" name="{%s title %}" role='form' class="form-horizontal row-fluid" target="content"
-         action="{%s action %}" method="{%s= method %}"
+         action="{%s action %}" method="{%s= method %}" enctype="multipart/form-data"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s title %}" >
 
                 {% for i, col := range columns %}
+                  <div id="divField{%d i %}" class="input-wrap"
+                  {% if col.Primary() %} style="display:none" {% endif %}
+                  >
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Name() %} {%s col.Comment() %}</label>
                     <input type="{%= ConvertType( col )%}" name="{%s col.Name() %}"
-                        {% if col.Required() %}required{% endif %}
                         {% if col.CharacterMaximumLength() > 0 %}
                          max = "{%d col.CharacterMaximumLength() %}"
                         {% endif %}
                         {% if i < len(values) && values[i] != nil %}
                          value = "{%v values[i] %}"
                         {% endif %}
-                        >
+                         {% if col.Primary() %} hidden {% endif %}
+                         {% if col.Required() %} required {% endif %}
+                       >
+                   </div>
                 {% endfor %}
 
     <div class="form-actions">

@@ -25,6 +25,10 @@ func (s *NumberColumn) Comment() string {
 	return s.comment
 }
 
+func (c *NumberColumn) Primary() bool {
+	return true
+}
+
 func (s *NumberColumn) Type() string {
 	return "int"
 }

@@ -124,6 +124,7 @@ type Column interface {
 	CharacterMaximumLength() int
 	Comment() string
 	Name() string
+	Primary() bool
 	Type() string
 	Required() bool
 	SetNullable(bool)

@@ -152,6 +152,10 @@ func (c *Column) Name() string {
 	return c.name
 }
 
+func (c *Column) Primary() bool {
+	return c.PrimaryKey
+}
+
 func (c *Column) Type() string {
 	return c.UdtName
 }

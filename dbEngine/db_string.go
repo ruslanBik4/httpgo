@@ -29,6 +29,10 @@ func (s *StringColumn) Comment() string {
 	return s.comment
 }
 
+func (s *StringColumn) Primary() bool {
+	return true
+}
+
 func (s *StringColumn) Type() string {
 	return "string"
 }
