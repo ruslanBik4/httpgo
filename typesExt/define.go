@@ -47,17 +47,10 @@ var StringTypeKinds = map[types.BasicKind]string{
 }
 
 func BasicInfo(typ types.BasicKind) types.BasicInfo {
-	switch typ {
-	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
-		types.Uint8, types.Uint16, types.Uint32, types.Uint64:
-		return types.IsInteger
-	case types.Float32, types.Float64:
-		return types.IsFloat
-	case types.String:
-		return types.IsString
-	case types.Complex64, types.Complex128:
-		return types.IsComplex
-	default:
-		return types.Typ[typ].Info()
-	}
+	return types.Typ[typ].Info()
+}
+
+func IsNumeric(b types.BasicInfo) bool {
+
+	return (b & types.IsNumeric) != 0
 }

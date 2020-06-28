@@ -17,6 +17,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
 func TestColumn_BasicType(t *testing.T) {
@@ -77,11 +78,60 @@ func TestColumn_BasicTypeInfo(t *testing.T) {
 		IsHidden               bool
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   types.BasicInfo
+		name      string
+		fields    fields
+		want      types.BasicInfo
+		isNumeric bool
 	}{
 		// TODO: Add test cases.
+		{
+			"int32",
+			fields{
+				UdtName: "int4",
+			},
+			types.IsInteger,
+			true,
+		},
+		{
+			"int64",
+			fields{
+				UdtName: "int8",
+			},
+			types.IsInteger,
+			true,
+		},
+		{
+			"float32",
+			fields{
+				UdtName: "float4",
+			},
+			types.IsFloat,
+			true,
+		},
+		{
+			"float64",
+			fields{
+				UdtName: "float8",
+			},
+			types.IsFloat,
+			true,
+		},
+		{
+			"bytea",
+			fields{
+				UdtName: "bytea",
+			},
+			types.IsUntyped,
+			false,
+		},
+		{
+			"string",
+			fields{
+				UdtName: "varchar",
+			},
+			types.IsString,
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -98,9 +148,10 @@ func TestColumn_BasicTypeInfo(t *testing.T) {
 				PrimaryKey:             tt.fields.PrimaryKey,
 				IsHidden:               tt.fields.IsHidden,
 			}
-			if got := c.BasicTypeInfo(); got != tt.want {
-				t.Errorf("BasicTypeInfo() = %v, want %v", got, tt.want)
+			if got := c.BasicTypeInfo(); assert.Equal(t, tt.want, got, "BasicTypeInfo() = %v, want %v") {
+				assert.Equal(t, tt.isNumeric, typesExt.IsNumeric(got), "must be numeric %v", got)
 			}
+
 		})
 	}
 }

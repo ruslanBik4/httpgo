@@ -78,9 +78,19 @@ func (c *Conn) GetTablesProp(ctx context.Context) (SchemaCache map[string]dbEngi
 		ctx,
 		func() error {
 
+			err := row.GetColumns(ctx)
+			if err != nil {
+				return errors.Wrap(err, "during get columns")
+			}
+
 			SchemaCache[row.Name()] = row
 
-			return row.GetColumns(ctx)
+			// create new instance
+			row = &Table{
+				conn: c,
+			}
+
+			return nil
 		},
 		row, sqlTableList)
 

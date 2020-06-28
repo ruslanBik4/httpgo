@@ -5,7 +5,9 @@
 package psql
 
 const (
-	sqlTableList = `select TABLE_NAME, TABLE_TYPE
+	sqlTableList = `select TABLE_NAME, TABLE_TYPE,
+					COALESCE(pg_catalog.col_description((SELECT ('"' || TABLE_NAME || '"')::regclass::oid), 0), '')
+				   		AS column_comment
 					FROM INFORMATION_SCHEMA.TABLES
 					WHERE table_schema = 'public' 
 					order by 1`

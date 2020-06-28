@@ -419,11 +419,14 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 					page.Params[i] = pages.ParamUrlTestPage{
 						Basic:   types.Typ[types.Invalid],
 						Name:    val.Name + arrReq[val.Req],
-						Value:   val.TestValue,
 						Req:     val.Req,
 						Type:    val.Type.String(),
 						Comment: val.Desc,
 					}
+					if val.TestValue > "" {
+						page.Params[i].Value = val.TestValue
+					}
+
 					t, ok := val.Type.(TypeInParam)
 					if ok {
 						page.Params[i].Basic = types.Typ[t.BasicKind]

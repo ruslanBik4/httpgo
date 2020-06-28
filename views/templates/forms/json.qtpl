@@ -2,7 +2,10 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
+	"go/types"
+
 	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/typesExt"
 	)
 %}
 
@@ -23,7 +26,7 @@ json for front forms.
                     {
                         "name": "{%s col.Name() %}",
                         "required": {%v col.Required() %},
-                        "type": {%= ConvertType( col.Type() )%}
+                        "type": "{%= ConvertType( col )%}"
                         {% if col.CharacterMaximumLength() > 0 %}
                         , "maxLength": {%d col.CharacterMaximumLength() %}
                         {% endif %}
@@ -42,12 +45,12 @@ json for front forms.
 
 {% func FormHTML(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
 <form id="{%s title %}form" name="{%s title %}" role='form' class="form-horizontal row-fluid" target="content"
-        action="{%s action %}" method="{%s= method %}"
+         action="{%s action %}" method="{%s= method %}"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s title %}" >
 
                 {% for i, col := range columns %}
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Name() %} {%s col.Comment() %}</label>
-                    <input type="{%= ConvertType( col.Type() )%}" name="{%s col.Name() %}"
+                    <input type="{%= ConvertType( col )%}" name="{%s col.Name() %}"
                         {% if col.Required() %}required{% endif %}
                         {% if col.CharacterMaximumLength() > 0 %}
                          max = "{%d col.CharacterMaximumLength() %}"
@@ -64,16 +67,20 @@ json for front forms.
 </form>
 {% endfunc %}
 
-{% func ConvertType(t string)  %}
-    {% switch t %}
-    {% case "int", "int4", "_int4", "int8", "_int8", "float4", "_float4", "float8", "_float8", "numeric", "decimal" %}
-     "number"
-    {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
-     "datetime"
-    {% case "boolean", "bool" %}  "checkbox"
-    {% case "tel"%} "tel"
-    {% case "password" %} "password"
-    {% default %} "text"
+{% func ConvertType(col dbEngine.Column)  %}
+    {% switch %}
+    {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
+     number
+    {% case col.BasicType() == types.Bool %}
+     checkbox
+    {% default %}
+        {% switch col.Type() %}
+        {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
+         datetime
+        {% case "tel" %} tel
+        {% case "password" %} password
+        {% default %} text
+        {% endswitch %}
     {% endswitch %}
 {% endfunc %}
 

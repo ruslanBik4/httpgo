@@ -73,9 +73,11 @@ type URLTestPage struct {
             <form action="{%= u.URL() %}" method="{%s u.Method %}" enctype="{%= u.EncType() %}" target="_blank">
                   {% for _, param := range u.Params %}
                      <p>{%s param.Comment %}</p>
-                     <input name='{%s param.Name %}
-                     {% if param.IsSlice %} [] {% endif %}
-                     ' value='{%v param.Value %}' type='{%= param.TypeInput() %}'
+                     <input name='{%s param.Name %}{% if param.IsSlice %} [] {% endif %}'
+                      {% if param.Value != nil %}
+                            value='{%v param.Value %}'
+                      {% endif %}
+                     type='{%= param.TypeInput() %}'
                      {% if param.Req %}
                      required
                      {% endif %}

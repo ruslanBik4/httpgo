@@ -28,9 +28,9 @@ type Table struct {
 
 func (t *Table) GetFields(columns []dbEngine.Column) []interface{} {
 	if len(columns) == 0 {
-		return []interface{}{&t.name, &t.Type}
+		return []interface{}{&t.name, &t.Type, &t.Comment}
 	}
-	panic("implement me")
+	panic("implement columns according")
 }
 
 func (t *Table) Columns() []dbEngine.Column {
