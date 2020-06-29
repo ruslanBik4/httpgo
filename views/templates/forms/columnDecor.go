@@ -77,7 +77,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 
 	switch val := col.Value.(type) {
 	case []interface{}:
-		return val
+		values = val
 	case []string:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
@@ -115,6 +115,10 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 
 	default:
 		values = append(values, val)
+	}
+
+	if len(values) == 0 {
+		values = append(values, nil)
 	}
 
 	return
