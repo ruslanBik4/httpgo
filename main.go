@@ -148,7 +148,6 @@ var (
 				}
 				s = append(s, decor)
 
-				logs.StatusLog(s[0].Name())
 				if ctx.UserValue(ChildRoutePath) == "html" {
 					views.WriteHeadersHTML(ctx)
 					forms.WriteFormHTML(

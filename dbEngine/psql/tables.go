@@ -165,7 +165,12 @@ func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, 
 }
 
 func (t *Table) FindColumn(name string) dbEngine.Column {
-	return t.findColumn(name)
+	c := t.findColumn(name)
+	if c == nil {
+		return nil
+	}
+
+	return c
 }
 
 func (t *Table) findColumn(name string) *Column {
