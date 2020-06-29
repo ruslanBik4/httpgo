@@ -5,18 +5,66 @@
 package forms
 
 import (
+	"context"
+	"strings"
+
 	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
 type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsReadOnly, isSlice bool
 	PatternList                   dbEngine.Table
-	Pattern                       string
-
-	Value interface{}
+	PatternName                   string
+	pattern                       string
+	Value                         interface{}
 }
 
+func (col *ColumnDecor) Pattern() string {
+	if col.pattern > "" {
+		return col.pattern
+	}
+
+	if name := col.PatternName; name > "" && col.PatternList != nil {
+		err := col.PatternList.SelectAndRunEach(context.Background(),
+			func(values []interface{}, columns []dbEngine.Column) error {
+				col.pattern = values[0].(string)
+
+				return nil
+			},
+			dbEngine.ColumnsForSelect("pattern"),
+			dbEngine.WhereForSelect("name"),
+			dbEngine.ArgsForSelect(name),
+		)
+		if err != nil {
+			logs.ErrorLog(err, "")
+		}
+
+		if col.pattern == "" {
+			return name
+		}
+		return col.pattern
+	}
+
+	if typesExt.IsNumeric(col.BasicTypeInfo()) {
+		return `\d`
+	}
+
+	return ""
+}
+func (col *ColumnDecor) Type() string {
+	const email = "email"
+	const tel = "phone"
+	if strings.HasPrefix(col.Name(), email) {
+		return email
+	} else if strings.HasPrefix(col.Name(), tel) {
+		return "tel"
+	}
+
+	return col.Column.Type()
+}
 func (col *ColumnDecor) GetValues() (values []interface{}) {
 
 	switch val := col.Value.(type) {

@@ -44,6 +44,10 @@ json for front forms.
                         {% if col.Comment() > "" %}
                         , "title": "{%s col.Comment() %}"
                         {% endif %}
+                        {% if p := col.Pattern(); p > "" %}
+                        , "pattern"="{%s p %}"
+                        {% endif %}
+
                         {% if col.IsHidden %}
                          , "hidden": "hidden"
                         {% endif %}
@@ -51,6 +55,42 @@ json for front forms.
                 {% endfor %}
                ]
   }
+{% endfunc %}
+
+
+{% func (col *ColumnDecor) RenderInputs()  %}
+ {% for i, val := range col.GetValues() %}
+                <input type="{%= col.InputType() %}" name="{%s col.InputName(i) %}"
+                {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
+                {% if val != nil %} value = "{%v val %}" {% endif %}
+                 {% if col.Required() %} required="true" {% endif %}
+                 {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
+                 {% if col.IsHidden %} hidden {% endif %}
+               >
+ {% endfor %}
+ {% if col.isSlice %}
+        <button class="main-btn" type="button"
+        onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
+
+ {% endif %}
+{% endfunc %}
+
+{% func (col *ColumnDecor) InputType()  %}
+    {% switch %}
+    {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
+     number
+    {% case col.BasicType() == types.Bool %}
+     checkbox
+    {% default %}
+        {% switch col.Type() %}
+        {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
+         datetime
+        {% case "email" %} email
+        {% case "tel" %} tel
+        {% case "password" %} password
+        {% default %} text
+        {% endswitch %}
+    {% endswitch %}
 {% endfunc %}
 
 {% func FormHTML(title, action, method string, columns [] ColumnDecor) %}
@@ -70,36 +110,32 @@ json for front forms.
         <button class="main-btn" type="submit">Сохранить</button>
     </div>
 </form>
-{% endfunc %}
-
-{% func (col *ColumnDecor) RenderInputs()  %}
- {% for i, val := range col.GetValues() %}
-                col.RenderInput(val)
-                <input type="{%= col.InputType() %}" name="{%s col.InputName(i) %}"
-                {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
-                {% if val != nil %} value = "{%v val %}" {% endif %}
-                 {% if col.Required() %} required="true" {% endif %}
-                 {% if col.IsHidden %} hidden {% endif %}
-               >
- {% endfor %}
-{% endfunc %}
-
-{% func (col *ColumnDecor) InputType()  %}
-    {% switch %}
-    {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
-     number
-    {% case col.BasicType() == types.Bool %}
-     checkbox
-    {% default %}
-        {% switch col.Type() %}
-        {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
-         datetime
-        {% case "tel" %} tel
-        {% case "password" %} password
-        {% default %} text
-        {% endswitch %}
-    {% endswitch %}
-{% endfunc %}
-
+<script>
 {% endstripspace %}
 {% endcollapsespace %}
+function validatePattern(thisElem) {
+    var re = thisElem.pattern,
+        result = true;
+
+    if (re == "") {
+        return true;
+    }
+
+    try {
+
+        re = new RegExp(re);
+        result = re.test(thisElem.value);
+        if(result){
+            thisElem.style.borderColor = 'green';
+        } else {
+            thisElem.style.borderColor = 'red';
+        }
+
+    } catch (e) {
+        console.log(e)
+    }
+
+    return result;
+}
+</script>
+{% endfunc %}

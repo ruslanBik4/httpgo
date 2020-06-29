@@ -135,27 +135,50 @@ var (
 				p.UdtName = "_int4"
 				s = append(s, forms.ColumnDecor{Column: p})
 
-				p1 := p
-				p.UdtName = "bool"
+				p1 := psql.NewColumnPone("psql bool", "psql bool column", 0)
+				p1.UdtName = "bool"
 				s = append(s, forms.ColumnDecor{Column: p1})
 
+				p2 := psql.NewColumnPone("email array", "psql [] string column", 0)
+				p2.UdtName = "_varchar"
+
 				decor := forms.ColumnDecor{
-					Column: p1,
+					Column: p2,
 					Value:  []string{"decor1", "decor2"},
 				}
 				s = append(s, decor)
 
 				logs.StatusLog(s[0].Name())
-				forms.WriteFormJSON(
-					ctx.Response.BodyWriter(),
-					"test form",
-					"/",
-					"POST",
-					s)
+				if ctx.UserValue(ChildRoutePath) == "html" {
+					views.WriteHeadersHTML(ctx)
+					forms.WriteFormHTML(
+						ctx.Response.BodyWriter(),
+						"test form",
+						"/test/forms/post",
+						"POST",
+						s)
+
+				} else {
+					forms.WriteFormJSON(
+						ctx.Response.BodyWriter(),
+						"test form",
+						"/test/forms/post",
+						"POST",
+						s)
+				}
 
 				return nil, nil
 			},
 		},
+		"/test/forms/post": {
+			Fnc: func(ctx *RequestCtx) (interface{}, error) {
+
+				return ctx.UserValue(MultiPartParams), nil
+			},
+			Method:    POST,
+			Multipart: true,
+		},
+
 		// "/godoc/":        handlerGoDoc,
 		// "/recache":       handlerRecache,
 		// "/update/":       handleUpdate,
