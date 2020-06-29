@@ -5,10 +5,10 @@
 package psql
 
 const (
-	sqlTableList = `select TABLE_NAME, TABLE_TYPE,
+	sqlTableList = `SELECT table_name, table_type,
 					COALESCE(pg_catalog.col_description((SELECT ('"' || TABLE_NAME || '"')::regclass::oid), 0), '')
-				   		AS column_comment
-					FROM INFORMATION_SCHEMA.TABLES
+				   		AS comment
+					FROM INFORMATION_SCHEMA.tables
 					WHERE table_schema = 'public' 
 					order by 1`
 	sqlFuncList = `select specific_name, routine_name, routine_type, data_type, type_udt_name
@@ -22,7 +22,7 @@ const (
 							   AS column_comment
 							FROM INFORMATION_SCHEMA.COLUMNS c
 								LEFT JOIN INFORMATION_SCHEMA.key_column_usage k 
-									on (k.table_name=c.table_name AND k.column_name = c.COLUMN_NAME)
+									on (k.table_name=c.table_name AND k.column_name = c.column_name)
 							WHERE c.table_schema='public' AND c.table_name=$1`
 	sqlGetFuncParams = `SELECT parameter_name, data_type, udt_name,
 		COALESCE(CHARACTER_SET_NAME, ''),
@@ -30,9 +30,14 @@ const (
 		ordinal_position, parameter_mode
 		FROM INFORMATION_SCHEMA.parameters
 		WHERE specific_schema='public' AND specific_name=$1`
-	sqlGetColumnAttr = `SELECT data_type, COALESCE(column_default, 'NULL'),
-							is_nullable='YES', COALESCE(character_set_name, ''),
-							COALESCE(character_maximum_length, -1), udt_name
+	sqlGetColumnAttr = `SELECT data_type, 
+							COALESCE(column_default, 'NULL') as column_default,
+							is_nullable='YES' as is_nullable, 
+							COALESCE(character_set_name, '') as character_set_name,
+							COALESCE(character_maximum_length, -1) as character_maximum_length, 
+							udt_name,
+							COALESCE(pg_catalog.col_description((SELECT ('"' || $1 || '"')::regclass::oid), c.ordinal_position::int), '')
+							   AS column_comment
 						FROM INFORMATION_SCHEMA.COLUMNS C
 						WHERE C.table_schema='public' AND C.table_name=$1 AND C.COLUMN_NAME = $2`
 )

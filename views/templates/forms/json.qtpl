@@ -4,7 +4,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% import (
 	"go/types"
 
-	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/typesExt"
 	)
 %}
@@ -12,7 +12,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% stripspace %}
 {% collapsespace %}
 json for front forms.
-{% func FormJSON(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
+{% func FormJSON(title, action, method string, columns [] ColumnDecor) %}
   {
     "title" : '{%s= title %}',
     "action": '{%s= action %}',
@@ -24,20 +24,27 @@ json for front forms.
                         ,
                     {% endif %}
                     {
-                        "name": "{%s col.Name() %}",
+                        {% code
+                            values := col.GetValues()
+                        %}
+                        "name": "{%s col.InputName(-1) %}",
                         "required": {%v col.Required() %},
-                        "type": "{%= ConvertType( col )%}"
+                        "type": "{%= col.InputType()%}"
                         {% if col.CharacterMaximumLength() > 0 %}
                         , "maxLength": {%d col.CharacterMaximumLength() %}
                         {% endif %}
-                        {% if i < len(values) && values[i] != nil %}
-                        , "value": "{%v values[i] %}"
-                        {% endif %}
+                        {% switch len(values) %}
+                        {% case 0 %}
+                        {% case 1 %}
+                        , "value": "{%v values %}"
+                        {% default %}
+                        , "value": {%= json.SimpleDimension(values) %}
+                        {% endswitch %}
 
                         {% if col.Comment() > "" %}
                         , "title": "{%s col.Comment() %}"
                         {% endif %}
-                        {% if col.Primary() %}
+                        {% if col.IsHidden %}
                          , "hidden": "hidden"
                         {% endif %}
                    }
@@ -46,26 +53,16 @@ json for front forms.
   }
 {% endfunc %}
 
-{% func FormHTML(title, action, method string, columns [] dbEngine.Column, values ... interface{}) %}
+{% func FormHTML(title, action, method string, columns [] ColumnDecor) %}
 <form id="{%s title %}form" name="{%s title %}" role='form' class="form-horizontal row-fluid" target="content"
          action="{%s action %}" method="{%s= method %}" enctype="multipart/form-data"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s title %}" >
 
                 {% for i, col := range columns %}
                   <div id="divField{%d i %}" class="input-wrap"
-                  {% if col.Primary() %} style="display:none" {% endif %}
-                  >
-                    <label class="input-label" for="{%s col.Name() %}">{%s col.Name() %} {%s col.Comment() %}</label>
-                    <input type="{%= ConvertType( col )%}" name="{%s col.Name() %}"
-                        {% if col.CharacterMaximumLength() > 0 %}
-                         max = "{%d col.CharacterMaximumLength() %}"
-                        {% endif %}
-                        {% if i < len(values) && values[i] != nil %}
-                         value = "{%v values[i] %}"
-                        {% endif %}
-                         {% if col.Primary() %} hidden {% endif %}
-                         {% if col.Required() %} required {% endif %}
-                       >
+                  {% if col.IsHidden %} style="display:none" {% endif %}
+                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label() %}</label>
+                    {%= col.RenderInputs()  %}
                    </div>
                 {% endfor %}
 
@@ -75,7 +72,19 @@ json for front forms.
 </form>
 {% endfunc %}
 
-{% func ConvertType(col dbEngine.Column)  %}
+{% func (col *ColumnDecor) RenderInputs()  %}
+ {% for i, val := range col.GetValues() %}
+                col.RenderInput(val)
+                <input type="{%= col.InputType() %}" name="{%s col.InputName(i) %}"
+                {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
+                {% if val != nil %} value = "{%v val %}" {% endif %}
+                 {% if col.Required() %} required="true" {% endif %}
+                 {% if col.IsHidden %} hidden {% endif %}
+               >
+ {% endfor %}
+{% endfunc %}
+
+{% func (col *ColumnDecor) InputType()  %}
     {% switch %}
     {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
      number

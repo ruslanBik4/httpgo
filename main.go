@@ -126,16 +126,24 @@ var (
 		},
 		"/test/forms/": {
 			Fnc: func(ctx *RequestCtx) (interface{}, error) {
-				s := dbEngine.SimpleColumns("test 1", "test 2")
-				s = append(s, dbEngine.NewStringColumn("req", "required", true))
-				s = append(s, dbEngine.NewNumberColumn("number", "number required", true))
+				s := make([]forms.ColumnDecor, 0)
+				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 1", "test 1", false)})
+				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 2", "test 2", false)})
+				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("req", "required", true)})
+				s = append(s, forms.ColumnDecor{Column: dbEngine.NewNumberColumn("number", "number required", true)})
 				p := psql.NewColumnPone("psql", "psql column", 0)
 				p.UdtName = "_int4"
-				s = append(s, p)
+				s = append(s, forms.ColumnDecor{Column: p})
 
 				p1 := p
 				p.UdtName = "bool"
-				s = append(s, p1)
+				s = append(s, forms.ColumnDecor{Column: p1})
+
+				decor := forms.ColumnDecor{
+					Column: p1,
+					Value:  []string{"decor1", "decor2"},
+				}
+				s = append(s, decor)
 
 				logs.StatusLog(s[0].Name())
 				forms.WriteFormJSON(

@@ -146,7 +146,7 @@ func (c *Conn) SelectAndScanEach(ctx context.Context, each func() error, rowValu
 	sql string, args ...interface{}) error {
 
 	// sql = convertSQLFromFuncIsNeed(sql, args)
-	rows, err := c.Query(c.ctxPool, sql, args...)
+	rows, err := c.Query(ctx, sql, args...)
 	if err != nil {
 		logs.ErrorLog(err, c.addNoticeToErrLog(sql, args, rows)...)
 		return err
@@ -154,8 +154,16 @@ func (c *Conn) SelectAndScanEach(ctx context.Context, each func() error, rowValu
 
 	defer rows.Close()
 
+	var columns []dbEngine.Column
 	for rows.Next() && (err == nil) {
-		err = rows.Scan(rowValue.GetFields(nil)...)
+		if columns == nil {
+			columns = make([]dbEngine.Column, len(rows.FieldDescriptions()))
+			for i, val := range rows.FieldDescriptions() {
+				columns[i] = &Column{name: string(val.Name)}
+			}
+		}
+
+		err = rows.Scan(rowValue.GetFields(columns)...)
 		if err != nil {
 			break
 		}

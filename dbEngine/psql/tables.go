@@ -30,7 +30,25 @@ func (t *Table) GetFields(columns []dbEngine.Column) []interface{} {
 	if len(columns) == 0 {
 		return []interface{}{&t.name, &t.Type, &t.Comment}
 	}
-	panic("implement columns according")
+
+	v := make([]interface{}, len(columns))
+	for i, col := range columns {
+		switch name := col.Name(); name {
+		case "table_name":
+			v[i] = &t.name
+		case "table_type":
+			v[i] = &t.Type
+		case "comment":
+			v[i] = &t.Comment
+		case "oid":
+			v[i] = &t.ID
+		default:
+			panic("not implement scan for field " + name)
+		}
+	}
+
+	return v
+
 }
 
 func (t *Table) Columns() []dbEngine.Column {
@@ -58,7 +76,7 @@ func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 
 	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
 
-	logs.DebugLog(comTag)
+	logs.DebugLog("%s", comTag)
 
 	return errors.Wrap(err, sql)
 }
@@ -79,7 +97,7 @@ func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions)
 
 	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
 
-	logs.DebugLog(comTag)
+	logs.DebugLog("%s", comTag)
 
 	return errors.Wrap(err, sql)
 }
@@ -147,6 +165,10 @@ func (t *Table) SelectAndRunEach(ctx context.Context, each dbEngine.FncEachRow, 
 }
 
 func (t *Table) FindColumn(name string) dbEngine.Column {
+	return t.findColumn(name)
+}
+
+func (t *Table) findColumn(name string) *Column {
 	for _, col := range t.columns {
 		if col.Name() == name {
 			return col
@@ -193,9 +215,9 @@ func (t *Table) RereadColumn(name string) dbEngine.Column {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 
-	column := t.FindColumn(name)
+	column := t.findColumn(name)
 	if column == nil {
-		column := NewColumnPone(
+		column = NewColumnPone(
 			name,
 			"new column",
 			0,
@@ -204,19 +226,22 @@ func (t *Table) RereadColumn(name string) dbEngine.Column {
 		column.Table = t
 
 		t.columns = append(t.columns, column)
+
+		return column
 	}
 
 	// todo implement
-	// var CharacterMaximumLength int
-	// sql := sqlGetColumnAttr
-	// rows := SelectToRow(sql, t.Name, nameColumn)
-	// //todo chg len
-	// err := rows.Scan(&column.DataType, &column.ColumnDefault, &column.IsNullable,
-	// 	&column.CharacterSetName, &CharacterMaximumLength, &column.UdtName)
-	// if err != nil {
-	// 	logs.ErrorLog(err, "rows.Scan")
-	// 	return nil
-	// }
+	err := t.conn.SelectAndScanEach(
+		context.TODO(),
+		func() error {
+			return nil
+		},
+		column, sqlGetColumnAttr, t.name, column.Name(),
+	)
+	if err != nil {
+		logs.ErrorLog(err, sqlGetTablesColumns)
+		return nil
+	}
 
 	return column
 }

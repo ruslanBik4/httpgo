@@ -27,6 +27,32 @@ type Column struct {
 	IsHidden               bool
 }
 
+func (c *Column) GetFields(columns []dbEngine.Column) []interface{} {
+	v := make([]interface{}, len(columns))
+	for i, col := range columns {
+		switch name := col.Name(); name {
+		case "data_type":
+			v[i] = &c.DataType
+		case "column_default":
+			v[i] = &c.ColumnDefault
+		case "is_nullable":
+			v[i] = &c.IsNullable
+		case "character_set_name":
+			v[i] = &c.CharacterSetName
+		case "character_maximum_length":
+			v[i] = &c.characterMaximumLength
+		case "udt_name":
+			v[i] = &c.UdtName
+		case "column_comment":
+			v[i] = &c.comment
+		default:
+			panic("not implement scan for field " + name)
+		}
+	}
+
+	return v
+}
+
 func NewColumnPone(name string, comment string, characterMaximumLength int) *Column {
 	return &Column{name: name, comment: comment, characterMaximumLength: characterMaximumLength}
 }
@@ -161,7 +187,7 @@ func (c *Column) Type() string {
 }
 
 func (c *Column) Required() bool {
-	return c.IsNullable && ((c.ColumnDefault == "") || (c.ColumnDefault == "NULL"))
+	return !c.IsNullable && ((c.ColumnDefault == "") || (c.ColumnDefault == "NULL"))
 }
 
 func (c *Column) SetNullable(f bool) {
