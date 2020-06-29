@@ -238,7 +238,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
 //line views/templates/forms/json.qtpl:73
 		if col.IsReadOnly {
 //line views/templates/forms/json.qtpl:73
-			qw422016.N().S(`readonly`)
+			qw422016.N().S(`readonly disabled`)
 //line views/templates/forms/json.qtpl:73
 		}
 //line views/templates/forms/json.qtpl:73

@@ -70,7 +70,7 @@ json for front forms.
                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
                  {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
                  {% if col.IsHidden %} hidden {% endif %}
-                 {% if col.IsReadOnly %} readonly {% endif %}
+                 {% if col.IsReadOnly %} readonly disabled {% endif %}
                >
  {% endfor %}
  {% if col.isSlice %}
