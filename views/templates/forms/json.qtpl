@@ -49,7 +49,10 @@ json for front forms.
                         {% endif %}
 
                         {% if col.IsHidden %}
-                         , "hidden": "hidden"
+                         , "hidden": true
+                        {% endif %}
+                        {% if col.IsReadOnly %}
+                         , "readonly": true
                         {% endif %}
                    }
                 {% endfor %}
@@ -65,7 +68,9 @@ json for front forms.
                 {% if val != nil %} value = "{%v val %}" {% endif %}
                  {% if col.Required() %} required="true" {% endif %}
                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
+                 {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
                  {% if col.IsHidden %} hidden {% endif %}
+                 {% if col.IsReadOnly %} readonly {% endif %}
                >
  {% endfor %}
  {% if col.isSlice %}

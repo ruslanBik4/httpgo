@@ -22,37 +22,45 @@ type ColumnDecor struct {
 	Value                         interface{}
 }
 
+func (col *ColumnDecor) Placeholder() string {
+	if col.pattern > "" {
+		return col.pattern
+	}
+
+	return col.Label()
+}
+
 func (col *ColumnDecor) Pattern() string {
 	if col.pattern > "" {
 		return col.pattern
 	}
 
-	if name := col.PatternName; name > "" && col.PatternList != nil {
-		err := col.PatternList.SelectAndRunEach(context.Background(),
-			func(values []interface{}, columns []dbEngine.Column) error {
-				col.pattern = values[0].(string)
+	if name := col.PatternName; name > "" {
+		if col.PatternList != nil {
+			err := col.PatternList.SelectAndRunEach(context.Background(),
+				func(values []interface{}, columns []dbEngine.Column) error {
+					col.pattern = values[0].(string)
 
-				return nil
-			},
-			dbEngine.ColumnsForSelect("pattern"),
-			dbEngine.WhereForSelect("name"),
-			dbEngine.ArgsForSelect(name),
-		)
-		if err != nil {
-			logs.ErrorLog(err, "")
+					return nil
+				},
+				dbEngine.ColumnsForSelect("pattern"),
+				dbEngine.WhereForSelect("name"),
+				dbEngine.ArgsForSelect(name),
+			)
+			if err != nil {
+				logs.ErrorLog(err, "")
+			}
 		}
 
 		if col.pattern == "" {
-			return name
+			col.pattern = name
 		}
-		return col.pattern
+
+	} else if typesExt.IsNumeric(col.BasicTypeInfo()) {
+		col.pattern = `\d`
 	}
 
-	if typesExt.IsNumeric(col.BasicTypeInfo()) {
-		return `\d`
-	}
-
-	return ""
+	return col.pattern
 }
 func (col *ColumnDecor) Type() string {
 	const email = "email"
