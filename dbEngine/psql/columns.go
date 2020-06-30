@@ -28,7 +28,7 @@ type Column struct {
 }
 
 func (c *Column) AutoIncrement() bool {
-	panic("implement me")
+	return strings.HasPrefix(c.ColumnDefault, "nextval(")
 }
 
 func (c *Column) Default() string {
