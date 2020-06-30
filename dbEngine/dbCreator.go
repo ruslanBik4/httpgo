@@ -137,7 +137,7 @@ func (p ParserTableDDL) updateTable(ddl string) bool {
 		case "":
 		case "name":
 			if fields[i] != p.Name() {
-				p.err = errors.New("bad p name! " + fields[i])
+				p.err = errors.New("bad table name! " + fields[i])
 				return false
 			}
 		case "fields":

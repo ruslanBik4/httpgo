@@ -19,6 +19,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
@@ -429,7 +430,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 
 					t, ok := val.Type.(TypeInParam)
 					if ok {
-						page.Params[i].Basic = types.Typ[t.BasicKind]
+						page.Params[i].Basic = typesExt.Basic(t.BasicKind)
 						page.Params[i].IsSlice = t.isSlice
 					}
 				}

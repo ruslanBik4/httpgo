@@ -60,46 +60,70 @@ func (t *Table) Columns() []dbEngine.Column {
 	return res
 }
 
-func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+func (t *Table) Insert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) (int64, error) {
 	b := &dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
 		if err != nil {
-			return errors.Wrap(err, "setOption")
+			return 0, errors.Wrap(err, "setOption")
 		}
 	}
 
 	sql, err := b.InsertSql()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
+	if err != nil {
+		return -1, errors.Wrap(err, sql)
+	}
 
-	logs.DebugLog("%s", comTag)
-
-	return errors.Wrap(err, sql)
+	return comTag.RowsAffected(), nil
 }
 
-func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions) error {
+func (t *Table) Update(ctx context.Context, Options ...dbEngine.BuildSqlOptions) (int64, error) {
 	b := &dbEngine.SQLBuilder{Table: t}
 	for _, setOption := range Options {
 		err := setOption(b)
 		if err != nil {
-			return errors.Wrap(err, "setOption")
+			return 0, errors.Wrap(err, "setOption")
 		}
 	}
 
 	sql, err := b.UpdateSql()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
+	if err != nil {
+		return -1, errors.Wrap(err, sql)
+	}
 
-	logs.DebugLog("%s", comTag)
+	return comTag.RowsAffected(), nil
+}
 
-	return errors.Wrap(err, sql)
+func (t *Table) Upsert(ctx context.Context, Options ...dbEngine.BuildSqlOptions) (int64, error) {
+	b := &dbEngine.SQLBuilder{Table: t}
+	for _, setOption := range Options {
+		err := setOption(b)
+		if err != nil {
+			return 0, errors.Wrap(err, "setOption")
+		}
+	}
+
+	sql, err := b.UpsertSql()
+	if err != nil {
+		return 0, err
+	}
+
+	comTag, err := t.conn.Exec(ctx, sql, b.Args...)
+	if err != nil {
+		return -1, errors.Wrap(err, sql)
+	}
+
+	return comTag.RowsAffected(), nil
 }
 
 func (t *Table) Name() string {
@@ -229,10 +253,7 @@ func (t *Table) RereadColumn(name string) dbEngine.Column {
 		)
 
 		column.Table = t
-
 		t.columns = append(t.columns, column)
-
-		return column
 	}
 
 	// todo implement

@@ -10,43 +10,32 @@ const (
 	TStruct types.BasicKind = -3
 )
 
-var StringTypeKinds = map[types.BasicKind]string{
-	types.Invalid: "Invalid",
+var stringExtTypes = map[types.BasicKind]string{
+	TArray:  "array",
+	TMap:    "map",
+	TStruct: "struct",
+}
 
-	// predeclared types
-	types.Bool:          "Bool",
-	types.Int:           "Int",
-	types.Int8:          "Int8",
-	types.Int16:         "Int16",
-	types.Int32:         "Int32",
-	types.Int64:         "Int64",
-	types.Uint:          "Uint",
-	types.Uint8:         "Uint8",
-	types.Uint16:        "Uint16",
-	types.Uint32:        "Uint32",
-	types.Uint64:        "Uint64",
-	types.Uintptr:       "Uintptr",
-	types.Float32:       "Float32",
-	types.Float64:       "Float64",
-	types.Complex64:     "Complex64",
-	types.Complex128:    "Complex128",
-	types.String:        "String",
-	types.UnsafePointer: "UnsafePointer",
+func StringTypeKinds(typ types.BasicKind) string {
+	if typ < 0 {
+		return stringExtTypes[typ]
+	}
+	return types.Typ[typ].String()
+}
 
-	// types for untyped values
-	types.UntypedBool:    "bool",
-	types.UntypedInt:     "int",
-	types.UntypedRune:    "rune",
-	types.UntypedFloat:   "float64",
-	types.UntypedComplex: "complex128",
-	types.UntypedString:  "string",
-	types.UntypedNil:     "nil",
-	TArray:               "array",
-	TMap:                 "map",
-	TStruct:              "struct",
+func Basic(typ types.BasicKind) *types.Basic {
+	if typ < 0 {
+		typ = types.UnsafePointer
+	}
+
+	return types.Typ[typ]
 }
 
 func BasicInfo(typ types.BasicKind) types.BasicInfo {
+	if typ < 0 {
+		typ = types.UnsafePointer
+	}
+
 	return types.Typ[typ].Info()
 }
 

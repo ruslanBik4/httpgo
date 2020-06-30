@@ -27,6 +27,14 @@ type Column struct {
 	IsHidden               bool
 }
 
+func (c *Column) AutoIncrement() bool {
+	panic("implement me")
+}
+
+func (c *Column) Default() string {
+	return c.ColumnDefault
+}
+
 func (c *Column) GetFields(columns []dbEngine.Column) []interface{} {
 	v := make([]interface{}, len(columns))
 	for i, col := range columns {

@@ -181,7 +181,7 @@ func (t TypeInParam) IsSlice() bool {
 }
 
 func (t TypeInParam) String() string {
-	res := typesExt.StringTypeKinds[t.BasicKind]
+	res := typesExt.StringTypeKinds(t.BasicKind)
 	if t.isSlice {
 		return "[]" + res
 	}

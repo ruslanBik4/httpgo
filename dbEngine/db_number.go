@@ -13,43 +13,51 @@ type NumberColumn struct {
 	req, IsNullable bool
 }
 
+func (c *NumberColumn) AutoIncrement() bool {
+	return false
+}
+
+func (c *NumberColumn) Default() string {
+	return "0"
+}
+
 func NewNumberColumn(name, comment string, req bool) *NumberColumn {
 	return &NumberColumn{comment: comment, name: name, req: req}
 }
 
-func (s *NumberColumn) CheckAttr(fieldDefine string) string {
+func (c *NumberColumn) CheckAttr(fieldDefine string) string {
 	return ""
 }
 
-func (s *NumberColumn) Comment() string {
-	return s.comment
+func (c *NumberColumn) Comment() string {
+	return c.comment
 }
 
 func (c *NumberColumn) Primary() bool {
 	return true
 }
 
-func (s *NumberColumn) Type() string {
+func (c *NumberColumn) Type() string {
 	return "int"
 }
 
-func (s *NumberColumn) Required() bool {
-	return s.req
+func (c *NumberColumn) Required() bool {
+	return c.req
 }
 
-func (s *NumberColumn) Name() string {
-	return s.name
+func (c *NumberColumn) Name() string {
+	return c.name
 }
 
-func (s *NumberColumn) CharacterMaximumLength() int {
+func (c *NumberColumn) CharacterMaximumLength() int {
 	return 0
 }
 
-func (s *NumberColumn) BasicType() types.BasicKind {
+func (c *NumberColumn) BasicType() types.BasicKind {
 	return types.Int
 }
 
-func (s *NumberColumn) BasicTypeInfo() types.BasicInfo {
+func (c *NumberColumn) BasicTypeInfo() types.BasicInfo {
 	return types.IsInteger
 }
 

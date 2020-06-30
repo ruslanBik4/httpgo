@@ -16,6 +16,7 @@ type SQLBuilder struct {
 	posFilter     int
 	Table         Table
 	SelectColumns []Column
+	onConflict    string
 }
 
 func (b SQLBuilder) InsertSql() (string, error) {
@@ -23,7 +24,11 @@ func (b SQLBuilder) InsertSql() (string, error) {
 		return "", NewErrWrongArgsLen(b.Table.Name(), b.columns, b.Args)
 	}
 
-	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES (" + b.values() + ")", nil
+	return b.insertSql(), nil
+}
+
+func (b SQLBuilder) insertSql() string {
+	return "INSERT INTO " + b.Table.Name() + "(" + b.Select() + ") VALUES (" + b.values() + ")" + b.OnConflict()
 }
 
 func (b SQLBuilder) UpdateSql() (string, error) {
@@ -31,7 +36,37 @@ func (b SQLBuilder) UpdateSql() (string, error) {
 		return "", NewErrWrongArgsLen(b.Table.Name(), b.columns, b.Args)
 	}
 
-	return "UPDATE " + b.Table.Name() + b.Set() + b.Where(), nil
+	return b.updateSql(), nil
+}
+
+func (b SQLBuilder) updateSql() string {
+	return "UPDATE " + b.Table.Name() + b.Set() + b.Where()
+}
+
+func (b SQLBuilder) UpsertSql() (string, error) {
+	if len(b.columns) != len(b.Args) {
+		return "", NewErrWrongArgsLen(b.Table.Name(), b.columns, b.Args)
+	}
+
+	b.filter = make([]string, 0)
+	setCols := make([]string, 0)
+
+	for _, name := range b.columns {
+		if col := b.Table.FindColumn(name); col == (Column)(nil) {
+			return "", NewErrNotFoundColumn(b.Table.Name(), name)
+		} else if col.Primary() {
+			b.filter = append(b.filter, name)
+		} else {
+			setCols = append(setCols, name)
+		}
+	}
+	b.onConflict = strings.Join(b.filter, ",")
+
+	s := b.insertSql()
+	b.posFilter = 0
+	b.columns = setCols
+
+	return s + b.updateSql(), nil
 }
 
 func (b SQLBuilder) SelectSql() (string, error) {
@@ -102,6 +137,14 @@ func (b *SQLBuilder) Where() string {
 	return ""
 }
 
+func (b *SQLBuilder) OnConflict() string {
+	if b.onConflict == "" {
+		return ""
+	}
+
+	return " ON CONFLICT " + b.onConflict
+}
+
 func (b *SQLBuilder) values() string {
 	s, comma := "", ""
 	for _ = range b.Args {
@@ -164,6 +207,24 @@ func ArgsForSelect(args ...interface{}) BuildSqlOptions {
 	return func(b *SQLBuilder) error {
 
 		b.Args = args
+
+		return nil
+	}
+}
+
+func InsertOnConflict(onConflict string) BuildSqlOptions {
+	return func(b *SQLBuilder) error {
+
+		b.onConflict = onConflict
+
+		return nil
+	}
+}
+
+func InsertOnConflictDoNothing(onConflict string) BuildSqlOptions {
+	return func(b *SQLBuilder) error {
+
+		b.onConflict = " DO NOTHING "
 
 		return nil
 	}

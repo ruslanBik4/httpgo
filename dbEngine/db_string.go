@@ -9,6 +9,14 @@ type StringColumn struct {
 	req, IsNullable bool
 }
 
+func (s *StringColumn) AutoIncrement() bool {
+	return false
+}
+
+func (s *StringColumn) Default() string {
+	return ""
+}
+
 func NewStringColumn(name, comment string, req bool) *StringColumn {
 	return &StringColumn{comment, name, req, false}
 }

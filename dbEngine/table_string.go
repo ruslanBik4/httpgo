@@ -27,11 +27,11 @@ func (t tableString) GetColumns(ctx context.Context) error {
 	panic("implement me")
 }
 
-func (t tableString) Insert(ctx context.Context, Options ...BuildSqlOptions) error {
+func (t tableString) Insert(ctx context.Context, Options ...BuildSqlOptions) (int64, error) {
 	panic("implement me")
 }
 
-func (t tableString) Update(ctx context.Context, Options ...BuildSqlOptions) error {
+func (t tableString) Update(ctx context.Context, Options ...BuildSqlOptions) (int64, error) {
 	panic("implement me")
 }
 

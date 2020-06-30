@@ -101,8 +101,9 @@ type Table interface {
 	FindColumn(name string) Column
 	FindIndex(name string) *Index
 	GetColumns(ctx context.Context) error
-	Insert(ctx context.Context, Options ...BuildSqlOptions) error
-	Update(ctx context.Context, Options ...BuildSqlOptions) error
+	Insert(ctx context.Context, Options ...BuildSqlOptions) (int64, error)
+	Update(ctx context.Context, Options ...BuildSqlOptions) (int64, error)
+	Upsert(ctx context.Context, Options ...BuildSqlOptions) (int64, error)
 	Name() string
 	RereadColumn(name string) Column
 	Select(ctx context.Context, Options ...BuildSqlOptions) error
@@ -124,6 +125,8 @@ type Column interface {
 	CharacterMaximumLength() int
 	Comment() string
 	Name() string
+	AutoIncrement() bool
+	Default() string
 	Primary() bool
 	Type() string
 	Required() bool
