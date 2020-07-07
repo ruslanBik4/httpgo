@@ -64,7 +64,7 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	return true
 }
 
-// CheckType check of value compatable with the TypeInParam
+// CheckType check of value compatibly with the TypeInParam
 func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error) {
 	switch t.BasicKind {
 	case types.String:
@@ -92,8 +92,6 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	default:
 		return nil, errors.New("convert this type not implement")
 	}
-
-	return value, nil
 }
 
 func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {

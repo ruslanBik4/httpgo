@@ -15,7 +15,6 @@ import (
 	"unsafe"
 
 	"github.com/json-iterator/go"
-	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/logs"
@@ -132,7 +131,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 			val, err := route.checkTypeParam(ctx, key, value)
 			if err != nil {
 				if val != nil {
-					return val, errors.Wrap(ErrWrongParamsList, err.Error())
+					logs.DebugLog(val)
 				}
 
 				badParams = append(badParams, key+" wrong type "+strings.Join(value, ",")+err.Error())

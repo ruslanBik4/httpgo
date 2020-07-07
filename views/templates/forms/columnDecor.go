@@ -6,6 +6,7 @@ package forms
 
 import (
 	"context"
+	"database/sql/driver"
 	"strings"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
@@ -118,6 +119,13 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 	case nil:
 		if d := col.Default(); d > "" {
 			values = append(values, d)
+		}
+	case driver.Valuer:
+		v, err := val.Value()
+		if err != nil {
+			logs.ErrorLog(err, "val.Value")
+		} else {
+			values = append(values, v)
 		}
 	default:
 		values = append(values, val)
