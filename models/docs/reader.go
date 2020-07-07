@@ -1,9 +1,8 @@
 package docs
 
 import (
-	"net/http"
-
 	"github.com/nguyenthenguyen/docx"
+	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/logs"
 )
@@ -44,7 +43,7 @@ func RenderReplaesDoc(ctx *fasthttp.RequestCtx, templatesName string, replaces m
 	for search, replace := range replaces {
 		template.Replace(search, replace, -1)
 	}
-	template.Write(w)
+	template.Write(ctx)
 
 	return nil
 }

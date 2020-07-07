@@ -5,10 +5,11 @@
 package main
 
 import (
-	"github.com/tebeka/selenium"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/tebeka/selenium"
 )
 
 func Example() {

@@ -7,10 +7,11 @@ package qb
 import (
 	"flag"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/services"
 	"testing"
 	"time"
+
+	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services"
 )
 
 func TestQBCreate(t *testing.T) {

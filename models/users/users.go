@@ -10,15 +10,9 @@ import (
 	// "gopkg.in/gomail.v2"
 	"database/sql"
 	"encoding/base64"
-	"errors"
 	"flag"
-	"fmt"
 	"hash/crc32"
-	"io/ioutil"
-	"net/http"
-	"net/mail"
 	"os"
-	"strconv"
 
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
@@ -28,9 +22,6 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/system"
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
 )
 
@@ -58,54 +49,6 @@ func SetSessionPath(fSession string) {
 	Store = sessions.NewFilesystemStore(fSession, []byte("travel.com.ua"))
 }
 
-//func HandlerQauth2(ctx *fasthttp.RequestCtx) {
-//
-//
-//	googleOauthConfig.RedirectURL = r.Host +  "/user/GoogleCallback/"
-//	url := googleOauthConfig.AuthCodeURL(oauthStateString)
-//	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-//	//var ctx context.Context = appengine.NewContext(r)
-//	//client := &http.Client{
-//	//	Transport: &oauth2.Transport{
-//	//		Source: google.AppEngineTokenSource(ctx, "scope"),
-//	//		Base:   &urlfetch.Transport{Context: ctx},
-//	//	},
-//	//}
-//	//resp, _ := client.Get("...")
-//	//w.Write(resp.Body)
-//}
-
-// HandleGoogleCallback Эти callback было бы неплохо регистрировать в одну общую библиотеку для авторизации
-func HandleGoogleCallback(ctx *fasthttp.RequestCtx) {
-	state := r.FormValue("state")
-	if state != oauthStateString {
-		fmt.Printf("invalid oauth state, expected '%s', got '%s'\n", oauthStateString, state)
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-
-	code := r.FormValue("code")
-	token, err := googleOauthConfig.Exchange(oauth2.NoContext, code)
-	if err != nil {
-
-		logs.ErrorLog(err, "Code exchange failed with")
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
-	}
-
-	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
-	if err != nil {
-		logs.ErrorLog(err, "access_token")
-		return
-	}
-	defer response.Body.Close()
-	if contents, err := ioutil.ReadAll(response.Body); err != nil {
-		logs.ErrorLog(err, "read_token")
-	} else {
-		fmt.Fprintf(w, "Content: %s\n", contents)
-	}
-}
-
 // UserRecord for user data
 type UserRecord struct {
 	Id   int
@@ -114,125 +57,6 @@ type UserRecord struct {
 }
 
 var greetings = []string{"господин", "госпожа"}
-
-// GetSession return session for current user (create is needing)
-func GetSession(r *http.Request, name string) *sessions.Session {
-	// Get a session. We're ignoring the error resulted from decoding an
-	// existing session: Get() always returns a session, even if empty.
-	session, err := Store.Get(r, name)
-	if err != nil {
-		logs.ErrorLog(err)
-		return nil
-	}
-	return session
-}
-
-// IsLogin return ID current user or panic()
-func IsLogin(r *http.Request) string {
-	if *fTest {
-		return "8"
-	}
-	session := GetSession(r, nameSession)
-	if session == nil {
-		panic(http.ErrNotSupported)
-	}
-	userID, ok := session.Values["id"]
-	if !ok {
-		panic(system.ErrNotLogin{Message: "not login user!"})
-	}
-
-	return strconv.Itoa(userID.(int))
-}
-func deleteCurrentUser(ctx *fasthttp.RequestCtx) error {
-	session := GetSession(r, nameSession)
-	delete(session.Values, "id")
-	delete(session.Values, "email")
-	return session.Save(r, w)
-
-}
-
-// HandlerProfile show data on profile current user
-func HandlerProfile(ctx *fasthttp.RequestCtx) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	session := GetSession(r, nameSession)
-	email, ok := session.Values["email"]
-	if !ok {
-		http.Redirect(w, r, "/show/forms/?name=signin", http.StatusSeeOther)
-		return
-	}
-	rows := db.DoQuery("select id, fullname, sex from users where login=?", email)
-
-	var row UserRecord
-
-	defer rows.Close()
-	for rows.Next() {
-
-		err := rows.Scan(&row.Id, &row.Name, &row.Sex)
-
-		if err != nil {
-			logs.ErrorLog(err)
-			continue
-		}
-	}
-
-	p := &layouts.MenuOwnerBody{Title: greetings[row.Sex] + " " + row.Name, TopMenu: make(map[string]*layouts.ItemMenu, 0)}
-
-	var menu db.MenuItems
-
-	menu.GetMenu("menuOwner")
-
-	for _, item := range menu.Items {
-		p.TopMenu[item.Title] = &layouts.ItemMenu{Link: "/menu/" + item.Name + "/"}
-
-	}
-	fmt.Fprint(w, p.MenuOwner())
-}
-
-// HandlerSignIn run user authorization
-func HandlerSignIn(ctx *fasthttp.RequestCtx) {
-
-	r.ParseForm()
-	email := r.FormValue("login")
-	password := r.FormValue("password")
-
-	if (email == "") || (password == "") {
-		panic(&system.ErrNotLogin{Message: "Not enoug login parameters!"})
-	}
-
-	user, err := CheckUserCredentials(email, password)
-
-	if err != nil {
-		panic(&system.ErrNotLogin{Message: "Wrong email or password"})
-	}
-
-	// session save BEFORE write page
-	SaveSession(w, r, user.Id, email)
-
-	p := &forms.PersonData{Id: user.Id, Login: user.Name, Email: email}
-	fmt.Fprint(w, p.JSON())
-}
-
-// HandlerSignOut sign out current user & show authorization form
-func HandlerSignOut(ctx *fasthttp.RequestCtx) {
-
-	if err := deleteCurrentUser(w, r); err != nil {
-		logs.ErrorLog(err)
-	}
-	fmt.Fprintf(w, "<title>%s</title>", "Для начала работы необходимо авторизоваться!")
-	views.RenderSignForm(w, r, "")
-}
-
-// SaveSession save in session some data from user
-func SaveSession(ctx *fasthttp.RequestCtx, id int, email string) {
-	session := sessions.NewSession(Store, nameSession)
-	session.Options = &sessions.Options{Path: "/", HttpOnly: true, MaxAge: int(3600)}
-	session.Values["id"] = id
-	session.Values["email"] = email
-	if err := session.Save(r, w); err != nil {
-		logs.ErrorLog(err)
-	}
-}
 
 // GenerateRandomBytes returns securely generated random bytes.
 // It will return an error if the system's secure random
@@ -275,57 +99,6 @@ func HashPassword(password string) interface{} {
 
 const _2K = (1 << 10) * 2
 
-// HandlerSignUp регистрация нового пользователя с генерацией пароля
-// и отсылка письмо об регистрации
-// пароль отсылаем в письме, у себя храним только кеш
-// @/user/signup/
-func HandlerSignUp(ctx *fasthttp.RequestCtx) {
-
-	r.ParseMultipartForm(_2K)
-
-	var args []interface{}
-
-	JSON := make(map[string]interface{}, 4)
-
-	sql, comma, values := "insert into users (", "", ") values ("
-
-	for key, val := range r.Form {
-		args = append(args, val[0])
-		sql += comma + key
-		values += comma + "?"
-		comma = ","
-
-		JSON[key] = val[0]
-	}
-
-	email := JSON["login"].(string)
-	if JSON["form-radio"] == "radio-male" {
-		JSON["sex"] = "господин"
-	} else {
-		JSON["sex"] = "госпожа"
-	}
-	password, err := GeneratePassword(email)
-	if err == nil {
-		sql += comma + "hash"
-		values += comma + "?"
-		// получаем кеш
-		args = append(args, HashPassword(password))
-		JSON["id"], err = db.DoInsert(sql+values+")", args...)
-		if err == nil {
-			// проверка корректности email
-			if _, err := mail.ParseAddress(email); err == nil {
-				go SendMail(email, password)
-				views.RenderAnyJSON(w, JSON)
-			}
-		}
-	}
-
-	if err != nil {
-		views.RenderInternalError(w, err)
-		return
-	}
-}
-
 // SendMail create mail with new {password} & send to {email}
 func SendMail(email, password string) {
 
@@ -345,22 +118,6 @@ func SendMail(email, password string) {
 	}
 
 	logs.DebugLog("email-", email, ", password=", password)
-}
-
-// HandlerActivateUser - obsolete
-func HandlerActivateUser(ctx *fasthttp.RequestCtx) {
-	r.ParseForm()
-
-	if r.FormValue("email") == "" {
-
-		logs.ErrorLog(errors.New("activate user not has email"))
-	}
-	if result, err := db.DoUpdate("update users set active=1 where login=?", r.Form["email"][0]); err != nil {
-		logs.ErrorLog(err)
-	} else {
-		fmt.Fprint(w, result)
-
-	}
 }
 
 // CheckUserCredentials check user data & return id + name

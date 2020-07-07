@@ -8,8 +8,9 @@ package qb
 import (
 	"database/sql"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 // field in QB for incapsulate SQL & Schema propertyes

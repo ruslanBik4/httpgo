@@ -8,7 +8,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/typesExt"
 )
@@ -73,6 +74,7 @@ func (col *ColumnDecor) Type() string {
 
 	return col.Column.Type()
 }
+
 func (col *ColumnDecor) GetValues() (values []interface{}) {
 
 	switch val := col.Value.(type) {
@@ -113,6 +115,10 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 		}
 		col.isSlice = true
 
+	case nil:
+		if d := col.Default(); d > "" {
+			values = append(values, d)
+		}
 	default:
 		values = append(values, val)
 	}

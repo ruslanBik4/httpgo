@@ -3,23 +3,23 @@ package json
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWriteAnyJSON(t *testing.T) {
 	var input = map[string]interface{}{
-		//"one" : StringDimension {"1","2"},
+		// "one" : StringDimension {"1","2"},
 		"two":  true,
-		"thre": 3,
+		"thre": 3.00,
 		"5":    map[string]interface{}{"1": "6", "4": "l", "5": "u"},
 	}
 	result := make(map[string]interface{}, 10)
 
 	strJSON := AnyJSON(input)
-	if err := json.Unmarshal([]byte(strJSON), &result); err != nil {
-		//!= `{"one":[0:"1",1:"2"],"two":true,"thre":3}` {
-		t.Errorf("WriteAnyJSON=%v, stroka=%s, error=%q", input, strJSON, err)
-	} else if !equalMaps(input, result) {
-		t.Errorf("WriteAnyJSON=%v, result=%v", input, result)
+	err := json.Unmarshal([]byte(strJSON), &result)
+	if assert.Nil(t, err, "WriteAnyJSON=%v, stroka=%s", input, strJSON) {
+		assert.Equal(t, input, result)
 	}
 
 	t.Skipped()

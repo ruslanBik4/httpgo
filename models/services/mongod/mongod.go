@@ -6,10 +6,11 @@
 package mongod
 
 import (
-	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/services"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/httpgo/models/services"
 )
 
 var (

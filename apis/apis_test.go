@@ -32,8 +32,9 @@ func TestApis_AddRoute(t *testing.T) {
 func TestRenderApis(t *testing.T) {
 
 	TestCheckAndRun(t)
+	const testPath = "moreParams"
 	err := apis.addRoute(
-		"moreParams",
+		testPath,
 		&ApiRoute{
 			Desc:      "test route",
 			Method:    POST,
@@ -77,6 +78,8 @@ func TestRenderApis(t *testing.T) {
 	)
 	assert.Nil(t, err)
 
+	ctx.Request.SetRequestURI(testPath)
+	ctx.SetUserValue("json", true)
 	resp, err := apis.renderApis(ctx)
 	assert.Nil(t, err)
 	t.Logf(`%#v`, resp)

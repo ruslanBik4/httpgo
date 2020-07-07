@@ -7,30 +7,30 @@ package httpGo
 import (
 	"io/ioutil"
 	"strings"
-	
-	"github.com/valyala/fasthttp"
+
 	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v2"
 
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type AccessConf struct {
-	ChkConn		bool		`yaml:"ChkConn"`
-	AllowIP		[]string	`yaml:"Allow"`
-	DenyIP		[]string	`yaml:"Deny"`
-	Mess		string		`yaml:"Mess"`
-	AllowRoute	[]string	`yaml:"AllowRoute"`
-	DenyRoute	[]string	`yaml:"DenyRoute"`
+	ChkConn    bool     `yaml:"ChkConn"`
+	AllowIP    []string `yaml:"Allow"`
+	DenyIP     []string `yaml:"Deny"`
+	Mess       string   `yaml:"Mess"`
+	AllowRoute []string `yaml:"AllowRoute"`
+	DenyRoute  []string `yaml:"DenyRoute"`
 }
 
 // CfgHttp has some options for Acceptor work
 type CfgHttp struct {
-	fileCfg		string
+	fileCfg string
 	// list tokens to check requests
 	KillSignal int              `yaml:"KillSignal"`
 	Server     *fasthttp.Server `yaml:"Server"`
-	Access		AccessConf		`yaml:"Access"`
+	Access     AccessConf       `yaml:"Access"`
 }
 
 // NewCfgHttp create CfgHttp from config file
@@ -48,11 +48,11 @@ func NewCfgHttp(filename string) (cfgGlobal *CfgHttp, err error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if cfgGlobal == nil {
 		return nil, errors.New("cfg httpgo is nil")
 	}
-	
+
 	cfgGlobal.fileCfg = filename
 
 	return
@@ -63,8 +63,8 @@ func (cfg *CfgHttp) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
 	for _, str := range cfg.Access.AllowRoute {
 		if strings.HasPrefix(path, str) ||
 			((strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + "?" + ctx.QueryArgs().String(), str) ) {
-				
+				strings.HasPrefix(path+"?"+ctx.QueryArgs().String(), str)) {
+
 			return true
 		}
 	}
@@ -77,8 +77,8 @@ func (cfg *CfgHttp) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 	for _, str := range cfg.Access.DenyRoute {
 		if strings.HasPrefix(path, str) ||
 			((strings.Index(str, "?") > -1) &&
-				strings.HasPrefix(path + "?" + ctx.QueryArgs().String(), str) ) {
-				
+				strings.HasPrefix(path+"?"+ctx.QueryArgs().String(), str)) {
+
 			return true
 		}
 	}
@@ -93,7 +93,7 @@ func (cfg *CfgHttp) Allow(ctx *fasthttp.RequestCtx, addr string) bool {
 			return true
 		}
 	}
-	
+
 	return cfg.isAllowIP(addr)
 }
 
@@ -103,7 +103,7 @@ func (cfg *CfgHttp) isAllowIP(addr string) bool {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -114,7 +114,7 @@ func (cfg *CfgHttp) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 			return false
 		}
 	}
-	
+
 	return cfg.isDenyIP(addr)
 }
 
@@ -124,7 +124,7 @@ func (cfg *CfgHttp) isDenyIP(addr string) bool {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -146,6 +146,6 @@ func (cfg *CfgHttp) Reload() (interface{}, error) {
 	}
 
 	cfg.Access = cfgGlobal.Access
-	
+
 	return cfg.Access, nil
 }

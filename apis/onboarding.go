@@ -6,60 +6,59 @@ package apis
 
 import (
 	"fmt"
+	"go/types"
 	"strings"
 
-	"go/types"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 )
 
-var 	onboardParams =  []InParam{
-			{
-				Name: "path",
-				Req:  true,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "desc",
-				Req:  false,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "params",
-				Req:  true,
-				Type: NewTypeInParam(types.String),
-			},
-			{
-				Name: "port",
-				Req:  true,
-				Type: NewTypeInParam(types.Int32),
-			},
-			{
-				Name:     "method",
-				Req:      true,
-				Type:     NewTypeInParam(types.String),
-				DefValue: "POST",
-			},
-			{
-				Name:     "multipart",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-			{
-				Name:     "auth",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-			{
-				Name:     "admin",
-				Req:      true,
-				Type:     NewTypeInParam(types.Bool),
-				DefValue: false,
-			},
-		}
-	
+var onboardParams = []InParam{
+	{
+		Name: "path",
+		Req:  true,
+		Type: NewTypeInParam(types.String),
+	},
+	{
+		Name: "desc",
+		Req:  false,
+		Type: NewTypeInParam(types.String),
+	},
+	{
+		Name: "params",
+		Req:  true,
+		Type: NewTypeInParam(types.String),
+	},
+	{
+		Name: "port",
+		Req:  true,
+		Type: NewTypeInParam(types.Int32),
+	},
+	{
+		Name:     "method",
+		Req:      true,
+		Type:     NewTypeInParam(types.String),
+		DefValue: "POST",
+	},
+	{
+		Name:     "multipart",
+		Req:      true,
+		Type:     NewTypeInParam(types.Bool),
+		DefValue: false,
+	},
+	{
+		Name:     "auth",
+		Req:      true,
+		Type:     NewTypeInParam(types.Bool),
+		DefValue: false,
+	},
+	{
+		Name:     "admin",
+		Req:      true,
+		Type:     NewTypeInParam(types.Bool),
+		DefValue: false,
+	},
+}
 
 func (a *Apis) onboarding(ctx *fasthttp.RequestCtx) (interface{}, error) {
 

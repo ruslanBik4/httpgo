@@ -19,7 +19,8 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
-	. "github.com/ruslanBik4/httpgo/dbEngine"
+	. "github.com/ruslanBik4/dbEngine/dbEngine"
+
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"

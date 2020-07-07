@@ -6,9 +6,10 @@
 package qb
 
 import (
-	"github.com/ruslanBik4/httpgo/models/db"
 	"regexp"
 	"strings"
+
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 // Create - constructor from some parameters

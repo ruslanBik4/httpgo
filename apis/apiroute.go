@@ -508,7 +508,7 @@ func init() {
 	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoute", apiRouteToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
-	jsoniter.RegisterTypeEncoderFunc("apis.MapRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
+	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
 		return false
 	})
 }

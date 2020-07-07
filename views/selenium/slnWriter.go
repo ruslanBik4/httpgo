@@ -7,12 +7,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/tebeka/selenium"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/tebeka/selenium"
 
 	"github.com/ruslanBik4/httpgo/logs"
 )

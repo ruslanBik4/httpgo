@@ -6,10 +6,11 @@ package apis
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/valyala/fasthttp"
 	"go/types"
 	"strconv"
+
+	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
 )

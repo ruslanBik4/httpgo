@@ -2,7 +2,7 @@
 	"time"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/dbEngine"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 	)
 %}
 {% func TableRow(columns []dbEngine.Column, rows [][] interface{}) %}

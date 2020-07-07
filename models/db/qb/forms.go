@@ -5,8 +5,9 @@
 package qb
 
 import (
-	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"log"
+
+	"github.com/ruslanBik4/httpgo/models/db/schema"
 )
 
 // GetFields return Schema for render standart methods

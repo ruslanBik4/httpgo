@@ -7,13 +7,15 @@
 package fonts
 
 import (
+	"bytes"
 	"io/ioutil"
-	"net/http"
 	"os"
+	"path"
 	"strings"
 
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/httpgo/logs"
-	"github.com/ruslanBik4/httpgo/views"
 )
 
 var pathWeb string
@@ -39,38 +41,37 @@ var fontTypes = map[string]string{
 
 // HandleGetFont push font for some browser
 // @/fonts/{font_name}
-func HandleGetFont(ctx *fasthttp.RequestCtx) {
+func HandleGetFont(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 	ext := ".ttf"
-	if browser := r.Header["User-Agent"]; contains(browser, "Safari") {
+	if browser := string(ctx.Request.Header.Peek("User-Agent")); strings.Contains(browser, "Safari") {
 		ext = ".woff"
 	} else {
 		//http.ServeFile(w, r, pathWeb+r.URL.Path+ext)
 		logs.DebugLog("browser=", browser)
 	}
 
-	filename := r.URL.Path
-	if pos := strings.Index(r.URL.Path, "."); pos > 0 {
+	filename := ctx.Path()
+	if pos := bytes.Index(filename, []byte(".")); pos > 0 {
 		filename = filename[:pos-1]
 	}
-	data, err := ioutil.ReadFile(pathWeb + filename + ext)
+	data, err := ioutil.ReadFile(path.Join(pathWeb, string(filename)+ext))
 
 	if err != nil {
 		if os.IsNotExist(err) && (ext == ".woff") {
-			data, err = ioutil.ReadFile(pathWeb + filename + ".ttf")
+			data, err = ioutil.ReadFile(path.Join(pathWeb, string(filename)+".ttf"))
 		}
 		if err != nil {
-			views.RenderInternalError(w, err)
-			return
+			return nil, err
 		}
 	}
 
-	setHeaderFromFontType(w, ext)
-	w.Write(data)
+	setHeaderFromFontType(ctx, ext)
 
+	return data, nil
 }
 
 // set header on font type
 func setHeaderFromFontType(ctx *fasthttp.RequestCtx, ext string) {
-	w.Header().Set("Content-Type", "mime/type: font/"+fontTypes[ext[:1]])
+	ctx.Response.Header.Set("Content-Type", "mime/type: font/"+fontTypes[ext[:1]])
 }

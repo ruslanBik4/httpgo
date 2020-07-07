@@ -5,8 +5,9 @@
 package services
 
 import (
-	"github.com/ruslanBik4/httpgo/models/db"
 	"log"
+
+	"github.com/ruslanBik4/httpgo/models/db"
 )
 
 type pRoles struct {

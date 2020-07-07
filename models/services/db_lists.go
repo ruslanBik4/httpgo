@@ -9,11 +9,12 @@ package services
 
 import (
 	"database/sql"
+	"strings"
+	"time"
+
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/cache"
 	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
-	"strings"
-	"time"
 )
 
 type dbListsService struct {

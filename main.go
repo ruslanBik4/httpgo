@@ -23,9 +23,10 @@ import (
 	"github.com/pkg/errors"
 	. "github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
+
 	. "github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/dbEngine"
-	"github.com/ruslanBik4/httpgo/dbEngine/psql"
 	"github.com/ruslanBik4/httpgo/httpGo"
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
