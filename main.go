@@ -160,12 +160,20 @@ var (
 						s)
 
 				} else {
-					forms.WriteFormJSON(
+					f := forms.FormField{
+						Title:       "test form",
+						Action:      "/test/forms/post",
+						Method:      "POST",
+						Description: "",
+					}
+					f.WriteFormJSON(
 						ctx.Response.BodyWriter(),
-						"test form",
-						"/test/forms/post",
-						"POST",
-						s)
+						forms.BlockColumns{
+							Columns:     s,
+							Id:          0,
+							Title:       "first",
+							Description: "test block",
+						})
 				}
 
 				return nil, nil

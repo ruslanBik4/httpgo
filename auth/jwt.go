@@ -5,23 +5,23 @@
 package auth
 
 import (
+	"bytes"
 	"fmt"
 	"reflect"
 	"runtime"
 
 	"github.com/valyala/fasthttp"
-
 )
 
-type AuthBearer struct{
+type AuthBearer struct {
 	tokens Tokens
 }
 
 func NewAuthBearer(tokens Tokens) AuthBearer {
 	if tokens == nil {
-		tokens = &mapTokens{tokens: make(map[int64] *mapToken, 0)}
+		tokens = &mapTokens{tokens: make(map[int64]*mapToken, 0)}
 	}
-	
+
 	return AuthBearer{tokens}
 }
 
@@ -34,13 +34,13 @@ func (a AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
 	if bearer == "" {
 		return -1
 	}
-	
+
 	return a.tokens.getToken(bearer)
 }
 
 func (a AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 	b := ctx.Request.Header.Peek("Authorization")
-	if len(b) == 0 || !bytes.HasPrefix(b, []byte("Bearer ") ) {
+	if len(b) == 0 || !bytes.HasPrefix(b, []byte("Bearer ")) {
 		return ""
 	}
 
@@ -48,16 +48,16 @@ func (a AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 }
 
 func (a AuthBearer) String() string {
-	
+
 	return `implement auth for Bearer standart: 
 	 user: ` + getStringOfFnc(reflect.ValueOf(a.Auth).Pointer()) + `
-	 admin: ` + getStringOfFnc(reflect.ValueOf(a.AdminAuth).Pointer()) 
+	 admin: ` + getStringOfFnc(reflect.ValueOf(a.AdminAuth).Pointer())
 }
 
 func (a AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
 
-	token := userTokens.getToken(ctx)
-	if token == nil {
+	token := a.GetToken(ctx)
+	if token < 0 {
 		return false
 	}
 
@@ -74,6 +74,6 @@ func (a AuthBearer) AdminAuth(ctx *fasthttp.RequestCtx) bool {
 func getStringOfFnc(pc uintptr) string {
 	fnc := runtime.FuncForPC(pc)
 	fName, line := fnc.FileLine(0)
-	
+
 	return fmt.Sprintf("%s:%d %s()", fName, line, fnc.Name())
 }

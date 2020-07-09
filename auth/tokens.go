@@ -1,26 +1,30 @@
 package auth
 
 import (
-	"time"
+	"strconv"
 	"sync"
+	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type Tokens interface {
 	addToken(hash int64, id int, ctx map[string]interface{}) int64
+	getToken(bearer string) int64
 	rmToken(bearer string) error
 }
 
-const tokenExpires = 60*60*24
-
 type mapToken struct {
-	accessToken     int64
-	userId          int
-	expiresIn       time.Duration
-	isAdmin         bool
-	ctxRoute        map[string]interface{}	
-	lock            *sync.RWMutex
+	accessToken int64
+	userId      int
+	expiresIn   *time.Timer
+	signAt      time.Time
+	isAdmin     bool
+	ctxRoute    map[string]interface{}
+	lock        *sync.RWMutex
 }
-
 
 func (m *mapToken) SetValue(key string, val interface{}) {
 	m.lock.Lock()
@@ -41,25 +45,29 @@ func (m *mapToken) GetUserID() int {
 }
 
 type mapTokens struct {
-	tokens map[int64] *mapToken
-	lock sync.RWMutex
+	expiresIn time.Duration
+	tokens    map[int64]*mapToken
+	lock      sync.RWMutex
 }
-
 
 func (m *mapTokens) addToken(hash int64, id int, ctx map[string]interface{}) int64 {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	if m.tokens == nil {
-		m.tokens = make(map[int64] *mapToken, 0)
+		m.tokens = make(map[int64]*mapToken, 0)
 	}
-	
-		m.tokens[hash] = &mapToken{
-			accessToken: hash,
-			userId     : id,
-			ctxRoute   : ctx,
-			expiresIn  : time.Now(),
-			lock	   : &sync.RWMutex{},
+
+	m.tokens[hash] = &mapToken{
+		accessToken: hash,
+		expiresIn: time.AfterFunc(m.expiresIn, func() {
+			m.rmToken("")
+		}),
+		userId:   id,
+		ctxRoute: ctx,
+		signAt:   time.Now(),
+		lock:     &sync.RWMutex{},
 	}
+
 	//	todo: решить вопрос про уникальность токена
 	return m.tokens[hash].accessToken
 }
@@ -67,8 +75,8 @@ func (m *mapTokens) addToken(hash int64, id int, ctx map[string]interface{}) int
 func (m *mapTokens) getToken(bearer string) int64 {
 	hash, err := strconv.ParseInt(bearer, 10, 64)
 	if err != nil {
-		logs.ErrorLog(err, "ParseInt( bearer %s", string(b))
-		return nil
+		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
+		return -1
 	}
 
 	m.lock.RLock()
@@ -76,26 +84,26 @@ func (m *mapTokens) getToken(bearer string) int64 {
 	token, ok := m.tokens[hash]
 	if ok {
 		return token.accessToken
-	} 
-		
+	}
+
 	return -1
 }
 
 func (m *mapTokens) rmToken(bearer string) error {
-	hash, err := strconv.ParseInt( bearer, 10, 64 )
+	hash, err := strconv.ParseInt(bearer, 10, 64)
 	if err != nil {
-		logs.ErrorLog(err, "ParseInt( bearer %s", string(b))
+		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
 		return nil
 	}
 
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	
+
 	_, ok := m.tokens[hash]
 	if !ok {
 		return errors.New("not found user in active")
 	}
-	
+
 	delete(m.tokens, hash)
 
 	return nil

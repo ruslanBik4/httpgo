@@ -153,3 +153,9 @@ func (col *ColumnDecor) Label() string {
 
 	return col.Name()
 }
+
+type BlockColumns struct {
+	Columns            []ColumnDecor
+	Id                 int
+	Title, Description string
+}

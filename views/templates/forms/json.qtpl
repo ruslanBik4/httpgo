@@ -8,19 +8,34 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	"github.com/ruslanBik4/httpgo/typesExt"
 	)
 %}
-
+{% code
+    type FormField struct {
+        Title, Action, Method, Description string
+    }
+%}
 {% stripspace %}
 {% collapsespace %}
-json for front forms.
-{% func FormJSON(title, action, method string, columns [] ColumnDecor) %}
+json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
+{% func (f *FormField) FormJSON(blocks ... BlockColumns) %}
   {
-    "title" : '{%s= title %}',
-    "action": '{%s= action %}',
-    "method": '{%s= method %}',
-    "fields": [
-                {% for i, col := range columns %}
+    "title" : '{%s= f.Title %}',
+    "action": '{%s= f.Action %}',
+    "description": '{%s= f.Description %}',
+    "method": '{%s= f.Method %}',
+    "blocks": [
+        {% for i, block := range blocks %}
 
-                    {% if i > 0 %}
+        {% if i > 0 %}
+            ,
+        {% endif %}
+        {
+           "id": '{%d block.Id %}',
+           "title": '{%s= block.Title %}',
+           "description": '{%s= block.Description %}',
+            "fields": [
+                {% for j, col := range block.Columns %}
+
+                    {% if j > 0 %}
                         ,
                     {% endif %}
                     {
@@ -57,6 +72,9 @@ json for front forms.
                    }
                 {% endfor %}
                ]
+       }
+    {% endfor %}
+   ]
   }
 {% endfunc %}
 
