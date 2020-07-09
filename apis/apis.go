@@ -302,11 +302,11 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 			}
 			row[1] = route.Desc
 
-			s := ""
+			s := "use method '"
 			if route.FncAuth != nil {
-				s += "use custom method '" + route.FncAuth.String() + "' for checking authorization"
+				s +=  route.FncAuth.String() + "' for checking authorization"
 			} else if route.NeedAuth {
-				s += " use standard method for checking authorization"
+				s +=  a.fncAuth.String() + "' for checking authorization"
 			}
 
 			if route.OnlyAdmin {
@@ -381,7 +381,7 @@ func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
 }
 
 // apiRouteToJSON produces a human-friendly description of Apis.
-//Based on real data of the executable application, does not require additional documentation.
+// Based on real data of the executable application, does not require additional documentation.
 func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	apis := *(*Apis)(ptr)
 	stream.WriteObjectStart()
@@ -392,6 +392,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if apis.fncAuth != nil {
 		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
 	}
+	
 	AddObjectToJSON(stream, "routes", apis.routes)
 }
 

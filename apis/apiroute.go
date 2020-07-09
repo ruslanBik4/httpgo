@@ -102,8 +102,11 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp interface{}, err error) {
 
 	// check auth is needed
+	// owl func for auth
 	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
+	    // only admin access
 		(route.FncAuth == nil) && (route.OnlyAdmin && !fncAuth.AdminAuth(ctx) ||
+		// access according to FncAuth if need
 			!route.OnlyAdmin && route.NeedAuth && !fncAuth.Auth(ctx)) {
 		return nil, ErrUnAuthorized
 	}
