@@ -146,9 +146,9 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:62
 			if p := col.Pattern(); p > "" {
 //line views/templates/forms/json.qtpl:62
-				qw422016.N().S(`, "pattern"="`)
+				qw422016.N().S(`, "pattern":"`)
 //line views/templates/forms/json.qtpl:63
-				qw422016.E().Q(p)
+				qw422016.E().S(p)
 //line views/templates/forms/json.qtpl:63
 				qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:64

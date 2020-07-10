@@ -60,7 +60,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         , "title": "{%s col.Comment() %}"
                         {% endif %}
                         {% if p := col.Pattern(); p > "" %}
-                        , "pattern"="{%q p %}"
+                        , "pattern":"{%s p %}"
                         {% endif %}
 
                         {% if col.IsHidden %}
