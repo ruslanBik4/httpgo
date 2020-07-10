@@ -113,10 +113,12 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
      number
     {% case col.BasicType() == types.Bool %}
-     checkbox
+     switch
     {% default %}
         {% switch col.Type() %}
-        {% case "date", "datetime", "timestampt", "timestamptz", "time", "_date", "_timestampt", "_timestamptz", "_time" %}
+        {% case "date", "_date" %}
+         date
+        {% case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time" %}
          datetime
         {% case "email" %} email
         {% case "tel" %} tel
