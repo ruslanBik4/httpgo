@@ -336,7 +336,7 @@ func (col *ColumnDecor) StreamInputType(qw422016 *qt422016.Writer) {
 //line views/templates/forms/json.qtpl:108
 	if col.IsHidden {
 //line views/templates/forms/json.qtpl:108
-		qw422016.N().S(`, "hidden": true`)
+		qw422016.N().S(`hidden`)
 //line views/templates/forms/json.qtpl:110
 	} else {
 //line views/templates/forms/json.qtpl:111
