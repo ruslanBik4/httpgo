@@ -154,7 +154,14 @@ func (col *ColumnDecor) Label() string {
 	return col.Name()
 }
 
+type Button struct {
+	Title      string
+	Position   bool
+	buttonType string
+}
+
 type BlockColumns struct {
+	Buttons            []Button
 	Columns            []ColumnDecor
 	Id                 int
 	Title, Description string

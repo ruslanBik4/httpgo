@@ -57,7 +57,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% endswitch %}
 
                         {% if col.Comment() > "" %}
-                        , "title": "{%s col.Comment() %}"
+                        , "title": "{%s col.Label() %}"
                         {% endif %}
                         {% if p := col.Pattern(); p > "" %}
                         , "pattern":"{%q p %}"
@@ -71,7 +71,17 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% endif %}
                    }
                 {% endfor %}
-               ]
+                 {% for _, button := range block.Buttons %}
+                 ,
+                 {
+                     "type":    "button",
+                     "position": {% if button.Position %}"right"
+                                 {% else %} "left"
+                                 {% endif %}
+
+                 }
+                 {% endfor %}
+             ]
        }
     {% endfor %}
    ]
