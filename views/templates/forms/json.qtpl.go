@@ -39,23 +39,23 @@ type FormField struct {
 //line views/templates/forms/json.qtpl:19
 func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockColumns) {
 //line views/templates/forms/json.qtpl:19
-	qw422016.N().S(`{"title" : '`)
+	qw422016.N().S(`{"title" : "`)
 //line views/templates/forms/json.qtpl:21
 	qw422016.N().S(f.Title)
 //line views/templates/forms/json.qtpl:21
-	qw422016.N().S(`',"action": '`)
+	qw422016.N().S(`","action": "`)
 //line views/templates/forms/json.qtpl:22
 	qw422016.N().S(f.Action)
 //line views/templates/forms/json.qtpl:22
-	qw422016.N().S(`',"description": '`)
+	qw422016.N().S(`","description": "`)
 //line views/templates/forms/json.qtpl:23
 	qw422016.N().S(f.Description)
 //line views/templates/forms/json.qtpl:23
-	qw422016.N().S(`',"method": '`)
+	qw422016.N().S(`","method": "`)
 //line views/templates/forms/json.qtpl:24
 	qw422016.N().S(f.Method)
 //line views/templates/forms/json.qtpl:24
-	qw422016.N().S(`',"blocks": [`)
+	qw422016.N().S(`","blocks": [`)
 //line views/templates/forms/json.qtpl:26
 	for i, block := range blocks {
 //line views/templates/forms/json.qtpl:28
@@ -65,19 +65,19 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:30
 		}
 //line views/templates/forms/json.qtpl:30
-		qw422016.N().S(`{"id": '`)
+		qw422016.N().S(`{"id": "`)
 //line views/templates/forms/json.qtpl:32
 		qw422016.N().D(block.Id)
 //line views/templates/forms/json.qtpl:32
-		qw422016.N().S(`',"title": '`)
+		qw422016.N().S(`","title": "`)
 //line views/templates/forms/json.qtpl:33
 		qw422016.N().S(block.Title)
 //line views/templates/forms/json.qtpl:33
-		qw422016.N().S(`',"description": '`)
+		qw422016.N().S(`","description": "`)
 //line views/templates/forms/json.qtpl:34
 		qw422016.N().S(block.Description)
 //line views/templates/forms/json.qtpl:34
-		qw422016.N().S(`',"fields": [`)
+		qw422016.N().S(`","fields": [`)
 //line views/templates/forms/json.qtpl:36
 		for j, col := range block.Columns {
 //line views/templates/forms/json.qtpl:38
