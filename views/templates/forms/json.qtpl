@@ -56,9 +56,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         , "value": {%= json.SimpleDimension(values) %}
                         {% endswitch %}
 
-                        {% if col.Comment() > "" %}
                         , "title": "{%s col.Label() %}"
-                        {% endif %}
+
                         {% if p := col.Pattern(); p > "" %}
                         , "pattern":"{%q p %}"
                         {% endif %}
@@ -75,10 +74,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                  ,
                  {
                      "type":    "button",
-                     "position": {% if button.Position %}"right"
-                                 {% else %} "left"
-                                 {% endif %}
-
+                     "title": "{%s button.Title %}",
+                     "position": {% if button.Position %}"right"{% else %}"left"{% endif %}
                  }
                  {% endfor %}
              ]
