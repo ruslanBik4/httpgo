@@ -148,7 +148,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:62
 				qw422016.N().S(`, "pattern"="`)
 //line views/templates/forms/json.qtpl:63
-				qw422016.E().S(p)
+				qw422016.E().Q(p)
 //line views/templates/forms/json.qtpl:63
 				qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:64
@@ -385,27 +385,27 @@ func (col *ColumnDecor) InputType() string {
 }
 
 //line views/templates/forms/json.qtpl:119
-func StreamFormHTML(qw422016 *qt422016.Writer, title, action, method string, columns []ColumnDecor) {
+func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, columns []ColumnDecor) {
 //line views/templates/forms/json.qtpl:119
 	qw422016.N().S(`<form id="`)
 //line views/templates/forms/json.qtpl:120
-	qw422016.E().S(title)
+	qw422016.E().S(f.Title)
 //line views/templates/forms/json.qtpl:120
 	qw422016.N().S(`form" name="`)
 //line views/templates/forms/json.qtpl:120
-	qw422016.E().S(title)
+	qw422016.E().S(f.Title)
 //line views/templates/forms/json.qtpl:120
 	qw422016.N().S(`" role='form' class="form-horizontal row-fluid" target="content"action="`)
 //line views/templates/forms/json.qtpl:121
-	qw422016.E().S(action)
+	qw422016.E().S(f.Action)
 //line views/templates/forms/json.qtpl:121
 	qw422016.N().S(`" method="`)
 //line views/templates/forms/json.qtpl:121
-	qw422016.N().S(method)
+	qw422016.N().S(f.Method)
 //line views/templates/forms/json.qtpl:121
 	qw422016.N().S(`" enctype="multipart/form-data"onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
 //line views/templates/forms/json.qtpl:122
-	qw422016.E().S(title)
+	qw422016.E().S(f.Title)
 //line views/templates/forms/json.qtpl:122
 	qw422016.N().S(`" >`)
 //line views/templates/forms/json.qtpl:124
@@ -474,22 +474,22 @@ function validatePattern(thisElem) {
 }
 
 //line views/templates/forms/json.qtpl:164
-func WriteFormHTML(qq422016 qtio422016.Writer, title, action, method string, columns []ColumnDecor) {
+func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, columns []ColumnDecor) {
 //line views/templates/forms/json.qtpl:164
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line views/templates/forms/json.qtpl:164
-	StreamFormHTML(qw422016, title, action, method, columns)
+	f.StreamFormHTML(qw422016, columns)
 //line views/templates/forms/json.qtpl:164
 	qt422016.ReleaseWriter(qw422016)
 //line views/templates/forms/json.qtpl:164
 }
 
 //line views/templates/forms/json.qtpl:164
-func FormHTML(title, action, method string, columns []ColumnDecor) string {
+func (f *FormField) FormHTML(columns []ColumnDecor) string {
 //line views/templates/forms/json.qtpl:164
 	qb422016 := qt422016.AcquireByteBuffer()
 //line views/templates/forms/json.qtpl:164
-	WriteFormHTML(qb422016, title, action, method, columns)
+	f.WriteFormHTML(qb422016, columns)
 //line views/templates/forms/json.qtpl:164
 	qs422016 := string(qb422016.B)
 //line views/templates/forms/json.qtpl:164

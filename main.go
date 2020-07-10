@@ -149,23 +149,20 @@ var (
 					Value:       []string{"decor1", "decor2"},
 				}
 				s = append(s, decor)
+				f := forms.FormField{
+					Title:       "test form",
+					Action:      "/test/forms/post",
+					Method:      "POST",
+					Description: "",
+				}
 
 				if ctx.UserValue(ChildRoutePath) == "html" {
 					views.WriteHeadersHTML(ctx)
-					forms.WriteFormHTML(
+					f.WriteFormHTML(
 						ctx.Response.BodyWriter(),
-						"test form",
-						"/test/forms/post",
-						"POST",
 						s)
 
 				} else {
-					f := forms.FormField{
-						Title:       "test form",
-						Action:      "/test/forms/post",
-						Method:      "POST",
-						Description: "",
-					}
 					f.WriteFormJSON(
 						ctx.Response.BodyWriter(),
 						forms.BlockColumns{
