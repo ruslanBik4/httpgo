@@ -51,20 +51,19 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% switch len(values) %}
                         {% case 0 %}
                         {% case 1 %}
-                        , "value": "{%v values[0] %}"
-                        {% default %}
+                            {% if values[0] != nil %}
+                                , "value": "{%v values[0] %}"
+                            {% endif %}
+                       {% default %}
                         , "value": {%= json.SimpleDimension(values) %}
                         {% endswitch %}
 
                         , "title": "{%s col.Label() %}"
 
                         {% if p := col.Pattern(); p > "" %}
-                        , "pattern":"{%q p %}"
+                        , "pattern":"{%j p %}"
                         {% endif %}
 
-                        {% if col.IsHidden %}
-                         , "hidden": true
-                        {% endif %}
                         {% if col.IsReadOnly %}
                          , "readonly": true
                         {% endif %}
@@ -106,23 +105,27 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 {% endfunc %}
 
 {% func (col *ColumnDecor) InputType()  %}
-    {% switch %}
-    {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
-     number
-    {% case col.BasicType() == types.Bool %}
-     switch
-    {% default %}
-        {% switch col.Type() %}
-        {% case "date", "_date" %}
-         date
-        {% case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time" %}
-         datetime
-        {% case "email" %} email
-        {% case "tel" %} tel
-        {% case "password" %} password
-        {% default %} text
+    {% if col.IsHidden %}
+     , "hidden": true
+    {% else %}
+        {% switch %}
+        {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
+         number
+        {% case col.BasicType() == types.Bool %}
+         switch
+        {% default %}
+            {% switch col.Type() %}
+            {% case "date", "_date" %}
+             date
+            {% case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time" %}
+             datetime
+            {% case "email" %} email
+            {% case "tel" %} tel
+            {% case "password" %} password
+            {% default %} text
+            {% endswitch %}
         {% endswitch %}
-    {% endswitch %}
+    {% endif %}
 {% endfunc %}
 
 {% func (f *FormField) FormHTML(columns [] ColumnDecor) %}

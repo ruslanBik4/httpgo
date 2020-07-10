@@ -7,12 +7,12 @@ package forms
 import (
 	"context"
 	"database/sql/driver"
+	"go/types"
 	"strings"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/logs"
-	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
 type ColumnDecor struct {
@@ -58,8 +58,12 @@ func (col *ColumnDecor) Pattern() string {
 			col.pattern = name
 		}
 
-	} else if typesExt.IsNumeric(col.BasicTypeInfo()) {
-		col.pattern = `\d`
+	} else if col.BasicTypeInfo() == types.IsInteger {
+		col.pattern = `[0-9]+`
+	} else if col.BasicTypeInfo() == types.IsFloat {
+		col.pattern = `[+-]?\d+(\.\d{2})?`
+	} else if col.BasicTypeInfo() == types.IsComplex {
+		col.pattern = `[+-]?\d+(\.\d{2})?`
 	}
 
 	return col.pattern
@@ -67,6 +71,7 @@ func (col *ColumnDecor) Pattern() string {
 func (col *ColumnDecor) Type() string {
 	const email = "email"
 	const tel = "phone"
+
 	if strings.HasPrefix(col.Name(), email) {
 		return email
 	} else if strings.HasPrefix(col.Name(), tel) {
