@@ -7,6 +7,8 @@ package services
 import (
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConnect(t *testing.T) {
@@ -25,6 +27,9 @@ func TestConnect(t *testing.T) {
 	for {
 		select {
 		case v := <-out:
+			if !assert.IsType(t, "", v) {
+				t.FailNow()
+			}
 			switch v.(string) {
 			case "open":
 				in <- "first"

@@ -122,7 +122,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:53
 				qw422016.N().S(`, "value": "`)
 //line views/templates/forms/json.qtpl:54
-				qw422016.E().V(values)
+				qw422016.E().V(values[0])
 //line views/templates/forms/json.qtpl:54
 				qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:55
@@ -148,7 +148,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:62
 				qw422016.N().S(`, "pattern":"`)
 //line views/templates/forms/json.qtpl:63
-				qw422016.E().S(p)
+				qw422016.E().Q(p)
 //line views/templates/forms/json.qtpl:63
 				qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:64
