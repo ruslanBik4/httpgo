@@ -413,7 +413,7 @@ func (col *ColumnDecor) InputType() string {
 }
 
 //line views/templates/forms/json.qtpl:131
-func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, columns []ColumnDecor) {
+func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, columns []*ColumnDecor) {
 //line views/templates/forms/json.qtpl:131
 	qw422016.N().S(`<form id="`)
 //line views/templates/forms/json.qtpl:132
@@ -502,7 +502,7 @@ function validatePattern(thisElem) {
 }
 
 //line views/templates/forms/json.qtpl:176
-func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, columns []ColumnDecor) {
+func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, columns []*ColumnDecor) {
 //line views/templates/forms/json.qtpl:176
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line views/templates/forms/json.qtpl:176
@@ -513,7 +513,7 @@ func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, columns []ColumnDe
 }
 
 //line views/templates/forms/json.qtpl:176
-func (f *FormField) FormHTML(columns []ColumnDecor) string {
+func (f *FormField) FormHTML(columns []*ColumnDecor) string {
 //line views/templates/forms/json.qtpl:176
 	qb422016 := qt422016.AcquireByteBuffer()
 //line views/templates/forms/json.qtpl:176
