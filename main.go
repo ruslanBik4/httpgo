@@ -127,23 +127,23 @@ var (
 		},
 		"/test/forms/": {
 			Fnc: func(ctx *RequestCtx) (interface{}, error) {
-				s := make([]forms.ColumnDecor, 0)
-				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 1", "test 1", false)})
-				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("phone", "test 2", false)})
-				s = append(s, forms.ColumnDecor{Column: dbEngine.NewStringColumn("req", "required", true)})
-				s = append(s, forms.ColumnDecor{Column: dbEngine.NewNumberColumn("number", "number required", true)})
+				s := make([]*forms.ColumnDecor, 0)
+				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 1", "test 1", false)})
+				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("phone", "test 2", false)})
+				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("req", "required", true)})
+				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewNumberColumn("number", "number required", true)})
 				p := psql.NewColumnPone("psql", "psql column", 0)
 				p.UdtName = "_int4"
-				s = append(s, forms.ColumnDecor{Column: p})
+				s = append(s, &forms.ColumnDecor{Column: p})
 
 				p1 := psql.NewColumnPone("psql bool", "psql bool column", 0)
 				p1.UdtName = "bool"
-				s = append(s, forms.ColumnDecor{Column: p1})
+				s = append(s, &forms.ColumnDecor{Column: p1})
 
 				p2 := psql.NewColumnPone("email array", "psql [] string column", 0)
 				p2.UdtName = "_varchar"
 
-				decor := forms.ColumnDecor{
+				decor := &forms.ColumnDecor{
 					Column:      p2,
 					PatternName: `\d\s\w{3}\d`,
 					Value:       []string{"decor1", "decor2"},

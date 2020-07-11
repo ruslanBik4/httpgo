@@ -189,7 +189,7 @@ type Button struct {
 
 type BlockColumns struct {
 	Buttons            []Button
-	Columns            []ColumnDecor
+	Columns            []*ColumnDecor
 	Id                 int
 	Title, Description string
 }
