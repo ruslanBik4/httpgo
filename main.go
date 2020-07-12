@@ -156,21 +156,23 @@ var (
 					Description: "",
 				}
 
+				blocks := forms.BlockColumns{
+					Columns:     s,
+					Id:          0,
+					Title:       "first",
+					Description: "test block",
+				}
+
 				if ctx.UserValue(ChildRoutePath) == "html" {
 					views.WriteHeadersHTML(ctx)
 					f.WriteFormHTML(
 						ctx.Response.BodyWriter(),
-						s)
+						blocks)
 
 				} else {
 					f.WriteFormJSON(
 						ctx.Response.BodyWriter(),
-						forms.BlockColumns{
-							Columns:     s,
-							Id:          0,
-							Title:       "first",
-							Description: "test block",
-						})
+						blocks)
 				}
 
 				return nil, nil

@@ -128,18 +128,23 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     {% endif %}
 {% endfunc %}
 
-{% func (f *FormField) FormHTML(columns [] *ColumnDecor) %}
+{% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
 <form id="{%s f.Title %}form" name="{%s f.Title %}" role='form' class="form-horizontal row-fluid" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
-
-                {% for i, col := range columns %}
+        {% for _, block := range blocks %}
+        <div>
+        <h2>{%s block.Title %} </h2>
+        <h3>{%s block.Description %} </h3>
+                {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %}
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Label() %}</label>
                     {%= col.RenderInputs()  %}
                    </div>
                 {% endfor %}
+        </div>
+        {% endfor %}
 
     <div class="form-actions">
         <button class="main-btn" type="submit">Сохранить</button>
