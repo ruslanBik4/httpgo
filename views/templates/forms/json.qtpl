@@ -11,6 +11,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     }
 %}
 {% collapsespace %}
+
+{% stripspace %}
 json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 {% func (f *FormField) FormJSON(blocks ... BlockColumns) %}
   {
@@ -55,7 +57,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         , "value": {%= json.SimpleDimension(values) %}
                         {% endswitch %}
 
-                        , "title": "{%s col.Label() %}"
+                        , "title": "{%s col.Label %}"
 
                         {% if p := col.Pattern(); p > "" %}
                         , "pattern":"{%j p %}"
@@ -69,7 +71,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                  {% for _, button := range block.Buttons %}
                  ,
                  {
-                     "type":  "button",
+                     "type":  "{%s button.ButtonType %}",
                      "title": "{%s button.Title %}",
                      "position": {% if button.Position %}"right"{% else %}"left"{% endif %}
                  }
@@ -92,12 +94,13 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
          },
         {% endfor %}
                   {
-                    "title": "Термореактивні препеги",
-                    "value": "Термореактивні_препеги"
+                    "title": "add new item",
+                    "value": "new"
                   }
         ]
     {% endif %}
 {% endfunc %}
+{% endstripspace %}
 
 {% func (col *ColumnDecor) InputTypeForJSON() %}
 	{% switch %}
@@ -153,14 +156,14 @@ name="{%s col.InputName(i) %}"
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %} >
-                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label() %}</label>
+                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}</label>
                     {%= col.RenderInputs()  %}
                    </div>
                 {% endfor %}
         </div>
   {% if block.Multype %}
          <button class="main-btn" type="button"
-         onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
+         onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
 
   {% endif %}
        {% endfor %}

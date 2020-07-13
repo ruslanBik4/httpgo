@@ -25,7 +25,7 @@ type ColumnDecor struct {
 	PatternList                   dbEngine.Table
 	PatternName                   string
 	PlaceHolder                   string
-	label                         string
+	Label                         string
 	pattern                       string
 	patternDesc                   string
 	Value                         interface{}
@@ -39,9 +39,11 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	comment := colDec.Comment()
 	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
 		colDec.getPattern(m[0][1])
-		colDec.label = regPattern.ReplaceAllString(comment, colDec.patternDesc)
+		colDec.Label = regPattern.ReplaceAllString(comment, colDec.patternDesc)
 	} else if column.Comment() > "" {
-		colDec.label = column.Comment()
+		colDec.Label = column.Comment()
+	} else {
+		colDec.Label = column.Name()
 	}
 
 	colDec.InputType = colDec.inputType()
@@ -58,7 +60,7 @@ func (col *ColumnDecor) Placeholder() string {
 		return col.pattern
 	}
 
-	return col.Label()
+	return col.Label
 }
 
 func (col *ColumnDecor) Pattern() string {
@@ -203,13 +205,6 @@ func (col *ColumnDecor) InputName(i int) string {
 	return col.Name()
 }
 
-func (col *ColumnDecor) Label() string {
-	if c := col.label; c > "" {
-		return c
-	}
-
-	return col.Name()
-}
 
 func (col *ColumnDecor) inputType() string {
 	if col.IsHidden {
