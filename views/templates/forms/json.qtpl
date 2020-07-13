@@ -10,7 +10,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         Title, Action, Method, Description string
     }
 %}
-{% stripspace %}
 {% collapsespace %}
 json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 {% func (f *FormField) FormJSON(blocks ... BlockColumns) %}
@@ -153,7 +152,7 @@ name="{%s col.InputName(i) %}"
         <h3>{%s block.Description %} </h3>
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
-                  {% if col.IsHidden %} style="display:none" {% endif %}
+                  {% if col.IsHidden %} style="display:none" {% endif %} >
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Label() %}</label>
                     {%= col.RenderInputs()  %}
                    </div>
@@ -171,7 +170,6 @@ name="{%s col.InputName(i) %}"
     </div>
 </form>
 <script>
-{% endstripspace %}
 {% endcollapsespace %}
 function validatePattern(thisElem) {
     var re = thisElem.pattern,
