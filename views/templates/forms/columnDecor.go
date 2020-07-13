@@ -14,16 +14,20 @@ import (
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
 type ColumnDecor struct {
 	dbEngine.Column
-	IsHidden, IsReadOnly, isSlice bool
+	IsHidden, IsReadOnly, IsSlice bool
+	InputType                     string
+	SelectOptions                 map[string]string
 	PatternList                   dbEngine.Table
 	PatternName                   string
 	PlaceHolder                   string
 	label                         string
 	pattern                       string
+	patternDesc                   string
 	Value                         interface{}
 }
 
@@ -34,11 +38,13 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	colDec := &ColumnDecor{Column: column, PatternList: patternList}
 	comment := colDec.Comment()
 	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
-		colDec.pattern = m[0][1]
-		colDec.label = strings.TrimRight(comment, m[0][0])
+		colDec.getPattern(m[0][1])
+		colDec.label = regPattern.ReplaceAllString(comment, colDec.patternDesc)
 	} else if column.Comment() > "" {
 		colDec.label = column.Comment()
 	}
+
+	colDec.InputType = colDec.inputType()
 
 	return colDec
 }
@@ -61,26 +67,7 @@ func (col *ColumnDecor) Pattern() string {
 	}
 
 	if name := col.PatternName; name > "" {
-		if col.PatternList != nil {
-			err := col.PatternList.SelectAndRunEach(context.Background(),
-				func(values []interface{}, columns []dbEngine.Column) error {
-					col.pattern = values[0].(string)
-
-					return nil
-				},
-				dbEngine.ColumnsForSelect("pattern"),
-				dbEngine.WhereForSelect("name"),
-				dbEngine.ArgsForSelect(name),
-			)
-			if err != nil {
-				logs.ErrorLog(err, "")
-			}
-		}
-
-		if col.pattern == "" {
-			col.pattern = name
-		}
-
+		col.getPattern(name)
 	} else if col.BasicTypeInfo() == types.IsInteger {
 		col.pattern = `[0-9]+`
 	} else if col.BasicTypeInfo() == types.IsFloat {
@@ -91,6 +78,48 @@ func (col *ColumnDecor) Pattern() string {
 
 	return col.pattern
 }
+
+func (col *ColumnDecor) GetFields(columns []dbEngine.Column) []interface{} {
+	if len(columns) == 0 {
+		return []interface{}{&col.Value}
+	}
+
+	v := make([]interface{}, len(columns))
+	for i, c := range columns {
+		switch c.Name() {
+		case "pattern":
+			v[i] = &col.pattern
+		case "description":
+			v[i] = &col.patternDesc
+		}
+	}
+
+	return v
+}
+
+var regName = regexp.MustCompile(`\w+`)
+
+func (col *ColumnDecor) getPattern(name string) {
+	if col.PatternList != nil && !regName.MatchString(name) {
+		err := col.PatternList.SelectAndScanEach(context.Background(),
+			func() error {
+				return nil
+			},
+			col,
+			dbEngine.ColumnsForSelect("pattern", "description"),
+			dbEngine.WhereForSelect("name"),
+			dbEngine.ArgsForSelect(name),
+		)
+		if err != nil {
+			logs.ErrorLog(err, "")
+		}
+	}
+
+	if col.pattern == "" {
+		col.pattern = name
+	}
+}
+
 func (col *ColumnDecor) Type() string {
 	const email = "email"
 	const tel = "phone"
@@ -114,35 +143,35 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 		for i, val := range val {
 			values[i] = val
 		}
-		col.isSlice = true
+		col.IsSlice = true
 
 	case []int32:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
-		col.isSlice = true
+		col.IsSlice = true
 
 	case []int64:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
-		col.isSlice = true
+		col.IsSlice = true
 
 	case []float32:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
-		col.isSlice = true
+		col.IsSlice = true
 
 	case []float64:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
-		col.isSlice = true
+		col.IsSlice = true
 
 	case nil:
 		if d := col.Default(); d > "" {
@@ -167,7 +196,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 }
 
 func (col *ColumnDecor) InputName(i int) string {
-	if col.isSlice {
+	if col.IsSlice {
 		return col.Name() + "[]"
 	}
 
@@ -182,15 +211,40 @@ func (col *ColumnDecor) Label() string {
 	return col.Name()
 }
 
+func (col *ColumnDecor) inputType() string {
+	if col.IsHidden {
+		return "hidden"
+	}
+
+	switch col.Type() {
+	case "date", "_date":
+		return "date"
+	case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time":
+		return "datetime"
+	case "email", "tel", "password", "url":
+		return col.Type()
+	default:
+		if typesExt.IsNumeric(col.BasicTypeInfo()) {
+			return "number"
+		}
+		if col.BasicType() == types.Bool {
+			return "checkbox"
+		}
+
+		return "text"
+	}
+}
+
 type Button struct {
 	Title      string
 	Position   bool
-	buttonType string
+	ButtonType string
 }
 
 type BlockColumns struct {
 	Buttons            []Button
 	Columns            []*ColumnDecor
 	Id                 int
+	Multype            bool
 	Title, Description string
 }

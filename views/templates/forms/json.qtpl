@@ -2,11 +2,8 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
-	"go/types"
-
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/typesExt"
-	)
+)
 %}
 {% code
     type FormField struct {
@@ -44,7 +41,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         %}
                         "name": "{%s col.InputName(-1) %}",
                         "required": {%v col.Required() %},
-                        "type": "{%= col.InputType()%}"
+                        "type": "{%= col.InputTypeForJSON()%}"
+                        {%= col.DataForJSON()%}
                         {% if col.CharacterMaximumLength() > 0 %}
                         , "maxLength": {%d col.CharacterMaximumLength() %}
                         {% endif %}
@@ -54,7 +52,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             {% if values[0] != nil %}
                                 , "value": "{%v values[0] %}"
                             {% endif %}
-                       {% default %}
+                        {% default %}
                         , "value": {%= json.SimpleDimension(values) %}
                         {% endswitch %}
 
@@ -85,47 +83,64 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 {% endfunc %}
 
 
+{% func (col *ColumnDecor) DataForJSON() %}
+    {% if col.SelectOptions != nil %}
+        , "data": [
+        {% for title, val := range col.SelectOptions %}
+         {
+                    "title": "{%s title %}",
+                    "value": "{%s val %}"
+         },
+        {% endfor %}
+                  {
+                    "title": "Термореактивні препеги",
+                    "value": "Термореактивні_препеги"
+                  }
+        ]
+    {% endif %}
+{% endfunc %}
+
+{% func (col *ColumnDecor) InputTypeForJSON() %}
+	{% switch %}
+	{% case col.InputType == "checkbox" %}
+		switch
+	{% case  col.SelectOptions != nil %}
+		select
+    {% default %}
+      {%s= col.InputType %}
+    {% endswitch %}
+{% endfunc %}
+
+
+{% func (col *ColumnDecor) RenderAttr(i int)  %}
+name="{%s col.InputName(i) %}"
+         {% if col.Required() %} required="true" {% endif %}
+                  {% if col.IsReadOnly %} readonly disabled {% endif %}
+
+{% endfunc %}
+
 {% func (col *ColumnDecor) RenderInputs()  %}
  {% for i, val := range col.GetValues() %}
-                <input type="{%= col.InputType() %}" name="{%s col.InputName(i) %}"
+    	{% if  col.SelectOptions != nil %}
+            <select {%= col.RenderAttr(i) %} >
+         {% for title, value := range col.SelectOptions %}
+            <option value="{%s value %}" {% if val != nil && val == value%} selected {% endif %} >{%s title %}</option>
+         {% endfor %}
+          </select>
+         {% else %}
+               <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
                 {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
                 {% if val != nil %} value = "{%v val %}" {% endif %}
-                 {% if col.Required() %} required="true" {% endif %}
                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
                  {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
-                 {% if col.IsHidden %} hidden {% endif %}
-                 {% if col.IsReadOnly %} readonly disabled {% endif %}
                >
+        {% endif %}
  {% endfor %}
- {% if col.isSlice %}
+ {% if col.IsSlice %}
         <button class="main-btn" type="button"
         onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
 
  {% endif %}
-{% endfunc %}
-
-{% func (col *ColumnDecor) InputType()  %}
-    {% if col.IsHidden %}
-     hidden
-    {% else %}
-        {% switch %}
-        {% case typesExt.IsNumeric( col.BasicTypeInfo() ) %}
-         number
-        {% case col.BasicType() == types.Bool %}
-         switch
-        {% default %}
-            {% switch col.Type() %}
-            {% case "date", "_date" %}
-             date
-            {% case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time" %}
-             datetime
-            {% case "email" %} email
-            {% case "tel" %} tel
-            {% case "password" %} password
-            {% default %} text
-            {% endswitch %}
-        {% endswitch %}
-    {% endif %}
 {% endfunc %}
 
 {% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
@@ -144,7 +159,12 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                    </div>
                 {% endfor %}
         </div>
-        {% endfor %}
+  {% if block.Multype %}
+         <button class="main-btn" type="button"
+         onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
+
+  {% endif %}
+       {% endfor %}
 
     <div class="form-actions">
         <button class="main-btn" type="submit">Сохранить</button>
