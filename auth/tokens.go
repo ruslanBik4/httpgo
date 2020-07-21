@@ -1,19 +1,16 @@
 package auth
 
 import (
-	"strconv"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
-
-	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type Tokens interface {
 	addToken(hash int64, id int, ctx map[string]interface{}) int64
-	getToken(bearer string) int64
-	rmToken(bearer string) error
+	getToken(hash int64) int64
+	rmToken(hash int64) error
 }
 
 type mapToken struct {
@@ -72,15 +69,10 @@ func (m *mapTokens) addToken(hash int64, id int, ctx map[string]interface{}) int
 	return m.tokens[hash].accessToken
 }
 
-func (m *mapTokens) getToken(bearer string) int64 {
-	hash, err := strconv.ParseInt(bearer, 10, 64)
-	if err != nil {
-		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
-		return -1
-	}
-
+func (m *mapTokens) getToken(hash int64) int64 {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
+
 	token, ok := m.tokens[hash]
 	if ok {
 		return token.accessToken

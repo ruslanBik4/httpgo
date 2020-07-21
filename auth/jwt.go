@@ -9,8 +9,11 @@ import (
 	"fmt"
 	"reflect"
 	"runtime"
+	"strconv"
 
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type AuthBearer struct {
@@ -38,7 +41,13 @@ func (a AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
 		return -1
 	}
 
-	return a.tokens.getToken(bearer)
+	hash, err := strconv.ParseInt(bearer, 10, 64)
+	if err != nil {
+		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
+		return -1
+	}
+
+	return a.tokens.getToken(hash)
 }
 
 func (a AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
