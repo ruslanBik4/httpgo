@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -70,33 +71,32 @@ type Apis struct {
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
-func NewApis(ctx CtxApis, routes ApiRoutes, fncAuth FncAuth) *Apis {
+func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
-		routes:  NewMapRoutes(),
+		routes:  routes,
 		fncAuth: fncAuth,
 	}
 
-	// add system routers, ignore errors
-	apisRoute := &ApiRoute{
-		Desc: "full routers list",
-		Fnc:  apis.renderApis,
-		Params: []InParam{
-			{
-				Name: "json",
+	apisRoutes := ApiRoutes{
+		"/apis": {
+			Desc: "full routers list",
+			Fnc:  apis.renderApis,
+			Params: []InParam{
+				{
+					Name: "json",
+				},
 			},
 		},
+		"/onboarding": {
+			Desc:      "onboarding routes from local services into APIS",
+			Fnc:       apis.onboarding,
+			OnlyLocal: true,
+			Params:    onboardParams,
+		},
 	}
-
-	_ = apis.addRoute("/apis", apisRoute)
-	_ = apis.addRoute("/onboarding", &ApiRoute{
-		Desc:      "onboarding routes from local services into APIS",
-		Fnc:       apis.onboarding,
-		OnlyLocal: true,
-		Params:    onboardParams})
-
-	apis.AddRoutes(routes)
+	apis.AddRoutes(apisRoutes)
 
 	return apis
 }
@@ -288,7 +288,14 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 	i := 0
 	for method, routes := range a.routes {
-		for url, route := range routes {
+		sortList := make([]string, 0, len(routes))
+		for url := range routes {
+			sortList = append(sortList, url)
+		}
+		sort.Strings(sortList)
+
+		for _, url := range sortList {
+			route := routes[url]
 			if url == string(ctx.Path()) || strings.HasSuffix(url, testRouteSuffix) {
 				continue
 			}
@@ -304,9 +311,9 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 			s := "use method '"
 			if route.FncAuth != nil {
-				s +=  route.FncAuth.String() + "' for checking authorization"
+				s += route.FncAuth.String() + "' for checking authorization"
 			} else if route.NeedAuth {
-				s +=  a.fncAuth.String() + "' for checking authorization"
+				s += a.fncAuth.String() + "' for checking authorization"
 			}
 
 			if route.OnlyAdmin {
@@ -392,7 +399,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if apis.fncAuth != nil {
 		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
 	}
-	
+
 	AddObjectToJSON(stream, "routes", apis.routes)
 }
 

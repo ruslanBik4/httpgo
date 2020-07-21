@@ -19,7 +19,10 @@ type AuthBearer struct {
 
 func NewAuthBearer(tokens Tokens) AuthBearer {
 	if tokens == nil {
-		tokens = &mapTokens{tokens: make(map[int64]*mapToken, 0)}
+		tokens = &mapTokens{
+			expiresIn: tokenExpires,
+			tokens:    make(map[int64]*mapToken, 0),
+		}
 	}
 
 	return AuthBearer{tokens}

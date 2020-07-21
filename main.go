@@ -52,158 +52,162 @@ var (
 
 	cacheMu sync.RWMutex
 	cache   = map[string][]byte{}
-	routes  = ApiRoutes{
-		"/": {
-			Fnc: func(ctx *RequestCtx) (interface{}, error) {
-				body := &pages.IndexPageBody{
-					TopMenu: map[string]string{
-						"Search": "/form/search/",
-						"View":   "/form/show/",
+	routes  = MapRoutes{
+		GET: {
+			"/": {
+				Fnc: func(ctx *RequestCtx) (interface{}, error) {
+					body := &pages.IndexPageBody{
+						TopMenu: map[string]string{
+							"Search": "/form/search/",
+							"View":   "/form/show/",
+						},
+						Title: "Index page of test server",
+					}
+					views.RenderHTMLPage(ctx, body.WriteIndexHTML)
+
+					return nil, nil
+				},
+			},
+			ShowVersion: {
+				Fnc:  HandleVersion,
+				Desc: "view version server",
+			},
+			"/test/forms/": {
+				Fnc: func(ctx *RequestCtx) (interface{}, error) {
+					s := make([]*forms.ColumnDecor, 0)
+					s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 1", "test 1", false)})
+					s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("phone", "test 2", false)})
+					s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("req", "required", true)})
+					s = append(s, &forms.ColumnDecor{Column: dbEngine.NewNumberColumn("number", "number required", true)})
+					p := psql.NewColumnPone("psql", "psql column", 0)
+					p.UdtName = "_int4"
+					s = append(s, &forms.ColumnDecor{Column: p})
+
+					p1 := psql.NewColumnPone("psql bool", "psql bool column", 0)
+					p1.UdtName = "bool"
+					s = append(s, &forms.ColumnDecor{Column: p1})
+
+					p2 := psql.NewColumnPone("email array", "psql [] string column", 0)
+					p2.UdtName = "_varchar"
+
+					decor := &forms.ColumnDecor{
+						Column:      p2,
+						PatternName: `\d\s\w{3}\d`,
+						Value:       []string{"decor1", "decor2"},
+					}
+					s = append(s, decor)
+					f := forms.FormField{
+						Title:       "test form",
+						Action:      "/test/forms/post",
+						Method:      "POST",
+						Description: "",
+					}
+
+					blocks := forms.BlockColumns{
+						Columns:     s,
+						Id:          0,
+						Title:       "first",
+						Description: "test block",
+					}
+
+					if ctx.UserValue(ChildRoutePath) == "html" {
+						views.WriteHeadersHTML(ctx)
+						f.WriteFormHTML(
+							ctx.Response.BodyWriter(),
+							blocks)
+
+					} else {
+						f.WriteFormJSON(
+							ctx.Response.BodyWriter(),
+							blocks)
+					}
+
+					return nil, nil
+				},
+			},
+		},
+		POST: {
+			"/api/tb/group_count/": {
+				Fnc: func(ctx *RequestCtx) (i interface{}, err error) {
+					b, err := telegrambot.NewTelegramBotFromEnv()
+					if err != nil {
+						return nil, errors.Wrap(err, "NewTelegramBot")
+					}
+
+					err = b.GetChatMemberCount(b.ChatID)
+					if err != nil {
+						return nil, errors.Wrap(err, "GetChatMemberCount")
+					}
+
+					return b.GetResult(), nil
+				},
+				Desc:      "test route",
+				Method:    POST,
+				Multipart: true,
+			},
+			"/moreParams/": {
+				Desc:      "test route",
+				Method:    POST,
+				Multipart: true,
+				NeedAuth:  true,
+				Params: []InParam{
+					{
+						Name: "globalTags",
+						Desc: "data of dashboard -> filter 'Global Tags'",
+						Req:  false,
+						Type: NewSliceTypeInParam(types.Int32),
 					},
-					Title: "Index page of test server",
-				}
-				views.RenderHTMLPage(ctx, body.WriteIndexHTML)
-
-				return nil, nil
-			},
-		},
-		ShowVersion: {
-			Fnc:  HandleVersion,
-			Desc: "view version server",
-		},
-		"/api/tb/group_count/": {
-			Fnc: func(ctx *RequestCtx) (i interface{}, err error) {
-				b, err := telegrambot.NewTelegramBotFromEnv()
-				if err != nil {
-					return nil, errors.Wrap(err, "NewTelegramBot")
-				}
-
-				err = b.GetChatMemberCount(b.ChatID)
-				if err != nil {
-					return nil, errors.Wrap(err, "GetChatMemberCount")
-				}
-
-				return b.GetResult(), nil
-			},
-			Desc:      "test route",
-			Method:    POST,
-			Multipart: true,
-		},
-		"/moreParams/": {
-			Desc:      "test route",
-			Method:    POST,
-			Multipart: true,
-			NeedAuth:  true,
-			Params: []InParam{
-				{
-					Name: "globalTags",
-					Desc: "data of dashboard -> filter 'Global Tags'",
-					Req:  false,
-					Type: NewSliceTypeInParam(types.Int32),
+					{
+						Name:     "group",
+						Desc:     "type grouping data of ohlc (month, week, day)",
+						Req:      true,
+						Type:     NewTypeInParam(types.String),
+						DefValue: "day",
+					},
+					{
+						Name:     "account",
+						Desc:     "account numbers to filter data",
+						Req:      true,
+						Type:     NewTypeInParam(types.Bool),
+						DefValue: testValue,
+					},
 				},
-				{
-					Name:     "group",
-					Desc:     "type grouping data of ohlc (month, week, day)",
-					Req:      true,
-					Type:     NewTypeInParam(types.String),
-					DefValue: "day",
-				},
-				{
-					Name:     "account",
-					Desc:     "account numbers to filter data",
-					Req:      true,
-					Type:     NewTypeInParam(types.Bool),
-					DefValue: testValue,
+				Resp: struct {
+					Hours map[string]float64
+				}{
+					map[string]float64{"after 16:00": 15.2,
+						"13:30 - 15:30": 1570.86,
+						"9:30 - 9:50":   1672.54,
+					},
 				},
 			},
-			Resp: struct {
-				Hours map[string]float64
-			}{
-				map[string]float64{"after 16:00": 15.2,
-					"13:30 - 15:30": 1570.86,
-					"9:30 - 9:50":   1672.54,
+			"/test/forms/post": {
+				Fnc: func(ctx *RequestCtx) (interface{}, error) {
+
+					return ctx.UserValue(MultiPartParams), nil
 				},
+				Method:    POST,
+				Multipart: true,
 			},
+
+			// "/godoc/":        handlerGoDoc,
+			// "/recache":       handlerRecache,
+			// "/update/":       handleUpdate,
+			// "/test/":         handleTest,
+			// "/api/firebird/": HandleFirebird,
+			// "/fonts/":        fonts.HandleGetFont,
+			// "/query/":        db.HandlerDBQuery,
+			// "/menu/":         handlerMenu,
+			// "/show/forms/":   handlerForms,
+			// "/user/signup/":  users.HandlerSignUp,
+			// "/user/signin/":  users.HandlerSignIn,
+			// "/user/signout/": users.HandlerSignOut,
+			// "/user/active/":  users.HandlerActivateUser,
+			// "/user/profile/": users.HandlerProfile,
+			// //"/user/oauth/":    users.HandlerQauth2,
+			// "/user/GoogleCallback/": users.HandleGoogleCallback,
+			// "/components/":          handlerComponents,
 		},
-		"/test/forms/": {
-			Fnc: func(ctx *RequestCtx) (interface{}, error) {
-				s := make([]*forms.ColumnDecor, 0)
-				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("test 1", "test 1", false)})
-				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("phone", "test 2", false)})
-				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewStringColumn("req", "required", true)})
-				s = append(s, &forms.ColumnDecor{Column: dbEngine.NewNumberColumn("number", "number required", true)})
-				p := psql.NewColumnPone("psql", "psql column", 0)
-				p.UdtName = "_int4"
-				s = append(s, &forms.ColumnDecor{Column: p})
-
-				p1 := psql.NewColumnPone("psql bool", "psql bool column", 0)
-				p1.UdtName = "bool"
-				s = append(s, &forms.ColumnDecor{Column: p1})
-
-				p2 := psql.NewColumnPone("email array", "psql [] string column", 0)
-				p2.UdtName = "_varchar"
-
-				decor := &forms.ColumnDecor{
-					Column:      p2,
-					PatternName: `\d\s\w{3}\d`,
-					Value:       []string{"decor1", "decor2"},
-				}
-				s = append(s, decor)
-				f := forms.FormField{
-					Title:       "test form",
-					Action:      "/test/forms/post",
-					Method:      "POST",
-					Description: "",
-				}
-
-				blocks := forms.BlockColumns{
-					Columns:     s,
-					Id:          0,
-					Title:       "first",
-					Description: "test block",
-				}
-
-				if ctx.UserValue(ChildRoutePath) == "html" {
-					views.WriteHeadersHTML(ctx)
-					f.WriteFormHTML(
-						ctx.Response.BodyWriter(),
-						blocks)
-
-				} else {
-					f.WriteFormJSON(
-						ctx.Response.BodyWriter(),
-						blocks)
-				}
-
-				return nil, nil
-			},
-		},
-		"/test/forms/post": {
-			Fnc: func(ctx *RequestCtx) (interface{}, error) {
-
-				return ctx.UserValue(MultiPartParams), nil
-			},
-			Method:    POST,
-			Multipart: true,
-		},
-
-		// "/godoc/":        handlerGoDoc,
-		// "/recache":       handlerRecache,
-		// "/update/":       handleUpdate,
-		// "/test/":         handleTest,
-		// "/api/firebird/": HandleFirebird,
-		// "/fonts/":        fonts.HandleGetFont,
-		// "/query/":        db.HandlerDBQuery,
-		// "/menu/":         handlerMenu,
-		// "/show/forms/":   handlerForms,
-		// "/user/signup/":  users.HandlerSignUp,
-		// "/user/signin/":  users.HandlerSignIn,
-		// "/user/signout/": users.HandlerSignOut,
-		// "/user/active/":  users.HandlerActivateUser,
-		// "/user/profile/": users.HandlerProfile,
-		// //"/user/oauth/":    users.HandlerQauth2,
-		// "/user/GoogleCallback/": users.HandleGoogleCallback,
-		// "/components/":          handlerComponents,
 	}
 )
 

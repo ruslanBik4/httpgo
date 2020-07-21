@@ -60,7 +60,7 @@ func (m *mapTokens) addToken(hash int64, id int, ctx map[string]interface{}) int
 	m.tokens[hash] = &mapToken{
 		accessToken: hash,
 		expiresIn: time.AfterFunc(m.expiresIn, func() {
-			m.rmToken("")
+			m.rmToken(hash)
 		}),
 		userId:   id,
 		ctxRoute: ctx,
@@ -89,13 +89,7 @@ func (m *mapTokens) getToken(bearer string) int64 {
 	return -1
 }
 
-func (m *mapTokens) rmToken(bearer string) error {
-	hash, err := strconv.ParseInt(bearer, 10, 64)
-	if err != nil {
-		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
-		return nil
-	}
-
+func (m *mapTokens) rmToken(hash int64) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 

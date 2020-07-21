@@ -104,9 +104,9 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	// check auth is needed
 	// owl func for auth
 	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
-	    // only admin access
+		// only admin access
 		(route.FncAuth == nil) && (route.OnlyAdmin && !fncAuth.AdminAuth(ctx) ||
-		// access according to FncAuth if need
+			// access according to FncAuth if need
 			!route.OnlyAdmin && route.NeedAuth && !fncAuth.Auth(ctx)) {
 		return nil, ErrUnAuthorized
 	}
@@ -353,6 +353,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			badRouting = append(badRouting, url)
 			continue
 		}
+
 		r[route.Method][url] = route
 		testRoute := &ApiRoute{
 			Desc:      "test handler for " + url,
@@ -511,6 +512,18 @@ func init() {
 		return false
 	})
 	jsoniter.RegisterTypeEncoderFunc("apis.ApiRoutes", apiRoutesToJSON, func(pointer unsafe.Pointer) bool {
+		return false
+	})
+	jsoniter.RegisterTypeEncoderFunc("apis.MapRoutes", func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+		routes := *(*MapRoutes)(ptr)
+		stream.WriteObjectStart()
+		defer stream.WriteObjectEnd()
+
+		for key, val := range routes {
+			AddObjectToJSON(stream, key.String(), &val)
+		}
+
+	}, func(pointer unsafe.Pointer) bool {
 		return false
 	})
 }
