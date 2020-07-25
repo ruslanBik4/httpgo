@@ -20,7 +20,7 @@ type AuthBearer struct {
 	tokens Tokens
 }
 
-func NewAuthBearer(tokens Tokens) AuthBearer {
+func NewAuthBearer(tokens Tokens) *AuthBearer {
 	if tokens == nil {
 		tokens = &mapTokens{
 			expiresIn: tokenExpires,
@@ -28,14 +28,14 @@ func NewAuthBearer(tokens Tokens) AuthBearer {
 		}
 	}
 
-	return AuthBearer{tokens}
+	return &AuthBearer{tokens}
 }
 
-func (a AuthBearer) AddToken(hash int64, id int, ctx map[string]interface{}) int64 {
+func (a *AuthBearer) AddToken(hash int64, id int, ctx map[string]interface{}) int64 {
 	return a.tokens.addToken(hash, id, ctx)
 }
 
-func (a AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
+func (a *AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
 	bearer := a.getBearer(ctx)
 	if bearer == "" {
 		return -1
@@ -50,7 +50,7 @@ func (a AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
 	return a.tokens.getToken(hash)
 }
 
-func (a AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
+func (a *AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 	b := ctx.Request.Header.Peek("Authorization")
 	if len(b) == 0 || !bytes.HasPrefix(b, []byte("Bearer ")) {
 		return ""
@@ -59,14 +59,14 @@ func (a AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 	return string(bytes.TrimPrefix(b, []byte("Bearer ")))
 }
 
-func (a AuthBearer) String() string {
+func (a *AuthBearer) String() string {
 
 	return `implement auth for Bearer standart: 
 	 user: ` + getStringOfFnc(reflect.ValueOf(a.Auth).Pointer()) + `
 	 admin: ` + getStringOfFnc(reflect.ValueOf(a.AdminAuth).Pointer())
 }
 
-func (a AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
+func (a *AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
 
 	token := a.GetToken(ctx)
 	if token < 0 {
@@ -78,7 +78,7 @@ func (a AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
 	return true
 }
 
-func (a AuthBearer) AdminAuth(ctx *fasthttp.RequestCtx) bool {
+func (a *AuthBearer) AdminAuth(ctx *fasthttp.RequestCtx) bool {
 
 	return a.Auth(ctx) && (ctx.UserValue(UserValueToken).(*mapToken).isAdmin)
 }

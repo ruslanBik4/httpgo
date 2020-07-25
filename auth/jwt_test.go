@@ -76,6 +76,9 @@ func TestAuthBearer_Auth(t *testing.T) {
 	type args struct {
 		ctx *fasthttp.RequestCtx
 	}
+	ctx := &fasthttp.RequestCtx{}
+	ctx.Request.Header.Set("Authorization", "Bearer 0")
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -83,12 +86,50 @@ func TestAuthBearer_Auth(t *testing.T) {
 		want   bool
 	}{
 		// TODO: Add test cases.
+		{
+			"0 true",
+			fields{tokens: &mapTokens{
+				expiresIn: 60,
+				tokens: map[int64]*mapToken{
+					0: {
+						accessToken: 0,
+					},
+				},
+			}},
+			args{ctx: ctx},
+			true,
+		},
+		{
+			"1 false",
+			fields{tokens: &mapTokens{
+				expiresIn: 60,
+				tokens: map[int64]*mapToken{
+					1: {
+						accessToken: 1,
+					},
+				},
+			}},
+			args{ctx: ctx},
+			false,
+		},
+		{
+			"0 false",
+			fields{tokens: &mapTokens{
+				expiresIn: 60,
+				tokens: map[int64]*mapToken{
+					1: {
+						accessToken: 1,
+					},
+				},
+			}},
+			args{ctx: ctx},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
-				tokens: tt.fields.tokens,
-			}
+			a := NewAuthBearer(tt.fields.tokens)
+
 			if got := a.Auth(tt.args.ctx); got != tt.want {
 				t.Errorf("Auth() = %v, want %v", got, tt.want)
 			}
