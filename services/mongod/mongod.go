@@ -10,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/services"
 )
 
 var (

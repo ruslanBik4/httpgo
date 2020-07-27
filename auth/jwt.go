@@ -5,15 +5,12 @@
 package auth
 
 import (
-	"bytes"
 	"fmt"
 	"reflect"
+	"regexp"
 	"runtime"
-	"strconv"
 
 	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/httpgo/logs"
 )
 
 type AuthBearer struct {
@@ -24,39 +21,35 @@ func NewAuthBearer(tokens Tokens) *AuthBearer {
 	if tokens == nil {
 		tokens = &mapTokens{
 			expiresIn: tokenExpires,
-			tokens:    make(map[int64]*mapToken, 0),
+			tokens:    make(map[string]*mapToken, 0),
 		}
 	}
 
 	return &AuthBearer{tokens}
 }
 
-func (a *AuthBearer) AddToken(hash int64, id int, ctx map[string]interface{}) int64 {
-	return a.tokens.addToken(hash, id, ctx)
+func (a *AuthBearer) NewToken(userData TokenData) string {
+	return a.tokens.NewToken(userData)
 }
 
-func (a *AuthBearer) GetToken(ctx *fasthttp.RequestCtx) int64 {
+func (a *AuthBearer) GetToken(ctx *fasthttp.RequestCtx) TokenData {
 	bearer := a.getBearer(ctx)
 	if bearer == "" {
-		return -1
+		return nil
 	}
 
-	hash, err := strconv.ParseInt(bearer, 10, 64)
-	if err != nil {
-		logs.ErrorLog(err, "ParseInt( bearer %s", bearer)
-		return -1
-	}
-
-	return a.tokens.getToken(hash)
+	return a.tokens.GetToken(bearer)
 }
 
+var regBearer = regexp.MustCompile(`Bearer\s+(\S+)`)
+
 func (a *AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
-	b := ctx.Request.Header.Peek("Authorization")
-	if len(b) == 0 || !bytes.HasPrefix(b, []byte("Bearer ")) {
+	b := regBearer.FindSubmatch(ctx.Request.Header.Peek("Authorization"))
+	if len(b) == 0 {
 		return ""
 	}
 
-	return string(bytes.TrimPrefix(b, []byte("Bearer ")))
+	return string(b[1])
 }
 
 func (a *AuthBearer) String() string {
@@ -69,7 +62,7 @@ func (a *AuthBearer) String() string {
 func (a *AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
 
 	token := a.GetToken(ctx)
-	if token < 0 {
+	if token == nil {
 		return false
 	}
 
@@ -80,7 +73,7 @@ func (a *AuthBearer) Auth(ctx *fasthttp.RequestCtx) bool {
 
 func (a *AuthBearer) AdminAuth(ctx *fasthttp.RequestCtx) bool {
 
-	return a.Auth(ctx) && (ctx.UserValue(UserValueToken).(*mapToken).isAdmin)
+	return a.Auth(ctx) && (ctx.UserValue(UserValueToken).(TokenData).IsAdmin())
 }
 
 func getStringOfFnc(pc uintptr) string {

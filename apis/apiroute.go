@@ -330,6 +330,11 @@ func FirstFieldToJSON(stream *jsoniter.Stream, field string, s string) {
 	stream.WriteString(s)
 }
 
+func FirstObjectToJSON(stream *jsoniter.Stream, field string, s interface{}) {
+	stream.WriteObjectField(field)
+	stream.WriteVal(s)
+}
+
 // ApiRoutes is hair of APIRoute
 type ApiRoutes map[string]*ApiRoute
 type MapRoutes map[tMethod]map[string]*ApiRoute
@@ -519,8 +524,18 @@ func init() {
 		stream.WriteObjectStart()
 		defer stream.WriteObjectEnd()
 
+		isFirst := true
 		for key, val := range routes {
-			AddObjectToJSON(stream, key.String(), &val)
+			if val == nil || len(val) == 0 {
+				continue
+			}
+
+			if isFirst {
+				isFirst = false
+				FirstObjectToJSON(stream, key.String(), &val)
+			} else {
+				AddObjectToJSON(stream, key.String(), &val)
+			}
 		}
 
 	}, func(pointer unsafe.Pointer) bool {

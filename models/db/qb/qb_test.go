@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/services"
+	"github.com/ruslanBik4/httpgo/services"
 )
 
 func TestQBCreate(t *testing.T) {

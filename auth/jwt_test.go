@@ -5,42 +5,13 @@
 package auth
 
 import (
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/httpgo/apis"
 )
-
-func TestAuthBearer_AddToken(t *testing.T) {
-	type fields struct {
-		tokens Tokens
-	}
-	type args struct {
-		hash int64
-		id   int
-		ctx  map[string]interface{}
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   int64
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
-				tokens: tt.fields.tokens,
-			}
-			if got := a.AddToken(tt.args.hash, tt.args.id, tt.args.ctx); got != tt.want {
-				t.Errorf("AddToken() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestAuthBearer_AdminAuth(t *testing.T) {
 	type fields struct {
@@ -59,7 +30,7 @@ func TestAuthBearer_AdminAuth(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
+			a := &AuthBearer{
 				tokens: tt.fields.tokens,
 			}
 			if got := a.AdminAuth(tt.args.ctx); got != tt.want {
@@ -76,9 +47,6 @@ func TestAuthBearer_Auth(t *testing.T) {
 	type args struct {
 		ctx *fasthttp.RequestCtx
 	}
-	ctx := &fasthttp.RequestCtx{}
-	ctx.Request.Header.Set("Authorization", "Bearer 0")
-
 	tests := []struct {
 		name   string
 		fields fields
@@ -86,50 +54,12 @@ func TestAuthBearer_Auth(t *testing.T) {
 		want   bool
 	}{
 		// TODO: Add test cases.
-		{
-			"0 true",
-			fields{tokens: &mapTokens{
-				expiresIn: 60,
-				tokens: map[int64]*mapToken{
-					0: {
-						accessToken: 0,
-					},
-				},
-			}},
-			args{ctx: ctx},
-			true,
-		},
-		{
-			"1 false",
-			fields{tokens: &mapTokens{
-				expiresIn: 60,
-				tokens: map[int64]*mapToken{
-					1: {
-						accessToken: 1,
-					},
-				},
-			}},
-			args{ctx: ctx},
-			false,
-		},
-		{
-			"0 false",
-			fields{tokens: &mapTokens{
-				expiresIn: 60,
-				tokens: map[int64]*mapToken{
-					1: {
-						accessToken: 1,
-					},
-				},
-			}},
-			args{ctx: ctx},
-			false,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := NewAuthBearer(tt.fields.tokens)
-
+			a := &AuthBearer{
+				tokens: tt.fields.tokens,
+			}
 			if got := a.Auth(tt.args.ctx); got != tt.want {
 				t.Errorf("Auth() = %v, want %v", got, tt.want)
 			}
@@ -148,17 +78,102 @@ func TestAuthBearer_GetToken(t *testing.T) {
 		name   string
 		fields fields
 		args   args
-		want   int64
+		want   TokenData
 	}{
 		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
+			a := &AuthBearer{
 				tokens: tt.fields.tokens,
 			}
-			if got := a.GetToken(tt.args.ctx); got != tt.want {
+			if got := a.GetToken(tt.args.ctx); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("GetToken() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAuthBearer_NewToken(t *testing.T) {
+	type fields struct {
+		tokens Tokens
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   *testTokenData
+		ctx    *fasthttp.RequestCtx
+	}{
+		// TODO: Add test cases.
+		{
+			"1",
+			fields{
+				&mapTokens{
+					expiresIn: time.Hour,
+					tokens:    map[string]*mapToken{},
+				},
+			},
+			&testTokenData{
+				id:      1,
+				isAdmin: false,
+			},
+			&fasthttp.RequestCtx{},
+		},
+		{
+			"2",
+			fields{
+				&mapTokens{
+					expiresIn: time.Hour,
+					tokens:    map[string]*mapToken{},
+				},
+			},
+			&testTokenData{
+				id:      1,
+				isAdmin: true,
+			},
+			&fasthttp.RequestCtx{},
+		},
+		{
+			"3",
+			fields{
+				&mapTokens{
+					expiresIn: time.Hour,
+					tokens:    map[string]*mapToken{},
+				},
+			},
+			&testTokenData{
+				id:      10000,
+				isAdmin: false,
+			},
+			&fasthttp.RequestCtx{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			a := &AuthBearer{
+				tokens: tt.fields.tokens,
+			}
+
+			s := make([]string, 0)
+			for i := 0; i < 100; i++ {
+				got := a.NewToken(tt.args)
+				for _, str := range s {
+					if !assert.NotEqual(t, got, str, "not random value of token") {
+						break
+					}
+				}
+				s = append(s, got)
+			}
+
+			token := a.tokens.GetToken(s[0])
+			tt.ctx.Request.Header.Set("Authorization", "  Bearer  "+s[0])
+
+			if assert.NotNil(t, token, "not found token") &&
+				assert.True(t, a.Auth(tt.ctx), "unAuthorization") {
+
+				assert.Equal(t, tt.args.id, token.GetUserID())
+				assert.Equal(t, tt.args.isAdmin, token.IsAdmin())
+				assert.Equal(t, tt.args.isAdmin, a.AdminAuth(tt.ctx))
 			}
 		})
 	}
@@ -177,7 +192,7 @@ func TestAuthBearer_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
+			a := &AuthBearer{
 				tokens: tt.fields.tokens,
 			}
 			if got := a.String(); got != tt.want {
@@ -204,7 +219,7 @@ func TestAuthBearer_getBearer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			a := AuthBearer{
+			a := &AuthBearer{
 				tokens: tt.fields.tokens,
 			}
 			if got := a.getBearer(tt.args.ctx); got != tt.want {
@@ -215,8 +230,23 @@ func TestAuthBearer_getBearer(t *testing.T) {
 }
 
 func TestNewAuthBearer(t *testing.T) {
-	a := NewAuthBearer(nil)
-	assert.Implements(t, (*apis.FncAuth)(nil), a)
+	type args struct {
+		tokens Tokens
+	}
+	tests := []struct {
+		name string
+		args args
+		want *AuthBearer
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewAuthBearer(tt.args.tokens); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewAuthBearer() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 func Test_getStringOfFnc(t *testing.T) {
