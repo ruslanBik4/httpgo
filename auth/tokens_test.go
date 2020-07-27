@@ -96,7 +96,7 @@ func Test_mapTokens_NewToken(t *testing.T) {
 				tokens:    tt.fields.tokens,
 				lock:      tt.fields.lock,
 			}
-			if got := m.NewToken(tt.args.userData); got != tt.want {
+			if got, _ := m.NewToken(tt.args.userData); got != tt.want {
 				t.Errorf("NewToken() = %v, want %v", got, tt.want)
 			}
 		})

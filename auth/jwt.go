@@ -28,7 +28,7 @@ func NewAuthBearer(tokens Tokens) *AuthBearer {
 	return &AuthBearer{tokens}
 }
 
-func (a *AuthBearer) NewToken(userData TokenData) string {
+func (a *AuthBearer) NewToken(userData TokenData) (string, error) {
 	return a.tokens.NewToken(userData)
 }
 

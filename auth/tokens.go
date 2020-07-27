@@ -12,7 +12,7 @@ import (
 )
 
 type Tokens interface {
-	NewToken(userData TokenData) string
+	NewToken(userData TokenData) (string, error)
 	GetToken(s string) TokenData
 	RemoveToken(s string) error
 }
@@ -35,7 +35,7 @@ type mapTokens struct {
 	lock      sync.RWMutex
 }
 
-func (m *mapTokens) NewToken(userData TokenData) string {
+func (m *mapTokens) NewToken(userData TokenData) (string, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	if m.tokens == nil {
@@ -44,7 +44,7 @@ func (m *mapTokens) NewToken(userData TokenData) string {
 
 	s, err := generateRandomString(16)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	m.tokens[s] = &mapToken{
@@ -59,8 +59,7 @@ func (m *mapTokens) NewToken(userData TokenData) string {
 		lock:     &sync.RWMutex{},
 	}
 
-	//	todo: решить вопрос про уникальность токена
-	return s
+	return s, nil
 }
 
 func (m *mapTokens) GetToken(s string) TokenData {

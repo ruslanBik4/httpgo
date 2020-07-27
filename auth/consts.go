@@ -4,5 +4,9 @@
 
 package auth
 
+import (
+	"time"
+)
+
 const UserValueToken = "UserToken"
-const tokenExpires = 60 * 60 * 24
+const tokenExpires = 60 * 60 * 24 * time.Second

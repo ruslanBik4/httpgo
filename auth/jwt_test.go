@@ -156,7 +156,8 @@ func TestAuthBearer_NewToken(t *testing.T) {
 
 			s := make([]string, 0)
 			for i := 0; i < 100; i++ {
-				got := a.NewToken(tt.args)
+				got, err := a.NewToken(tt.args)
+				assert.Nil(t, err)
 				for _, str := range s {
 					if !assert.NotEqual(t, got, str, "not random value of token") {
 						break
