@@ -145,7 +145,7 @@ name="{%s col.InputName(i) %}"
 {% endfunc %}
 
 {% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
-<form id="{%s f.Title %}form" name="{%s f.Title %}" role='form' class="form-horizontal row-fluid" target="content"
+<form id="{%s f.Title %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
         {% for _, block := range blocks %}

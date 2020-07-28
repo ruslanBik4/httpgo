@@ -532,7 +532,7 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:148
 	qw422016.E().S(f.Title)
 //line views/templates/forms/json.qtpl:148
-	qw422016.N().S(`" role='form' class="form-horizontal row-fluid" target="content" action="`)
+	qw422016.N().S(`" role='form' class="form-horizontal" target="content" action="`)
 //line views/templates/forms/json.qtpl:149
 	qw422016.E().S(f.Action)
 //line views/templates/forms/json.qtpl:149

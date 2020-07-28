@@ -205,7 +205,6 @@ func (col *ColumnDecor) InputName(i int) string {
 	return col.Name()
 }
 
-
 func (col *ColumnDecor) inputType() string {
 	if col.IsHidden {
 		return "hidden"
@@ -214,7 +213,7 @@ func (col *ColumnDecor) inputType() string {
 	switch col.Type() {
 	case "date", "_date":
 		return "date"
-	case "datetime", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time":
+	case "datetime", "datetimez", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time":
 		return "datetime"
 	case "email", "tel", "password", "url":
 		return col.Type()

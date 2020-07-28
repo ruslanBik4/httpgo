@@ -448,7 +448,6 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 		}(url, route)
 
 		r[GET][path.Join(url, r.GetTestRouteSuffix(route))] = testRoute
-		logs.DebugLog(testRoute)
 
 	}
 
