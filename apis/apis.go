@@ -24,6 +24,7 @@ import (
 
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
@@ -367,7 +368,11 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 	views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
 
-	routeTable.WriteTableRow(ctx, columns, rows)
+	colDecors := make([]*forms.ColumnDecor, len(columns))
+	for i, col := range columns {
+		colDecors[i] = forms.NewColumnDecor(col, nil)
+	}
+	routeTable.WriteTableRow(ctx, colDecors, rows)
 
 	return nil, nil
 }

@@ -70,7 +70,11 @@ func TableView(preRoute string, table dbEngine.Table, DB *dbEngine.DB) apis.ApiR
 
 		views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
 
-		routeTable.WriteTableRow(ctx, table.Columns(), rows)
+		colDecors := make([]*forms.ColumnDecor, len(table.Columns()))
+		for i, col := range table.Columns() {
+			colDecors[i] = forms.NewColumnDecor(col, nil)
+		}
+		routeTable.WriteTableRow(ctx, colDecors, rows)
 
 		return nil, nil
 	}

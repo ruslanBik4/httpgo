@@ -2,29 +2,37 @@
 	"time"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	)
 %}
 {% collapsespace %}
 {% stripspace %}
 
-{% func TableRow(columns []dbEngine.Column, rows [][] interface{}) %}
+{% func TableRow(columns []*forms.ColumnDecor, rows [][] interface{}) %}
 <style>
 {%= TableCSS() %}
 {%code
    colLen := make([]int, len(columns))
    allWidth := 0
    for i, col := range columns {
-        colLen[i] = len(col.Name())
+        colLen[i] = len(col.Label)
    }
 %}
 </style>
+<script>
+function getElementsByText(str, name) {
+  elem = Array.prototype.slice.call(document.getElementsByClassName(name)).filter(el => el.textContent.trim()includes( str.trim() ) );
+  if elem.length > 0 {
+    elem.scrollIntoView({block: "center", behavior: "smooth"});
+  }
+}
+</script>
 <div class="usr-table  table-custom">
     <div class="usr-table-header">
         <div class="usr-table__t-head  usr-table-row">
         {% for i, col := range columns %}
             <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
-                {%s col.Name() %}
+                {%s col.Label %}
             </div>
         {% endfor %}
         </div>
@@ -35,7 +43,7 @@
                 <div class="filt-arrow" style="word-break: break-word;">
 
                     <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
-                        {%s col.Comment() %}
+                        <input type="text" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
                     </a>
                 </div>
             </div>
@@ -62,23 +70,24 @@
                                   colLen[i] = len(val)
                                 }
                               %}
+                            {% case bool %}  {% if val %}X{% endif %}
                             {% case float32 %}   {%v= val %}
                             {% case float64 %}   {%f.2 val %}
                             {% default %}
                               {% if r, ok := val.([]string); ok %}
-                                {
+                                [
                                  {% for _, str := range r %}
-                                  <p>{%s= str %} </p>
+                                  {%s= str %}
                                {%code
-                                 if len(r) > colLen[i] {
-                                   colLen[i] = len(r)
+                                 if len(r)+1 > colLen[i] {
+                                   colLen[i] = len(r)+1
                                  }
                                %}
                                {% endfor %}
-                               }
+                               ]
                              {% elseif r, ok := val.([]interface{}); ok %}
                                  {% for _, value := range r %}
-                                  <p>{
+                                  {
                                     {% if m, ok := value.(map[string]interface{}); ok %}
                                       {% for key, value := range m %}
                                         <b>{%s key %}</b>: {%= json.Element(value)%},
@@ -86,7 +95,7 @@
                                     {% else %}
                                           {%= json.Element(value) %}
                                     {% endif %}
-                                  } </p>
+                                  }
                                 {% endfor %}
                               {% else %}
                                     {%= json.Element(row[i]) %}
