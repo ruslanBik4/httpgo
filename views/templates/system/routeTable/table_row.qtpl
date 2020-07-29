@@ -18,9 +18,18 @@
 </style>
 <script>
 function getElementsByText(str, name) {
-  elem = Array.prototype.slice.call(document.getElementsByClassName(name)).filter(el => el.textContent.trim()includes( str.trim() ) );
-  if elem.length > 0 {
-    elem.scrollIntoView({block: "center", behavior: "smooth"});
+  var items = document.getElementsByClassName(name);
+  var elem = Array.prototype.slice.call(items).filter(el => el.textContent.includes( str.trim() ) );
+  if (elem.length > 0) {
+    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
+    elem[0].focus();
+    elem[0].animate([
+      {color: 'blue'},
+      {color: 'red'}
+    ], {
+        duration: 3000,
+        iterations: 100
+    });
   }
 }
 </script>
@@ -129,6 +138,9 @@ function getElementsByText(str, name) {
     {% if columns[i].Type() == "timestamp" %}
     word-break: break-all;
     {% endif %}
+    input {
+        width: 98%;
+    }
 }
 .usr-table-row{
  .table-col-{%d i%}{
