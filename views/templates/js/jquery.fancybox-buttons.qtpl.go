@@ -6,25 +6,25 @@
 //
 // .
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:5
 package js
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:5
 func StreamJqueryFancyboxButtons(qw422016 *qt422016.Writer) {
-//line views/templates/js/jquery.fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:5
 	qw422016.N().S(`
     <script>
   /*!
@@ -152,31 +152,31 @@ func StreamJqueryFancyboxButtons(qw422016 *qt422016.Writer) {
 
     </script>
 `)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 }
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 func WriteJqueryFancyboxButtons(qq422016 qtio422016.Writer) {
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	StreamJqueryFancyboxButtons(qw422016)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 }
 
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 func JqueryFancyboxButtons() string {
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	WriteJqueryFancyboxButtons(qb422016)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	qs422016 := string(qb422016.B)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 	return qs422016
-//line views/templates/js/jquery.fancybox-buttons.qtpl:131
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/jquery.fancybox-buttons.qtpl:131
 }

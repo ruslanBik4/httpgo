@@ -7,80 +7,80 @@
 // #}
 //
 
-//line views/templates/common/textarea.qtpl:7
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:7
 package common
 
-//line views/templates/common/textarea.qtpl:7
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:7
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/common/textarea.qtpl:7
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/common/textarea.qtpl:7
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:7
 func StreamRenderTextarea(qw422016 *qt422016.Writer, attr ...string) {
-//line views/templates/common/textarea.qtpl:7
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:7
 	qw422016.N().S(`
 
     `)
-//line views/templates/common/textarea.qtpl:10
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:10
 	dataForm := ""
 	if len(attr) > 1 {
 		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
 	}
 
-//line views/templates/common/textarea.qtpl:14
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:14
 	qw422016.N().S(`
 
     <label class="c-app-textarea">
         <textarea class="c-textarea" id="`)
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.E().S(attr[0])
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.N().S(`" name="`)
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.E().S(attr[0])
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.N().S(`" `)
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.E().S(dataForm)
-//line views/templates/common/textarea.qtpl:17
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:17
 	qw422016.N().S(`></textarea>
         <span data-set-text></span>
     </label>
 
 `)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 }
 
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 func WriteRenderTextarea(qq422016 qtio422016.Writer, attr ...string) {
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	StreamRenderTextarea(qw422016, attr...)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 }
 
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 func RenderTextarea(attr ...string) string {
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	WriteRenderTextarea(qb422016, attr...)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	qs422016 := string(qb422016.B)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 	return qs422016
-//line views/templates/common/textarea.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/textarea.qtpl:21
 }

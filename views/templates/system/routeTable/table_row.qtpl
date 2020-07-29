@@ -5,9 +5,6 @@
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	)
 %}
-{% collapsespace %}
-{% stripspace %}
-
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] interface{}) %}
 <style>
 {%= TableCSS() %}
@@ -27,6 +24,9 @@ function getElementsByText(str, name) {
   }
 }
 </script>
+{% collapsespace %}
+{% stripspace %}
+
 <div class="usr-table  table-custom">
     <div class="usr-table-header">
         <div class="usr-table__t-head  usr-table-row">
@@ -73,19 +73,19 @@ function getElementsByText(str, name) {
                             {% case bool %}  {% if val %}X{% endif %}
                             {% case float32 %}   {%v= val %}
                             {% case float64 %}   {%f.2 val %}
-                            {% default %}
-                              {% if r, ok := val.([]string); ok %}
-                                [
-                                 {% for _, str := range r %}
-                                  {%s= str %}
-                               {%code
-                                 if len(r)+1 > colLen[i] {
-                                   colLen[i] = len(r)+1
-                                 }
-                               %}
-                               {% endfor %}
-                               ]
-                             {% elseif r, ok := val.([]interface{}); ok %}
+                            {% case []string %}
+                                 [
+                                  {% for _, str := range val %}
+                                   {%s= str %}
+                                {%code
+                                  if len(str)+1 > colLen[i] {
+                                    colLen[i] = len(str)+1
+                                  }
+                                %}
+                                {% endfor %}
+                                ]
+                          {% default %}
+                              {% if  r, ok := val.([]interface{}); ok %}
                                  {% for _, value := range r %}
                                   {
                                     {% if m, ok := value.(map[string]interface{}); ok %}
@@ -112,6 +112,8 @@ function getElementsByText(str, name) {
         </div>
     </div>
 </div>
+{% endcollapsespace %}
+{% endstripspace %}
 <style>
 {% for i, cLen := range colLen %}
   {% code
@@ -141,5 +143,3 @@ function getElementsByText(str, name) {
 }
 </style>
 {% endfunc %}
-{% endcollapsespace %}
-{% endstripspace %}
