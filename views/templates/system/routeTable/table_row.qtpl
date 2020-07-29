@@ -61,21 +61,33 @@
 
                     <div  class="usr-table-row">
 
-                    {% for i := range columns %}
+                    {% for i, column := range columns %}
                         <div class="usr-table-col  table-col-{%d i%}">
                             {% switch r := row[i].(type) %}
                             {% case time.Time %}  {%s r.Format("2006-01-02") %}
                             {% case string %}
                               {%s= r %}
                               {%code
-                                if len(r) > colLen[i] {
+                                if len(r) > colLen[i] && column.Name() != "id"{
                                   colLen[i] = len(r)
                                 }
                               %}
                             {% case float32 %}   {%v= r %}
                             {% case float64 %}   {%f.2 r %}
                             {% default %}
-                              {% if r, ok := r.([]interface{}); ok %}
+                              {% if r, ok := r.([]string); ok %}
+                                {
+                                 {% for _, str := range r %}
+                                  <p>{%s= str %} </p>
+                               {%code
+                                 if len(r) > colLen[i] {
+                                   colLen[i] = len(r)
+                                 }
+                               %}
+                               {% endfor %}
+                               }
+                               {% endif %}
+                             {% if r, ok := r.([]interface{}); ok %}
                                  {% for _, value := range r %}
                                   <p>{
                                     {% if m, ok := value.(map[string]interface{}); ok %}

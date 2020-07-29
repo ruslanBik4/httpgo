@@ -38,6 +38,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/ruslanBik4/httpgo/views/templates/tables"
 )
 
 //go:generate qtc -dir=views/templates
@@ -59,7 +60,7 @@ var (
 					body := &pages.IndexPageBody{
 						TopMenu: map[string]string{
 							"Search": "/form/search/",
-							"View":   "/form/show/",
+							"View":   "/test/view/",
 						},
 						Title: "Index page of test server",
 					}
@@ -536,15 +537,24 @@ func main() {
 		return
 	}
 
-	for key, val := range db.Tables {
-		if key != val.Name() {
-			logs.StatusLog(key, val.Name())
+	for key, table := range db.Tables {
+		if key != table.Name() {
+			logs.StatusLog(key, table.Name())
 		}
+
+		t := ApiRoutes{"/test/view/": tables.ViewRoute("", table, db)}
+
+		bd := routes.AddRoutes(t)
+		if len(bd) == 0 {
+			break
+		}
+
+		logs.DebugLog(bd)
 	}
 
-	for key, val := range db.Routines {
-		logs.StatusLog(key, val.Name())
-	}
+	// for key, val := range db.Routines {
+	// 	logs.StatusLog(key, val.Name())
+	// }
 
 	logs.StatusLog("Static files found in " + *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
