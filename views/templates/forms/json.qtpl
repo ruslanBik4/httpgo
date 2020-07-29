@@ -11,7 +11,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     }
 %}
 {% collapsespace %}
-
 {% stripspace %}
 json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 {% func (f *FormField) RenderForm(isHTML bool, blocks ... BlockColumns) %}

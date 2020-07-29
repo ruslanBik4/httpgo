@@ -5,6 +5,9 @@
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	)
 %}
+{% collapsespace %}
+{% stripspace %}
+
 {% func TableRow(columns []dbEngine.Column, rows [][] interface{}) %}
 <style>
 {%= TableCSS() %}
@@ -129,3 +132,5 @@
 }
 </style>
 {% endfunc %}
+{% endcollapsespace %}
+{% endstripspace %}
