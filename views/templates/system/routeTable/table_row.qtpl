@@ -11,21 +11,8 @@
 {%code
    colLen := make([]int, len(columns))
    allWidth := 0
-    lSymb := 7
    for i, col := range columns {
         colLen[i] = len(col.Name())
-        if col.CharacterMaximumLength() <= 0 {
-          switch col.Type() {
-          case "json":
-            colLen[i] = 50
-          case "integer":
-            colLen[i] = 10
-          case "bigint":
-            colLen[i] = 15
-          default:
-            colLen[i] = 20
-          }
-        }
    }
 %}
 </style>
@@ -63,19 +50,19 @@
 
                     {% for i, column := range columns %}
                         <div class="usr-table-col  table-col-{%d i%}">
-                            {% switch r := row[i].(type) %}
-                            {% case time.Time %}  {%s r.Format("2006-01-02") %}
+                            {% switch val := row[i].(type) %}
+                            {% case time.Time %}  {%s val.Format("2006-01-02") %}
                             {% case string %}
-                              {%s= r %}
+                              {%s= val %}
                               {%code
-                                if len(r) > colLen[i] && column.Name() != "id"{
-                                  colLen[i] = len(r)
+                                if len(val) > colLen[i] && (column.Name() != "id") {
+                                  colLen[i] = len(val)
                                 }
                               %}
-                            {% case float32 %}   {%v= r %}
-                            {% case float64 %}   {%f.2 r %}
+                            {% case float32 %}   {%v= val %}
+                            {% case float64 %}   {%f.2 val %}
                             {% default %}
-                              {% if r, ok := r.([]string); ok %}
+                              {% if r, ok := val.([]string); ok %}
                                 {
                                  {% for _, str := range r %}
                                   <p>{%s= str %} </p>
@@ -86,8 +73,7 @@
                                %}
                                {% endfor %}
                                }
-                               {% endif %}
-                             {% if r, ok := r.([]interface{}); ok %}
+                             {% elseif r, ok := val.([]interface{}); ok %}
                                  {% for _, value := range r %}
                                   <p>{
                                     {% if m, ok := value.(map[string]interface{}); ok %}
@@ -120,7 +106,9 @@
     if cLen > 50 {
         cLen = 50
     }
-    allWidth += cLen
+    lSymb := 7
+    allWidth += cLen * lSymb
+
   %}
 .table-col-{%d i%}{
     width: {%d cLen * lSymb %}px;
@@ -137,7 +125,7 @@
 }
 {% endfor %}
 .table-custom{
-    width: {%d allWidth * lSymb %}px;
+    width: {%d allWidth %}px;
 }
 </style>
 {% endfunc %}
