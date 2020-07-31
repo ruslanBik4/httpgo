@@ -6,25 +6,25 @@
 //
 // .
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:5
+//line views/templates/css/main.qtpl:5
 package css
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:5
+//line views/templates/css/main.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:5
+//line views/templates/css/main.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:5
+//line views/templates/css/main.qtpl:5
 func StreamHttpgoMainCSS(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:5
+//line views/templates/css/main.qtpl:5
 	qw422016.N().S(`
 @charset "UTF-8";
 /**
@@ -6685,31 +6685,31 @@ a.logo {
 /* main part end */
 
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 func WriteHttpgoMainCSS(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	StreamHttpgoMainCSS(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 func HttpgoMainCSS() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	WriteHttpgoMainCSS(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/main.qtpl:6664
+//line views/templates/css/main.qtpl:6664
 }

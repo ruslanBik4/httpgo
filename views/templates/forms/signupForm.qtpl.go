@@ -3,25 +3,25 @@
 
 // <!DOCTYPE html>
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:2
+//line views/templates/forms/signupForm.qtpl:2
 package forms
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:2
+//line views/templates/forms/signupForm.qtpl:2
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:2
+//line views/templates/forms/signupForm.qtpl:2
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:2
+//line views/templates/forms/signupForm.qtpl:2
 func StreamSignUpForm(qw422016 *qt422016.Writer, placeholder string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:2
+//line views/templates/forms/signupForm.qtpl:2
 	qw422016.N().S(`
 <head>
     <link rel="import" href="/components/paper-input/paper-input-container.html">
@@ -39,9 +39,9 @@ func StreamSignUpForm(qw422016 *qt422016.Writer, placeholder string) {
     </select>
     <label for="fullname">Введите Ваше ФИО</label>
     <input id="fullname" name="fullname" class="input-block-level" type="text" size="100" required placeholder="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:18
+//line views/templates/forms/signupForm.qtpl:18
 	qw422016.E().S(placeholder)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:18
+//line views/templates/forms/signupForm.qtpl:18
 	qw422016.N().S(`"/>
     <script type="text/javascript">
         $("#fullname").suggestions({
@@ -65,36 +65,36 @@ func StreamSignUpForm(qw422016 *qt422016.Writer, placeholder string) {
 </form>
 
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 func WriteSignUpForm(qq422016 qtio422016.Writer, placeholder string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	StreamSignUpForm(qw422016, placeholder)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 func SignUpForm(placeholder string) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	WriteSignUpForm(qb422016, placeholder)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:40
+//line views/templates/forms/signupForm.qtpl:40
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:42
+//line views/templates/forms/signupForm.qtpl:42
 type MarshalRow struct {
 	Msg string
 	N   int
@@ -110,77 +110,77 @@ type PersonData struct {
 
 // JSON marshaling
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:58
+//line views/templates/forms/signupForm.qtpl:58
 func (d *PersonData) StreamJSON(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:58
+//line views/templates/forms/signupForm.qtpl:58
 	qw422016.N().S(`{"login": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:60
+//line views/templates/forms/signupForm.qtpl:60
 	qw422016.E().S(d.Login)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:60
+//line views/templates/forms/signupForm.qtpl:60
 	qw422016.N().S(`","email": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:61
+//line views/templates/forms/signupForm.qtpl:61
 	qw422016.E().S(d.Email)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:61
+//line views/templates/forms/signupForm.qtpl:61
 	qw422016.N().S(`","sex": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 	if d.Sex == 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 		qw422016.N().S(`господин`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 	} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 		qw422016.N().S(`госпожа`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:62
+//line views/templates/forms/signupForm.qtpl:62
 	qw422016.N().S(`","Rows":[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:64
+//line views/templates/forms/signupForm.qtpl:64
 	for i, r := range d.Rows {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:64
+//line views/templates/forms/signupForm.qtpl:64
 		qw422016.N().S(`{"Msg":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:66
+//line views/templates/forms/signupForm.qtpl:66
 		qw422016.N().Q(r.Msg)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:66
+//line views/templates/forms/signupForm.qtpl:66
 		qw422016.N().S(`,"N":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:67
+//line views/templates/forms/signupForm.qtpl:67
 		qw422016.N().D(r.N)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:67
+//line views/templates/forms/signupForm.qtpl:67
 		qw422016.N().S(`}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:69
+//line views/templates/forms/signupForm.qtpl:69
 		if i+1 < len(d.Rows) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:69
+//line views/templates/forms/signupForm.qtpl:69
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:69
+//line views/templates/forms/signupForm.qtpl:69
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:70
+//line views/templates/forms/signupForm.qtpl:70
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:70
+//line views/templates/forms/signupForm.qtpl:70
 	qw422016.N().S(`]}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 func (d *PersonData) WriteJSON(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	d.StreamJSON(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 func (d *PersonData) JSON() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	d.WriteJSON(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signupForm.qtpl:73
+//line views/templates/forms/signupForm.qtpl:73
 }

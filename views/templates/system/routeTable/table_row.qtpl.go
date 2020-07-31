@@ -97,7 +97,7 @@ function getElementsByText(str, name) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:48
 	qw422016.N().S(`</div><div class="usr-table__filter  usr-table-row">`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:52
-	for i, col := range columns {
+	for i := range columns {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:52
 		qw422016.N().S(`<div class="usr-table-col table-col-`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:53

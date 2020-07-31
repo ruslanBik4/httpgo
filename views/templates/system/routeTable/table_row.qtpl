@@ -49,10 +49,10 @@ function getElementsByText(str, name) {
         </div>
 
         <div class="usr-table__filter  usr-table-row">
-         {% for i, col := range columns %}
+         {% for i := range columns %}
            <div class="usr-table-col table-col-{%d i%}">
                 <div class="filt-arrow" style="word-break: break-word;">
-                        <input type="text" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+                    <input type="text" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
                 </div>
             </div>
           {% endfor %}

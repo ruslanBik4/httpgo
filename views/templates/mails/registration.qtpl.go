@@ -7,69 +7,69 @@
 //
 // письмо после регистрации на сайте.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:6
+//line views/templates/mails/registration.qtpl:6
 package mails
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:6
+//line views/templates/mails/registration.qtpl:6
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:6
+//line views/templates/mails/registration.qtpl:6
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:6
+//line views/templates/mails/registration.qtpl:6
 func StreamInviteEmail(qw422016 *qt422016.Writer, email, password string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:6
+//line views/templates/mails/registration.qtpl:6
 	qw422016.N().S(`
 <div> Вы, возможно, зарегистрировались на сайте <i>travel.com.ua</i> с адресом email `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:7
+//line views/templates/mails/registration.qtpl:7
 	qw422016.E().S(email)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:7
+//line views/templates/mails/registration.qtpl:7
 	qw422016.N().S(`,
  если это не так - просто не отвечайте на данное письма.
  А если так - нажмите на ссылку ниже для активации своего аккаунта:
     <a href='http://vps-20777.vps-default-host.net/customer-sign-in/'><b>сюда</b></a>
 После этого Вы можете работать на сайте с помощью пароля:
    "<span>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:12
+//line views/templates/mails/registration.qtpl:12
 	qw422016.E().S(password)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:12
+//line views/templates/mails/registration.qtpl:12
 	qw422016.N().S(`</span>" </br>
    <span> Просьба сохранить его в надежном месте, потому что мы ен храним паролей своих пользователей!</span>
 </div>
 
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 func WriteInviteEmail(qq422016 qtio422016.Writer, email, password string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	StreamInviteEmail(qw422016, email, password)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 func InviteEmail(email, password string) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	WriteInviteEmail(qb422016, email, password)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/mails/registration.qtpl:16
+//line views/templates/mails/registration.qtpl:16
 }

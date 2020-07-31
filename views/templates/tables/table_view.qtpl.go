@@ -6,10 +6,10 @@
 //
 // показ табличных данных.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:5
+//line views/templates/tables/table_view.qtpl:5
 package tables
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:5
+//line views/templates/tables/table_view.qtpl:5
 import (
 	"database/sql"
 	"fmt"
@@ -19,30 +19,30 @@ import (
 	"strings"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:14
+//line views/templates/tables/table_view.qtpl:14
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:14
+//line views/templates/tables/table_view.qtpl:14
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:14
+//line views/templates/tables/table_view.qtpl:14
 func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:14
+//line views/templates/tables/table_view.qtpl:14
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:16
+//line views/templates/tables/table_view.qtpl:16
 	if err := query.beforeRender(); err != nil {
 		return
 	}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:19
+//line views/templates/tables/table_view.qtpl:19
 	qw422016.N().S(`
 <link href="/tables.css" rel="stylesheet">
 <script src="/tables.js"></script>
@@ -54,67 +54,67 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 <iron-ajax url="/data.json" handle-as='json' last-response="{{data}}" auto></iron-ajax>
 <paper-datatable data="{{data}}" progress="True">
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:29
+//line views/templates/tables/table_view.qtpl:29
 	for idx, fieldName := range query.columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:29
+//line views/templates/tables/table_view.qtpl:29
 		qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:31
+//line views/templates/tables/table_view.qtpl:31
 		fieldStruct := query.fields[idx]
 		titleLabel := fieldStruct.COLUMN_COMMENT
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:33
+//line views/templates/tables/table_view.qtpl:33
 		qw422016.N().S(`
 	            <paper-datatable-column header="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:34
+//line views/templates/tables/table_view.qtpl:34
 		qw422016.E().S(titleLabel)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:34
+//line views/templates/tables/table_view.qtpl:34
 		qw422016.N().S(`" property="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:34
+//line views/templates/tables/table_view.qtpl:34
 		qw422016.E().S(fieldName)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:34
+//line views/templates/tables/table_view.qtpl:34
 		qw422016.N().S(`" default="-"
 	            type=
 	            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:36
+//line views/templates/tables/table_view.qtpl:36
 		switch fieldStruct.DATA_TYPE {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:37
+//line views/templates/tables/table_view.qtpl:37
 		case "varchar":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:37
+//line views/templates/tables/table_view.qtpl:37
 			qw422016.N().S(` "String" align="left"
 	            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:38
+//line views/templates/tables/table_view.qtpl:38
 		case "date":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:38
+//line views/templates/tables/table_view.qtpl:38
 			qw422016.N().S(` "Date"
 	            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:39
+//line views/templates/tables/table_view.qtpl:39
 		case "set", "enum":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:39
+//line views/templates/tables/table_view.qtpl:39
 			qw422016.N().S(` "Array"
 	            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:40
+//line views/templates/tables/table_view.qtpl:40
 		default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:40
+//line views/templates/tables/table_view.qtpl:40
 			qw422016.N().S(`  "Number" align="right"
 	            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:41
+//line views/templates/tables/table_view.qtpl:41
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:41
+//line views/templates/tables/table_view.qtpl:41
 		qw422016.N().S(`
 	            sortable `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:42
+//line views/templates/tables/table_view.qtpl:42
 		if query.Order == fieldName {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:42
+//line views/templates/tables/table_view.qtpl:42
 			qw422016.N().S(`sorted`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:42
+//line views/templates/tables/table_view.qtpl:42
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:42
+//line views/templates/tables/table_view.qtpl:42
 		qw422016.N().S(`></paper-datatable-column>
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:43
+//line views/templates/tables/table_view.qtpl:43
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:43
+//line views/templates/tables/table_view.qtpl:43
 	qw422016.N().S(`
 </paper-datatable>
 </template>
@@ -122,27 +122,27 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
         var app = document.querySelector('#app');
         app.data = [
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:49
+//line views/templates/tables/table_view.qtpl:49
 	for query.Rows.Next() {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:49
+//line views/templates/tables/table_view.qtpl:49
 		qw422016.N().S(`
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:51
+//line views/templates/tables/table_view.qtpl:51
 		if err := query.Rows.Scan(query.row...); err != nil {
 			log.Println(err)
 			continue
 		}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:55
+//line views/templates/tables/table_view.qtpl:55
 		qw422016.N().S(`
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:56
+//line views/templates/tables/table_view.qtpl:56
 		qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:57
+//line views/templates/tables/table_view.qtpl:57
 		qw422016.N().S(`{`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:59
+//line views/templates/tables/table_view.qtpl:59
 		for idx, rawField := range query.row {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:61
+//line views/templates/tables/table_view.qtpl:61
 			var fieldStruct *forms.FieldStructure
 
 			switch rawField.(type) {
@@ -154,88 +154,88 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 			key := fieldStruct.COLUMN_NAME
 			val := fieldStruct.Value
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:71
+//line views/templates/tables/table_view.qtpl:71
 			qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:71
+//line views/templates/tables/table_view.qtpl:71
 			qw422016.N().S(`:`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:72
+//line views/templates/tables/table_view.qtpl:72
 			switch fieldStruct.DATA_TYPE {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:73
+//line views/templates/tables/table_view.qtpl:73
 			case "varchar", "text", "set", "enum":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:73
+//line views/templates/tables/table_view.qtpl:73
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:73
+//line views/templates/tables/table_view.qtpl:73
 				qw422016.N().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:73
+//line views/templates/tables/table_view.qtpl:73
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:74
+//line views/templates/tables/table_view.qtpl:74
 			case "date", "datetime":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:74
+//line views/templates/tables/table_view.qtpl:74
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:74
+//line views/templates/tables/table_view.qtpl:74
 				qw422016.N().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:74
+//line views/templates/tables/table_view.qtpl:74
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:75
+//line views/templates/tables/table_view.qtpl:75
 			case "int", "tinyint":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:75
+//line views/templates/tables/table_view.qtpl:75
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:75
+//line views/templates/tables/table_view.qtpl:75
 				qw422016.N().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:75
+//line views/templates/tables/table_view.qtpl:75
 				qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:76
+//line views/templates/tables/table_view.qtpl:76
 			case "set enum":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:78
+//line views/templates/tables/table_view.qtpl:78
 				fields := enumValidator.FindAllStringSubmatch(fieldStruct.COLUMN_TYPE, -1)
 				comma := ""
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:80
+//line views/templates/tables/table_view.qtpl:80
 				qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:82
+//line views/templates/tables/table_view.qtpl:82
 				for _, value := range fields {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:83
+//line views/templates/tables/table_view.qtpl:83
 					qw422016.E().S(comma)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:83
+//line views/templates/tables/table_view.qtpl:83
 					qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:83
+//line views/templates/tables/table_view.qtpl:83
 					qw422016.N().S(value[len(value)-1])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:83
+//line views/templates/tables/table_view.qtpl:83
 					qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:84
+//line views/templates/tables/table_view.qtpl:84
 					comma = ","
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:85
+//line views/templates/tables/table_view.qtpl:85
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:85
+//line views/templates/tables/table_view.qtpl:85
 				qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:87
+//line views/templates/tables/table_view.qtpl:87
 			case "blob":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:87
+//line views/templates/tables/table_view.qtpl:87
 				qw422016.N().S(`'<image src="/images/expand_hover.png" />'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:88
+//line views/templates/tables/table_view.qtpl:88
 			default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:88
+//line views/templates/tables/table_view.qtpl:88
 				qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:88
+//line views/templates/tables/table_view.qtpl:88
 				qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:88
+//line views/templates/tables/table_view.qtpl:88
 				qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:89
+//line views/templates/tables/table_view.qtpl:89
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:89
+//line views/templates/tables/table_view.qtpl:89
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:90
+//line views/templates/tables/table_view.qtpl:90
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:90
+//line views/templates/tables/table_view.qtpl:90
 		qw422016.N().S(`},`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:92
+//line views/templates/tables/table_view.qtpl:92
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:92
+//line views/templates/tables/table_view.qtpl:92
 	qw422016.N().S(`];`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:94
+//line views/templates/tables/table_view.qtpl:94
 	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:95
+//line views/templates/tables/table_view.qtpl:95
 	qw422016.N().S(`
 			app.toFixedOne = function(value){
 				return value.toFixed(1);
@@ -245,38 +245,38 @@ func (query *QueryStruct) StreamFineTable(qw422016 *qt422016.Writer) {
 			};
 		</script>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 func (query *QueryStruct) WriteFineTable(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	query.StreamFineTable(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 func (query *QueryStruct) FineTable() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	query.WriteFineTable(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:103
+//line views/templates/tables/table_view.qtpl:103
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:105
+//line views/templates/tables/table_view.qtpl:105
 func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:105
+//line views/templates/tables/table_view.qtpl:105
 	qw422016.N().S(`
 <link href="/tables.css" rel="stylesheet">
 <script src="/tables.js"></script>
@@ -284,21 +284,21 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 <div class='thead' id='thead' >
     <div class='tr' >
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:112
+//line views/templates/tables/table_view.qtpl:112
 	var figure, filterFields string
 	if query.Order == "" {
 		query.Order = "id"
 	}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:116
+//line views/templates/tables/table_view.qtpl:116
 	qw422016.N().S(`
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:117
+//line views/templates/tables/table_view.qtpl:117
 	for idx, fieldName := range query.columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:117
+//line views/templates/tables/table_view.qtpl:117
 		qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:119
+//line views/templates/tables/table_view.qtpl:119
 		fieldStruct := query.fields[idx]
 		key, titleFull, titleLabel := fieldStruct.COLUMN_NAME, fieldStruct.COLUMN_COMMENT, fieldStruct.COLUMN_COMMENT
 		if fieldStruct.InputType == "" {
@@ -325,215 +325,215 @@ func (query *QueryStruct) streamrenderHeadTables(qw422016 *qt422016.Writer) {
 			titleLabel = fieldName
 		}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:144
+//line views/templates/tables/table_view.qtpl:144
 		qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:145
+//line views/templates/tables/table_view.qtpl:145
 		qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:146
+//line views/templates/tables/table_view.qtpl:146
 		if figure != fieldStruct.Figure {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:146
+//line views/templates/tables/table_view.qtpl:146
 			qw422016.N().S(`
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:147
+//line views/templates/tables/table_view.qtpl:147
 			if figure > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:147
+//line views/templates/tables/table_view.qtpl:147
 				qw422016.N().S(`
                         </div>
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:149
+//line views/templates/tables/table_view.qtpl:149
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:149
+//line views/templates/tables/table_view.qtpl:149
 			qw422016.N().S(`
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:151
+//line views/templates/tables/table_view.qtpl:151
 			figure = fieldStruct.Figure
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:152
+//line views/templates/tables/table_view.qtpl:152
 			qw422016.N().S(`
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:153
+//line views/templates/tables/table_view.qtpl:153
 			if figure > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:153
+//line views/templates/tables/table_view.qtpl:153
 				qw422016.N().S(`
                             <div class='td-outer' style="outline: 1px inset gray;">
                                 <div class='th' style="outline: 1px outset gray; padding-top: 1px;"> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:155
+//line views/templates/tables/table_view.qtpl:155
 				qw422016.E().S(figure)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:155
+//line views/templates/tables/table_view.qtpl:155
 				qw422016.N().S(`</div>
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:156
+//line views/templates/tables/table_view.qtpl:156
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:156
+//line views/templates/tables/table_view.qtpl:156
 			qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:157
+//line views/templates/tables/table_view.qtpl:157
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:157
+//line views/templates/tables/table_view.qtpl:157
 		qw422016.N().S(`
                  <div title="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 		qw422016.E().S(fieldName)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 		qw422016.N().S(`" class="td`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 		if fieldName == query.Order {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 			qw422016.N().S(` td-order`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:158
+//line views/templates/tables/table_view.qtpl:158
 		qw422016.N().S(`"
                  style="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:159
+//line views/templates/tables/table_view.qtpl:159
 		qw422016.E().S(fieldStruct.CSSStyle)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:159
+//line views/templates/tables/table_view.qtpl:159
 		qw422016.N().S(`">
                    <a href="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.E().S(query.Href)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.N().S(`/?order=`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.E().S(fieldName)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.N().S(`" title="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.E().S(titleFull)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.N().S(`">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.E().S(titleLabel)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:160
+//line views/templates/tables/table_view.qtpl:160
 		qw422016.N().S(`</a>
                 </div>
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:162
+//line views/templates/tables/table_view.qtpl:162
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:162
+//line views/templates/tables/table_view.qtpl:162
 	qw422016.N().S(`
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:163
+//line views/templates/tables/table_view.qtpl:163
 	if figure > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:163
+//line views/templates/tables/table_view.qtpl:163
 		qw422016.N().S(`
                 </div>
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:165
+//line views/templates/tables/table_view.qtpl:165
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:165
+//line views/templates/tables/table_view.qtpl:165
 	qw422016.N().S(`
     </div>
     <form name='fFilter' id='fFilter' class='form-simple tr thead' role='form' action='`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:167
+//line views/templates/tables/table_view.qtpl:167
 	qw422016.E().S(query.Href)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:167
+//line views/templates/tables/table_view.qtpl:167
 	qw422016.N().S(`/?filter' method='post'
     target='content' style='width:auto;$style' onsubmit='return SaveObject( this );' enctype='multipart/form-data'
     oninput='return FormIsModified(event, this);' onabort="alert('fFilter');">
         <output name="State" ></output>
         <input name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:171
+//line views/templates/tables/table_view.qtpl:171
 	qw422016.E().S(query.Tables[0].Name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:171
+//line views/templates/tables/table_view.qtpl:171
 	qw422016.N().S(`" hidden />
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:172
+//line views/templates/tables/table_view.qtpl:172
 	qw422016.N().S(filterFields)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:172
+//line views/templates/tables/table_view.qtpl:172
 	qw422016.N().S(`
     </form>
 </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 func (query *QueryStruct) writerenderHeadTables(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	query.streamrenderHeadTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 func (query *QueryStruct) renderHeadTables() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	query.writerenderHeadTables(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:175
+//line views/templates/tables/table_view.qtpl:175
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:176
+//line views/templates/tables/table_view.qtpl:176
 func (query *QueryStruct) StreamRenderTable(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:176
+//line views/templates/tables/table_view.qtpl:176
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:178
+//line views/templates/tables/table_view.qtpl:178
 	if err := query.beforeRender(); err != nil {
 		return
 	}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:181
+//line views/templates/tables/table_view.qtpl:181
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:182
+//line views/templates/tables/table_view.qtpl:182
 	query.streamrenderHeadTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:182
+//line views/templates/tables/table_view.qtpl:182
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:183
+//line views/templates/tables/table_view.qtpl:183
 	query.streamrenderBodyTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:183
+//line views/templates/tables/table_view.qtpl:183
 	qw422016.N().S(`
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 func (query *QueryStruct) WriteRenderTable(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	query.StreamRenderTable(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 func (query *QueryStruct) RenderTable() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	query.WriteRenderTable(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:184
+//line views/templates/tables/table_view.qtpl:184
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:185
+//line views/templates/tables/table_view.qtpl:185
 func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:185
+//line views/templates/tables/table_view.qtpl:185
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:187
+//line views/templates/tables/table_view.qtpl:187
 	var query QueryStruct
 	query.Rows = rows
 	query.Href = "/admin/table/" + tableName
@@ -544,60 +544,60 @@ func StreamShowTable(qw422016 *qt422016.Writer, tableName string, fields forms.F
 		return
 	}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:196
+//line views/templates/tables/table_view.qtpl:196
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:197
+//line views/templates/tables/table_view.qtpl:197
 	query.streamrenderHeadTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:197
+//line views/templates/tables/table_view.qtpl:197
 	qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:198
+//line views/templates/tables/table_view.qtpl:198
 	query.streamrenderBodyTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:198
+//line views/templates/tables/table_view.qtpl:198
 	qw422016.N().S(`
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 func WriteShowTable(qq422016 qtio422016.Writer, tableName string, fields forms.FieldsTable, rows *sql.Rows) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	StreamShowTable(qw422016, tableName, fields, rows)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 func ShowTable(tableName string, fields forms.FieldsTable, rows *sql.Rows) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	WriteShowTable(qb422016, tableName, fields, rows)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:199
+//line views/templates/tables/table_view.qtpl:199
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:200
+//line views/templates/tables/table_view.qtpl:200
 func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:200
+//line views/templates/tables/table_view.qtpl:200
 	qw422016.N().S(`
 <div id="table_body" >
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:202
+//line views/templates/tables/table_view.qtpl:202
 	for query.Rows.Next() {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:202
+//line views/templates/tables/table_view.qtpl:202
 		qw422016.N().S(`
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:204
+//line views/templates/tables/table_view.qtpl:204
 		if err := query.Rows.Scan(query.row...); err != nil {
 			log.Println(err)
 			continue
@@ -605,16 +605,16 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 
 		required, tablePrefix, titleLabel := "", "", ""
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:210
+//line views/templates/tables/table_view.qtpl:210
 		qw422016.N().S(`
         <div class='tr' style='$style_div'>
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:212
+//line views/templates/tables/table_view.qtpl:212
 		for idx, rawField := range query.row {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:212
+//line views/templates/tables/table_view.qtpl:212
 			qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:214
+//line views/templates/tables/table_view.qtpl:214
 			var fieldStruct *forms.FieldStructure
 
 			switch rawField.(type) {
@@ -636,604 +636,604 @@ func (query *QueryStruct) streamrenderBodyTables(qw422016 *qt422016.Writer) {
 				events += fmt.Sprintf(`%s="return %s;"`, name, funcName)
 			}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:234
+//line views/templates/tables/table_view.qtpl:234
 			qw422016.N().S(`
                 <div name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.N().S(`" class="td `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.N().S(required)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.N().S(` field-`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.E().S(nameInput)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.E().S(fieldStruct.CSSClass)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:235
+//line views/templates/tables/table_view.qtpl:235
 			qw422016.N().S(`"
                          style="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:236
+//line views/templates/tables/table_view.qtpl:236
 			qw422016.E().S(fieldStruct.CSSStyle)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:236
+//line views/templates/tables/table_view.qtpl:236
 			qw422016.N().S(`;margin:auto; height:auto;">
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:237
+//line views/templates/tables/table_view.qtpl:237
 			if idx == 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:237
+//line views/templates/tables/table_view.qtpl:237
 				qw422016.N().S(`
                     <a href="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:238
+//line views/templates/tables/table_view.qtpl:238
 				qw422016.N().S(query.HrefEdit)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:238
+//line views/templates/tables/table_view.qtpl:238
 				qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:238
+//line views/templates/tables/table_view.qtpl:238
 				qw422016.N().S(`" target="content">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:238
+//line views/templates/tables/table_view.qtpl:238
 				qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:238
+//line views/templates/tables/table_view.qtpl:238
 				qw422016.N().S(`</a>
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:240
+//line views/templates/tables/table_view.qtpl:240
 				tablePrefix = fields.Name
 				fields.ID, _ = strconv.Atoi(val)
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:242
+//line views/templates/tables/table_view.qtpl:242
 				qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:243
+//line views/templates/tables/table_view.qtpl:243
 			} else if fieldStruct.Html > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:243
+//line views/templates/tables/table_view.qtpl:243
 				qw422016.N().S(`
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:244
+//line views/templates/tables/table_view.qtpl:244
 				qw422016.N().S(fieldStruct.Html)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:244
+//line views/templates/tables/table_view.qtpl:244
 				qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:245
+//line views/templates/tables/table_view.qtpl:245
 			} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:245
+//line views/templates/tables/table_view.qtpl:245
 				qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:248
+//line views/templates/tables/table_view.qtpl:248
 				qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:249
+//line views/templates/tables/table_view.qtpl:249
 				if key == "parent_id" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:249
+//line views/templates/tables/table_view.qtpl:249
 					qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:250
+//line views/templates/tables/table_view.qtpl:250
 					fieldStruct.StreamRenderParentSelect(qw422016, fields.Name, key, val, titleLabel, required, events, dataJson)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:250
+//line views/templates/tables/table_view.qtpl:250
 					qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:251
+//line views/templates/tables/table_view.qtpl:251
 				} else if strings.HasPrefix(key, "id_") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:251
+//line views/templates/tables/table_view.qtpl:251
 					qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:252
+//line views/templates/tables/table_view.qtpl:252
 					fieldStruct.StreamRenderForeignSelect(qw422016, tablePrefix, key, val, titleLabel, required, events, dataJson)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:252
+//line views/templates/tables/table_view.qtpl:252
 					qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:253
+//line views/templates/tables/table_view.qtpl:253
 				} else if strings.HasPrefix(key, "setid_") || strings.HasPrefix(key, "nodeid_") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:253
+//line views/templates/tables/table_view.qtpl:253
 					qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:254
+//line views/templates/tables/table_view.qtpl:254
 					fieldStruct.StreamRenderMultiSelect(qw422016, fields, tablePrefix, key, val, "См. ", required)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:254
+//line views/templates/tables/table_view.qtpl:254
 					qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:255
+//line views/templates/tables/table_view.qtpl:255
 				} else if strings.HasPrefix(key, "tableid_") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:255
+//line views/templates/tables/table_view.qtpl:255
 					qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:256
+//line views/templates/tables/table_view.qtpl:256
 					fieldStruct.StreamRenderTable(qw422016, fields, tablePrefix, key, val, "Табл", required)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:256
+//line views/templates/tables/table_view.qtpl:256
 					qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:257
+//line views/templates/tables/table_view.qtpl:257
 				} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:257
+//line views/templates/tables/table_view.qtpl:257
 					qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:258
+//line views/templates/tables/table_view.qtpl:258
 					switch fieldStruct.DATA_TYPE {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:259
+//line views/templates/tables/table_view.qtpl:259
 					case "tinyint":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:259
+//line views/templates/tables/table_view.qtpl:259
 						qw422016.N().S(`
                                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:261
+//line views/templates/tables/table_view.qtpl:261
 						checked := ""
 						if val == "1" {
 							checked = "checked"
 						}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:265
+//line views/templates/tables/table_view.qtpl:265
 						qw422016.N().S(`
                                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:266
+//line views/templates/tables/table_view.qtpl:266
 						forms.StreamRenderCheckBox(qw422016, nameInput, "1", titleLabel, 1, checked, required, events, dataJson)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:266
+//line views/templates/tables/table_view.qtpl:266
 						qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:267
+//line views/templates/tables/table_view.qtpl:267
 					case "enum":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:267
+//line views/templates/tables/table_view.qtpl:267
 						qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:268
+//line views/templates/tables/table_view.qtpl:268
 						t := fieldStruct.RenderEnum(nameInput, val, required, events, dataJson)
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:268
+//line views/templates/tables/table_view.qtpl:268
 						qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:269
+//line views/templates/tables/table_view.qtpl:269
 						qw422016.N().S(t)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:269
+//line views/templates/tables/table_view.qtpl:269
 						qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:270
+//line views/templates/tables/table_view.qtpl:270
 					case "set":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:270
+//line views/templates/tables/table_view.qtpl:270
 						qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:271
+//line views/templates/tables/table_view.qtpl:271
 						t := fieldStruct.RenderSet(nameInput, val, required, events, dataJson)
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:271
+//line views/templates/tables/table_view.qtpl:271
 						qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:272
+//line views/templates/tables/table_view.qtpl:272
 						qw422016.N().S(t)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:272
+//line views/templates/tables/table_view.qtpl:272
 						qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:273
+//line views/templates/tables/table_view.qtpl:273
 					case "text":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:273
+//line views/templates/tables/table_view.qtpl:273
 						qw422016.N().S(`
                                 <p id="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(`" name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.E().S(nameInput)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(`" class="controls"  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(events)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(dataJson)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:274
+//line views/templates/tables/table_view.qtpl:274
 						qw422016.N().S(`>
                                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:275
+//line views/templates/tables/table_view.qtpl:275
 						qw422016.N().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:275
+//line views/templates/tables/table_view.qtpl:275
 						qw422016.N().S(`
                                 </p>
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:277
+//line views/templates/tables/table_view.qtpl:277
 					case "blob":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:277
+//line views/templates/tables/table_view.qtpl:277
 						qw422016.N().S(`
                                 <image src="/images/expand_hover.png" />
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:279
+//line views/templates/tables/table_view.qtpl:279
 					default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:279
+//line views/templates/tables/table_view.qtpl:279
 						qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:280
+//line views/templates/tables/table_view.qtpl:280
 						if fieldStruct.LinkTD > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:280
+//line views/templates/tables/table_view.qtpl:280
 							qw422016.N().S(`
                                  <a href="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.N().S(fieldStruct.LinkTD)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.N().S(`?id=`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.N().D(fields.ID)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.N().S(`" target="_blank">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:281
+//line views/templates/tables/table_view.qtpl:281
 							qw422016.N().S(`</a>
                                  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:282
+//line views/templates/tables/table_view.qtpl:282
 						} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:282
+//line views/templates/tables/table_view.qtpl:282
 							qw422016.N().S(`
                                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:283
+//line views/templates/tables/table_view.qtpl:283
 							qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:283
+//line views/templates/tables/table_view.qtpl:283
 							qw422016.N().S(`
                                  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:284
+//line views/templates/tables/table_view.qtpl:284
 						}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:284
+//line views/templates/tables/table_view.qtpl:284
 						qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:285
+//line views/templates/tables/table_view.qtpl:285
 					}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:285
+//line views/templates/tables/table_view.qtpl:285
 					qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:286
+//line views/templates/tables/table_view.qtpl:286
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:286
+//line views/templates/tables/table_view.qtpl:286
 				qw422016.N().S(`
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:287
+//line views/templates/tables/table_view.qtpl:287
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:287
+//line views/templates/tables/table_view.qtpl:287
 			qw422016.N().S(`
                 </div> <!-- field -->
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:289
+//line views/templates/tables/table_view.qtpl:289
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:289
+//line views/templates/tables/table_view.qtpl:289
 		qw422016.N().S(`
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:290
+//line views/templates/tables/table_view.qtpl:290
 		for _, fieldStruct := range query.PostFields {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:290
+//line views/templates/tables/table_view.qtpl:290
 			qw422016.N().S(`
                 <div name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:291
+//line views/templates/tables/table_view.qtpl:291
 			qw422016.E().S(fieldStruct.COLUMN_NAME)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:291
+//line views/templates/tables/table_view.qtpl:291
 			qw422016.N().S(`" class="td `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:291
+//line views/templates/tables/table_view.qtpl:291
 			qw422016.E().S(fieldStruct.CSSClass)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:291
+//line views/templates/tables/table_view.qtpl:291
 			qw422016.N().S(`"
                          style="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:292
+//line views/templates/tables/table_view.qtpl:292
 			qw422016.E().S(fieldStruct.CSSStyle)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:292
+//line views/templates/tables/table_view.qtpl:292
 			qw422016.N().S(`;margin:auto; height:auto;" >
                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:293
+//line views/templates/tables/table_view.qtpl:293
 			qw422016.N().S(fieldStruct.Html)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:293
+//line views/templates/tables/table_view.qtpl:293
 			qw422016.N().S(`
                 </div> <!-- field -->
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:295
+//line views/templates/tables/table_view.qtpl:295
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:295
+//line views/templates/tables/table_view.qtpl:295
 		qw422016.N().S(`
         </div> <!-- tr -->
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:297
+//line views/templates/tables/table_view.qtpl:297
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:297
+//line views/templates/tables/table_view.qtpl:297
 	qw422016.N().S(`
     </div>
 </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 func (query *QueryStruct) writerenderBodyTables(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	query.streamrenderBodyTables(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 func (query *QueryStruct) renderBodyTables() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	query.writerenderBodyTables(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:300
+//line views/templates/tables/table_view.qtpl:300
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:301
+//line views/templates/tables/table_view.qtpl:301
 func streamrenderFilterSelect(qw422016 *qt422016.Writer, key string, fieldStruct *forms.FieldStructure) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:301
+//line views/templates/tables/table_view.qtpl:301
 	qw422016.N().S(`
     <select id="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:302
+//line views/templates/tables/table_view.qtpl:302
 	qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:302
+//line views/templates/tables/table_view.qtpl:302
 	qw422016.N().S(`" name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:302
+//line views/templates/tables/table_view.qtpl:302
 	qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:302
+//line views/templates/tables/table_view.qtpl:302
 	qw422016.N().S(`" onchange="return FilterIsModified( event, this);">
         <option selected>-</option>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:304
+//line views/templates/tables/table_view.qtpl:304
 	qw422016.N().S(fieldStruct.Html)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:304
+//line views/templates/tables/table_view.qtpl:304
 	qw422016.N().S(`
     </select>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 func writerenderFilterSelect(qq422016 qtio422016.Writer, key string, fieldStruct *forms.FieldStructure) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	streamrenderFilterSelect(qw422016, key, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 func renderFilterSelect(key string, fieldStruct *forms.FieldStructure) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	writerenderFilterSelect(qb422016, key, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:306
+//line views/templates/tables/table_view.qtpl:306
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:307
+//line views/templates/tables/table_view.qtpl:307
 func streaminputFilterField(qw422016 *qt422016.Writer, key, nameTable string, fieldStruct *forms.FieldStructure) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:307
+//line views/templates/tables/table_view.qtpl:307
 	qw422016.N().S(`
  <div title="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:308
+//line views/templates/tables/table_view.qtpl:308
 	qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:308
+//line views/templates/tables/table_view.qtpl:308
 	qw422016.N().S(`" class="td" style="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:308
+//line views/templates/tables/table_view.qtpl:308
 	qw422016.N().S(fieldStruct.CSSStyle)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:308
+//line views/templates/tables/table_view.qtpl:308
 	qw422016.N().S(`">
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:309
+//line views/templates/tables/table_view.qtpl:309
 	if key == "parent_id" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:309
+//line views/templates/tables/table_view.qtpl:309
 		qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:310
+//line views/templates/tables/table_view.qtpl:310
 		fieldStruct.GetOptions(nameTable, "")
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:310
+//line views/templates/tables/table_view.qtpl:310
 		qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:311
+//line views/templates/tables/table_view.qtpl:311
 		streamrenderFilterSelect(qw422016, key, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:311
+//line views/templates/tables/table_view.qtpl:311
 		qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:312
+//line views/templates/tables/table_view.qtpl:312
 	} else if strings.HasPrefix(key, "id_") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:312
+//line views/templates/tables/table_view.qtpl:312
 		qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:313
+//line views/templates/tables/table_view.qtpl:313
 		fieldStruct.GetOptions(key[3:], "")
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:313
+//line views/templates/tables/table_view.qtpl:313
 		qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:314
+//line views/templates/tables/table_view.qtpl:314
 		streamrenderFilterSelect(qw422016, key, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:314
+//line views/templates/tables/table_view.qtpl:314
 		qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:315
+//line views/templates/tables/table_view.qtpl:315
 	} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:315
+//line views/templates/tables/table_view.qtpl:315
 		qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:316
+//line views/templates/tables/table_view.qtpl:316
 		switch fieldStruct.DATA_TYPE {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:317
+//line views/templates/tables/table_view.qtpl:317
 		case "tinyint":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:317
+//line views/templates/tables/table_view.qtpl:317
 			qw422016.N().S(`
                                     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:318
+//line views/templates/tables/table_view.qtpl:318
 			forms.StreamRenderCheckBox(qw422016, key, "1", "", 1, "", "", "", "")
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:318
+//line views/templates/tables/table_view.qtpl:318
 			qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:319
+//line views/templates/tables/table_view.qtpl:319
 		case "enum":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:319
+//line views/templates/tables/table_view.qtpl:319
 			qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:320
+//line views/templates/tables/table_view.qtpl:320
 			t := fieldStruct.RenderEnum(key, "", "", "", "")
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:320
+//line views/templates/tables/table_view.qtpl:320
 			qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:321
+//line views/templates/tables/table_view.qtpl:321
 			qw422016.N().S(t)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:321
+//line views/templates/tables/table_view.qtpl:321
 			qw422016.N().S(`
                             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:322
+//line views/templates/tables/table_view.qtpl:322
 		case "set":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:322
+//line views/templates/tables/table_view.qtpl:322
 			qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:323
+//line views/templates/tables/table_view.qtpl:323
 			t := fieldStruct.RenderSet(key, "", "", "", "")
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:323
+//line views/templates/tables/table_view.qtpl:323
 			qw422016.N().S(`
                                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:324
+//line views/templates/tables/table_view.qtpl:324
 			qw422016.N().S(t)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:324
+//line views/templates/tables/table_view.qtpl:324
 			qw422016.N().S(`
                `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:325
+//line views/templates/tables/table_view.qtpl:325
 		default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:325
+//line views/templates/tables/table_view.qtpl:325
 			qw422016.N().S(`
                         <input id="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:326
+//line views/templates/tables/table_view.qtpl:326
 			qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:326
+//line views/templates/tables/table_view.qtpl:326
 			qw422016.N().S(`" name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:326
+//line views/templates/tables/table_view.qtpl:326
 			qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:326
+//line views/templates/tables/table_view.qtpl:326
 			qw422016.N().S(`" type=
 
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:328
+//line views/templates/tables/table_view.qtpl:328
 			if fieldStruct.InputType > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:328
+//line views/templates/tables/table_view.qtpl:328
 				qw422016.N().S(`
                             "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:329
+//line views/templates/tables/table_view.qtpl:329
 				qw422016.E().S(fieldStruct.InputType)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:329
+//line views/templates/tables/table_view.qtpl:329
 				qw422016.N().S(`"
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:330
+//line views/templates/tables/table_view.qtpl:330
 			} else if fieldStruct.DATA_TYPE == "int" || fieldStruct.DATA_TYPE == "double" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:330
+//line views/templates/tables/table_view.qtpl:330
 				qw422016.N().S(`
                             "number" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:331
+//line views/templates/tables/table_view.qtpl:331
 				if strings.Contains(fieldStruct.COLUMN_TYPE, "unsigned") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:331
+//line views/templates/tables/table_view.qtpl:331
 					qw422016.N().S(`min="0"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:331
+//line views/templates/tables/table_view.qtpl:331
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:331
+//line views/templates/tables/table_view.qtpl:331
 				qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:332
+//line views/templates/tables/table_view.qtpl:332
 			} else if fieldStruct.DATA_TYPE == "date" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:332
+//line views/templates/tables/table_view.qtpl:332
 				qw422016.N().S(`
                             "date"  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:333
+//line views/templates/tables/table_view.qtpl:333
 				fieldStruct.StreamRenderDateAttributtes(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:333
+//line views/templates/tables/table_view.qtpl:333
 				qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:334
+//line views/templates/tables/table_view.qtpl:334
 			} else if fieldStruct.DATA_TYPE == "datetime" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:334
+//line views/templates/tables/table_view.qtpl:334
 				qw422016.N().S(`
                             "datetime" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:335
+//line views/templates/tables/table_view.qtpl:335
 				fieldStruct.StreamRenderDateAttributtes(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:335
+//line views/templates/tables/table_view.qtpl:335
 				qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:336
+//line views/templates/tables/table_view.qtpl:336
 			} else if strings.Contains(key, "email") {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:336
+//line views/templates/tables/table_view.qtpl:336
 				qw422016.N().S(`
                             "email"
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:338
+//line views/templates/tables/table_view.qtpl:338
 			} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:338
+//line views/templates/tables/table_view.qtpl:338
 				qw422016.N().S(`
                             "text"
                                `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:340
+//line views/templates/tables/table_view.qtpl:340
 				if fieldStruct.CHARACTER_MAXIMUM_LENGTH > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:340
+//line views/templates/tables/table_view.qtpl:340
 					qw422016.N().S(`
                                     maxlength="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:341
+//line views/templates/tables/table_view.qtpl:341
 					qw422016.N().D(fieldStruct.CHARACTER_MAXIMUM_LENGTH)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:341
+//line views/templates/tables/table_view.qtpl:341
 					qw422016.N().S(`"
                                `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:342
+//line views/templates/tables/table_view.qtpl:342
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:342
+//line views/templates/tables/table_view.qtpl:342
 				qw422016.N().S(`
                         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:343
+//line views/templates/tables/table_view.qtpl:343
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:343
+//line views/templates/tables/table_view.qtpl:343
 			qw422016.N().S(`
                         onkeyup="return FilterIsModified( event, this);"
                         />
                `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:346
+//line views/templates/tables/table_view.qtpl:346
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:346
+//line views/templates/tables/table_view.qtpl:346
 		qw422016.N().S(`
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:347
+//line views/templates/tables/table_view.qtpl:347
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:347
+//line views/templates/tables/table_view.qtpl:347
 	qw422016.N().S(`
   </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 func writeinputFilterField(qq422016 qtio422016.Writer, key, nameTable string, fieldStruct *forms.FieldStructure) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	streaminputFilterField(qw422016, key, nameTable, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 func inputFilterField(key, nameTable string, fieldStruct *forms.FieldStructure) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	writeinputFilterField(qb422016, key, nameTable, fieldStruct)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/tables/table_view.qtpl:349
+//line views/templates/tables/table_view.qtpl:349
 }

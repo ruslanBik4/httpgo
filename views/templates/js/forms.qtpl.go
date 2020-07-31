@@ -6,25 +6,25 @@
 //
 // .
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:5
+//line views/templates/js/forms.qtpl:5
 package js
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:5
+//line views/templates/js/forms.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:5
+//line views/templates/js/forms.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:5
+//line views/templates/js/forms.qtpl:5
 func StreamPutFormsJS(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:5
+//line views/templates/js/forms.qtpl:5
 	qw422016.N().S(`
 <script>
 "use strict";
@@ -329,31 +329,31 @@ function addNewRowTableID(thisButton) {
 }
 </script>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 func WritePutFormsJS(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	StreamPutFormsJS(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 func PutFormsJS() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	WritePutFormsJS(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/js/forms.qtpl:308
+//line views/templates/js/forms.qtpl:308
 }

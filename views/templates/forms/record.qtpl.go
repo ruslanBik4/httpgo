@@ -6,99 +6,99 @@
 //
 // просто показ одной записи таблицы.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:5
+//line views/templates/forms/record.qtpl:5
 package forms
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:5
+//line views/templates/forms/record.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:5
+//line views/templates/forms/record.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:5
+//line views/templates/forms/record.qtpl:5
 func (fields *FieldsTable) StreamShowRecord(qw422016 *qt422016.Writer, id string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:5
+//line views/templates/forms/record.qtpl:5
 	qw422016.N().S(`
     <div>
         <h2>Запись №`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:7
+//line views/templates/forms/record.qtpl:7
 	qw422016.N().S(id)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:7
+//line views/templates/forms/record.qtpl:7
 	qw422016.N().S(` в таблице `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:7
+//line views/templates/forms/record.qtpl:7
 	qw422016.N().S(fields.Comment)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:7
+//line views/templates/forms/record.qtpl:7
 	qw422016.N().S(`</h2>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:8
+//line views/templates/forms/record.qtpl:8
 	for idx, field := range fields.Rows {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:8
+//line views/templates/forms/record.qtpl:8
 		qw422016.N().S(`
         <div id="divField`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:9
+//line views/templates/forms/record.qtpl:9
 		qw422016.N().D(idx)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:9
+//line views/templates/forms/record.qtpl:9
 		qw422016.N().S(`" class="row `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:9
+//line views/templates/forms/record.qtpl:9
 		qw422016.E().S(field.CSSClass)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:9
+//line views/templates/forms/record.qtpl:9
 		qw422016.N().S(`"
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:10
+//line views/templates/forms/record.qtpl:10
 		if field.IsHidden {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:10
+//line views/templates/forms/record.qtpl:10
 			qw422016.N().S(` style="display:none" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:10
+//line views/templates/forms/record.qtpl:10
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:10
+//line views/templates/forms/record.qtpl:10
 		qw422016.N().S(`
         >
             `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:12
+//line views/templates/forms/record.qtpl:12
 		qw422016.E().S(field.Value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:12
+//line views/templates/forms/record.qtpl:12
 		qw422016.N().S(`
         </div>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:14
+//line views/templates/forms/record.qtpl:14
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:14
+//line views/templates/forms/record.qtpl:14
 	qw422016.N().S(`
 
     </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 func (fields *FieldsTable) WriteShowRecord(qq422016 qtio422016.Writer, id string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	fields.StreamShowRecord(qw422016, id)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 func (fields *FieldsTable) ShowRecord(id string) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	fields.WriteShowRecord(qb422016, id)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/record.qtpl:17
+//line views/templates/forms/record.qtpl:17
 }

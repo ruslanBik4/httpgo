@@ -6,43 +6,43 @@
 //
 // форма авторизации на сайте.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:5
+//line views/templates/forms/signinForm.qtpl:5
 package forms
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:5
+//line views/templates/forms/signinForm.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:5
+//line views/templates/forms/signinForm.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:6
+//line views/templates/forms/signinForm.qtpl:6
 type SignForm struct {
 	Email, Password string
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:10
+//line views/templates/forms/signinForm.qtpl:10
 func (sf *SignForm) StreamSigninForm(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:10
+//line views/templates/forms/signinForm.qtpl:10
 	qw422016.N().S(`
 <div class="main-form-wrap">
     <form target="content" action="/user/signin/" class="form-signin" onsubmit="return saveForm(this, afterLogin);" >
         <h2 class="form-signin-heading">Авторизация</h2>
         <input type="email" name="login" class="input-block-level" placeholder="Email, указанный при регистрации" value="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:14
+//line views/templates/forms/signinForm.qtpl:14
 	qw422016.E().S(sf.Email)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:14
+//line views/templates/forms/signinForm.qtpl:14
 	qw422016.N().S(`">
         <input type="password" name="password" class="input-block-level" placeholder="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:15
+//line views/templates/forms/signinForm.qtpl:15
 	qw422016.E().S(sf.Password)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:15
+//line views/templates/forms/signinForm.qtpl:15
 	qw422016.N().S(`">
         <label class="checkbox">
          <input type="checkbox" name="remember" value="remember-me"> Запомнить меня в системе
@@ -51,31 +51,31 @@ func (sf *SignForm) StreamSigninForm(qw422016 *qt422016.Writer) {
     </form>
 </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 func (sf *SignForm) WriteSigninForm(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	sf.StreamSigninForm(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 func (sf *SignForm) SigninForm() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	sf.WriteSigninForm(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/signinForm.qtpl:22
+//line views/templates/forms/signinForm.qtpl:22
 }
