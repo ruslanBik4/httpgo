@@ -6,25 +6,25 @@
 //
 // .
 
-//line views/templates/css/fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:5
 package css
 
-//line views/templates/css/fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/css/fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/css/fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:5
 func StreamFancyboxButtons(qw422016 *qt422016.Writer) {
-//line views/templates/css/fancybox-buttons.qtpl:5
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:5
 	qw422016.N().S(`
 #fancybox-buttons {
 	position: fixed;
@@ -125,31 +125,31 @@ func StreamFancyboxButtons(qw422016 *qt422016.Writer) {
 }
 
 `)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 }
 
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 func WriteFancyboxButtons(qq422016 qtio422016.Writer) {
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	StreamFancyboxButtons(qw422016)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 }
 
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 func FancyboxButtons() string {
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	WriteFancyboxButtons(qb422016)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	qs422016 := string(qb422016.B)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 	return qs422016
-//line views/templates/css/fancybox-buttons.qtpl:104
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/css/fancybox-buttons.qtpl:104
 }

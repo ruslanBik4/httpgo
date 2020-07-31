@@ -41,8 +41,9 @@ function getElementsByText(str, name) {
         <div class="usr-table__t-head  usr-table-row">
         {% for i, col := range columns %}
             <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
-               <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
                 {%s col.Label %}
+               <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
+               ±
                </a>
             </div>
         {% endfor %}
