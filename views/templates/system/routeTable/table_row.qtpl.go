@@ -79,189 +79,193 @@ function getElementsByText(str, name) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:43
 		qw422016.N().D(i)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:43
-		qw422016.N().S(`>`)
+		qw422016.N().S(`><a class="filt-arrow__link arrow-bottom" href="#`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:44
-		qw422016.E().S(col.Label)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:44
-		qw422016.N().S(`</div>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:46
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:46
-	qw422016.N().S(`</div><div class="usr-table__filter  usr-table-row">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:50
-	for i, col := range columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:50
-		qw422016.N().S(`<div class="usr-table-col table-col-`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:51
-		qw422016.N().D(i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:51
-		qw422016.N().S(`"><div class="filt-arrow" style="word-break: break-word;"><a class="filt-arrow__link arrow-bottom" href="#`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:54
 		qw422016.E().S(col.Name())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:44
 		qw422016.N().S(`" title="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:44
 		qw422016.E().S(col.Type())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:54
-		qw422016.N().S(`"><input type="text" onchange="getElementsByText(this.value, 'table-col-`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:44
+		qw422016.N().S(`">`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:45
+		qw422016.E().S(col.Label)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:45
+		qw422016.N().S(`</a></div>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:48
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:48
+	qw422016.N().S(`</div><div class="usr-table__filter  usr-table-row">`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:52
+	for i, col := range columns {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:52
+		qw422016.N().S(`<div class="usr-table-col table-col-`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:53
+		qw422016.N().D(i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:53
+		qw422016.N().S(`"><div class="filt-arrow" style="word-break: break-word;"><input type="text" onchange="getElementsByText(this.value, 'table-col-`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:55
 		qw422016.N().D(i)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:55
-		qw422016.N().S(`');"></a></div></div>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:59
+		qw422016.N().S(`');"></div></div>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:58
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:59
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:58
 	qw422016.N().S(`</div></div><div class="usr-table-content"><div class="usr-table-content-scroll"><div class="usr-table-row-cont">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:67
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:66
 	for _, row := range rows {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:67
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:66
 		qw422016.N().S(`<div  class="usr-table-row">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:71
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:70
 		for i, column := range columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:71
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:70
 			qw422016.N().S(`<div class="usr-table-col  table-col-`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:72
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:71
 			qw422016.N().D(i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:72
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:71
 			qw422016.N().S(`">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:73
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:72
 			switch val := row[i].(type) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:74
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:73
 			case time.Time:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:74
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:73
 				qw422016.E().S(val.Format("2006-01-02"))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:74
 			case string:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:76
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:75
 				qw422016.N().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:78
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 				if len(val) > colLen[i] && (column.Name() != "id") {
 					colLen[i] = len(val)
 				}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 			case bool:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 				if val {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 					qw422016.N().S(`X`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:83
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
 			case float32:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:83
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:82
 				qw422016.N().V(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:84
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:83
 			case float64:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:84
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:83
 				qw422016.N().FPrec(val, 2)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:85
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:84
 			case []string:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:85
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:84
 				qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:86
 				for _, str := range val {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:88
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:86
+					qw422016.N().S(`<p>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:87
 					qw422016.N().S(str)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:90
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+					qw422016.N().S(`</p>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:89
 					if len(str)+1 > colLen[i] {
 						colLen[i] = len(str) + 1
 					}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:93
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:93
 				qw422016.N().S(`]`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:95
+			case []interface{}:
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:96
-			default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:97
-				if r, ok := val.([]interface{}); ok {
+				for _, value := range val {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:96
+					qw422016.N().S(`[`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:98
-					for _, value := range r {
+					if m, ok := value.(map[string]interface{}); ok {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:98
 						qw422016.N().S(`{`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:100
-						if m, ok := value.(map[string]interface{}); ok {
+						for key, value := range m {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:100
+							qw422016.N().S(`<b>`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:101
-							for key, value := range m {
+							qw422016.E().S(key)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:101
-								qw422016.N().S(`<b>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
-								qw422016.E().S(key)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
-								qw422016.N().S(`</b>:`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
-								json.StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
-								qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:103
-							}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:104
-						} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:105
+							qw422016.N().S(`</b>:`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:101
 							json.StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:106
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:101
+							qw422016.N().S(`,</br>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
 						}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:106
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:102
 						qw422016.N().S(`}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:104
+					} else {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:105
+						json.StreamElement(qw422016, value)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:106
 					}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:109
-				} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:110
-					json.StreamElement(qw422016, row[i])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:111
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:106
+					qw422016.N().S(`]`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:108
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:109
+			default:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:110
+				json.StreamElement(qw422016, row[i])
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:111
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:111
 			qw422016.N().S(`</div>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:113
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:113
 		qw422016.N().S(`</div>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:118
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:117
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:118
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:117
 	qw422016.N().S(`</div></div></div></div>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:125
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:124
 	qw422016.N().S(`
 <style>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:127
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:126
 	for i, cLen := range colLen {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:127
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:126
 		qw422016.N().S(`
   `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:129
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:128
 		if cLen > 50 {
 			cLen = 50
 		}
 		lSymb := 7
 		allWidth += cLen * lSymb
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:135
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:134
 		qw422016.N().S(`
 .table-col-`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:135
 		qw422016.N().D(i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:135
 		qw422016.N().S(`{
     width: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:137
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 		qw422016.N().D(cLen * lSymb)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:137
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 		qw422016.N().S(`px;
     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:138
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:137
 		if columns[i].Type() == "timestamp" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:138
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:137
 			qw422016.N().S(`
     word-break: break-all;
     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:140
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:139
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:140
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:139
 		qw422016.N().S(`
     input {
         width: 98%;
@@ -269,66 +273,66 @@ function getElementsByText(str, name) {
 }
 .usr-table-row{
  .table-col-`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:146
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:145
 		qw422016.N().D(i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:146
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:145
 		qw422016.N().S(`{
    text-align: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:147
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:146
 		if columns[i].CharacterMaximumLength() > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:147
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:146
 			qw422016.N().S(` left
                 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:148
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:147
 		} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:148
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:147
 			qw422016.N().S(` right
               `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:149
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:148
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:149
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:148
 		qw422016.N().S(`;
   }
 }
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:152
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:151
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:152
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:151
 	qw422016.N().S(`
 .table-custom{
     width: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:153
 	qw422016.N().D(allWidth)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:153
 	qw422016.N().S(`px;
 }
 </style>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 func WriteTableRow(qq422016 qtio422016.Writer, columns []*forms.ColumnDecor, rows [][]interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	StreamTableRow(qw422016, columns, rows)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 func TableRow(columns []*forms.ColumnDecor, rows [][]interface{}) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	WriteTableRow(qb422016, columns, rows)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:157
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }

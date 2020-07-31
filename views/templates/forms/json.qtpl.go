@@ -442,7 +442,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
 				qw422016.N().S(`" `)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
-				if val != nil && val == value {
+				if v, ok := val.(string); ok && v == value {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
 					qw422016.N().S(` selected `)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135

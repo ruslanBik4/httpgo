@@ -41,7 +41,9 @@ function getElementsByText(str, name) {
         <div class="usr-table__t-head  usr-table-row">
         {% for i, col := range columns %}
             <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
+               <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
                 {%s col.Label %}
+               </a>
             </div>
         {% endfor %}
         </div>
@@ -50,10 +52,7 @@ function getElementsByText(str, name) {
          {% for i, col := range columns %}
            <div class="usr-table-col table-col-{%d i%}">
                 <div class="filt-arrow" style="word-break: break-word;">
-
-                    <a class="filt-arrow__link arrow-bottom" href="#{%s col.Name() %}" title="{%s col.Type() %}">
                         <input type="text" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
-                    </a>
                 </div>
             </div>
           {% endfor %}
@@ -85,30 +84,30 @@ function getElementsByText(str, name) {
                             {% case []string %}
                                  [
                                   {% for _, str := range val %}
-                                   {%s= str %}
-                                {%code
-                                  if len(str)+1 > colLen[i] {
-                                    colLen[i] = len(str)+1
-                                  }
-                                %}
-                                {% endfor %}
+                                   <p>{%s= str %}</p>
+                                    {%code
+                                      if len(str)+1 > colLen[i] {
+                                        colLen[i] = len(str)+1
+                                      }
+                                    %}
+                                    {% endfor %}
                                 ]
-                          {% default %}
-                              {% if  r, ok := val.([]interface{}); ok %}
-                                 {% for _, value := range r %}
-                                  {
+                            {% case []interface{} %}
+                                 {% for _, value := range val %}
+                                  [
                                     {% if m, ok := value.(map[string]interface{}); ok %}
+                                      {
                                       {% for key, value := range m %}
-                                        <b>{%s key %}</b>: {%= json.Element(value)%},
+                                        <b>{%s key %}</b>: {%= json.Element(value)%},</br>
                                       {% endfor %}
+                                      }
                                     {% else %}
                                           {%= json.Element(value) %}
                                     {% endif %}
-                                  }
+                                  ]
                                 {% endfor %}
-                              {% else %}
+                          {% default %}
                                     {%= json.Element(row[i]) %}
-                              {% endif %}
                             {% endswitch %}
                         </div>
                     {% endfor %}

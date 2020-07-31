@@ -132,7 +132,7 @@ name="{%s col.InputName(i) %}"
     	{% if  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %} >
          {% for title, value := range col.SelectOptions %}
-            <option value="{%s value %}" {% if val != nil && val == value%} selected {% endif %} >{%s title %}</option>
+            <option value="{%s value %}" {% if v, ok := val.(string); ok && v == value %} selected {% endif %} >{%s title %}</option>
          {% endfor %}
           </select>
          {% else %}

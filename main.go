@@ -190,24 +190,6 @@ var (
 				Method:    POST,
 				Multipart: true,
 			},
-
-			// "/godoc/":        handlerGoDoc,
-			// "/recache":       handlerRecache,
-			// "/update/":       handleUpdate,
-			// "/test/":         handleTest,
-			// "/api/firebird/": HandleFirebird,
-			// "/fonts/":        fonts.HandleGetFont,
-			// "/query/":        db.HandlerDBQuery,
-			// "/menu/":         handlerMenu,
-			// "/show/forms/":   handlerForms,
-			// "/user/signup/":  users.HandlerSignUp,
-			// "/user/signin/":  users.HandlerSignIn,
-			// "/user/signout/": users.HandlerSignOut,
-			// "/user/active/":  users.HandlerActivateUser,
-			// "/user/profile/": users.HandlerProfile,
-			// //"/user/oauth/":    users.HandlerQauth2,
-			// "/user/GoogleCallback/": users.HandleGoogleCallback,
-			// "/components/":          handlerComponents,
 		},
 	}
 )
@@ -551,10 +533,6 @@ func main() {
 
 		logs.DebugLog(bd)
 	}
-
-	// for key, val := range db.Routines {
-	// 	logs.StatusLog(key, val.Name())
-	// }
 
 	logs.StatusLog("Static files found in " + *fWeb)
 	logs.StatusLog("System files found in " + *fSystem)
