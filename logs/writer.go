@@ -103,6 +103,7 @@ type stackTracer interface {
 }
 
 func timeLogFormat() string {
+	// todo get flags of current log !
 	if logErr.Flags()&log.Ltime != 0 {
 		hh, mm, ss := time.Now().Clock()
 		return fmt.Sprintf("%.2d:%.2d:%.2d ", hh, mm, ss)
@@ -259,4 +260,35 @@ func isIgnoreFunc(funcName string) bool {
 // ErrorLogHandler - output formatted(function and line calls) error information
 func ErrorLogHandler(err error, args ...interface{}) {
 	ErrorStack(err, args...)
+}
+
+func CustomLog(level Level, prefix, fileName string, line int, msg string, logFlags ...FgLogWriter) {
+	args := []interface{}{
+		errLogPrint(true),
+		"[[%s%d%s%s]]%s %s:%d: %s",
+		LogPutColor,
+		boldcolors[level],
+		prefix,
+		LogEndColor,
+		timeLogFormat(),
+		fileName,
+		line,
+		msg,
+	}
+
+	for _, logFlag := range logFlags {
+		switch logFlag {
+		case FgAll:
+			logErr.Printf(args...)
+			logStat.Printf(args...)
+			logDebug.Printf(args...)
+		case FgErr:
+			logErr.Printf(args...)
+		case FgInfo:
+			logStat.Printf(args...)
+		case FgDebug:
+			logDebug.Printf(args...)
+		}
+
+	}
 }

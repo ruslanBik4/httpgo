@@ -75,14 +75,22 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% endif %}
                    }
                 {% endfor %}
-                 {% for _, button := range block.Buttons %}
-                 ,
-                 {
-                     "type":  "{%s button.ButtonType %}",
-                     "title": "{%s button.Title %}",
-                     "position": {% if button.Position %}"right"{% else %}"left"{% endif %}
-                 }
-                 {% endfor %}
+                "actions": [
+                      {
+                        "groups": [
+                         {% for i, button := range block.Buttons %}
+                            {% if i > 0 %}
+                                ,
+                            {% endif %}
+                         {
+                             "buttonType":  "{%s button.ButtonType %}",
+                             "title": "{%s button.Title %}",
+                             "type": "button"
+                         }
+                         {% endfor %}
+                         ]
+                      }
+                ]
              ]
        }
     {% endfor %}
@@ -112,6 +120,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 	{% switch %}
 	{% case col.InputType == "checkbox" %}
 		switch
+	{% case col.InputType == "textarea" %}
+		textarea
 	{% case  col.SelectOptions != nil %}
 		select
     {% default %}
@@ -129,20 +139,29 @@ name="{%s col.InputName(i) %}"
 
 {% func (col *ColumnDecor) RenderInputs()  %}
  {% for i, val := range col.GetValues() %}
-    	{% if  col.SelectOptions != nil %}
+ 	{% switch %}
+   	{% case  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %} >
-         {% for title, value := range col.SelectOptions %}
-            <option value="{%s value %}" {% if v, ok := val.(string); ok && v == value %} selected {% endif %} >{%s title %}</option>
-         {% endfor %}
+             {% for title, value := range col.SelectOptions %}
+                <option value="{%s value %}" {% if v, ok := val.(string); ok && v == value %} selected {% endif %} >{%s title %}</option>
+             {% endfor %}
           </select>
-         {% else %}
+ 	{% case col.InputType == "textarea" %}
+                <textarea {%= col.RenderAttr(i) %}
+                 {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
+                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
+                  {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
+                >
+                  {% if val != nil %}"{%v val %}"{% endif %}
+               </textarea>
+   {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
                 {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
                 {% if val != nil %} value = "{%v val %}" {% endif %}
                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
                  {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
                >
-        {% endif %}
+    {% endswitch %}
  {% endfor %}
  {% if col.IsSlice %}
         <button class="main-btn" type="button"

@@ -213,10 +213,12 @@ func (col *ColumnDecor) inputType() string {
 	switch col.Type() {
 	case "date", "_date":
 		return "date"
-	case "datetime", "datetimez", "timestampt", "timestamptz", "time", "_timestampt", "_timestamptz", "_time":
+	case "datetime", "datetimetz", "timestamp", "timestamptz", "time", "_timestamp", "_timestamptz", "_time":
 		return "datetime"
 	case "email", "tel", "password", "url":
 		return col.Type()
+	case "text", "_text":
+		return "textarea"
 	default:
 		if typesExt.IsNumeric(col.BasicTypeInfo()) {
 			return "number"
