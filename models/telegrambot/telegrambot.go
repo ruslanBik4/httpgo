@@ -264,6 +264,10 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 
 // SendMessage is used for sending messages. Arguments keys must contain TelegramKeyboard{} to add keys to your message
 func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) (err error, response *TbResponseMessageStruct) {
+	if tbot == nil {
+		return errors.New("tbot is nil"), nil
+	}
+
 	if err := tbot.checkBot(); err != nil {
 		return err, nil
 	}
