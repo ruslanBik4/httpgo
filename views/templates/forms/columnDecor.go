@@ -56,6 +56,10 @@ func (col *ColumnDecor) Placeholder() string {
 		return col.PlaceHolder
 	}
 
+	if col.patternDesc > "" {
+		return col.patternDesc
+	}
+
 	if col.pattern > "" {
 		return col.pattern
 	}
@@ -122,10 +126,10 @@ func (col *ColumnDecor) getPattern(name string) {
 	}
 }
 
-func (col *ColumnDecor) Type() string {
-	const email = "email"
-	const tel = "phone"
+const email = "email"
+const tel = "phone"
 
+func (col *ColumnDecor) Type() string {
 	if strings.HasPrefix(col.Name(), email) {
 		return email
 	} else if strings.HasPrefix(col.Name(), tel) {
@@ -178,11 +182,14 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 	case nil:
 		if d := col.Default(); d > "" {
 			values = append(values, d)
+		} else {
+			values = append(values, nil)
 		}
 	case driver.Valuer:
 		v, err := val.Value()
 		if err != nil {
 			logs.ErrorLog(err, "val.Value")
+			values = append(values, nil)
 		} else {
 			values = append(values, v)
 		}
@@ -215,10 +222,12 @@ func (col *ColumnDecor) inputType() string {
 		return "date"
 	case "datetime", "datetimetz", "timestamp", "timestamptz", "time", "_timestamp", "_timestamptz", "_time":
 		return "datetime"
-	case "email", "tel", "password", "url":
+	case email, tel, "tel", "password", "url":
 		return col.Type()
 	case "text", "_text":
 		return "textarea"
+	case "bytea", "_bytea":
+		return "file"
 	default:
 		if typesExt.IsNumeric(col.BasicTypeInfo()) {
 			return "number"
