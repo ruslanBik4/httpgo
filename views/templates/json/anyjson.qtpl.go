@@ -136,7 +136,7 @@ func StreamElement(qw422016 *qt422016.Writer, value interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:27
 		qw422016.N().S(`"`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:27
-		qw422016.N().J(vv)
+		qw422016.E().J(vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:27
 		qw422016.N().S(`"`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:28

@@ -151,7 +151,7 @@ name="{%s col.InputName(i) %}"
                   {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
                   {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
                 >
-                  {% if val != nil %}"{%v val %}"{% endif %}
+                  {% if val != nil %}{%v val %}{% endif %}
                </textarea>
    {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
@@ -164,7 +164,9 @@ name="{%s col.InputName(i) %}"
  {% endfor %}
  {% if col.IsSlice %}
         <button class="main-btn" type="button"
-        onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
+            onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
+        <button class="main-btn" type="button"
+            onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">-</button>
 
  {% endif %}
 {% endfunc %}

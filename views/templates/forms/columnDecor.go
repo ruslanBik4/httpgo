@@ -25,6 +25,7 @@ type ColumnDecor struct {
 	PatternList                   dbEngine.Table
 	PatternName                   string
 	PlaceHolder                   string
+	LinkNew                       string
 	Label                         string
 	pattern                       string
 	patternDesc                   string
@@ -75,11 +76,11 @@ func (col *ColumnDecor) Pattern() string {
 	if name := col.PatternName; name > "" {
 		col.getPattern(name)
 	} else if col.BasicTypeInfo() == types.IsInteger {
-		col.pattern = `[0-9]+`
+		col.pattern = `^[0-9]+$`
 	} else if col.BasicTypeInfo() == types.IsFloat {
-		col.pattern = `[+-]?\d+(\.\d{2})?`
+		col.pattern = `^-?\d+(\.\d{1,2})?$`
 	} else if col.BasicTypeInfo() == types.IsComplex {
-		col.pattern = `[+-]?\d+(\.\d{2})?`
+		col.pattern = `^[+±-]?\d+(\.\d{1,2})?$`
 	}
 
 	return col.pattern
@@ -144,6 +145,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 	switch val := col.Value.(type) {
 	case []interface{}:
 		values = val
+		col.IsSlice = true
 	case []string:
 		values = make([]interface{}, len(val))
 		for i, val := range val {
@@ -180,7 +182,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 		col.IsSlice = true
 
 	case nil:
-		if d := col.Default(); d > "" {
+		if d := col.Default(); d != nil {
 			values = append(values, d)
 		} else {
 			values = append(values, nil)

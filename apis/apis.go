@@ -196,11 +196,11 @@ const jsonHEADERSContentType = "application/json; charset=utf-8"
 // renderError send error message into response
 func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}) {
 
-	statusCode := http.StatusInternalServerError
+	statusCode := fasthttp.StatusInternalServerError
 	errMsg := err.Error()
 	switch errDeep := errors.Cause(err); errDeep {
 	case errMethodNotAllowed:
-		statusCode = http.StatusMethodNotAllowed
+		statusCode = fasthttp.StatusMethodNotAllowed
 		switch r := resp.(type) {
 		case string:
 			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
@@ -212,7 +212,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 	case ErrUnAuthorized:
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
-		statusCode = http.StatusUnauthorized
+		statusCode = fasthttp.StatusUnauthorized
 	case ErrRouteForbidden:
 		statusCode = fasthttp.StatusForbidden
 	case errRouteOnlyLocal:
