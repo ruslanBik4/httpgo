@@ -11,692 +11,700 @@ package forms
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:4
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"sort"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:8
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:9
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:8
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:9
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:9
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:10
 type FormField struct {
 	Title, Action, Method, Description string
 }
 
 // json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:16
-func (f *FormField) StreamRenderForm(qw422016 *qt422016.Writer, isHTML bool, blocks ...BlockColumns) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:17
-	if isHTML {
+func (f *FormField) StreamRenderForm(qw422016 *qt422016.Writer, isHTML bool, blocks ...BlockColumns) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:18
-		f.StreamFormHTML(qw422016, blocks...)
+	if isHTML {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:19
-	} else {
+		f.StreamFormHTML(qw422016, blocks...)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:20
-		f.StreamFormJSON(qw422016, blocks...)
+	} else {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:21
+		f.StreamFormJSON(qw422016, blocks...)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 func (f *FormField) WriteRenderForm(qq422016 qtio422016.Writer, isHTML bool, blocks ...BlockColumns) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	f.StreamRenderForm(qw422016, isHTML, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 func (f *FormField) RenderForm(isHTML bool, blocks ...BlockColumns) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	f.WriteRenderForm(qb422016, isHTML, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:22
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:24
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:25
 func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockColumns) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:24
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:25
 	qw422016.N().S(`{"title" : "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:26
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:27
 	qw422016.N().S(f.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:26
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:27
 	qw422016.N().S(`","action": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:27
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:28
 	qw422016.N().S(f.Action)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:27
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:28
 	qw422016.N().S(`","description": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:28
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:29
 	qw422016.N().S(f.Description)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:28
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:29
 	qw422016.N().S(`","method": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:29
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:30
 	qw422016.N().S(f.Method)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:29
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:30
 	qw422016.N().S(`","blocks": [`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:31
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:32
 	for i, block := range blocks {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:32
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:33
 		if i > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:32
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:33
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:34
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:35
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:34
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:35
 		qw422016.N().S(`{"id": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:36
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:37
 		qw422016.N().D(block.Id)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:36
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:37
 		qw422016.N().S(`","title": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:37
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:38
 		qw422016.N().S(block.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:37
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:38
 		qw422016.N().S(`","description": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:38
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:39
 		qw422016.N().S(block.Description)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:38
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:39
 		qw422016.N().S(`","fields": [`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:40
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:41
 		for j, col := range block.Columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:42
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:43
 			if j > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:42
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:43
 				qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:44
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:45
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:44
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:45
 			qw422016.N().S(`{`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:47
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:48
 			values := col.GetValues()
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:48
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:49
 			qw422016.N().S(`"name": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:49
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:50
 			qw422016.E().S(col.InputName(-1))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:49
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:50
 			qw422016.N().S(`","required":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:50
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:51
 			qw422016.E().V(col.Required())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:50
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:51
 			qw422016.N().S(`,"type": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:51
-			col.StreamInputTypeForJSON(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:51
-			qw422016.N().S(`"`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:52
-			col.StreamDataForJSON(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:53
-			if col.CharacterMaximumLength() > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:53
-				qw422016.N().S(`, "maxLength":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:54
-				qw422016.N().D(col.CharacterMaximumLength())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:55
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:56
-			switch len(values) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:57
-			case 0:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:58
-			case 1:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:59
-				if values[0] != nil {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:59
-					qw422016.N().S(`, "value": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
-					qw422016.E().V(values[0])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
-					qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:61
-				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:62
-			default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:62
-				qw422016.N().S(`, "value":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:63
-				json.StreamSimpleDimension(qw422016, values)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:64
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:64
-			qw422016.N().S(`, "title": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:66
-			qw422016.E().S(col.Label)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:66
+			col.StreamInputTypeForJSON(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:52
 			qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:68
-			if p := col.Pattern(); p > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:68
-				qw422016.N().S(`, "pattern":"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:69
-				qw422016.E().J(p)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:69
-				qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:70
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:53
+			col.StreamDataForJSON(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:54
+			if col.CharacterMaximumLength() > 0 {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:54
+				qw422016.N().S(`, "maxLength":`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:55
+				qw422016.N().D(col.CharacterMaximumLength())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:56
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:72
-			if col.IsReadOnly {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:72
-				qw422016.N().S(`, "readonly": true`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:74
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:74
-			qw422016.N().S(`}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:76
-		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:76
-		qw422016.N().S(`],"actions": [{"groups": [`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:81
-		for i, button := range block.Buttons {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:82
-			if i > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:82
-				qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:84
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:84
-			qw422016.N().S(`{"buttonType":  "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:86
-			qw422016.E().S(button.ButtonType)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:86
-			qw422016.N().S(`","title": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:87
-			qw422016.E().S(button.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:87
-			qw422016.N().S(`","type": "button"}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:90
-		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:90
-		qw422016.N().S(`]}]}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:95
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:95
-	qw422016.N().S(`]}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-func (f *FormField) WriteFormJSON(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	f.StreamFormJSON(qw422016, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-func (f *FormField) FormJSON(blocks ...BlockColumns) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	f.WriteFormJSON(qb422016, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:98
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:101
-func (col *ColumnDecor) StreamDataForJSON(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:102
-	if col.SelectOptions != nil {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:102
-		qw422016.N().S(`, "data": [`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:104
-		for title, val := range col.SelectOptions {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:104
-			qw422016.N().S(`{"title": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:106
-			qw422016.E().S(title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:106
-			qw422016.N().S(`","value": "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:107
-			qw422016.E().S(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:107
-			qw422016.N().S(`"},`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:109
-		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:109
-		qw422016.N().S(`{"title": "add new item","value": "new"}]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:115
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-func (col *ColumnDecor) WriteDataForJSON(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	col.StreamDataForJSON(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-func (col *ColumnDecor) DataForJSON() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	col.WriteDataForJSON(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:116
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:118
-func (col *ColumnDecor) StreamInputTypeForJSON(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:119
-	switch {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:120
-	case col.InputType == "checkbox":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:120
-		qw422016.N().S(`switch`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:122
-	case col.InputType == "textarea":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:122
-		qw422016.N().S(`textarea`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
-	case col.SelectOptions != nil:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
-		qw422016.N().S(`select`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:126
-	default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:127
-		qw422016.N().S(col.InputType)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:128
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-func (col *ColumnDecor) WriteInputTypeForJSON(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	col.StreamInputTypeForJSON(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-func (col *ColumnDecor) InputTypeForJSON() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	col.WriteInputTypeForJSON(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:129
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:132
-func (col *ColumnDecor) StreamRenderAttr(qw422016 *qt422016.Writer, i int) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:132
-	qw422016.N().S(` name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:133
-	qw422016.E().S(col.InputName(i))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:133
-	qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:134
-	if col.Required() {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:134
-		qw422016.N().S(` required="true" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:134
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:134
-	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
-	if col.IsReadOnly {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
-		qw422016.N().S(` readonly disabled `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
-	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-func (col *ColumnDecor) WriteRenderAttr(qq422016 qtio422016.Writer, i int) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-func (col *ColumnDecor) RenderAttr(i int) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	col.WriteRenderAttr(qb422016, i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:139
-func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:139
-	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:140
-	for i, val := range col.GetValues() {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:140
-		qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:141
-		switch {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
-		case col.SelectOptions != nil:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
-			qw422016.N().S(` <select `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
-			col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
-			qw422016.N().S(` > `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:144
-			for title, value := range col.SelectOptions {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:144
-				qw422016.N().S(` <option value="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				qw422016.E().S(value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				if v, ok := val.(string); ok && v == value {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-					qw422016.N().S(` selected `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:57
+			switch len(values) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:58
+			case 0:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:59
+			case 1:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
+				if values[0] != nil {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
+					qw422016.N().S(`, "value": "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:61
+					qw422016.E().V(values[0])
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:61
+					qw422016.N().S(`"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:62
 				}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				qw422016.N().S(` >`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				qw422016.E().S(title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
-				qw422016.N().S(`</option> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:146
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:63
+			default:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:63
+				qw422016.N().S(`, "value":`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:64
+				json.StreamSimpleDimension(qw422016, values)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:65
 			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:146
-			qw422016.N().S(` </select> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:148
-		case col.InputType == "textarea":
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:148
-			qw422016.N().S(` <textarea `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:149
-			col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:149
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-			if col.CharacterMaximumLength() > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-				qw422016.N().S(` max = "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-				qw422016.N().D(col.CharacterMaximumLength())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-			if col.Pattern() > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-				qw422016.N().S(` pattern="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-				qw422016.E().S(col.Pattern())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-				qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-			if col.Placeholder() > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-				qw422016.N().S(` placeholder="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-				qw422016.E().S(col.Placeholder())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
-			qw422016.N().S(` > `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
-			if val != nil {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
-				qw422016.E().V(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
-			qw422016.N().S(` </textarea> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:156
-		default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:156
-			qw422016.N().S(` <input type="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
-			qw422016.E().S(col.InputType)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
-			qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
-			col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-			if col.CharacterMaximumLength() > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-				qw422016.N().S(` max = "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-				qw422016.N().D(col.CharacterMaximumLength())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-			if val != nil {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-				qw422016.N().S(` value = "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-				qw422016.E().V(val)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-			if col.Pattern() > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-				qw422016.N().S(` pattern="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-				qw422016.E().S(col.Pattern())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-				qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
-			qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-			if col.Placeholder() > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-				qw422016.N().S(` placeholder="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-				qw422016.E().S(col.Placeholder())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-				qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:161
-			qw422016.N().S(` > `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:163
-		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:163
-		qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:164
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:164
-	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
-	if col.IsSlice {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
-		qw422016.N().S(` <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button> <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">-</button> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:171
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:171
-	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	col.StreamRenderInputs(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-func (col *ColumnDecor) RenderInputs() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	col.WriteRenderInputs(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:174
-func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockColumns) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:174
-	qw422016.N().S(` <form id="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:175
-	qw422016.E().S(f.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:175
-	qw422016.N().S(`form" name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:175
-	qw422016.E().S(f.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:175
-	qw422016.N().S(`" role='form' class="form-horizontal" target="content" action="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:176
-	qw422016.E().S(f.Action)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:176
-	qw422016.N().S(`" method="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:176
-	qw422016.N().S(f.Method)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:176
-	qw422016.N().S(`" enctype="multipart/form-data" onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:177
-	qw422016.E().S(f.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:177
-	qw422016.N().S(`" > `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:178
-	for _, block := range blocks {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:178
-		qw422016.N().S(` <div> <h2>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
-		qw422016.E().S(block.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
-		qw422016.N().S(` </h2> <h3>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:181
-		qw422016.E().S(block.Description)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:181
-		qw422016.N().S(` </h3> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:182
-		for i, col := range block.Columns {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:182
-			qw422016.N().S(` <div id="divField`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
-			qw422016.N().D(i)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
-			qw422016.N().S(`" class="input-wrap" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
-			if col.IsHidden {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
-				qw422016.N().S(` style="display:none" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
-			}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
-			qw422016.N().S(` > <label class="input-label" for="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
-			qw422016.E().S(col.Name())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
-			qw422016.N().S(`">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:65
+			qw422016.N().S(`, "title": "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:67
 			qw422016.E().S(col.Label)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
-			qw422016.N().S(`</label> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:186
-			col.StreamRenderInputs(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:186
-			qw422016.N().S(` </div> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:188
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:67
+			qw422016.N().S(`"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:69
+			if p := col.Pattern(); p > "" {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:69
+				qw422016.N().S(`, "pattern":"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:70
+				qw422016.E().J(p)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:70
+				qw422016.N().S(`"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:71
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:73
+			if col.IsReadOnly {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:73
+				qw422016.N().S(`, "readonly": true`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:75
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:75
+			qw422016.N().S(`}`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:77
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:188
-		qw422016.N().S(` </div> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:190
-		if block.Multype {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:190
-			qw422016.N().S(` <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button> `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:194
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:77
+		qw422016.N().S(`],"actions": [{"groups": [`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:82
+		for i, button := range block.Buttons {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:83
+			if i > 0 {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:83
+				qw422016.N().S(`,`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:85
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:85
+			qw422016.N().S(`{"buttonType":  "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:87
+			qw422016.E().S(button.ButtonType)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:87
+			qw422016.N().S(`","title": "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:88
+			qw422016.E().S(button.Title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:88
+			qw422016.N().S(`","type": "button"}`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:91
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:194
-		qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:195
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:91
+		qw422016.N().S(`]}]}`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:96
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:195
-	qw422016.N().S(` <div class="form-actions"> <button class="main-btn" type="submit">Сохранить</button> </div> </form> <script> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:96
+	qw422016.N().S(`]}`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+func (f *FormField) WriteFormJSON(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	f.StreamFormJSON(qw422016, blocks...)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+func (f *FormField) FormJSON(blocks ...BlockColumns) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	f.WriteFormJSON(qb422016, blocks...)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:99
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:102
+func (col *ColumnDecor) StreamDataForJSON(qw422016 *qt422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:103
+	if col.SelectOptions != nil {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:103
+		qw422016.N().S(`, "data": [`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:106
+		sortList := make([]string, 0, len(col.SelectOptions))
+		for title := range col.SelectOptions {
+			sortList = append(sortList, title)
+		}
+		sort.Strings(sortList)
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:112
+		for _, title := range sortList {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:112
+			qw422016.N().S(`{"title": "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:114
+			qw422016.E().S(title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:114
+			qw422016.N().S(`","value": "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:115
+			qw422016.E().S(col.SelectOptions[title])
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:115
+			qw422016.N().S(`"},`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:117
+		}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:117
+		qw422016.N().S(`{"title": "add new item","value": "new"}]`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:123
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+func (col *ColumnDecor) WriteDataForJSON(qq422016 qtio422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	col.StreamDataForJSON(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+func (col *ColumnDecor) DataForJSON() string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	col.WriteDataForJSON(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:124
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:126
+func (col *ColumnDecor) StreamInputTypeForJSON(qw422016 *qt422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:127
+	switch {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:128
+	case col.InputType == "checkbox":
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:128
+		qw422016.N().S(`switch`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:130
+	case col.InputType == "textarea":
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:130
+		qw422016.N().S(`textarea`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:132
+	case col.SelectOptions != nil:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:132
+		qw422016.N().S(`select`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:134
+	default:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:135
+		qw422016.N().S(col.InputType)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:136
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+func (col *ColumnDecor) WriteInputTypeForJSON(qq422016 qtio422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	col.StreamInputTypeForJSON(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+func (col *ColumnDecor) InputTypeForJSON() string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	col.WriteInputTypeForJSON(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:137
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:140
+func (col *ColumnDecor) StreamRenderAttr(qw422016 *qt422016.Writer, i int) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:140
+	qw422016.N().S(` name="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:141
+	qw422016.E().S(col.InputName(i))
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:141
+	qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
+	if col.Required() {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
+		qw422016.N().S(` required="true" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:142
+	qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
+	if col.IsReadOnly {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
+		qw422016.N().S(` readonly disabled `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:143
+	qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+func (col *ColumnDecor) WriteRenderAttr(qq422016 qtio422016.Writer, i int) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	col.StreamRenderAttr(qw422016, i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+func (col *ColumnDecor) RenderAttr(i int) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	col.WriteRenderAttr(qb422016, i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:145
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:147
+func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:147
+	qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:148
+	for i, val := range col.GetValues() {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:148
+		qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:149
+		switch {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
+		case col.SelectOptions != nil:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:150
+			qw422016.N().S(` <select `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
+			col.StreamRenderAttr(qw422016, i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:151
+			qw422016.N().S(` > `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
+			for title, value := range col.SelectOptions {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:152
+				qw422016.N().S(` <option value="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				qw422016.E().S(value)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				if v, ok := val.(string); ok && v == value {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+					qw422016.N().S(` selected `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				qw422016.N().S(` >`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				qw422016.E().S(title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:153
+				qw422016.N().S(`</option> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:154
+			qw422016.N().S(` </select> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:156
+		case col.InputType == "textarea":
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:156
+			qw422016.N().S(` <textarea `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
+			col.StreamRenderAttr(qw422016, i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:157
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+			if col.CharacterMaximumLength() > 0 {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+				qw422016.N().S(` max = "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+				qw422016.N().D(col.CharacterMaximumLength())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:158
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+			if col.Pattern() > "" {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+				qw422016.N().S(` pattern="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+				qw422016.E().S(col.Pattern())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+				qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:159
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+			if col.Placeholder() > "" {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+				qw422016.N().S(` placeholder="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+				qw422016.E().S(col.Placeholder())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:160
+			qw422016.N().S(` > `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:162
+			if val != nil {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:162
+				qw422016.E().V(val)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:162
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:162
+			qw422016.N().S(` </textarea> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:164
+		default:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:164
+			qw422016.N().S(` <input type="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
+			qw422016.E().S(col.InputType)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
+			qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
+			col.StreamRenderAttr(qw422016, i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:165
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+			if col.CharacterMaximumLength() > 0 {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+				qw422016.N().S(` max = "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+				qw422016.N().D(col.CharacterMaximumLength())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:166
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+			if val != nil {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+				qw422016.N().S(` value = "`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+				qw422016.E().V(val)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:167
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+			if col.Pattern() > "" {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+				qw422016.N().S(` pattern="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+				qw422016.E().S(col.Pattern())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+				qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:168
+			qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+			if col.Placeholder() > "" {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+				qw422016.N().S(` placeholder="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+				qw422016.E().S(col.Placeholder())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+				qw422016.N().S(`" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:169
+			qw422016.N().S(` > `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:171
+		}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:171
+		qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:172
+	qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:173
+	if col.IsSlice {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:173
+		qw422016.N().S(` <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button> <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">-</button> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:179
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:179
+	qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	col.StreamRenderInputs(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+func (col *ColumnDecor) RenderInputs() string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	col.WriteRenderInputs(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:180
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:182
+func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockColumns) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:182
+	qw422016.N().S(` <form id="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
+	qw422016.E().S(f.Title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
+	qw422016.N().S(`form" name="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
+	qw422016.E().S(f.Title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:183
+	qw422016.N().S(`" role='form' class="form-horizontal" target="content" action="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
+	qw422016.E().S(f.Action)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
+	qw422016.N().S(`" method="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
+	qw422016.N().S(f.Method)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:184
+	qw422016.N().S(`" enctype="multipart/form-data" onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
+	qw422016.E().S(f.Title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:185
+	qw422016.N().S(`" > `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:186
+	for _, block := range blocks {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:186
+		qw422016.N().S(` <div> <h2>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:188
+		qw422016.E().S(block.Title)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:188
+		qw422016.N().S(` </h2> <h3>`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:189
+		qw422016.E().S(block.Description)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:189
+		qw422016.N().S(` </h3> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:190
+		for i, col := range block.Columns {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:190
+			qw422016.N().S(` <div id="divField`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:191
+			qw422016.N().D(i)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:191
+			qw422016.N().S(`" class="input-wrap" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:192
+			if col.IsHidden {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:192
+				qw422016.N().S(` style="display:none" `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:192
+			}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:192
+			qw422016.N().S(` > <label class="input-label" for="`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:193
+			qw422016.E().S(col.Name())
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:193
+			qw422016.N().S(`">`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:193
+			qw422016.E().S(col.Label)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:193
+			qw422016.N().S(`</label> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:194
+			col.StreamRenderInputs(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:194
+			qw422016.N().S(` </div> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:196
+		}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:196
+		qw422016.N().S(` </div> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:198
+		if block.Multype {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:198
+			qw422016.N().S(` <button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button> `)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:202
+		}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:202
+		qw422016.N().S(` `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:203
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:203
+	qw422016.N().S(` <div class="form-actions"> <button class="main-btn" type="submit">Сохранить</button> </div> </form> <script> `)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:210
 	qw422016.N().S(`
 function validatePattern(thisElem) {
     var re = thisElem.pattern,
@@ -724,31 +732,31 @@ function validatePattern(thisElem) {
 }
 </script>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	f.StreamFormHTML(qw422016, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 func (f *FormField) FormHTML(blocks ...BlockColumns) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	f.WriteFormHTML(qb422016, blocks...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:228
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:236
 }
