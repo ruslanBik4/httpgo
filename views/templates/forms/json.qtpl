@@ -149,8 +149,15 @@ name="{%s col.InputName(i) %}"
  	{% switch %}
    	{% case  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %} >
-             {% for title, value := range col.SelectOptions %}
-                <option value="{%s value %}" {% if v, ok := val.(string); ok && v == value %} selected {% endif %} >{%s title %}</option>
+             {%code
+                 sortList := make([]string, 0, len(col.SelectOptions))
+                 for title := range col.SelectOptions {
+                     sortList = append(sortList, title)
+                 }
+                 sort.Strings(sortList)
+             %}
+             {% for _, title := range sortList %}
+                <option value="{%s col.SelectOptions[title] %}" {% if v, ok := val.(string); ok && v == col.SelectOptions[title] %} selected {% endif %} >{%s title %}</option>
              {% endfor %}
           </select>
  	{% case col.InputType == "textarea" %}
