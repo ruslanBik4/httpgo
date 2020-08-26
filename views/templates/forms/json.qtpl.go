@@ -147,7 +147,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:55
 				col.StreamInputTypeForJSON(qw422016)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:55
-				qw422016.N().S(`""list": [`)
+				qw422016.N().S(`","list": [`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:57
 				for i, val := range values {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:58
@@ -161,7 +161,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
 					qw422016.E().V(val)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:60
-					qw422016.N().S(`"},`)
+					qw422016.N().S(`"}`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:62
 				}
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/forms/json.qtpl:62
