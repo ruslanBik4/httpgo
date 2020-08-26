@@ -7,7 +7,6 @@ package apis
 import (
 	"bytes"
 	"fmt"
-	"net/http"
 	"path"
 	"sort"
 	"strings"
@@ -225,7 +224,12 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		}
 
 	case ErrWrongParamsList:
-		statusCode = http.StatusBadRequest
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+
+		if err := WriteJSON(ctx, resp); err != nil {
+			logs.ErrorLog(err, resp)
+		}
+
 		errMsg = fmt.Sprintf(errMsg, resp)
 
 		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
@@ -235,6 +239,8 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		} else {
 			logs.DebugLog(ctx.QueryArgs().String())
 		}
+
+		return
 
 	case errNotFoundPage:
 		ctx.NotFound()

@@ -47,23 +47,37 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% code
                             values := col.GetValues()
                         %}
+
                         "name": "{%s col.InputName(-1) %}",
                         "required": {%v col.Required() %},
-                        "type": "{%= col.InputTypeForJSON()%}"
-                        {%= col.DataForJSON()%}
+                       {%= col.DataForJSON()%}
                         {% if col.CharacterMaximumLength() > 0 %}
                         , "maxLength": {%d col.CharacterMaximumLength() %}
                         {% endif %}
-                        {% switch len(values) %}
-                        {% case 0 %}
-                        {% case 1 %}
-                            {% if values[0] != nil %}
-                                , "value": "{%v values[0] %}"
-                            {% endif %}
-                        {% default %}
-                        , "value": {%= json.SimpleDimension(values) %}
-                        {% endswitch %}
+                         {% if col.IsSlice %}
+                            "type": "array",
+                            "typeField": "{%= col.InputTypeForJSON()%}"
+                            "list": [
+                             {% for i, val := range values %}
+                               {% if i > 0 %} , {% endif %}
+                                       {
+                                         "value": "%v val %}"
+                                       },
+                             {% endfor %}
+                             ]
+                         {% else %}
+                            "type": "{%= col.InputTypeForJSON()%}"
+                           {% switch len(values) %}
+                            {% case 0 %}
+                            {% case 1 %}
+                                {% if values[0] != nil %}
+                                    , "value": "{%v values[0] %}"
+                                {% endif %}
+                            {% default %}
+                            , "value": {%= json.SimpleDimension(values) %}
+                            {% endswitch %}
 
+                         {% endif %}
                         , "title": "{%s col.Label %}"
 
                         {% if p := col.Pattern(); p > "" %}

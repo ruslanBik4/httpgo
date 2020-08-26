@@ -116,8 +116,18 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, errRouteOnlyLocal
 	}
 
-	// check multipart params
-	if route.Multipart {
+	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
+		// check JSON parsing
+
+		dto := route.DTO.NewValue()
+		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
+		if err != nil {
+			ctx.SetUserValue("bad_params", "json DTO not parse :"+err.Error())
+			return nil, ErrWrongParamsList
+		}
+		ctx.SetUserValue(JSONParams, dto)
+		// check multipart params
+	} else if route.Multipart {
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
@@ -149,17 +159,6 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		if len(badParams) > 0 {
 			return badParams, ErrWrongParamsList
 		}
-
-	} else if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
-		// check JSON parsing
-
-		dto := route.DTO.NewValue()
-		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
-		if err != nil {
-			ctx.SetUserValue("bad_params", "json DTO not parse :"+err.Error())
-			return nil, ErrWrongParamsList
-		}
-		ctx.SetUserValue(JSONParams, dto)
 
 	} else {
 		var args *fasthttp.Args

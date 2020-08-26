@@ -95,7 +95,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 }
 
 func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {
-	switch t.BasicKind {
+	switch tp := t.BasicKind; tp {
 	case types.String:
 		return values, nil
 	case types.Int:
@@ -169,10 +169,8 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 		}
 		return arr, nil
 	default:
-		panic(errors.New("convert this type not implement"))
+		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String(), t)
 	}
-
-	return nil, nil
 }
 
 func (t TypeInParam) IsSlice() bool {
