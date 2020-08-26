@@ -50,10 +50,6 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 
                         "name": "{%s col.InputName(-1) %}",
                         "required": {%v col.Required() %},
-                       {%= col.DataForJSON()%}
-                        {% if col.CharacterMaximumLength() > 0 %}
-                        , "maxLength": {%d col.CharacterMaximumLength() %}
-                        {% endif %}
                          {% if col.IsSlice %}
                             "type": "array",
                             "typeField": "{%= col.InputTypeForJSON()%}"
@@ -78,7 +74,11 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             {% endswitch %}
 
                          {% endif %}
-                        , "title": "{%s col.Label %}"
+                        {% if col.CharacterMaximumLength() > 0 %}
+                        , "maxLength": {%d col.CharacterMaximumLength() %}
+                        {% endif %}
+                        {%= col.DataForJSON()%}
+                       , "title": "{%s col.Label %}"
 
                         {% if p := col.Pattern(); p > "" %}
                         , "pattern":"{%j p %}"
