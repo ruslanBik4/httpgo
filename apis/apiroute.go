@@ -212,7 +212,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 		}
 	}
 
-	return len(badParams) > 0
+	return len(badParams) == 0
 }
 
 func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
