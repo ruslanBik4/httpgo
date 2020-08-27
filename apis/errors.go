@@ -18,3 +18,11 @@ var (
 	ErrWrongParamsList    = errors.New("wrong params list: %+v")
 	errIncompatibleParams = errors.New("found incompatible params- %+v")
 )
+
+type ErrorResp struct {
+	FormErrors map[string]string `json:"formErrors"`
+}
+
+func NewErrorResp(formErrors map[string]string) *ErrorResp {
+	return &ErrorResp{FormErrors: formErrors}
+}

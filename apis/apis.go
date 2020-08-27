@@ -226,6 +226,12 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 	case ErrWrongParamsList:
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 
+		if f, ok := resp.(map[string]string); ok {
+			resp = ErrorResp{
+				FormErrors: f,
+			}
+		}
+
 		if err := WriteJSON(ctx, resp); err != nil {
 			logs.ErrorLog(err, resp)
 		}
