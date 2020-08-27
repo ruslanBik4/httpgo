@@ -54,12 +54,6 @@ func MultiPartForm() BuildRouteOptions {
 	}
 }
 
-// RouteDTO must to help create some types into routing handling
-type RouteDTO interface {
-	GetValue() interface{}
-	NewValue() interface{}
-}
-
 type (
 	ApiRouteHandler  func(ctx *fasthttp.RequestCtx) (interface{}, error)
 	ApiRouteFuncAuth func(ctx *fasthttp.RequestCtx) error
@@ -116,6 +110,8 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, errRouteOnlyLocal
 	}
 
+	badParams := make(map[string]string, 0)
+
 	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
 		// check JSON parsing
 
@@ -125,9 +121,18 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 			ctx.SetUserValue("bad_params", "json DTO not parse :"+err.Error())
 			return nil, ErrWrongParamsList
 		}
+
 		ctx.SetUserValue(JSONParams, dto)
-		// check multipart params
+
+		d, ok := dto.(CheckDTO)
+		if ok && !d.CheckParams(ctx, badParams) {
+			return badParams, ErrWrongParamsList
+		}
+
+		return route.Fnc(ctx)
+
 	} else if route.Multipart {
+		// check multipart params
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
@@ -139,7 +144,6 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 
 		ctx.SetUserValue(MultiPartParams, mf.Value)
 
-		badParams := make([]string, 0)
 		for key, value := range mf.Value {
 			val, err := route.checkTypeParam(ctx, key, value)
 			if err != nil {
@@ -147,17 +151,14 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 					logs.DebugLog(val)
 				}
 
-				badParams = append(badParams, key+" wrong type "+strings.Join(value, ",")+err.Error())
+				badParams[key] = "has wrong type " + strings.Join(value, ",") + err.Error()
+			} else {
+				ctx.SetUserValue(key, val)
 			}
-			ctx.SetUserValue(key, val)
 		}
 
 		for key, files := range mf.File {
 			ctx.SetUserValue(key, files)
-		}
-
-		if len(badParams) > 0 {
-			return badParams, ErrWrongParamsList
 		}
 
 	} else {
@@ -168,25 +169,20 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 			args = ctx.QueryArgs()
 		}
 
-		badParams := make([]string, 0)
-
 		args.VisitAll(func(k, v []byte) {
 
 			key := string(k)
 			val, err := route.checkTypeParam(ctx, key, []string{string(v)})
 			if err != nil {
-				badParams = append(badParams, fmt.Sprintf("'%s' wrong type %v (%s)", key, val, err))
+				badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
 			} else {
 				ctx.SetUserValue(key, val)
 			}
 		})
 
-		if len(badParams) > 0 {
-			return badParams, ErrWrongParamsList
-		}
 	}
 
-	if badParams := route.CheckParams(ctx); len(badParams) > 0 {
+	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {
 		return badParams, ErrWrongParamsList
 	}
 
@@ -194,13 +190,13 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 }
 
 // CheckParams check param of request
-func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string) {
+func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for _, param := range route.Params {
 		value := ctx.UserValue(param.Name)
 		if value == nil {
 			// param is part of group required params
 			if param.presentOtherRegParam(ctx) {
-				return
+				return true
 			}
 
 			value = param.defaultValueOfParams(ctx)
@@ -208,15 +204,15 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx) (badParams []string
 			if value != nil {
 				ctx.SetUserValue(param.Name, value)
 			} else if param.Req {
-				badParams = append(badParams, param.Name+": is required parameter")
+				badParams[param.Name] = "is required parameter"
 			}
 		} else if name, val := param.isHasIncompatibleParams(ctx); name > "" {
 			// has present param which not compatible with 'param'
-			badParams = append(badParams, fmt.Sprintf("incompatible params: %s=%s & %s=%s", param.Name, value, name, val))
+			badParams[param.Name] = fmt.Sprintf("incompatible params: %s=%s & %s=%s", param.Name, value, name, val)
 		}
 	}
 
-	return
+	return len(badParams) > 0
 }
 
 func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
