@@ -59,9 +59,9 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		_, err := strconv.ParseFloat(value, 64)
 		return err == nil
 
+	default:
+		return true
 	}
-
-	return true
 }
 
 // CheckType check of value compatibly with the TypeInParam
@@ -89,8 +89,10 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	// 	check type convert float64
 	case types.Float32, types.Float64:
 		return strconv.ParseFloat(value, 64)
+	case types.UnsafePointer:
+		return nil, nil
 	default:
-		return nil, errors.New("convert this type not implement")
+		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
 	}
 }
 
@@ -168,8 +170,10 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(float32)
 		}
 		return arr, nil
+	case types.UnsafePointer:
+		return nil, nil
 	default:
-		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String(), t)
+		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
 	}
 }
 

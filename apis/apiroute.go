@@ -151,7 +151,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 					logs.DebugLog(val)
 				}
 
-				badParams[key] = "has wrong type " + strings.Join(value, ",") + err.Error()
+				badParams[key] = "wrong type " + strings.Join(value, ",") + err.Error()
 			} else {
 				ctx.SetUserValue(key, val)
 			}
