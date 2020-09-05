@@ -1,6 +1,7 @@
 {% import (
 	"regexp"
 	"time"
+	"types"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
