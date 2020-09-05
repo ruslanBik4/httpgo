@@ -6,9 +6,9 @@ package routeTable
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/system/routeTable/table_row.qtpl:1
 import (
+	"go/types"
 	"regexp"
 	"time"
-	"types"
 
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
