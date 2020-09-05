@@ -5,6 +5,9 @@
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	)
 %}
+{%code
+	var regHTML = regexp.MustCompile(`>(\S+)<\/`)
+%}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] interface{}) %}
 <style>
 {%= TableCSS() %}
@@ -21,6 +24,7 @@ function getElementsByText(str, name) {
   var items = document.getElementsByClassName(name);
   var elem = Array.prototype.slice.call(items).filter(el => el.textContent.includes( str.trim() ) );
   if (elem.length > 0) {
+//todo- chg on each
     elem[0].scrollIntoView({block: "center", behavior: "smooth"});
     elem[0].focus();
     elem[0].animate([
@@ -77,7 +81,12 @@ function getElementsByText(str, name) {
                               {%s= val %}
                               {%code
                                 if len(val) > colLen[i] && (column.Name() != "id") {
-                                  colLen[i] = len(val)
+                                  s := regHTML.FindString(val)
+                                  if len(s) > 0 {
+                                    colLen[i] = len(s)
+                                  } else {
+                                    colLen[i] = len(val)
+                                  }
                                 }
                               %}
                             {% case bool %}  {% if val %}X{% endif %}
@@ -127,29 +136,33 @@ function getElementsByText(str, name) {
 <style>
 {% for i, cLen := range colLen %}
   {% code
-    if cLen > 50 {
+    if columns[1].BasicType() == types.UnsafePointer {
+        cLen = 20
+    } else if cLen > 50 {
         cLen = 50
     }
     lSymb := 7
     allWidth += cLen * lSymb
 
   %}
-.table-col-{%d i%}{
-    width: {%d cLen * lSymb %}px;
-    {% if columns[i].Type() == "timestamp" %}
-    word-break: break-all;
-    {% endif %}
-    input {
-        width: 98%;
+    .table-col-{%d i%}{
+        width: {%d cLen * lSymb %}px;
+        {% if columns[i].Type() == "timestamp" %}
+        word-break: break-all;
+        {% else %}
+        word-break: break-word;
+        {% endif %}
+        input {
+            width: 98%;
+        }
     }
-}
-.usr-table-row{
- .table-col-{%d i%}{
-   text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left
-                {% else %} right
-              {% endif %};
-  }
-}
+    .usr-table-row{
+     .table-col-{%d i%}{
+       text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left
+                    {% else %} right
+                  {% endif %};
+      }
+    }
 {% endfor %}
 .table-custom{
     width: {%d allWidth %}px;

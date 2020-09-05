@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tebeka/selenium v0.9.9
 	github.com/valyala/fasthttp v1.12.0
-	github.com/valyala/quicktemplate v1.5.2
+	github.com/valyala/quicktemplate v1.6.0
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	google.golang.org/api v0.20.0
