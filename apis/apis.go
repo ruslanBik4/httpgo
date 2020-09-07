@@ -24,6 +24,7 @@ import (
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
@@ -173,12 +174,7 @@ func WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 		}
 	}()
 
-	enc := jsoniter.NewEncoder(ctx)
-	err = enc.Encode(r)
-	if err != nil {
-		return err
-	}
-
+	json.WriteElement(ctx, r)
 	WriteJSONHeaders(ctx)
 
 	return nil

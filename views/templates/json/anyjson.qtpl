@@ -1,10 +1,15 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
+{% import (
+    "sort"
+    "github.com/json-iterator/go"
+) %}
+
 {% stripspace %}
 {% collapsespace %}
 
-{% func SliceJSON(mapJSON MapMultiDimension) %}
+{% func SliceJSON(mapJSON []map[string]interface{}) %}
 [
 {% for key, arrJSON := range mapJSON %}
     {% if key>0 %}, {% endif %} {%= AnyJSON(arrJSON)%}
@@ -13,10 +18,16 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 
 получаем объект произвольной формы и возвращаем JSON текстом
-{% func AnyJSON(arrJSON MultiDimension) %}
-{ {% code comma := "" %}
-   {% for key, value := range arrJSON %}
-        {%s comma %} "{%s key %}": {%= Element(value)%} {% code comma = "," %}
+{% func AnyJSON(arrJSON map[string]interface{}) %}
+{ {% code
+	sortList := make([]string, 0, len(arrJSON))
+	for name := range arrJSON {
+		sortList = append(sortList, name)
+	}
+	sort.Strings(sortList)
+  %}
+   {% for key, name := range sortList %}
+      {% if key>0 %}, {% endif %} "{%s name %}": {%= Element(arrJSON[name])%}
    {% endfor %}
  }
 {% endfunc %}
@@ -33,24 +44,24 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
       {% case float32 %} {%f float64(vv) %}
       {% case float64 %} {%f vv %}
       {% case nil %}  null
-      {% case stringDimension %}
+      {% case []int32 %}
+            {%= Int32Dimension(vv) %}
+      {% case []int64 %}
+            {%= Int64Dimension(vv) %}
+      {% case []float32 %}
+            {%= Float32Dimension(vv) %}
+      {% case []float64 %}
+            {%= Float64Dimension(vv) %}
+      {% case []string %}
             {%= StringDimension(vv) %}
-      {% case simpleDimension %}
+      {% case []interface{} %}
             {%= SimpleDimension(vv) %}
-      {% case MultiDimension %}
+      {% case map[string]interface{} %}
             {%= AnyJSON(vv) %}
-      {% case MapMultiDimension %}
+      {% case []map[string]interface{} %}
             {%= SliceJSON(vv) %}
       {% default %}
-            {% if vSimple, ok := vv.([]interface{}); ok %}
-                {%= SimpleDimension(vSimple) %}
-            {% elseif arrJSON, ok := vv.(map[string]interface{}); ok %}
-                {%= AnyJSON(arrJSON) %}
-            {% elseif mapArrJSON, ok := vv.([]map[string]interface{}); ok %}
-                {%= SliceJSON(mapArrJSON) %}
-            {% else %}
-                "{%v vv %}"
-            {% endif %}
+                "{%s jsoniter.Wrap(value).ToString() %}"
      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
@@ -61,16 +72,44 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  ]
 {% endfunc %}
 получаем массив объектов произвольной формы и возвращаем JSON текстом
-{% func SimpleDimension(arrJSON simpleDimension ) %}
+{% func SimpleDimension(arrJSON []interface{} ) %}
 [  {% code comma := "" %}
     {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив строк и возвращаем JSON текстом
-{% func StringDimension(arrJSON stringDimension) %}
+{% func StringDimension(arrJSON []string) %}
  [ {% code comma := "" %}
     {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
+    {% endfor %}
+ ]
+{% endfunc %}
+получаем массив int32 и возвращаем JSON текстом
+{% func Int32Dimension(arrJSON []int32) %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
+    {% endfor %}
+ ]
+{% endfunc %}
+получаем массив int64 и возвращаем JSON текстом
+{% func Int64Dimension(arrJSON []int64) %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
+    {% endfor %}
+ ]
+{% endfunc %}
+получаем массив float32 и возвращаем JSON текстом
+{% func Float32Dimension(arrJSON []float32) %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
+    {% endfor %}
+ ]
+{% endfunc %}
+получаем массив float64 и возвращаем JSON текстом
+{% func Float64Dimension(arrJSON []float64) %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
     {% endfor %}
  ]
 {% endfunc %}
