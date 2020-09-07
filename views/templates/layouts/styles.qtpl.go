@@ -6,25 +6,25 @@
 //
 // standart styles .
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:5
+//line views/templates/layouts/styles.qtpl:5
 package layouts
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:5
+//line views/templates/layouts/styles.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:5
+//line views/templates/layouts/styles.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:5
+//line views/templates/layouts/styles.qtpl:5
 func StreamPutStyles(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:5
+//line views/templates/layouts/styles.qtpl:5
 	qw422016.N().S(`
 <style>
 body {
@@ -86,31 +86,31 @@ input[type=file] {
 }
 </style>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	StreamPutStyles(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 func PutStyles() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	WritePutStyles(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:65
 }

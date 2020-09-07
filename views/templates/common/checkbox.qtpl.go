@@ -7,82 +7,82 @@
 // #}
 //
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:7
+//line views/templates/common/checkbox.qtpl:7
 package common
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:7
+//line views/templates/common/checkbox.qtpl:7
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:7
+//line views/templates/common/checkbox.qtpl:7
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:7
+//line views/templates/common/checkbox.qtpl:7
 func StreamRenderCheckbox(qw422016 *qt422016.Writer, attr ...string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:7
+//line views/templates/common/checkbox.qtpl:7
 	qw422016.N().S(`
 
     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:10
+//line views/templates/common/checkbox.qtpl:10
 	dataForm := ""
 	if len(attr) > 1 {
 		dataForm = "${ Variables.paramsFormChildren }=" + attr[1] + "-${ data.idForm } ${ Variables.paramsJSONIdData }=${ data.idForm }"
 	}
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:14
+//line views/templates/common/checkbox.qtpl:14
 	qw422016.N().S(`
 
     <div class="c-app-checkbox">
         <label>
             <input class="c-checkbox" type="checkbox" id="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.E().S(attr[0])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.N().S(`" name="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.E().S(attr[0])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.N().S(`" `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.E().S(dataForm)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:18
+//line views/templates/common/checkbox.qtpl:18
 	qw422016.N().S(` value="1">
             <span data-set-text></span>
         </label>
     </div>
 
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 func WriteRenderCheckbox(qq422016 qtio422016.Writer, attr ...string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	StreamRenderCheckbox(qw422016, attr...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 func RenderCheckbox(attr ...string) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	WriteRenderCheckbox(qb422016, attr...)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/common/checkbox.qtpl:23
+//line views/templates/common/checkbox.qtpl:23
 }

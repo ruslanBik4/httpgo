@@ -6,23 +6,23 @@
 //
 // страница редактирования основных данных.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:5
+//line views/templates/pages/user_profile.qtpl:5
 package pages
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:5
+//line views/templates/pages/user_profile.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:5
+//line views/templates/pages/user_profile.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:6
+//line views/templates/pages/user_profile.qtpl:6
 type ProfilePageBody struct {
 	Name    []byte
 	Pass    []byte
@@ -32,54 +32,54 @@ type ProfilePageBody struct {
 	Title   string
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:15
+//line views/templates/pages/user_profile.qtpl:15
 func (body *ProfilePageBody) StreamProfilePageHTML(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:15
+//line views/templates/pages/user_profile.qtpl:15
 	qw422016.N().S(`
     <div>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:17
+//line views/templates/pages/user_profile.qtpl:17
 	for i := 0; i < len(body.TopMenu); i++ {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:17
+//line views/templates/pages/user_profile.qtpl:17
 		qw422016.N().S(`
             <li>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:18
+//line views/templates/pages/user_profile.qtpl:18
 		qw422016.E().S(body.TopMenu[i])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:18
+//line views/templates/pages/user_profile.qtpl:18
 		qw422016.N().S(`</li>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:19
+//line views/templates/pages/user_profile.qtpl:19
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:19
+//line views/templates/pages/user_profile.qtpl:19
 	qw422016.N().S(`
     
     </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 func (body *ProfilePageBody) WriteProfilePageHTML(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	body.StreamProfilePageHTML(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 func (body *ProfilePageBody) ProfilePageHTML() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	body.WriteProfilePageHTML(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/user_profile.qtpl:22
+//line views/templates/pages/user_profile.qtpl:22
 }

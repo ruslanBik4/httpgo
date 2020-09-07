@@ -11,12 +11,11 @@ import (
 	"io"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 )
@@ -78,13 +77,13 @@ func RenderSignForm(ctx *fasthttp.RequestCtx, email string) {
 // RenderSignUpForm show form registration user
 func RenderSignUpForm(ctx *fasthttp.RequestCtx, placeholder string) {
 
-	RenderAnyPage(ctx, forms.SignUpForm(placeholder))
+	_ = RenderAnyPage(ctx, forms.SignUpForm(placeholder))
 }
 
 // RenderAnotherSignUpForm  - new form for registration
 func RenderAnotherSignUpForm(ctx *fasthttp.RequestCtx, placeholder string) {
 
-	RenderAnyPage(ctx, forms.AnotherSignUpForm(placeholder))
+	_ = RenderAnyPage(ctx, forms.AnotherSignUpForm(placeholder))
 }
 
 // ParamNotCorrect - map bad parameters on this request
@@ -129,23 +128,12 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 
 		p.WriteShowAdminPage(ctx, "")
 	default:
-		ctx.Write([]byte("no rendering with page " + tmplName))
+		_, err := ctx.Write([]byte("no rendering with page " + tmplName))
+		if err != nil {
+			return errors.Wrap(err, tmplName)
+		}
 	}
 	return nil
-}
-
-// RenderAnyForm show form for list fields
-func RenderAnyForm(ctx *fasthttp.RequestCtx, Title string, fields forms.FieldsTable,
-	Inputs map[string][]string, head, foot string) error {
-
-	WriteHeaders(ctx)
-
-	if Inputs != nil {
-		head += layouts.DadataHead()
-		foot += layouts.DadataScript(Inputs)
-	}
-	//TODO: replace on stream buffer function
-	return RenderAnyPage(ctx, head+layouts.PutHeadForm()+fields.ShowAnyForm("/admin/exec/", Title)+layouts.PutEndForm()+foot)
 }
 
 // render JSON from any data type
@@ -159,42 +147,6 @@ func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	for key, value := range jsonHEADERS {
 		ctx.Response.Header.Set(key, value)
 	}
-}
-
-// RenderAnyJSON marshal JSON from arrJSON
-func RenderAnyJSON(w *fasthttp.RequestCtx, arrJSON map[string]interface{}) {
-
-	WriteJSONHeaders(w)
-	json.WriteAnyJSON(w, arrJSON)
-}
-
-// RenderAnySlice marshal JSON from slice
-func RenderAnySlice(w *fasthttp.RequestCtx, arrJSON []interface{}) {
-
-	WriteJSONHeaders(w)
-	json.WriteArrJSON(w, arrJSON)
-}
-
-// RenderStringSliceJSON marshal JSON from slice strings
-func RenderStringSliceJSON(w *fasthttp.RequestCtx, arrJSON []string) {
-
-	WriteJSONHeaders(w)
-	json.WriteStringDimension(w, arrJSON)
-}
-
-// RenderArrayJSON marshal JSON from arrJSON
-func RenderArrayJSON(ctx *fasthttp.RequestCtx, arrJSON []map[string]interface{}) {
-
-	WriteJSONHeaders(ctx)
-	json.WriteSliceJSON(ctx, arrJSON)
-}
-
-// RenderJSONAnyForm render JSON for form by fields map
-func RenderJSONAnyForm(w *fasthttp.RequestCtx, fields qb.QBTable, form *json.FormStructure,
-	AddJson json.MultiDimension) {
-
-	WriteJSONHeaders(w)
-	form.WriteJSONAnyForm(w, fields, AddJson)
 }
 
 // RenderOutput render for output script execute

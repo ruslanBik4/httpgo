@@ -4,30 +4,30 @@
 // All the text outside function templates is treated as comments,
 // i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:3
+//line views/templates/pages/url_test.qtpl:3
 package pages
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:3
+//line views/templates/pages/url_test.qtpl:3
 import (
 	"go/types"
 
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:9
+//line views/templates/pages/url_test.qtpl:9
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:9
+//line views/templates/pages/url_test.qtpl:9
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:10
+//line views/templates/pages/url_test.qtpl:10
 type ParamUrlTestPage struct {
 	Basic   *types.Basic
 	Name    string
@@ -51,140 +51,140 @@ type URLTestPage struct {
 	Resp       string
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:35
+//line views/templates/pages/url_test.qtpl:35
 func (p *ParamUrlTestPage) StreamTypeInput(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:36
+//line views/templates/pages/url_test.qtpl:36
 	switch p.Basic.Info() {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:37
+//line views/templates/pages/url_test.qtpl:37
 	case types.IsInteger, types.IsFloat, types.IsComplex:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:37
+//line views/templates/pages/url_test.qtpl:37
 		qw422016.N().S(`number`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:39
+//line views/templates/pages/url_test.qtpl:39
 	case types.IsString:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:39
+//line views/templates/pages/url_test.qtpl:39
 		qw422016.N().S(`text`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:41
+//line views/templates/pages/url_test.qtpl:41
 	case types.IsBoolean:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:41
+//line views/templates/pages/url_test.qtpl:41
 		qw422016.N().S(`checkbox`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:43
+//line views/templates/pages/url_test.qtpl:43
 	default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:44
+//line views/templates/pages/url_test.qtpl:44
 		qw422016.E().V(p.Basic.Info())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:45
+//line views/templates/pages/url_test.qtpl:45
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 func (p *ParamUrlTestPage) WriteTypeInput(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	p.StreamTypeInput(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 func (p *ParamUrlTestPage) TypeInput() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	p.WriteTypeInput(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:46
+//line views/templates/pages/url_test.qtpl:46
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:48
+//line views/templates/pages/url_test.qtpl:48
 func (u *URLTestPage) StreamURL(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:49
+//line views/templates/pages/url_test.qtpl:49
 	qw422016.E().S(u.Host)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:49
+//line views/templates/pages/url_test.qtpl:49
 	qw422016.E().S(u.Path)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 func (u *URLTestPage) WriteURL(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	u.StreamURL(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 func (u *URLTestPage) URL() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	u.WriteURL(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:50
+//line views/templates/pages/url_test.qtpl:50
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:52
+//line views/templates/pages/url_test.qtpl:52
 func (u *URLTestPage) StreamEncType(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:53
+//line views/templates/pages/url_test.qtpl:53
 	if u.Multipart {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:53
+//line views/templates/pages/url_test.qtpl:53
 		qw422016.N().S(`multipart/form-data`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:55
+//line views/templates/pages/url_test.qtpl:55
 	} else {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:56
+//line views/templates/pages/url_test.qtpl:56
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 func (u *URLTestPage) WriteEncType(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	u.StreamEncType(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 func (u *URLTestPage) EncType() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	u.WriteEncType(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:57
+//line views/templates/pages/url_test.qtpl:57
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:63
+//line views/templates/pages/url_test.qtpl:63
 func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:63
+//line views/templates/pages/url_test.qtpl:63
 	qw422016.N().S(`
 <body>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:65
+//line views/templates/pages/url_test.qtpl:65
 	layouts.StreamPutStyles(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:65
+//line views/templates/pages/url_test.qtpl:65
 	qw422016.N().S(`
 <div class="content-wrap">
 <div id="container-fluid">
@@ -192,73 +192,73 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:72
+//line views/templates/pages/url_test.qtpl:72
 	qw422016.N().S(`<form action="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	u.StreamURL(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	qw422016.N().S(`" method="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	qw422016.E().S(u.Method)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	qw422016.N().S(`" enctype="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	u.StreamEncType(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:73
+//line views/templates/pages/url_test.qtpl:73
 	qw422016.N().S(`" target="_blank">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:74
+//line views/templates/pages/url_test.qtpl:74
 	for _, param := range u.Params {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:74
+//line views/templates/pages/url_test.qtpl:74
 		qw422016.N().S(`<p>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:75
+//line views/templates/pages/url_test.qtpl:75
 		qw422016.E().S(param.Comment)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:75
+//line views/templates/pages/url_test.qtpl:75
 		qw422016.N().S(`</p><input name='`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:76
+//line views/templates/pages/url_test.qtpl:76
 		qw422016.E().S(param.Name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:76
+//line views/templates/pages/url_test.qtpl:76
 		if param.IsSlice {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:76
+//line views/templates/pages/url_test.qtpl:76
 			qw422016.N().S(`[]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:76
+//line views/templates/pages/url_test.qtpl:76
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:76
+//line views/templates/pages/url_test.qtpl:76
 		qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:77
+//line views/templates/pages/url_test.qtpl:77
 		if param.Value != nil {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:77
+//line views/templates/pages/url_test.qtpl:77
 			qw422016.N().S(`value='`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:78
+//line views/templates/pages/url_test.qtpl:78
 			qw422016.E().V(param.Value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:78
+//line views/templates/pages/url_test.qtpl:78
 			qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:79
+//line views/templates/pages/url_test.qtpl:79
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:79
+//line views/templates/pages/url_test.qtpl:79
 		qw422016.N().S(`type='`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:80
+//line views/templates/pages/url_test.qtpl:80
 		param.StreamTypeInput(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:80
+//line views/templates/pages/url_test.qtpl:80
 		qw422016.N().S(`'`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:81
+//line views/templates/pages/url_test.qtpl:81
 		if param.Req {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:81
+//line views/templates/pages/url_test.qtpl:81
 			qw422016.N().S(`required`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:83
+//line views/templates/pages/url_test.qtpl:83
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:83
+//line views/templates/pages/url_test.qtpl:83
 		qw422016.N().S(`/>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:85
+//line views/templates/pages/url_test.qtpl:85
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:85
+//line views/templates/pages/url_test.qtpl:85
 	qw422016.N().S(`<button> Send real URL "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:86
+//line views/templates/pages/url_test.qtpl:86
 	u.StreamURL(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:86
+//line views/templates/pages/url_test.qtpl:86
 	qw422016.N().S(`"</button></form>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:88
+//line views/templates/pages/url_test.qtpl:88
 	qw422016.N().S(` `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:89
+//line views/templates/pages/url_test.qtpl:89
 	qw422016.N().S(`
 
             </div>
@@ -288,36 +288,36 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
 
             if __name__ == '__main__':
                 ta_request("`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:117
+//line views/templates/pages/url_test.qtpl:117
 	u.StreamURL(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:117
+//line views/templates/pages/url_test.qtpl:117
 	qw422016.N().S(`", [
                  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:118
+//line views/templates/pages/url_test.qtpl:118
 	for _, param := range u.Params {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:118
+//line views/templates/pages/url_test.qtpl:118
 		qw422016.N().S(`
                     ('`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.E().S(param.Name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.N().S(`','`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.E().V(param.Value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.N().S(`'), // type: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.E().S(param.Type)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.N().S(`,  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.E().S(param.Comment)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:119
+//line views/templates/pages/url_test.qtpl:119
 		qw422016.N().S(`
                  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:120
+//line views/templates/pages/url_test.qtpl:120
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:120
+//line views/templates/pages/url_test.qtpl:120
 	qw422016.N().S(`
                 ])
                 </pre>
@@ -329,37 +329,37 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
              'POST',
              processData = true,
              "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:130
+//line views/templates/pages/url_test.qtpl:130
 	u.StreamURL(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:130
+//line views/templates/pages/url_test.qtpl:130
 	qw422016.N().S(`",
              {
                    `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:132
+//line views/templates/pages/url_test.qtpl:132
 	for _, param := range u.Params {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:132
+//line views/templates/pages/url_test.qtpl:132
 		qw422016.N().S(`
                       "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.E().S(param.Name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.N().S(`": `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.E().V(param.Value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.N().S(`,// type: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.E().S(param.Type)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.N().S(`,  `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.E().S(param.Comment)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:133
+//line views/templates/pages/url_test.qtpl:133
 		qw422016.N().S(`
                    `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:134
+//line views/templates/pages/url_test.qtpl:134
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:134
+//line views/templates/pages/url_test.qtpl:134
 	qw422016.N().S(`
               },
              beforeSend = null,
@@ -371,22 +371,22 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
            })
            </pre>
            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:144
+//line views/templates/pages/url_test.qtpl:144
 	if u.Resp > "" {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:144
+//line views/templates/pages/url_test.qtpl:144
 		qw422016.N().S(`
             <span>  Response example </span>
           <div>
              `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:147
+//line views/templates/pages/url_test.qtpl:147
 		qw422016.E().S(u.Resp)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:147
+//line views/templates/pages/url_test.qtpl:147
 		qw422016.N().S(`
            </div>
            `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:149
+//line views/templates/pages/url_test.qtpl:149
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:149
+//line views/templates/pages/url_test.qtpl:149
 	qw422016.N().S(`
             </div>
         </div>
@@ -397,31 +397,31 @@ func (u *URLTestPage) StreamShowURlTestPage(qw422016 *qt422016.Writer) {
 
 </body>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 func (u *URLTestPage) WriteShowURlTestPage(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	u.StreamShowURlTestPage(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 func (u *URLTestPage) ShowURlTestPage() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	u.WriteShowURlTestPage(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/pages/url_test.qtpl:158
+//line views/templates/pages/url_test.qtpl:158
 }

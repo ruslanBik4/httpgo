@@ -15,7 +15,7 @@ LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION} -X main.Build=${BUILD} -X mai
 
 # Builds the project
 run:
-	#go generate
+	go generate
 	go run ${LDFLAGS} main.go -debug
 # Builds the project
 build:

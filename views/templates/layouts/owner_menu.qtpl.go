@@ -6,23 +6,23 @@
 //
 // Menu admin paneli owner's.
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:5
+//line views/templates/layouts/owner_menu.qtpl:5
 package layouts
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:5
+//line views/templates/layouts/owner_menu.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:5
+//line views/templates/layouts/owner_menu.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:6
+//line views/templates/layouts/owner_menu.qtpl:6
 type ItemMenu struct {
 	Link string
 }
@@ -31,64 +31,64 @@ type MenuOwnerBody struct {
 	Title   string
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:14
+//line views/templates/layouts/owner_menu.qtpl:14
 func (menu *MenuOwnerBody) StreamMenuOwner(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:14
+//line views/templates/layouts/owner_menu.qtpl:14
 	qw422016.N().S(`
 <h2>`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:15
+//line views/templates/layouts/owner_menu.qtpl:15
 	qw422016.E().S(menu.Title)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:15
+//line views/templates/layouts/owner_menu.qtpl:15
 	qw422016.N().S(`</h2>
 <div id="catalog_pane">
     <ul class="nav">
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:18
+//line views/templates/layouts/owner_menu.qtpl:18
 	for name, item := range menu.TopMenu {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:18
+//line views/templates/layouts/owner_menu.qtpl:18
 		qw422016.N().S(`
             <li><a href="`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:19
+//line views/templates/layouts/owner_menu.qtpl:19
 		qw422016.E().S(item.Link)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:19
+//line views/templates/layouts/owner_menu.qtpl:19
 		qw422016.N().S(`">`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:19
+//line views/templates/layouts/owner_menu.qtpl:19
 		qw422016.E().S(name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:19
+//line views/templates/layouts/owner_menu.qtpl:19
 		qw422016.N().S(`</a></li>
         `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:20
+//line views/templates/layouts/owner_menu.qtpl:20
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:20
+//line views/templates/layouts/owner_menu.qtpl:20
 	qw422016.N().S(`
     </ul>
 </div>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 func (menu *MenuOwnerBody) WriteMenuOwner(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	menu.StreamMenuOwner(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 func (menu *MenuOwnerBody) MenuOwner() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	menu.WriteMenuOwner(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:23
 }

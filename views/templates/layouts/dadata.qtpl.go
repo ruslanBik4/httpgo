@@ -4,122 +4,122 @@
 // Здесь мы подключаем dadata для автоматического распознавания некоторых полей (ФИО, ИНН предприятия etc).
 //
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:3
+//line views/templates/layouts/dadata.qtpl:3
 package layouts
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:3
+//line views/templates/layouts/dadata.qtpl:3
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:3
+//line views/templates/layouts/dadata.qtpl:3
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:3
+//line views/templates/layouts/dadata.qtpl:3
 func StreamDadataHead(qw422016 *qt422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:3
+//line views/templates/layouts/dadata.qtpl:3
 	qw422016.N().S(`
     <head>
         <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
         <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js"></script>
     </head>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 func WriteDadataHead(qq422016 qtio422016.Writer) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	StreamDadataHead(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 func DadataHead() string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	WriteDadataHead(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:8
+//line views/templates/layouts/dadata.qtpl:8
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:11
+//line views/templates/layouts/dadata.qtpl:11
 func StreamDadataScript(qw422016 *qt422016.Writer, Inputs map[string][]string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:11
+//line views/templates/layouts/dadata.qtpl:11
 	qw422016.N().S(`
 <script>
     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:13
+//line views/templates/layouts/dadata.qtpl:13
 	for id, typeS := range Inputs {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:13
+//line views/templates/layouts/dadata.qtpl:13
 		qw422016.N().S(`
         $("#`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:14
+//line views/templates/layouts/dadata.qtpl:14
 		qw422016.N().S(id)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:14
+//line views/templates/layouts/dadata.qtpl:14
 		qw422016.N().S(`").suggestions({
             serviceUrl: "https://suggestions.dadata.ru/suggestions/api/4_1/rs",
             token: "5bad4cdc891635fea16e676d89bea22bb88286a6",
             type: "`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:17
+//line views/templates/layouts/dadata.qtpl:17
 		qw422016.N().S(typeS[0])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:17
+//line views/templates/layouts/dadata.qtpl:17
 		qw422016.N().S(`",
             count: 5,
             /* Вызывается, когда пользователь выбирает одну из подсказок */
             onSelect: `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:20
+//line views/templates/layouts/dadata.qtpl:20
 		qw422016.N().S(typeS[1])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:20
+//line views/templates/layouts/dadata.qtpl:20
 		qw422016.N().S(`,
         });
     `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:22
+//line views/templates/layouts/dadata.qtpl:22
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:22
+//line views/templates/layouts/dadata.qtpl:22
 	qw422016.N().S(`
 </script>
 `)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 func WriteDadataScript(qq422016 qtio422016.Writer, Inputs map[string][]string) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	StreamDadataScript(qw422016, Inputs)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 func DadataScript(Inputs map[string][]string) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	WriteDadataScript(qb422016, Inputs)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/layouts/dadata.qtpl:24
+//line views/templates/layouts/dadata.qtpl:24
 }
