@@ -10,355 +10,312 @@ package json
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:4
 import (
-	"github.com/json-iterator/go"
 	"sort"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:12
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:11
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:12
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:11
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:12
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:11
 func StreamSliceJSON(qw422016 *qt422016.Writer, mapJSON []map[string]interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:12
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:11
 	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:14
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:13
 	for key, arrJSON := range mapJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:14
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:14
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:14
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:14
 		StreamAnyJSON(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:16
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:16
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:15
 	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 func WriteSliceJSON(qq422016 qtio422016.Writer, mapJSON []map[string]interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	StreamSliceJSON(qw422016, mapJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 func SliceJSON(mapJSON []map[string]interface{}) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	WriteSliceJSON(qb422016, mapJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:18
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:17
 }
 
 // получаем объект произвольной формы и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:20
 func StreamAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:21
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:20
 	qw422016.N().S(`{`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:23
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:22
 	sortList := make([]string, 0, len(arrJSON))
 	for name := range arrJSON {
 		sortList = append(sortList, name)
 	}
 	sort.Strings(sortList)
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:28
 	for key, name := range sortList {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		qw422016.E().S(name)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		qw422016.N().S(`":`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:29
 		StreamElement(qw422016, arrJSON[name])
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:31
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:31
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:30
 	qw422016.N().S(`}`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 func WriteAnyJSON(qq422016 qtio422016.Writer, arrJSON map[string]interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 	StreamAnyJSON(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+func AnyJSON(arrJSON map[string]interface{}) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+	WriteAnyJSON(qb422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:32
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
-func AnyJSON(arrJSON map[string]interface{}) string {
+func StreamStringJSON(qw422016 *qt422016.Writer, arrJSON map[string]string) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+	qw422016.N().S(`{`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:35
+	sortList := make([]string, 0, len(arrJSON))
+	for name := range arrJSON {
+		sortList = append(sortList, name)
+	}
+	sort.Strings(sortList)
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:41
+	for key, name := range sortList {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		if key > 0 {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+			qw422016.N().S(`,`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		qw422016.N().S(`"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		qw422016.E().S(name)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		qw422016.N().S(`":`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
+		StreamElement(qw422016, arrJSON[name])
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:43
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:43
+	qw422016.N().S(`}`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+func WriteStringJSON(qq422016 qtio422016.Writer, arrJSON map[string]string) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+	StreamStringJSON(qw422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+func StringJSON(arrJSON map[string]string) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
-	WriteAnyJSON(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
+	WriteStringJSON(qb422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:33
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
 }
 
 // пишем элемент массива в зависемости от типа
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:36
-func StreamElement(qw422016 *qt422016.Writer, value interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:37
-	switch vv := value.(type) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:38
-	case string:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:38
-		qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:38
-		qw422016.E().J(vv)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:38
-		qw422016.N().S(`"`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:39
-	case bool:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:39
-		qw422016.E().V(vv)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:40
-	case int:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:40
-		qw422016.N().D(vv)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:41
-	case uint:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:41
-		qw422016.N().D(int(vv))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
-	case int32:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:42
-		qw422016.N().D(int(vv))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:43
-	case int64:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:43
-		qw422016.N().DL(vv)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:44
-	case float32:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:44
-		qw422016.N().F(float64(vv))
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
-	case float64:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:45
-		qw422016.N().F(vv)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:46
-	case nil:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:46
-		qw422016.N().S(`null`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:47
-	case []int32:
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:48
-		StreamInt32Dimension(qw422016, vv)
+func StreamElement(qw422016 *qt422016.Writer, value interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:49
-	case []int64:
+	switch vv := value.(type) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:50
-		StreamInt64Dimension(qw422016, vv)
+	case string:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:50
+		qw422016.N().S(`"`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:50
+		qw422016.E().J(vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:50
+		qw422016.N().S(`"`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:51
-	case []float32:
+	case bool:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:51
+		qw422016.E().V(vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:52
-		StreamFloat32Dimension(qw422016, vv)
+	case int:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:52
+		qw422016.N().D(vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:53
-	case []float64:
+	case uint:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:53
+		qw422016.N().D(int(vv))
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:54
-		StreamFloat64Dimension(qw422016, vv)
+	case int32:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:54
+		qw422016.N().D(int(vv))
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:55
-	case []string:
+	case int64:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:55
+		qw422016.N().DL(vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:56
-		StreamStringDimension(qw422016, vv)
+	case float32:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:56
+		qw422016.N().F(float64(vv))
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:57
-	case []interface{}:
+	case float64:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:57
+		qw422016.N().F(vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:58
-		StreamSimpleDimension(qw422016, vv)
+	case nil:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:58
+		qw422016.N().S(`null`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:59
-	case map[string]interface{}:
+	case []int32:
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:60
-		StreamAnyJSON(qw422016, vv)
+		StreamInt32Dimension(qw422016, vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:61
-	case []map[string]interface{}:
+	case []int64:
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:62
-		StreamSliceJSON(qw422016, vv)
+		StreamInt64Dimension(qw422016, vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:63
-	default:
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:63
-		qw422016.N().S(`"`)
+	case []float32:
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:64
-		qw422016.E().S(jsoniter.Wrap(value).ToString())
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:64
-		qw422016.N().S(`"`)
+		StreamFloat32Dimension(qw422016, vv)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:65
+	case []float64:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+		StreamFloat64Dimension(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:67
+	case []string:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:68
+		StreamStringDimension(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:69
+	case []interface{}:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:70
+		StreamSimpleDimension(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:71
+	case map[string]string:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:72
+		StreamStringJSON(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
+	case map[string]interface{}:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:74
+		StreamAnyJSON(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:75
+	case []map[string]interface{}:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:76
+		StreamSliceJSON(qw422016, vv)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:77
+	default:
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:78
+		StreamWrap(qw422016, value)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:79
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 func WriteElement(qq422016 qtio422016.Writer, value interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 func Element(value interface{}) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	WriteElement(qb422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:66
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
 }
 
 // получаем массив произвольной формы и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:68
-func StreamArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:68
-	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:69
-	comma := ""
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:70
-	for _, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:70
-		qw422016.E().S(comma)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:70
-		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:70
-		comma = ","
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:71
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:71
-	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-func WriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	StreamArrJSON(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-func ArrJSON(arrJSON []interface{}) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	WriteArrJSON(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:73
-}
-
-// получаем массив объектов произвольной формы и возвращаем JSON текстом
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:75
-func StreamSimpleDimension(qw422016 *qt422016.Writer, arrJSON []interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:75
-	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:76
-	comma := ""
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:77
-	for _, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:77
-		qw422016.E().S(comma)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:77
-		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:77
-		comma = ","
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:78
-	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:78
-	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-func WriteSimpleDimension(qq422016 qtio422016.Writer, arrJSON []interface{}) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	StreamSimpleDimension(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-}
-
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-func SimpleDimension(arrJSON []interface{}) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	WriteSimpleDimension(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:80
-}
-
-// получаем массив строк и возвращаем JSON текстом
-
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:82
-func StreamStringDimension(qw422016 *qt422016.Writer, arrJSON []string) {
+func StreamArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:82
 	qw422016.N().S(`[`)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:83
@@ -381,22 +338,22 @@ func StreamStringDimension(qw422016 *qt422016.Writer, arrJSON []string) {
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
-func WriteStringDimension(qq422016 qtio422016.Writer, arrJSON []string) {
+func WriteArrJSON(qq422016 qtio422016.Writer, arrJSON []interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
-	StreamStringDimension(qw422016, arrJSON)
+	StreamArrJSON(qw422016, arrJSON)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 	qt422016.ReleaseWriter(qw422016)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
-func StringDimension(arrJSON []string) string {
+func ArrJSON(arrJSON []interface{}) string {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 	qb422016 := qt422016.AcquireByteBuffer()
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
-	WriteStringDimension(qb422016, arrJSON)
+	WriteArrJSON(qb422016, arrJSON)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 	qs422016 := string(qb422016.B)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
@@ -404,200 +361,302 @@ func StringDimension(arrJSON []string) string {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
 	return qs422016
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:87
+}
+
+// получаем массив объектов произвольной формы и возвращаем JSON текстом
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:89
+func StreamSimpleDimension(qw422016 *qt422016.Writer, arrJSON []interface{}) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:89
+	qw422016.N().S(`[`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:90
+	comma := ""
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+	for _, value := range arrJSON {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+		qw422016.E().S(comma)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+		StreamElement(qw422016, value)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+		comma = ","
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:92
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:92
+	qw422016.N().S(`]`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+func WriteSimpleDimension(qq422016 qtio422016.Writer, arrJSON []interface{}) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	StreamSimpleDimension(qw422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+func SimpleDimension(arrJSON []interface{}) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	WriteSimpleDimension(qb422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+}
+
+// получаем массив строк и возвращаем JSON текстом
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:96
+func StreamStringDimension(qw422016 *qt422016.Writer, arrJSON []string) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:96
+	qw422016.N().S(`[`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:97
+	comma := ""
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+	for _, value := range arrJSON {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+		qw422016.E().S(comma)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+		StreamElement(qw422016, value)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+		comma = ","
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:99
+	}
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:99
+	qw422016.N().S(`]`)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+func WriteStringDimension(qq422016 qtio422016.Writer, arrJSON []string) {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	StreamStringDimension(qw422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+}
+
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+func StringDimension(arrJSON []string) string {
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	WriteStringDimension(qb422016, arrJSON)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+	return qs422016
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
 }
 
 // получаем массив int32 и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:89
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:103
 func StreamInt32Dimension(qw422016 *qt422016.Writer, arrJSON []int32) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:89
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:103
 	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
 	for key, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:91
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
 		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:92
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:106
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:92
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:106
 	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 func WriteInt32Dimension(qq422016 qtio422016.Writer, arrJSON []int32) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	StreamInt32Dimension(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 func Int32Dimension(arrJSON []int32) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	WriteInt32Dimension(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:94
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
 }
 
 // получаем массив int64 и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:96
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:110
 func StreamInt64Dimension(qw422016 *qt422016.Writer, arrJSON []int64) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:96
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:110
 	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
 	for key, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:98
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
 		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:99
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:113
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:99
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:113
 	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 func WriteInt64Dimension(qq422016 qtio422016.Writer, arrJSON []int64) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	StreamInt64Dimension(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 func Int64Dimension(arrJSON []int64) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	WriteInt64Dimension(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:101
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
 }
 
 // получаем массив float32 и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:103
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:117
 func StreamFloat32Dimension(qw422016 *qt422016.Writer, arrJSON []float32) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:103
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:117
 	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:119
 	for key, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:119
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:119
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:119
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:105
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:119
 		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:106
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:120
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:106
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:120
 	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 func WriteFloat32Dimension(qq422016 qtio422016.Writer, arrJSON []float32) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	StreamFloat32Dimension(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 func Float32Dimension(arrJSON []float32) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	WriteFloat32Dimension(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:108
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:122
 }
 
 // получаем массив float64 и возвращаем JSON текстом
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:110
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:124
 func StreamFloat64Dimension(qw422016 *qt422016.Writer, arrJSON []float64) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:110
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:124
 	qw422016.N().S(`[`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:126
 	for key, value := range arrJSON {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:126
 		if key > 0 {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:126
 			qw422016.N().S(`,`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:126
 		}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:112
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:126
 		StreamElement(qw422016, value)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:113
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:127
 	}
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:113
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:127
 	qw422016.N().S(`]`)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 func WriteFloat64Dimension(qq422016 qtio422016.Writer, arrJSON []float64) {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	StreamFloat64Dimension(qw422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 }
 
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 func Float64Dimension(arrJSON []float64) string {
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	WriteFloat64Dimension(qb422016, arrJSON)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 	return qs422016
-//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:115
+//line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyjson.qtpl:129
 }

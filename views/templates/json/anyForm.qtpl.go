@@ -356,7 +356,7 @@ func CheckFields(fields map[string]*qb.QBField) string {
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:102
-func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, table qb.QBTable, arrJSON MultiDimension) {
+func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, table qb.QBTable, arrJSON map[string]interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:104
 	thisForm.setFormDefaults(table.GetSchema())
 
@@ -424,7 +424,7 @@ func (thisForm *FormStructure) StreamJSONAnyForm(qw422016 *qt422016.Writer, tabl
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125
-func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, table qb.QBTable, arrJSON MultiDimension) {
+func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, table qb.QBTable, arrJSON map[string]interface{}) {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125
@@ -435,7 +435,7 @@ func (thisForm *FormStructure) WriteJSONAnyForm(qq422016 qtio422016.Writer, tabl
 }
 
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125
-func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, arrJSON MultiDimension) string {
+func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, arrJSON map[string]interface{}) string {
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125
 	qb422016 := qt422016.AcquireByteBuffer()
 //line /Users/ruslan/work/src/github.com/ruslanBik4/httpgo/views/templates/json/anyForm.qtpl:125

@@ -99,7 +99,7 @@ dataJson и содержимое AddJson вставляются КАК ЕСТЬ,
 {% endfunc %}
 
 
-{% func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, arrJSON MultiDimension) %}
+{% func (thisForm *FormStructure) JSONAnyForm(table qb.QBTable, arrJSON map[string]interface{}) %}
 {%code
    thisForm.setFormDefaults(table.GetSchema())
 %}

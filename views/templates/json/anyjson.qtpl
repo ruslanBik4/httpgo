@@ -3,7 +3,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 выводим массив массивов (основное назначение для таблиц БД)
 {% import (
     "sort"
-    "github.com/json-iterator/go"
 ) %}
 
 {% stripspace %}
@@ -19,6 +18,19 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 получаем объект произвольной формы и возвращаем JSON текстом
 {% func AnyJSON(arrJSON map[string]interface{}) %}
+{ {% code
+	sortList := make([]string, 0, len(arrJSON))
+	for name := range arrJSON {
+		sortList = append(sortList, name)
+	}
+	sort.Strings(sortList)
+  %}
+   {% for key, name := range sortList %}
+      {% if key>0 %}, {% endif %} "{%s name %}": {%= Element(arrJSON[name])%}
+   {% endfor %}
+ }
+{% endfunc %}
+{% func StringJSON(arrJSON map[string]string) %}
 { {% code
 	sortList := make([]string, 0, len(arrJSON))
 	for name := range arrJSON {
@@ -56,13 +68,15 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             {%= StringDimension(vv) %}
       {% case []interface{} %}
             {%= SimpleDimension(vv) %}
+      {% case map[string]string %}
+            {%= StringJSON(vv) %}
       {% case map[string]interface{} %}
             {%= AnyJSON(vv) %}
       {% case []map[string]interface{} %}
             {%= SliceJSON(vv) %}
       {% default %}
-                "{%s jsoniter.Wrap(value).ToString() %}"
-     {% endswitch %}
+            {%= Wrap(value) %}
+      {% endswitch %}
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
 {% func ArrJSON(arrJSON []interface{} ) %}
@@ -113,6 +127,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     {% endfor %}
  ]
 {% endfunc %}
-{% endstripspace %}
 {% endcollapsespace %}
+{% endstripspace %}
 

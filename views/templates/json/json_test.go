@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWriteAnyJSON(t *testing.T) {
+func TestWriteAnyJSONOld(t *testing.T) {
 	var input = map[string]interface{}{
 		// "one" : StringDimension {"1","2"},
 		"two":  true,
