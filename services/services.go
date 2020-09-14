@@ -6,17 +6,28 @@
 package services
 
 import (
+	"strings"
+
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
-// IService интерфейс сервиса
+// IService root service interface
 type IService interface {
-	Init() error
-	Send(messages ...interface{}) error
-	Get(messages ...interface{}) (response interface{}, err error)
+	Init(ctx context.Context) error
+	Send(ctx context.Context, messages ...interface{}) error
+	Get(ctx context.Context, messages ...interface{}) (response interface{}, err error)
 	Connect(in <-chan interface{}) (out chan interface{}, err error)
 	Close(out chan<- interface{}) error
 	Status() string
+}
+
+// IChildService interface of service with parent dependencies
+type IChildService interface {
+	Dependencies() []IService
+	IsReadyToStart() bool
 }
 
 type rootServices struct {
@@ -26,9 +37,19 @@ type rootServices struct {
 var sServices = &rootServices{services: make(map[string]IService, 0)}
 
 // InitServices started all services from sServices.services in some goroutins
-func InitServices() *rootServices {
-	for name, service := range sServices.services {
-		go startService(name, service)
+func InitServices(ctx context.Context, list ...string) *rootServices {
+	if len(list) > 0 {
+		for _, name := range list {
+			if service, ok := sServices.services[name]; ok {
+				go startService(ctx, name, service)
+			} else {
+				logs.ErrorLog(ErrServiceNotFound{Name: name})
+			}
+		}
+	} else {
+		for name, service := range sServices.services {
+			go startService(ctx, name, service)
+		}
 	}
 
 	return sServices
@@ -42,15 +63,22 @@ func getService(name string) (pServ IService) {
 	}
 	return pServ
 }
-func startService(name string, pService IService) {
+
+func startService(ctx context.Context, name string, pService IService) {
 
 	defer catch(name)
-	if err := pService.Init(); err != nil {
+	if iChild, ok := pService.(IChildService); ok && !iChild.IsReadyToStart() {
+		logs.ErrorLog(errors.New("not ready parent services"), iChild)
+	} else if pService.Status() == "" {
+		logs.DebugLog("attempt to restart the service %s", name)
+	} else if err := pService.Init(ctx); err != nil {
 		logs.ErrorLog(err, name)
+		logs.StatusLog("[[%s]]; not starting, Status - %s", name, pService.Status())
 	} else {
-		logs.StatusLog(name + " starting, Status - " + pService.Status())
+		logs.StatusLog("[[%s]]; starting, Status - %s", name, pService.Status())
 	}
 }
+
 func catch(name string) {
 	result := recover()
 
@@ -69,7 +97,7 @@ func AddService(name string, pService IService) {
 }
 
 // Send messages to service {name}
-func Send(name string, messages ...interface{}) (err error) {
+func Send(ctx context.Context, name string, messages ...interface{}) (err error) {
 
 	pService := getService(name)
 	if pService == nil {
@@ -80,18 +108,24 @@ func Send(name string, messages ...interface{}) (err error) {
 		return &ErrServiceNotReady{Name: name}
 	}
 
-	return pService.Send(messages...)
+	for pService.Status() == "starting" {
+		if status := pService.Status(); strings.HasPrefix(status, "failed") {
+			return &ErrServiceNotReady{Name: name, Status: status}
+		}
+	}
+
+	return pService.Send(ctx, messages...)
 }
 
 // Get messages to service {name} & return result
-func Get(name string, messages ...interface{}) (response interface{}, err error) {
+func Get(ctx context.Context, name string, messages ...interface{}) (response interface{}, err error) {
 
 	pService := getService(name)
 	if pService == nil {
 		return nil, &ErrServiceNotFound{Name: name}
 	}
 
-	return pService.Get(messages...)
+	return pService.Get(ctx, messages...)
 }
 
 // Connect to service {name} from channel in & return channel service

@@ -19,7 +19,8 @@ const messServNotReady = " service not ready to operation"
 
 // ErrServiceNotReady for errors if service not ready
 type ErrServiceNotReady struct {
-	Name string
+	Name   string
+	Status string
 }
 
 func (err ErrServiceNotReady) Error() string {
