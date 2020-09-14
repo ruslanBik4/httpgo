@@ -6,7 +6,7 @@
 package httpGo
 
 // httpgo version
-const httpgoVersion = "1.0.1"
+const httpgoVersion = "1.1.1"
 
 // congig params in restMux
 const (

@@ -9,6 +9,8 @@ import (
 	"encoding/base64"
 	"hash/crc32"
 
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
@@ -17,11 +19,11 @@ type cryptoService struct {
 	status string
 }
 
-func (c cryptoService) Init() error {
+func (c cryptoService) Init(ctx context.Context) error {
 	return nil
 }
 
-func (c cryptoService) Send(messages ...interface{}) error {
+func (c cryptoService) Send(ctx context.Context, messages ...interface{}) error {
 	switch messages[0] {
 	case "password":
 		return nil
@@ -30,7 +32,7 @@ func (c cryptoService) Send(messages ...interface{}) error {
 	}
 }
 
-func (c cryptoService) Get(messages ...interface{}) (response interface{}, err error) {
+func (c cryptoService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
 	switch messages[0] {
 	case "password":
 		return GeneratePassword(messages[1].(string))

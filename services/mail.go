@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/net/context"
 	"gopkg.in/gomail.v2"
 	"gopkg.in/yaml.v2"
 
@@ -74,12 +75,12 @@ func ExamlpeSendEmail() {
 		Subject:     "massage subject text",
 		ContentType: TYPE_PLAIN_TEXT, // TYPE_PLAIN_TEXT || TYPE_HTML
 	}
-	if err := Send("mail", mail); err != nil {
+	if err := Send(context.TODO(), "mail", mail); err != nil {
 		logs.ErrorLog(err, mail)
 	}
 }
 
-func (mailServ *mailService) Init() error {
+func (mailServ *mailService) Init(ctx context.Context) error {
 
 	mailServ.status = STATUS_PREPARING
 	f, err := os.Open(filepath.Join(mailServ.getStaticFilePath(), "config/mail.yml"))
@@ -92,6 +93,7 @@ func (mailServ *mailService) Init() error {
 	if n, err := f.Read(b); err != nil {
 		mailServ.status = STATUS_ERROR
 		logs.ErrorLog(err, "n=", n)
+
 		return err
 	}
 	if err := yaml.Unmarshal(b, &mailServ.mConfig); err != nil {
@@ -99,10 +101,11 @@ func (mailServ *mailService) Init() error {
 		return err
 	}
 	mailServ.status = STATUS_READY
+
 	return nil
 }
 
-func (mailServ *mailService) Send(messages ...interface{}) error {
+func (mailServ *mailService) Send(ctx context.Context, messages ...interface{}) error {
 
 	currentMail, err := mailServ.getMailStruct(messages...)
 	if err != nil {
@@ -138,7 +141,7 @@ func (mailServ *mailService) SendMail(mail *Mail) error {
 	return nil
 }
 
-func (mailServ *mailService) Get(messages ...interface{}) (response interface{}, err error) {
+func (mailServ *mailService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
 	return nil, nil
 
 }

@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/cache"
 	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
@@ -72,7 +74,7 @@ func (lRows *listRows) addRows() error {
 
 	return nil
 }
-func (DBlists *dbListsService) Init() error {
+func (DBlists *dbListsService) Init(ctx context.Context) error {
 	DBlists.status = "starting"
 
 	for Status("schema") != "ready" {
@@ -94,11 +96,11 @@ func (DBlists *dbListsService) Init() error {
 
 	return nil
 }
-func (DBlists *dbListsService) Send(messages ...interface{}) error {
+func (DBlists *dbListsService) Send(ctx context.Context, messages ...interface{}) error {
 	return nil
 
 }
-func (DBlists *dbListsService) Get(messages ...interface{}) (response interface{}, err error) {
+func (DBlists *dbListsService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
 
 	oper, ok := messages[0].(string)
 	if !ok {
