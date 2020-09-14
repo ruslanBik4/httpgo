@@ -21,7 +21,6 @@ import (
 
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/system"
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
 )
 
@@ -143,7 +142,15 @@ func CheckUserCredentials(login string, password string) (row UserRecord, err er
 		return
 	}
 
-	err = &system.ErrNotLogin{Message: "Wrong email or password"}
+	err = &ErrNotLogin{Message: "Wrong email or password"}
 
 	return
+}
+
+type ErrNotLogin struct {
+	Message string
+}
+
+func (err ErrNotLogin) Error() string {
+	return err.Message
 }
