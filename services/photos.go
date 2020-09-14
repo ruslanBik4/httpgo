@@ -11,6 +11,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
 )
@@ -25,7 +27,7 @@ var (
 	photos *photosService = &photosService{name: "photos"}
 )
 
-func (photos *photosService) Init() error {
+func (photos *photosService) Init(ctx context.Context) error {
 	photos.status = "starting"
 
 	ServerConfig := server.GetServerConfig()
@@ -41,7 +43,7 @@ func (photos *photosService) Init() error {
 // 1 - имя раздела(например, таблицы, view или сервиса)
 // 2 - id записи
 // 3 - io.Reader
-func (photos *photosService) Send(args ...interface{}) error {
+func (photos *photosService) Send(ctx context.Context, args ...interface{}) error {
 
 	var catalog, id, filename string
 
@@ -80,7 +82,7 @@ func (photos *photosService) Send(args ...interface{}) error {
 //2 - id записи
 //3 - порядковый номер файла файла
 // (-1 означает, что нужно вернуть массив со списком файлов)
-func (photos *photosService) Get(args ...interface{}) (response interface{}, err error) {
+func (photos *photosService) Get(ctx context.Context, args ...interface{}) (response interface{}, err error) {
 
 	var catalog, id string
 	var num int

@@ -8,6 +8,8 @@ import (
 	"log"
 	"testing"
 
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/logs"
 )
 
@@ -16,7 +18,7 @@ const serviceName = "photos"
 func TestPhotosSend(t *testing.T) {
 
 	var result interface{}
-	result = Send(serviceName, "open", 3)
+	result = Send(context.TODO(), serviceName, "open", 3)
 	if result == nil {
 		t.Error("Not error by operation with error name")
 	}
@@ -35,7 +37,7 @@ func TestPhotosSend(t *testing.T) {
 func TestPhotosGetList(t *testing.T) {
 
 	//var iErr interface{}
-	result, iErr := Get(serviceName, "rooms", "1", 1)
+	result, iErr := Get(context.TODO(), serviceName, "rooms", "1", 1)
 
 	switch err := iErr.(type) {
 

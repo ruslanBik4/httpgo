@@ -5,6 +5,8 @@
 package services
 
 import (
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/models/db"
 	DBschema "github.com/ruslanBik4/httpgo/models/db/schema"
 )
@@ -18,7 +20,7 @@ var (
 	schema *schemaService = &schemaService{name: "schema", status: "create"}
 )
 
-func (schema *schemaService) Init() error {
+func (schema *schemaService) Init(ctx context.Context) error {
 
 	schema.status = "starting"
 	db.InitSchema()
@@ -26,11 +28,11 @@ func (schema *schemaService) Init() error {
 
 	return nil
 }
-func (schema *schemaService) Send(messages ...interface{}) error {
+func (schema *schemaService) Send(ctx context.Context, messages ...interface{}) error {
 	return nil
 
 }
-func (schema *schemaService) Get(messages ...interface{}) (response interface{}, err error) {
+func (schema *schemaService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
 
 	if tableName, ok := messages[0].(string); ok {
 		return DBschema.GetFieldsTable(tableName), nil

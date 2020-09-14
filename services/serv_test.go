@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 )
 
 func TestConnect(t *testing.T) {
@@ -52,7 +53,7 @@ func TestConnect(t *testing.T) {
 }
 func TestSend(t *testing.T) {
 	nameServ := "permission"
-	err := Send(nameServ, "open")
+	err := Send(context.TODO(), nameServ, "open")
 	if err != nil {
 		t.Error(err)
 	}
@@ -62,7 +63,7 @@ func TestGet(t *testing.T) {
 	nameServ := "permission"
 	messages := make(map[string]string, 0)
 	messages["system"] = "10"
-	response, err := Get(nameServ, messages, "stress")
+	response, err := Get(context.TODO(), nameServ, messages, "stress")
 	if err != nil {
 		t.Error(err)
 	} else if response == nil {
@@ -132,7 +133,7 @@ func TestModSendInsert(t *testing.T) {
 			t.Error(err)
 		}
 	}()
-	err := Send("moderation", config, a)
+	err := Send(context.TODO(), "moderation", config, a)
 	if err != nil {
 		t.Error(err)
 	}
@@ -150,7 +151,7 @@ func TestModSendDelete(t *testing.T) {
 
 	result = append(result, config)
 
-	Send("moderation", result)
+	Send(context.TODO(), "moderation", result)
 	t.Skipped()
 }
 
@@ -159,7 +160,7 @@ func TestModGet(t *testing.T) {
 	config["table"] = "test2"
 	config["key"] = "72"
 
-	response, err := Get("moderation", config)
+	response, err := Get(context.TODO(), "moderation", config)
 
 	if err != nil {
 		t.Error(err)

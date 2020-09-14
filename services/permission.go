@@ -7,6 +7,8 @@ package services
 import (
 	"log"
 
+	"golang.org/x/net/context"
+
 	"github.com/ruslanBik4/httpgo/models/db"
 )
 
@@ -26,7 +28,7 @@ type pService struct {
 var permissions *pService = &pService{name: "permission"}
 
 //реализация обязательных методов интерейса
-func (permissions *pService) Init() error {
+func (permissions *pService) Init(ctx context.Context) error {
 
 	permissions.Rows = make(map[string]rowsRoles, 0)
 	rows, err := db.DoSelect("SELECT p.id_users, g.title FROM permissions p JOIN permission_group_list g ON p.id_permission_group_list = g.id")
@@ -49,7 +51,7 @@ func (permissions *pService) Init() error {
 	permissions.status = "ready"
 	return nil
 }
-func (permissions *pService) Send(messages ...interface{}) error {
+func (permissions *pService) Send(ctx context.Context, messages ...interface{}) error {
 
 	for _, message := range messages {
 		switch mess := message.(type) {
@@ -63,7 +65,7 @@ func (permissions *pService) Send(messages ...interface{}) error {
 	return nil
 
 }
-func (permissions *pService) Get(messages ...interface{}) (interface{}, error) {
+func (permissions *pService) Get(ctx context.Context, messages ...interface{}) (interface{}, error) {
 
 	response := make(map[string]bool)
 	for _, message := range messages {
