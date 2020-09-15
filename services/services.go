@@ -69,7 +69,7 @@ func startService(ctx context.Context, name string, pService IService) {
 	defer catch(name)
 	if iChild, ok := pService.(IChildService); ok && !iChild.IsReadyToStart() {
 		logs.ErrorLog(errors.New("not ready parent services"), iChild)
-	} else if pService.Status() == "" {
+	} else if pService.Status() == STATUS_READY || pService.Status() == STATUS_PREPARING {
 		logs.DebugLog("attempt to restart the service %s", name)
 	} else if err := pService.Init(ctx); err != nil {
 		logs.ErrorLog(err, name)

@@ -53,7 +53,7 @@ func (c cryptoService) Status() string {
 	return c.status
 }
 
-var cryptoServ = cryptoService{"crypto", "ready"}
+var cryptoServ = cryptoService{"crypto", STATUS_READY}
 
 // GeneratePassword run password by email
 func GeneratePassword(email string) (string, error) {
@@ -92,4 +92,8 @@ func HashPassword(password []byte) uint32 {
 	// crypto password
 	crc32q := crc32.MakeTable(0xD5828281)
 	return crc32.Checksum(password, crc32q)
+}
+
+func init() {
+	AddService(cryptoServ.name, cryptoServ)
 }

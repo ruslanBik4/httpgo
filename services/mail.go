@@ -6,11 +6,12 @@
 package services
 
 import (
-	"errors"
+	"io/ioutil"
 	netMail "net/mail"
 	"os"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"gopkg.in/gomail.v2"
 	"gopkg.in/yaml.v2"
@@ -46,24 +47,11 @@ var (
 // PATH_FLAG - сиситемая константа - флаг пути к файлам конфигурации.
 const PATH_FLAG = "-path"
 
-// STATUS_PREPARING - стстус Сервиса - "Подготовка сервиса"
-const STATUS_PREPARING = "preparing data"
-
-// STATUS_ERROR - стстус Сервиса - "Ошибка"
-const STATUS_ERROR = "error"
-
-// STATUS_READY - стстус Сервиса - "Готово"
-const STATUS_READY = "ready"
-
 // TYPE_PLAIN_TEXT - тип отправляемого сообщения - "Текст"
 const TYPE_PLAIN_TEXT = "text/plain"
 
 // TYPE_HTML - тип отправляемого сообщения - "HTML"
 const TYPE_HTML = "text/html"
-
-func init() {
-	AddService(mailServ.name, mailServ)
-}
 
 // ExamlpeSendEmail - пример отправки сообщения
 func ExamlpeSendEmail() {
@@ -83,23 +71,19 @@ func ExamlpeSendEmail() {
 func (mailServ *mailService) Init(ctx context.Context) error {
 
 	mailServ.status = STATUS_PREPARING
-	f, err := os.Open(filepath.Join(mailServ.getStaticFilePath(), "config/mail.yml"))
+	fileName := filepath.Join(mailServ.getStaticFilePath(), "config/mail.yml")
+	b, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		mailServ.status = STATUS_ERROR
-		return err
-	}
-	fileInfo, _ := f.Stat()
-	b := make([]byte, fileInfo.Size())
-	if n, err := f.Read(b); err != nil {
-		mailServ.status = STATUS_ERROR
-		logs.ErrorLog(err, "n=", n)
 
-		return err
+		return errors.Wrap(err, "open file "+fileName)
 	}
+
 	if err := yaml.Unmarshal(b, &mailServ.mConfig); err != nil {
 		mailServ.status = STATUS_ERROR
-		return err
+		return errors.Wrap(err, "Unmarshal "+string(b))
 	}
+
 	mailServ.status = STATUS_READY
 
 	return nil
@@ -221,4 +205,8 @@ func VerifyMail(email, password string) {
 		logs.DebugLog("Что-то неверное с вашей почтой, не смогу отослать письмо! %v", err)
 		return
 	}
+}
+
+func init() {
+	AddService(mailServ.name, mailServ)
 }
