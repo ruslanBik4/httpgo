@@ -252,6 +252,6 @@ type BlockColumns struct {
 	Buttons            []Button
 	Columns            []*ColumnDecor
 	Id                 int
-	Multype            bool
+	Multiple           bool
 	Title, Description string
 }

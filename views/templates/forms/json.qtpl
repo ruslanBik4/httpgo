@@ -52,7 +52,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         "required": {%v col.Required() %},
                          {% if col.patternDesc > "" %}
                          "error": {
-                            "pattern": "{%s col.patternDesc %}"
+                            "pattern": "{%s col.patternDesc %}",
+                            "message": "{%s col.patternDesc %}"
                          },
                          {% endif %}
                          {% if col.IsSlice %}
@@ -132,11 +133,13 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
         {% for _, title := range sortList %}
          {
                     "title": "{%s title %}",
+                    "label": "{%s title %}",
                     "value": "{%s col.SelectOptions[title] %}"
          },
         {% endfor %}
                   {
                     "title": "add new item",
+                    "label": "add new item",
                     "value": "new"
                   }
         ]
@@ -222,7 +225,7 @@ name="{%s col.InputName(i) %}"
                    </div>
                 {% endfor %}
         </div>
-  {% if block.Multype %}
+  {% if block.Multiple %}
          <button class="main-btn" type="button"
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
 
