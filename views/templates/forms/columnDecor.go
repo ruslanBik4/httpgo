@@ -40,7 +40,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	comment := colDec.Comment()
 	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
 		colDec.getPattern(m[0][1])
-		colDec.Label = regPattern.ReplaceAllString(comment, colDec.patternDesc)
+		colDec.Label = regPattern.ReplaceAllString(comment, "("+colDec.patternDesc+")")
 	} else if column.Comment() > "" {
 		colDec.Label = column.Comment()
 	} else {
