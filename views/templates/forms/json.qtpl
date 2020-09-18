@@ -51,11 +51,16 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         "name": "{%s col.InputName(-1) %}",
                         "required": {%v col.Required() %},
                          {% if col.patternDesc > "" %}
-                         "error": {
-                            "pattern": "{%s col.patternDesc %}",
-                            "message": "{%s col.patternDesc %}"
-                         },
+                             "error": {
+                                "pattern": "{%s col.patternDesc %}",
+                                "message": "{%s col.patternDesc %}"
+                             },
                          {% endif %}
+
+                        {% if p := col.Pattern(); p > "" %}
+                          "pattern":"{%j p %}",
+                        {% endif %}
+
                          {% if col.IsSlice %}
                             "type": "array",
                             "typeField": "{%= col.InputTypeForJSON()%}",
@@ -86,10 +91,6 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {% endif %}
                         {%= col.DataForJSON()%}
                        , "title": "{%s col.Label %}"
-
-                        {% if p := col.Pattern(); p > "" %}
-                        , "pattern":"{%j p %}"
-                        {% endif %}
 
                         {% if col.IsReadOnly %}
                          , "readonly": true

@@ -52,6 +52,26 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	return colDec
 }
 
+func (col *ColumnDecor) Copy() *ColumnDecor {
+	return &ColumnDecor{
+		Column:        col.Column,
+		IsReadOnly:    col.IsReadOnly,
+		IsSlice:       col.IsSlice,
+		InputType:     col.InputType,
+		SelectOptions: col.SelectOptions,
+		PatternList:   col.PatternList,
+		PatternName:   col.PatternName,
+		PlaceHolder:   col.PlaceHolder,
+		Label:         col.Label,
+		IsHidden:      col.IsHidden,
+		LinkNew:       col.LinkNew,
+		pattern:       col.pattern,
+		patternDesc:   col.patternDesc,
+		// todo must decide later
+		// Value:         col.Value,
+	}
+
+}
 func (col *ColumnDecor) Placeholder() string {
 	if col.PlaceHolder > "" {
 		return col.PlaceHolder
@@ -107,11 +127,9 @@ func (col *ColumnDecor) GetFields(columns []dbEngine.Column) []interface{} {
 var regName = regexp.MustCompile(`\w+`)
 
 func (col *ColumnDecor) getPattern(name string) {
-	if col.PatternList != nil && !regName.MatchString(name) {
+	if col.PatternList != nil && regName.MatchString(name) {
 		err := col.PatternList.SelectAndScanEach(context.Background(),
-			func() error {
-				return nil
-			},
+			nil,
 			col,
 			dbEngine.ColumnsForSelect("pattern", "description"),
 			dbEngine.WhereForSelect("name"),
