@@ -3,6 +3,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
 	"sort"
+	"strings"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 %}
@@ -211,8 +212,12 @@ name="{%s col.InputName(i) %}"
 {% endfunc %}
 
 {% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
-<form id="{%s f.Title %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
+{% code
+  idShake := strings.Replace(f.Title, " ", "_", -1)
+%}
+<form id="{%s idShake %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
+         oninput="document.querySelector('#{%s idShake %}form button.hidden').className = 'main-btn'"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
         {% for _, block := range blocks %}
         <div>
@@ -234,7 +239,7 @@ name="{%s col.InputName(i) %}"
        {% endfor %}
 
     <div class="form-actions">
-        <button class="main-btn" type="submit">Сохранить</button>
+        <button class="hidden" type="submit">Сохранить</button>
     </div>
 </form>
 <script>
