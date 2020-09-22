@@ -68,6 +68,10 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx) interface{}
 		fnc := runtime.FuncForPC(reflect.ValueOf(def).Pointer())
 		fName, line := fnc.FileLine(0)
 		return fmt.Sprintf("%s:%d %s()", fName, line, getLastSegment(fnc.Name()))
+
+	case ApisValues:
+		return ctx.UserValue(string(def))
+
 	default:
 		return param.DefValue
 	}

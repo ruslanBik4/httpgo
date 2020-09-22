@@ -15,6 +15,8 @@ import (
 	"github.com/ruslanBik4/httpgo/typesExt"
 )
 
+type ApisValues string
+
 // APIRouteParamsType encapsulates types operation for apis parameters
 type APIRouteParamsType interface {
 	fmt.Stringer
