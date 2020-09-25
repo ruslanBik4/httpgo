@@ -263,12 +263,15 @@ github.com/ruslanBik4/dbEngine v1.0.1078-0.20200924180545-8502a77c4179 h1:OX874Q
 github.com/ruslanBik4/dbEngine v1.0.1078-0.20200924180545-8502a77c4179/go.mod h1:doFE4n6/uPLBjQMZ+OnaxQpN8bhqthvG156Qq8uTb7E=
 github.com/ruslanBik4/dbEngine v1.0.1079 h1:yNmR+1RqnL2EAiSoVxKJdtV4YLyTDPnuiF6XgDQWy+g=
 github.com/ruslanBik4/dbEngine v1.0.1079/go.mod h1:skGPtYtaHBhl/hiJniHbw6wfY6N7M/RX4W3GLZp/i2s=
+github.com/ruslanBik4/dbEngine v1.0.1083 h1:FSbz4ZmhqZKNM2ZjT84FLd17MEAUO0sxOu52vgkuc6s=
+github.com/ruslanBik4/dbEngine v1.0.1083/go.mod h1:U0iKxFRJcoYU2yl2B4d2Dznp2Hx60GnNymvCGj6QUQA=
 github.com/ruslanBik4/httpgo v1.0.327/go.mod h1:jIw7XOiilLT6+ONWS4VbiLxbHRgrnDeH4cGz5Q1HTeg=
 github.com/ruslanBik4/httpgo v1.1.1-0.20200721123853-3780ca09b771/go.mod h1:1KkihuFv8jKwDo4jeJxzdAGvnNRvhsd5GSW6eoTQejY=
 github.com/ruslanBik4/httpgo v1.1.1-0.20200907111033-82c9bbf0e6e2/go.mod h1:geevLn2egiGoMiT2txfY5kjOU8JoH20WtJ3cHpAZqj4=
 github.com/ruslanBik4/httpgo v1.1.1-0.20200914100607-7a21da18e671/go.mod h1:5F+qfzYQZkP2ThwClcHwBokM0khlHNFbRV9GZAuN1+I=
 github.com/ruslanBik4/httpgo v1.1.10007/go.mod h1:GkEVMa12nSqKRE9dWKpALhHaixV2GblbaY9gx2dUvOw=
 github.com/ruslanBik4/httpgo v1.1.10008/go.mod h1:zijnqTAjRWbrnT/yTEqARFNWrVpghQ6ZMFwXefAPzog=
+github.com/ruslanBik4/httpgo v1.1.10009/go.mod h1:4EOTLFykzSPOMH4Bg6ChAZn4DVudQlG+F+e+8kUe3Fo=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/ryanuber/columnize v2.1.0+incompatible/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=

@@ -11,7 +11,7 @@ require (
 	github.com/json-iterator/go v1.1.9
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.0.1082
+	github.com/ruslanBik4/dbEngine v1.0.1083
 	github.com/stretchr/testify v1.6.1
 	github.com/tebeka/selenium v0.9.9
 	github.com/valyala/fasthttp v1.12.0
@@ -24,4 +24,4 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 )
 
-//replace bitbucket.org/PinIdea/fcgi_client => ./models/fcgi_client
+replace bitbucket.org/PinIdea/fcgi_client => ./models/fcgi_client
