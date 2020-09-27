@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/logs"
 )
 
 func GetReplaces(person map[string]*sql.NullString, signSerf string) (replaces map[string]string) {

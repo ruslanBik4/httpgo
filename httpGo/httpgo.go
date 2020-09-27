@@ -17,7 +17,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 // HttpGo implement rest api http/https server for operation with storage

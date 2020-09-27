@@ -13,8 +13,8 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/logs"
 )
 
 type photosService struct {

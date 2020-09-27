@@ -13,8 +13,8 @@ import (
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/logs"
 )
 
 type ColumnDecor struct {

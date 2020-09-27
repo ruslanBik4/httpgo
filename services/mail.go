@@ -16,7 +16,7 @@ import (
 	"gopkg.in/gomail.v2"
 	"gopkg.in/yaml.v2"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 type mailService struct {

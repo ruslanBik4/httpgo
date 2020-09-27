@@ -19,7 +19,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 // TxConnect - тип данных, что хранит транзакцию

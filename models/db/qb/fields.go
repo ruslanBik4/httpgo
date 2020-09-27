@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
+	"github.com/ruslanBik4/logs"
 )
 
 // String for compatabilies interface LogsType

@@ -7,8 +7,8 @@ package httpGo
 import (
 	"fmt"
 	"net"
-	
-	"github.com/ruslanBik4/httpgo/logs"
+
+	"github.com/ruslanBik4/logs"
 )
 
 type blockListener struct {
@@ -27,18 +27,17 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		addr := c.RemoteAddr().String()
 		//todo: add chk deny later
 		if m.isAllowIP(addr) {
 			return c, nil
 		}
-		
+
 		logs.ErrorLog(fmt.Errorf("Deny connect from addr %s", addr))
 		c.Close()
 
 	}
-	
-	
+
 	return nil, nil
 }

@@ -17,8 +17,8 @@ import (
 
 	"github.com/tebeka/selenium"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	wd "github.com/ruslanBik4/httpgo/tools/selenius"
+	"github.com/ruslanBik4/logs"
 )
 
 type tCommand struct {

@@ -17,10 +17,10 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/ruslanBik4/logs"
 )
 
 // BuildRouteOptions implement 'Functional Option' pattern for ApiRoute settings

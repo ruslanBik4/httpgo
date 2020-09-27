@@ -16,11 +16,11 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
+	"github.com/ruslanBik4/logs"
 )
 
 func ViewRoute(preRoute string, table dbEngine.Table, DB *dbEngine.DB) *apis.ApiRoute {

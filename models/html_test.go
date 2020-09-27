@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 func TestGetTags(t *testing.T) {

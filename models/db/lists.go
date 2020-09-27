@@ -5,8 +5,8 @@
 package db
 
 import (
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/logs"
 )
 
 // InitLists - инициализация получения информации по справочникам

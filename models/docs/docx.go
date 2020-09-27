@@ -11,7 +11,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 // Docx struct that contains data from a docs

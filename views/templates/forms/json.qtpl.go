@@ -552,7 +552,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
 //line views/templates/forms/json.qtpl:191
 				qw422016.N().S(` pattern="`)
 //line views/templates/forms/json.qtpl:191
-				qw422016.E().S(col.Pattern())
+				qw422016.N().S(col.Pattern())
 //line views/templates/forms/json.qtpl:191
 				qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
 //line views/templates/forms/json.qtpl:191

@@ -6,7 +6,7 @@ package models
 
 import (
 	"regexp"
-	// "github.com/ruslanBik4/httpgo/logs"
+	// "github.com/ruslanBik4/logs"
 )
 
 const regHTMLArticle = `\<meta\s+property\="og:title"\s+content\="([^"]+)"\/\>[\s\w\S]+\<article\>(?:[\s\w\S]+\<time\s+datetime\="[\d-T:+\s]+"\>([\d\w\s,:]+)\<\/time\>)?([\s\S]+)\<\/article\>`

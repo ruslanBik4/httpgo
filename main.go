@@ -28,7 +28,6 @@ import (
 
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/httpGo"
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
@@ -38,6 +37,7 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/httpgo/views/templates/tables"
+	"github.com/ruslanBik4/logs"
 )
 
 //go:generate qtc -dir=views/templates

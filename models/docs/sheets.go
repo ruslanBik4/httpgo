@@ -20,8 +20,8 @@ import (
 	"golang.org/x/oauth2/google"
 	sheets "google.golang.org/api/sheets/v4"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/logs"
 )
 
 const ClientID = "165049723351-mgcbnem17vt14plfhtbfdcerc1ona2p7.apps.googleusercontent.com"

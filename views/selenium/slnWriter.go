@@ -15,7 +15,7 @@ import (
 
 	"github.com/tebeka/selenium"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 type currentElem struct {

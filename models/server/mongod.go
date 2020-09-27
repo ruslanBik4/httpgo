@@ -11,7 +11,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/ruslanBik4/httpgo/logs"
+	"github.com/ruslanBik4/logs"
 )
 
 type mongodConfig struct {

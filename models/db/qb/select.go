@@ -8,8 +8,8 @@ import (
 	"database/sql"
 	"strings"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
+	"github.com/ruslanBik4/logs"
 )
 
 // SelectToMultidimension - create qBuilder from sql-string, run & write result to map

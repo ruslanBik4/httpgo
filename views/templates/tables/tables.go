@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"regexp"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/logs"
 )
 
 var enumValidator = regexp.MustCompile(`(?:'([^,]+)',?)`)

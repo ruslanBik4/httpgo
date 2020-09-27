@@ -19,9 +19,9 @@ import (
 	"golang.org/x/oauth2/google"
 	"gopkg.in/gomail.v2"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/views/templates/mails"
+	"github.com/ruslanBik4/logs"
 )
 
 const nameSession = "PHPSESSID"

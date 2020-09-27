@@ -17,9 +17,9 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 
-	"github.com/ruslanBik4/httpgo/logs"
 	"github.com/ruslanBik4/httpgo/models/db/schema"
 	"github.com/ruslanBik4/httpgo/models/server"
+	"github.com/ruslanBik4/logs"
 )
 
 var (

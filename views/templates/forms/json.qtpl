@@ -188,7 +188,7 @@ name="{%s col.InputName(i) %}"
  	{% case col.InputType == "textarea" %}
                 <textarea {%= col.RenderAttr(i) %}
                  {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
-                  {% if col.Pattern() > "" %} pattern="{%s col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
+                  {% if col.Pattern() > "" %} pattern="{%s= col.Pattern() %}"  onkeyup="return validatePattern(this);" {% endif %}
                   {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
                 >
                   {% if val != nil %}{%v val %}{% endif %}
