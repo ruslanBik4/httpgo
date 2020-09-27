@@ -59,7 +59,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                          {% endif %}
 
                         {% if p := col.Pattern(); p > "" %}
-                          "pattern":"{%s p %}",
+                          "pattern":"{%j p %}",
                         {% endif %}
 
                          {% if col.IsSlice %}
