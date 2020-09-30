@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
-	github.com/getsentry/sentry-go v0.7.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/sessions v1.2.0
 	github.com/jackc/pgtype v1.4.0

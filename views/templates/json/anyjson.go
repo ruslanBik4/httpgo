@@ -44,7 +44,7 @@ func init() {
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			val := (*sql.NullString)(ptr)
 			if val.Valid {
-				stream.WriteString(val.String)
+				WriteElement(stream, val.String)
 			} else {
 				stream.WriteString("nil")
 			}
