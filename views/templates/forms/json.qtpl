@@ -185,7 +185,12 @@ name="{%s col.InputName(i) %}"
                 <textarea {%= col.RenderAttr(i) %} >
                   {% if val != nil %}{%v val %}{% endif %}
                </textarea>
-   {% default %}
+  	{% case col.InputType == "file" %}
+        <span class="hiddenInput"
+            style="background-image: url('{%v val %}');">
+            <input {%= col.RenderAttr(i) %} type="file" accept="image">
+        </span>
+    {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
                 {% if val != nil %} value = "{%v val %}" {% endif %}
                >
@@ -215,9 +220,11 @@ name="{%s col.InputName(i) %}"
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %} >
-                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}</label>
-                    {%= col.RenderInputs()  %}
-                   </div>
+                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}
+                    {%= col.RenderInputs() %}
+                    <h6 class="errorLabel">{%s= col.patternDesc %}</h6>
+                    </label>
+                  </div>
                 {% endfor %}
         </div>
   {% if block.Multiple %}
@@ -231,6 +238,37 @@ name="{%s col.InputName(i) %}"
         <button class="hidden" type="submit">Сохранить</button>
     </div>
 </form>
+<style>
+.errorLabel {
+    display: none;
+    color:red;
+}
+.hiddenInput > input[type=file] {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+form > span.hiddenInput:hover{
+  position: fixed;
+    top: 1%;
+    right: 1%;
+    width: 25%;
+    max-height: 75%;
+}
+
+.hiddenInput {
+    border: 1px solid #ccc;
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    display: inline-block;
+    overflow: hidden;
+    cursor: pointer;
+    background: center center no-repeat scroll;
+    background-size: contain;
+}
+</style>
 <script>
 {% endcollapsespace %}
 function validatePattern(thisElem) {
@@ -247,9 +285,11 @@ function validatePattern(thisElem) {
         result = re.test(thisElem.value);
         if(result){
             thisElem.style.borderColor = 'green';
+            thisElem.nextElementSibling.style.display = 'block';
         } else {
             thisElem.style.borderColor = 'red';
-        }
+            thisElem.nextElementSibling.style.display = 'none';
+       }
 
     } catch (e) {
         console.log(e)
