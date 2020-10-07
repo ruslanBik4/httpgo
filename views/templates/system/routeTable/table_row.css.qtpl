@@ -1,38 +1,44 @@
+{% collapsespace %}
+{% stripspace %}
 {% func TableCSS() %}
+.usr-table-content  a.usr-table-row:hover{
+      background-color: rgba(120, 147, 182, 0.1);
+}
+.usr-table-header{
+  background-color: rgba(120, 147, 182, 0.1);
+}
 .usr-table-row{
   display: flex;
   transition: .3s;
   text-decoration: none !important;
   color: #232b2f;
-  &:nth-child(1){
-    color: #232bff;
-  }
-
 }
-
+.usr-table-row:nth-child(2n){
+  background-color: rgba(120, 147, 182, 0.1);
+}
 .usr-table-col{
   padding: 1px;
   align-content:  center;
+  max-height: 100px;
   overflow: hidden;
-  &:nth-child(1){
-    padding: 3px;
+  word-break: break-all;
+  input {
+      width: 98%;
   }
 }
 
-.usr-table__t-head{
-  .usr-table-col{
-    padding: 20px;
+.usr-table-col:nth-child(1){
+    padding-left: 3px;
+  }
+.usr-table-col:hover{
+    overflow-y: visible;
+ }
+
+.usr-table__t-head .usr-table-col{
+    padding: 10px;
     color: #8d8e8e;
     font-size: 12px;
-  }
-}
-
-.usr-table-content{
-  a.usr-table-row{
-    &:hover{
-      background-color: rgba(120, 147, 182, 0.1);
-    }
-  }
+    text-align: center;
 }
 
 
@@ -182,11 +188,6 @@
 .filt-arrow__link:hover:before{
   border-width:2px;
 }
-
-.usr-table-col {
-  word-break: break-word;
-  word-break: break-all;
-}
 .c-black{
   color: #000;
 }
@@ -219,3 +220,5 @@
 }
 
 {% endfunc %}
+{% endcollapsespace %}
+{% endstripspace %}

@@ -8,7 +8,7 @@
 	)
 %}
 {%code
-	var regHTML = regexp.MustCompile(`>(\S+)<\/`)
+	var regHTML = regexp.MustCompile(`>([^<]+)<\/`)
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] interface{}) %}
 <style>
@@ -95,7 +95,7 @@ function getElementsByText(str, name) {
                             {% case float32 %}   {%v= val %}
                             {% case float64 %}   {%f.2 val %}
                             {% case []string %}
-                                 [
+
                                   {% for _, str := range val %}
                                    <p>{%s= str %}</p>
                                     {%code
@@ -104,22 +104,26 @@ function getElementsByText(str, name) {
                                       }
                                     %}
                                     {% endfor %}
-                                ]
+
+                            {% case map[string]interface{} %}
+                                      {% for key, value := range val %}
+                                        <b>{%s key %}</b>: {%= json.Element(value)%}<br>
+                                      {% endfor %}
                             {% case []interface{} %}
                                  {% for _, value := range val %}
-                                  [
+
                                     {% if m, ok := value.(map[string]interface{}); ok %}
-                                      {
+                                      <p>
                                       {% for key, value := range m %}
-                                        <b>{%s key %}</b>: {%= json.Element(value)%},</br>
+                                        <b>{%s key %}</b>: {%= json.Element(value)%}<br>
                                       {% endfor %}
-                                      }
+                                      </p>
                                     {% else %}
                                           {%= json.Element(value) %}
                                     {% endif %}
-                                  ]
+
                                 {% endfor %}
-                          {% default %}
+                           {% default %}
                                     {%= json.Element(row[i]) %}
                             {% endswitch %}
                         </div>
@@ -133,12 +137,10 @@ function getElementsByText(str, name) {
         </div>
     </div>
 </div>
-{% endcollapsespace %}
-{% endstripspace %}
 <style>
 {% for i, cLen := range colLen %}
   {% code
-    if columns[1].BasicType() == types.UnsafePointer {
+    if columns[i].BasicType() == types.UnsafePointer {
         cLen = 20
     } else if cLen > 50 {
         cLen = 50
@@ -149,21 +151,13 @@ function getElementsByText(str, name) {
   %}
     .table-col-{%d i%}{
         width: {%d cLen * lSymb %}px;
-        {% if columns[i].Type() == "timestamp" %}
-        word-break: break-all;
-        {% else %}
-        word-break: break-word;
-        {% endif %}
-        input {
-            width: 98%;
-        }
     }
-    .usr-table-row{
-     .table-col-{%d i%}{
-       text-align: {% if columns[i].CharacterMaximumLength() > 0 %} left
-                    {% else %} right
-                  {% endif %};
-      }
+    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
+       text-align: {% switch columns[i].InputType %}
+                    {% case "number" %}center
+                    {% case "date", "datetime" %} right
+                    {% default %} left
+                    {% endswitch %};
     }
 {% endfor %}
 .table-custom{
@@ -171,3 +165,5 @@ function getElementsByText(str, name) {
 }
 </style>
 {% endfunc %}
+{% endcollapsespace %}
+{% endstripspace %}
