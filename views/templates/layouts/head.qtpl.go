@@ -121,75 +121,73 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js" defer></script>
     <![endif]-->
     <script src="https://cdn.rawgit.com/Mikhus/canvas-gauges/gh-pages/download/latest/all/gauge.min.js" defer></script>
-    <!-- Include Radiant Media Player JavaScript file in your <body> or <head> -->
-    <script src="https://cdn.radiantmediatechs.com/rmp/v3/latest/js/rmp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     `)
-//line views/templates/layouts/head.qtpl:70
+//line views/templates/layouts/head.qtpl:68
 	for i := 0; i < len(head.Scripts); i++ {
-//line views/templates/layouts/head.qtpl:70
+//line views/templates/layouts/head.qtpl:68
 		qw422016.N().S(`
         `)
-//line views/templates/layouts/head.qtpl:71
+//line views/templates/layouts/head.qtpl:69
 		qw422016.E().S(head.Scripts[i])
-//line views/templates/layouts/head.qtpl:71
+//line views/templates/layouts/head.qtpl:69
 		qw422016.N().S(`
     `)
-//line views/templates/layouts/head.qtpl:72
+//line views/templates/layouts/head.qtpl:70
 	}
-//line views/templates/layouts/head.qtpl:72
+//line views/templates/layouts/head.qtpl:70
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
     `)
-//line views/templates/layouts/head.qtpl:75
+//line views/templates/layouts/head.qtpl:73
 	StreamPutStyles(qw422016)
-//line views/templates/layouts/head.qtpl:75
+//line views/templates/layouts/head.qtpl:73
 	qw422016.N().S(`
     `)
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:74
 	js.StreamJqueryFancyboxButtons(qw422016)
-//line views/templates/layouts/head.qtpl:76
+//line views/templates/layouts/head.qtpl:74
 	qw422016.N().S(`
 
 </head>
 
 `)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 }
 
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	head.StreamHeadHTML(qw422016)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 }
 
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 func (head *HeadHTMLPage) HeadHTML() string {
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	head.WriteHeadHTML(qb422016)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	qs422016 := string(qb422016.B)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 	return qs422016
-//line views/templates/layouts/head.qtpl:80
+//line views/templates/layouts/head.qtpl:78
 }
 
-//line views/templates/layouts/head.qtpl:85
+//line views/templates/layouts/head.qtpl:83
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line views/templates/layouts/head.qtpl:85
+//line views/templates/layouts/head.qtpl:83
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -199,9 +197,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line views/templates/layouts/head.qtpl:93
+//line views/templates/layouts/head.qtpl:91
 	qw422016.E().S(title)
-//line views/templates/layouts/head.qtpl:93
+//line views/templates/layouts/head.qtpl:91
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -210,39 +208,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line views/templates/layouts/head.qtpl:100
+//line views/templates/layouts/head.qtpl:98
 	css.StreamHttpgoMainCSS(qw422016)
-//line views/templates/layouts/head.qtpl:100
+//line views/templates/layouts/head.qtpl:98
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 }
 
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	StreamAdminHead(qw422016, title)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 }
 
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 func AdminHead(title string) string {
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	WriteAdminHead(qb422016, title)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	qs422016 := string(qb422016.B)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 	return qs422016
-//line views/templates/layouts/head.qtpl:104
+//line views/templates/layouts/head.qtpl:102
 }
