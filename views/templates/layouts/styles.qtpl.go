@@ -48,6 +48,12 @@ body {
     width: 80%;
     display: table-cell;
 }
+header {
+    position: sticky;
+}
+.top-mnu-list {
+    margin-top: 5px;
+}
 ul {
   list-style-type: none;
   margin: 0;
@@ -57,14 +63,15 @@ ul {
 }
 
 li {
-  float: left;
+ display: block;
+ transition-duration: 0.5s;
+ float: left;
 }
 
 li a {
-  display: block;
   color: white;
   text-align: center;
-  padding: 16px;
+  padding: 5px;
   text-decoration: none;
 }
 
@@ -72,6 +79,32 @@ li a:hover {
   background-color: #111111;
 }
 
+li:hover {
+  cursor: pointer;
+}
+
+ul li ul.dropdown {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  transition: all 0.5s ease;
+  margin-top: 1rem;
+  display: none;
+}
+
+ul li:hover > ul.dropdown,
+ul li:focus-within > ul.dropdown,
+ul li ul.dropdown:hover {
+  visibility: visible;
+  opacity: 1;
+  margin: 0;
+  display: block;
+}
+
+ul li ul.dropdown li {
+  clear: both;
+  width: 100%;
+}
 input[type=text] {
     padding: 8px;
     border: 1px solid #c2c7d1;
@@ -86,31 +119,31 @@ input[type=file] {
 }
 </style>
 `)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 }
 
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	StreamPutStyles(qw422016)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 }
 
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 func PutStyles() string {
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	WritePutStyles(qb422016)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	qs422016 := string(qb422016.B)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 	return qs422016
-//line views/templates/layouts/styles.qtpl:65
+//line views/templates/layouts/styles.qtpl:98
 }

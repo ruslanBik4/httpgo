@@ -23,72 +23,53 @@ var (
 )
 
 //line views/templates/layouts/owner_menu.qtpl:6
-type ItemMenu struct {
-	Link string
-}
 type MenuOwnerBody struct {
-	TopMenu map[string]*ItemMenu
+	TopMenu Menu
 	Title   string
 }
 
-//line views/templates/layouts/owner_menu.qtpl:14
+//line views/templates/layouts/owner_menu.qtpl:11
 func (menu *MenuOwnerBody) StreamMenuOwner(qw422016 *qt422016.Writer) {
-//line views/templates/layouts/owner_menu.qtpl:14
+//line views/templates/layouts/owner_menu.qtpl:11
 	qw422016.N().S(`
 <h2>`)
-//line views/templates/layouts/owner_menu.qtpl:15
+//line views/templates/layouts/owner_menu.qtpl:12
 	qw422016.E().S(menu.Title)
-//line views/templates/layouts/owner_menu.qtpl:15
+//line views/templates/layouts/owner_menu.qtpl:12
 	qw422016.N().S(`</h2>
 <div id="catalog_pane">
-    <ul class="nav">
-        `)
-//line views/templates/layouts/owner_menu.qtpl:18
-	for name, item := range menu.TopMenu {
-//line views/templates/layouts/owner_menu.qtpl:18
-		qw422016.N().S(`
-            <li><a href="`)
-//line views/templates/layouts/owner_menu.qtpl:19
-		qw422016.E().S(item.Link)
-//line views/templates/layouts/owner_menu.qtpl:19
-		qw422016.N().S(`">`)
-//line views/templates/layouts/owner_menu.qtpl:19
-		qw422016.E().S(name)
-//line views/templates/layouts/owner_menu.qtpl:19
-		qw422016.N().S(`</a></li>
-        `)
-//line views/templates/layouts/owner_menu.qtpl:20
-	}
-//line views/templates/layouts/owner_menu.qtpl:20
+ 	`)
+//line views/templates/layouts/owner_menu.qtpl:14
+	menu.TopMenu.StreamRenderMenu(qw422016, "nav", "nav-item")
+//line views/templates/layouts/owner_menu.qtpl:14
 	qw422016.N().S(`
-    </ul>
 </div>
 `)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 }
 
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 func (menu *MenuOwnerBody) WriteMenuOwner(qq422016 qtio422016.Writer) {
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	menu.StreamMenuOwner(qw422016)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 }
 
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 func (menu *MenuOwnerBody) MenuOwner() string {
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	menu.WriteMenuOwner(qb422016)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	qs422016 := string(qb422016.B)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 	return qs422016
-//line views/templates/layouts/owner_menu.qtpl:23
+//line views/templates/layouts/owner_menu.qtpl:16
 }

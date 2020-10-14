@@ -21,12 +21,12 @@ import (
 
 	. "github.com/ruslanBik4/dbEngine/dbEngine"
 
+	"github.com/ruslanBik4/logs"
+
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
-	"github.com/ruslanBik4/logs"
 )
 
 type CtxApis map[string]interface{}
@@ -204,12 +204,16 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		default:
 			errMsg = fmt.Sprintf(errMsg+"%+v", string(ctx.Method()), "", resp)
 		}
-
+	// can't send stadart error (lost headers & responce body
 	case ErrUnAuthorized:
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
-		statusCode = fasthttp.StatusUnauthorized
+		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+		ctx.SetBodyString(errMsg)
+		return
 	case ErrRouteForbidden:
-		statusCode = fasthttp.StatusForbidden
+		ctx.SetStatusCode(fasthttp.StatusForbidden)
+		ctx.SetBodyString(errMsg)
+		return
 	case errRouteOnlyLocal:
 		statusCode = fasthttp.StatusForbidden
 	case fasthttp.ErrNoMultipartForm:
@@ -374,7 +378,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		}
 	}
 
-	views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
+	views.WriteHeadersHTML(ctx)
 
 	colDecors := make([]*forms.ColumnDecor, len(columns))
 	for i, col := range columns {

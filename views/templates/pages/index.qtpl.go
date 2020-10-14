@@ -29,9 +29,6 @@ var (
 )
 
 //line views/templates/pages/index.qtpl:10
-type ItemMenu struct {
-	Link string
-}
 type IndexPageBody struct {
 	Name         []byte
 	Pass         []byte
@@ -39,46 +36,46 @@ type IndexPageBody struct {
 	ContentWrite func(w io.Writer)
 	Buff         io.Writer
 	Catalog      []string
-	TopMenu      map[string]string
+	TopMenu      layouts.Menu
 	Title        string
 	Route        string
 }
 
-//line views/templates/pages/index.qtpl:25
+//line views/templates/pages/index.qtpl:22
 func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
-//line views/templates/pages/index.qtpl:25
+//line views/templates/pages/index.qtpl:22
 	qw422016.N().S(`
 <body>
-<div class="content-wrap">
     `)
-//line views/templates/pages/index.qtpl:28
+//line views/templates/pages/index.qtpl:24
 	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
-//line views/templates/pages/index.qtpl:28
+//line views/templates/pages/index.qtpl:24
 	qw422016.N().S(`
+<div class="content-wrap">
 <div id="container-fluid">
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                     `)
-//line views/templates/pages/index.qtpl:33
+//line views/templates/pages/index.qtpl:30
 	qw422016.N().V(body.Catalog)
-//line views/templates/pages/index.qtpl:33
+//line views/templates/pages/index.qtpl:30
 	qw422016.N().S(`
             </div>
         </div>
         <div class="content-section">
             <div id="content" rel="`)
-//line views/templates/pages/index.qtpl:37
+//line views/templates/pages/index.qtpl:34
 	qw422016.E().S(body.Route)
-//line views/templates/pages/index.qtpl:37
+//line views/templates/pages/index.qtpl:34
 	qw422016.N().S(`">
                 `)
-//line views/templates/pages/index.qtpl:39
+//line views/templates/pages/index.qtpl:36
 	if body.ContentWrite != nil {
 		body.ContentWrite(body.Buff)
 	}
 
-//line views/templates/pages/index.qtpl:42
+//line views/templates/pages/index.qtpl:39
 	qw422016.N().S(`
             </div>
         </div>
@@ -87,38 +84,38 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </div>
 
     `)
-//line views/templates/pages/index.qtpl:49
+//line views/templates/pages/index.qtpl:46
 	layouts.StreamFooterHTML(qw422016, "test@email.net", "8-000-00-00", "+380(00)000-00-00")
-//line views/templates/pages/index.qtpl:49
+//line views/templates/pages/index.qtpl:46
 	qw422016.N().S(`
 
 </body>
 `)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 }
 
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	body.StreamIndexHTML(qw422016)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 }
 
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 func (body *IndexPageBody) IndexHTML() string {
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	body.WriteIndexHTML(qb422016)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	qs422016 := string(qb422016.B)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 	return qs422016
-//line views/templates/pages/index.qtpl:52
+//line views/templates/pages/index.qtpl:49
 }

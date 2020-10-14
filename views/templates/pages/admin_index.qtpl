@@ -11,8 +11,8 @@ type AdminPageBody struct {
     Name []byte
     Pass []byte
     Content string
-    Catalog map[string] *ItemMenu
-    TopMenu map[string] string
+    Catalog layouts.Menu
+    TopMenu layouts.Menu
     Title string
     Head *layouts.HeadHTMLPage
 }
@@ -26,10 +26,7 @@ type AdminPageBody struct {
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
-                {% for name, item := range body.Catalog %}
-                    <li><a href="{%s item.Link %}">{%s name %}</a></li>
-                {% endfor %}
-
+                {%= body.Catalog.RenderMenu("catalog-pane-menu", "catalog-pane-menu-item") %}
             </div>
         </div>
         <div id="content" rel="/admin/" class="content-section">{%s= body.Content %}</div>

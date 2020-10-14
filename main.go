@@ -57,9 +57,9 @@ var (
 			"/": {
 				Fnc: func(ctx *RequestCtx) (interface{}, error) {
 					body := &pages.IndexPageBody{
-						TopMenu: map[string]string{
-							"Search": "/form/search/",
-							"View":   "/test/view/",
+						TopMenu: layouts.Menu{
+							{Link: "Search", Label: "/form/search/"},
+							{Link: "View", Label: "/test/view/"},
 						},
 						Title: "Index page of test server",
 					}
@@ -292,16 +292,19 @@ func handlerMenu(ctx *RequestCtx) (interface{}, error) {
 	// отрисовка меню страницы
 	if menu.GetMenu(idMenu) > 0 {
 
-		p := &layouts.MenuOwnerBody{Title: idMenu, TopMenu: make(map[string]*layouts.ItemMenu, 0)}
+		p := &layouts.MenuOwnerBody{Title: idMenu}
 
 		for _, item := range menu.Items {
-			p.TopMenu[item.Title] = &layouts.ItemMenu{Link: "/menu/" + item.Name + "/"}
+			p.TopMenu = append(p.TopMenu, layouts.ItemMenu{Link: "/menu/" + item.Name + "/", Content: item.Title})
 
 		}
 
 		// return into parent menu if he occurent
 		if menu.Self.ParentID > 0 {
-			p.TopMenu["< на уровень выше"] = &layouts.ItemMenu{Link: fmt.Sprintf("/menu/%d/", menu.Self.ParentID)}
+			p.TopMenu = append(p.TopMenu, layouts.ItemMenu{
+				Link:    fmt.Sprintf("/menu/%d/", menu.Self.ParentID),
+				Content: "< на уровень выше",
+			})
 		}
 		catalog = p.MenuOwner()
 	}

@@ -26,3 +26,7 @@ type ErrorResp struct {
 func NewErrorResp(formErrors map[string]string) *ErrorResp {
 	return &ErrorResp{FormErrors: formErrors}
 }
+
+func NewErrorRespBadDTO() *ErrorResp {
+	return NewErrorResp(map[string]string{"dto": "wrong struct"})
+}

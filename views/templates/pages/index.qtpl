@@ -7,9 +7,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 це главная страница.
 {% code
-    type ItemMenu struct {
-        Link string
-    }
     type IndexPageBody struct {
         Name []byte
         Pass []byte
@@ -17,15 +14,15 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         ContentWrite func(w io.Writer)
         Buff    io.Writer
         Catalog []string
-        TopMenu map[string] string
+        TopMenu layouts.Menu
         Title string
         Route string
     }
 %}
 {% func (body *IndexPageBody) IndexHTML() %}
 <body>
-<div class="content-wrap">
     {%= layouts.HeaderHTML(body.TopMenu) %}
+<div class="content-wrap">
 <div id="container-fluid">
     <div class="row-fluid">
         <div class="sidebar-section">
