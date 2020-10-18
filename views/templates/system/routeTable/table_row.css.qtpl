@@ -35,7 +35,6 @@
  }
 
 .usr-table__t-head .usr-table-col{
-    padding: 10px;
     color: #8d8e8e;
     font-size: 12px;
     text-align: center;
@@ -63,7 +62,7 @@
 
   .usr-table-col{
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 10px;
     font-size: 0;
   }
 }
@@ -71,14 +70,15 @@
 
 .filt-arrow{
   display: flex;
+}
 
-
-  .filt-arrow__link.active{
+.filt-arrow  input[type=search] {
+    width: 98%;
+}
+.filt-arrow__link.active{
     &:before{
       border-color:  #229be6;
     }
-
-  }
 }
 
 .filt-arrow__link{

@@ -36,13 +36,17 @@ var regPattern = regexp.MustCompile(`\{"pattern":\s*"([^"]+)"\}`)
 
 func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnDecor {
 
-	colDec := &ColumnDecor{Column: column, PatternList: patternList}
-	comment := colDec.Comment()
+	comment := column.Comment()
+	colDec := &ColumnDecor{
+		Column:      column,
+		IsReadOnly:  strings.Contains(comment, "read_only"),
+		PatternList: patternList,
+	}
 	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
 		colDec.getPattern(m[0][1])
 		colDec.Label = regPattern.ReplaceAllString(comment, "")
-	} else if column.Comment() > "" {
-		colDec.Label = column.Comment()
+	} else if comment > "" {
+		colDec.Label = comment
 	} else {
 		colDec.Label = column.Name()
 	}

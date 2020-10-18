@@ -1,6 +1,7 @@
 {% import (
 	"regexp"
 	"time"
+	"sort"
 	"go/types"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
@@ -15,9 +16,12 @@
 {%= TableCSS() %}
 {%code
    colLen := make([]int, len(columns))
+   colDeep := make([]int, len(columns))
+   lSymb := 7
    allWidth := 0
    for i, col := range columns {
-        colLen[i] = len(col.Label)
+        colLen[i] = len(col.Label)*(lSymb + 1)
+        colDeep[i] = 1
    }
 %}
 </style>
@@ -59,7 +63,7 @@ function getElementsByText(str, name) {
                     {% if col.LinkNew > "" %}
                      {%s= col.LinkNew %}
                     {% else %}
-                   <input type="text" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+                   <input type="search" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
                     {% endif %}
                 </div>
             </div>
@@ -82,13 +86,16 @@ function getElementsByText(str, name) {
                             {% case string %}
                               {%s= val %}
                               {%code
-                                if len(val) > colLen[i] && (column.Name() != "id") {
-                                  s := regHTML.FindString(val)
-                                  if len(s) > 0 {
-                                    colLen[i] = len(s)
-                                  } else {
-                                    colLen[i] = len(val)
-                                  }
+                                   lenVal := lSymb
+                                   s := regHTML.FindString(val)
+                                   if len(s) > 0 {
+                                    lenVal *= len(s)
+                                   } else {
+                                    lenVal *= len(val)
+                                   }
+
+                                if lenVal > colLen[i] && (column.Name() != "id") {
+                                    colLen[i] = lenVal
                                 }
                               %}
                             {% case bool %}  {% if val %}X{% endif %}
@@ -99,18 +106,68 @@ function getElementsByText(str, name) {
                                   {% for _, str := range val %}
                                    <p>{%s= str %}</p>
                                     {%code
-                                      if len(str)+1 > colLen[i] {
-                                        colLen[i] = len(str)+1
+                                      lenVal := lSymb * (len(str) + 2)
+                                      if lenVal > colLen[i] {
+                                        colLen[i] = lenVal
                                       }
                                     %}
                                     {% endfor %}
+                                  {%code
+                                    if colDeep[i] < len(val) {
+                                        colDeep[i] = len(val)
+                                    }
+                                  %}
+
+
+                            {% case map[string]string %}
+                                <table>
+                                      {% code
+
+                                     if colDeep[i] < len(val) {
+                                         colDeep[i] = len(val)
+                                     }
+
+                                     	sortList := make([]string, 0, len(val))
+                                      	for name := range val {
+                                      		sortList = append(sortList, name)
+                                      	}
+                                      	sort.Strings(sortList)
+                                      %}
+                                      {% for _, key := range sortList %}
+                                        <tr><td><b>{%s= key %}</b></td><td>{%s= val[key] %}</td></tr>
+                                         {%code
+                                           lenVal := (lSymb+2) * len(key) + lSymb * len(val[key]) + 2
+                                           if lenVal > colLen[i] {
+                                             colLen[i] = lenVal
+                                           }
+                                          %}
+                                     {% endfor %}
+                                </table>
 
                             {% case map[string]interface{} %}
-                                      {% for key, value := range val %}
-                                        <b>{%s key %}</b>: {%= json.Element(value)%}<br>
+                                      {% code
+
+                                        if colDeep[i] < len(val) {
+                                            colDeep[i] = len(val)
+                                        }
+
+                                      	sortList := make([]string, 0, len(val))
+                                      	for name := range val {
+                                      		sortList = append(sortList, name)
+                                      	}
+                                      	sort.Strings(sortList)
+                                      %}
+                                      {% for _, key := range sortList %}
+                                        <b>{%s= key %}</b>: {%= json.Element(val[key])%}<br>
                                       {% endfor %}
+
                             {% case []interface{} %}
-                                 {% for _, value := range val %}
+                                   {%code
+                                     if colDeep[i] < len(val) {
+                                         colDeep[i] = len(val)
+                                     }
+                                   %}
+                                {% for _, value := range val %}
 
                                     {% if m, ok := value.(map[string]interface{}); ok %}
                                       <p>
@@ -141,16 +198,15 @@ function getElementsByText(str, name) {
 {% for i, cLen := range colLen %}
   {% code
     if columns[i].BasicType() == types.UnsafePointer {
-        cLen = 20
-    } else if cLen > 50 {
-        cLen = 50
+        cLen = 20 * lSymb
+    } else if (cLen > 50 * lSymb) && (colDeep[i] == 1) {
+        cLen = 50 * lSymb
     }
-    lSymb := 7
-    allWidth += cLen * lSymb
+    allWidth += cLen
 
   %}
     .table-col-{%d i%}{
-        width: {%d cLen * lSymb %}px;
+        width: {%d cLen %}px;
     }
     .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
        text-align: {% switch columns[i].InputType %}

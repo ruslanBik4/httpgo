@@ -6,9 +6,11 @@ package auth
 
 import (
 	"fmt"
+	"path"
 	"reflect"
 	"regexp"
 	"runtime"
+	"strings"
 
 	"github.com/valyala/fasthttp"
 )
@@ -55,7 +57,7 @@ func (a *AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 func (a *AuthBearer) String() string {
 
 	return `implement auth for Bearer standart: 
-	 user: ` + getStringOfFnc(reflect.ValueOf(a.Auth).Pointer()) + `
+	 user:` + getStringOfFnc(reflect.ValueOf(a.Auth).Pointer()) + `
 	 admin: ` + getStringOfFnc(reflect.ValueOf(a.AdminAuth).Pointer())
 }
 
@@ -78,7 +80,16 @@ func (a *AuthBearer) AdminAuth(ctx *fasthttp.RequestCtx) bool {
 
 func getStringOfFnc(pc uintptr) string {
 	fnc := runtime.FuncForPC(pc)
-	fName, line := fnc.FileLine(0)
 
-	return fmt.Sprintf("%s:%d %s()", fName, line, fnc.Name())
+	fName, line := fnc.FileLine(0)
+	fncName := fnc.Name()
+	shortName := strings.TrimSuffix(path.Base(fncName), "-fm")
+
+	return fmt.Sprintf(`<a href="https://pkg.go.dev/%s/%s" target="_blank">%s(), %s:%d</a>`,
+		path.Dir(fncName),
+		strings.ReplaceAll(strings.ReplaceAll(shortName, ".(*", "#"), ")", ""),
+		shortName,
+		path.Base(fName),
+		line,
+	)
 }

@@ -322,19 +322,21 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 			}
 			row[1] = route.Desc
 
-			s := "use method '"
-			if route.FncAuth != nil {
-				s += route.FncAuth.String() + "' for checking authorization"
-			} else if route.NeedAuth {
-				s += a.fncAuth.String() + "' for checking authorization"
+			s := ""
+			if route.OnlyLocal {
+				s += "only local request "
 			}
 
 			if route.OnlyAdmin {
-				s += " only admin request be allowed"
+				s += "only admin allowed "
 			}
 
-			if route.OnlyLocal {
-				s += " only local request be allowed"
+			if route.FncAuth != nil {
+				s += strings.Replace(route.FncAuth.String(), "\n", "</br>", -1)
+			} else if route.NeedAuth {
+				s += strings.Replace(a.fncAuth.String(), "\n", "</br>", -1)
+			} else {
+				s = ""
 			}
 
 			if s > "" {
@@ -343,25 +345,26 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 				row[2] = false
 			}
 
-			r, p := "", ""
+			r := make(map[string]string)
+			p := make(map[string]string)
 			for _, param := range route.Params {
-				s := fmt.Sprintf(`<div>"%s" <i>%s</i>, %s `, param.Name, param.Desc, param.Type)
+				s := fmt.Sprintf(`%s, <i>%s</i>`, param.Type, param.Desc)
 				if param.DefValue != nil {
-					s += fmt.Sprintf("Def: '%v'", param.defaultValueOfParams(nil))
+					s += fmt.Sprintf(", Def:%v", param.defaultValueOfParams(nil))
 				}
 
 				if len(param.PartReq) > 0 {
-					s += "one of {" + strings.Join(param.PartReq, ", ") + " and " + param.Name + "} is required"
+					s += ", one of {" + strings.Join(param.PartReq, ", ") + ", " + param.Name + "} is required"
 				}
 
 				if len(param.IncompatibleWiths) > 0 {
-					s += "only one of {" + strings.Join(param.IncompatibleWiths, ", ") + " and " + param.Name + "} may use for request"
+					s += ", only one of {" + strings.Join(param.IncompatibleWiths, ", ") + " OR " + param.Name + "} may use for request"
 				}
 
 				if param.Req {
-					r += s + "</div>"
+					r[param.Name] = s
 				} else {
-					p += s + "</div>"
+					p[param.Name] = s
 				}
 			}
 
