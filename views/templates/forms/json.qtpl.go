@@ -647,7 +647,7 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:208
 	qw422016.N().S(` `)
 //line views/templates/forms/json.qtpl:210
-	idShake := strings.Replace(f.Title, " ", "_", -1)
+	idShake := strings.ReplaceAll(f.Title, " ", "_")
 
 //line views/templates/forms/json.qtpl:211
 	qw422016.N().S(` <form id="`)
@@ -666,27 +666,35 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:213
 	qw422016.N().S(f.Method)
 //line views/templates/forms/json.qtpl:213
-	qw422016.N().S(`" enctype="multipart/form-data" oninput="document.querySelector('#`)
-//line views/templates/forms/json.qtpl:214
-	qw422016.E().S(idShake)
-//line views/templates/forms/json.qtpl:214
-	qw422016.N().S(`form button.hidden').className = 'main-btn'" onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
+	qw422016.N().S(`" enctype="multipart/form-data" oninput="document.querySelector('button.hidden', this).className = 'main-btn'" onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
 //line views/templates/forms/json.qtpl:215
 	qw422016.E().S(f.Title)
 //line views/templates/forms/json.qtpl:215
-	qw422016.N().S(`" > `)
+	qw422016.N().S(`" > <figcaption>`)
 //line views/templates/forms/json.qtpl:216
+	qw422016.N().S(f.Description)
+//line views/templates/forms/json.qtpl:216
+	qw422016.N().S(`</figcaption> `)
+//line views/templates/forms/json.qtpl:217
 	for _, block := range blocks {
-//line views/templates/forms/json.qtpl:216
-		qw422016.N().S(` <div> <h2>`)
+//line views/templates/forms/json.qtpl:217
+		qw422016.N().S(` <figure title = "`)
 //line views/templates/forms/json.qtpl:218
 		qw422016.E().S(block.Title)
 //line views/templates/forms/json.qtpl:218
-		qw422016.N().S(` </h2> <h3>`)
+		qw422016.N().S(`"> `)
 //line views/templates/forms/json.qtpl:219
-		qw422016.E().S(block.Description)
+		if block.Description > "" {
 //line views/templates/forms/json.qtpl:219
-		qw422016.N().S(` </h3> `)
+			qw422016.N().S(` <figcaption>`)
+//line views/templates/forms/json.qtpl:219
+			qw422016.E().S(block.Description)
+//line views/templates/forms/json.qtpl:219
+			qw422016.N().S(` </figcaption> `)
+//line views/templates/forms/json.qtpl:219
+		}
+//line views/templates/forms/json.qtpl:219
+		qw422016.N().S(` `)
 //line views/templates/forms/json.qtpl:220
 		for i, col := range block.Columns {
 //line views/templates/forms/json.qtpl:220
@@ -722,7 +730,7 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:228
 		}
 //line views/templates/forms/json.qtpl:228
-		qw422016.N().S(` </div> `)
+		qw422016.N().S(` </figure> `)
 //line views/templates/forms/json.qtpl:230
 		if block.Multiple {
 //line views/templates/forms/json.qtpl:230
@@ -734,8 +742,8 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:235
 	}
 //line views/templates/forms/json.qtpl:235
-	qw422016.N().S(` <div class="form-actions"> <button class="hidden" type="submit">Сохранить</button> </div> </form> <style> .errorLabel { display: none; color:red; } .hiddenInput > input[type=file] { width: 100%; height: 100%; opacity: 0; cursor: pointer; } form > span.hiddenInput:hover{ position: fixed; top: 1%; right: 1%; width: 25%; max-height: 75%; } .hiddenInput { border: 1px solid #ccc; width: 100%; height: 100%; min-height: 50px; display: inline-block; overflow: hidden; cursor: pointer; background: center center no-repeat scroll; background-size: contain; } </style> <script> `)
-//line views/templates/forms/json.qtpl:273
+	qw422016.N().S(` <div class="form-actions"> <button class="hidden" type="submit">Сохранить</button> </div> </form> <style> .errorLabel { display: none; color:red; } .input-label { width: 98%; align-content: center; } .hiddenInput > input[type=file] { width: 100%; height: 100%; opacity: 0; cursor: pointer; } form > span.hiddenInput:hover{ position: fixed; top: 1%; right: 1%; width: 25%; max-height: 75%; } .hiddenInput { border: 1px solid #ccc; width: 100%; height: 100%; min-height: 50px; display: inline-block; overflow: hidden; cursor: pointer; background: center center no-repeat scroll; background-size: contain; } </style> <script> `)
+//line views/templates/forms/json.qtpl:277
 	qw422016.N().S(`
 function validatePattern(thisElem) {
     var re = thisElem.pattern,
@@ -751,10 +759,10 @@ function validatePattern(thisElem) {
         result = re.test(thisElem.value);
         if(result){
             thisElem.style.borderColor = 'green';
-            thisElem.nextElementSibling.style.display = 'block';
+            thisElem.nextElementSibling.style.display = 'none';
         } else {
             thisElem.style.borderColor = 'red';
-            thisElem.nextElementSibling.style.display = 'none';
+            thisElem.nextElementSibling.style.display = 'block';
        }
 
     } catch (e) {
@@ -765,31 +773,31 @@ function validatePattern(thisElem) {
 }
 </script>
 `)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 }
 
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	f.StreamFormHTML(qw422016, blocks...)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 }
 
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 func (f *FormField) FormHTML(blocks ...BlockColumns) string {
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	f.WriteFormHTML(qb422016, blocks...)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	qs422016 := string(qb422016.B)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 	return qs422016
-//line views/templates/forms/json.qtpl:301
+//line views/templates/forms/json.qtpl:305
 }

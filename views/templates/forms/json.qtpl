@@ -207,16 +207,16 @@ name="{%s col.InputName(i) %}"
 
 {% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
 {% code
-  idShake := strings.Replace(f.Title, " ", "_", -1)
+  idShake := strings.ReplaceAll(f.Title, " ", "_")
 %}
 <form id="{%s idShake %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
-         oninput="document.querySelector('#{%s idShake %}form button.hidden').className = 'main-btn'"
+         oninput="document.querySelector('button.hidden', this).className = 'main-btn'"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
+         <figcaption>{%s= f.Description %}</figcaption>
         {% for _, block := range blocks %}
-        <div>
-        <h2>{%s block.Title %} </h2>
-        <h3>{%s block.Description %} </h3>
+        <figure title = "{%s block.Title %}">
+        {% if block.Description > "" %} <figcaption>{%s block.Description %} </figcaption> {% endif %}
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %} >
@@ -226,7 +226,7 @@ name="{%s col.InputName(i) %}"
                     </label>
                   </div>
                 {% endfor %}
-        </div>
+        </figure>
   {% if block.Multiple %}
          <button class="main-btn" type="button"
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
@@ -242,6 +242,10 @@ name="{%s col.InputName(i) %}"
 .errorLabel {
     display: none;
     color:red;
+}
+.input-label {
+    width: 98%;
+    align-content: center;
 }
 .hiddenInput > input[type=file] {
     width: 100%;
@@ -285,10 +289,10 @@ function validatePattern(thisElem) {
         result = re.test(thisElem.value);
         if(result){
             thisElem.style.borderColor = 'green';
-            thisElem.nextElementSibling.style.display = 'block';
+            thisElem.nextElementSibling.style.display = 'none';
         } else {
             thisElem.style.borderColor = 'red';
-            thisElem.nextElementSibling.style.display = 'none';
+            thisElem.nextElementSibling.style.display = 'block';
        }
 
     } catch (e) {
