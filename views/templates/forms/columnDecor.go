@@ -243,6 +243,10 @@ func (col *ColumnDecor) inputType() string {
 		return "hidden"
 	}
 
+	if col.Suggestions > "" {
+		return "select"
+	}
+
 	switch col.Type() {
 	case "date", "_date":
 		return "date"

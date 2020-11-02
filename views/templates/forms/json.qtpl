@@ -38,7 +38,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
            "id": "{%d block.Id %}",
            "title": "{%s= block.Title %}",
            "description": "{%s= block.Description %}",
-            "fields": [
+           "fields": [
                 {% for j, col := range block.Columns %}
 
                     {% if j > 0 %}
@@ -58,12 +58,10 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                              },
                          {% endif %}
 
-                        {% if p := col.Pattern(); p > "" %}
-                          "pattern":"{%j= p %}",
-                        {% endif %}
-
                         {% if p := col.Suggestions; p > "" %}
                           "suggestions":{"url":"{%j= p %}"},
+                        {% elseif p := col.Pattern(); p > "" %}
+                          "pattern":"{%j= p %}",
                         {% endif %}
 
                          {% if col.IsSlice %}
@@ -323,16 +321,25 @@ function validatePattern(thisElem) {
     return result;
 }
 function inputSearchKeyUp(thisElem, event){
-console.log(thisElem)
-console.log(event)
+
         var x = event.which || event.keyCode;
         var elem = $(thisElem)
             if (x == 40) {
                 elem.unbind("blur");
                 $('select.suggestions-constraints').focus();
                 $('select.suggestions-constraints option:first').selected();
-                return;
+
+               return;
             }
+
+             elem.on("blur", function(){
+
+                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
+                             return;
+                     }
+                     console.log(event);
+                     $('select.suggestions-constraints').hide();
+                 })
 
              if (elem.val().length < 2) {
                 return true;
@@ -350,11 +357,10 @@ console.log(event)
                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                },
                success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show()
-                        .on('keyup', function(e) {
+                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
                              var x = event.which || event.keyCode;
                              if (x == 32) {
-                                     thisElem.value = $(this).text();
+                                     thisElem.value = $('select.suggestions-constraints  option:selected').text();
                                      $('select.suggestions-constraints').hide();
 
                                      return false;
@@ -366,14 +372,7 @@ console.log(event)
 
                     return true;
                  });
-                 elem.on("blur", function(){
 
-                       if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
-                                 return;
-                         }
-                         console.log(event);
-                         $('select.suggestions-constraints').hide();
-                     })
                },
                error: function (xhr, status, error) {
                    alert( "Code : " + xhr.status + " error :"+ error);
