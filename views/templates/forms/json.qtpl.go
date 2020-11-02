@@ -391,7 +391,7 @@ func (col *ColumnDecor) StreamInputTypeForJSON(qw422016 *qt422016.Writer) {
 //line views/templates/forms/json.qtpl:157
 		qw422016.N().S(`textarea`)
 //line views/templates/forms/json.qtpl:159
-	case col.SelectOptions != nil:
+	case col.SelectOptions != nil || col.Suggestions > "":
 //line views/templates/forms/json.qtpl:159
 		qw422016.N().S(`select`)
 //line views/templates/forms/json.qtpl:161
