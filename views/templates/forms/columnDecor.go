@@ -30,6 +30,7 @@ type ColumnDecor struct {
 	pattern                       string
 	patternDesc                   string
 	Value                         interface{}
+	Suggestions                   string
 }
 
 var regPattern = regexp.MustCompile(`\{"pattern":\s*"([^"]+)"\}`)
@@ -66,6 +67,7 @@ func (col *ColumnDecor) Copy() *ColumnDecor {
 		PatternList:   col.PatternList,
 		PatternName:   col.PatternName,
 		PlaceHolder:   col.PlaceHolder,
+		Suggestions:   col.Suggestions,
 		Label:         col.Label,
 		IsHidden:      col.IsHidden,
 		LinkNew:       col.LinkNew,

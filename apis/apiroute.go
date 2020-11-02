@@ -118,8 +118,8 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		dto := route.DTO.NewValue()
 		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
 		if err != nil {
-			ctx.SetUserValue("bad_params", "json DTO not parse :"+err.Error())
-			return nil, ErrWrongParamsList
+			badParams["bad_params"] = "json DTO not parse :" + err.Error()
+			return badParams, ErrWrongParamsList
 		}
 
 		ctx.SetUserValue(JSONParams, dto)
