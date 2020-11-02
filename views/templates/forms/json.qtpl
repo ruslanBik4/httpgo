@@ -203,10 +203,10 @@ name="{%s col.InputName(i) %}"
             <input {%= col.RenderAttr(i) %} type="file" accept="image">
         </span>
     {% case col.Suggestions > "" %}
-        <input type="text" src="{%j= col.Suggestions %}"
+        <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
                 onkeyup="inputSearchKeyUp(this,event);" />
-        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;">
+        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
         </select>
     {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
@@ -324,21 +324,25 @@ function inputSearchKeyUp(thisElem, event){
 
         var x = event.which || event.keyCode;
         var elem = $(thisElem)
+        var thisClass = 'select.suggestions-select-show.'+thisElem.attributes.data.value
+        var thisClassH = 'select.suggestions-select-hide.'+thisElem.attributes.data.value
+
             if (x == 40) {
                 elem.unbind("blur");
-                $('select.suggestions-constraints').focus();
-                $('select.suggestions-constraints option:first').selected();
+                $(thisClass).focus();
+                $(thisClass + ' option:first').selected();
 
                return;
             }
 
              elem.on("blur", function(){
 
-                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
+                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
                              return;
-                     }
+                   }
+
                      console.log(event);
-                     $('select.suggestions-constraints').hide();
+                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
                  })
 
              if (elem.val().length < 2) {
@@ -357,18 +361,19 @@ function inputSearchKeyUp(thisElem, event){
                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                },
                success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
+                 $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
+                 .on('keyup', function(event) {
                              var x = event.which || event.keyCode;
                              if (x == 32) {
-                                     thisElem.value = $('select.suggestions-constraints  option:selected').text();
-                                     $('select.suggestions-constraints').hide();
+                                     thisElem.value = $(thisClass + ' option:selected').text();
+                                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
 
                                      return false;
                               }
                        });
-                 $('select.suggestions-constraints option').on('mouseup', function(e) {
+                 $(thisClass + ' option').on('mouseup', function(e) {
                     thisElem.value = $(this).text();
-                    $('select.suggestions-constraints').hide();
+                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
 
                     return true;
                  });
@@ -381,4 +386,18 @@ function inputSearchKeyUp(thisElem, event){
               });
         }
 </script>
+<style>
+.suggestions-select-hide {
+  opacity: 0;
+  height: 0.1px !important;
+  position: absolute;
+  left: -400px;
+}
+
+.suggestions-select-show {
+  opacity: 1;
+  height: 200px !important;
+  position: static;
+}
+</style>
 {% endfunc %}

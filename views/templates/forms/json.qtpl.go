@@ -608,11 +608,19 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer) {
 //line views/templates/forms/json.qtpl:206
 			qw422016.N().J(col.Suggestions)
 //line views/templates/forms/json.qtpl:206
-			qw422016.N().S(`" autocapitalize="none" autocorrect="off" autocomplete="off" onkeyup="inputSearchKeyUp(this,event);" /> <select `)
+			qw422016.N().S(`" data="`)
+//line views/templates/forms/json.qtpl:206
+			qw422016.E().S(col.InputName(i))
+//line views/templates/forms/json.qtpl:206
+			qw422016.N().S(`-sel" autocapitalize="none" autocorrect="off" autocomplete="off" onkeyup="inputSearchKeyUp(this,event);" /> <select `)
 //line views/templates/forms/json.qtpl:209
 			col.StreamRenderAttr(qw422016, i)
 //line views/templates/forms/json.qtpl:209
-			qw422016.N().S(` size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;"> </select> `)
+			qw422016.N().S(` size=10 class="suggestions-select-hide `)
+//line views/templates/forms/json.qtpl:209
+			qw422016.E().S(col.InputName(i))
+//line views/templates/forms/json.qtpl:209
+			qw422016.N().S(`-sel" style="left: -399.109375px; top: 50px;"> </select> `)
 //line views/templates/forms/json.qtpl:211
 		default:
 //line views/templates/forms/json.qtpl:211
@@ -815,21 +823,25 @@ function inputSearchKeyUp(thisElem, event){
 
         var x = event.which || event.keyCode;
         var elem = $(thisElem)
+        var thisClass = 'select.suggestions-select-show.'+thisElem.attributes.data.value
+        var thisClassH = 'select.suggestions-select-hide.'+thisElem.attributes.data.value
+
             if (x == 40) {
                 elem.unbind("blur");
-                $('select.suggestions-constraints').focus();
-                $('select.suggestions-constraints option:first').selected();
+                $(thisClass).focus();
+                $(thisClass + ' option:first').selected();
 
                return;
             }
 
              elem.on("blur", function(){
 
-                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
+                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
                              return;
-                     }
+                   }
+
                      console.log(event);
-                     $('select.suggestions-constraints').hide();
+                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
                  })
 
              if (elem.val().length < 2) {
@@ -848,18 +860,19 @@ function inputSearchKeyUp(thisElem, event){
                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
                },
                success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
+                 $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
+                 .on('keyup', function(event) {
                              var x = event.which || event.keyCode;
                              if (x == 32) {
-                                     thisElem.value = $('select.suggestions-constraints  option:selected').text();
-                                     $('select.suggestions-constraints').hide();
+                                     thisElem.value = $(thisClass + ' option:selected').text();
+                                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
 
                                      return false;
                               }
                        });
-                 $('select.suggestions-constraints option').on('mouseup', function(e) {
+                 $(thisClass + ' option').on('mouseup', function(e) {
                     thisElem.value = $(this).text();
-                    $('select.suggestions-constraints').hide();
+                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
 
                     return true;
                  });
@@ -872,32 +885,46 @@ function inputSearchKeyUp(thisElem, event){
               });
         }
 </script>
+<style>
+.suggestions-select-hide {
+  opacity: 0;
+  height: 0.1px !important;
+  position: absolute;
+  left: -400px;
+}
+
+.suggestions-select-show {
+  opacity: 1;
+  height: 200px !important;
+  position: static;
+}
+</style>
 `)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 }
 
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	f.StreamFormHTML(qw422016, blocks...)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 }
 
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 func (f *FormField) FormHTML(blocks ...BlockColumns) string {
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	f.WriteFormHTML(qb422016, blocks...)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	qs422016 := string(qb422016.B)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 	return qs422016
-//line views/templates/forms/json.qtpl:384
+//line views/templates/forms/json.qtpl:403
 }
