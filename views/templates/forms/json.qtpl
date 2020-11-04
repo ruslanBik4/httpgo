@@ -2,6 +2,7 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
+    "strconv"
 	"sort"
 	"strings"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
@@ -9,7 +10,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% code
     type FormField struct {
-        Title, Action, Method, Description, HideBlock string
+        Title, Action, Method, Description string
+        HideBlock interface{}
     }
 %}
 {% collapsespace %}
@@ -28,7 +30,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     "title" : "{%s= f.Title %}",
     "action": "{%s= f.Action %}",
     "description": "{%s= f.Description %}",
-    "hideBlock": {%s= f.HideBlock %},
+    {% if f.HideBlock != nil %} "hideBlock": {%= json.Element( f.HideBlock ) %},{% endif %}
     "method": "{%s= f.Method %}",
     "blocks": [
         {% for i, block := range blocks %}
@@ -178,11 +180,14 @@ name="{%s col.InputName(i) %}"
 
 {% endfunc %}
 
-{% func (col *ColumnDecor) RenderInputs()  %}
+{% func (col *ColumnDecor) RenderInputs(data map[string]interface {})  %}
  {% for i, val := range col.GetValues() %}
  	{% switch %}
    	{% case  col.SelectOptions != nil %}
-            <select {%= col.RenderAttr(i) %} >
+            <select {%= col.RenderAttr(i) %}
+                    {% if d, ok := data[ col.InputName(i) ].(map[string]interface {}); ok %}
+                      data="{%v d %}"
+                    {% endif %} >
              {%code
                  sortList := make([]string, 0, len(col.SelectOptions))
                  for title := range col.SelectOptions {
@@ -245,21 +250,39 @@ figcaption {
 </style>
 {% code
   idShake := strings.ReplaceAll(f.Title, " ", "_")
+  defBlocks := make([]string, 0)
+  var data map[string]interface {}
+  if h, ok := f.HideBlock.(map[string]interface{}); ok {
+    for _, p := range h["defaultBlocks"].([]interface {}) {
+        defBlocks = append(defBlocks, p.(string))
+    }
+    data = h["data"].(map[string]interface {})
+  }
 %}
 <form id="{%s idShake %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
+      <div>{%= json.Element( defBlocks ) %}</div>
          <figcaption>{%s= f.Description %}</figcaption>
-        {% for idBlock, block := range blocks %}
-            <figure id = "block{%d idBlock %}" >
+        {% for _, block := range blocks %}
+           {% code
+                isHide := (len(defBlocks) > 0)
+                for _, id := range defBlocks {
+                      if id == strconv.Itoa(block.Id) {
+                         isHide = false
+                         break
+                      }
+                }
+           %}
+            <figure id = "block{%d block.Id %}" {% if isHide %} style="display:none"{% endif %} >
             {% if block.Title > "" %} <figcaption>{%s block.Title %}</figcaption>{% endif %}
             {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %} >
                     <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}
-                    {%= col.RenderInputs() %}
+                    {%= col.RenderInputs(data) %}
                     <h6 class="errorLabel">{%s= col.patternDesc %}</h6>
                     </label>
                   </div>
