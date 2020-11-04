@@ -9,7 +9,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% code
     type FormField struct {
-        Title, Action, Method, Description string
+        Title, Action, Method, Description, HideBlock string
     }
 %}
 {% collapsespace %}
@@ -28,6 +28,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     "title" : "{%s= f.Title %}",
     "action": "{%s= f.Action %}",
     "description": "{%s= f.Description %}",
+    "hide_block": {%s= f.HideBlock %},
     "method": "{%s= f.Method %}",
     "blocks": [
         {% for i, block := range blocks %}
@@ -225,6 +226,23 @@ name="{%s col.InputName(i) %}"
 {% endfunc %}
 
 {% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
+<style>
+figure {
+    border: thin #c0c0c0 solid;
+    display: flex;
+    flex-flow: column;
+    padding: 5px;
+    max-width: 80%;
+    margin: auto;
+}
+figcaption {
+    background-color: #222;
+    color: #fff;
+    font: italic smaller sans-serif;
+    padding: 3px;
+    text-align: center;
+}
+</style>
 {% code
   idShake := strings.ReplaceAll(f.Title, " ", "_")
 %}
@@ -233,9 +251,10 @@ name="{%s col.InputName(i) %}"
          oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
          <figcaption>{%s= f.Description %}</figcaption>
-        {% for _, block := range blocks %}
-        <figure title = "{%s block.Title %}">
-        {% if block.Description > "" %} <figcaption>{%s block.Description %} </figcaption> {% endif %}
+        {% for idBlock, block := range blocks %}
+            <figure id = "block{%d idBlock %}" >
+            {% if block.Title > "" %} <figcaption>{%s block.Title%}</figcaption>{% endif %}
+            {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
                   {% if col.IsHidden %} style="display:none" {% endif %} >
@@ -291,6 +310,19 @@ form > span.hiddenInput:hover{
     background: center center no-repeat scroll;
     background-size: contain;
 }
+.suggestions-select-hide {
+  opacity: 0;
+  height: 0.1px !important;
+  position: absolute;
+  left: -400px;
+}
+
+.suggestions-select-show {
+  opacity: 1;
+  height: 200px !important;
+  position: static;
+}
+
 </style>
 <script>
 {% endcollapsespace %}
@@ -386,18 +418,4 @@ function inputSearchKeyUp(thisElem, event){
               });
         }
 </script>
-<style>
-.suggestions-select-hide {
-  opacity: 0;
-  height: 0.1px !important;
-  position: absolute;
-  left: -400px;
-}
-
-.suggestions-select-show {
-  opacity: 1;
-  height: 200px !important;
-  position: static;
-}
-</style>
 {% endfunc %}
