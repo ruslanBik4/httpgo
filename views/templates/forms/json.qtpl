@@ -253,7 +253,7 @@ figcaption {
          <figcaption>{%s= f.Description %}</figcaption>
         {% for idBlock, block := range blocks %}
             <figure id = "block{%d idBlock %}" >
-            {% if block.Title > "" %} <figcaption>{%s block.Title%}</figcaption>{% endif %}
+            {% if block.Title > "" %} <figcaption>{%s block.Title %}</figcaption>{% endif %}
             {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
                 {% for i, col := range block.Columns %}
                   <div id="divField{%d i %}" class="input-wrap"
