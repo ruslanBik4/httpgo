@@ -91,7 +91,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:30
 	qw422016.N().S(f.Description)
 //line views/templates/forms/json.qtpl:30
-	qw422016.N().S(`","hide_block":`)
+	qw422016.N().S(`","hideBlock":`)
 //line views/templates/forms/json.qtpl:31
 	qw422016.N().S(f.HideBlock)
 //line views/templates/forms/json.qtpl:31
