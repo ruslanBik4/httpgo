@@ -124,14 +124,15 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 
 		ctx.SetUserValue(JSONParams, dto)
 
-		d, ok := dto.(CheckDTO)
-		if ok && !d.CheckParams(ctx, badParams) {
+		if d, ok := dto.(CheckDTO); ok && !d.CheckParams(ctx, badParams) {
 			return badParams, ErrWrongParamsList
 		}
 
 		return route.Fnc(ctx)
 
-	} else if route.Multipart {
+	}
+
+	if route.Multipart {
 		// check multipart params
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
@@ -184,6 +185,14 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 
 	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {
 		return badParams, ErrWrongParamsList
+	}
+
+	if route.DTO != nil {
+		dto, ok := route.DTO.NewValue().(CompoundDTO)
+		if ok {
+			dto.ReadParams(ctx)
+			ctx.SetUserValue(JSONParams, dto)
+		}
 	}
 
 	return route.Fnc(ctx)

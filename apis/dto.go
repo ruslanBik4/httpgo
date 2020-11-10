@@ -17,3 +17,7 @@ type RouteDTO interface {
 type CheckDTO interface {
 	CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool
 }
+
+type CompoundDTO interface {
+	ReadParams(ctx *fasthttp.RequestCtx)
+}
