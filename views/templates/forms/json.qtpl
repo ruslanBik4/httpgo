@@ -211,6 +211,7 @@ name="{%s col.InputName(i) %}"
     {% case col.Suggestions > "" %}
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
+                {% if val != nil %} value = "{%v val %}" {% endif %}
                 onkeyup="inputSearchKeyUp(this,event);" />
         <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
         </select>
@@ -262,8 +263,9 @@ figcaption {
 <form id="{%s idShake %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
+         onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
-      <div>{%= json.Element( defBlocks ) %}</div>
+
          <figcaption>{%s= f.Description %}</figcaption>
         {% for _, block := range blocks %}
            {% code
@@ -293,11 +295,13 @@ figcaption {
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
 
   {% endif %}
-       {% endfor %}
 
     <div class="form-actions">
-        <button class="hidden" type="submit">Сохранить</button>
+      {% for _, btn := range block.Buttons %}
+        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="submit">{%s btn.Title %}</button>
+      {% endfor %}
     </div>
+  {% endfor %}
 </form>
 <style>
 .errorLabel {

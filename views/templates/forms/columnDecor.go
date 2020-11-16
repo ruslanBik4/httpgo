@@ -31,6 +31,7 @@ type ColumnDecor struct {
 	patternDesc                   string
 	Value                         interface{}
 	Suggestions                   string
+	IsNewPrimary                  bool
 }
 
 var regPattern = regexp.MustCompile(`\{"pattern":\s*"([^"]+)"\}`)
@@ -233,6 +234,10 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 func (col *ColumnDecor) InputName(i int) string {
 	if col.IsSlice {
 		return col.Name() + "[]"
+	}
+
+	if col.IsNewPrimary {
+		return "new." + col.Name()
 	}
 
 	return col.Name()
