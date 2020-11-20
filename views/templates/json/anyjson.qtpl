@@ -10,9 +10,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% func SliceJSON(mapJSON []map[string]interface{}) %}
 [
-{% for key, arrJSON := range mapJSON %}
-    {% if key>0 %}, {% endif %} {%= AnyJSON(arrJSON)%}
-{% endfor %}
+    {% for key, arrJSON := range mapJSON %}
+        {% if key>0 %}, {% endif %} {%= AnyJSON(arrJSON)%}
+    {% endfor %}
 ]
 {% endfunc %}
 
@@ -80,22 +80,22 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% endfunc %}
 получаем массив произвольной формы и возвращаем JSON текстом
 {% func ArrJSON(arrJSON []interface{} ) %}
- [ {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value) %} {% code  comma = ","   %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %}  {%= Element(value) %}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив объектов произвольной формы и возвращаем JSON текстом
 {% func SimpleDimension(arrJSON []interface{} ) %}
-[  {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
+[
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %}  {%= Element(value)%}
     {% endfor %}
  ]
 {% endfunc %}
 получаем массив строк и возвращаем JSON текстом
 {% func StringDimension(arrJSON []string) %}
- [ {% code comma := "" %}
-    {% for _, value := range  arrJSON %} {%s comma %} {%= Element(value)%} {% code  comma = ","   %}
+ [
+    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
     {% endfor %}
  ]
 {% endfunc %}

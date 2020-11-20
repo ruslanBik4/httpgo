@@ -8,7 +8,9 @@ import (
 	"fmt"
 	"go/types"
 	"strconv"
+	"strings"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
@@ -29,6 +31,7 @@ type APIRouteParamsType interface {
 // TypeInParam has type definition of params ApiRoute
 type TypeInParam struct {
 	types.BasicKind
+	// types.Struct
 	isSlice bool
 }
 
@@ -49,14 +52,19 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	switch t.BasicKind {
 	case types.String:
 		return true
+
 	case types.Bool:
+		value = strings.ToLower(value)
 		return value == "true" || value == "false"
+
 	case types.Int, types.Int8, types.Int16, types.Int32, types.Int64:
 		_, err := strconv.ParseInt(value, 10, 64)
 		return err == nil
+
 	case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
 		_, err := strconv.ParseUint(value, 10, 64)
 		return err == nil
+
 	case types.Float32, types.Float64:
 		_, err := strconv.ParseFloat(value, 64)
 		return err == nil
@@ -71,28 +79,53 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	switch t.BasicKind {
 	case types.String:
 		return value, nil
+
 	case types.Bool:
-		return value == "true", nil
+		return strings.ToLower(value) == "true", nil
+
 	case types.Int:
 		return strconv.Atoi(value)
+
 	case types.Int8:
 		p, err := strconv.ParseInt(value, 10, 8)
 		return int8(p), err
+
 	case types.Int16:
 		p, err := strconv.ParseInt(value, 10, 16)
 		return int16(p), err
 	case types.Int32:
 		p, err := strconv.ParseInt(value, 10, 32)
 		return int32(p), err
+
 	case types.Int64:
 		return strconv.ParseInt(value, 10, 64)
+
 	case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
 		return strconv.ParseUint(value, 10, 64)
+
 	// 	check type convert float64
 	case types.Float32, types.Float64:
 		return strconv.ParseFloat(value, 64)
+
 	case types.UnsafePointer:
 		return nil, nil
+
+	case typesExt.TMap:
+		res := make(map[string]interface{}, 0)
+		err := jsoniter.UnmarshalFromString(value, &res)
+		if err != nil {
+			return nil, errors.Wrap(err, "UnmarshalFromString")
+		}
+		return res, nil
+
+	case typesExt.TArray:
+		res := make([]interface{}, 0)
+		err := jsoniter.UnmarshalFromString(value, &res)
+		if err != nil {
+			return nil, errors.Wrap(err, "UnmarshalFromString")
+		}
+		return res, nil
+
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
 	}

@@ -318,18 +318,16 @@ func Element(value interface{}) string {
 func StreamArrJSON(qw422016 *qt422016.Writer, arrJSON []interface{}) {
 //line views/templates/json/anyjson.qtpl:82
 	qw422016.N().S(`[`)
-//line views/templates/json/anyjson.qtpl:83
-	comma := ""
-
 //line views/templates/json/anyjson.qtpl:84
-	for _, value := range arrJSON {
+	for key, value := range arrJSON {
 //line views/templates/json/anyjson.qtpl:84
-		qw422016.E().S(comma)
+		if key > 0 {
+//line views/templates/json/anyjson.qtpl:84
+			qw422016.N().S(`,`)
+//line views/templates/json/anyjson.qtpl:84
+		}
 //line views/templates/json/anyjson.qtpl:84
 		StreamElement(qw422016, value)
-//line views/templates/json/anyjson.qtpl:84
-		comma = ","
-
 //line views/templates/json/anyjson.qtpl:85
 	}
 //line views/templates/json/anyjson.qtpl:85
@@ -369,18 +367,16 @@ func ArrJSON(arrJSON []interface{}) string {
 func StreamSimpleDimension(qw422016 *qt422016.Writer, arrJSON []interface{}) {
 //line views/templates/json/anyjson.qtpl:89
 	qw422016.N().S(`[`)
-//line views/templates/json/anyjson.qtpl:90
-	comma := ""
-
 //line views/templates/json/anyjson.qtpl:91
-	for _, value := range arrJSON {
+	for key, value := range arrJSON {
 //line views/templates/json/anyjson.qtpl:91
-		qw422016.E().S(comma)
+		if key > 0 {
+//line views/templates/json/anyjson.qtpl:91
+			qw422016.N().S(`,`)
+//line views/templates/json/anyjson.qtpl:91
+		}
 //line views/templates/json/anyjson.qtpl:91
 		StreamElement(qw422016, value)
-//line views/templates/json/anyjson.qtpl:91
-		comma = ","
-
 //line views/templates/json/anyjson.qtpl:92
 	}
 //line views/templates/json/anyjson.qtpl:92
@@ -420,18 +416,16 @@ func SimpleDimension(arrJSON []interface{}) string {
 func StreamStringDimension(qw422016 *qt422016.Writer, arrJSON []string) {
 //line views/templates/json/anyjson.qtpl:96
 	qw422016.N().S(`[`)
-//line views/templates/json/anyjson.qtpl:97
-	comma := ""
-
 //line views/templates/json/anyjson.qtpl:98
-	for _, value := range arrJSON {
+	for key, value := range arrJSON {
 //line views/templates/json/anyjson.qtpl:98
-		qw422016.E().S(comma)
+		if key > 0 {
+//line views/templates/json/anyjson.qtpl:98
+			qw422016.N().S(`,`)
+//line views/templates/json/anyjson.qtpl:98
+		}
 //line views/templates/json/anyjson.qtpl:98
 		StreamElement(qw422016, value)
-//line views/templates/json/anyjson.qtpl:98
-		comma = ","
-
 //line views/templates/json/anyjson.qtpl:99
 	}
 //line views/templates/json/anyjson.qtpl:99

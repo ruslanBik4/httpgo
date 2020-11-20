@@ -99,7 +99,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                        , "title": "{%s= col.Label %}"
 
                         {% if col.IsReadOnly %}
-                         , "readonly": true
+                         , "readOnly": true
                         {% endif %}
                    }
                 {% endfor %}
@@ -114,7 +114,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                          {
                              "buttonType":  "{%s= button.ButtonType %}",
                              "title": "{%s= button.Title %}",
-                             "type": "button"
+                             "type": "{%s= button.ButtonType %}"
                          }
                          {% endfor %}
                          ]
@@ -165,6 +165,16 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
       {%s= col.InputType %}
     {% endswitch %}
 {% endfunc %}
+
+{% func (col *ColumnDecor) RenderValue(value interface{})  %}
+    {% switch vv := value.(type) %}
+      {% case string %} {%s= strings.ReplaceAll( vv, "\r\n", `
+      `) %}
+      {% default %}
+            {%= json.Element(value) %}
+      {% endswitch %}
+{% endfunc %}
+
 {% endstripspace %}
 
 {% func (col *ColumnDecor) RenderAttr(i int)  %}
@@ -186,8 +196,10 @@ name="{%s col.InputName(i) %}"
    	{% case  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %}
                     {% if d, ok := data[ col.InputName(i) ].(map[string]interface {}); ok %}
-                      data="{%v d %}"
-                    {% endif %} >
+                      data-show-blocks='{%= json.Element(d) %}'
+                      onchange="ShowBlocks(this);"
+                    {% endif %}
+             >
              {%code
                  sortList := make([]string, 0, len(col.SelectOptions))
                  for title := range col.SelectOptions {
@@ -196,12 +208,14 @@ name="{%s col.InputName(i) %}"
                  sort.Strings(sortList)
              %}
              {% for _, title := range sortList %}
-                <option value="{%s col.SelectOptions[title] %}" {% if v, ok := val.(string); ok && v == col.SelectOptions[title] %} selected {% endif %} >{%s title %}</option>
+                <option value="{%s col.SelectOptions[title] %}"
+                {% if v, ok := val.(string); ok && v == col.SelectOptions[title] %} selected {% endif %}
+                >{%s title %}</option>
              {% endfor %}
           </select>
  	{% case col.InputType == "textarea" %}
                 <textarea {%= col.RenderAttr(i) %} >
-                  {% if val != nil %}{%v val %}{% endif %}
+                  {% if val != nil %}{%= col.RenderValue(val) %}{% endif %}
                </textarea>
   	{% case col.InputType == "file" %}
         <span class="hiddenInput"
@@ -211,13 +225,13 @@ name="{%s col.InputName(i) %}"
     {% case col.Suggestions > "" %}
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
-                {% if val != nil %} value = "{%v val %}" {% endif %}
+                {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
                 onkeyup="inputSearchKeyUp(this,event);" />
         <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
         </select>
     {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
-                {% if val != nil %} value = "{%v val %}" {% endif %}
+                {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
                >
     {% endswitch %}
 
@@ -298,7 +312,7 @@ figcaption {
 
     <div class="form-actions">
       {% for _, btn := range block.Buttons %}
-        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="submit">{%s btn.Title %}</button>
+        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.ButtonType %}">{%s btn.Title %}</button>
       {% endfor %}
     </div>
   {% endfor %}
@@ -443,6 +457,12 @@ function inputSearchKeyUp(thisElem, event){
                    console.log(error);
                }
               });
-        }
+}
+
+function ShowBlocks(thisElem){
+    d=$(thisElem).data('show-blocks');
+    $(this).parents('form').children('figure').hide();
+    d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
+}
 </script>
 {% endfunc %}

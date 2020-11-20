@@ -259,7 +259,7 @@ func (col *ColumnDecor) inputType() string {
 		return "datetime"
 	case email, tel, "tel", "password", "url":
 		return col.Type()
-	case "text", "_text":
+	case "text", "_text", "json", "jsonb":
 		return "textarea"
 	case "bytea", "_bytea":
 		return "file"
