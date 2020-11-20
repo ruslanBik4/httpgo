@@ -12,6 +12,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
@@ -33,18 +34,28 @@ type TypeInParam struct {
 	types.BasicKind
 	// types.Struct
 	isSlice bool
+	dto     CheckDTO
 }
 
 // NewTypeInParam create TypeInParam
 func NewTypeInParam(bk types.BasicKind) TypeInParam {
 
 	return TypeInParam{
-		BasicKind: bk}
+		BasicKind: bk,
+	}
+}
+
+func NewStructInParam(dto CheckDTO) TypeInParam {
+
+	return TypeInParam{
+		BasicKind: typesExt.TStruct,
+		dto:       dto,
+	}
 }
 
 // NewTypeInParam create TypeInParam
 func NewSliceTypeInParam(bk types.BasicKind) TypeInParam {
-	return TypeInParam{bk, true}
+	return TypeInParam{bk, true, nil}
 }
 
 // CheckType check of value computable with the TypeInParam
@@ -69,6 +80,14 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		_, err := strconv.ParseFloat(value, 64)
 		return err == nil
 
+	case typesExt.TStruct:
+		badParams := make(map[string]string)
+		ok := t.dto.CheckParams(ctx, badParams)
+		if len(badParams) > 0 {
+			logs.ErrorLog(ErrWrongParamsList, badParams)
+		}
+
+		return ok && len(badParams) == 0
 	default:
 		return true
 	}
@@ -125,6 +144,14 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
 		return res, nil
+
+	case typesExt.TStruct:
+		// t.dto.CheckParams(ctx)
+		err := jsoniter.UnmarshalFromString(value, &(t.dto))
+		if err != nil {
+			return nil, errors.Wrap(err, "UnmarshalFromString")
+		}
+		return t.dto, nil
 
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
