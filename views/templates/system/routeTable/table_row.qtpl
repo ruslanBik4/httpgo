@@ -118,6 +118,15 @@ function getElementsByText(str, name) {
                                     }
                                   %}
 
+                            {% case []int32 %}
+                                  {% for _, val := range val %}
+                                    {%v= val %}
+                                  {% endfor %}
+
+                            {% case []int64 %}
+                                  {% for _, val := range val %}
+                                    {%v= val %}
+                                  {% endfor %}
 
                             {% case map[string]string %}
                                 <table>

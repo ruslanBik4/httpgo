@@ -2,6 +2,7 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
+    "fmt"
     "strconv"
 	"sort"
 	"strings"
@@ -191,8 +192,15 @@ name="{%s col.InputName(i) %}"
 {% endfunc %}
 
 {% func (col *ColumnDecor) RenderInputs(data map[string]interface {})  %}
+ {% if col.IsSlice %}
+    <ul class="form-field">
+ {% endif %}
  {% for i, val := range col.GetValues() %}
- 	{% switch %}
+  {% if col.IsSlice %}
+     <li class="form-field">
+  {% endif %}
+
+	{% switch %}
    	{% case  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %}
                     {% if d, ok := data[ col.InputName(i) ].(map[string]interface {}); ok %}
@@ -209,7 +217,7 @@ name="{%s col.InputName(i) %}"
              %}
              {% for _, title := range sortList %}
                 <option value="{%s col.SelectOptions[title] %}"
-                {% if v, ok := val.(string); ok && v == col.SelectOptions[title] %} selected {% endif %}
+                {% if fmt.Sprintf("%v", val) == col.SelectOptions[title] %} selected {% endif %}
                 >{%s title %}</option>
              {% endfor %}
           </select>
@@ -234,14 +242,19 @@ name="{%s col.InputName(i) %}"
                 {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
                >
     {% endswitch %}
+ {% if col.IsSlice %}
+         <button class="removeField" type="button"
+             onclick="this.parentNode.remove(); return false;">-</button>
+    </li>
+ {% endif %}
 
  {% endfor %}
  {% if col.IsSlice %}
+     <li class="form-field">
         <button class="main-btn" type="button"
-            onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">+</button>
-        <button class="main-btn" type="button"
-            onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(), this); return false;">-</button>
-
+            onclick="l = this.parentNode; l.parentNode.insertBefore(l.previousElementSibling.cloneNode(true), l); return false;">+</button>
+    </li>
+    </ul>
  {% endif %}
 {% endfunc %}
 
@@ -261,6 +274,34 @@ figcaption {
     font: italic smaller sans-serif;
     padding: 3px;
     text-align: center;
+}
+.input-label{
+    position: relative;
+}
+li.form-field{
+    position: relative;
+    margin: 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    box-sizing: border-box;
+}
+ul.form-field{
+    position: relative;
+    margin: 0 -10px;
+    list-style: none;
+    background-color: white;
+}
+.removeField {
+    position: absolute;
+    top: 4px;
+    right: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffa30c;
+    z-index: 1;
+    transition: all .3s ease-in-out;
 }
 </style>
 {% code

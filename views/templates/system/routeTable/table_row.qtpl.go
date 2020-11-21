@@ -200,11 +200,27 @@ function getElementsByText(str, name) {
 					colDeep[i] = len(val)
 				}
 
+//line views/templates/system/routeTable/table_row.qtpl:121
+			case []int32:
 //line views/templates/system/routeTable/table_row.qtpl:122
-			case map[string]string:
-//line views/templates/system/routeTable/table_row.qtpl:122
-				qw422016.N().S(`<table>`)
+				for _, val := range val {
+//line views/templates/system/routeTable/table_row.qtpl:123
+					qw422016.N().V(val)
+//line views/templates/system/routeTable/table_row.qtpl:124
+				}
 //line views/templates/system/routeTable/table_row.qtpl:126
+			case []int64:
+//line views/templates/system/routeTable/table_row.qtpl:127
+				for _, val := range val {
+//line views/templates/system/routeTable/table_row.qtpl:128
+					qw422016.N().V(val)
+//line views/templates/system/routeTable/table_row.qtpl:129
+				}
+//line views/templates/system/routeTable/table_row.qtpl:131
+			case map[string]string:
+//line views/templates/system/routeTable/table_row.qtpl:131
+				qw422016.N().S(`<table>`)
+//line views/templates/system/routeTable/table_row.qtpl:135
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -215,31 +231,31 @@ function getElementsByText(str, name) {
 				}
 				sort.Strings(sortList)
 
-//line views/templates/system/routeTable/table_row.qtpl:136
+//line views/templates/system/routeTable/table_row.qtpl:145
 				for _, key := range sortList {
-//line views/templates/system/routeTable/table_row.qtpl:136
+//line views/templates/system/routeTable/table_row.qtpl:145
 					qw422016.N().S(`<tr><td><b>`)
-//line views/templates/system/routeTable/table_row.qtpl:137
+//line views/templates/system/routeTable/table_row.qtpl:146
 					qw422016.N().S(key)
-//line views/templates/system/routeTable/table_row.qtpl:137
+//line views/templates/system/routeTable/table_row.qtpl:146
 					qw422016.N().S(`</b></td><td>`)
-//line views/templates/system/routeTable/table_row.qtpl:137
+//line views/templates/system/routeTable/table_row.qtpl:146
 					qw422016.N().S(val[key])
-//line views/templates/system/routeTable/table_row.qtpl:137
+//line views/templates/system/routeTable/table_row.qtpl:146
 					qw422016.N().S(`</td></tr>`)
-//line views/templates/system/routeTable/table_row.qtpl:139
+//line views/templates/system/routeTable/table_row.qtpl:148
 					lenVal := (lSymb+2)*len(key) + lSymb*len(val[key]) + 2
 					if lenVal > colLen[i] {
 						colLen[i] = lenVal
 					}
 
-//line views/templates/system/routeTable/table_row.qtpl:144
+//line views/templates/system/routeTable/table_row.qtpl:153
 				}
-//line views/templates/system/routeTable/table_row.qtpl:144
+//line views/templates/system/routeTable/table_row.qtpl:153
 				qw422016.N().S(`</table>`)
-//line views/templates/system/routeTable/table_row.qtpl:147
+//line views/templates/system/routeTable/table_row.qtpl:156
 			case map[string]interface{}:
-//line views/templates/system/routeTable/table_row.qtpl:150
+//line views/templates/system/routeTable/table_row.qtpl:159
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -250,76 +266,76 @@ function getElementsByText(str, name) {
 				}
 				sort.Strings(sortList)
 
-//line views/templates/system/routeTable/table_row.qtpl:160
+//line views/templates/system/routeTable/table_row.qtpl:169
 				for _, key := range sortList {
-//line views/templates/system/routeTable/table_row.qtpl:160
+//line views/templates/system/routeTable/table_row.qtpl:169
 					qw422016.N().S(`<b>`)
-//line views/templates/system/routeTable/table_row.qtpl:161
+//line views/templates/system/routeTable/table_row.qtpl:170
 					qw422016.N().S(key)
-//line views/templates/system/routeTable/table_row.qtpl:161
+//line views/templates/system/routeTable/table_row.qtpl:170
 					qw422016.N().S(`</b>:`)
-//line views/templates/system/routeTable/table_row.qtpl:161
+//line views/templates/system/routeTable/table_row.qtpl:170
 					json.StreamElement(qw422016, val[key])
-//line views/templates/system/routeTable/table_row.qtpl:161
+//line views/templates/system/routeTable/table_row.qtpl:170
 					qw422016.N().S(`<br>`)
-//line views/templates/system/routeTable/table_row.qtpl:162
+//line views/templates/system/routeTable/table_row.qtpl:171
 				}
-//line views/templates/system/routeTable/table_row.qtpl:164
+//line views/templates/system/routeTable/table_row.qtpl:173
 			case []interface{}:
-//line views/templates/system/routeTable/table_row.qtpl:166
+//line views/templates/system/routeTable/table_row.qtpl:175
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
 
-//line views/templates/system/routeTable/table_row.qtpl:170
-				for _, value := range val {
-//line views/templates/system/routeTable/table_row.qtpl:172
-					if m, ok := value.(map[string]interface{}); ok {
-//line views/templates/system/routeTable/table_row.qtpl:172
-						qw422016.N().S(`<p>`)
-//line views/templates/system/routeTable/table_row.qtpl:174
-						for key, value := range m {
-//line views/templates/system/routeTable/table_row.qtpl:174
-							qw422016.N().S(`<b>`)
-//line views/templates/system/routeTable/table_row.qtpl:175
-							qw422016.E().S(key)
-//line views/templates/system/routeTable/table_row.qtpl:175
-							qw422016.N().S(`</b>:`)
-//line views/templates/system/routeTable/table_row.qtpl:175
-							json.StreamElement(qw422016, value)
-//line views/templates/system/routeTable/table_row.qtpl:175
-							qw422016.N().S(`<br>`)
-//line views/templates/system/routeTable/table_row.qtpl:176
-						}
-//line views/templates/system/routeTable/table_row.qtpl:176
-						qw422016.N().S(`</p>`)
-//line views/templates/system/routeTable/table_row.qtpl:178
-					} else {
 //line views/templates/system/routeTable/table_row.qtpl:179
-						json.StreamElement(qw422016, value)
-//line views/templates/system/routeTable/table_row.qtpl:180
-					}
-//line views/templates/system/routeTable/table_row.qtpl:182
-				}
+				for _, value := range val {
+//line views/templates/system/routeTable/table_row.qtpl:181
+					if m, ok := value.(map[string]interface{}); ok {
+//line views/templates/system/routeTable/table_row.qtpl:181
+						qw422016.N().S(`<p>`)
 //line views/templates/system/routeTable/table_row.qtpl:183
-			default:
+						for key, value := range m {
+//line views/templates/system/routeTable/table_row.qtpl:183
+							qw422016.N().S(`<b>`)
 //line views/templates/system/routeTable/table_row.qtpl:184
+							qw422016.E().S(key)
+//line views/templates/system/routeTable/table_row.qtpl:184
+							qw422016.N().S(`</b>:`)
+//line views/templates/system/routeTable/table_row.qtpl:184
+							json.StreamElement(qw422016, value)
+//line views/templates/system/routeTable/table_row.qtpl:184
+							qw422016.N().S(`<br>`)
+//line views/templates/system/routeTable/table_row.qtpl:185
+						}
+//line views/templates/system/routeTable/table_row.qtpl:185
+						qw422016.N().S(`</p>`)
+//line views/templates/system/routeTable/table_row.qtpl:187
+					} else {
+//line views/templates/system/routeTable/table_row.qtpl:188
+						json.StreamElement(qw422016, value)
+//line views/templates/system/routeTable/table_row.qtpl:189
+					}
+//line views/templates/system/routeTable/table_row.qtpl:191
+				}
+//line views/templates/system/routeTable/table_row.qtpl:192
+			default:
+//line views/templates/system/routeTable/table_row.qtpl:193
 				json.StreamElement(qw422016, row[i])
-//line views/templates/system/routeTable/table_row.qtpl:185
+//line views/templates/system/routeTable/table_row.qtpl:194
 			}
-//line views/templates/system/routeTable/table_row.qtpl:185
+//line views/templates/system/routeTable/table_row.qtpl:194
 			qw422016.N().S(`</div>`)
-//line views/templates/system/routeTable/table_row.qtpl:187
+//line views/templates/system/routeTable/table_row.qtpl:196
 		}
-//line views/templates/system/routeTable/table_row.qtpl:187
+//line views/templates/system/routeTable/table_row.qtpl:196
 		qw422016.N().S(`</div>`)
-//line views/templates/system/routeTable/table_row.qtpl:191
-	}
-//line views/templates/system/routeTable/table_row.qtpl:191
-	qw422016.N().S(`</div></div></div></div><style>`)
-//line views/templates/system/routeTable/table_row.qtpl:198
-	for i, cLen := range colLen {
 //line views/templates/system/routeTable/table_row.qtpl:200
+	}
+//line views/templates/system/routeTable/table_row.qtpl:200
+	qw422016.N().S(`</div></div></div></div><style>`)
+//line views/templates/system/routeTable/table_row.qtpl:207
+	for i, cLen := range colLen {
+//line views/templates/system/routeTable/table_row.qtpl:209
 		if columns[i].BasicType() == types.UnsafePointer {
 			cLen = 20 * lSymb
 		} else if (cLen > 50*lSymb) && (colDeep[i] == 1) {
@@ -327,71 +343,71 @@ function getElementsByText(str, name) {
 		}
 		allWidth += cLen
 
-//line views/templates/system/routeTable/table_row.qtpl:207
+//line views/templates/system/routeTable/table_row.qtpl:216
 		qw422016.N().S(`.table-col-`)
-//line views/templates/system/routeTable/table_row.qtpl:208
+//line views/templates/system/routeTable/table_row.qtpl:217
 		qw422016.N().D(i)
-//line views/templates/system/routeTable/table_row.qtpl:208
+//line views/templates/system/routeTable/table_row.qtpl:217
 		qw422016.N().S(`{width:`)
-//line views/templates/system/routeTable/table_row.qtpl:209
+//line views/templates/system/routeTable/table_row.qtpl:218
 		qw422016.N().D(cLen)
-//line views/templates/system/routeTable/table_row.qtpl:209
+//line views/templates/system/routeTable/table_row.qtpl:218
 		qw422016.N().S(`px;}.usr-table-row-cont > .usr-table-row > .table-col-`)
-//line views/templates/system/routeTable/table_row.qtpl:211
+//line views/templates/system/routeTable/table_row.qtpl:220
 		qw422016.N().D(i)
-//line views/templates/system/routeTable/table_row.qtpl:211
+//line views/templates/system/routeTable/table_row.qtpl:220
 		qw422016.N().S(`{text-align:`)
-//line views/templates/system/routeTable/table_row.qtpl:212
+//line views/templates/system/routeTable/table_row.qtpl:221
 		switch columns[i].InputType {
-//line views/templates/system/routeTable/table_row.qtpl:213
+//line views/templates/system/routeTable/table_row.qtpl:222
 		case "number":
-//line views/templates/system/routeTable/table_row.qtpl:213
+//line views/templates/system/routeTable/table_row.qtpl:222
 			qw422016.N().S(`center`)
-//line views/templates/system/routeTable/table_row.qtpl:214
+//line views/templates/system/routeTable/table_row.qtpl:223
 		case "date", "datetime":
-//line views/templates/system/routeTable/table_row.qtpl:214
+//line views/templates/system/routeTable/table_row.qtpl:223
 			qw422016.N().S(`right`)
-//line views/templates/system/routeTable/table_row.qtpl:215
+//line views/templates/system/routeTable/table_row.qtpl:224
 		default:
-//line views/templates/system/routeTable/table_row.qtpl:215
+//line views/templates/system/routeTable/table_row.qtpl:224
 			qw422016.N().S(`left`)
-//line views/templates/system/routeTable/table_row.qtpl:216
+//line views/templates/system/routeTable/table_row.qtpl:225
 		}
-//line views/templates/system/routeTable/table_row.qtpl:216
+//line views/templates/system/routeTable/table_row.qtpl:225
 		qw422016.N().S(`;}`)
-//line views/templates/system/routeTable/table_row.qtpl:218
+//line views/templates/system/routeTable/table_row.qtpl:227
 	}
-//line views/templates/system/routeTable/table_row.qtpl:218
+//line views/templates/system/routeTable/table_row.qtpl:227
 	qw422016.N().S(`.table-custom{width:`)
-//line views/templates/system/routeTable/table_row.qtpl:220
+//line views/templates/system/routeTable/table_row.qtpl:229
 	qw422016.N().D(allWidth)
-//line views/templates/system/routeTable/table_row.qtpl:220
+//line views/templates/system/routeTable/table_row.qtpl:229
 	qw422016.N().S(`px;}</style>`)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 }
 
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 func WriteTableRow(qq422016 qtio422016.Writer, columns []*forms.ColumnDecor, rows [][]interface{}) {
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	StreamTableRow(qw422016, columns, rows)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 }
 
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 func TableRow(columns []*forms.ColumnDecor, rows [][]interface{}) string {
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	WriteTableRow(qb422016, columns, rows)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	qs422016 := string(qb422016.B)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 	return qs422016
-//line views/templates/system/routeTable/table_row.qtpl:223
+//line views/templates/system/routeTable/table_row.qtpl:232
 }
