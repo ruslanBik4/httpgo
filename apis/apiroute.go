@@ -467,17 +467,17 @@ func (r MapRoutes) GetTestRouteSuffix(route *ApiRoute) string {
 	return testRouteSuffix
 }
 func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
-	path := string(ctx.Path())
+	pathURL := string(ctx.Path())
 	method := methodFromName(string(ctx.Method()))
 
 	// check exactly
-	if route, ok := r[method][path]; ok {
+	if route, ok := r[method][pathURL]; ok {
 		return route, nil
 	}
 
-	// find parent path with some method
-	if route, parent := r.findParentRoute(method, path); route != nil {
-		ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(path, parent))
+	// find parent pathURL with some method
+	if route, parent := r.findParentRoute(method, pathURL); route != nil {
+		ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(pathURL, parent))
 		return route, nil
 	}
 
@@ -485,7 +485,7 @@ func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 		if method == m {
 			continue
 		}
-		route, ok := routes[path]
+		route, ok := routes[pathURL]
 		if ok {
 			return route, errMethodNotAllowed
 		}

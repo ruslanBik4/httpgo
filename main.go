@@ -449,6 +449,9 @@ func main() {
 		logs.StatusLog("Server correct shutdown")
 	}()
 
+	if !strings.HasPrefix(*fPort, ":") {
+		*fPort = ":" + *fPort
+	}
 	listener, err := net.Listen("tcp", *fPort)
 	if err != nil {
 		logs.Fatal(err)

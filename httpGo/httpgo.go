@@ -68,13 +68,29 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.Logger = &fastHTTPLogger{}
 
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
-	cfg.Server.Handler = apis.Handler
+	logs.DebugLog("Subdomains is %+v", cfg.Domains)
+	if len(cfg.Domains) == 0 {
+		cfg.Server.Handler = apis.Handler
+	} else {
+		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
+			for subD, ip := range cfg.Domains {
+				if strings.HasPrefix(string(ctx.Host()), subD) {
+					ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
+					return
+				}
+			}
+
+			apis.Handler(ctx)
+		}
+	}
+
 	if cfg.Access.ChkConn {
 		listener = &blockListener{
 			listener,
 			cfg,
 		}
 	} else if cfg.IsAccess() {
+		handler := cfg.Server.Handler
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
 			addr := string(ipClient)
@@ -90,7 +106,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			}
 
 			if cfg.Allow(ctx, addr) && !cfg.Deny(ctx, addr) {
-				apis.Handler(ctx)
+				handler(ctx)
 				return
 			}
 
@@ -104,6 +120,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				Desc: "reload cfg of httpgo from starting config file",
 				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
 					return cfg.Reload()
+				},
+			},
+			"/httpgo/cfg/": {
+				Desc: "show config of httpgo",
+				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+					return cfg, nil
 				},
 			},
 		}

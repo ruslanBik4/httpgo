@@ -27,6 +27,7 @@ type AccessConf struct {
 // CfgHttp has some options for Acceptor work
 type CfgHttp struct {
 	fileCfg string
+	Domains map[string]string `yaml:"Domains"`
 	// list tokens to check requests
 	KillSignal int              `yaml:"KillSignal"`
 	Server     *fasthttp.Server `yaml:"Server"`
