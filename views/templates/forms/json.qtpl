@@ -75,9 +75,11 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             "list": [
                                      {% for i, val := range values %}
                                        {% if i > 0 %} , {% endif %}
+                                            {% if val != nil %}
                                                {
                                                  "value": "{%v val %}"
                                                }
+                                            {% endif %}
                                      {% endfor %}
                                      ]
                          {% else %}
@@ -225,9 +227,7 @@ name="{%s col.InputName(i) %}"
              {% endfor %}
           </select>
  	{% case col.InputType == "textarea" %}
-                <textarea {%= col.RenderAttr(i) %} >
-                  {% if val != nil %}{%= col.RenderValue(val) %}{% endif %}
-               </textarea>
+          <textarea {%= col.RenderAttr(i) %} >{% if val != nil %}{%= col.RenderValue(val) %}{% endif %}</textarea>
   	{% case col.InputType == "file" %}
         <span class="hiddenInput"
             style="background-image: url('{%v val %}');">

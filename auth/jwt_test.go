@@ -108,7 +108,7 @@ func TestAuthBearer_NewToken(t *testing.T) {
 		{
 			"1",
 			fields{
-				&mapTokens{
+				&MapTokens{
 					expiresIn: time.Hour,
 					tokens:    map[string]*mapToken{},
 				},
@@ -122,7 +122,7 @@ func TestAuthBearer_NewToken(t *testing.T) {
 		{
 			"2",
 			fields{
-				&mapTokens{
+				&MapTokens{
 					expiresIn: time.Hour,
 					tokens:    map[string]*mapToken{},
 				},
@@ -136,7 +136,7 @@ func TestAuthBearer_NewToken(t *testing.T) {
 		{
 			"3",
 			fields{
-				&mapTokens{
+				&MapTokens{
 					expiresIn: time.Hour,
 					tokens:    map[string]*mapToken{},
 				},

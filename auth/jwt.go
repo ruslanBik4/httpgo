@@ -21,7 +21,7 @@ type AuthBearer struct {
 
 func NewAuthBearer(tokens Tokens) *AuthBearer {
 	if tokens == nil {
-		tokens = &mapTokens{
+		tokens = &MapTokens{
 			expiresIn: tokenExpires,
 			tokens:    make(map[string]*mapToken, 0),
 		}
@@ -32,6 +32,10 @@ func NewAuthBearer(tokens Tokens) *AuthBearer {
 
 func (a *AuthBearer) NewToken(userData TokenData) (string, error) {
 	return a.tokens.NewToken(userData)
+}
+
+func (a *AuthBearer) RemoveToken(s string) error {
+	return a.tokens.RemoveToken(s)
 }
 
 func (a *AuthBearer) GetToken(ctx *fasthttp.RequestCtx) TokenData {

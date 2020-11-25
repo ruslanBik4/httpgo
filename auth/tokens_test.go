@@ -59,7 +59,7 @@ func Test_mapTokens_GetToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mapTokens{
+			m := &MapTokens{
 				expiresIn: tt.fields.expiresIn,
 				tokens:    tt.fields.tokens,
 				lock:      tt.fields.lock,
@@ -91,7 +91,7 @@ func Test_mapTokens_NewToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mapTokens{
+			m := &MapTokens{
 				expiresIn: tt.fields.expiresIn,
 				tokens:    tt.fields.tokens,
 				lock:      tt.fields.lock,
@@ -122,7 +122,7 @@ func Test_mapTokens_RemoveToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &mapTokens{
+			m := &MapTokens{
 				expiresIn: tt.fields.expiresIn,
 				tokens:    tt.fields.tokens,
 				lock:      tt.fields.lock,

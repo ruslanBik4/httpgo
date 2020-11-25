@@ -29,15 +29,20 @@ type mapToken struct {
 	lock      *sync.RWMutex
 }
 
-type mapTokens struct {
+type MapTokens struct {
 	expiresIn time.Duration
 	tokens    map[string]*mapToken
 	lock      sync.RWMutex
 }
 
-func (m *mapTokens) NewToken(userData TokenData) (string, error) {
+func NewMapTokens(expiresIn time.Duration) *MapTokens {
+	return &MapTokens{expiresIn: expiresIn}
+}
+
+func (m *MapTokens) NewToken(userData TokenData) (string, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
+
 	if m.tokens == nil {
 		m.tokens = make(map[string]*mapToken, 0)
 	}
@@ -62,7 +67,7 @@ func (m *mapTokens) NewToken(userData TokenData) (string, error) {
 	return s, nil
 }
 
-func (m *mapTokens) GetToken(s string) TokenData {
+func (m *MapTokens) GetToken(s string) TokenData {
 	m.lock.RLock()
 	defer m.lock.RUnlock()
 
@@ -74,7 +79,7 @@ func (m *mapTokens) GetToken(s string) TokenData {
 	return nil
 }
 
-func (m *mapTokens) RemoveToken(s string) error {
+func (m *MapTokens) RemoveToken(s string) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
