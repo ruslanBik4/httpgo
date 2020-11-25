@@ -12,8 +12,6 @@ import (
 	"github.com/ruslanBik4/logs"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/polymer/auth"
 )
 
 func TestAuthBasic_AdminAuth(t *testing.T) {
@@ -34,7 +32,7 @@ func TestAuthBasic_AdminAuth(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &AuthBasic{
-				auth.tokens: tt.fields.tokens,
+				tokens: tt.fields.tokens,
 			}
 			if got := a.AdminAuth(tt.args.ctx); got != tt.want {
 				t.Errorf("AdminAuth() = %v, want %v", got, tt.want)
@@ -61,7 +59,7 @@ func TestAuthBasic_Auth(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &AuthBasic{
-				auth.tokens: tt.fields.tokens,
+				tokens: tt.fields.tokens,
 			}
 			if got := a.Auth(tt.args.ctx); got != tt.want {
 				t.Errorf("Auth() = %v, want %v", got, tt.want)
@@ -84,7 +82,7 @@ func TestAuthBasic_String(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &AuthBasic{
-				auth.tokens: tt.fields.tokens,
+				tokens: tt.fields.tokens,
 			}
 			if got := a.String(); got != tt.want {
 				t.Errorf("String() = %v, want %v", got, tt.want)
@@ -179,7 +177,7 @@ func TestAuthBasic_getBasic(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			a := &AuthBasic{
-				auth.tokens: tt.fields.tokens,
+				tokens: tt.fields.tokens,
 			}
 			ctx := &fasthttp.RequestCtx{}
 			enc := base64.StdEncoding
@@ -189,7 +187,7 @@ func TestAuthBasic_getBasic(t *testing.T) {
 			} else {
 				ctx.Request.Header.Set("Authorization", "Basic "+enc.EncodeToString([]byte(tt.args.header)))
 			}
-			P, U, ok := a.getBasic(ctx)
+			P, U, ok := a.getUserPass(a.getBasic(ctx))
 
 			assert.Equal(t, tt.p, P)
 			assert.Equal(t, tt.u, U)
@@ -218,7 +216,7 @@ func TestAuthBasic_getBasic_Hash(t *testing.T) {
 
 	ctx := &fasthttp.RequestCtx{}
 	ctx.Request.Header.Set("Authorization", "Basic "+b)
-	P, U, ok := a.getBasic(ctx)
+	P, U, ok := a.getUserPass(a.getBasic(ctx))
 
 	assert.Equal(t, tt.p, P)
 	assert.Equal(t, tt.u, U)
@@ -244,7 +242,7 @@ func TestAuthBasic_getBasic_Alladin(t *testing.T) {
 
 	ctx := &fasthttp.RequestCtx{}
 	ctx.Request.Header.Set("Authorization", "Basic "+b)
-	P, U, ok := a.getBasic(ctx)
+	P, U, ok := a.getUserPass(a.getBasic(ctx))
 	assert.Equal(t, tt.p, P)
 	assert.Equal(t, tt.u, U)
 	assert.Equal(t, tt.ok, ok)
@@ -264,7 +262,7 @@ func TestNewAuthBasic(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewAuthBasic(tt.args.tokens); !reflect.DeepEqual(got, tt.want) {
+			if got := NewAuthBasic(tt.args.tokens, nil); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewAuthBasic() = %v, want %v", got, tt.want)
 			}
 		})
