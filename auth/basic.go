@@ -30,39 +30,36 @@ func NewAuthBasic(tokens Tokens, fnc fncNewTokenData) *AuthBasic {
 func (a *AuthBasic) Auth(ctx *fasthttp.RequestCtx) bool {
 
 	b := a.getBasic(ctx)
-	if len(b) == 0 {
-		return false
-	}
-	token, ok := a.mapBasicToTokens[string(b)]
-	if ok {
-		data := a.tokens.GetToken(token)
-		if data != nil {
-			ctx.Response.Header.Set("token", token)
-			return true
-		}
-	}
-
-	u, p, ok := a.getUserPass(b)
-	if ok {
-		data := a.NewTokenData(ctx, u, p)
-		if data == nil {
-			return false
+	if len(b) > 0 {
+		token, ok := a.mapBasicToTokens[string(b)]
+		if ok {
+			data := a.tokens.GetToken(token)
+			if data != nil {
+				ctx.Response.Header.Set("token", token)
+				return true
+			}
 		}
 
-		token, err := a.tokens.NewToken(data)
-		if err != nil {
-			logs.ErrorLog(errors.Wrap(err, ""))
-			return false
+		u, p, ok := a.getUserPass(b)
+		if ok {
+			data := a.NewTokenData(ctx, u, p)
+			if data != nil {
+
+				token, err := a.tokens.NewToken(data)
+				if err == nil {
+					a.mapBasicToTokens[string(b)] = token
+					ctx.Response.Header.Set("token", token)
+
+					return true
+				}
+				logs.ErrorLog(errors.Wrap(err, ""))
+
+			}
 		}
-
-		a.mapBasicToTokens[string(b)] = token
-		ctx.Response.Header.Set("token", token)
-
-		return true
+		logs.DebugLog("%s:'%s'", string(p), string(u))
 	}
 
 	ctx.Response.Header.Set("WWW-Authenticate", `Basic realm="User Visible Realm", charset="UTF-8"`)
-	logs.DebugLog("%s:'%s'", string(p), string(u))
 
 	return false
 }
