@@ -143,19 +143,23 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
             }
             sort.Strings(sortList)
         %}
-        {% for _, title := range sortList %}
-         {
+        {% for i, title := range sortList %}
+             {% if i > 0 %},{% endif %}
+            {
                     "title": "{%s title %}",
                     "label": "{%s title %}",
                     "value": "{%s col.SelectOptions[title] %}"
-         },
+            }
         {% endfor %}
-                  {
+         {% if col.SelectWithNew %}
+         ,
+                 {
                     "title": "add new item",
                     "label": "add new item",
                     "value": "new"
                   }
-        ]
+        {% endif %}
+       ]
     {% endif %}
 {% endfunc %}
 
@@ -505,7 +509,7 @@ function inputSearchKeyUp(thisElem, event){
 
 function ShowBlocks(thisElem){
     d=$(thisElem).data('show-blocks');
-    $(this).parents('form').children('figure').hide();
+    $(thisElem).parents('form').children('figure').hide();
     d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
 }
 </script>

@@ -19,19 +19,19 @@ import (
 
 type ColumnDecor struct {
 	dbEngine.Column
-	IsHidden, IsDisabled, IsReadOnly, IsSlice bool
-	InputType                                 string
-	SelectOptions                             map[string]string
-	PatternList                               dbEngine.Table
-	PatternName                               string
-	PlaceHolder                               string
-	LinkNew                                   string
-	Label                                     string
-	pattern                                   string
-	patternDesc                               string
-	Value                                     interface{}
-	Suggestions                               string
-	IsNewPrimary                              bool
+	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
+	SelectWithNew bool
+	InputType     string
+	SelectOptions map[string]string
+	PatternList   dbEngine.Table
+	PatternName   string
+	PlaceHolder   string
+	LinkNew       string
+	Label         string
+	pattern       string
+	patternDesc   string
+	Value         interface{}
+	Suggestions   string
 }
 
 var regPattern = regexp.MustCompile(`\{"pattern":\s*"([^"]+)"\}`)
