@@ -12,3 +12,22 @@ const STATUS_ERROR = "error"
 
 // STATUS_READY - стстус Сервиса - "Готово"
 const STATUS_READY = "ready"
+
+// param of log showing
+const (
+	paramsSystemctlUnit = "unit"
+	paramDate           = "date"
+	paramTime           = "time"
+	paramAgo            = "ago"
+	paramPatter         = "pattern"
+)
+const (
+	ShowStatus         = "/api/status/"
+	ShowDBStatus       = "/api/status/db"
+	ShowPsqlLog        = "/api/status/psql"
+	ShowStatusServices = "/api/status/services"
+	ShowDebugLog       = "/api/log/debug/"
+	ShowErrorsLog      = "/api/log/errors/"
+	ShowFEUpdateLog    = "/api/log/errors/front/update/"
+	ShowInfoLog        = "/api/log/info/"
+)

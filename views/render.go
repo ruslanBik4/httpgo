@@ -150,10 +150,31 @@ func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 }
 
 // RenderOutput render for output script execute
-func RenderOutput(w *fasthttp.RequestCtx, stdoutStderr []byte) {
+func RenderOutput(ctx *fasthttp.RequestCtx, stdoutStderr []byte, err error) error {
 
-	WriteHeaders(w)
-	w.Write([]byte("<pre>"))
-	w.Write(bytes.Replace(stdoutStderr, []byte("\n"), []byte("<br>"), 0))
-	w.Write([]byte("</pre>"))
+	if err != nil {
+		return err
+	} else {
+		WriteHeaders(ctx)
+	}
+
+	return RenderOutWithWrapLine(ctx, stdoutStderr)
+}
+
+var (
+	startPre = bytes.NewBufferString("<pre>")
+	endPre   = bytes.NewBufferString("</pre>")
+	wrapLine = []byte("<br>")
+)
+
+func RenderOutWithWrapLine(ctx *fasthttp.RequestCtx, out []byte) error {
+	_, err := startPre.WriteTo(ctx)
+	if err == nil {
+		_, err = ctx.Write(bytes.Replace(out, []byte("\n"), wrapLine, -1))
+		if err == nil {
+			_, err = endPre.WriteTo(ctx)
+		}
+	}
+
+	return errors.Wrap(err, "RenderOutWithWrapLine")
 }
