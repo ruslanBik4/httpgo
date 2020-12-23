@@ -417,7 +417,7 @@ func main() {
 	//
 	// fonts.GetPath(fWeb)
 
-	conn := psql.NewConn(nil, nil)
+	conn := psql.NewConn(nil, nil, nil)
 	ctx := context.WithValue(context.Background(), "dbURL", "")
 	ctx = context.WithValue(ctx, "fillSchema", true)
 	ctx = context.WithValue(ctx, "migration", "table")

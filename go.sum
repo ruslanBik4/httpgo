@@ -249,6 +249,8 @@ github.com/ruslanBik4/dbEngine v1.0.1085 h1:xMIecNvuPMVtoPTnNvDrh2D50ki6YdWpHOnL
 github.com/ruslanBik4/dbEngine v1.0.1085/go.mod h1:SuqcBtJkG/GC8UGU+y9scIS5EwFcx2HKiAd8unCB/54=
 github.com/ruslanBik4/dbEngine v1.0.1087 h1:9FUYCmtoUlKxEyDBKNltSVa0MIyVeYqRY78r9VHGoUw=
 github.com/ruslanBik4/dbEngine v1.0.1087/go.mod h1:SuqcBtJkG/GC8UGU+y9scIS5EwFcx2HKiAd8unCB/54=
+github.com/ruslanBik4/dbEngine v1.0.1096 h1:SY4NbDLwKbek0Ljr8xSdXa6OhQDer/+Zcl6JtB2bbWc=
+github.com/ruslanBik4/dbEngine v1.0.1096/go.mod h1:SuqcBtJkG/GC8UGU+y9scIS5EwFcx2HKiAd8unCB/54=
 github.com/ruslanBik4/logs v0.0.0-20200927155213-df5cc6a3fa8e h1:ZfsGdTBtyIyqVnK3CFmTnXzHb+f1WziBI0ISlrWVBqA=
 github.com/ruslanBik4/logs v0.0.0-20200927155213-df5cc6a3fa8e/go.mod h1:XnNaAAM/rRbziKvIEAgWKJUF9b8DB9bvJWA4WwY0Las=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
