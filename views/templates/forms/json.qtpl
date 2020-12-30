@@ -72,7 +72,10 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             "type": "array",
                             "typeField": "{%= col.InputTypeForJSON()%}",
                             "action": "add-field",
-                            "list": [
+                            {% if p := col.DefaultInputValue; p > "" %}
+                                "defaultInputValue": "{%j= p %}",
+                            {% endif %}
+                           "list": [
                                      {% for i, val := range values %}
                                        {% if i > 0 %} , {% endif %}
                                             {% if val != nil %}
