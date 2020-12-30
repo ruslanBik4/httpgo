@@ -179,35 +179,33 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:66
 				qw422016.N().S(`"},`)
 //line views/templates/forms/json.qtpl:67
-			} else if p := col.Pattern(); p > "" {
+				if d := col.DefaultInputValue; d > "" {
 //line views/templates/forms/json.qtpl:67
-				qw422016.N().S(`"pattern":"`)
-//line views/templates/forms/json.qtpl:68
-				qw422016.N().J(p)
-//line views/templates/forms/json.qtpl:68
-				qw422016.N().S(`",`)
-//line views/templates/forms/json.qtpl:69
-			}
-//line views/templates/forms/json.qtpl:71
-			if col.IsSlice {
-//line views/templates/forms/json.qtpl:71
-				qw422016.N().S(`"type": "array","typeField": "`)
-//line views/templates/forms/json.qtpl:73
-				col.StreamInputTypeForJSON(qw422016)
-//line views/templates/forms/json.qtpl:73
-				qw422016.N().S(`","action": "add-field",`)
-//line views/templates/forms/json.qtpl:75
-				if p := col.DefaultInputValue; p > "" {
-//line views/templates/forms/json.qtpl:75
 					qw422016.N().S(`"defaultInputValue": "`)
-//line views/templates/forms/json.qtpl:76
-					qw422016.N().J(p)
-//line views/templates/forms/json.qtpl:76
+//line views/templates/forms/json.qtpl:68
+					qw422016.N().J(d)
+//line views/templates/forms/json.qtpl:68
 					qw422016.N().S(`",`)
-//line views/templates/forms/json.qtpl:77
+//line views/templates/forms/json.qtpl:69
 				}
-//line views/templates/forms/json.qtpl:77
-				qw422016.N().S(`"list": [`)
+//line views/templates/forms/json.qtpl:70
+			} else if p := col.Pattern(); p > "" {
+//line views/templates/forms/json.qtpl:70
+				qw422016.N().S(`"pattern":"`)
+//line views/templates/forms/json.qtpl:71
+				qw422016.N().J(p)
+//line views/templates/forms/json.qtpl:71
+				qw422016.N().S(`",`)
+//line views/templates/forms/json.qtpl:72
+			}
+//line views/templates/forms/json.qtpl:74
+			if col.IsSlice {
+//line views/templates/forms/json.qtpl:74
+				qw422016.N().S(`"type": "array","typeField": "`)
+//line views/templates/forms/json.qtpl:76
+				col.StreamInputTypeForJSON(qw422016)
+//line views/templates/forms/json.qtpl:76
+				qw422016.N().S(`","action": "add-field","list": [`)
 //line views/templates/forms/json.qtpl:79
 				for i, val := range values {
 //line views/templates/forms/json.qtpl:80
