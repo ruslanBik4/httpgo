@@ -54,6 +54,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 		colDec.Label = column.Name()
 	}
 
+	colDec.IsHidden = column.AutoIncrement()
 	colDec.InputType = colDec.inputType()
 
 	return colDec
