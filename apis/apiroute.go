@@ -110,27 +110,11 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, errRouteOnlyLocal
 	}
 
-	badParams := make(map[string]string, 0)
-
 	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
-		// check JSON parsing
-
-		dto := route.DTO.NewValue()
-		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
-		if err != nil {
-			badParams["bad_params"] = "json DTO not parse :" + err.Error()
-			return badParams, ErrWrongParamsList
-		}
-
-		ctx.SetUserValue(JSONParams, dto)
-
-		if d, ok := dto.(CheckDTO); ok && !d.CheckParams(ctx, badParams) {
-			return badParams, ErrWrongParamsList
-		}
-
-		return route.Fnc(ctx)
-
+		return route.performsJSON(ctx)
 	}
+
+	badParams := make(map[string]string, 0)
 
 	if route.Multipart {
 		// check multipart params
@@ -193,6 +177,33 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 			dto.ReadParams(ctx)
 			ctx.SetUserValue(JSONParams, dto)
 		}
+	}
+
+	return route.Fnc(ctx)
+}
+
+func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
+	badParams := make(map[string]string, 0)
+	// check JSON parsing
+
+	dto := route.DTO.NewValue()
+	err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
+	if err != nil {
+		errMsg := err.Error()
+		parts := strings.Split(errMsg, ":")
+		if len(parts) > 1 {
+			path := strings.Split(parts[0], ".")
+			badParams[path[len(path)-1]] = strings.Join(parts[1:], ":")
+		} else {
+			badParams["bad_params"] = "json DTO not parse :" + errMsg
+		}
+		return badParams, ErrWrongParamsList
+	}
+
+	ctx.SetUserValue(JSONParams, dto)
+
+	if d, ok := dto.(CheckDTO); ok && !d.CheckParams(ctx, badParams) {
+		return badParams, ErrWrongParamsList
 	}
 
 	return route.Fnc(ctx)
