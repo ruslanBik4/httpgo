@@ -12,6 +12,7 @@ import (
 	"unsafe"
 
 	jsoniter "github.com/json-iterator/go"
+	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
 )
 
@@ -59,7 +60,7 @@ func (param InParam) presentOtherRegParam(ctx *fasthttp.RequestCtx) bool {
 }
 
 // defaultValueOfParams return value as default for param, it is only for single required param
-func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx) interface{} {
+func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams map[string]string) interface{} {
 	switch def := param.DefValue.(type) {
 	case DefValueCalcFnc:
 		if ctx != nil {
@@ -72,7 +73,19 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx) interface{}
 
 	case ApisValues:
 		if ctx != nil {
-			return ctx.UserValue(string(def))
+			value, ok := ctx.UserValue(string(def)).(string)
+			if !ok {
+				return ctx.UserValue(string(def))
+			}
+
+			val, err := param.Type.ConvertValue(ctx, value)
+			if err != nil {
+				badParams[param.Name] = "wrong type, except " + param.Type.String() + err.Error()
+				logs.ErrorLog(err, "ConvertValue")
+				return ctx.UserValue(string(def))
+			}
+
+			return val
 		}
 
 		return def
@@ -112,7 +125,7 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	}
 
 	if param.DefValue != nil {
-		AddObjectToJSON(stream, "Default", param.defaultValueOfParams(nil))
+		AddObjectToJSON(stream, "Default", param.defaultValueOfParams(nil, nil))
 	}
 
 	if len(param.IncompatibleWiths) > 0 {

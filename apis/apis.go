@@ -350,7 +350,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 			for _, param := range route.Params {
 				s := fmt.Sprintf(`%s, <i>%s</i>`, param.Type, param.Desc)
 				if param.DefValue != nil {
-					s += fmt.Sprintf(", Def:%v", param.defaultValueOfParams(nil))
+					s += fmt.Sprintf(", Def:%v", param.defaultValueOfParams(nil, nil))
 				}
 
 				if len(param.PartReq) > 0 {

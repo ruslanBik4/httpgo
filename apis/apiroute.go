@@ -202,7 +202,7 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, erro
 
 	ctx.SetUserValue(JSONParams, dto)
 
-	if d, ok := dto.(CheckDTO); ok && !d.CheckParams(ctx, badParams) {
+	if d, ok := dto.(CheckDTO); (ok && !d.CheckParams(ctx, badParams)) || !route.CheckParams(ctx, badParams) {
 		return badParams, ErrWrongParamsList
 	}
 
@@ -219,7 +219,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 				return true
 			}
 
-			value = param.defaultValueOfParams(ctx)
+			value = param.defaultValueOfParams(ctx, badParams)
 			//  not present required param
 			if value != nil {
 				ctx.SetUserValue(param.Name, value)
