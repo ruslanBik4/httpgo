@@ -95,6 +95,12 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 // CheckAndRun check & run route handler
 func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp interface{}, err error) {
 
+	if route.WithCors {
+		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With")
+		ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	}
+
 	// check auth is needed
 	// owl func for auth
 	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
@@ -108,12 +114,6 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	// compliance check local request is needed
 	if route.OnlyLocal && isNotLocalRequest(ctx) {
 		return nil, errRouteOnlyLocal
-	}
-
-	if route.WithCors {
-		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		ctx.Response.Header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With")
-		ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	}
 
 	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
