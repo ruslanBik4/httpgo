@@ -98,9 +98,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	if route.WithCors {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 		ctx.Response.Header.Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With")
+			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With, X-Requested-By")
 		ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+		ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 	}
 
 	// check auth is needed
@@ -383,6 +384,28 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 		}
 
 		r[route.Method][url] = route
+		// may allow OPTIONS request for "preflighted" requests
+		if route.WithCors && route.Method != OPTIONS && route.DTO != nil {
+			_, ok := r[OPTIONS][url]
+			if !ok {
+				// 	add empty OPTIONS route for
+				r[OPTIONS][url] = &ApiRoute{
+					Desc: "allow for preflighted:" + route.Desc,
+					DTO:  nil,
+					Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+						ctx.SetStatusCode(fasthttp.StatusNoContent)
+						origin := ctx.Request.Header.Peek("Origin")
+						ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
+
+						logs.DebugLog("allow OPTIONS from %s for %s", origin, route.Desc)
+						return nil, nil
+					},
+					Method:   OPTIONS,
+					WithCors: true,
+					lock:     sync.RWMutex{},
+				}
+			}
+		}
 		testRoute := &ApiRoute{
 			Desc:      "test handler for " + url,
 			DTO:       nil,
