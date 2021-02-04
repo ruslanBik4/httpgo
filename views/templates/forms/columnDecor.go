@@ -23,6 +23,7 @@ type ColumnDecor struct {
 	SelectWithNew bool
 	InputType         string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
+	List              []string
 	SelectOptions     map[string]string
 	PatternList       dbEngine.Table
 	PatternName       string

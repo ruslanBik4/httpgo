@@ -104,6 +104,10 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                         {%= col.DataForJSON()%}
                        , "title": "{%s= col.Label %}"
 
+                        {% if len(col.List) > 0 %}
+                         , "list": {%= json.StringDimension(col.List) %}
+                        {% endif %}
+
                         {% if col.IsReadOnly %}
                          , "readOnly": true
                         {% endif %}

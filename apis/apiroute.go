@@ -385,6 +385,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 
 		r[route.Method][url] = route
 		// may allow OPTIONS request for "preflighted" requests
+		// https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 		if route.WithCors && route.Method != OPTIONS && route.DTO != nil {
 			_, ok := r[OPTIONS][url]
 			if !ok {
