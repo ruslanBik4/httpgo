@@ -46,7 +46,7 @@ func init() {
 			if val.Valid {
 				WriteElement(stream, val.String)
 			} else {
-				stream.WriteString("nil")
+				stream.WriteNil()
 			}
 		},
 		func(pointer unsafe.Pointer) bool {
@@ -59,7 +59,7 @@ func init() {
 			if val.Valid {
 				stream.WriteInt32(val.Int32)
 			} else {
-				stream.WriteString("nil")
+				stream.WriteNil()
 			}
 		},
 		func(pointer unsafe.Pointer) bool {
@@ -72,7 +72,7 @@ func init() {
 			if val.Valid {
 				stream.WriteInt64(val.Int64)
 			} else {
-				stream.WriteString("nil")
+				stream.WriteNil()
 			}
 		},
 		func(pointer unsafe.Pointer) bool {
@@ -85,7 +85,7 @@ func init() {
 			if val.Valid {
 				stream.WriteFloat64Lossy(val.Float64)
 			} else {
-				stream.WriteString("nil")
+				stream.WriteNil()
 			}
 		},
 		func(pointer unsafe.Pointer) bool {
