@@ -17,13 +17,17 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+type AttachmentList struct {
+	Id  int32
+	Url string
+}
 type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
 	SelectWithNew bool
 	InputType         string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
-	List              []string
+	Attachments       []AttachmentList
 	SelectOptions     map[string]string
 	PatternList       dbEngine.Table
 	PatternName       string

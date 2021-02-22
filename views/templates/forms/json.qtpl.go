@@ -277,11 +277,11 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer, blocks ...BlockCol
 //line views/templates/forms/json.qtpl:105
 			qw422016.N().S(`"`)
 //line views/templates/forms/json.qtpl:107
-			if len(col.List) > 0 {
+			if len(col.Attachments) > 0 {
 //line views/templates/forms/json.qtpl:107
 				qw422016.N().S(`, "list":`)
 //line views/templates/forms/json.qtpl:108
-				json.StreamStringDimension(qw422016, col.List)
+				json.StreamElement(qw422016, col.Attachments)
 //line views/templates/forms/json.qtpl:109
 			}
 //line views/templates/forms/json.qtpl:111
