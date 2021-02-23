@@ -18,9 +18,10 @@ import (
 )
 
 type AttachmentList struct {
-	Id  int32
-	Url string
+	Id  int32  `json:"id"`
+	Url string `json:"url"`
 }
+
 type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
