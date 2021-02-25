@@ -26,7 +26,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	sort.Strings(sortList)
   %}
    {% for key, name := range sortList %}
-      {% if key>0 %}, {% endif %} "{%s name %}": {%= Element(arrJSON[name])%}
+      {% if key>0 %}, {% endif %} "{%j= name %}": {%= Element(arrJSON[name])%}
    {% endfor %}
  }
 {% endfunc %}
@@ -39,7 +39,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	sort.Strings(sortList)
   %}
    {% for key, name := range sortList %}
-      {% if key>0 %}, {% endif %} "{%s name %}": {%= Element(arrJSON[name])%}
+      {% if key>0 %}, {% endif %} "{%j= name %}": {%= Element(arrJSON[name])%}
    {% endfor %}
  }
 {% endfunc %}

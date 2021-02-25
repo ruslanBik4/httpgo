@@ -78,8 +78,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				const delim = ":"
 				host := string(ctx.Host())
 				if host != ip && strings.HasPrefix(host, subD) {
-					uri := ctx.URI().String()
-					logs.DebugLog(uri, host, subD, listener.Addr().Network())
+
 					if ip[:1] == delim && !strings.HasSuffix(listener.Addr().String(), ip) {
 						url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
 						logs.DebugLog(url)

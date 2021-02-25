@@ -97,7 +97,7 @@ func StreamAnyJSON(qw422016 *qt422016.Writer, arrJSON map[string]interface{}) {
 //line views/templates/json/anyjson.qtpl:29
 		qw422016.N().S(`"`)
 //line views/templates/json/anyjson.qtpl:29
-		qw422016.E().S(name)
+		qw422016.N().J(name)
 //line views/templates/json/anyjson.qtpl:29
 		qw422016.N().S(`":`)
 //line views/templates/json/anyjson.qtpl:29
@@ -157,7 +157,7 @@ func StreamStringJSON(qw422016 *qt422016.Writer, arrJSON map[string]string) {
 //line views/templates/json/anyjson.qtpl:42
 		qw422016.N().S(`"`)
 //line views/templates/json/anyjson.qtpl:42
-		qw422016.E().S(name)
+		qw422016.N().J(name)
 //line views/templates/json/anyjson.qtpl:42
 		qw422016.N().S(`":`)
 //line views/templates/json/anyjson.qtpl:42
