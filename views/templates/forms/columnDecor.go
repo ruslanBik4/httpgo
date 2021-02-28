@@ -110,8 +110,8 @@ func (col *ColumnDecor) Pattern() string {
 
 	if name := col.PatternName; name > "" {
 		col.getPattern(name)
-	} else if col.BasicTypeInfo() == types.IsInteger {
-		col.pattern = `^[0-9]+$`
+	} else if col.BasicTypeInfo() == types.IsInteger && len(col.Attachments) == 0 {
+		col.pattern = `^-?\d+$`
 	} else if col.BasicTypeInfo() == types.IsFloat {
 		col.pattern = `^-?\d+(\.\d{1,2})?$`
 	} else if col.BasicTypeInfo() == types.IsComplex {

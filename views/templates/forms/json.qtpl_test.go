@@ -13,7 +13,7 @@ import (
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-func TestColumnDecor_DataForJSON(t *testing.T) {
+func TestColumnDecor_ToJSON(t *testing.T) {
 	type fields struct {
 		Column            dbEngine.Column
 		IsHidden          bool
@@ -45,6 +45,7 @@ func TestColumnDecor_DataForJSON(t *testing.T) {
 		{
 			"id_photos",
 			fields{
+				Column: dbEngine.NewStringColumn("id_photos", "test column", false),
 				Attachments: []AttachmentList{
 					{
 						1,
@@ -52,7 +53,8 @@ func TestColumnDecor_DataForJSON(t *testing.T) {
 					},
 				},
 			},
-			`{"id":1, "url":"https://site.com/photots/"`,
+			`"name": "id_photos","required":false,"type": "", "value":"", "title": "", "list":[{"id":1, "url":"https://site.com/photots/"]}
+`,
 		},
 	}
 	for _, tt := range tests {
@@ -79,7 +81,7 @@ func TestColumnDecor_DataForJSON(t *testing.T) {
 				Value:             tt.fields.Value,
 				Suggestions:       tt.fields.Suggestions,
 			}
-			got := col.DataForJSON()
+			got := col.ToJSON()
 			t.Log(got)
 			assert.Equal(t, tt.want, got, "DataForJSON() = %v, want %v")
 

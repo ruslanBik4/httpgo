@@ -44,80 +44,10 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
            "description": "{%s= block.Description %}",
            "fields": [
                 {% for j, col := range block.Columns %}
-
                     {% if j > 0 %}
                         ,
                     {% endif %}
-                    {
-                        {% code
-                            values := col.GetValues()
-                        %}
-
-                        "name": "{%s= col.InputName(-1) %}",
-                        "required": {%v col.Required() %},
-                         {% if col.patternDesc > "" %}
-                             "error": {
-                                "pattern": "{%s= col.patternDesc %}",
-                                "message": "{%s= col.patternDesc %}"
-                             },
-                         {% endif %}
-
-                        {% if p := col.Suggestions; p > "" %}
-                          "suggestions":{"url":"{%j= p %}"},
-                            {% if d := col.DefaultInputValue; d > "" %}
-                                "defaultInputValue": "{%j= d %}",
-                            {% endif %}
-                        {% elseif p := col.Pattern(); p > "" %}
-                          "pattern":"{%j= p %}",
-                        {% endif %}
-
-                         {% if col.IsSlice %}
-                            "type": "array",
-                            "typeField": "{%= col.InputTypeForJSON()%}",
-                            "action": "add-field",
-                           "list": [
-                                     {% for i, val := range values %}
-                                       {% if i > 0 %} , {% endif %}
-                                            {% if val != nil %}
-                                               {
-                                                 "value": "{%v val %}"
-                                               }
-                                            {% endif %}
-                                     {% endfor %}
-                                     ]
-                         {% else %}
-                            "type": "{%= col.InputTypeForJSON()%}"
-                           {% switch len(values) %}
-                            {% case 0 %}
-                            {% case 1 %}
-                                {% if values[0] != nil %}
-                                    , "value": {%= json.Element(values[0]) %}
-                                {% endif %}
-                            {% default %}
-                            , "value": {%= json.SimpleDimension(values) %}
-                            {% endswitch %}
-
-                         {% endif %}
-                        {% if col.CharacterMaximumLength() > 0 %}
-                        , "maxLength": {%d col.CharacterMaximumLength() %}
-                        {% endif %}
-                        {%= col.DataForJSON()%}
-                       , "title": "{%s= col.Label %}"
-
-                        {% if len(col.Attachments) > 0 %}
-                         , "list": {%= json.Element(col.Attachments) %}
-                        {% endif %}
-
-                        {% if col.IsReadOnly %}
-                         , "readOnly": true
-                        {% endif %}
-                        {% if col.IsDisabled %}
-                         , "disabled": true
-                        {% endif %}
-                        {% if col.IsHidden %}
-                         , "hidden": true
-                        {% endif %}
-                   }
+                    {%= col.ToJSON() %}
                 {% endfor %}
                 ],
                 "actions": [
@@ -142,6 +72,79 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
   }
 {% endfunc %}
 
+
+{% func (col *ColumnDecor) ToJSON() %}
+{
+        {% code
+            values := col.GetValues()
+        %}
+
+        "name": "{%s= col.InputName(-1) %}",
+        "required": {%v col.Required() %},
+         {% if col.patternDesc > "" %}
+             "error": {
+                "pattern": "{%s= col.patternDesc %}",
+                "message": "{%s= col.patternDesc %}"
+             },
+         {% endif %}
+
+        {% if p := col.Suggestions; p > "" %}
+          "suggestions":{"url":"{%j= p %}"},
+            {% if d := col.DefaultInputValue; d > "" %}
+                "defaultInputValue": "{%j= d %}",
+            {% endif %}
+        {% elseif p := col.Pattern(); p > "" %}
+          "pattern":"{%j= p %}",
+        {% endif %}
+
+         {% if col.IsSlice %}
+            "type": "array",
+            "typeField": "{%= col.InputTypeForJSON()%}",
+            "action": "add-field",
+           "list": [
+                     {% for i, val := range values %}
+                       {% if i > 0 %} , {% endif %}
+                            {% if val != nil %}
+                               {
+                                 "value": "{%v val %}"
+                               }
+                            {% endif %}
+                     {% endfor %}
+                     ]
+         {% else %}
+            "type": "{%= col.InputTypeForJSON()%}"
+           {% switch len(values) %}
+            {% case 0 %}
+            {% case 1 %}
+                {% if values[0] != nil %}
+                    , "value": {%= json.Element(values[0]) %}
+                {% endif %}
+            {% default %}
+            , "value": {%= json.SimpleDimension(values) %}
+            {% endswitch %}
+
+         {% endif %}
+        {% if col.CharacterMaximumLength() > 0 %}
+        , "maxLength": {%d col.CharacterMaximumLength() %}
+        {% endif %}
+        {%= col.DataForJSON()%}
+       , "title": "{%s= col.Label %}"
+
+        {% if len(col.Attachments) > 0 %}
+         , "list": {%= json.Element(col.Attachments) %}
+        {% endif %}
+
+        {% if col.IsReadOnly %}
+         , "readOnly": true
+        {% endif %}
+        {% if col.IsDisabled %}
+         , "disabled": true
+        {% endif %}
+        {% if col.IsHidden %}
+         , "hidden": true
+        {% endif %}
+}
+{% endfunc %}
 
 {% func (col *ColumnDecor) DataForJSON() %}
     {% if col.SelectOptions != nil %}

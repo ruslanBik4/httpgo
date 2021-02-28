@@ -6,6 +6,7 @@ import (
 	"net"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/json-iterator/go"
 
@@ -114,52 +115,66 @@ func TestOnboarding(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	time.AfterFunc(time.Minute*3,
+		func() {
+			err := listener.Close()
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 
 	t.Log("start")
 
-	// go func() {
-	// 	c, err := net.Dial("tcp", "127.0.0.1" +fPort)
-	// 	if err != nil {
-	// 		t.Fatal(err)
-	// 	}
-	//
-	// 	b := []byte("hello\n")
-	// 	c.Write(b)
-	// 	c.Close()
-	// 	// wg.Done()
-	// }()
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			t.Fatal(err)
-		}
+			reader := bufio.NewReader(conn)
 
-		reader := bufio.NewReader(conn)
+			str, _ := reader.ReadString('\n')
+			t.Log(str)
 
-		str, _ := reader.ReadString('\n')
-		t.Log(str)
-
-		const head = `HTTP/1.1 200 Success 
+			const head = `HTTP/1.1 200 Success 
 Content-Type: text/html; \n Retry-After: 60
 <meta http-equiv="Refresh" content="15" />
 
 
 `
-		w := bufio.NewWriter(conn)
-		_, err = w.WriteString(head + "<html>hello</html>")
+			w := bufio.NewWriter(conn)
+			_, err = w.WriteString(head + "<html>hello</html>")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			w.Flush()
+			conn.Close()
+			break
+			wg.Done()
+		}
+	}()
+	go func() {
+		c, err := net.Dial("tcp", "127.0.0.1"+fPort)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		w.Flush()
-		conn.Close()
-		// break	// 	//
-		// wg.Done()
-	}
+		b := []byte("hello\n")
+		c.Write(b)
+		n, err := c.Read(b)
+		if err != nil {
+			t.Error(err)
+		} else {
+			t.Logf("%s (%d)", b, n)
+		}
+		c.Close()
+		wg.Done()
+	}()
 
 	wg.Wait()
-
 }

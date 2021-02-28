@@ -24,7 +24,7 @@ func TestStreamWrap(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			"NUllString nil",
+			"NUllString simple nil",
 			sql.NullString{
 				String: "test",
 				Valid:  false,
@@ -32,7 +32,7 @@ func TestStreamWrap(t *testing.T) {
 			"null\n",
 		},
 		{
-			"NUllString nil",
+			"struct with NUllString nil",
 			struct {
 				Name sql.NullString `json:"name"`
 			}{
@@ -41,7 +41,8 @@ func TestStreamWrap(t *testing.T) {
 					Valid:  false,
 				},
 			},
-			"null\n",
+			`{"name":null}
+`,
 		},
 		{
 			"NUllString nil",

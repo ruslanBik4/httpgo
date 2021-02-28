@@ -92,9 +92,9 @@ func TestElement(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			"string",
+			"string with escaped symbols",
 			`tralal"'"as'"'as`,
-			`"tralal\&quot;\u0027\&quot;as\u0027\&quot;\u0027as"`,
+			`"tralal\"\u0027\"as\u0027\"\u0027as"`,
 		},
 		{
 			"forms",
