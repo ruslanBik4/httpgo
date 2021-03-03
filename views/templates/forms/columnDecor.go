@@ -49,7 +49,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	comment := column.Comment()
 	colDec := &ColumnDecor{
 		Column:      column,
-		IsReadOnly:  strings.Contains(comment, "read_only"),
+		IsReadOnly:  column.AutoIncrement() || strings.Contains(comment, "read_only"),
 		PatternList: patternList,
 	}
 	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
@@ -61,7 +61,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 		colDec.Label = column.Name()
 	}
 
-	colDec.IsHidden = column.AutoIncrement()
+	colDec.IsHidden = column.Primary()
 	colDec.InputType = colDec.inputType()
 
 	return colDec
@@ -257,10 +257,6 @@ func (col *ColumnDecor) InputName(i int) string {
 }
 
 func (col *ColumnDecor) inputType() string {
-	if col.IsHidden {
-		return "hidden"
-	}
-
 	if col.Suggestions > "" {
 		return "select"
 	}
