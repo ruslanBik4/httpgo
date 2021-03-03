@@ -5,14 +5,20 @@
 package forms
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-
-	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/stretchr/testify/assert"
 )
 
+func TestNewColumnDecor(t *testing.T) {
+	column := dbEngine.NewStringColumn("test", `label {"pattern":"test_pattern"} "read_only"`, true)
+	colDev := NewColumnDecor(column, nil)
+	assert.Implements(t, (*dbEngine.Column)(nil), colDev)
+	assert.Equal(t, "test_pattern", colDev.Pattern())
+	assert.True(t, colDev.Required())
+	assert.True(t, colDev.IsReadOnly)
+}
 func TestColumnDecor_GetValues(t *testing.T) {
 	type fields struct {
 		Column        dbEngine.Column
@@ -38,7 +44,7 @@ func TestColumnDecor_GetValues(t *testing.T) {
 		{
 			"1",
 			fields{
-				Column: (dbEngine.NewStringColumn("name", "name", true)),
+				Column: dbEngine.NewStringColumn("name", "name", true),
 				Value:  []string{"1", "2", "3"},
 			},
 			[]interface{}{"1", "2", "3"},
@@ -61,11 +67,9 @@ func TestColumnDecor_GetValues(t *testing.T) {
 				patternDesc:   tt.fields.patternDesc,
 				Value:         tt.fields.Value,
 			}
-			if gotValues := col.GetValues(); !reflect.DeepEqual(gotValues, tt.wantValues) {
-				t.Errorf("GetValues() = %v, want %v", gotValues, tt.wantValues)
-			} else {
-				t.Logf("%#v", json.SimpleDimension(gotValues))
-			}
+
+			gotValues := col.GetValues()
+			assert.Equal(t, tt.wantValues, gotValues)
 		})
 	}
 }

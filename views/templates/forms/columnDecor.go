@@ -42,7 +42,7 @@ type ColumnDecor struct {
 	Suggestions       string
 }
 
-var regPattern = regexp.MustCompile(`\{"pattern":\s*"([^"]+)"\}`)
+var regPattern = regexp.MustCompile(`{"pattern":\s*"([^"]+)"}`)
 
 func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnDecor {
 

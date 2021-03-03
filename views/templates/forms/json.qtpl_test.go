@@ -53,8 +53,8 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 					},
 				},
 			},
-			`"name": "id_photos","required":false,"type": "", "value":"", "title": "", "list":[{"id":1, "url":"https://site.com/photots/"]}
-`,
+			`{"name": "id_photos","required":false,"type": "", "value":"", "title": "", "list":[{"id":1, "url":"https://site.com/photots/"}]
+}`,
 		},
 	}
 	for _, tt := range tests {
@@ -82,8 +82,7 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 				Suggestions:       tt.fields.Suggestions,
 			}
 			got := col.ToJSON()
-			t.Log(got)
-			assert.Equal(t, tt.want, got, "DataForJSON() = %v, want %v")
+			assert.Equal(t, tt.want, got)
 
 		})
 	}
