@@ -27,6 +27,7 @@ type ColumnDecor struct {
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
 	SelectWithNew bool
 	InputType         string
+	SpecialInputName  string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
 	Attachments       []AttachmentList
 	SelectOptions     map[string]string
@@ -240,6 +241,10 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 }
 
 func (col *ColumnDecor) InputName(i int) string {
+	if col.SpecialInputName > "" {
+		return col.SpecialInputName
+	}
+
 	if col.IsSlice {
 		return col.Name() + "[]"
 	}
