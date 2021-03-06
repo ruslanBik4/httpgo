@@ -216,15 +216,11 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 		col.IsSlice = true
 
 	case nil:
-		if d := col.Default(); d != nil {
-			values = append(values, d)
-		} else {
-			values = append(values, nil)
-		}
+		values = append(values, nil)
 	case driver.Valuer:
 		v, err := val.Value()
 		if err != nil {
-			logs.ErrorLog(err, "val.Value")
+			logs.ErrorLog(err, "val.Value %v", val)
 			values = append(values, nil)
 		} else {
 			values = append(values, v)
@@ -261,7 +257,13 @@ func (col *ColumnDecor) inputType() string {
 		return "select"
 	}
 
+	if col.IsHidden {
+		return "hidden"
+	}
+
 	switch col.Type() {
+	case "daterange":
+		return "DateRange"
 	case "date", "_date":
 		return "date"
 	case "datetime", "datetimetz", "timestamp", "timestamptz", "time", "_timestamp", "_timestamptz", "_time":
