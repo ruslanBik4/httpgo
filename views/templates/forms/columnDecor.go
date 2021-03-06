@@ -263,7 +263,7 @@ func (col *ColumnDecor) inputType() string {
 
 	switch col.Type() {
 	case "daterange":
-		return "DateRange"
+		return "daterange"
 	case "date", "_date":
 		return "date"
 	case "datetime", "datetimetz", "timestamp", "timestamptz", "time", "_timestamp", "_timestamptz", "_time":
