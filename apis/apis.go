@@ -121,11 +121,11 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		switch errRec := errRec.(type) {
 		case error:
 			params := ctx.UserValue(JSONParams)
-			if route.Multipart {
+			if params == nil && route.Multipart {
 				params = ctx.UserValue(MultiPartParams)
 			}
 
-			logs.DebugLog("during performs handler %s, params %+v", route.Desc, params)
+			logs.DebugLog("during performs handler '%s', params %+v", route.Desc, params)
 			a.renderError(ctx, errRec, nil)
 		case string:
 			a.renderError(ctx, errors.New(errRec), nil)
