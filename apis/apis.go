@@ -6,6 +6,7 @@ package apis
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
 	"path"
 	"sort"
@@ -14,6 +15,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 
 	"github.com/json-iterator/go"
@@ -203,6 +205,9 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 	statusCode := fasthttp.StatusInternalServerError
 	errMsg := err.Error()
 	switch errDeep := errors.Cause(err); errDeep {
+	case pgx.ErrNoRows, sql.ErrNoRows:
+		ctx.SetStatusCode(fasthttp.StatusNoContent)
+		return
 	case errMethodNotAllowed:
 		statusCode = fasthttp.StatusMethodNotAllowed
 		switch r := resp.(type) {
@@ -293,7 +298,7 @@ func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
 // renderApis show list routers for developers (as JSON)
 func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	if ctx.UserValue("json") != nil {
-		return *a, nil
+		return a, nil
 	}
 
 	columns := SimpleColumns(
