@@ -7,6 +7,8 @@ package docs
 import (
 	"fmt"
 	"testing"
+
+	"github.com/ruslanBik4/logs"
 )
 
 const spreadsheetId = "1EvNM788L-CC7N1kYIieQZEuinpmI7yVzu_mV75DF3cM"
@@ -17,12 +19,20 @@ func TestReadGoogleSheets(t *testing.T) {
 
 	defer func() {
 		err := recover()
-		if err != nil {
+		switch err := err.(type) {
+		case error:
+			logs.ErrorStack(err)
+			t.Skipped()
+		case nil:
+		default:
 			t.Error(err)
+			t.Skipped()
 		}
 	}()
+
 	if err := sheet.Init(); err != nil {
 		t.Errorf("error initialization: filename=%s, error=%q", fileName, err)
+		t.Skipped()
 	}
 
 	fmt.Printf("before read")

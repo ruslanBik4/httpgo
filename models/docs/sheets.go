@@ -104,27 +104,38 @@ func getClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	}
 	return config.Client(ctx, tok)
 }
-func newClient() *http.Client {
+func newClient() (*http.Client, error) {
 	ctx := context.Background()
 	// If modifying these scopes, delete your previously saved credentials
 	// at ~/.credentials/sheets.googleapis.com-go-quickstart.json
 	b, err := ioutil.ReadFile(userFile)
 	if err != nil {
-		logs.ErrorLog(errors.New("Unable to read client secret file: "), err)
+		errPublic := errors.New("Unable to read client secret file: ")
+		logs.ErrorLog(errPublic, errPublic)
+		return nil, errPublic
 	}
 	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
 	if err != nil {
-		logs.ErrorLog(errors.New("Unable to parse client secret file to config: "), err)
+		errPublic := errors.New("Unable to parse client secret file to config: ")
+		logs.ErrorLog(errPublic, errPublic)
+		return nil, errPublic
 	}
-	return getClient(ctx, config)
+
+	return getClient(ctx, config), nil
 }
+
 func (sheet *SheetsGoogleDocs) Init() (err error) {
 
 	sConfig := server.GetServerConfig()
 	cacheFile = filepath.Join(sConfig.SystemPath(), "config/.credentials")
 	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json")
 
-	if sheet.Service, err = sheets.New(newClient()); err != nil {
+	client, err := newClient()
+	if client == nil {
+		return err
+	}
+
+	if sheet.Service, err = sheets.New(client); err != nil {
 		return err
 	}
 

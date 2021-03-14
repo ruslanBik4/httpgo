@@ -5,7 +5,6 @@
 package apis
 
 import (
-	"bytes"
 	"fmt"
 	"go/types"
 	"strconv"
@@ -35,7 +34,7 @@ type TypeInParam struct {
 	types.BasicKind
 	// types.Struct
 	isSlice bool
-	DTO     interface{}
+	DTO     RouteDTO
 }
 
 // NewTypeInParam create TypeInParam
@@ -46,7 +45,7 @@ func NewTypeInParam(bk types.BasicKind) TypeInParam {
 	}
 }
 
-func NewStructInParam(dto interface{}) TypeInParam {
+func NewStructInParam(dto RouteDTO) TypeInParam {
 
 	return TypeInParam{
 		BasicKind: typesExt.TStruct,
@@ -82,10 +81,8 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		return err == nil
 
 	case typesExt.TStruct:
-		r := bytes.NewBufferString(value)
-		dec := jsoniter.NewDecoder(r)
-
-		err := dec.Decode(&(t.DTO))
+		v := t.DTO.NewValue()
+		err := jsoniter.UnmarshalFromString(value, &v)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
@@ -97,7 +94,7 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	}
 }
 
-// CheckType check of value compatibly with the TypeInParam
+// ConvertValue convert value according to TypeInParam's type
 func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error) {
 	switch t.BasicKind {
 	case types.String:
@@ -143,24 +140,25 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TArray:
 		res := make([]interface{}, 0)
-		r := bytes.NewBufferString(value)
-		dec := jsoniter.NewDecoder(r)
-
-		err := dec.Decode(&res)
+		err := jsoniter.UnmarshalFromString(value, &res)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
 		return res, nil
 
 	case typesExt.TStruct:
-		r := bytes.NewBufferString(value)
-		dec := jsoniter.NewDecoder(r)
-
-		err := dec.Decode(&(t.DTO))
+		v := t.DTO.NewValue()
+		err := jsoniter.UnmarshalFromString(value, &v)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
-		return t.DTO, nil
+		return v, nil
 
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
