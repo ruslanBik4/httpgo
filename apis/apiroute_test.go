@@ -40,10 +40,10 @@ const jsonText = `{"account":7060246,"command":"adjustments","end_date":"2020-01
 
 var (
 	route = &ApiRoute{
-			Desc:      "test route",
-			Method:    POST,
-			DTO: &PRCommandParams{},
-			}
+		Desc:   "test route",
+		Method: POST,
+		DTO:    &PRCommandParams{},
+	}
 )
 
 func TestCheckAndRun(t *testing.T) {
@@ -51,14 +51,14 @@ func TestCheckAndRun(t *testing.T) {
 	dto := route.DTO.NewValue()
 	val := &dto
 	//err := jsoniter.UnmarshalFromString(json, &val)
-	
+
 	//assert.Nil(t, err)
-	
-	//t.Logf("%+v", dto)
-	
+
+	//t.Logf("%+v", DTO)
+
 	err := json.Unmarshal([]byte(jsonText), &val)
-	
+
 	assert.Nil(t, err)
-	
+
 	t.Logf("%+v", dto)
 }

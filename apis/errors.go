@@ -28,5 +28,5 @@ func NewErrorResp(formErrors map[string]string) *ErrorResp {
 }
 
 func NewErrorRespBadDTO() *ErrorResp {
-	return NewErrorResp(map[string]string{"dto": "wrong struct"})
+	return NewErrorResp(map[string]string{"DTO": "wrong struct"})
 }

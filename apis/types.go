@@ -5,6 +5,7 @@
 package apis
 
 import (
+	"bytes"
 	"fmt"
 	"go/types"
 	"strconv"
@@ -34,7 +35,7 @@ type TypeInParam struct {
 	types.BasicKind
 	// types.Struct
 	isSlice bool
-	dto     CheckDTO
+	DTO     interface{}
 }
 
 // NewTypeInParam create TypeInParam
@@ -45,11 +46,11 @@ func NewTypeInParam(bk types.BasicKind) TypeInParam {
 	}
 }
 
-func NewStructInParam(dto CheckDTO) TypeInParam {
+func NewStructInParam(dto interface{}) TypeInParam {
 
 	return TypeInParam{
 		BasicKind: typesExt.TStruct,
-		dto:       dto,
+		DTO:       dto,
 	}
 }
 
@@ -81,13 +82,16 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		return err == nil
 
 	case typesExt.TStruct:
-		badParams := make(map[string]string)
-		ok := t.dto.CheckParams(ctx, badParams)
-		if len(badParams) > 0 {
-			logs.ErrorLog(ErrWrongParamsList, badParams)
+		r := bytes.NewBufferString(value)
+		dec := jsoniter.NewDecoder(r)
+
+		err := dec.Decode(&(t.DTO))
+		if err != nil {
+			logs.ErrorLog(err)
 		}
 
-		return ok && len(badParams) == 0
+		return err == nil
+
 	default:
 		return true
 	}
@@ -139,19 +143,24 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TArray:
 		res := make([]interface{}, 0)
-		err := jsoniter.UnmarshalFromString(value, &res)
+		r := bytes.NewBufferString(value)
+		dec := jsoniter.NewDecoder(r)
+
+		err := dec.Decode(&res)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
 		return res, nil
 
 	case typesExt.TStruct:
-		// t.dto.CheckParams(ctx)
-		err := jsoniter.UnmarshalFromString(value, &(t.dto))
+		r := bytes.NewBufferString(value)
+		dec := jsoniter.NewDecoder(r)
+
+		err := dec.Decode(&(t.DTO))
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
-		return t.dto, nil
+		return t.DTO, nil
 
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
@@ -162,6 +171,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 	switch tp := t.BasicKind; tp {
 	case types.String:
 		return values, nil
+
 	case types.Int:
 		arr := make([]int, len(values))
 		for key, val := range values {
@@ -172,6 +182,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int)
 		}
 		return arr, nil
+
 	case types.Int8:
 		arr := make([]int8, len(values))
 		for key, val := range values {
@@ -182,6 +193,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int8)
 		}
 		return arr, nil
+
 	case types.Int16:
 		arr := make([]int16, len(values))
 		for key, val := range values {
@@ -192,6 +204,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int16)
 		}
 		return arr, nil
+
 	case types.Int32:
 		arr := make([]int32, len(values))
 		for key, val := range values {
@@ -202,6 +215,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int32)
 		}
 		return arr, nil
+
 	case types.Int64:
 		arr := make([]int64, len(values))
 		for key, val := range values {
@@ -212,6 +226,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int64)
 		}
 		return arr, nil
+
 	case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
 		arr := make([]int32, len(values))
 		for key, val := range values {
@@ -222,6 +237,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(int32)
 		}
 		return arr, nil
+
 	case types.Float32, types.Float64:
 		arr := make([]float32, len(values))
 		for key, val := range values {
@@ -232,10 +248,22 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 			arr[key] = v.(float32)
 		}
 		return arr, nil
+
 	case types.UnsafePointer:
 		return nil, nil
+
 	default:
-		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
+		arr := make([]interface{}, len(values))
+		for i, val := range values {
+			v, err := t.ConvertValue(ctx, val)
+			if err != nil {
+				return nil, err
+			}
+			arr[i] = v
+		}
+
+		return arr, nil
+
 	}
 }
 

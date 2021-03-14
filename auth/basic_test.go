@@ -208,9 +208,9 @@ func TestAuthBasic_getBasic_Hash(t *testing.T) {
 		u    []byte
 		ok   bool
 	}{
-		"ni@gamayun.sk",
-		[]byte("ni@gamayun.sk"),
-		[]byte("3Gwz9a2ode-kbzUi-07M_A=="),
+		"vovatestpolymer@gmail.com",
+		[]byte("vovatestpolymer@gmail.com"),
+		[]byte("SryYwlA3S_u61byX95a9yA=="),
 		true,
 	}
 

@@ -7,6 +7,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/sessions v1.2.0
 	github.com/jackc/pgtype v1.4.0
+	github.com/jackc/pgx/v4 v4.7.1
 	github.com/json-iterator/go v1.1.9
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.9.1

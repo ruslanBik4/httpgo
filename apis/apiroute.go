@@ -62,7 +62,7 @@ type (
 // ApiRoute implement endpoint info & handler on request
 type ApiRoute struct {
 	Desc                                                string          `json:"descriptor"`
-	DTO                                                 RouteDTO        `json:"dto"`
+	DTO                                                 RouteDTO        `json:"DTO"`
 	Fnc                                                 ApiRouteHandler `json:"-"`
 	FncAuth                                             FncAuth         `json:"-"`
 	TestFncAuth                                         FncAuth         `json:"-"`
@@ -135,6 +135,8 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		if err != nil {
 			return nil, err
 		}
+
+		defer ctx.Request.RemoveMultipartFormFiles()
 
 		ctx.SetUserValue(MultiPartParams, mf.Value)
 

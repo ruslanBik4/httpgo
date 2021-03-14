@@ -53,7 +53,7 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 					},
 				},
 			},
-			`{"name": "id_photos","required":false,"type": "", "value":"", "title": "", "list":[{"id":1, "url":"https://site.com/photots/"}]
+			`{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]
 }`,
 		},
 	}
@@ -1063,7 +1063,7 @@ func TestFormField_FormJSON(t *testing.T) {
 					},
 				},
 			},
-			`{"title" : "","action": "","description": "","method": "","blocks": [{"id": "0","title": "","description": "","fields": [{"name": "id_photos","required":false,"type": "", "value":"", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]
+			`{"title" : "","action": "","description": "","method": "","blocks": [{"id": "0","title": "","description": "","fields": [{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]
 }],"actions": [{"groups": []}]}]}`,
 		},
 	}

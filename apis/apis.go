@@ -218,16 +218,18 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 		default:
 			errMsg = fmt.Sprintf(errMsg+"%+v", string(ctx.Method()), "", resp)
 		}
-	// can't send stadart error (lost headers & responce body
+	// can't send standart error (lost headers & response body
 	case ErrUnAuthorized:
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
 		ctx.SetBodyString(errMsg)
 		return
+
 	case ErrRouteForbidden:
 		ctx.SetStatusCode(fasthttp.StatusForbidden)
 		ctx.SetBodyString(errMsg)
 		return
+
 	case errRouteOnlyLocal:
 		statusCode = fasthttp.StatusForbidden
 	case fasthttp.ErrNoMultipartForm:
