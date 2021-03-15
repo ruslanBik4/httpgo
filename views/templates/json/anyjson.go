@@ -17,8 +17,10 @@ import (
 	"github.com/valyala/quicktemplate"
 )
 
+var Json = jsoniter.ConfigFastest
+
 func StreamWrap(w *quicktemplate.Writer, value interface{}) {
-	enc := jsoniter.NewEncoder(w.W())
+	enc := Json.NewEncoder(w.W())
 	_ = enc.Encode(value)
 }
 

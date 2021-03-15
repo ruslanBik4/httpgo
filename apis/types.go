@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
+	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
 
@@ -82,7 +82,7 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 
 	case typesExt.TStruct:
 		v := t.DTO.NewValue()
-		err := jsoniter.UnmarshalFromString(value, &v)
+		err := Json.UnmarshalFromString(value, &v)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
@@ -132,7 +132,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TMap:
 		res := make(map[string]interface{}, 0)
-		err := jsoniter.UnmarshalFromString(value, &res)
+		err := Json.UnmarshalFromString(value, &res)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
@@ -140,7 +140,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TArray:
 		res := make([]interface{}, 0)
-		err := jsoniter.UnmarshalFromString(value, &res)
+		err := Json.UnmarshalFromString(value, &res)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
@@ -151,7 +151,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TStruct:
 		v := t.DTO.NewValue()
-		err := jsoniter.UnmarshalFromString(value, &v)
+		err := Json.UnmarshalFromString(value, &v)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
