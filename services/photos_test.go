@@ -23,7 +23,6 @@ func TestPhotosSend(t *testing.T) {
 		t.Error("Not error by operation with error name")
 	}
 	switch err := result.(type) {
-
 	case ErrServiceNotCorrectOperation:
 		t.Log(err.Error())
 		t.Skipped()

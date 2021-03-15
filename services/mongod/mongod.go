@@ -6,6 +6,7 @@
 package mongod
 
 import (
+	"golang.org/x/net/context"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
@@ -25,7 +26,7 @@ type mdService struct {
 
 //Запускает связь с mongodb на дефолтный порт. (localhost:27017)
 //TODO: перенести порт для связи в config для его настройки
-func (mongod *mdService) Init() error {
+func (mongod *mdService) Init(ctx context.Context) error {
 
 	session, err := mongo.Dial("localhost:27017")
 	if err != nil {
@@ -68,7 +69,7 @@ func (mongod *mdService) Status() string {
 	return mongod.status
 }
 
-func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
+func (mongod *mdService) Get(ctx context.Context, args ...interface{}) (interface{}, error) {
 
 	if len(args) < 2 {
 		return nil, services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
@@ -105,7 +106,7 @@ func (mongod *mdService) Get(args ...interface{}) (interface{}, error) {
 	return nil, services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
-func (mongod *mdService) Send(args ...interface{}) error {
+func (mongod *mdService) Send(ctx context.Context, args ...interface{}) error {
 
 	if len(args) < 2 {
 		return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}

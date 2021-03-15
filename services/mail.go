@@ -54,7 +54,7 @@ const TYPE_PLAIN_TEXT = "text/plain"
 const TYPE_HTML = "text/html"
 
 // ExamlpeSendEmail - пример отправки сообщения
-func ExamlpeSendEmail() {
+func ExampLeSendEmail() {
 
 	mail := Mail{
 		From:        "ruslan@gmail.com",
@@ -71,7 +71,12 @@ func ExamlpeSendEmail() {
 func (mailServ *mailService) Init(ctx context.Context) error {
 
 	mailServ.status = STATUS_PREPARING
-	fileName := filepath.Join(mailServ.getStaticFilePath(), "config/mail.yml")
+	cfg, ok := ctx.Value("cfg_path").(string)
+	if !ok {
+		cfg = "config/mail.yml"
+	}
+
+	fileName := filepath.Join(mailServ.getStaticFilePath(), cfg)
 	b, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		mailServ.status = STATUS_ERROR
@@ -95,13 +100,13 @@ func (mailServ *mailService) Send(ctx context.Context, messages ...interface{}) 
 	if err != nil {
 		return err
 	}
-	if err := mailServ.SendMail(currentMail); err != nil {
+	if err := mailServ.SendMail(ctx, currentMail); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (mailServ *mailService) SendMail(mail *Mail) error {
+func (mailServ *mailService) SendMail(ctx context.Context, mail *Mail) error {
 
 	m := gomail.NewMessage()
 	from := mailServ.mConfig.Email
@@ -126,6 +131,7 @@ func (mailServ *mailService) SendMail(mail *Mail) error {
 }
 
 func (mailServ *mailService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
+	logs.DebugLog(messages)
 	return nil, nil
 
 }
@@ -134,6 +140,8 @@ func (mailServ *mailService) Connect(in <-chan interface{}) (out chan interface{
 	return nil, nil
 }
 func (mailServ *mailService) Close(out chan<- interface{}) error {
+
+	close(out)
 
 	return nil
 }
@@ -176,7 +184,7 @@ func (mail *Mail) validate() error {
 
 	if mail.To == "" {
 		return &ErrServiceNotEnoughParameter{
-			Name: "mail From",
+			Name: "email To",
 		}
 	}
 	if _, err := netMail.ParseAddress(mail.To); err != nil {

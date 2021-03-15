@@ -39,7 +39,7 @@ func TestReadGoogleSheets(t *testing.T) {
 	readRange := "шаблон!A1:F10"
 	if resp, err := sheet.Read(spreadsheetId, readRange); err != nil {
 		t.Errorf("Error during reading sheet %v", err)
-	} else {
+	} else if resp != nil {
 		fmt.Printf("%v", resp)
 		for idx, row := range resp.Values {
 			// Print columns A and E, which correspond to indices 0 and 4.

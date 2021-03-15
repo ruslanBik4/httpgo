@@ -54,7 +54,7 @@ func (err ErrServiceNotCorrectParamType) Error() string {
 	return err.Name + photosNotCorrectParameterType
 }
 
-const photosNotEnoughParameter = " not enough parameters "
+const photosNotEnoughParameter = " not enough parameters: "
 
 // ErrServiceNotEnoughParameter for errors if not found required parameter
 type ErrServiceNotEnoughParameter struct {
@@ -63,7 +63,7 @@ type ErrServiceNotEnoughParameter struct {
 }
 
 func (err ErrServiceNotEnoughParameter) Error() string {
-	return err.Name + photosNotEnoughParameter
+	return photosNotEnoughParameter + err.Name
 }
 
 const brokenStatus = " broken status "

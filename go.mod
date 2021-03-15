@@ -6,12 +6,12 @@ require (
 	github.com/acarl005/stripansi v0.0.0-20180116102854-5a71ef0e047d
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/sessions v1.2.0
-	github.com/jackc/pgtype v1.4.0
-	github.com/jackc/pgx/v4 v4.7.1
-	github.com/json-iterator/go v1.1.9
+	github.com/jackc/pgtype v1.6.2
+	github.com/jackc/pgx/v4 v4.10.1
+	github.com/json-iterator/go v1.1.10
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.0.1096
+	github.com/ruslanBik4/dbEngine v1.0.1121
 	github.com/ruslanBik4/logs v0.0.0-20200927155213-df5cc6a3fa8e
 	github.com/stretchr/testify v1.6.1
 	github.com/tebeka/selenium v0.9.9

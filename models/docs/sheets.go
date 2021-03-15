@@ -131,7 +131,7 @@ func (sheet *SheetsGoogleDocs) Init() (err error) {
 	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json")
 
 	client, err := newClient()
-	if client == nil {
+	if err != nil {
 		return err
 	}
 

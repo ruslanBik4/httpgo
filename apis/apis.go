@@ -17,11 +17,10 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
-
-	. "github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/logs"
 
@@ -303,7 +302,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		return a, nil
 	}
 
-	columns := SimpleColumns(
+	columns := dbEngine.SimpleColumns(
 		"Path - Method",
 		"Descriptor",
 		"Auth",
