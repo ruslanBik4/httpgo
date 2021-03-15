@@ -5,11 +5,13 @@
 package apis
 
 import (
+	"encoding/json"
 	"fmt"
 	"go/types"
 	"strconv"
 	"strings"
 
+	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
 	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
@@ -140,29 +142,38 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 
 	case typesExt.TArray:
 		res := make([]interface{}, 0)
-		err := Json.UnmarshalFromString(value, &res)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-		if err != nil {
-			return nil, errors.Wrap(err, "UnmarshalFromString")
-		}
-		return res, nil
+		return t.ReadValue(value, res)
 
 	case typesExt.TStruct:
 		v := t.DTO.NewValue()
-		err := Json.UnmarshalFromString(value, &v)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-		if err != nil {
-			return nil, errors.Wrap(err, "UnmarshalFromString")
-		}
-		return v, nil
+		return t.ReadValue(value, v)
 
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
 	}
+}
+
+func (t TypeInParam) ReadValue(value string, v interface{}) (interface{}, error) {
+	switch v := v.(type) {
+	case pgtype.Value:
+		err := v.Set(value)
+		if err != nil {
+			return nil, errors.Wrap(err, "Set value")
+		}
+	case json.Unmarshaler:
+		err := v.UnmarshalJSON([]byte(value))
+		if err != nil {
+			return nil, errors.Wrap(err, "Unmarshal ")
+		}
+	default:
+
+		err := Json.UnmarshalFromString(value, &v)
+		if err != nil {
+			return nil, errors.Wrap(err, "UnmarshalFromString")
+		}
+	}
+
+	return v, nil
 }
 
 func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {
