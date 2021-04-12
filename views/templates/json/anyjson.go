@@ -21,7 +21,10 @@ var Json = jsoniter.ConfigFastest
 
 func StreamWrap(w *quicktemplate.Writer, value interface{}) {
 	enc := Json.NewEncoder(w.W())
-	_ = enc.Encode(value)
+	err := enc.Encode(value)
+	if err != nil {
+		_ = enc.Encode(err)
+	}
 }
 
 func init() {
