@@ -81,7 +81,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 					if ip[:1] == delim && !strings.HasSuffix(listener.Addr().String(), ip) {
 						url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
-						logs.DebugLog(url)
+						logs.DebugLog("redirect:", url)
 						ctx.Redirect(url, fasthttp.StatusMovedPermanently)
 						return
 					}
@@ -136,7 +136,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				},
 			},
 			"/httpgo/cfg/": {
-				Desc: "show config of httpgo",
+				Desc: "show config of httpGo",
 				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
 					return cfg, nil
 				},

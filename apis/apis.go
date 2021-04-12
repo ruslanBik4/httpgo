@@ -40,7 +40,7 @@ func (c CtxApis) AddValue(key string, val interface{}) {
 	c[key] = val
 }
 func (c CtxApis) Deadline() (deadline time.Time, ok bool) {
-	return time.Now(), true
+	return
 }
 func (c CtxApis) Done() <-chan struct{} {
 	return nil
