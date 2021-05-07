@@ -32,7 +32,7 @@ type TelegramBot struct {
 
 	props map[string]interface{}
 
-	messagesStack []tbMessageBuffer
+	messagesStack []*tbMessageBuffer
 	instance      string
 	messId        int64
 	lock          sync.RWMutex
@@ -381,11 +381,19 @@ func (tbot *TelegramBot) checkBot() error {
 	return nil
 }
 
+func (tbot *TelegramBot) allocStack() {
+	tbot.lock.Lock()
+	defer tbot.lock.Unlock()
+
+	tbot.messagesStack = make([]*tbMessageBuffer, 0, 30)
+}
+
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot *TelegramBot) Write(message []byte) (int, error) {
-	if len(tbot.messagesStack) > 0 && len(tbot.messagesStack) < 30 {
-		if tbot.messagesStack[len(tbot.messagesStack)-1].messageTime != time.Now().Round(1*time.Second) {
-			tbot.messagesStack = []tbMessageBuffer{}
+	lenStack := len(tbot.messagesStack)
+	if lenStack > 0 && lenStack < 30 {
+		if tbot.messagesStack[lenStack-1].messageTime != time.Now().Round(1*time.Second) {
+			tbot.allocStack()
 		} else {
 			for _, v := range tbot.messagesStack {
 				if bytes.Equal(v.messageText, message) {
@@ -393,9 +401,9 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 				}
 			}
 		}
-	} else if len(tbot.messagesStack) >= 30 {
-		time.Sleep(1 * time.Second)
-		tbot.messagesStack = []tbMessageBuffer{}
+	} else if lenStack >= 30 {
+		<-time.After(1 * time.Second)
+		tbot.allocStack()
 	}
 
 	err, _ := tbot.SendMessage(string(message), false)
@@ -405,7 +413,10 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 		return -1, err
 	}
 
-	tbot.messagesStack = append(tbot.messagesStack, tbMessageBuffer{
+	tbot.lock.Lock()
+	defer tbot.lock.Unlock()
+
+	tbot.messagesStack = append(tbot.messagesStack, &tbMessageBuffer{
 		messageText: message,
 		messageTime: time.Now().Round(1 * time.Second)})
 
