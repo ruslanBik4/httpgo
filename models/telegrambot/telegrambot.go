@@ -300,7 +300,9 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		}
 	}
 
+	tbot.lock.RLock()
 	messNum := tbot.messId
+	tbot.lock.RUnlock()
 
 	switch messLen := len(message); {
 	case messLen == 0:
@@ -382,14 +384,14 @@ func (tbot *TelegramBot) checkBot() error {
 }
 
 func (tbot *TelegramBot) allocStack() {
-	tbot.lock.Lock()
-	defer tbot.lock.Unlock()
-
 	tbot.messagesStack = make([]*tbMessageBuffer, 0, 30)
 }
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
 func (tbot *TelegramBot) Write(message []byte) (int, error) {
+	tbot.lock.Lock()
+	defer tbot.lock.Unlock()
+
 	lenStack := len(tbot.messagesStack)
 	if lenStack > 0 && lenStack < 30 {
 		if tbot.messagesStack[lenStack-1].messageTime != time.Now().Round(1*time.Second) {
@@ -412,9 +414,6 @@ func (tbot *TelegramBot) Write(message []byte) (int, error) {
 	} else if err != nil {
 		return -1, err
 	}
-
-	tbot.lock.Lock()
-	defer tbot.lock.Unlock()
 
 	tbot.messagesStack = append(tbot.messagesStack, &tbMessageBuffer{
 		messageText: message,
@@ -480,7 +479,9 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 				}
 
 				if action == cmdSendMes {
+					tbot.lock.Lock()
 					tbot.messId += 1
+					tbot.lock.Unlock()
 				}
 
 				return nil, resp
