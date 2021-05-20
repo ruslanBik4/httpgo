@@ -6,8 +6,17 @@ package telegrambot
 
 import "github.com/pkg/errors"
 
-const baseURL string = "https://api.telegram.org/bot"
-const maxMessLength int = 4050
+// request params for
+const (
+	baseURL       string = "https://api.telegram.org/bot"
+	maxMessLength int    = 4050
+)
+
+// environment values for init telegramBot
+const (
+	TB_TOKEN = "TBTOKEN"
+	CHAT_ID  = "TBCHATID"
+)
 
 const (
 	cmdGetMe                     = "getMe"
@@ -54,6 +63,8 @@ const (
 	cmdInlineMThd                = "Inline mode methods"
 	cmdgetUpdates                = "getUpdates"
 )
+
+const maxStack = 30
 
 const errMessBadBotParams = "TelegramBot struct param missing"
 

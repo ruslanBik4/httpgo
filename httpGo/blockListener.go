@@ -1,4 +1,4 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
+// Copyright 2021 Author: Ruslan Bikchentaev. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -17,11 +17,10 @@ type blockListener struct {
 }
 
 func (m *blockListener) Addr() net.Addr {
-	return m.Addr()
+	return m.Listener.Addr()
 }
 
 func (m *blockListener) Accept() (net.Conn, error) {
-
 	for {
 		c, err := m.Listener.Accept()
 		if err != nil {
@@ -35,9 +34,9 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		}
 
 		logs.ErrorLog(fmt.Errorf("Deny connect from addr %s", addr))
-		c.Close()
-
+		err = c.Close()
+		if err != nil {
+			logs.ErrorLog(err, "close connection")
+		}
 	}
-
-	return nil, nil
 }

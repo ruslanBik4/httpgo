@@ -16,7 +16,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -114,6 +113,7 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 		FastHTTPClient: &fasthttp.Client{},
 	}
 	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+	tb.allocStack()
 
 	as.Equal("bottoken", tb.Token, "Token from env wrong")
 	as.Equal("chatid", tb.ChatID, "ChatID from env wrong")
@@ -121,64 +121,96 @@ func TestErrorLogTelegramWrite(t *testing.T) {
 	newError := errors.New("NewERROR")
 	newErrorWraped := errors.Wrap(newError, "Wraped")
 
-	parametrsCheck := []string{"chat_id", "text"}
+	paramNames := []string{"chat_id", "text"}
 
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	ch := make(chan string, 2)
 
-	// ===== Simple net.http/ListenAndServe server with specific handler to read out telgrambot request =====
+	// ===== Simple net.http/ListenAndServe server with specific handler to read out telegrambot request =====
 	http.HandleFunc("/bottoken/sendMessage",
 		func(w http.ResponseWriter, r *http.Request) {
-			log.Println("HandleFunc r.URL", r.URL)
+			t.Log("HandleFunc r.URL", r.URL)
 
-			if r.Method == "GET" {
-				for i, paramName := range parametrsCheck {
+			switch r.Method {
+			case "GET":
+				for i, paramName := range paramNames {
 					params, ok := r.URL.Query()[paramName]
 
 					if !ok || len(params[0]) < 1 {
-						log.Println("Url Param", paramName, "is missing")
-						t.Fail()
-						wg.Done()
-						return
-					}
 
-					if i == 0 {
-						as.Equal(string(params[0]), tb.ChatID, "ChatID in request is wrong")
-					} else {
-						if strings.Contains(string(params[0]), strings.Replace(newError.Error(), " ", "%20", -1)) ||
-							strings.Contains(string(params[0]), strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
-							wg.Done()
-							return
+						resp := fmt.Sprintf("Url Param %s is missing", paramName)
+						w.WriteHeader(http.StatusBadRequest)
+						_, err = w.Write([]byte(resp))
+						if err != nil {
+							t.Error(err)
 						}
-					}
-				}
-			}
-
-			if r.Method == "POST" {
-				if as.Equal(tb.ChatID, r.FormValue("chat_id"), "ChatID in request is wrong") {
-					if strings.Contains(r.FormValue("text"), newError.Error()) ||
-						strings.Contains(r.FormValue("text"), newErrorWraped.Error()) {
-						wg.Done()
+						ch <- resp
 						return
 					}
+
+					msg := params[0]
+					if i == 0 {
+						as.Equal(msg, tb.ChatID, "ChatID in request is wrong")
+					} else if strings.Contains(msg, strings.Replace(newError.Error(), " ", "%20", -1)) ||
+						strings.Contains(msg, strings.Replace(newErrorWraped.Error(), " ", "%20", -1)) {
+						ch <- "ok"
+						return
+
+					}
 				}
+			case "POST":
+				chatID := r.FormValue("chat_id")
+				msg := r.FormValue("text")
+				if as.Equal(tb.ChatID, chatID, "ChatID in request is wrong") &&
+					(strings.Contains(msg, newError.Error()) ||
+						strings.Contains(msg, newErrorWraped.Error())) {
+					w.WriteHeader(http.StatusOK)
+
+					ch <- "ok"
+					return
+				}
+			default:
+				ch <- "unknown method"
 			}
+			w.WriteHeader(http.StatusNotFound)
+			ch <- "not found"
 		})
 
-	go http.ListenAndServe(useTestLocalPort, nil)
+	go func() {
+		err := http.ListenAndServe(useTestLocalPort, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 	// =========================================
 
 	//// another server version, but hadler hasn't written for the errors and waitgroup
 	//go FastHTTPServer()
 
-	_, err = tb.Write([]byte(newError.Error()))
+	go func() {
+		sendMsg(tb, newError, as, newErrorWraped)
+		close(ch)
+	}()
+
+	for str := range ch {
+		switch str {
+		case "ok":
+			t.Log(str)
+		default:
+			t.Fatal(str)
+		}
+	}
+
+}
+
+func sendMsg(tb *TelegramBot, newError error, as *assert.Assertions, newErrorWrapped error) {
+	_, err := tb.Write([]byte(newError.Error()))
 	as.Nil(err, "error writing tb.Write([]byte(newError.Error()))")
 
-	_, err = tb.Write([]byte(newErrorWraped.Error()))
-	as.Nil(err, "error writing tb.Write([]byte(newErrorWraped.Error()))")
+	_, err = tb.Write([]byte(newErrorWrapped.Error()))
+	as.Nil(err, "error writing tb.Write([]byte(newErrorWrapped.Error()))")
 
-	wg.Wait()
-
+	_, err = tb.Write([]byte(""))
+	as.Nil(err, "error nil if message empty")
 }
 
 const (

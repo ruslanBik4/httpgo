@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/acarl005/stripansi"
@@ -21,31 +22,14 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-// TelegramBot struct with token and one chatid
-type TelegramBot struct {
-	Token          string `yaml:"BotToken"`
-	ChatID         string `yaml:"ChatID"`
-	RequestURL     string
-	Request        *fasthttp.Request
-	Response       *fasthttp.Response
-	FastHTTPClient *fasthttp.Client
-
-	props map[string]interface{}
-
-	messagesStack []*tbMessageBuffer
-	instance      string
-	messId        int64
-	lock          sync.RWMutex
-}
-
-// struct for telegram reply_markup keyboard
+// TelegramKeyboard struct for telegram reply_markup keyboard
 type TelegramKeyboard struct {
 	Keyboard        [][]string `json:"keyboard"`
 	OneTimeKeyboard bool       `json:"one_time_keyboard"`
 	ResizeKeyboard  bool       `json:"resize_keyboard"`
 }
 
-// json struct to parse response
+// TbResponseMessageStruct json struct to parse response
 type TbResponseMessageStruct struct {
 	Ok          bool   `json:"ok"`
 	ErrorCode   int    `json:"error_code"`
@@ -63,12 +47,6 @@ type TbResponseMessageStruct struct {
 	} `json:"result"`
 }
 
-//
-type tbMessageBuffer struct {
-	messageText []byte
-	messageTime time.Time
-}
-
 func (tbResp *TbResponseMessageStruct) String() string {
 	if tbResp.Ok == true {
 		return fmt.Sprintf(`message request is Ok, 
@@ -80,16 +58,50 @@ Chat:{Id: %v, Title: %s, Username: %v, Type: %v}, Date: %.19s, Text: %v }}`,
 			time.Unix(tbResp.Result.Date, 0), tbResp.Result.Text)
 	}
 
-	return fmt.Sprintf("message request is not Ok, ErrorCode:%v, %s", tbResp.ErrorCode, tbResp.Description)
+	return fmt.Sprintf("message request is not Ok, ErrorCode:%v, %s",
+		tbResp.ErrorCode,
+		tbResp.Description,
+	)
 }
 
-func (tbot *TelegramBot) String() string {
-	return fmt.Sprintf("TelegramBot: {Token: %v, ChatID: %v, RequestURL: %v, Request: %v, Response: %v, FastHTTPClient: %v, instance: %v, messagesStack: %v}",
-		tbot.Token, tbot.ChatID, tbot.RequestURL, tbot.Request, tbot.Response, tbot.FastHTTPClient, tbot.instance, tbot.messagesStack)
+// tbMessageBuffer stack structure
+type tbMessageBuffer struct {
+	messageText []byte
+	messageTime time.Time
+}
+
+func newtbMessageBuffer(msg []byte) *tbMessageBuffer {
+	return &tbMessageBuffer{
+		messageText: msg,
+		messageTime: time.Now().Round(1 * time.Second),
+	}
 }
 
 func (messbuf *tbMessageBuffer) String() string {
 	return fmt.Sprintf("{messageText: %v, messageTime: %v}", string(messbuf.messageText), messbuf.messageTime)
+}
+
+// TelegramBot struct with token and one chats id
+type TelegramBot struct {
+	Token          string `yaml:"BotToken"`
+	ChatID         string `yaml:"ChatID"`
+	RequestURL     string
+	Request        *fasthttp.Request
+	Response       *fasthttp.Response
+	FastHTTPClient *fasthttp.Client
+
+	props map[string]interface{}
+
+	currentMsg    int
+	messagesStack []*tbMessageBuffer
+	instance      string
+	messId        int64
+	lock          sync.RWMutex
+}
+
+func (tb *TelegramBot) String() string {
+	return fmt.Sprintf("TelegramBot: {Token: %v, ChatID: %v, RequestURL: %v, Request: %v, Response: %v, FastHTTPClient: %v, instance: %v, messagesStack: %v}",
+		tb.Token, tb.ChatID, tb.RequestURL, tb.Request, tb.Response, tb.FastHTTPClient, tb.instance, tb.messagesStack)
 }
 
 // NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct
@@ -110,30 +122,31 @@ func NewTelegramBot(confPath string) (tb *TelegramBot, err error) {
 	tb.Request = &fasthttp.Request{}
 	tb.Response = &fasthttp.Response{}
 	tb.FastHTTPClient = &fasthttp.Client{}
+	tb.allocStack()
 
 	return
 }
 
-// NewTelegramBot is a constructor from ENV
+// NewTelegramBotFromEnv is a constructor from ENV
 func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
-	errmess := ""
-	tbtoken := os.Getenv("TBTOKEN")
-	if tbtoken == "" {
-		errmess += "TBTOKEN "
+	errMsg := ""
+	tbToken := os.Getenv(TB_TOKEN)
+	if tbToken == "" {
+		errMsg += TB_TOKEN
 	}
 
-	tbchatid := os.Getenv("TBCHATID")
-	if tbchatid == "" {
-		errmess += "TBCHATID "
+	tbChatId := os.Getenv(CHAT_ID)
+	if tbChatId == "" {
+		errMsg += " " + CHAT_ID
 	}
 
-	if errmess != "" {
-		return nil, errors.New("Empty environment variables: " + errmess + "for TelegramBot creation.")
+	if errMsg > "" {
+		return nil, errors.New("Empty environment variables: " + errMsg + "for TelegramBot creation.")
 	}
 
 	tb = &TelegramBot{
-		Token:          tbtoken,
-		ChatID:         tbchatid,
+		Token:          tbToken,
+		ChatID:         tbChatId,
 		Response:       &fasthttp.Response{},
 		RequestURL:     baseURL,
 		Request:        &fasthttp.Request{},
@@ -141,6 +154,7 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 		instance:       "[[#" + filepath.Base(os.Args[0]) + "]] ",
 	}
 	tb.Request.Header.SetMethod(fasthttp.MethodPost)
+	tb.allocStack()
 
 	err, resp := tb.SendMessage("Telegram Bot ready", false)
 	if err == ErrBadTelegramBot {
@@ -158,16 +172,16 @@ func NewTelegramBotFromEnv() (tb *TelegramBot, err error) {
 }
 
 // setRequestURL makes url for request
-func (tbot *TelegramBot) setRequestURL(action string) {
-	newUrl := tbot.RequestURL + tbot.Token + "/" + action
-	if string(tbot.Request.Header.Method()) == "GET" {
+func (tb *TelegramBot) setRequestURL(action string) {
+	newUrl := tb.RequestURL + tb.Token + "/" + action
+	if string(tb.Request.Header.Method()) == "GET" {
 		newUrl += "?"
 	}
-	tbot.Request.SetRequestURI(newUrl)
+	tb.Request.SetRequestURI(newUrl)
 }
 
 // Set multipart data for request
-func (tbot *TelegramBot) setMultipartData(params map[string]string) error {
+func (tb *TelegramBot) setMultipartData(params map[string]string) error {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 	for name, val := range params {
@@ -181,27 +195,27 @@ func (tbot *TelegramBot) setMultipartData(params map[string]string) error {
 		return err
 	}
 
-	tbot.Request.Header.Set("Content-Type", w.FormDataContentType())
-	tbot.Request.SetBody(b.Bytes())
+	tb.Request.Header.Set("Content-Type", w.FormDataContentType())
+	tb.Request.SetBody(b.Bytes())
 	return nil
 }
 
 // SendMessage is used for sending messages
-func (tbot *TelegramBot) GetUpdates() error {
-	err, _ := tbot.FastRequest(cmdgetUpdates, map[string]string{})
+func (tb *TelegramBot) GetUpdates() error {
+	err, _ := tb.FastRequest(cmdgetUpdates, map[string]string{})
 	if err != nil {
 		return err
 	}
 
-	return tbot.readResponse(err)
+	return tb.readResponse(err)
 }
 
-func (tbot *TelegramBot) readResponse(err error) error {
-	d := tbot.Response.Body()
+func (tb *TelegramBot) readResponse(err error) error {
+	d := tb.Response.Body()
 
 	enc := jsoniter.NewDecoder(bytes.NewReader(d))
 
-	err = enc.Decode(&tbot.props)
+	err = enc.Decode(&tb.props)
 	if err != nil {
 		return err
 	}
@@ -210,8 +224,8 @@ func (tbot *TelegramBot) readResponse(err error) error {
 }
 
 // SendMessage is used for sending messages
-func (tbot *TelegramBot) GetChat(name string) error {
-	err, _ := tbot.FastRequest(cmdGetChat,
+func (tb *TelegramBot) GetChat(name string) error {
+	err, _ := tb.FastRequest(cmdGetChat,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -219,12 +233,12 @@ func (tbot *TelegramBot) GetChat(name string) error {
 		return err
 	}
 
-	return tbot.readResponse(err)
+	return tb.readResponse(err)
 }
 
 // SendMessage is used for sending messages
-func (tbot *TelegramBot) GetChatMemberCount(name string) error {
-	err, _ := tbot.FastRequest(cmdGetChMbrsCount,
+func (tb *TelegramBot) GetChatMemberCount(name string) error {
+	err, _ := tb.FastRequest(cmdGetChMbrsCount,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -232,12 +246,12 @@ func (tbot *TelegramBot) GetChatMemberCount(name string) error {
 		return err
 	}
 
-	return tbot.readResponse(err)
+	return tb.readResponse(err)
 }
 
 // SendMessage is used for sending messages
-func (tbot *TelegramBot) GetChatMember(name string, user string) error {
-	err, _ := tbot.FastRequest(cmdGetChMbr,
+func (tb *TelegramBot) GetChatMember(name string, user string) error {
+	err, _ := tb.FastRequest(cmdGetChMbr,
 		map[string]string{
 			"chat_id": name,
 			"user_id": user,
@@ -246,12 +260,12 @@ func (tbot *TelegramBot) GetChatMember(name string, user string) error {
 		return err
 	}
 
-	return tbot.readResponse(err)
+	return tb.readResponse(err)
 }
 
 // SendMessage is used for sending messages
-func (tbot *TelegramBot) InviteUser(name string) error {
-	err, _ := tbot.FastRequest(cmdInlineMThd,
+func (tb *TelegramBot) InviteUser(name string) error {
+	err, _ := tb.FastRequest(cmdInlineMThd,
 		map[string]string{
 			"chat_id": name,
 		})
@@ -263,21 +277,21 @@ func (tbot *TelegramBot) InviteUser(name string) error {
 }
 
 // SendMessage is used for sending messages. Arguments keys must contain TelegramKeyboard{} to add keys to your message
-func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) (err error, response *TbResponseMessageStruct) {
-	if tbot == nil {
-		return errors.New("tbot is nil"), nil
+func (tb *TelegramBot) SendMessage(message string, markdown bool, keys ...interface{}) (err error, response *TbResponseMessageStruct) {
+	if tb == nil {
+		return errors.New("tb is nil"), nil
 	}
 
-	if err := tbot.checkBot(); err != nil {
+	if err := tb.checkBot(); err != nil {
 		return err, nil
 	}
 
-	if string(tbot.Request.Header.Method()) == "GET" {
+	if string(tb.Request.Header.Method()) == "GET" {
 		strings.Replace(message, " ", "%20", -1)
 	}
 
 	requestParams := map[string]string{
-		"chat_id": tbot.ChatID,
+		"chat_id": tb.ChatID,
 	}
 	message = strings.TrimSpace(message)
 
@@ -293,28 +307,26 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 		if checkType == true {
 			keysJsonString, err := json.Marshal(replyMarkup)
 			if err != nil {
-				fmt.Println(err)
+				logs.ErrorStack(err)
 			} else {
 				requestParams["reply_markup"] = string(keysJsonString)
 			}
 		}
 	}
 
-	tbot.lock.RLock()
-	messNum := tbot.messId
-	tbot.lock.RUnlock()
+	messNum := atomic.LoadInt64(&tb.messId)
 
 	switch messLen := len(message); {
 	case messLen == 0:
 		logs.ErrorStack(errors.Wrap(ErrEmptyMessText, message))
-	case messLen+len(tbot.instance) > maxMessLength:
+	case messLen+len(tb.instance) > maxMessLength:
 		prefix := " part 1 "
 
 		r := strings.NewReader(message)
 
 		for i := 1; r.Len() > 0; i++ {
 
-			requestParams["text"], err = tbot.getPartMes(r, prefix, messNum+1)
+			requestParams["text"], err = tb.getPartMes(r, prefix, messNum+1)
 			if err == ErrEmptyMessText {
 				logs.GetStack(2, fmt.Sprintf("%v (%s) part#%d", err, message, i))
 				return
@@ -322,24 +334,24 @@ func (tbot *TelegramBot) SendMessage(message string, markdown bool, keys ...inte
 				return
 			}
 
-			err, response = tbot.FastRequest(cmdSendMes, requestParams)
+			err, response = tb.FastRequest(cmdSendMes, requestParams)
 			if err != nil {
 				return err, response
 			}
 
-			prefix = fmt.Sprintf(" MESS #%v part %d ", tbot.messId, i+1)
+			prefix = fmt.Sprintf(" MESS #%v part %d ", tb.messId, i+1)
 		}
 	default:
-		requestParams["text"] = tbot.instance + message
-		err, response = tbot.FastRequest(cmdSendMes, requestParams)
+		requestParams["text"] = tb.instance + message
+		err, response = tb.FastRequest(cmdSendMes, requestParams)
 	}
 
 	return
 }
 
-func (tbot *TelegramBot) getPartMes(r *strings.Reader, prefix string, num int64) (string, error) {
+func (tb *TelegramBot) getPartMes(r *strings.Reader, prefix string, num int64) (string, error) {
 	suffix := fmt.Sprintf(" MESS #%v  CONTINUE->", num)
-	buf := make([]byte, maxMessLength-len(tbot.instance)-len(prefix)-len(suffix))
+	buf := make([]byte, maxMessLength-len(tb.instance)-len(prefix)-len(suffix))
 
 	c, err := r.Read(buf)
 	if err != nil {
@@ -351,10 +363,10 @@ func (tbot *TelegramBot) getPartMes(r *strings.Reader, prefix string, num int64)
 	}
 
 	if r.Len() <= 0 {
-		suffix = fmt.Sprintf(" MESS #%v ENDED", tbot.messId)
+		suffix = fmt.Sprintf(" MESS #%v ENDED", tb.messId)
 	}
 
-	mes := tbot.instance + prefix + string(buf) + suffix
+	mes := tb.instance + prefix + string(buf) + suffix
 	if len(mes) == 0 {
 		return "", ErrEmptyMessText
 	}
@@ -363,80 +375,96 @@ func (tbot *TelegramBot) getPartMes(r *strings.Reader, prefix string, num int64)
 }
 
 // checks bot params, used in send message, can be used in other methods
-func (tbot *TelegramBot) checkBot() error {
-	if tbot.Token == "" {
+func (tb *TelegramBot) checkBot() error {
+	if tb.Token == "" {
 		return ErrBadBotParams{"TelegramBot.Token empty"}
 	}
-	if tbot.ChatID == "" {
+	if tb.ChatID == "" {
 		return ErrBadBotParams{"TelegramBot.ChatID empty"}
 	}
-	if tbot.FastHTTPClient == nil {
+	if tb.FastHTTPClient == nil {
 		return ErrBadBotParams{"TelegramBot.FastHTTPClient == nil"}
 	}
-	if tbot.Request == nil {
+	if tb.Request == nil {
 		return ErrBadBotParams{"TelegramBot.Request == nil"}
 	}
-	if tbot.Response == nil {
+	if tb.Response == nil {
 		return ErrBadBotParams{"TelegramBot.Response == nil"}
 	}
 
 	return nil
 }
 
-func (tbot *TelegramBot) allocStack() {
-	tbot.messagesStack = make([]*tbMessageBuffer, 0, 30)
+func (tb *TelegramBot) allocStack() {
+	tb.lock.Lock()
+	defer tb.lock.Unlock()
+
+	tb.messagesStack = make([]*tbMessageBuffer, maxStack)
+}
+
+func (tb *TelegramBot) msgInStack(msg []byte) bool {
+	tb.lock.RLock()
+	defer tb.lock.RUnlock()
+
+	for _, v := range tb.messagesStack {
+		if v != nil && bytes.Equal(v.messageText, msg) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (tb *TelegramBot) putMsgStack(msg []byte) {
+	if len(tb.messagesStack) == 0 {
+		tb.allocStack()
+	}
+
+	tb.lock.Lock()
+	defer tb.lock.Unlock()
+
+	tb.currentMsg++
+	if tb.currentMsg == maxStack {
+		tb.currentMsg = 0
+	}
+
+	tb.messagesStack[tb.currentMsg] = newtbMessageBuffer(msg)
 }
 
 // TelegramBotHandler reads bot params from configPath and accepts some log struct to find if its needed to print some mess to telegram bot
-func (tbot *TelegramBot) Write(message []byte) (int, error) {
-	tbot.lock.Lock()
-	defer tbot.lock.Unlock()
-
-	lenStack := len(tbot.messagesStack)
-	if lenStack > 0 && lenStack < 30 {
-		if tbot.messagesStack[lenStack-1].messageTime != time.Now().Round(1*time.Second) {
-			tbot.allocStack()
-		} else {
-			for _, v := range tbot.messagesStack {
-				if bytes.Equal(v.messageText, message) {
-					return len(message), nil
-				}
-			}
-		}
-	} else if lenStack >= 30 {
-		<-time.After(1 * time.Second)
-		tbot.allocStack()
+func (tb *TelegramBot) Write(msg []byte) (int, error) {
+	if tb.msgInStack(msg) {
+		return len(msg), nil
 	}
 
-	err, _ := tbot.SendMessage(string(message), false)
+	err, _ := tb.SendMessage(string(msg), false)
 	if err == ErrBadTelegramBot {
-		return len(message), logs.ErrBadWriter
-	} else if err != nil {
+		return -1, logs.ErrBadWriter
+	}
+
+	if err != nil {
 		return -1, err
 	}
 
-	tbot.messagesStack = append(tbot.messagesStack, &tbMessageBuffer{
-		messageText: message,
-		messageTime: time.Now().Round(1 * time.Second)})
+	tb.putMsgStack(msg)
 
-	return len(message), nil
-
+	return len(msg), nil
 }
 
 // FastRequest make fasthttp request
-func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (error, *TbResponseMessageStruct) {
-	tbot.lock.Lock()
-	defer tbot.lock.Unlock()
+func (tb *TelegramBot) FastRequest(action string, params map[string]string) (error, *TbResponseMessageStruct) {
+	tb.lock.Lock()
+	defer tb.lock.Unlock()
 
-	tbot.setRequestURL(action)
-	err := tbot.setMultipartData(params)
+	tb.setRequestURL(action)
+	err := tb.setMultipartData(params)
 	if err != nil {
 		return err, nil
 	}
 	tryCounter := 0
 
 	for {
-		err := tbot.FastHTTPClient.DoTimeout(tbot.Request, tbot.Response, time.Minute)
+		err := tb.FastHTTPClient.DoTimeout(tb.Request, tb.Response, time.Minute)
 		switch err {
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
 			logs.DebugLog("eErrTimeout")
@@ -448,8 +476,8 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 			continue
 		case nil:
 			var resp = &TbResponseMessageStruct{}
-			err = json.Unmarshal(tbot.Response.Body(), resp)
-			switch tbot.Response.StatusCode() {
+			err = json.Unmarshal(tb.Response.Body(), resp)
+			switch tb.Response.StatusCode() {
 			case 400:
 				if strings.Contains(resp.Description, "message text is empty") {
 					logs.GetStack(3, fmt.Sprintf("%v (%s) %+v", ErrEmptyMessText, params["text"], resp))
@@ -479,9 +507,7 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 				}
 
 				if action == cmdSendMes {
-					tbot.lock.Lock()
-					tbot.messId += 1
-					tbot.lock.Unlock()
+					atomic.AddInt64(&tb.messId, 1)
 				}
 
 				return nil, resp
@@ -500,6 +526,6 @@ func (tbot *TelegramBot) FastRequest(action string, params map[string]string) (e
 }
 
 //GetResult
-func (tbot *TelegramBot) GetResult() interface{} {
-	return tbot.props["result"]
+func (tb *TelegramBot) GetResult() interface{} {
+	return tb.props["result"]
 }

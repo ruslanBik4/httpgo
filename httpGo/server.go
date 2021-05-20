@@ -172,10 +172,10 @@ func (a *HttpGo) listenOnShutdown() {
 	ch := make(chan os.Signal)
 	KillSignal := syscall.Signal(a.cfg.KillSignal)
 	// syscall.SIGTTIN
-	signal.Notify(ch, os.Interrupt, os.Kill, KillSignal, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
 	logs.StatusLog("Shutdown service starting %v on signal '%v'", time.Now(), KillSignal)
 	signShut := <-ch
-	logs.StatusLog(signShut.String())
+	logs.StatusLog("Shutdown service get signal: " + signShut.String())
 
 	close(a.broadcast)
 
