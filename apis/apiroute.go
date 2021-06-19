@@ -378,6 +378,9 @@ func NewMapRoutes() MapRoutes {
 // AddRoutes add ApiRoute into hair onsafe
 func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 	for url, route := range routes {
+		if !strings.HasPrefix(url, "/") {
+			url = "/" + url
+		}
 		_, ok := r[route.Method][url]
 		if ok {
 			logs.ErrorLog(ErrPathAlreadyExists, url)
@@ -400,7 +403,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 						origin := ctx.Request.Header.Peek("Origin")
 						ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
 
-						logs.DebugLog("allow OPTIONS from %s for %s", origin, route.Desc)
+						logs.DebugLog("allow OPTIONS from %s for '%s'", origin, route.Desc)
 						return nil, nil
 					},
 					Method:   OPTIONS,

@@ -40,6 +40,7 @@ type ColumnDecor struct {
 	patternDesc       string
 	Value             interface{}
 	Suggestions       string
+	SuggestionsParams map[string]interface{}
 }
 
 var regPattern = regexp.MustCompile(`{"pattern":\s*"([^"]+)"}`)

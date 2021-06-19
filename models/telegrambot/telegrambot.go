@@ -78,7 +78,7 @@ func newtbMessageBuffer(msg []byte) *tbMessageBuffer {
 }
 
 func (messbuf *tbMessageBuffer) String() string {
-	return fmt.Sprintf("{messageText: %v, messageTime: %v}", string(messbuf.messageText), messbuf.messageTime)
+	return fmt.Sprintf("{messageText: %s, messageTime: %v}", string(messbuf.messageText), messbuf.messageTime)
 }
 
 // TelegramBot struct with token and one chats id
@@ -100,8 +100,13 @@ type TelegramBot struct {
 }
 
 func (tb *TelegramBot) String() string {
-	return fmt.Sprintf("TelegramBot: {Token: %v, ChatID: %v, RequestURL: %v, Request: %v, Response: %v, FastHTTPClient: %v, instance: %v, messagesStack: %v}",
-		tb.Token, tb.ChatID, tb.RequestURL, tb.Request, tb.Response, tb.FastHTTPClient, tb.instance, tb.messagesStack)
+	msgStr := ""
+	for key, msg := range tb.messagesStack {
+		msgStr += fmt.Sprintf("%d: %s,", key, msg)
+	}
+	return fmt.Sprintf(
+		"TelegramBot: {Token: %s, ChatID: %s, RequestURL: %s, Request: %s, Response: %s, instance: %s, messagesStack: %s}",
+		tb.Token, tb.ChatID, tb.RequestURL, tb.Request.String(), tb.Response.String(), tb.instance, msgStr)
 }
 
 // NewTelegramBot reads a config file for bot token and chatID and creates new TelegramBot struct

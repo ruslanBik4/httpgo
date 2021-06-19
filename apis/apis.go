@@ -16,10 +16,9 @@ import (
 	"unsafe"
 
 	"github.com/jackc/pgx/v4"
+	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-
-	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/logs"
