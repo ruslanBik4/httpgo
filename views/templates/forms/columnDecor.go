@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/logs"
@@ -43,18 +44,38 @@ type ColumnDecor struct {
 	SuggestionsParams map[string]interface{}
 }
 
-var regPattern = regexp.MustCompile(`{"pattern":\s*"([^"]+)"}`)
+var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{}]+)|({[^}]+})),?)+}`)
 
 func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnDecor {
 
 	comment := column.Comment()
 	colDec := &ColumnDecor{
-		Column:      column,
-		IsReadOnly:  column.AutoIncrement() || strings.Contains(comment, "read_only"),
-		PatternList: patternList,
+		Column:            column,
+		IsReadOnly:        column.AutoIncrement() || strings.Contains(comment, "read_only"),
+		PatternList:       patternList,
+		SuggestionsParams: make(map[string]interface{}),
 	}
-	if m := regPattern.FindAllStringSubmatch(comment, -1); len(m) > 0 {
-		colDec.getPattern(m[0][1])
+	if m := regPattern.FindAllSubmatch([]byte(comment), -1); len(m) > 0 {
+		parse, err := fastjson.ParseBytes(m[0][0])
+		if err != nil {
+			logs.ErrorLog(err, string(m[0][0]))
+		} else {
+			p := parse.GetStringBytes("pattern")
+			colDec.getPattern(string(p))
+			p = parse.GetStringBytes("suggestions")
+			if len(p) > 0 {
+				colDec.Suggestions = string(p)
+			}
+			params := parse.GetObject("suggestions_params")
+			params.Visit(func(key []byte, v *fastjson.Value) {
+				b, err := v.StringBytes()
+				if err != nil {
+					logs.ErrorLog(err, key)
+					return
+				}
+				colDec.SuggestionsParams[string(key)] = string(b)
+			})
+		}
 		colDec.Label = regPattern.ReplaceAllString(comment, "")
 	} else if comment > "" {
 		colDec.Label = comment

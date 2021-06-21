@@ -5,20 +5,32 @@
 package forms
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	testURL     = "url"
+	testID      = 123
+	testName    = "options"
+	testPattern = `\d\S\s ame`
+	comment     = `label {"pattern": "%s","suggestions":"%s","suggestions_params":{"name":"%s"}, "id":%d } "read_only"`
+)
+
 func TestNewColumnDecor(t *testing.T) {
-	column := dbEngine.NewStringColumn("test", `label {"pattern":"test_pattern"} "read_only"`, true)
+	column := dbEngine.NewStringColumn("test", fmt.Sprintf(comment, testPattern, testURL, testName, testID), true)
 	colDev := NewColumnDecor(column, nil)
 	assert.Implements(t, (*dbEngine.Column)(nil), colDev)
-	assert.Equal(t, "test_pattern", colDev.Pattern())
+	assert.Equal(t, testPattern, colDev.Pattern())
+	assert.Equal(t, testURL, colDev.Suggestions)
+	assert.Equal(t, testName, colDev.SuggestionsParams["name"])
 	assert.True(t, colDev.Required())
 	assert.True(t, colDev.IsReadOnly)
 }
+
 func TestColumnDecor_GetValues(t *testing.T) {
 	type fields struct {
 		Column        dbEngine.Column
