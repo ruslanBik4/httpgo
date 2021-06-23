@@ -17,7 +17,7 @@ const (
 	testID      = 123
 	testName    = "options"
 	testPattern = `\d\S\s ame`
-	comment     = `label {"pattern": "%s","suggestions":"%s","suggestions_params":{"name":"%s"}, "id":%d } "read_only"`
+	comment     = `label {"pattern": "%s","multiple": true, "suggestions":"%s","suggestions_params":{"name":"%s"}, "id":%d } "read_only"`
 )
 
 func TestNewColumnDecor(t *testing.T) {
@@ -29,6 +29,7 @@ func TestNewColumnDecor(t *testing.T) {
 	assert.Equal(t, testName, colDev.SuggestionsParams["name"])
 	assert.True(t, colDev.Required())
 	assert.True(t, colDev.IsReadOnly)
+	assert.True(t, colDev.multiple)
 }
 
 func TestColumnDecor_GetValues(t *testing.T) {

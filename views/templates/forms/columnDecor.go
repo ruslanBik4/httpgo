@@ -37,6 +37,7 @@ type ColumnDecor struct {
 	PlaceHolder       string
 	LinkNew           string
 	Label             string
+	multiple          bool
 	pattern           string
 	patternDesc       string
 	Value             interface{}
@@ -44,7 +45,7 @@ type ColumnDecor struct {
 	SuggestionsParams map[string]interface{}
 }
 
-var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{}]+)|({[^}]+})),?)+}`)
+var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
 
 func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnDecor {
 
@@ -66,6 +67,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 			if len(p) > 0 {
 				colDec.Suggestions = string(p)
 			}
+			colDec.multiple = parse.GetBool("multiple")
 			params := parse.GetObject("suggestions_params")
 			params.Visit(func(key []byte, v *fastjson.Value) {
 				b, err := v.StringBytes()
@@ -76,7 +78,7 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 				colDec.SuggestionsParams[string(key)] = string(b)
 			})
 		}
-		colDec.Label = regPattern.ReplaceAllString(comment, "")
+		colDec.Label = strings.Split(comment, "{")[0]
 	} else if comment > "" {
 		colDec.Label = comment
 	} else {

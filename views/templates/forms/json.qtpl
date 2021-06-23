@@ -103,6 +103,10 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
         {% endif %}
 
          {% if col.IsSlice %}
+           {% if col.multiple %}
+            "type": "select",
+            "multiple": true
+           {% else %}
             "type": "array",
             "typeField": "{%= col.InputTypeForJSON()%}",
             "action": "add-field",
@@ -116,7 +120,8 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             {% endif %}
                      {% endfor %}
                      ]
-         {% else %}
+         {% endif %}
+        {% else %}
             "type": "{%= col.InputTypeForJSON()%}"
            {% switch len(values) %}
             {% case 0 %}

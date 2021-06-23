@@ -403,8 +403,9 @@ github.com/rs/zerolog v1.13.0/go.mod h1:YbFCdg8HfsridGWAh22vktObvhZbQsZXe4/zB0OK
 github.com/rs/zerolog v1.15.0/go.mod h1:xYTKnLHcpfU2225ny5qZjxnj9NvkumZYjJHlAThCjNc=
 github.com/ruslanBik4/dbEngine v1.0.1142 h1:KKbXP7M382WgzTvnG9qvqO7eNLpJwAODHZkPNY/ABfA=
 github.com/ruslanBik4/dbEngine v1.0.1142/go.mod h1:518eN+pynYyvuJwv+5JxSqr1oT9vr5ePvvowVg+jcxw=
-github.com/ruslanBik4/logs v0.0.0-20200927155213-df5cc6a3fa8e h1:ZfsGdTBtyIyqVnK3CFmTnXzHb+f1WziBI0ISlrWVBqA=
 github.com/ruslanBik4/logs v0.0.0-20200927155213-df5cc6a3fa8e/go.mod h1:XnNaAAM/rRbziKvIEAgWKJUF9b8DB9bvJWA4WwY0Las=
+github.com/ruslanBik4/logs v0.0.12 h1:NMpEwnYs6mewtxbh0mZQEre7/KZYUPxuvdo+NCvbsGc=
+github.com/ruslanBik4/logs v0.0.12/go.mod h1:XnNaAAM/rRbziKvIEAgWKJUF9b8DB9bvJWA4WwY0Las=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
