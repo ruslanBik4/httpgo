@@ -6,6 +6,7 @@ package httpGo
 
 import (
 	"fmt"
+	"go/types"
 	"net"
 	"os"
 	"os/signal"
@@ -69,10 +70,10 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.Logger = &fastHTTPLogger{}
 
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
-	logs.DebugLog("Subdomains is %+v", cfg.Domains)
 	if len(cfg.Domains) == 0 {
 		cfg.Server.Handler = apis.Handler
 	} else {
+		logs.DebugLog("Subdomains is %+v", cfg.Domains)
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			for subD, ip := range cfg.Domains {
 				const delim = ":"
@@ -97,12 +98,13 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		}
 	}
 
-	if cfg.Access.ChkConn {
-		listener = &blockListener{
-			listener,
-			cfg,
+	if cfg.IsAccess() {
+		if cfg.ChkConn {
+			listener = &blockListener{
+				listener,
+				cfg.AccessConf,
+			}
 		}
-	} else if cfg.IsAccess() {
 		handler := cfg.Server.Handler
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
@@ -113,6 +115,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 				if len(ips) == 0 {
 					addr = string(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
+					if len(addr) == 0 {
+						addr = ctx.Conn().RemoteAddr().String()
+					}
 				} else {
 					addr = string(ips[0])
 				}
@@ -124,27 +129,51 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			}
 
 			logs.DebugLog(addr, ctx.Request.Header.String(), cfg)
-			ctx.Error(cfg.Access.Mess, fasthttp.StatusForbidden)
+			ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
 		}
-
-		// add cfg refresh routers, ignore errors
-		apisRoute := ApiRoutes{
-			"/httpgo/cfg/reload": {
-				Desc: "reload cfg of httpgo from starting config file",
-				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-					return cfg.Reload()
-				},
-			},
-			"/httpgo/cfg/": {
-				Desc: "show config of httpGo",
-				Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-					return cfg, nil
-				},
-			},
-		}
-
-		_ = apis.AddRoutes(apisRoute)
 	}
+	// add cfg refresh routers, ignore errors
+	apisRoute := ApiRoutes{
+		"/httpgo/cfg/reload": {
+			Desc: "reload cfg of httpgo from starting config file",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				return cfg.Reload()
+			},
+		},
+		"/httpgo/cfg/": {
+			Desc: "show config of httpGo",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				return cfg, nil
+			},
+		},
+		"/httpgo/cfg/add_ip": {
+			Desc: "show config of httpGo",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				if ips, ok := ctx.UserValue("allow_ip").([]string); ok {
+					cfg.AllowIP = append(cfg.AllowIP, ips...)
+				}
+				if ips, ok := ctx.UserValue("deny_ip").([]string); ok {
+					cfg.DenyIP = append(cfg.DenyIP, ips...)
+				}
+				return cfg, nil
+			},
+			Multipart: true,
+			Method:    POST,
+			OnlyAdmin: true,
+			Params: []InParam{
+				{
+					Name: "allow_ip",
+					Type: NewSliceTypeInParam(types.String),
+				},
+				{
+					Name: "deny_ip",
+					Type: NewSliceTypeInParam(types.String),
+				},
+			},
+		},
+	}
+
+	_ = apis.AddRoutes(apisRoute)
 
 	return &HttpGo{
 		mainServer: cfg.Server,

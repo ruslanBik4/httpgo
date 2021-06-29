@@ -13,7 +13,7 @@ import (
 
 type blockListener struct {
 	net.Listener
-	*CfgHttp
+	*AccessConf
 }
 
 func (m *blockListener) Addr() net.Addr {
@@ -28,8 +28,7 @@ func (m *blockListener) Accept() (net.Conn, error) {
 		}
 
 		addr := c.RemoteAddr().String()
-		//todo: add chk deny later
-		if m.isAllowIP(addr) {
+		if m.isAllowIP(addr) || (len(m.AllowIP) == 0 && !m.isDenyIP(addr)) || len(m.AllowRoute) > 0 {
 			return c, nil
 		}
 
