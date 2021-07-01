@@ -133,7 +133,36 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		}
 	}
 	// add cfg refresh routers, ignore errors
-	apisRoute := ApiRoutes{
+	apisRoute := createAdminRoutes(cfg)
+
+	_ = apis.AddRoutes(apisRoute)
+
+	return &HttpGo{
+		mainServer: cfg.Server,
+		listener:   listener,
+		broadcast:  make(chan string),
+		apis:       apis,
+		cfg:        cfg,
+	}
+}
+
+func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
+	params := []InParam{
+		{
+			Name: "allow_ip",
+			Type: NewSliceTypeInParam(types.String),
+		},
+		{
+			Name: "deny_ip",
+			Type: NewSliceTypeInParam(types.String),
+		},
+		{
+			Name: "msg",
+			Type: NewTypeInParam(types.String),
+		},
+	}
+
+	return ApiRoutes{
 		"/httpgo/cfg/reload": {
 			Desc: "reload cfg of httpgo from starting config file",
 			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
@@ -155,33 +184,56 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				if ips, ok := ctx.UserValue("deny_ip").([]string); ok {
 					cfg.DenyIP = append(cfg.DenyIP, ips...)
 				}
+
+				if msg, ok := ctx.UserValue("msg").(string); ok {
+					cfg.Mess = msg
+				}
+
 				return cfg, nil
 			},
 			Multipart: true,
 			Method:    POST,
 			OnlyAdmin: true,
-			Params: []InParam{
-				{
-					Name: "allow_ip",
-					Type: NewSliceTypeInParam(types.String),
-				},
-				{
-					Name: "deny_ip",
-					Type: NewSliceTypeInParam(types.String),
-				},
+			Params:    params,
+		},
+		"/httpgo/cfg/rm_ip": {
+			Desc: "show config of httpGo",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				if ips, ok := ctx.UserValue("allow_ip").([]string); ok {
+					cfg.AllowIP = filterIPs(cfg.AllowIP, ips)
+				}
+
+				if ips, ok := ctx.UserValue("deny_ip").([]string); ok {
+					cfg.DenyIP = filterIPs(cfg.DenyIP, ips)
+				}
+
+				return cfg, nil
 			},
+			Multipart: true,
+			Method:    POST,
+			OnlyAdmin: true,
+			Params:    params,
 		},
 	}
+}
 
-	_ = apis.AddRoutes(apisRoute)
+func filterIPs(curIPs []string, ips []string) []string {
 
-	return &HttpGo{
-		mainServer: cfg.Server,
-		listener:   listener,
-		broadcast:  make(chan string),
-		apis:       apis,
-		cfg:        cfg,
+	tmpIps := curIPs[:0]
+	for _, ip := range curIPs {
+		isRm := false
+		for _, rmIp := range ips {
+			if rmIp == ip {
+				isRm = true
+				break
+			}
+		}
+		if !isRm {
+			tmpIps = append(tmpIps, ip)
+		}
 	}
+
+	return tmpIps
 }
 
 // Run starting http or https server according to secure
