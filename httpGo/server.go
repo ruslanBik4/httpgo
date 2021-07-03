@@ -123,7 +123,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				}
 			}
 
-			if cfg.Allow(ctx, addr) && !cfg.Deny(ctx, addr) {
+			if cfg.Allow(ctx, addr) || !cfg.Deny(ctx, addr) {
 				handler(ctx)
 				return
 			}
