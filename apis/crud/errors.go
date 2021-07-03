@@ -15,11 +15,9 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var ()
-
 var (
-	regDublicated = regexp.MustCompile(`duplicate key value violates unique constraint "(\w*)"`)
-	regKeyWrong   = regexp.MustCompile(`Key\s+(?:[(\w\s]+)?\((\w+)(?:,[\s*\S]+)?\)+=\((\\?\w+)\)([^.]+)`)
+	regDuplicated = regexp.MustCompile(`duplicate key value violates unique constraint "(\w*)"`)
+	regKeyWrong   = regexp.MustCompile(`[Kk]ey\s+(?:[(\w\s]+)?\((\w+)(?:,[^=]+)?\)+=\(([^)]+)\)([^.]+)`)
 )
 
 func CreateErrResult(err error) (interface{}, error) {
@@ -28,18 +26,22 @@ func CreateErrResult(err error) (interface{}, error) {
 	if ok {
 		msg = e.Detail
 		logs.DebugLog(e)
+		logs.StatusLog(e, msg)
 	}
 
-	// Key (id)=(3) already exists.
+	// Key (id)=(3) already exists. duplicate key value violates unique constraint "candidates_name_uindex"
+	// duplicate key value violates unique constraint "candidates_mobile_uindex"
 	// Key (digest(blob, 'sha1'::text))=(\x34d3fb7ceb19bf448d89ab76e7b1e16260c1d8b0) already exists.
+	// key (phone)=(+380) already exists.
 
 	if s := regKeyWrong.FindStringSubmatch(msg); len(s) > 0 {
 		return map[string]string{
 			s[1]: "`" + s[2] + "`" + s[3],
 		}, apis.ErrWrongParamsList
+	} else {
+		logs.StatusLog(regKeyWrong.String(), s)
 	}
-
-	if s := regDublicated.FindStringSubmatch(msg); len(s) > 0 {
+	if s := regDuplicated.FindStringSubmatch(msg); len(s) > 0 {
 		logs.DebugLog("%#v %[1]T", errors.Cause(err))
 		return map[string]string{
 			s[1]: "duplicate key value violates unique constraint",

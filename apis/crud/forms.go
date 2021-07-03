@@ -119,7 +119,13 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		rIns.Fnc = TableInsert(preRoute, DB, table, params)
 
 		routes[preRoute+tableName+"/put"] = rIns
-
+		routes[preRoute+tableName+"/get"] = &apis.ApiRoute{
+			Fnc:      TableSelect(preRoute, table, params, priColumns),
+			Desc:     "get data from table '" + tableName + "'",
+			Method:   apis.GET,
+			NeedAuth: true,
+			Params:   []apis.InParam{ParamsLang, ParamsGetFormActions},
+		}
 		// report := NewReportJSON(table)
 		// routes[preRoute+tableName+"/report"] = report.getRoute()
 		// routes[preRoute+tableName+"/data"] = &apis.ApiRoute{
