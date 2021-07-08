@@ -168,7 +168,7 @@ var regName = regexp.MustCompile(`\w+`)
 
 func (col *ColumnDecor) getPattern(name string) {
 	if col.PatternList != nil && regName.MatchString(name) {
-		err := col.PatternList.SelectAndScanEach(context.Background(),
+		err := col.PatternList.SelectAndScanEach(context.TODO(),
 			nil,
 			col,
 			dbEngine.ColumnsForSelect("pattern", "description"),
@@ -185,8 +185,10 @@ func (col *ColumnDecor) getPattern(name string) {
 	}
 }
 
-const email = "email"
-const tel = "phone"
+const (
+	email = "email"
+	tel   = "phone"
+)
 
 func (col *ColumnDecor) Type() string {
 	if strings.HasPrefix(col.Name(), email) {

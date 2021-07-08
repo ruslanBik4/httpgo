@@ -29,7 +29,10 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		return nil
 	}
 
-	patternList := DB.Tables["pattern_list"]
+	patternList, ok := DB.Tables["patterns_list"]
+	if !ok {
+		logs.ErrorLog(ErrNotFoundTable{Table: "patterns_list"}, "it wiil be problem on validations fields")
+	}
 
 	pathVersion, ok := ctx.Value(PathVersion).(string)
 	if !ok {
