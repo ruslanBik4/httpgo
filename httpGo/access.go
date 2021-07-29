@@ -55,12 +55,12 @@ func (cfg *AccessConf) isDenyRoute(ctx *fasthttp.RequestCtx) bool {
 
 func (cfg *AccessConf) Allow(ctx *fasthttp.RequestCtx, addr string) bool {
 
-	return !cfg.isDenyRoute(ctx) && cfg.isAllowIP(addr)
+	return cfg.isAllowRoute(ctx) || cfg.isAllowIP(addr)
 }
 
 func (cfg *AccessConf) Deny(ctx *fasthttp.RequestCtx, addr string) bool {
 
-	return !cfg.isAllowRoute(ctx) && cfg.isDenyIP(addr)
+	return cfg.isDenyRoute(ctx) || cfg.isDenyIP(addr)
 }
 
 func (cfg *AccessConf) isAllowIP(addr string) bool {

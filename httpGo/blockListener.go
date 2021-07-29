@@ -32,7 +32,7 @@ func (m *blockListener) Accept() (net.Conn, error) {
 			return c, nil
 		}
 
-		logs.ErrorLog(fmt.Errorf("Deny connect from addr %s", addr))
+		logs.ErrorLog(fmt.Errorf("deny connect from addr %s", addr))
 		err = c.Close()
 		if err != nil {
 			logs.ErrorLog(err, "close connection")
