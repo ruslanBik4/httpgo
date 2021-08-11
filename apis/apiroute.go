@@ -6,15 +6,20 @@ package apis
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"go/types"
+	"math"
 	"path"
 	"sort"
 	"strings"
 	"sync"
+	"time"
 	"unsafe"
 
 	"github.com/json-iterator/go"
+	"github.com/pkg/errors"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
@@ -92,16 +97,144 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 	return route
 }
 
+// NewAPIRoute create customizing ApiRoute
+func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params []InParam,
+	sqlOrName string, Options ...BuildRouteOptions) *ApiRoute {
+
+	isQuery := strings.Index(sqlOrName, " ") > 0
+
+	route := &ApiRoute{
+		Desc: desc,
+		Fnc: func(ctx *fasthttp.RequestCtx) (resp interface{}, err error) {
+			DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
+			if !ok {
+				return nil, dbEngine.ErrDBNotFound
+			}
+
+			var args []interface{}
+			if !isQuery {
+				table, ok := DB.Tables[sqlOrName]
+				if ok {
+					sqlOrName = "select * from " + sqlOrName
+					i, comma := 0, ""
+					for _, param := range params {
+						p := ctx.UserValue(param.Name)
+						col := table.FindColumn(param.Name)
+						if p != nil && col != nil {
+							i++
+							sqlOrName += fmt.Sprintf("%s %s=$%d", comma, col.Name(), i)
+							args = append(args, p)
+							comma = " AND "
+						}
+					}
+				} else {
+					routine, ok := DB.Routines[sqlOrName]
+					if ok {
+						for _, param := range params {
+							p := ctx.UserValue(param.Name)
+							if p != nil {
+								args = append(args, p)
+							}
+						}
+						sqlOrName, args, err = routine.BuildSql(dbEngine.ArgsForSelect(args...))
+						if err != nil {
+							return nil, errors.Wrap(err, "routine.BuildSql")
+						}
+					}
+				}
+			}
+
+			_, _ = ctx.WriteString("[")
+			rowComma := ""
+			err = DB.Conn.SelectAndPerformRaw(ctx,
+				func(values [][]byte, columns []dbEngine.Column) error {
+					_, _ = ctx.WriteString(rowComma + "{")
+					rowComma = ","
+					comma := ""
+					for i, col := range columns {
+						_, _ = ctx.WriteString(comma + `"` + col.Name() + `":`)
+						switch col.BasicType() {
+						case types.String:
+							_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
+						case types.Int32:
+							_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint32(values[i])))
+						case types.Int64:
+							_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint64(values[i])))
+						case types.Float32:
+							_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float32frombits(binary.BigEndian.Uint32(values[i]))))
+						case types.Float64:
+							_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float64frombits(binary.BigEndian.Uint64(values[i]))))
+						case typesExt.TStruct:
+							switch col.Type() {
+							case "date", "timestamp", "timestamptz", "time":
+								layout := "2006-01-02"
+								if col.Type() != "date" {
+									layout += " 15:04:05.999999999"
+								}
+								t, err := time.Parse(layout, string(values[i]))
+								if err != nil {
+									microsecSinceY2K := int64(binary.BigEndian.Uint64(values[i]))
+
+									const (
+										negativeInfinityMicrosecondOffset = -9223372036854775808
+										infinityMicrosecondOffset         = 9223372036854775807
+										microsecFromUnixEpochToY2K        = 946684800 * 1000000
+									)
+
+									switch microsecSinceY2K {
+									case infinityMicrosecondOffset:
+										_, _ = ctx.WriteString(`"Infinity"`)
+									case negativeInfinityMicrosecondOffset:
+										_, _ = ctx.WriteString(`"-Infinity"`)
+									default:
+										microsecSinceUnixEpoch := microsecFromUnixEpochToY2K + microsecSinceY2K
+										t := time.Unix(microsecSinceUnixEpoch/1000000, (microsecSinceUnixEpoch%1000000)*1000).UTC()
+										_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
+									}
+								} else {
+									_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
+								}
+							default:
+								_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
+							}
+						default:
+							_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
+						}
+						comma = ","
+					}
+					_, _ = ctx.WriteString("}")
+
+					return nil
+				},
+				sqlOrName, args...)
+
+			if err != nil {
+				ctx.ResetBody()
+				return nil, errors.Wrap(err, "SelectAndPerformRaw")
+			}
+
+			_, _ = ctx.WriteString("]")
+			WriteJSONHeaders(ctx)
+
+			return nil, err
+		},
+		Method:   method,
+		Params:   params,
+		NeedAuth: needAuth,
+	}
+
+	for _, setOption := range Options {
+		setOption(route)
+	}
+
+	return route
+}
+
 // CheckAndRun check & run route handler
 func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp interface{}, err error) {
 
 	if route.WithCors {
-		ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
-		ctx.Response.Header.Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With, X-Requested-By")
-		ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
-		ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
+		setCORSHeaders(ctx)
 	}
 
 	// check auth is needed
@@ -191,6 +324,15 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	}
 
 	return route.Fnc(ctx)
+}
+
+func setCORSHeaders(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
+	ctx.Response.Header.Set("Access-Control-Allow-Headers",
+		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With, X-Requested-By")
+	ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
+	ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 }
 
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
