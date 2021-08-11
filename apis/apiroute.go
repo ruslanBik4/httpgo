@@ -101,8 +101,6 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params []InParam,
 	sqlOrName string, Options ...BuildRouteOptions) *ApiRoute {
 
-	isQuery := strings.Index(sqlOrName, " ") > 0
-
 	route := &ApiRoute{
 		Desc: desc,
 		Fnc: func(ctx *fasthttp.RequestCtx) (resp interface{}, err error) {
@@ -111,8 +109,15 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				return nil, dbEngine.ErrDBNotFound
 			}
 
-			var args []interface{}
-			if !isQuery {
+			args := make([]interface{}, 0, len(params))
+			for _, param := range params {
+				p := ctx.UserValue(param.Name)
+				if p != nil {
+					args = append(args, p)
+				}
+			}
+
+			if strings.Index(sqlOrName, " ") < 0 {
 				table, ok := DB.Tables[sqlOrName]
 				if ok {
 					sqlOrName = "select * from " + sqlOrName
@@ -120,22 +125,19 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 					for _, param := range params {
 						p := ctx.UserValue(param.Name)
 						col := table.FindColumn(param.Name)
-						if p != nil && col != nil {
+						if p != nil {
+							if col == nil {
+								return nil, dbEngine.NewErrNotFoundColumn(table.Name(), param.Name)
+							}
+
 							i++
 							sqlOrName += fmt.Sprintf("%s %s=$%d", comma, col.Name(), i)
-							args = append(args, p)
 							comma = " AND "
 						}
 					}
 				} else {
 					routine, ok := DB.Routines[sqlOrName]
 					if ok {
-						for _, param := range params {
-							p := ctx.UserValue(param.Name)
-							if p != nil {
-								args = append(args, p)
-							}
-						}
 						sqlOrName, args, err = routine.BuildSql(dbEngine.ArgsForSelect(args...))
 						if err != nil {
 							return nil, errors.Wrap(err, "routine.BuildSql")
