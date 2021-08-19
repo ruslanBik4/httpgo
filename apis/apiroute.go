@@ -17,6 +17,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/jackc/pgtype"
 	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
@@ -142,6 +143,26 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 						if err != nil {
 							return nil, errors.Wrap(err, "routine.BuildSql")
 						}
+
+						if routine.ReturnType() != "record" {
+							return nil, DB.Conn.SelectAndPerformRaw(ctx,
+								func(values [][]byte, columns []dbEngine.Column) error {
+
+									col := columns[0]
+									src := values[0]
+									if strings.HasPrefix(col.Type(), "_") {
+										err := writeArray(ctx, src, col)
+										if err != nil {
+											return err
+										}
+
+									} else {
+										writeElemValue(ctx, src, col)
+									}
+									return nil
+								},
+								sqlOrName, args...)
+						}
 					}
 				}
 			}
@@ -155,52 +176,15 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 					comma := ""
 					for i, col := range columns {
 						_, _ = ctx.WriteString(comma + `"` + col.Name() + `":`)
-						switch col.BasicType() {
-						case types.String:
-							_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
-						case types.Int32:
-							_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint32(values[i])))
-						case types.Int64:
-							_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint64(values[i])))
-						case types.Float32:
-							_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float32frombits(binary.BigEndian.Uint32(values[i]))))
-						case types.Float64:
-							_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float64frombits(binary.BigEndian.Uint64(values[i]))))
-						case typesExt.TStruct:
-							switch col.Type() {
-							case "date", "timestamp", "timestamptz", "time":
-								layout := "2006-01-02"
-								if col.Type() != "date" {
-									layout += " 15:04:05.999999999"
-								}
-								t, err := time.Parse(layout, string(values[i]))
-								if err != nil {
-									microsecSinceY2K := int64(binary.BigEndian.Uint64(values[i]))
-
-									const (
-										negativeInfinityMicrosecondOffset = -9223372036854775808
-										infinityMicrosecondOffset         = 9223372036854775807
-										microsecFromUnixEpochToY2K        = 946684800 * 1000000
-									)
-
-									switch microsecSinceY2K {
-									case infinityMicrosecondOffset:
-										_, _ = ctx.WriteString(`"Infinity"`)
-									case negativeInfinityMicrosecondOffset:
-										_, _ = ctx.WriteString(`"-Infinity"`)
-									default:
-										microsecSinceUnixEpoch := microsecFromUnixEpochToY2K + microsecSinceY2K
-										t := time.Unix(microsecSinceUnixEpoch/1000000, (microsecSinceUnixEpoch%1000000)*1000).UTC()
-										_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
-									}
-								} else {
-									_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
-								}
-							default:
-								_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
+						if strings.HasPrefix(col.Type(), "_") {
+							src := values[i]
+							err := writeArray(ctx, src, col)
+							if err != nil {
+								return err
 							}
-						default:
-							_, _ = ctx.WriteString(`"` + string(values[i]) + `"`)
+
+						} else {
+							writeElemValue(ctx, values[i], col)
 						}
 						comma = ","
 					}
@@ -230,6 +214,82 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 	}
 
 	return route
+}
+
+func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error {
+	var arrayHeader pgtype.ArrayHeader
+	rp, err := arrayHeader.DecodeBinary(nil, src)
+	if err != nil {
+		return err
+	}
+
+	_, _ = ctx.WriteString("[")
+	comma := ""
+	for i := int32(0); i < arrayHeader.Dimensions[0].Length; i++ {
+		elemLen := int(int32(binary.BigEndian.Uint32(src[rp:])))
+		rp += 4
+		var elemSrc []byte
+		if elemLen >= 0 {
+			elemSrc = src[rp : rp+elemLen]
+			rp += elemLen
+		}
+		_, _ = ctx.WriteString(comma)
+		writeElemValue(ctx, elemSrc, col)
+		comma = ","
+	}
+
+	_, _ = ctx.WriteString("]")
+	return nil
+}
+
+func writeElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
+	switch col.BasicType() {
+	case types.String:
+		_, _ = ctx.WriteString(`"` + string(src) + `"`)
+	case types.Int32:
+		_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint32(src)))
+	case types.Int64:
+		_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint64(src)))
+	case types.Float32:
+		_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float32frombits(binary.BigEndian.Uint32(src))))
+	case types.Float64:
+		_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float64frombits(binary.BigEndian.Uint64(src))))
+	case typesExt.TStruct:
+		switch col.Type() {
+		case "date", "timestamp", "timestamptz", "time":
+			layout := "2006-01-02"
+			if col.Type() != "date" {
+				layout += " 15:04:05.999999999"
+			}
+			t, err := time.Parse(layout, string(src))
+			if err != nil {
+				microsecSinceY2K := int64(binary.BigEndian.Uint64(src))
+
+				const (
+					negativeInfinityMicrosecondOffset = -9223372036854775808
+					infinityMicrosecondOffset         = 9223372036854775807
+					microsecFromUnixEpochToY2K        = 946684800 * 1000000
+				)
+
+				switch microsecSinceY2K {
+				case infinityMicrosecondOffset:
+					_, _ = ctx.WriteString(`"Infinity"`)
+				case negativeInfinityMicrosecondOffset:
+					_, _ = ctx.WriteString(`"-Infinity"`)
+				default:
+					microsecSinceUnixEpoch := microsecFromUnixEpochToY2K + microsecSinceY2K
+					t := time.Unix(microsecSinceUnixEpoch/1000000, (microsecSinceUnixEpoch%1000000)*1000).UTC()
+					_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
+				}
+			} else {
+				_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
+			}
+		default:
+			_, _ = ctx.WriteString(`"` + string(src) + `"`)
+		}
+	default:
+		_, _ = ctx.WriteString(`"` + string(src) + `"`)
+	}
 }
 
 // CheckAndRun check & run route handler
