@@ -21,9 +21,11 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
 
-	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/logs"
@@ -118,6 +120,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				}
 			}
 
+			WriteJSONHeaders(ctx)
 			if strings.Index(sqlOrName, " ") < 0 {
 				table, ok := DB.Tables[sqlOrName]
 				if ok {
@@ -157,7 +160,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 										}
 
 									} else {
-										writeElemValue(ctx, src, col)
+										WriteElemValue(ctx, src, col)
 									}
 									return nil
 								},
@@ -184,7 +187,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 							}
 
 						} else {
-							writeElemValue(ctx, values[i], col)
+							WriteElemValue(ctx, values[i], col)
 						}
 						comma = ","
 					}
@@ -200,7 +203,6 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 			}
 
 			_, _ = ctx.WriteString("]")
-			WriteJSONHeaders(ctx)
 
 			return nil, err
 		},
@@ -234,7 +236,7 @@ func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error
 			rp += elemLen
 		}
 		_, _ = ctx.WriteString(comma)
-		writeElemValue(ctx, elemSrc, col)
+		WriteElemValue(ctx, elemSrc, col)
 		comma = ","
 	}
 
@@ -242,18 +244,21 @@ func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error
 	return nil
 }
 
-func writeElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
+func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	switch col.BasicType() {
 	case types.String:
-		_, _ = ctx.WriteString(`"` + string(src) + `"`)
+		json.WriteByteAsString(ctx, src)
+		// _, _ = fmt.Fprintf(ctx,`"%j"`, src )
 	case types.Int32:
-		_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint32(src)))
+		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint32(src))
 	case types.Int64:
-		_, _ = ctx.WriteString(fmt.Sprintf("%d", binary.BigEndian.Uint64(src)))
+		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint64(src))
 	case types.Float32:
-		_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float32frombits(binary.BigEndian.Uint32(src))))
+		_, _ = fmt.Fprintf(ctx, "%f", math.Float32frombits(binary.BigEndian.Uint32(src)))
 	case types.Float64:
-		_, _ = ctx.WriteString(fmt.Sprintf("%f", math.Float64frombits(binary.BigEndian.Uint64(src))))
+		_, _ = fmt.Fprintf(ctx, "%f", math.Float64frombits(binary.BigEndian.Uint64(src)))
+	case typesExt.TMap:
+		_, _ = fmt.Fprintf(ctx, `%s`, src)
 	case typesExt.TStruct:
 		switch col.Type() {
 		case "date", "timestamp", "timestamptz", "time":
@@ -285,10 +290,10 @@ func writeElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 				_, _ = ctx.WriteString(`"` + t.Format(layout) + `"`)
 			}
 		default:
-			_, _ = ctx.WriteString(`"` + string(src) + `"`)
+			_, _ = fmt.Fprintf(ctx, `"%s"`, src)
 		}
 	default:
-		_, _ = ctx.WriteString(`"` + string(src) + `"`)
+		_, _ = fmt.Fprintf(ctx, `"%s"`, src)
 	}
 }
 
@@ -304,7 +309,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
 		// only admin access
 		(route.FncAuth == nil) && (route.OnlyAdmin && !fncAuth.AdminAuth(ctx) ||
-			// access according to FncAuth if need
+			// access according to FncAuth if it needs
 			!route.OnlyAdmin && route.NeedAuth && !fncAuth.Auth(ctx)) {
 		return nil, ErrUnAuthorized
 	}
@@ -397,9 +402,24 @@ func setCORSHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 }
 
+type FncVisit func([]byte, *fastjson.Value)
+type Visit interface {
+	Each([]byte, *fastjson.Value)
+	Result() (interface{}, error)
+}
+
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	badParams := make(map[string]string, 0)
 	// check JSON parsing
+
+	if r, ok := (route.DTO).(Visit); ok {
+		val, err := fastjson.ParseBytes(ctx.Request.Body())
+		if err != nil {
+			return nil, errors.Wrap(err, "")
+		}
+		val.GetObject().Visit(r.Each)
+		return r.Result()
+	}
 
 	dto := route.DTO.NewValue()
 	err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)

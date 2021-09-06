@@ -6,11 +6,16 @@ import (
 	//"net"
 	//"sync"
 	"encoding/json"
+	"go/types"
 	"testing"
 
 	//"github.com/json-iterator/go"
 
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
+	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/stretchr/testify/assert"
+	"github.com/valyala/fasthttp"
 )
 
 type commCase string
@@ -61,4 +66,85 @@ func TestCheckAndRun(t *testing.T) {
 	assert.Nil(t, err)
 
 	t.Logf("%+v", dto)
+}
+
+var tests = []struct {
+	name string
+	src  string
+	col  types.BasicKind
+	want string
+}{
+	{
+		"string",
+		"simple string",
+		types.String,
+		`"simple string"`,
+	},
+	{
+		"string",
+		`<html> \d\s`,
+		types.String,
+		`"<html> \d\s"`,
+	},
+	{
+		"string",
+		`{"src": <html> \d\s, "error": false, "code": 123}`,
+		types.String,
+		`"{"src": <html> \d\s, "error": false, "code": 123}"`,
+	},
+	{
+		"json",
+		`{"src": <html> \d\s, "error": false, "code": 123}`,
+		typesExt.TMap,
+		`{"src": <html> \d\s, "error": false, "code": 123}`,
+	},
+}
+
+func TestWriteElemValue(t *testing.T) {
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := writeTestValue(tt)
+			assert.Equal(t, tt.want, string(ctx.Response.Body()))
+		})
+	}
+}
+
+func writeTestValue(tt struct {
+	name string
+	src  string
+	col  types.BasicKind
+	want string
+}) *fasthttp.RequestCtx {
+	ctx := &fasthttp.RequestCtx{}
+	var col dbEngine.Column
+	switch tt.col {
+	case types.String:
+		col = dbEngine.NewStringColumn(tt.name, "comment", false, 0)
+	case typesExt.TMap:
+		col = psql.NewColumn(nil, tt.name, "json", nil, true,
+			"", "comment", "jsonb", 0,
+			false, false)
+	}
+	WriteElemValue(ctx, []byte(tt.src), col)
+	return ctx
+}
+
+func BenchmarkWriteElemValue(b *testing.B) {
+	b.ReportAllocs()
+	for _, tt := range tests {
+		b.ReportAllocs()
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			b.Run(tt.name, func(b *testing.B) {
+
+				ctx := writeTestValue(tt)
+				b.Logf("%s", ctx.Response.Body())
+			})
+		}
+		b.ResetTimer()
+		b.ReportAllocs()
+	}
+	b.ReportAllocs()
+
 }

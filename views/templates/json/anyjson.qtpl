@@ -44,10 +44,21 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
  }
 {% endfunc %}
 
+write string with escaping
+{% func String(str string) %}
+"{%j= str %}"
+{% endfunc %}
+
+write string with escaping
+{% func ByteAsString(b []byte) %}
+"{%j= string(b) %}"
+{% endfunc %}
+
 пишем элемент массива в зависемости от типа
 {% func Element(value interface{}) %}
     {% switch vv := value.(type) %}
-      {% case string %} "{%j= vv %}"
+      {% case string %} String(vv)
+      {% case []byte %} ByteAsString(vv)
       {% case bool %} {%v vv %}
       {% case int %} {%d vv %} 
       {% case uint %} {%d int(vv) %} 
