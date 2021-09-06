@@ -51,7 +51,7 @@ write string with escaping
 
 write string with escaping
 {% func ByteAsString(b []byte) %}
- String(string(b))
+ {%= String(string(b))  %}
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа

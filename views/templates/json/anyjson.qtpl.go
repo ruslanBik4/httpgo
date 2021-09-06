@@ -238,12 +238,8 @@ func String(str string) string {
 
 //line views/templates/json/anyjson.qtpl:53
 func StreamByteAsString(qw422016 *qt422016.Writer, b []byte) {
-//line views/templates/json/anyjson.qtpl:53
-	qw422016.N().S(`"`)
 //line views/templates/json/anyjson.qtpl:54
-	qw422016.N().J(string(b))
-//line views/templates/json/anyjson.qtpl:54
-	qw422016.N().S(`"`)
+	StreamString(qw422016, string(b))
 //line views/templates/json/anyjson.qtpl:55
 }
 
@@ -282,11 +278,11 @@ func StreamElement(qw422016 *qt422016.Writer, value interface{}) {
 //line views/templates/json/anyjson.qtpl:60
 	case string:
 //line views/templates/json/anyjson.qtpl:60
-		qw422016.N().S(`String(vv)`)
+		StreamString(qw422016, vv)
 //line views/templates/json/anyjson.qtpl:61
 	case []byte:
 //line views/templates/json/anyjson.qtpl:61
-		qw422016.N().S(`ByteAsString(vv)`)
+		StreamByteAsString(qw422016, vv)
 //line views/templates/json/anyjson.qtpl:62
 	case bool:
 //line views/templates/json/anyjson.qtpl:62
