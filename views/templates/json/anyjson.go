@@ -53,7 +53,7 @@ func init() {
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			val := (*sql.NullString)(ptr)
 			if val.Valid {
-				WriteElement(stream, val.String)
+				WriteString(stream, val.String)
 			} else {
 				stream.WriteNil()
 			}

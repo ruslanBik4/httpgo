@@ -51,14 +51,14 @@ write string with escaping
 
 write string with escaping
 {% func ByteAsString(b []byte) %}
-"{%j= string(b) %}"
+ String(string(b))
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа
 {% func Element(value interface{}) %}
     {% switch vv := value.(type) %}
-      {% case string %} String(vv)
-      {% case []byte %} ByteAsString(vv)
+      {% case string %} {%= String(vv) %}
+      {% case []byte %} {%= ByteAsString(vv) %}
       {% case bool %} {%v vv %}
       {% case int %} {%d vv %} 
       {% case uint %} {%d int(vv) %} 
