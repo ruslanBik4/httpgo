@@ -123,7 +123,7 @@ func TestElement(t *testing.T) {
 					FormActions{FormErrors: map[string]string{"id": "wrong", "password": "true"}},
 				},
 			},
-			`{"id":0,"name":"ruslan","email":"trep@mail.com","isdel":false,"id_roles":3,"last_login":"2020-01-14T12:34:12Z","hash":131313,"last_page":"/profile/user/","address":"Kyiv, Xhrechatik, 2\"A\"/12","emailpool":["ru@ru.ru","ASFSfsfs@gmail.ru"],"phones":["+380(66)13e23423","(443)343434d12"],"languages":["ua","en","ru"],"homepage":0,"createAt":"2020-01-14T12:34:12Z","form":"form","lang":"en","token":"@#%\u0026#!^$%\u0026^$","content_url":"ww.google.com","formActions":[{"formErrors":{"id":"wrong","password":"true"}}]}
+			`{"id":0,"name":"ruslan","email":"trep@mail.com","isdel":false,"id_roles":3,"last_login":"2020-01-14T12:34:12Z","hash":131313,"last_page":"/profile/user/","address":"Kyiv, Xhrechatik, 2\"A\"/12","emailpool":["ru@ru.ru","ASFSfsfs@gmail.ru"],"phones":["+380(66)13e23423","(443)343434d12"],"languages":["ua","en","ru"],"homepage":0,"createAt":"2020-01-14T12:34:12Z","form":"form","lang":"en","token":"@#%&#!^$%&^$","content_url":"ww.google.com","formActions":[{"formErrors":{"id":"wrong","password":"true"}}]}
 `,
 		},
 	}

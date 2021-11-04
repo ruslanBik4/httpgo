@@ -41,6 +41,20 @@ func RouteAuth(fncAuth FncAuth) BuildRouteOptions {
 	}
 }
 
+// RouteNeedAuth set auth on ApiRoute
+func RouteNeedAuth() BuildRouteOptions {
+	return func(route *ApiRoute) {
+		route.NeedAuth = true
+	}
+}
+
+// RouteOnlyAdmin set admin access for ApiRoute
+func RouteOnlyAdmin() BuildRouteOptions {
+	return func(route *ApiRoute) {
+		route.OnlyAdmin = true
+	}
+}
+
 // OnlyLocal set flag of only local response routing
 func OnlyLocal() BuildRouteOptions {
 	return func(route *ApiRoute) {
@@ -64,6 +78,7 @@ func MultiPartForm() BuildRouteOptions {
 
 type (
 	ApiRouteHandler  func(ctx *fasthttp.RequestCtx) (interface{}, error)
+	ApiSimpleHandler func() (interface{}, error)
 	ApiRouteFuncAuth func(ctx *fasthttp.RequestCtx) error
 )
 
@@ -100,7 +115,45 @@ func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, f
 	return route
 }
 
-// NewAPIRoute create customizing ApiRoute
+// NewSimplePOSTRoute create POST ApiRoute with minimal requirements
+func NewSimplePOSTRoute(desc string, params []InParam, fnc ApiSimpleHandler,
+	Options ...BuildRouteOptions) *ApiRoute {
+	route := &ApiRoute{
+		Desc: desc,
+		Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			return fnc()
+		},
+		Method: POST,
+		Params: params,
+	}
+
+	for _, setOption := range Options {
+		setOption(route)
+	}
+
+	return route
+}
+
+// NewSimpleGETRoute create GET ApiRoute with minimal requirements
+func NewSimpleGETRoute(desc string, params []InParam, fnc ApiSimpleHandler,
+	Options ...BuildRouteOptions) *ApiRoute {
+	route := &ApiRoute{
+		Desc: desc,
+		Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			return fnc()
+		},
+		Method: GET,
+		Params: params,
+	}
+
+	for _, setOption := range Options {
+		setOption(route)
+	}
+
+	return route
+}
+
+// NewAPIRouteWithDBEngine create customizing ApiRoute
 func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params []InParam,
 	sqlOrName string, Options ...BuildRouteOptions) *ApiRoute {
 

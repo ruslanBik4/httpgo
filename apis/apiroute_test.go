@@ -84,19 +84,19 @@ var tests = []struct {
 		"string",
 		`<html> \d\s`,
 		types.String,
-		`"<html> \d\s"`,
+		`"\u003chtml> \\d\\s"`,
 	},
 	{
 		"string",
-		`{"src": <html> \d\s, "error": false, "code": 123}`,
+		`{"src": "<html> \d\s", "error": false, "code": 123}`,
 		types.String,
-		`"{"src": <html> \d\s, "error": false, "code": 123}"`,
+		`"{\"src\": \"\u003chtml> \\d\\s\", \"error\": false, \"code\": 123}"`,
 	},
 	{
 		"json",
-		`{"src": <html> \d\s, "error": false, "code": 123}`,
+		`{"src": "<html> \d\s", "error": false, "code": 123}`,
 		typesExt.TMap,
-		`{"src": <html> \d\s, "error": false, "code": 123}`,
+		`{"src": "<html> \d\s", "error": false, "code": 123}`,
 	},
 }
 
