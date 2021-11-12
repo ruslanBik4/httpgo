@@ -186,10 +186,10 @@ Content-Type: text/html; \n Retry-After: 60
 				t.Fatal(err)
 			}
 
-			w.Flush()
-			conn.Close()
+			_ = w.Flush()
+			_ = conn.Close()
 			break
-			wg.Done()
+			// wg.Done()
 		}
 	}()
 	go func() {
