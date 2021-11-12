@@ -27,7 +27,7 @@ var (
 	//command [] tCommand
 	fFileName = flag.String("filename", "new.sln", "file with css selenium rules")
 	fWDPath   = flag.String("wd_path", "/Users/ruslan/chromedriver", "full path of chrome web-driver")
-	fURL      = flag.String("url", "https://reports.irongenius.com/", "path to screenshot files")
+	fURL      = flag.String("url", "https://161.97.144.240:4443/", "path to screenshot files")
 )
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 		err := recover()
 		if err, ok := err.(error); ok {
 			//wd.SetAlertText(err.Error())
-			logs.ErrorLog(err, "stop my work %#v, %T", err)
+			logs.ErrorStack(err, "stop my work %#v, %T", err)
 			time.Sleep(time.Millisecond * 5000)
 		}
 	}()

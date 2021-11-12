@@ -464,28 +464,33 @@ type Visit interface {
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	badParams := make(map[string]string, 0)
 	// check JSON parsing
+	dto := route.DTO.NewValue()
 
-	if r, ok := (route.DTO).(Visit); ok {
+	if r, ok := (dto).(Visit); ok {
 		val, err := fastjson.ParseBytes(ctx.Request.Body())
 		if err != nil {
-			return nil, errors.Wrap(err, "")
+			return nil, errors.Wrap(err, "ParseBytes")
 		}
-		val.GetObject().Visit(r.Each)
-		return r.Result()
-	}
 
-	dto := route.DTO.NewValue()
-	err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
-	if err != nil {
-		errMsg := err.Error()
-		parts := strings.Split(errMsg, ":")
-		if len(parts) > 1 {
-			path := strings.Split(parts[0], ".")
-			badParams[path[len(path)-1]] = strings.Join(parts[1:], ":")
-		} else {
-			badParams["bad_params"] = "json DTO not parse :" + errMsg
+		val.GetObject().Visit(r.Each)
+		dto, err = r.Result()
+		if err != nil {
+			return nil, errors.Wrap(err, "visit result")
 		}
-		return badParams, ErrWrongParamsList
+	} else {
+		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
+		if err != nil {
+			errMsg := err.Error()
+			parts := strings.Split(errMsg, ":")
+			if len(parts) > 1 {
+				path := strings.Split(parts[0], ".")
+				badParams[path[len(path)-1]] = strings.Join(parts[1:], ":")
+			} else {
+				badParams["bad_params"] = "json DTO not parse :" + errMsg
+			}
+
+			return badParams, ErrWrongParamsList
+		}
 	}
 
 	if d, ok := dto.(CheckDTO); (ok && !d.CheckParams(ctx, badParams)) || !route.CheckParams(ctx, badParams) {

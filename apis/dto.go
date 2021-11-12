@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// RouteDTO must to help create some types into routing handling
+// RouteDTO must help create some types into routing handling
 type RouteDTO interface {
 	GetValue() interface{}
 	NewValue() interface{}

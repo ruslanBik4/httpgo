@@ -95,7 +95,7 @@ func (d dtoField) GetValue() interface{} {
 
 func (d dtoField) NewValue() interface{} {
 	d = make(map[string]interface{}, 0)
-
+	// todo check later
 	return &d
 }
 

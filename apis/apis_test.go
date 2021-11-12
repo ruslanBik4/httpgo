@@ -107,6 +107,40 @@ func testValue(ctx *fasthttp.RequestCtx) interface{} {
 	return ctx.Method()
 }
 
+type apiDTO struct {
+	i interface{}
+}
+
+func (a *apiDTO) GetValue() interface{} {
+	return a.i
+}
+
+func (a *apiDTO) NewValue() interface{} {
+	switch v := (a.i).(type) {
+	default:
+		var r interface{}
+		r = v
+		return r
+	}
+}
+
+func TestNewStructInParam(t *testing.T) {
+	st := struct {
+		i int
+		s string
+	}{1, "test"}
+
+	a := apiDTO{st}
+	var newSt interface{}
+	newSt = a.NewValue()
+	tt := newSt.(struct {
+		i int
+		s string
+	})
+	tt.i = 2
+	assert.Equal(t, st, newSt)
+}
+
 func TestOnboarding(t *testing.T) {
 
 	fPort := ":8989"
