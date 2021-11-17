@@ -178,7 +178,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				table, ok := DB.Tables[sqlOrName]
 				if ok {
 					sqlOrName = "select * from " + sqlOrName
-					i, comma := 0, ""
+					i, comma := 0, "  WHERE "
 					for _, param := range params {
 						p := ctx.UserValue(param.Name)
 						col := table.FindColumn(param.Name)
@@ -379,7 +379,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 	badParams := make(map[string]string, 0)
 
 	if route.Multipart {
-		// check multipart params
+		// check multipart params¬
 		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
