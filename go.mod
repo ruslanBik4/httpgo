@@ -12,7 +12,7 @@ require (
 	github.com/json-iterator/go v1.1.10
 	github.com/nguyenthenguyen/docx v0.0.0-20181031033525-8cb697a41e43
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.0.1148
+	github.com/ruslanBik4/dbEngine v1.0.11511
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.7.0
 	github.com/tebeka/selenium v0.9.9

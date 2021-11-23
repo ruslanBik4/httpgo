@@ -192,33 +192,45 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 							comma = " AND "
 						}
 					}
-				} else {
-					routine, ok := DB.Routines[sqlOrName]
-					if ok {
-						sqlOrName, args, err = routine.BuildSql(dbEngine.ArgsForSelect(args...))
-						if err != nil {
-							return nil, errors.Wrap(err, "routine.BuildSql")
-						}
+				} else if routine, ok := DB.Routines[sqlOrName]; ok {
 
-						if routine.ReturnType() != "record" {
-							return nil, DB.Conn.SelectAndPerformRaw(ctx,
-								func(values [][]byte, columns []dbEngine.Column) error {
+					sqlOrName, args, err = routine.BuildSql(dbEngine.ArgsForSelect(args...))
+					if err != nil {
+						return nil, errors.Wrap(err, "routine.BuildSql")
+					}
 
-									col := columns[0]
-									src := values[0]
-									if strings.HasPrefix(col.Type(), "_") {
-										err := writeArray(ctx, src, col)
-										if err != nil {
-											return err
-										}
+					if routine.ReturnType() != "record" {
+						isFound := false
+						err := DB.Conn.SelectAndPerformRaw(ctx,
+							func(values [][]byte, columns []dbEngine.Column) error {
 
-									} else {
-										WriteElemValue(ctx, src, col)
+								col := columns[0]
+								src := values[0]
+								if strings.HasPrefix(col.Type(), "_") {
+									err := writeArray(ctx, src, col)
+									if err != nil {
+										return err
 									}
-									return nil
-								},
-								sqlOrName, args...)
+
+								} else {
+									WriteElemValue(ctx, src, col)
+								}
+								isFound = true
+
+								return nil
+							},
+							sqlOrName, args...)
+						if err != nil {
+							ctx.ResetBody()
+							return nil, errors.Wrap(err, "SelectAndPerformRaw")
 						}
+
+						if !isFound {
+							//	not found any row
+							ctx.SetStatusCode(fasthttp.StatusNoContent)
+						}
+
+						return nil, nil
 					}
 				}
 			}
@@ -255,9 +267,14 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				return nil, errors.Wrap(err, "SelectAndPerformRaw")
 			}
 
-			_, _ = ctx.WriteString("]")
+			if rowComma == "" {
+				//	not found any row
+				ctx.SetStatusCode(fasthttp.StatusNoContent)
+			} else {
+				_, _ = ctx.WriteString("]")
+			}
 
-			return nil, err
+			return nil, nil
 		},
 		Method:   method,
 		Params:   params,
