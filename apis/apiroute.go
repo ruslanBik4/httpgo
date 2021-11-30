@@ -315,7 +315,13 @@ func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error
 }
 
 func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
-	switch col.BasicType() {
+	basicType := col.BasicType()
+	if len(src) == 0 && basicType != types.String {
+		_, _ = fmt.Fprint(ctx, "nil")
+		return
+	}
+
+	switch basicType {
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
