@@ -326,10 +326,18 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
 		_, _ = fmt.Fprintf(ctx, "%f", math.Float64frombits(binary.BigEndian.Uint64(src)))
-	case types.Int32:
+	case types.Uint16, types.Uint8:
+		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint16(src))
+	case types.Int8, types.Int16:
+		_, _ = fmt.Fprintf(ctx, "%d", int16(binary.BigEndian.Uint16(src)))
+	case types.Uint32:
 		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint32(src))
-	case types.Int64:
+	case types.Int32:
+		_, _ = fmt.Fprintf(ctx, "%d", int32(binary.BigEndian.Uint32(src)))
+	case types.Uint64:
 		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint64(src))
+	case types.Int64:
+		_, _ = fmt.Fprintf(ctx, "%d", int64(binary.BigEndian.Uint64(src)))
 	case types.Float32:
 		_, _ = fmt.Fprintf(ctx, "%f", math.Float32frombits(binary.BigEndian.Uint32(src)))
 	case types.Float64:
