@@ -192,6 +192,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 							comma = " AND "
 						}
 					}
+					logs.DebugLog(sqlOrName)
 				} else if routine, ok := DB.Routines[sqlOrName]; ok {
 
 					sqlOrName, args, err = routine.BuildSql(dbEngine.ArgsForSelect(args...))
@@ -325,7 +326,14 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
-		_, _ = fmt.Fprintf(ctx, "%f", math.Float64frombits(binary.BigEndian.Uint64(src)))
+		decoded := &pgtype.Numeric{}
+		err := decoded.DecodeBinary(nil, src)
+		if err != nil {
+			logs.ErrorLog(err, "decode UntypedFloat")
+			return
+		}
+		_, _ = fmt.Fprintf(ctx, "%sE%d", decoded.Int.String(), decoded.Exp)
+
 	case types.Uint16, types.Byte:
 		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint16(src))
 	case types.Int8, types.Int16:
