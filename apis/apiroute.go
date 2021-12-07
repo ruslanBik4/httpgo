@@ -426,6 +426,9 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 
 		mf, err := ctx.Request.MultipartForm()
 		if err != nil {
+			if strings.Contains(err.Error(), "form size must be greater than 0") {
+				return ctx.Request.String(), ErrWrongParamsList
+			}
 			return nil, err
 		}
 
