@@ -126,7 +126,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return strconv.ParseUint(value, 10, 64)
 
 	// 	check type convert float64
-	case types.Float32, types.Float64:
+	case types.Float32, types.Float64, types.UntypedFloat:
 		return strconv.ParseFloat(value, 64)
 
 	case types.UnsafePointer:
@@ -247,7 +247,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 		}
 		return arr, nil
 
-	case types.Float32, types.Float64:
+	case types.Float32, types.Float64, types.UntypedFloat:
 		arr := make([]float32, len(values))
 		for key, val := range values {
 			v, err := t.ConvertValue(ctx, val)
