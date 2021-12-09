@@ -20,6 +20,7 @@ const (
 	paramTime           = "time"
 	paramAgo            = "ago"
 	paramPatter         = "pattern"
+	SHOW_LOG_CMD        = "show_log_cmd"
 )
 const (
 	ShowStatus         = "/api/status/"

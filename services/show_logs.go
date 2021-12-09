@@ -163,7 +163,16 @@ func HandleShowDebugServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 }
 
 func getLogOutput(ctx *fasthttp.RequestCtx, params string) (interface{}, error) {
-	stdout, err := runJournal(ctx)
+	var cmd *exec.Cmd
+
+	showLogCmd, ok := ctx.UserValue(SHOW_LOG_CMD).(string)
+	if ok {
+		cmd = exec.Command(showLogCmd)
+	} else {
+		cmd = runJournal(ctx)
+	}
+
+	stdout, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +227,7 @@ func RunGrep(stdout []byte, params ...string) ([]byte, error) {
 	return cmd.CombinedOutput()
 }
 
-func runJournal(ctx *fasthttp.RequestCtx) ([]byte, error) {
+func runJournal(ctx *fasthttp.RequestCtx) *exec.Cmd {
 	var since string
 	h, ok := ctx.UserValue(paramAgo).(int8)
 	if ok {
@@ -235,9 +244,8 @@ func runJournal(ctx *fasthttp.RequestCtx) ([]byte, error) {
 	}
 
 	unitName := ctx.UserValue(paramsSystemctlUnit).(string)
-	cmd := exec.Command("sudo", "journalctl", "-u", unitName, "-o", "cat", "--since", since)
 
-	return cmd.Output()
+	return exec.Command("sudo", "journalctl", "-u", unitName, "-o", "cat", "--since", since)
 }
 
 func RunPostgresqlLog(params string) ([]byte, error) {
