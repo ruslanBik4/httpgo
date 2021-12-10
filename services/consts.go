@@ -27,6 +27,7 @@ const (
 	ShowDBStatus       = "/api/status/db"
 	ShowPsqlLog        = "/api/status/psql"
 	ShowStatusServices = "/api/status/services"
+	ShowLog            = "/api/log/"
 	ShowDebugLog       = "/api/log/debug/"
 	ShowErrorsLog      = "/api/log/errors/"
 	ShowFEUpdateLog    = "/api/log/errors/front/update/"

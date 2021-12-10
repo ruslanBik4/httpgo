@@ -70,6 +70,11 @@ var systemRoutes = apis.ApiRoutes{
 		Desc:   "view status services",
 		Params: paramsForLogs,
 	},
+	ShowLog: {
+		Fnc:    HandleShowLogServer,
+		Desc:   "view full log on server ",
+		Params: paramsForLogs,
+	},
 	ShowDebugLog: {
 		Fnc:    HandleShowDebugServer,
 		Desc:   "view debug log on server ",
@@ -160,6 +165,13 @@ func HandleShowStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 func HandleShowDebugServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 	return getLogOutput(ctx, getParamLog("DEBUG"))
+}
+
+// HandleShowLogServer show logs messages
+// @/api/log/
+func HandleShowLogServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+
+	return getLogOutput(ctx, "")
 }
 
 func getLogOutput(ctx *fasthttp.RequestCtx, params string) (interface{}, error) {
