@@ -84,12 +84,13 @@ type (
 
 // ApiRoute implement endpoint info & handler on request
 type ApiRoute struct {
-	Desc                                                string          `json:"descriptor"`
-	DTO                                                 RouteDTO        `json:"DTO"`
-	Fnc                                                 ApiRouteHandler `json:"-"`
-	FncAuth                                             FncAuth         `json:"-"`
-	TestFncAuth                                         FncAuth         `json:"-"`
-	Method                                              tMethod         `json:"method,string"`
+	Desc                                                string                              `json:"descriptor"`
+	DTO                                                 RouteDTO                            `json:"DTO"`
+	Fnc                                                 ApiRouteHandler                     `json:"-"`
+	FncAuth                                             FncAuth                             `json:"-"`
+	FncIsForbidden                                      func(ctx *fasthttp.RequestCtx) bool `json:"-"`
+	TestFncAuth                                         FncAuth                             `json:"-"`
+	Method                                              tMethod                             `json:"method,string"`
 	Multipart, NeedAuth, OnlyAdmin, OnlyLocal, WithCors bool
 	Params                                              []InParam   `json:"parameters,omitempty"`
 	Resp                                                interface{} `json:"response,omitempty"`
@@ -407,6 +408,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, ErrUnAuthorized
 	}
 
+	//check forbidden
+	if route.FncIsForbidden != nil && route.FncIsForbidden(ctx) {
+		return nil, ErrRouteForbidden
+	}
 	// compliance check local request is needed
 	if route.OnlyLocal && isNotLocalRequest(ctx) {
 		return nil, errRouteOnlyLocal
