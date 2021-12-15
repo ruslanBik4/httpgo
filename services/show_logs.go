@@ -198,6 +198,10 @@ func getLogOutput(ctx *fasthttp.RequestCtx, params string) (interface{}, error) 
 		params += ".*" + p + ".*"
 	}
 
+	if params == "" {
+		return nil, views.RenderOutput(ctx, stdout, err)
+	}
+
 	buf, err := RunGrep(stdout, "--color=never", "-oP", params)
 	if err != nil {
 		if strings.Contains(err.Error(), "exit status") {
