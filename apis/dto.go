@@ -6,6 +6,7 @@ package apis
 
 import (
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
 )
 
 // RouteDTO must help create some types into routing handling
@@ -20,4 +21,10 @@ type CheckDTO interface {
 
 type CompoundDTO interface {
 	ReadParams(ctx *fasthttp.RequestCtx)
+}
+
+type FncVisit func([]byte, *fastjson.Value)
+type Visit interface {
+	Each([]byte, *fastjson.Value)
+	Result() (interface{}, error)
 }

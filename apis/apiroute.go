@@ -503,12 +503,6 @@ func setCORSHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 }
 
-type FncVisit func([]byte, *fastjson.Value)
-type Visit interface {
-	Each([]byte, *fastjson.Value)
-	Result() (interface{}, error)
-}
-
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	badParams := make(map[string]string, 0)
 	// check JSON parsing
@@ -522,7 +516,11 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, erro
 
 		val.GetObject().Visit(r.Each)
 		dto, err = r.Result()
-		if err != nil {
+		switch err {
+		case nil:
+		case ErrWrongParamsList:
+			return dto, err
+		default:
 			return nil, errors.Wrap(err, "visit result")
 		}
 	} else {
@@ -531,8 +529,8 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, erro
 			errMsg := err.Error()
 			parts := strings.Split(errMsg, ":")
 			if len(parts) > 1 {
-				path := strings.Split(parts[0], ".")
-				badParams[path[len(path)-1]] = strings.Join(parts[1:], ":")
+				param := strings.Split(parts[0], ".")
+				badParams[param[len(param)-1]] = strings.Join(parts[1:], ":")
 			} else {
 				badParams["bad_params"] = "json DTO not parse :" + errMsg
 			}
