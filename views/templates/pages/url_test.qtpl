@@ -99,9 +99,23 @@ type URLTestPage struct {
 
             WEBKIT = '------WebKitFormBoundary7MA4YWxkTrZu0gW'
             HEADERS = {
-                    'Bearer': "2571020569",
+                    'Authorization': 'Bearer 2571020569',
                     'content-type': "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW",
                 }
+
+
+            def post_multipart(url: str, data: dict):
+                return requests.post(
+                    url, files={
+                        k: (None, v) for k, v in data.items()
+                    }, headers=headers
+                )
+
+            def post_json(url: str, data: dict):
+                return requests.post(
+                    url, data=data,
+                    headers={'Content-Type': 'application/json', **headers}
+                )
 
             def ta_request(path, params):
                 payload = ''
@@ -116,6 +130,9 @@ type URLTestPage struct {
             if __name__ == '__main__':
                 ta_request("{%= u.URL() %}", [
                  {% for _, param := range u.Params %}
+                    {% if param.Req %}
+                        required
+                    {% endif %}
                     ('{%s param.Name %}','{%v param.Value %}'), // type: {%s param.Type %},  {%s param.Comment %}
                  {% endfor %}
                 ])

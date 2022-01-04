@@ -40,6 +40,7 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+//go:generate go get -u github.com/valyala/quicktemplate/qtc
 //go:generate qtc -dir=views/templates
 
 const fpmSocket = "/var/run/php5-fpm.sock"

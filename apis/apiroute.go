@@ -324,6 +324,13 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	}
 
 	switch basicType {
+	case types.Bool, types.UntypedBool:
+		_, _ = fmt.Fprintf(ctx, "%v", src[0] == 't' || src[0] == 'T')
+		//	json.WriteString(ctx, "true")
+		//} else {
+		//	json.WriteString(ctx, "false")
+		//}
+
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
