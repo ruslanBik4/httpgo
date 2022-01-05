@@ -240,28 +240,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 			_, _ = ctx.WriteString("[")
 			rowComma := ""
 			err = DB.Conn.SelectAndPerformRaw(ctx,
-				func(values [][]byte, columns []dbEngine.Column) error {
-					_, _ = ctx.WriteString(rowComma + "{")
-					rowComma = ","
-					comma := ""
-					for i, col := range columns {
-						_, _ = ctx.WriteString(comma + `"` + col.Name() + `":`)
-						if strings.HasPrefix(col.Type(), "_") {
-							src := values[i]
-							err := writeArray(ctx, src, col)
-							if err != nil {
-								return err
-							}
-
-						} else {
-							WriteElemValue(ctx, values[i], col)
-						}
-						comma = ","
-					}
-					_, _ = ctx.WriteString("}")
-
-					return nil
-				},
+				WriteRecordAsJSON(ctx, &rowComma),
 				sqlOrName, args...)
 
 			if err != nil {
@@ -288,6 +267,31 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 	}
 
 	return route
+}
+
+func WriteRecordAsJSON(ctx *fasthttp.RequestCtx, rowComma *string) func(values [][]byte, columns []dbEngine.Column) error {
+	return func(values [][]byte, columns []dbEngine.Column) error {
+		_, _ = ctx.WriteString(*rowComma + "{")
+		*rowComma = ","
+		comma := ""
+		for i, col := range columns {
+			_, _ = ctx.WriteString(comma + `"` + col.Name() + `":`)
+			if strings.HasPrefix(col.Type(), "_") {
+				src := values[i]
+				err := writeArray(ctx, src, col)
+				if err != nil {
+					return err
+				}
+
+			} else {
+				WriteElemValue(ctx, values[i], col)
+			}
+			comma = ","
+		}
+		_, _ = ctx.WriteString("}")
+
+		return nil
+	}
 }
 
 func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error {
@@ -326,10 +330,6 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	switch basicType {
 	case types.Bool, types.UntypedBool:
 		_, _ = fmt.Fprintf(ctx, "%v", src[0] == 't' || src[0] == 'T')
-		//	json.WriteString(ctx, "true")
-		//} else {
-		//	json.WriteString(ctx, "false")
-		//}
 
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
