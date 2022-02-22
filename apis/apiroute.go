@@ -734,7 +734,7 @@ func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) {
 			if i > 0 {
 				stream.WriteMore()
 			}
-			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type, v.String()), v, stream)
+			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream)
 		}
 
 		stream.WriteObjectEnd()
