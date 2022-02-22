@@ -11,9 +11,9 @@ import (
 	"go/types"
 	"math"
 	"path"
+	"reflect"
 	"sort"
 	"strings"
-	"sync"
 	"time"
 	"unsafe"
 
@@ -94,7 +94,6 @@ type ApiRoute struct {
 	Multipart, NeedAuth, OnlyAdmin, OnlyLocal, WithCors bool
 	Params                                              []InParam   `json:"parameters,omitempty"`
 	Resp                                                interface{} `json:"response,omitempty"`
-	lock                                                sync.RWMutex
 }
 
 // NewAPIRoute create customizing ApiRoute
@@ -662,8 +661,14 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	}
 
 	if route.DTO != nil {
-		AddObjectToJSON(stream, "DtoFromJSON", route.DTO.GetValue())
-		AddFieldToJSON(stream, "DtoFromJSONType", fmt.Sprintf("%+#v", route.DTO.GetValue()))
+		value := route.DTO.GetValue()
+
+		//AddObjectToJSON(stream, "DtoFromJSON", value)
+		v := reflect.ValueOf(value)
+		if !v.IsZero() {
+			stream.WriteMore()
+			writeReflect("DtoForJSONType", v, stream)
+		}
 	}
 
 	if route.Resp != nil {
@@ -673,6 +678,120 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			AddObjectToJSON(stream, "Response", route.Resp)
 		}
 	}
+}
+
+func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) {
+	stream.WriteObjectField(title)
+
+	kind := value.Kind()
+	// Handle pointers specially.
+	kind, value = indirect(kind, value)
+	defer func() {
+		e := recover()
+		err, ok := e.(error)
+		if ok {
+			logs.ErrorLog(err, kind.String(), value.String())
+		}
+	}()
+	if kind > reflect.UnsafePointer || kind <= 0 {
+		stream.WriteObjectField(value.String())
+		stream.WriteString(kind.String())
+		return
+	}
+
+	vType := value.Type()
+	switch kind {
+	case reflect.Struct:
+		stream.WriteObjectStart()
+		for i, isFirst := 0, true; i < value.NumField(); i++ {
+			v := vType.Field(i)
+			if !v.IsExported() {
+				continue
+			}
+			if !isFirst {
+				stream.WriteMore()
+			}
+			tag := v.Tag.Get("json")
+			title := tag // fmt.Sprintf("%s: %s", v.Name, v.Type) + writeTag(v.Tag)
+			val := value.Field(i)
+			kind := val.Kind()
+			kind, val = indirect(kind, val)
+			writeReflect(title, val, stream)
+			isFirst = false
+		}
+		stream.WriteObjectEnd()
+
+	case reflect.Map:
+		// nil maps should be indicated as different than empty maps
+		if value.IsNil() {
+			stream.WriteEmptyObject()
+			return
+		}
+
+		stream.WriteObjectStart()
+		keys := value.MapKeys()
+		for i, v := range keys {
+			if i > 0 {
+				stream.WriteMore()
+			}
+			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type, v.String()), v, stream)
+		}
+
+		stream.WriteObjectEnd()
+
+	case reflect.Array, reflect.Slice:
+		stream.WriteArrayStart()
+		defer stream.WriteArrayEnd()
+
+		numEntries := value.Len()
+		if numEntries == 0 {
+
+			elem := vType.Elem()
+
+			for kind := elem.Kind(); ; kind = elem.Kind() {
+				if kind == reflect.Ptr || kind == reflect.Interface || kind == reflect.UnsafePointer {
+					logs.DebugLog(elem.String(), kind.String())
+					elem = elem.Elem()
+				} else {
+					logs.DebugLog(elem.String(), vType.Elem().String(), elem.Name(), vType.Elem().Kind().String(), kind.String())
+					writeReflect(elem.String(), reflect.New(elem), stream)
+					return
+				}
+			}
+		}
+
+		for i := 0; i < numEntries; i++ {
+			if i > 0 {
+				stream.WriteMore()
+			}
+			v := value.Index(i)
+			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream)
+		}
+
+	default:
+		stream.WriteString(vType.String())
+	}
+}
+
+func indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
+	name := value.String()
+	for kind == reflect.Ptr || kind == reflect.Interface {
+		if value.IsZero() {
+			value = reflect.New(value.Type().Elem())
+		} else {
+			value = value.Elem()
+		}
+		kind = value.Kind()
+		logs.StatusLog(name, value.String(), kind.String())
+	}
+	return kind, value
+}
+
+func writeTag(tag reflect.StructTag) string {
+	if tag > "" {
+		return " `" + string(tag) + "`"
+	}
+	return ""
 }
 
 func AddFieldToJSON(stream *jsoniter.Stream, field string, s string) {
@@ -743,7 +862,6 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 					},
 					Method:   OPTIONS,
 					WithCors: true,
-					lock:     sync.RWMutex{},
 				}
 			}
 		}

@@ -24,6 +24,8 @@ type CompoundDTO interface {
 }
 
 type FncVisit func([]byte, *fastjson.Value)
+
+//todo add description
 type Visit interface {
 	Each([]byte, *fastjson.Value)
 	Result() (interface{}, error)

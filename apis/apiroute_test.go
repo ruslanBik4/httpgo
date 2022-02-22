@@ -237,7 +237,6 @@ func TestApiRoute_CheckAndRun(t *testing.T) {
 				WithCors:    tt.fields.WithCors,
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
-				lock:        tt.fields.lock,
 			}
 			gotResp, err := route.CheckAndRun(tt.args.ctx, tt.args.fncAuth)
 			if !tt.wantErr(t, err, fmt.Sprintf("CheckAndRun(%v, %v)", tt.args.ctx, tt.args.fncAuth)) {
@@ -293,7 +292,6 @@ func TestApiRoute_CheckParams(t *testing.T) {
 				WithCors:    tt.fields.WithCors,
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
-				lock:        tt.fields.lock,
 			}
 			assert.Equalf(t, tt.want, route.CheckParams(tt.args.ctx, tt.args.badParams), "CheckParams(%v, %v)", tt.args.ctx, tt.args.badParams)
 		})
@@ -347,7 +345,6 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 				WithCors:    tt.fields.WithCors,
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
-				lock:        tt.fields.lock,
 			}
 			got, err := route.checkTypeParam(tt.args.ctx, tt.args.name, tt.args.values)
 			if !tt.wantErr(t, err, fmt.Sprintf("checkTypeParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)) {
@@ -402,7 +399,6 @@ func TestApiRoute_isValidMethod(t *testing.T) {
 				WithCors:    tt.fields.WithCors,
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
-				lock:        tt.fields.lock,
 			}
 			assert.Equalf(t, tt.want, route.isValidMethod(tt.args.ctx), "isValidMethod(%v)", tt.args.ctx)
 		})
@@ -454,7 +450,6 @@ func TestApiRoute_performsJSON(t *testing.T) {
 				WithCors:    tt.fields.WithCors,
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
-				lock:        tt.fields.lock,
 			}
 			got, err := route.performsJSON(tt.args.ctx)
 			if !tt.wantErr(t, err, fmt.Sprintf("performsJSON(%v)", tt.args.ctx)) {

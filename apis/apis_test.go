@@ -15,17 +15,18 @@ import (
 )
 
 var (
-	ctx  = &fasthttp.RequestCtx{}
-	apis = &Apis{
-		routes: NewMapRoutes(),
+	ctx      = &fasthttp.RequestCtx{}
+	testApis = &Apis{
+		RWMutex: &sync.RWMutex{},
+		routes:  NewMapRoutes(),
 	}
 )
 
 func TestApis_AddRoute(t *testing.T) {
 
-	err := apis.addRoute("test", &ApiRoute{})
+	err := testApis.addRoute("test", &ApiRoute{})
 	assert.Nil(t, err)
-	err = apis.addRoute("test", &ApiRoute{})
+	err = testApis.addRoute("test", &ApiRoute{})
 	assert.NotNil(t, err)
 
 }
@@ -34,7 +35,7 @@ func TestRenderApis(t *testing.T) {
 
 	TestCheckAndRun(t)
 	const testPath = "moreParams"
-	err := apis.addRoute(
+	err := testApis.addRoute(
 		testPath,
 		&ApiRoute{
 			Desc:      "test route",
@@ -81,7 +82,7 @@ func TestRenderApis(t *testing.T) {
 
 	ctx.Request.SetRequestURI(testPath)
 	ctx.SetUserValue("json", true)
-	resp, err := apis.renderApis(ctx)
+	resp, err := testApis.renderApis(ctx)
 	assert.Nil(t, err)
 	t.Logf(`%#v`, resp)
 

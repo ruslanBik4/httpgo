@@ -63,12 +63,12 @@ type FncAuth interface {
 // Apis encapsulates REST API configuration and endpoints
 // in calling it checks for the presence, validation of parameters and access privileges
 type Apis struct {
+	*sync.RWMutex
 	Ctx CtxApis
 	// authentication method
 	fncAuth FncAuth
 	// list of endpoints
 	routes MapRoutes
-	lock   sync.RWMutex
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
@@ -76,6 +76,7 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
+		RWMutex: &sync.RWMutex{},
 		routes:  routes,
 		fncAuth: fncAuth,
 	}
@@ -274,15 +275,15 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 	ctx.Error(errMsg, statusCode)
 }
 
-// addRoute with safe on concurrent
+// addRoute with safe on concurrency
 func (a *Apis) addRoute(path string, route *ApiRoute) error {
 	_, ok := a.routes[route.Method][path]
 	if ok {
 		return ErrPathAlreadyExists
 	}
 
-	a.lock.Lock()
-	defer a.lock.Unlock()
+	a.Lock()
+	defer a.Unlock()
 
 	a.routes[route.Method][path] = route
 
@@ -307,7 +308,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		"Auth",
 		"Required parameters",
 		"Others parameters",
-		"DtoFromJSON",
+		"Dto for JSON parsing",
 		"Response",
 	)
 
@@ -427,9 +428,16 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	apis := *(*Apis)(ptr)
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
+	defer func() {
+		e := recover()
+		err, ok := e.(error)
+		if ok {
+			logs.ErrorLog(err)
+		}
+	}()
 
 	FirstFieldToJSON(stream, "Descriptor", "API Specification, include endpoints description, ect")
-	AddObjectToJSON(stream, "ctx", apis.Ctx)
+	//AddObjectToJSON(stream, "ctx", apis.Ctx)
 	if apis.fncAuth != nil {
 		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
 	}
