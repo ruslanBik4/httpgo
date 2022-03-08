@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"go/types"
 	"math"
 	"path"
@@ -26,8 +28,6 @@ import (
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/dbEngine/typesExt"
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -557,24 +557,7 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, erro
 // CheckParams check param of request
 func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for _, param := range route.Params {
-		value := ctx.UserValue(param.Name)
-		if value == nil {
-			// param is part of group required params
-			if param.presentOtherRegParam(ctx) {
-				return true
-			}
-
-			value = param.defaultValueOfParams(ctx, badParams)
-			//  not present required param
-			if value != nil {
-				ctx.SetUserValue(param.Name, value)
-			} else if param.Req {
-				badParams[param.Name] = "is required parameter"
-			}
-		} else if name, val := param.isHasIncompatibleParams(ctx); name > "" {
-			// has present param which not compatible with 'param'
-			badParams[param.Name] = fmt.Sprintf("incompatible params: %s=%s & %s=%s", param.Name, value, name, val)
-		}
+		param.Check(ctx, badParams)
 	}
 
 	return len(badParams) == 0
@@ -629,16 +612,15 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 }
 
 // apiRouteToJSON produces a human-friendly description of Apis.
-//Based on real data of the executable application, does not require additional documentation.
+// Based on real data of the executable application, does not require additional documentation.
 func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-	// todo: add description of the test-based return data
 	route := (*ApiRoute)(ptr)
 
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
-	FirstFieldToJSON(stream, "Descriptor", route.Desc)
-
+	FirstFieldToJSON(stream, "description", route.Desc)
+	summary := ""
 	AddFieldToJSON(stream, "Method", methodNames[route.Method])
 
 	if route.FncAuth != nil {
@@ -655,34 +637,188 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		AddFieldToJSON(stream, "LocalOnly", "only local request be allowed")
 	}
 
+	respErrors := make(map[string]InParam)
+	ctx := &fasthttp.RequestCtx{}
 	// print parameters
+	params := make([]interface{}, 0)
 	if len(route.Params) > 0 {
-		AddObjectToJSON(stream, "parameters", route.Params)
+		for _, param := range route.Params {
+			if param.DefValue == ChildRoutePath {
+				summary += fmt.Sprintf("/{%s}", param.Name)
+			}
+
+			params = append(params, param)
+			if param.Req {
+				param.DefValue = PARAM_REQUIRED
+			} else {
+				badParams := make(map[string]string)
+				param.Check(ctx, badParams)
+				if len(badParams) > 0 {
+					param.DefValue = badParams
+				} else if param.Type == nil {
+					param.DefValue = "todo"
+				} else {
+					param.DefValue = fmt.Sprintf("wrong type, expect: %s", param.Type.String())
+				}
+			}
+
+			respErrors[param.Name] = param
+
+		}
 	}
 
 	if route.DTO != nil {
-		value := route.DTO.GetValue()
-
-		//AddObjectToJSON(stream, "DtoFromJSON", value)
+		value := route.DTO.NewValue()
 		v := reflect.ValueOf(value)
 		if !v.IsZero() {
 			stream.WriteMore()
-			writeReflect("DtoForJSONType", v, stream)
+
+			params = append(params, writeReflect("JSON", v, stream))
+			r, ok := (value).(Visit)
+			if ok {
+				//fastjson.MustParse(`{}`).GetObject().Visit(r.Each)
+				badParams, err := r.Result()
+				if err != nil {
+					respErrors["body"] = InParam{
+						Name:     err.Error(),
+						Desc:     "JSON",
+						Req:      true,
+						DefValue: badParams,
+					}
+				}
+			} else if c, ok := (value).(CheckDTO); ok {
+				badParams := make(map[string]string)
+				if !c.CheckParams(ctx, badParams) {
+					for name, s := range badParams {
+
+						respErrors[name] = InParam{
+							Name:     s,
+							Desc:     "",
+							Req:      true,
+							DefValue: s,
+						}
+					}
+
+				}
+			}
+
 		}
 	}
 
-	if route.Resp != nil {
-		if resp, ok := route.Resp.(string); ok {
-			AddFieldToJSON(stream, "Response", resp)
-		} else {
-			AddObjectToJSON(stream, "Response", route.Resp)
-		}
+	if route.WithCors {
+		summary += ", CORS"
 	}
+	if route.Multipart {
+		summary += ", multipart"
+	}
+	if route.OnlyAdmin {
+		summary += ", only admin access"
+	}
+	AddFieldToJSON(stream, "summary", summary)
+
+	AddObjectToJSON(stream, "parameters", params)
+
+	tags := make([]string, 0)
+
+	if strings.Contains(route.Desc, "test handler") {
+		tags = append(tags, "Test handlers (auto generated)")
+	} else if strings.Contains(route.Desc, "get form") {
+		tags = append(tags, "Forms handlers (auto generated)")
+	} else if strings.Contains(route.Desc, "APIS") {
+		tags = append(tags, "APIS handlers (auto generated)")
+	} else if strings.Contains(route.Desc, "table") {
+		tags = append(tags, "CRUD")
+	} else if strings.Contains(route.Desc, "order") {
+		tags = append(tags, "order")
+	}
+
+	AddObjectToJSON(stream, "tags", tags)
+	AddObjectToJSON(stream, "consumes", []string{
+		"application/json",
+	})
+	AddObjectToJSON(stream, "produces", []string{
+		"application/json",
+		"text/plain",
+	})
+	stream.WriteMore()
+	writeResponse(stream, respErrors, route.Resp)
+
+	if route.NeedAuth {
+		writeResponseForAuth(stream)
+	}
+
+	stream.WriteObjectEnd()
 }
 
-func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) {
-	stream.WriteObjectField(title)
+func writeResponseForAuth(stream *jsoniter.Stream) {
+	stream.WriteMore()
+	stream.WriteObjectField("401")
+	stream.WriteObjectStart()
+	FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusUnauthorized))
+	stream.WriteObjectEnd()
+	stream.WriteMore()
 
+	stream.WriteObjectField("403")
+	stream.WriteObjectStart()
+	FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusForbidden))
+	stream.WriteObjectEnd()
+}
+
+func writeResponse(stream *jsoniter.Stream, params map[string]InParam, resp interface{}) {
+	stream.WriteObjectField("responses")
+	stream.WriteObjectStart()
+	if len(params) > 0 {
+
+		mapC := map[string]interface{}{
+			"description": statusMsg(fasthttp.StatusBadRequest),
+			"schema": map[string]interface{}{
+				"type":       "object",
+				"properties": params,
+			},
+		}
+
+		FirstObjectToJSON(stream, "400", mapC)
+		stream.WriteMore()
+	}
+
+	if resp, ok := resp.(SwaggerParam); ok {
+		more := false
+		for code, r := range resp {
+			if more {
+				stream.WriteMore()
+			}
+			if s, ok := r.(string); ok {
+				stream.WriteObjectField(code)
+				stream.WriteObjectStart()
+				FirstFieldToJSON(stream, "description", s)
+				stream.WriteObjectEnd()
+			} else {
+				props := NewReflectType(r)
+				FirstObjectToJSON(stream, code, props.Props)
+			}
+			more = true
+
+		}
+		return
+	}
+
+	stream.WriteObjectField("200")
+	stream.WriteObjectStart()
+	if resp == nil {
+		FirstFieldToJSON(stream, "description", fasthttp.StatusMessage(fasthttp.StatusOK))
+	} else if resp, ok := resp.(string); ok {
+		FirstFieldToJSON(stream, "description", resp)
+	} else {
+		FirstObjectToJSON(stream, "description", resp)
+	}
+	stream.WriteObjectEnd()
+}
+
+func statusMsg(status int) string {
+	return fasthttp.StatusMessage(status)
+}
+
+func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) interface{} {
 	kind := value.Kind()
 	// Handle pointers specially.
 	kind, value = indirect(kind, value)
@@ -693,88 +829,159 @@ func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) {
 			logs.ErrorLog(err, kind.String(), value.String())
 		}
 	}()
+
 	if kind > reflect.UnsafePointer || kind <= 0 {
+		stream.WriteObjectField(title)
 		stream.WriteObjectField(value.String())
 		stream.WriteString(kind.String())
-		return
+		desc := ""
+		if parts := strings.Split(title, ","); len(parts) > 1 {
+			title = parts[0]
+			desc = parts[1]
+		}
+
+		return InParam{
+			Name:              title,
+			Desc:              desc,
+			Req:               false,
+			PartReq:           nil,
+			Type:              NewTypeInParam(types.String),
+			DefValue:          kind.String(),
+			IncompatibleWiths: nil,
+			TestValue:         "",
+		}
 	}
 
 	vType := value.Type()
+	sType := vType.String()
+	if parts := strings.Split(title, ","); len(parts) > 1 {
+		title = parts[0]
+		sType += ", " + parts[1]
+	}
+
+	stream.WriteObjectField(title)
+
+	return WriteReflectKind(kind, value, stream, sType, title)
+}
+
+func WriteReflectKind(kind reflect.Kind, value reflect.Value, stream *jsoniter.Stream, sType, title string) interface{} {
 	switch kind {
 	case reflect.Struct:
-		stream.WriteObjectStart()
-		for i, isFirst := 0, true; i < value.NumField(); i++ {
-			v := vType.Field(i)
-			if !v.IsExported() {
-				continue
-			}
-			if !isFirst {
-				stream.WriteMore()
-			}
-			tag := v.Tag.Get("json")
-			title := tag // fmt.Sprintf("%s: %s", v.Name, v.Type) + writeTag(v.Tag)
-			val := value.Field(i)
-			kind := val.Kind()
-			kind, val = indirect(kind, val)
-			writeReflect(title, val, stream)
-			isFirst = false
-		}
-		stream.WriteObjectEnd()
+		return WriteStruct(value, stream, title)
 
 	case reflect.Map:
-		// nil maps should be indicated as different than empty maps
-		if value.IsNil() {
-			stream.WriteEmptyObject()
-			return
-		}
-
-		stream.WriteObjectStart()
-		keys := value.MapKeys()
-		for i, v := range keys {
-			if i > 0 {
-				stream.WriteMore()
-			}
-			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream)
-		}
-
-		stream.WriteObjectEnd()
+		return WriteMap(value, stream, title)
 
 	case reflect.Array, reflect.Slice:
-		stream.WriteArrayStart()
-		defer stream.WriteArrayEnd()
-
-		numEntries := value.Len()
-		if numEntries == 0 {
-
-			elem := vType.Elem()
-
-			for kind := elem.Kind(); ; kind = elem.Kind() {
-				if kind == reflect.Ptr || kind == reflect.Interface || kind == reflect.UnsafePointer {
-					logs.DebugLog(elem.String(), kind.String())
-					elem = elem.Elem()
-				} else {
-					logs.DebugLog(elem.String(), vType.Elem().String(), elem.Name(), vType.Elem().Kind().String(), kind.String())
-					writeReflect(elem.String(), reflect.New(elem), stream)
-					return
-				}
-			}
-		}
-
-		for i := 0; i < numEntries; i++ {
-			if i > 0 {
-				stream.WriteMore()
-			}
-			v := value.Index(i)
-			writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream)
-		}
+		return WriteSlice(value, stream, title)
 
 	default:
-		stream.WriteString(vType.String())
+		stream.WriteString(sType)
+		return InParam{
+			Name:              title,
+			Desc:              "",
+			Req:               false,
+			PartReq:           nil,
+			Type:              &ReflectType{Type: value.Type()},
+			DefValue:          kind.String(),
+			IncompatibleWiths: nil,
+			TestValue:         "",
+		}
 	}
 }
 
+func WriteMap(value reflect.Value, stream *jsoniter.Stream, title string) interface{} {
+	// nil maps should be indicated as different than empty maps
+	if value.IsNil() {
+		stream.WriteEmptyObject()
+		return nil
+	}
+
+	stream.WriteObjectStart()
+	keys := value.MapKeys()
+	propers := make([]interface{}, 0)
+	for i, v := range keys {
+		if i > 0 {
+			stream.WriteMore()
+		}
+		propers = append(propers, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
+	}
+
+	stream.WriteObjectEnd()
+	return NewSwaggerParam(propers, title, "object")
+}
+
+func WriteSlice(value reflect.Value, stream *jsoniter.Stream, title string) interface{} {
+	stream.WriteArrayStart()
+	defer stream.WriteArrayEnd()
+
+	vType := value.Type()
+	numEntries := value.Len()
+	if numEntries == 0 {
+
+		elem := vType.Elem()
+
+		for kind := elem.Kind(); ; kind = elem.Kind() {
+			switch kind {
+			case reflect.Ptr, reflect.Interface, reflect.UnsafePointer:
+				elem = elem.Elem()
+				continue
+
+			case reflect.Struct:
+				return WriteStruct(reflect.Zero(elem), stream, title)
+
+			default:
+				return WriteReflectKind(kind, reflect.New(elem), stream, vType.Elem().String(), title)
+			}
+
+		}
+	}
+
+	propers := make([]interface{}, 0)
+
+	for i := 0; i < numEntries; i++ {
+		if i > 0 {
+			stream.WriteMore()
+		}
+		v := value.Index(i)
+		propers = append(propers, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
+	}
+
+	return NewSwaggerArray(title, propers...)
+}
+
+func WriteStruct(value reflect.Value, stream *jsoniter.Stream, title string) interface{} {
+	propers := make(map[string]interface{}, 0)
+	vType := value.Type()
+	stream.WriteObjectStart()
+	for i, isFirst := 0, true; i < value.NumField(); i++ {
+		v := vType.Field(i)
+		if !v.IsExported() {
+			continue
+		}
+		if !isFirst {
+			stream.WriteMore()
+		}
+
+		val := value.Field(i)
+		kind := val.Kind()
+		kind, val = indirect(kind, val)
+
+		tag := v.Tag.Get("json")
+		title := tag // fmt.Sprintf("%s: %s", v.Name, v.Type) + writeTag(v.Tag)
+		if tag == "" {
+			title = v.Name
+		}
+
+		propers[title] = writeReflect(title, val, stream)
+		isFirst = false
+	}
+	stream.WriteObjectEnd()
+
+	return NewSwaggerObject(propers, title)
+}
+
 func indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
-	name := value.String()
 	for kind == reflect.Ptr || kind == reflect.Interface {
 		if value.IsZero() {
 			value = reflect.New(value.Type().Elem())
@@ -782,8 +989,8 @@ func indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Val
 			value = value.Elem()
 		}
 		kind = value.Kind()
-		logs.StatusLog(name, value.String(), kind.String())
 	}
+
 	return kind, value
 }
 
@@ -867,7 +1074,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 		}
 		testRoute := &ApiRoute{
 			Desc:      "test handler for " + url,
-			DTO:       nil,
+			DTO:       route.DTO,
 			Fnc:       nil,
 			FncAuth:   route.TestFncAuth,
 			Method:    GET,
@@ -877,6 +1084,7 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			OnlyLocal: false,
 			Params:    make([]InParam, len(route.Params)),
 			Resp:      route.Resp,
+			WithCors:  true,
 		}
 		for i, param := range route.Params {
 			testRoute.Params[i] = param
@@ -1034,11 +1242,17 @@ func init() {
 				continue
 			}
 
-			if isFirst {
-				isFirst = false
-				FirstObjectToJSON(stream, key.String(), &val)
-			} else {
-				AddObjectToJSON(stream, key.String(), &val)
+			for s, route := range val {
+				if isFirst {
+					isFirst = false
+				} else {
+					stream.WriteMore()
+				}
+
+				stream.WriteObjectField(s)
+				stream.WriteObjectStart()
+				FirstObjectToJSON(stream, strings.ToLower(key.String()), route)
+				stream.WriteObjectEnd()
 			}
 		}
 

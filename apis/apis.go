@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"path"
 	"sort"
 	"strings"
@@ -83,13 +84,22 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
 
 	apisRoutes := ApiRoutes{
 		"/apis": {
-			Desc: "full routers list",
-			Fnc:  apis.renderApis,
+			Desc:     "full routers list",
+			Fnc:      apis.renderApis,
+			WithCors: true,
 			Params: []InParam{
 				{
 					Name: "json",
 				},
 			},
+		},
+		"/swagger.io": {
+			Desc: "Scale Your API Design with Confidence",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				views.RenderHTMLPage(ctx, pages.WriteSwaggerPage)
+				return nil, nil
+			},
+			WithCors: true,
 		},
 		"/onboarding": {
 			Desc:      "onboarding routes from local services into APIS",
@@ -428,21 +438,42 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	apis := *(*Apis)(ptr)
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
+
 	defer func() {
 		e := recover()
 		err, ok := e.(error)
 		if ok {
-			logs.ErrorLog(err)
+			logs.ErrorStack(err)
 		}
 	}()
 
-	FirstFieldToJSON(stream, "Descriptor", "API Specification, include endpoints description, ect")
-	//AddObjectToJSON(stream, "ctx", apis.Ctx)
+	FirstFieldToJSON(stream, "swagger", "2.0")
+	stream.WriteMore()
+
+	stream.WriteObjectField("info")
+	stream.WriteObjectStart()
+	FirstFieldToJSON(stream, "descriptor", "API Specification, include endpoints description, ect")
+	version, ok := apis.Ctx.Value(ApiVersion).(string)
+	if ok {
+		AddFieldToJSON(stream, "version", version)
+	}
+	AddFieldToJSON(stream, "title", "httpgo")
+	stream.WriteMore()
+
+	stream.WriteObjectField("license")
+	stream.WriteObjectStart()
+	FirstFieldToJSON(stream, "name", "Apache 2.0")
+	AddFieldToJSON(stream, "url", "http://www.apache.org/licenses/LICENSE-2.0.html")
+
+	stream.WriteObjectEnd()
+
 	if apis.fncAuth != nil {
 		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
 	}
+	stream.WriteObjectEnd()
 
-	AddObjectToJSON(stream, "routes", apis.routes)
+	AddObjectToJSON(stream, "schemes", []string{"http", "https"})
+	AddObjectToJSON(stream, "paths", apis.routes)
 }
 
 func init() {

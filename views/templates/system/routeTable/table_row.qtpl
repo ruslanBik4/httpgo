@@ -63,7 +63,7 @@ function getElementsByText(str, name) {
                     {% if col.LinkNew > "" %}
                      {%s= col.LinkNew %}
                     {% else %}
-                   <input type="search" onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+                   <input type="search" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
                     {% endif %}
                 </div>
             </div>

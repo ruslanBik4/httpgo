@@ -145,6 +145,9 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return t.ReadValue(value, res)
 
 	case typesExt.TStruct:
+		if t.DTO == nil {
+			return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) need DTO", t.String())
+		}
 		v := t.DTO.NewValue()
 		return t.ReadValue(value, v)
 
@@ -153,21 +156,21 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	}
 }
 
-func (t TypeInParam) ReadValue(value string, v interface{}) (interface{}, error) {
+func (t TypeInParam) ReadValue(s string, v interface{}) (interface{}, error) {
 	switch v := v.(type) {
 	case pgtype.Value:
-		err := v.Set(value)
+		err := v.Set(s)
 		if err != nil {
-			return nil, errors.Wrap(err, "Set value")
+			return nil, errors.Wrap(err, "Set s")
 		}
 	case json.Unmarshaler:
-		err := v.UnmarshalJSON([]byte(value))
+		err := v.UnmarshalJSON([]byte(s))
 		if err != nil {
 			return nil, errors.Wrap(err, "Unmarshal ")
 		}
 	default:
 
-		err := Json.UnmarshalFromString(value, &v)
+		err := Json.UnmarshalFromString(s, &v)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}

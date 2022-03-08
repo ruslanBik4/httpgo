@@ -57,6 +57,8 @@ const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
 	ChildRoutePath  = "lastSegment"
+	ApiVersion      = "ACC_VERSION"
 )
 
 const testRouteSuffix = "_test"
+const PARAM_REQUIRED = "is required parameter"

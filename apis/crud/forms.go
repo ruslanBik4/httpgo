@@ -41,6 +41,7 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 
 	preRoute := pathVersion + "/table/"
 	routes := make(apis.ApiRoutes, 0)
+	inParams := []apis.InParam{ParamsLang, ParamsGetFormActions}
 
 	for tableName, table := range DB.Tables {
 		if len(tables) > 0 {
@@ -53,16 +54,17 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 
 	createRoutes:
 		rUpd := &apis.ApiRoute{
-			Desc:        "update table '" + tableName + "' data",
-			Method:      apis.POST,
-			Multipart:   true,
-			DTO:         dtoField{},
+			Desc:      "update table '" + tableName + "' data",
+			Method:    apis.POST,
+			Multipart: true,
+			//todo: resolve on future
+			//DTO:         dtoField{},
 			FncAuth:     nil,
 			TestFncAuth: nil,
 			NeedAuth:    true,
 			OnlyAdmin:   false,
 			OnlyLocal:   false,
-			Params:      []apis.InParam{ParamsLang, ParamsGetFormActions},
+			Params:      inParams,
 			Resp:        nil,
 		}
 
@@ -71,11 +73,19 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 			Method:    apis.POST,
 			Multipart: true,
 			NeedAuth:  true,
-			DTO:       dtoField{},
-			Params:    []apis.InParam{ParamsLang, ParamsGetFormActions},
+			//DTO:       dtoField{},
+			Params: inParams,
+		}
+
+		rGet := &apis.ApiRoute{
+			Desc:     "get data from table '" + tableName + "'",
+			Method:   apis.GET,
+			NeedAuth: true,
+			Params:   inParams,
 		}
 
 		params := make([]string, 0)
+		autoIncCols := make([]string, 0)
 		priColumns := make([]string, 0)
 		basicParams := []apis.InParam{
 			ParamsHTML,
@@ -87,12 +97,17 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 			p := newDbApiParams(col)
 
 			rUpd.Params = append(rUpd.Params, p.InParam)
+			i := p.InParam
+			i.Req = false
+			rGet.Params = append(rGet.Params, i)
 
 			if !col.AutoIncrement() {
 				p.Req = col.Required()
 				p.DefValue = col.Default()
 				rIns.Params = append(rIns.Params, p.InParam)
 				params = append(params, p.Name)
+			} else {
+				autoIncCols = append(autoIncCols, p.Name)
 			}
 
 			if col.Primary() || (col.Name() == "id") {
@@ -116,19 +131,17 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		}
 
 		rUpd.Fnc = TableUpdate(preRoute, table, params, priColumns)
-
 		routes[preRoute+tableName+"/update"] = rUpd
 
 		rIns.Fnc = TableInsert(preRoute, DB, table, params)
-
 		routes[preRoute+tableName+"/put"] = rIns
-		routes[preRoute+tableName+"/get"] = &apis.ApiRoute{
-			Fnc:      TableSelect(preRoute, table, params, priColumns),
-			Desc:     "get data from table '" + tableName + "'",
-			Method:   apis.GET,
-			NeedAuth: true,
-			Params:   []apis.InParam{ParamsLang, ParamsGetFormActions},
+
+		params = append(params, autoIncCols...)
+		for i := range rGet.Params {
+			rGet.Params[i].PartReq = params
 		}
+		rGet.Fnc = TableSelect(preRoute, table, params)
+		routes[preRoute+tableName+"/get"] = rGet
 		// report := NewReportJSON(table)
 		// routes[preRoute+tableName+"/report"] = report.getRoute()
 		// routes[preRoute+tableName+"/data"] = &apis.ApiRoute{

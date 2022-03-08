@@ -41,7 +41,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		apis.Ctx = make(map[string]interface{}, 0)
 	}
 
-	apis.Ctx["ACC_VERSION"] = httpgoVersion
+	apis.Ctx[ApiVersion] = httpgoVersion
 
 	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
 	// 	uri := header.RequestURI()

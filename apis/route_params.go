@@ -6,6 +6,7 @@ package apis
 
 import (
 	"fmt"
+	"go/types"
 	"reflect"
 	"runtime"
 	"strings"
@@ -32,6 +33,28 @@ type InParam struct {
 
 func (param *InParam) isPartReq() bool {
 	return len(param.PartReq) > 0
+}
+
+// Check params of ctx
+func (param *InParam) Check(ctx *fasthttp.RequestCtx, badParams map[string]string) {
+	value := ctx.UserValue(param.Name)
+	if value == nil {
+		// param is part of group required params
+		if param.presentOtherRegParam(ctx) {
+			return
+		}
+
+		value = param.defaultValueOfParams(ctx, badParams)
+		//  not present required param
+		if value != nil {
+			ctx.SetUserValue(param.Name, value)
+		} else if param.Req {
+			badParams[param.Name] = PARAM_REQUIRED
+		}
+	} else if name, val := param.isHasIncompatibleParams(ctx); name > "" {
+		// has present param which not compatible with 'param'
+		badParams[param.Name] = fmt.Sprintf("incompatible params: %s=%s & %s=%s", param.Name, value, name, val)
+	}
 }
 
 // found params incompatible with 'param'
@@ -103,29 +126,46 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
-	FirstFieldToJSON(stream, "Name", param.Name)
-	AddFieldToJSON(stream, "Descriptor", param.Desc)
+	FirstFieldToJSON(stream, "name", param.Name)
+	AddFieldToJSON(stream, "description", param.Desc)
 
 	if param.Type != nil {
 		if t, ok := param.Type.(jsoniter.ValEncoder); ok {
 			stream.WriteMore()
 			t.Encode(unsafe.Pointer(&t), stream)
 		} else {
-			AddFieldToJSON(stream, "Type", param.Type.String())
+			t, ok := (param.Type).(TypeInParam)
+			if ok {
+				AddFieldToJSON(stream, "format", param.Type.String())
+				switch {
+				case t.BasicKind > types.Bool && t.BasicKind < types.Float32:
+					AddFieldToJSON(stream, "type", "integer")
+				case t.BasicKind == types.String:
+					AddFieldToJSON(stream, "type", "string")
+				case t.BasicKind > types.UnsafePointer:
+					AddFieldToJSON(stream, "type", "untyped")
+				default:
+					AddFieldToJSON(stream, "type", param.Type.String())
+				}
+			} else {
+				AddFieldToJSON(stream, "format", param.Type.String())
+				AddFieldToJSON(stream, "type", param.Type.String())
+
+			}
 		}
 	}
 
 	if param.Req {
 		if len(param.PartReq) > 0 {
 			s := strings.Join(param.PartReq, ", ")
-			AddFieldToJSON(stream, "Required", "one of {"+s+" and "+param.Name+"} is required")
+			AddFieldToJSON(stream, "required if one of", "{"+s+" and "+param.Name+"}")
 		} else {
-			AddObjectToJSON(stream, "Required", true)
+			AddObjectToJSON(stream, "required", true)
 		}
 	}
 
 	if param.DefValue != nil {
-		AddObjectToJSON(stream, "Default", param.defaultValueOfParams(nil, nil))
+		AddObjectToJSON(stream, "default", param.defaultValueOfParams(nil, nil))
 	}
 
 	if len(param.IncompatibleWiths) > 0 {

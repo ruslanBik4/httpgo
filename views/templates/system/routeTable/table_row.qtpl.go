@@ -117,7 +117,7 @@ function getElementsByText(str, name) {
 //line views/templates/system/routeTable/table_row.qtpl:66
 			qw422016.N().D(i)
 //line views/templates/system/routeTable/table_row.qtpl:66
-			qw422016.N().S(`');">`)
+			qw422016.N().S(`');"/>`)
 //line views/templates/system/routeTable/table_row.qtpl:67
 		}
 //line views/templates/system/routeTable/table_row.qtpl:67

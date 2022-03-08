@@ -11,23 +11,15 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func TableSelect(preRoute string, table dbEngine.Table, columns, priColumns []string) apis.ApiRouteHandler {
+func TableSelect(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-		args := make([]interface{}, 0)
-		colNames := make([]string, 0)
-		badParams := make(map[string]string, 0)
-		for _, key := range priColumns {
+		args := make([]interface{}, 0, len(params))
+		colNames := make([]string, 0, len(params))
+		for _, key := range params {
 			if v := ctx.UserValue(key); v == nil {
-				badParams[key] = "required params"
-			} else {
 				args = append(args, v)
 				colNames = append(colNames, key)
 			}
-		}
-
-		if len(badParams) > 0 {
-			return badParams, apis.ErrWrongParamsList
-
 		}
 
 		res := make([]map[string]interface{}, 0)
