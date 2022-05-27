@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// инициализация и запуск веб-сервера, подключение основных хандлеров
+// Initialization and starting of web-server, main handlers attachment
 package main
 
 import (
@@ -20,18 +20,17 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/SargtLa/telegrambot"
 	"github.com/pkg/errors"
-	. "github.com/valyala/fasthttp"
-
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
+	. "github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/httpGo"
 	"github.com/ruslanBik4/httpgo/models/db"
 	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
-	"github.com/ruslanBik4/httpgo/models/telegrambot"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
@@ -206,7 +205,7 @@ func handlerComponents(ctx *RequestCtx) {
 
 }
 
-// считываем файлы типа css/js etc в память и потом отдаем из нее
+// setCache reads files of css/js type to memory for further serving
 func setCache(path string, data []byte) {
 	cacheMu.Lock()
 	cache[path] = data
@@ -276,7 +275,7 @@ func handlerMenu(ctx *RequestCtx) (interface{}, error) {
 	idx := strings.LastIndex(ctx.URI().String(), "menu/") + 5
 	idMenu := ctx.URI().String()[idx : len(ctx.URI().String())-1]
 
-	//отдаем полный список меню для фронтового фреймворка
+	// returning full menu list for frontend framework
 	if idMenu == "all" {
 		qBuilder := qb.CreateEmpty()
 		qBuilder.AddTable("", "menu_items")
@@ -290,7 +289,7 @@ func handlerMenu(ctx *RequestCtx) (interface{}, error) {
 	}
 
 	var catalog, content string
-	// отрисовка меню страницы
+	// menu creation for page
 	if menu.GetMenu(idMenu) > 0 {
 
 		p := &layouts.MenuOwnerBody{Title: idMenu}
@@ -309,14 +308,14 @@ func handlerMenu(ctx *RequestCtx) (interface{}, error) {
 		}
 		catalog = p.MenuOwner()
 	}
-	//для отрисовки контента страницы
+	// for content serving
 	if menu.Self.Link > "" {
 		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
 	}
 	return catalog + content, nil
 }
 
-// считываю части из папки
+// cacheWalk reads all the content from folder
 func cacheWalk(path string, info os.FileInfo, err error) error {
 	if (err != nil) || ((info != nil) && info.IsDir()) {
 		//log.Println(err, info)
