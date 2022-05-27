@@ -16,7 +16,7 @@ func TableSelect(preRoute string, table dbEngine.Table, params []string) apis.Ap
 		args := make([]interface{}, 0, len(params))
 		colNames := make([]string, 0, len(params))
 		for _, key := range params {
-			if v := ctx.UserValue(key); v == nil {
+			if v := ctx.UserValue(key); v != nil {
 				args = append(args, v)
 				colNames = append(colNames, key)
 			}

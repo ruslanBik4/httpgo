@@ -57,8 +57,8 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 			Desc:      "update table '" + tableName + "' data",
 			Method:    apis.POST,
 			Multipart: true,
-			//todo: resolve on future
-			//DTO:         dtoField{},
+			// todo: resolve on future
+			// DTO:         dtoField{},
 			FncAuth:     nil,
 			TestFncAuth: nil,
 			NeedAuth:    true,
@@ -73,7 +73,7 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 			Method:    apis.POST,
 			Multipart: true,
 			NeedAuth:  true,
-			//DTO:       dtoField{},
+			// DTO:       dtoField{},
 			Params: inParams,
 		}
 
@@ -173,6 +173,70 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		// 		},
 		// 	},
 		// }
+	}
+
+	return routes
+}
+
+func GETRoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
+	DB, ok := ctx.Value("DB").(*DB)
+	if !ok {
+		logs.ErrorLog(ErrDBNotFound, "not in context")
+		return nil
+	}
+
+	pathVersion, ok := ctx.Value(PathVersion).(string)
+	if !ok {
+		pathVersion = PathVersion
+	}
+
+	preRoute := pathVersion + "/table/"
+	routes := make(apis.ApiRoutes, 0)
+	inParams := []apis.InParam{ParamsLang, ParamsGetFormActions}
+
+	for tableName, table := range DB.Tables {
+		if len(tables) > 0 {
+			for _, name := range tables {
+				if name == tableName {
+					goto createRoutes
+				}
+			}
+		}
+
+	createRoutes:
+		rGet := &apis.ApiRoute{
+			Desc:     "get data from table '" + tableName + "'",
+			Method:   apis.GET,
+			NeedAuth: true,
+			Params:   inParams,
+		}
+
+		params := make([]string, 0)
+		autoIncCols := make([]string, 0)
+		priColumns := make([]string, 0)
+		basicParams := []apis.InParam{
+			ParamsHTML,
+			ParamsLang,
+		}
+
+		for _, col := range table.Columns() {
+
+			p := newDbApiParams(col)
+
+			if col.Primary() || (col.Name() == "id") {
+				priColumns = append(priColumns, p.Name)
+				pForm := p
+				pForm.Req = false
+				basicParams = append(basicParams, pForm.InParam)
+			}
+		}
+
+		params = append(params, autoIncCols...)
+		for i := range rGet.Params {
+			rGet.Params[i].PartReq = params
+		}
+		rGet.Fnc = TableSelect(preRoute, table, params)
+		routes[preRoute+tableName+"/get"] = rGet
 	}
 
 	return routes
