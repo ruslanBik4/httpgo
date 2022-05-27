@@ -220,6 +220,8 @@ func GETRoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		basicParams := []apis.InParam{
 			ParamsHTML,
 			ParamsLang,
+			ParamsLimit,
+			ParamsOffset,
 		}
 
 		for _, col := range table.Columns() {
@@ -238,8 +240,8 @@ func GETRoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		for i := range rGet.Params {
 			rGet.Params[i].PartReq = params
 		}
-		rGet.Fnc = TableSelect(preRoute, table, params)
-		routes[preRoute+tableName+"/get"] = rGet
+		rGet.Fnc = TableSelect(table, params)
+		routes[preRoute+tableName+"/get/"] = rGet
 	}
 
 	return routes
