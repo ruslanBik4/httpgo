@@ -178,6 +178,7 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 	return routes
 }
 
+// GETRoutesFromDB for tables that need get endpoints only
 func GETRoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 	DB, ok := ctx.Value("DB").(*DB)
 	if !ok {
