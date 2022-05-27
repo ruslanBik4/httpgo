@@ -711,9 +711,16 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if route.Multipart {
 		summary += ", multipart"
 	}
+	if route.NeedAuth {
+		summary += ", only auth access"
+	}
 	if route.OnlyAdmin {
 		summary += ", only admin access"
 	}
+	if route.OnlyLocal {
+		summary += ", only local request"
+	}
+
 	AddFieldToJSON(stream, "summary", summary)
 
 	AddObjectToJSON(stream, "parameters", params)
@@ -730,6 +737,11 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		tags = append(tags, "CRUD")
 	} else if strings.Contains(route.Desc, "order") {
 		tags = append(tags, "order")
+	} else {
+		parts := strings.Split(route.Desc, "#")
+		if len(parts) > 2 {
+			tags = append(tags, parts[1])
+		}
 	}
 
 	AddObjectToJSON(stream, "tags", tags)

@@ -11,12 +11,12 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func TableSelect(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
+func TableSelect(table dbEngine.Table, params []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		args := make([]interface{}, 0, len(params))
 		colNames := make([]string, 0, len(params))
 		for _, key := range params {
-			if v := ctx.UserValue(key); v == nil {
+			if v := ctx.UserValue(key); v != nil {
 				args = append(args, v)
 				colNames = append(colNames, key)
 			}
@@ -39,6 +39,11 @@ func TableSelect(preRoute string, table dbEngine.Table, params []string) apis.Ap
 		)
 		if err != nil {
 			return nil, errors.Wrap(err, "")
+		}
+
+		if len(res) == 0 {
+			ctx.SetStatusCode(fasthttp.StatusNoContent)
+			return nil, nil
 		}
 
 		return res, nil

@@ -90,6 +90,8 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		basicParams := []apis.InParam{
 			ParamsHTML,
 			ParamsLang,
+			ParamsLimit,
+			ParamsOffset,
 		}
 
 		for _, col := range table.Columns() {
@@ -140,7 +142,7 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		for i := range rGet.Params {
 			rGet.Params[i].PartReq = params
 		}
-		rGet.Fnc = TableSelect(preRoute, table, params)
+		rGet.Fnc = TableSelect(table, params)
 		routes[preRoute+tableName+"/get"] = rGet
 		// report := NewReportJSON(table)
 		// routes[preRoute+tableName+"/report"] = report.getRoute()
@@ -155,7 +157,7 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		// routes[preRoute+tableName+"/view"] = &apis.ApiRoute{
 		// 	Desc:   "view data of table " + tableName,
 		// 	Fnc:    TableView(preRoute, DB, table, patternList, priColumns),
-		// 	Params: append(basicParams, ParamsCounter),
+		// 	Params: append(basicParams, ParamsLimit),
 		// }
 
 		// routes[preRoute+tableName+"/"] = &apis.ApiRoute{

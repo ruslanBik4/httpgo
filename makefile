@@ -13,14 +13,17 @@ BRANCH=`git branch --show-current`
 # Setup the -ldflags option for go build here, interpolate the variable values
 LDFLAGS=-ldflags "-s -w -X main.Version=${VERSION} -X main.Build=${BUILD} -X main.Branch=${BRANCH}"
 
-define minor
+define increment
 	$(eval v := $(shell git describe --tags --abbrev=0 | sed -Ee 's/^v|-.*//'))
-	$(eval n := $(shell echo $(v) | awk -F. -v OFS=. -v f=$1 '{ $$f++ } 1' | awk -F. '{print "v" $$1 "." $$2 "." 0 }'))
-	@git tag -a $(n) -m "Bumped to version $(n)"
+    $(eval n := $(shell echo $(v) | awk -F. -v OFS=. -v f=$1 '{ $$f++ } 1'))
+    @git tag -a v$(n) -m "Bumped to version $(n), $(m)"
+	@git push
+	@git push --tags
 	@echo "Updating version $(v) to $(n)"
 endef
+
 update:
-	$(call minor,3,minor)
+	$(call increment,3,path)
 # Builds the project
 run:
 	go generate

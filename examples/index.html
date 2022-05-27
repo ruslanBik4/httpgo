@@ -1,22 +1,19 @@
-
-
-{% func SwaggerPage() %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta
-            name="description"
             content="SwaggerIU"
+            name="description"
     />
     <title>SwaggerUI</title>
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" />
+    <link href="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui.css" rel="stylesheet"/>
 </head>
 <style>
-.selectelem {
-    border-radius:  10px;
-}
+    .selectelem {
+        border-radius: 10px;
+    }
 </style>
 <script>
     var findElem;
@@ -39,7 +36,7 @@
         }
 
         var lenElem = checkAndScroll('button');
-        if (lenElem === 0 ) {
+        if (lenElem === 0) {
             lenElem = checkAndScroll('h3');
 
             if (lenElem === 0) {
@@ -90,16 +87,16 @@
 <body>
 <header style="position: fixed; top: 1px; left:50%; width: 50%; background-color: white; border: aqua; border-width: thick; border-radius: 1px; border-style: dashed; z-index: 100;">
     <span>Search...</span>
-    <input id="inp_search" type="search" onchange="getElementsByText(this.value);" autofocus/>
+    <input autofocus onchange="getElementsByText(this.value);" type="search"/>
     <span>
-        <button id="findPrev" onclick="return PrevElem();" hidden=true> < </button>
+        <button hidden=true id="findPrev" onclick="return PrevElem();"> < </button>
+        <button hidden=true id="findNext" onclick="return NextElem();"> > </button>
         <span id="curElem"></span>
-        <button id="findNext" onclick="return NextElem();" hidden=true> > </button>
         <span id="lenElem"></span>
    </span>
 </header>
 <div id="swagger-ui" style="margin-top: 50px;"></div>
-<script src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js" crossorigin></script>
+<script crossorigin src="https://unpkg.com/swagger-ui-dist@4.5.0/swagger-ui-bundle.js"></script>
 <script>
     window.onload = () => {
         window.ui = SwaggerUIBundle({
@@ -107,8 +104,7 @@
             dom_id: '#swagger-ui',
         });
     };
-    document.querySelector('#inp_search').focus();
+    document.querySelector('input').focus();
 </script>
 </body>
 </html>
-{% endfunc %}

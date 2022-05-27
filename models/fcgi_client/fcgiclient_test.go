@@ -224,7 +224,7 @@ func Test(t *testing.T) {
 	data := ""
 	length := 0
 	for i := 0x00; i < 0xff; i++ {
-		v0 := strings.Repeat(string(i), 256)
+		v0 := strings.Repeat(strconv.Itoa(i), 256)
 		h := md5.New()
 		io.WriteString(h, v0)
 		k0 := fmt.Sprintf("%x", h.Sum(nil))
@@ -245,7 +245,7 @@ func Test(t *testing.T) {
 	log.Println("test:", "post forms (256 keys, more than 1MB)")
 	p1 := make(map[string]string, 1)
 	for i := 0x00; i < 0xff; i++ {
-		v0 := strings.Repeat(string(i), 4096)
+		v0 := strings.Repeat(strconv.Itoa(i), 4096)
 		h := md5.New()
 		io.WriteString(h, v0)
 		k0 := fmt.Sprintf("%x", h.Sum(nil))

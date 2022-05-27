@@ -84,7 +84,7 @@ func TableInsert(preRoute string, DB *dbEngine.DB, table dbEngine.Table, params 
 			return CreateErrResult(err)
 		}
 
-		return createResult(ctx, id, msg, colSel, preRoute+table.Name())
+		return RenderCreatedResult(ctx, id, msg, colSel, preRoute+table.Name())
 	}
 }
 

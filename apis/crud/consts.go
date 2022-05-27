@@ -29,12 +29,18 @@ var (
 		Req:  false,
 		Type: apis.NewTypeInParam(types.Bool),
 	}
-	ParamsCounter = apis.InParam{
-		Name:     "counter",
-		Desc:     "max count of results",
-		DefValue: 10,
+	ParamsLimit = apis.InParam{
+		Name:     "limit",
+		Desc:     "max count of queries results",
+		DefValue: 1000,
 		Req:      true,
 		Type:     apis.NewTypeInParam(types.Int),
+	}
+	ParamsOffset = apis.InParam{
+		Name: "offset",
+		Desc: "offset of queries results",
+		Req:  false,
+		Type: apis.NewTypeInParam(types.Int),
 	}
 	ParamsHTML = apis.InParam{
 		Name: "html",

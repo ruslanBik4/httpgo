@@ -51,7 +51,7 @@ func CreateErrResult(err error) (interface{}, error) {
 	return nil, err
 }
 
-func createResult(ctx *fasthttp.RequestCtx, id int64, msg string, colSel []string, url string) (interface{}, error) {
+func RenderCreatedResult(ctx *fasthttp.RequestCtx, id int64, msg string, colSel []string, url string) (interface{}, error) {
 	msg = "Success saving: " + strings.Join(colSel, ", ") + " values:\n" + msg
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
