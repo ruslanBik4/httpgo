@@ -406,13 +406,6 @@ func WriteStruct(value reflect.Value, stream *jsoniter.Stream, title string) int
 	return NewSwaggerObject(propers, title)
 }
 
-func writeTag(tag reflect.StructTag) string {
-	if tag > "" {
-		return " `" + string(tag) + "`"
-	}
-	return ""
-}
-
 func AddFieldToJSON(stream *jsoniter.Stream, field string, s string) {
 	stream.WriteMore()
 	FirstFieldToJSON(stream, field, s)
