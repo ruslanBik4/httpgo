@@ -103,7 +103,7 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams m
 
 			val, err := param.Type.ConvertValue(ctx, value)
 			if err != nil {
-				badParams[param.Name] = "wrong type, except " + param.Type.String() + err.Error()
+				badParams[param.Name] = "wrong type, expected " + param.Type.String() + err.Error()
 				logs.ErrorLog(err, "ConvertValue")
 				return ctx.UserValue(string(def))
 			}

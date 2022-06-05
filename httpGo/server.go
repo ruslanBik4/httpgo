@@ -238,14 +238,16 @@ func filterIPs(curIPs []string, ips []string) []string {
 
 // Run starting http or https server according to secure
 // certFile and keyFile are paths to TLS certificate and key files for https server
-func (a *HttpGo) Run(secure bool, certFile, keyFile string) error {
+func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
+
+	h.apis.Https = secure
 	//todo change patameters type on
-	go a.listenOnShutdown()
+	go h.listenOnShutdown()
 	if secure {
-		return a.mainServer.ServeTLS(a.listener, certFile, keyFile)
+		return h.mainServer.ServeTLS(h.listener, certFile, keyFile)
 	}
 
-	return a.mainServer.Serve(a.listener)
+	return h.mainServer.Serve(h.listener)
 }
 
 // listenOnShutdown implement correct shutdown server

@@ -39,7 +39,7 @@ var methodNames = []string{
 	"CONNECT",
 	"OPTIONS",
 	"TRACE",
-	"UNKNOW",
+	"UNKNOWN",
 }
 
 func methodFromName(nameMethod string) tMethod {
@@ -62,3 +62,10 @@ const (
 
 const testRouteSuffix = "_test"
 const PARAM_REQUIRED = "is required parameter"
+
+var (
+	schemas = map[bool]string{
+		false: "http",
+		true:  "https",
+	}
+)

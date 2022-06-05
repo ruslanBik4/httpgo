@@ -8,19 +8,15 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/jackc/pgx/v4"
+	"github.com/pkg/errors"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/valyala/fasthttp"
 	"path"
 	"sort"
 	"strings"
 	"sync"
 	"time"
-	"unsafe"
-
-	"github.com/jackc/pgx/v4"
-	"github.com/json-iterator/go"
-	"github.com/pkg/errors"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/logs"
 
@@ -70,6 +66,7 @@ type Apis struct {
 	fncAuth FncAuth
 	// list of endpoints
 	routes MapRoutes
+	Https  bool
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
@@ -82,32 +79,7 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
 		fncAuth: fncAuth,
 	}
 
-	apisRoutes := ApiRoutes{
-		"/apis": {
-			Desc:     "full routers list",
-			Fnc:      apis.renderApis,
-			WithCors: true,
-			Params: []InParam{
-				{
-					Name: "json",
-				},
-			},
-		},
-		"/swagger.io": {
-			Desc: "Scale Your API Design with Confidence",
-			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-				views.RenderHTMLPage(ctx, pages.WriteSwaggerPage)
-				return nil, nil
-			},
-			WithCors: true,
-		},
-		"/onboarding": {
-			Desc:      "onboarding routes from local services into APIS",
-			Fnc:       apis.onboarding,
-			OnlyLocal: true,
-			Params:    onboardParams,
-		},
-	}
+	apisRoutes := apis.DefaultRoutes()
 	apis.AddRoutes(apisRoutes)
 
 	return apis
@@ -430,54 +402,4 @@ func isNotLocalRequest(ctx *fasthttp.RequestCtx) bool {
 	host := string(ctx.Request.Header.Host())
 
 	return !strings.Contains(host, "127.0.0.1") && !strings.Contains(host, "localhost")
-}
-
-// apiRouteToJSON produces a human-friendly description of Apis.
-// Based on real data of the executable application, does not require additional documentation.
-func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-	apis := *(*Apis)(ptr)
-	stream.WriteObjectStart()
-	defer stream.WriteObjectEnd()
-
-	defer func() {
-		e := recover()
-		err, ok := e.(error)
-		if ok {
-			logs.ErrorStack(err)
-		}
-	}()
-
-	FirstFieldToJSON(stream, "swagger", "2.0")
-	stream.WriteMore()
-
-	stream.WriteObjectField("info")
-	stream.WriteObjectStart()
-	FirstFieldToJSON(stream, "descriptor", "API Specification, include endpoints description, ect")
-	version, ok := apis.Ctx.Value(ApiVersion).(string)
-	if ok {
-		AddFieldToJSON(stream, "version", version)
-	}
-	AddFieldToJSON(stream, "title", "httpgo")
-	stream.WriteMore()
-
-	stream.WriteObjectField("license")
-	stream.WriteObjectStart()
-	FirstFieldToJSON(stream, "name", "Apache 2.0")
-	AddFieldToJSON(stream, "url", "http://www.apache.org/licenses/LICENSE-2.0.html")
-
-	stream.WriteObjectEnd()
-
-	if apis.fncAuth != nil {
-		AddObjectToJSON(stream, "auth", apis.fncAuth.String())
-	}
-	stream.WriteObjectEnd()
-
-	AddObjectToJSON(stream, "schemes", []string{"http", "https"})
-	AddObjectToJSON(stream, "paths", apis.routes)
-}
-
-func init() {
-	jsoniter.RegisterTypeEncoderFunc("apis.Apis", apisToJSON, func(pointer unsafe.Pointer) bool {
-		return false
-	})
 }
