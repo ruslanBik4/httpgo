@@ -71,3 +71,11 @@ const (
 	UsersPrivilegiesEdit = "edit"
 	ActionsPropertyName  = "actions"
 )
+
+type DbRouteType int
+
+const (
+	DbRouteType_Insert DbRouteType = iota
+	DbRouteType_Update
+	DbRouteType_Select
+)

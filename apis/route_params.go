@@ -35,6 +35,13 @@ func (param *InParam) isPartReq() bool {
 	return len(param.PartReq) > 0
 }
 
+func (param *InParam) WithNotRequired() *InParam {
+	ret := new(InParam)
+	*ret = *param
+	ret.Req = false
+	return ret
+}
+
 // Check params of ctx
 func (param *InParam) Check(ctx *fasthttp.RequestCtx, badParams map[string]string) {
 	value := ctx.UserValue(param.Name)
@@ -119,7 +126,7 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams m
 }
 
 // inParamToJSON produces a human-friendly description of Apis.
-//Based on real data of the executable application, does not require additional documentation.
+// Based on real data of the executable application, does not require additional documentation.
 func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	// todo: add description of the test-based return data
 	param := (*InParam)(ptr)

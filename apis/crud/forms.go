@@ -22,16 +22,11 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 
-func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
+func RoutesFromDB(ctx context.Context, routeTypes []DbRouteType, tables ...string) apis.ApiRoutes {
 	DB, ok := ctx.Value("DB").(*DB)
 	if !ok {
 		logs.ErrorLog(ErrDBNotFound, "not in context")
 		return nil
-	}
-
-	patternList, ok := DB.Tables["patterns_list"]
-	if !ok {
-		logs.ErrorLog(ErrNotFoundTable{Table: "patterns_list"}, "it wiil be problem on validations fields")
 	}
 
 	pathVersion, ok := ctx.Value(PathVersion).(string)
@@ -47,209 +42,120 @@ func RoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
 		if len(tables) > 0 {
 			for _, name := range tables {
 				if name == tableName {
-					goto createRoutes
+					tableRoutes := createRoutesForTable(DB, tableName, preRoute, table, routeTypes, inParams)
+					for path, route := range tableRoutes {
+						routes[path] = route
+					}
 				}
 			}
 		}
+	}
 
-	createRoutes:
-		rUpd := &apis.ApiRoute{
-			Desc:      "update table '" + tableName + "' data",
-			Method:    apis.POST,
-			Multipart: true,
-			// todo: resolve on future
-			// DTO:         dtoField{},
-			FncAuth:     nil,
-			TestFncAuth: nil,
-			NeedAuth:    true,
-			OnlyAdmin:   false,
-			OnlyLocal:   false,
-			Params:      inParams,
-			Resp:        nil,
-		}
+	return routes
+}
 
-		rIns := &apis.ApiRoute{
-			Desc:      "insert into table '" + tableName + "' data",
-			Method:    apis.POST,
-			Multipart: true,
-			NeedAuth:  true,
-			// DTO:       dtoField{},
-			Params: inParams,
-		}
+func createRoutesForTable(db *DB, tableName, preRoute string, table Table, routeTypes []DbRouteType, defaultParams []apis.InParam) apis.ApiRoutes {
+	var (
+		ret          = make(apis.ApiRoutes, 0)
+		insertParams = append(make([]apis.InParam, 0), defaultParams...)
+		updateParams = append(make([]apis.InParam, 0), defaultParams...)
+		selectParams = append(make([]apis.InParam, 0), defaultParams...)
 
-		rGet := &apis.ApiRoute{
-			Desc:     "get data from table '" + tableName + "'",
-			Method:   apis.GET,
-			NeedAuth: true,
-			Params:   inParams,
-		}
-
-		params := make([]string, 0)
-		autoIncCols := make([]string, 0)
-		priColumns := make([]string, 0)
-		basicParams := []apis.InParam{
+		params      = make([]string, 0)
+		autoIncCols = make([]string, 0)
+		priColumns  = make([]string, 0)
+		basicParams = []apis.InParam{
 			ParamsHTML,
 			ParamsLang,
 			ParamsLimit,
 			ParamsOffset,
 		}
 
-		for _, col := range table.Columns() {
+		isInsertOrUpdate = false
+	)
 
-			p := newDbApiParams(col)
+	for _, col := range table.Columns() {
+		p := newDbApiParams(col)
+		updateParams = append(updateParams, p.InParam)
+		selectParams = append(selectParams, *p.InParam.WithNotRequired())
 
-			rUpd.Params = append(rUpd.Params, p.InParam)
-			i := p.InParam
-			i.Req = false
-			rGet.Params = append(rGet.Params, i)
-
-			if !col.AutoIncrement() {
-				p.Req = col.Required()
-				p.DefValue = col.Default()
-				rIns.Params = append(rIns.Params, p.InParam)
-				params = append(params, p.Name)
-			} else {
-				autoIncCols = append(autoIncCols, p.Name)
-			}
-
-			if col.Primary() || (col.Name() == "id") {
-				priColumns = append(priColumns, p.Name)
-				pForm := p
-				pForm.Req = false
-				basicParams = append(basicParams, pForm.InParam)
-			}
+		if !col.AutoIncrement() {
+			p.Req = col.Required()
+			p.DefValue = col.Default()
+			insertParams = append(insertParams, p.InParam)
+			params = append(params, p.Name)
+		} else {
+			autoIncCols = append(autoIncCols, p.Name)
 		}
 
-		// if !strings.HasPrefix(table.Name(), "form") {
+		if col.Primary() || (col.Name() == "id") {
+			priColumns = append(priColumns, p.Name)
+			basicParams = append(basicParams, *p.InParam.WithNotRequired())
+		}
+	}
 
-		pathForm := preRoute + tableName + "/form"
+	for _, routeType := range routeTypes {
+		switch routeType {
+		case DbRouteType_Insert:
+			isInsertOrUpdate = true
+			ret[preRoute+tableName+"/put"] = &apis.ApiRoute{
+				Desc:      "insert into table '" + tableName + "' data",
+				Method:    apis.POST,
+				Multipart: true,
+				NeedAuth:  true,
+				Fnc:       TableInsert(preRoute, db, table, params),
+				Params:    insertParams,
+			}
+		case DbRouteType_Update:
+			isInsertOrUpdate = true
+			ret[preRoute+tableName+"/update"] = &apis.ApiRoute{
+				Desc:        "update table '" + tableName + "' data",
+				Method:      apis.POST,
+				Multipart:   true,
+				Fnc:         TableUpdate(preRoute, table, params, priColumns),
+				FncAuth:     nil,
+				TestFncAuth: nil,
+				NeedAuth:    true,
+				OnlyAdmin:   false,
+				OnlyLocal:   false,
+				Params:      updateParams,
+				Resp:        nil,
+			}
+		case DbRouteType_Select:
+			newSelectParams := append(params, autoIncCols...)
+			for i := range selectParams {
+				selectParams[i].PartReq = params
+			}
 
-		routes[pathForm] = &apis.ApiRoute{
+			ret[preRoute+tableName+"/get"] = &apis.ApiRoute{
+				Desc:     "get data from table '" + tableName + "'",
+				Method:   apis.GET,
+				NeedAuth: true,
+				Params:   selectParams,
+				Fnc:      TableSelect(table, newSelectParams),
+			}
+		}
+	}
+
+	if isInsertOrUpdate {
+		ret[preRoute+tableName+"/form"] = &apis.ApiRoute{
 			Desc:     "get form for insert/update data into " + tableName,
-			Fnc:      TableForm(DB, preRoute, table, patternList, priColumns),
+			Fnc:      TableForm(db, preRoute, table, priColumns),
 			Method:   apis.POST,
 			NeedAuth: true,
 			Params:   basicParams,
 		}
-
-		rUpd.Fnc = TableUpdate(preRoute, table, params, priColumns)
-		routes[preRoute+tableName+"/update"] = rUpd
-
-		rIns.Fnc = TableInsert(preRoute, DB, table, params)
-		routes[preRoute+tableName+"/put"] = rIns
-
-		params = append(params, autoIncCols...)
-		for i := range rGet.Params {
-			rGet.Params[i].PartReq = params
-		}
-		rGet.Fnc = TableSelect(table, params)
-		routes[preRoute+tableName+"/get"] = rGet
-		// report := NewReportJSON(table)
-		// routes[preRoute+tableName+"/report"] = report.getRoute()
-		// routes[preRoute+tableName+"/data"] = &apis.ApiRoute{
-		// 	Desc:   "from  table '" + tableName + "' data",
-		// 	Params: basicParams,
-		// 	Fnc:    TableData(DB, table, priColumns),
-		// }
-		//
-		// // }
-		//
-		// routes[preRoute+tableName+"/view"] = &apis.ApiRoute{
-		// 	Desc:   "view data of table " + tableName,
-		// 	Fnc:    TableView(preRoute, DB, table, patternList, priColumns),
-		// 	Params: append(basicParams, ParamsLimit),
-		// }
-
-		// routes[preRoute+tableName+"/"] = &apis.ApiRoute{
-		// 	Desc: "show row of table according to ID" + tableName,
-		// 	// NeedAuth: true,
-		// 	Fnc: TableRow(table),
-		// 	Params: []apis.InParam{
-		// 		ParamsLang,
-		// 		{
-		// 			Name:     "id",
-		// 			DefValue: apis.ApisValues(apis.ChildRoutePath),
-		// 			Desc:     "id of photos record for download",
-		// 			Req:      false,
-		// 			Type:     apis.NewTypeInParam(types.Int32),
-		// 		},
-		// 	},
-		// }
 	}
 
-	return routes
+	return ret
 }
 
-// GETRoutesFromDB for tables that need get endpoints only
-func GETRoutesFromDB(ctx context.Context, tables ...string) apis.ApiRoutes {
-	DB, ok := ctx.Value("DB").(*DB)
-	if !ok {
-		logs.ErrorLog(ErrDBNotFound, "not in context")
-		return nil
-	}
-
-	pathVersion, ok := ctx.Value(PathVersion).(string)
-	if !ok {
-		pathVersion = PathVersion
-	}
-
-	preRoute := pathVersion + "/table/"
-	routes := make(apis.ApiRoutes, 0)
-	inParams := []apis.InParam{ParamsLang, ParamsGetFormActions}
-
-	for tableName, table := range DB.Tables {
-		if len(tables) > 0 {
-			for _, name := range tables {
-				if name == tableName {
-					goto createRoutes
-				}
-			}
-		}
-
-	createRoutes:
-		rGet := &apis.ApiRoute{
-			Desc:     "get data from table '" + tableName + "'",
-			Method:   apis.GET,
-			NeedAuth: true,
-			Params:   inParams,
-		}
-
-		params := make([]string, 0)
-		autoIncCols := make([]string, 0)
-		priColumns := make([]string, 0)
-		basicParams := []apis.InParam{
-			ParamsHTML,
-			ParamsLang,
-			ParamsLimit,
-			ParamsOffset,
-		}
-
-		for _, col := range table.Columns() {
-
-			p := newDbApiParams(col)
-
-			if col.Primary() || (col.Name() == "id") {
-				priColumns = append(priColumns, p.Name)
-				pForm := p
-				pForm.Req = false
-				basicParams = append(basicParams, pForm.InParam)
-			}
-		}
-
-		params = append(params, autoIncCols...)
-		for i := range rGet.Params {
-			rGet.Params[i].PartReq = params
-		}
-		rGet.Fnc = TableSelect(table, params)
-		routes[preRoute+tableName+"/get/"] = rGet
-	}
-
-	return routes
-}
-
-func TableForm(DB *DB, preRoute string, table, patternList Table, priColumns []string) apis.ApiRouteHandler {
+func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-
+		patternList, ok := DB.Tables["patterns_list"]
+		if !ok {
+			logs.ErrorLog(ErrNotFoundTable{Table: "patterns_list"}, "it can be a problem on validations fields")
+		}
 		// we must copy colsTable into local array
 		f := forms.FormField{
 			Title:       table.Comment(),
@@ -632,3 +538,37 @@ func BPCharArrayToStrings(src []pgtype.BPChar) []string {
 
 	return str
 }
+
+// TODO: delete if useless
+// commented code from cruds function
+// report := NewReportJSON(table)
+// routes[preRoute+tableName+"/report"] = report.getRoute()
+// routes[preRoute+tableName+"/data"] = &apis.ApiRoute{
+// 	Desc:   "from  table '" + tableName + "' data",
+// 	Params: basicParams,
+// 	Fnc:    TableData(DB, table, priColumns),
+// }
+//
+// // }
+//
+// routes[preRoute+tableName+"/view"] = &apis.ApiRoute{
+// 	Desc:   "view data of table " + tableName,
+// 	Fnc:    TableView(preRoute, DB, table, patternList, priColumns),
+// 	Params: append(basicParams, ParamsLimit),
+// }
+
+// routes[preRoute+tableName+"/"] = &apis.ApiRoute{
+// 	Desc: "show row of table according to ID" + tableName,
+// 	// NeedAuth: true,
+// 	Fnc: TableRow(table),
+// 	Params: []apis.InParam{
+// 		ParamsLang,
+// 		{
+// 			Name:     "id",
+// 			DefValue: apis.ApisValues(apis.ChildRoutePath),
+// 			Desc:     "id of photos record for download",
+// 			Req:      false,
+// 			Type:     apis.NewTypeInParam(types.Int32),
+// 		},
+// 	},
+// }
