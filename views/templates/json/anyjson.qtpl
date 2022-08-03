@@ -55,7 +55,7 @@ write string with escaping
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа
-{% func Element(value interface{}) %}
+{% func Element(value any) %}
     {% switch vv := value.(type) %}
       {% case string %} {%= String(vv) %}
       {% case []byte %} {%= ByteAsString(vv) %}
@@ -68,75 +68,46 @@ write string with escaping
       {% case float64 %} {%f vv %}
       {% case nil %}  null
       {% case []int32 %}
-            {%= Int32Dimension(vv) %}
+            {%= Slice(vv) %}
       {% case []int64 %}
-            {%= Int64Dimension(vv) %}
+            {%= Slice(vv) %}
       {% case []float32 %}
-            {%= Float32Dimension(vv) %}
+            {%= Slice(vv) %}
       {% case []float64 %}
-            {%= Float64Dimension(vv) %}
+            {%= Slice(vv) %}
       {% case []string %}
-            {%= StringDimension(vv) %}
-      {% case []interface{} %}
-            {%= SimpleDimension(vv) %}
+            {%= Slice(vv) %}
+      {% case []any %}
+            {%= Slice(vv) %}
       {% case map[string]string %}
-            {%= StringJSON(vv) %}
-      {% case map[string]interface{} %}
-            {%= AnyJSON(vv) %}
-      {% case []map[string]interface{} %}
-            {%= SliceJSON(vv) %}
+            {%= Map(vv) %}
+      {% case map[string]int %}
+            {%= Map(vv) %}
+      {% case map[string]bool %}
+            {%= Map(vv) %}
+      {% case map[string]any %}
+            {%= Map(vv) %}
+      {% case map[int]string %}
+            {%= Map(vv) %}
+      {% case map[int]int %}
+            {%= Map(vv) %}
+      {% case map[int]any %}
+            {%= Map(vv) %}
+      {% case map[bool]string %}
+            {%= Map(vv) %}
+      {% case map[bool]int %}
+            {%= Map(vv) %}
+      {% case map[bool]any %}
+            {%= Map(vv) %}
+      {% case []map[string]any %}
+            {%= Slice(vv) %}
+      {% case []map[int]any %}
+            {%= Slice(vv) %}
+      {% case []map[bool]any %}
+            {%= Slice(vv) %}
       {% default %}
             {%= Wrap(value) %}
       {% endswitch %}
-{% endfunc %}
-получаем массив произвольной формы и возвращаем JSON текстом
-{% func ArrJSON(arrJSON []interface{} ) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %}  {%= Element(value) %}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив объектов произвольной формы и возвращаем JSON текстом
-{% func SimpleDimension(arrJSON []interface{} ) %}
-[
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %}  {%= Element(value)%}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив строк и возвращаем JSON текстом
-{% func StringDimension(arrJSON []string) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив int32 и возвращаем JSON текстом
-{% func Int32Dimension(arrJSON []int32) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив int64 и возвращаем JSON текстом
-{% func Int64Dimension(arrJSON []int64) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив float32 и возвращаем JSON текстом
-{% func Float32Dimension(arrJSON []float32) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
-    {% endfor %}
- ]
-{% endfunc %}
-получаем массив float64 и возвращаем JSON текстом
-{% func Float64Dimension(arrJSON []float64) %}
- [
-    {% for key, value := range  arrJSON %} {% if key>0 %}, {% endif %} {%= Element(value)%}
-    {% endfor %}
- ]
 {% endfunc %}
 {% endcollapsespace %}
 {% endstripspace %}

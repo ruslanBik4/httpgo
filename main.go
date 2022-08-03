@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 // Initialization and starting of web-server, main handlers attachment
 package main
@@ -22,14 +25,13 @@ import (
 
 	"github.com/SargtLa/telegrambot"
 	"github.com/pkg/errors"
+	. "github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
-	. "github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/httpGo"
-	"github.com/ruslanBik4/httpgo/models/db"
-	"github.com/ruslanBik4/httpgo/models/db/qb"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
@@ -257,62 +259,6 @@ func serveAndCache(filename string, ctx *RequestCtx) {
 func sockCatch() {
 	err := recover()
 	logs.ErrorLog(err.(error))
-}
-
-// func isAJAXRequest(r *Request) bool {
-// 	return len(r.Header["X-Requested-With"]) > 0
-// }
-func handlerMenu(ctx *RequestCtx) (interface{}, error) {
-
-	// userID := users.IsLogin(r)
-	// resultID, err := strconv.Atoi(userID)
-	// if err != nil || !admin.GetUserPermissionForPageByUserId(resultID, ctx.URI().String(), "View") {
-	// 	views.RenderNoPermissionPage(w)
-	// 	return
-	// }
-	var menu db.MenuItems
-
-	idx := strings.LastIndex(ctx.URI().String(), "menu/") + 5
-	idMenu := ctx.URI().String()[idx : len(ctx.URI().String())-1]
-
-	// returning full menu list for frontend framework
-	if idMenu == "all" {
-		qBuilder := qb.CreateEmpty()
-		qBuilder.AddTable("", "menu_items")
-
-		arrJSON, err := qBuilder.SelectToMultidimension()
-		if err != nil {
-			return nil, err
-		}
-
-		return arrJSON, nil
-	}
-
-	var catalog, content string
-	// menu creation for page
-	if menu.GetMenu(idMenu) > 0 {
-
-		p := &layouts.MenuOwnerBody{Title: idMenu}
-
-		for _, item := range menu.Items {
-			p.TopMenu = append(p.TopMenu, layouts.ItemMenu{Link: "/menu/" + item.Name + "/", Content: item.Title})
-
-		}
-
-		// return into parent menu if he occurent
-		if menu.Self.ParentID > 0 {
-			p.TopMenu = append(p.TopMenu, layouts.ItemMenu{
-				Link:    fmt.Sprintf("/menu/%d/", menu.Self.ParentID),
-				Content: "< на уровень выше",
-			})
-		}
-		catalog = p.MenuOwner()
-	}
-	// for content serving
-	if menu.Self.Link > "" {
-		content = fmt.Sprintf("<div class='autoload' data-href='%s'></div>", menu.Self.Link)
-	}
-	return catalog + content, nil
 }
 
 // cacheWalk reads all the content from folder

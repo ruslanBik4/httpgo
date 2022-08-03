@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package crud
 
@@ -15,8 +18,9 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
-	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/logs"
 )
 
 type DateTimeString time.Time
@@ -68,6 +72,7 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 
 type dtoField map[string]interface{}
 
+// CheckParams implement CheckDTO interface, put each params into user value on context
 func (d *dtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for key, val := range *d {
 		if strings.HasSuffix(key, "[]") {

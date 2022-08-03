@@ -36,7 +36,8 @@ lint: check-lint dep
 	golangci-lint run --timeout=5m -c .golangci.yml
 
 test:
-	go test -v ./... > last_test.log
+	go test -v ./...
+# 	last_test.log
 dto:
 	go test ./apis
 mod:

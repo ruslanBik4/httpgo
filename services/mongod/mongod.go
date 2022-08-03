@@ -1,11 +1,16 @@
-// Copyright 2017 Author: Yurii Kravchuk. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 //Package mongod Реализует работу с базой данных mongodb
 package mongod
 
 import (
+	"go/types"
+
 	"golang.org/x/net/context"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -246,4 +251,5 @@ func GetMongoCollectionConnect(collection string) *mongo.Collection {
 
 func init() {
 	services.AddService(mongod.name, mongod)
+	types.AssertableTo()
 }

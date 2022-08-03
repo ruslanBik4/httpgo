@@ -1,10 +1,18 @@
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
+
 package tables
 
 import (
 	"database/sql"
 	"regexp"
 
-	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+
 	"github.com/ruslanBik4/logs"
 )
 
@@ -16,19 +24,18 @@ type QueryStruct struct {
 	Href       string
 	row        []interface{}
 	columns    []string
-	fields     []*forms.FieldStructure
+	fields     []dbEngine.Column
 	Rows       *sql.Rows
-	Tables     []*forms.FieldsTable
+	Tables     []dbEngine.Table
 	widthTable int
 	Order      string
-	PostFields []*forms.FieldStructure
+	PostFields []dbEngine.Column
 }
 
-func (query *QueryStruct) findField(fieldName string) *forms.FieldStructure {
-	for _, fields := range query.Tables {
-		if field := fields.FindField(fieldName); field != nil {
-			field.Table = fields
-			return field
+func (query *QueryStruct) findField(fieldName string) dbEngine.Column {
+	for _, table := range query.Tables {
+		if column := table.FindColumn(fieldName); column != nil {
+			return column
 		}
 	}
 
@@ -45,14 +52,10 @@ func (query *QueryStruct) beforeRender() (err error) {
 
 	// mfields может не соответствовать набору столбцов, потому завязываем на имеющиеся, прочие - игнорируем
 	for _, fieldName := range query.columns {
-		var field *forms.FieldStructure
-		if field = query.findField(fieldName); field == nil {
-			field.COLUMN_NAME = fieldName
-			field.COLUMN_COMMENT = fieldName
-			//field.Table =
+		if field := query.findField(fieldName); field == nil {
+			query.row = append(query.row, field)
+			query.fields = append(query.fields, field)
 		}
-		query.row = append(query.row, field)
-		query.fields = append(query.fields, field)
 	}
 
 	return nil

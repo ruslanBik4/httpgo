@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package crud
 
@@ -8,23 +11,25 @@ import (
 	"go/types"
 	"strings"
 
-	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 )
 
-type dbApiParams struct {
+type DbApiParams struct {
 	apis.InParam
 	col dbEngine.Column
 }
 
-func newDbApiParams(col dbEngine.Column) *dbApiParams {
-	p := &dbApiParams{
+func NewDbApiParams(col dbEngine.Column) *DbApiParams {
+	p := &DbApiParams{
 		apis.InParam{
 			Name:              col.Name(),
 			Desc:              col.Comment(),
+			DefValue:          col.Default(),
 			Req:               col.Primary(),
 			PartReq:           nil,
 			IncompatibleWiths: nil,
@@ -37,20 +42,24 @@ func newDbApiParams(col dbEngine.Column) *dbApiParams {
 	return p
 }
 
-func (p *dbApiParams) ConvertDbType(col dbEngine.Column) {
+func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	if strings.HasPrefix(col.Type(), "_") {
 		p.Type = apis.NewSliceTypeInParam(col.BasicType())
 		p.Name += "[]"
-	} else if col.Type() == "date" {
+	}
+	switch col.Type() {
+	case "date", "timestamp", "timestamptz", "time":
 		// todo add new type of date/time
 		// p.Type = apis.NewStructInParam(&DateTimeString{})
 		p.Type = apis.NewTypeInParam(types.String)
-		// } else if col.Type() == "daterange" { // col.BasicType() == typesExt.TStruct {
-		// 	t := apis.NewStructInParam(&DateMarshal{})
-		// 	p.Type = t
+	case "daterange": // col.BasicType() == typesExt.TStruct {
+		p.Type = apis.NewStructInParam(&DateMarshal{})
+	case "json":
+		p.Type = apis.NewStructInParam(&DateMarshal{})
+
 		// } else if col.Foreign() != nil {
 		// 	p.Type
-	} else {
+	default:
 		p.Type = apis.NewTypeInParam(col.BasicType())
 	}
 

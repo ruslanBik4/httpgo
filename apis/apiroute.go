@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package apis
 
@@ -8,21 +11,23 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/jackc/pgtype"
-	"github.com/json-iterator/go"
-	"github.com/pkg/errors"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"github.com/valyala/fasthttp"
-	"github.com/valyala/fastjson"
 	"go/types"
 	"math"
 	"path"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/jackc/pgtype"
+	"github.com/json-iterator/go"
+	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/httpgo/views"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/ruslanBik4/httpgo/views/templates/pages"
 
 	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/ruslanBik4/logs"
@@ -420,7 +425,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, errRouteOnlyLocal
 	}
 
-	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctJSON)) && (route.DTO != nil) {
+	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeJSON)) && (route.DTO != nil) {
 		return route.performsJSON(ctx)
 	}
 
@@ -428,7 +433,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 
 	if route.Multipart {
 		// check multipart params¬
-		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
+		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
 

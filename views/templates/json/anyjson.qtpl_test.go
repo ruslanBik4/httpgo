@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package json
 
@@ -31,26 +34,6 @@ func TestAnyJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := AnyJSON(tt.args.arrJSON); got != tt.want {
 				t.Errorf("AnyJSON() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestArrJSON(t *testing.T) {
-	type args struct {
-		arrJSON []interface{}
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ArrJSON(tt.args.arrJSON); got != tt.want {
-				t.Errorf("ArrJSON() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -135,107 +118,6 @@ func TestElement(t *testing.T) {
 		})
 	}
 }
-
-func TestFloat32Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []float32
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Float32Dimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("Float32Dimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestFloat64Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []float64
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Float64Dimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("Float64Dimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestInt32Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []int32
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Int32Dimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("Int32Dimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestInt64Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []int64
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := Int64Dimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("Int64Dimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSimpleDimension(t *testing.T) {
-	type args struct {
-		arrJSON []interface{}
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := SimpleDimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("SimpleDimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestSliceJSON(t *testing.T) {
 	type args struct {
 		mapJSON []map[string]interface{}
@@ -425,27 +307,6 @@ func TestStreamStringDimension(t *testing.T) {
 		})
 	}
 }
-
-func TestStringDimension(t *testing.T) {
-	type args struct {
-		arrJSON []string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := StringDimension(tt.args.arrJSON); got != tt.want {
-				t.Errorf("StringDimension() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestWriteAnyJSON(t *testing.T) {
 	type args struct {
 		arrJSON map[string]interface{}
@@ -463,28 +324,6 @@ func TestWriteAnyJSON(t *testing.T) {
 			WriteAnyJSON(qq422016, tt.args.arrJSON)
 			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
 				t.Errorf("WriteAnyJSON() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteArrJSON(t *testing.T) {
-	type args struct {
-		arrJSON []interface{}
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteArrJSON(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteArrJSON() = %v, want %v", gotQq422016, tt.wantQq422016)
 			}
 		})
 	}
@@ -511,117 +350,6 @@ func TestWriteElement(t *testing.T) {
 		})
 	}
 }
-
-func TestWriteFloat32Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []float32
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteFloat32Dimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteFloat32Dimension() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteFloat64Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []float64
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteFloat64Dimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteFloat64Dimension() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteInt32Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []int32
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteInt32Dimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteInt32Dimension() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteInt64Dimension(t *testing.T) {
-	type args struct {
-		arrJSON []int64
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteInt64Dimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteInt64Dimension() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteSimpleDimension(t *testing.T) {
-	type args struct {
-		arrJSON []interface{}
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteSimpleDimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteSimpleDimension() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
 func TestWriteSliceJSON(t *testing.T) {
 	type args struct {
 		mapJSON []map[string]interface{}
@@ -639,28 +367,6 @@ func TestWriteSliceJSON(t *testing.T) {
 			WriteSliceJSON(qq422016, tt.args.mapJSON)
 			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
 				t.Errorf("WriteSliceJSON() = %v, want %v", gotQq422016, tt.wantQq422016)
-			}
-		})
-	}
-}
-
-func TestWriteStringDimension(t *testing.T) {
-	type args struct {
-		arrJSON []string
-	}
-	tests := []struct {
-		name         string
-		args         args
-		wantQq422016 string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			qq422016 := &bytes.Buffer{}
-			WriteStringDimension(qq422016, tt.args.arrJSON)
-			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
-				t.Errorf("WriteStringDimension() = %v, want %v", gotQq422016, tt.wantQq422016)
 			}
 		})
 	}

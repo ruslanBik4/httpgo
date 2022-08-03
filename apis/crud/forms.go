@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package crud
 
@@ -11,10 +14,11 @@ import (
 	"time"
 
 	"github.com/jackc/pgtype"
-	. "github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
+
+	. "github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views"
@@ -75,7 +79,7 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 	)
 
 	for _, col := range table.Columns() {
-		p := newDbApiParams(col)
+		p := NewDbApiParams(col)
 		updateParams = append(updateParams, p.InParam)
 		selectParams = append(selectParams, *p.InParam.WithNotRequired())
 

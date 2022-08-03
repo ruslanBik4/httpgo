@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 // формирование JSON из разного вида данных и выдача текста в поток
 package json
@@ -9,22 +12,73 @@ import (
 	"database/sql"
 	"math"
 	"math/big"
+	"sort"
 	"unsafe"
 
 	"github.com/jackc/pgtype"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/ruslanBik4/logs"
 	"github.com/valyala/quicktemplate"
+
+	"github.com/ruslanBik4/logs"
 )
 
 var Json = jsoniter.ConfigFastest
 
-func StreamWrap(w *quicktemplate.Writer, value interface{}) {
+type Number interface {
+	int | int64 | int32 | float32 | float64
+}
+
+func StreamWrap(w *quicktemplate.Writer, value any) {
+
 	enc := Json.NewEncoder(w.W())
 	err := enc.Encode(value)
 	if err != nil {
 		_ = enc.Encode(err)
 	}
+}
+
+func StreamSlice[T any](w *quicktemplate.Writer, value []T) {
+	logs.StatusLog("slice", value)
+	w.N().S(`[`)
+	for key, v := range value {
+		if key > 0 {
+			w.N().S(`,`)
+		}
+		StreamElement(w, v)
+	}
+	w.N().S(`]`)
+}
+
+func StreamMap[E comparable, T any](w *quicktemplate.Writer, value map[E]T) {
+	logs.StatusLog("map", value)
+	sortList := make([]E, 0, len(value))
+	for name := range value {
+		sortList = append(sortList, name)
+	}
+
+	sort.Slice(sortList, func(i, j int) bool {
+		return i < j
+	})
+
+	w.N().S(`{`)
+
+	for key, name := range sortList {
+		if key > 0 {
+			w.N().S(`,`)
+		}
+		w.N().S(`"`)
+		switch name := any(name).(type) {
+		case string:
+			w.N().J(name)
+		case int:
+			w.N().D(name)
+		default:
+			w.N().V(name)
+		}
+		w.N().S(`":`)
+		StreamElement(w, value[name])
+	}
+	w.N().S(`}`)
 }
 
 func init() {

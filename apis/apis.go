@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package apis
 
@@ -8,15 +11,17 @@ import (
 	"bytes"
 	"database/sql"
 	"fmt"
-	"github.com/jackc/pgx/v4"
-	"github.com/pkg/errors"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/valyala/fasthttp"
 	"path"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v4"
+	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/logs"
 
@@ -49,12 +54,6 @@ func (c CtxApis) Value(key interface{}) interface{} {
 		return c[key]
 	}
 	return nil
-}
-
-type FncAuth interface {
-	Auth(ctx *fasthttp.RequestCtx) bool
-	AdminAuth(ctx *fasthttp.RequestCtx) bool
-	String() string
 }
 
 // Apis encapsulates REST API configuration and endpoints
@@ -235,7 +234,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 		errMsg = fmt.Sprintf(errMsg, resp)
 
-		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ctMultiPart)) {
+		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
 			logs.DebugLog(ctx.UserValue(MultiPartParams))
 		} else if ctx.IsPost() {
 			logs.DebugLog(ctx.PostArgs().String())
