@@ -106,19 +106,23 @@ func (r *{%= e.dtoName() %}) GetFields(columns []dbEngine.Column) []interface{} 
 }
 
 // NewValue implement httpgo.RouteDTO interface
-func (r *{%= e.dtoName() %}) SqlOptions(ctx *fasthttp.RequestCtx) []dbEngine.BuildSqlOptions {
+func (r *{%= e.dtoName() %}) SqlOptions(ctx *fasthttp.RequestCtx, isWhere bool) []dbEngine.BuildSqlOptions {
         args := make([]interface{}, 0, {%d len(e.Params) %})
         colNames := make([]string, 0, {%d len(e.Params) %})
         {% for _, param := range e.Params %}
-            if v := ctx.UserValue( "{%s param.Name%}" ); v != nil {
+            if v := ctx.UserValue( "{%s param.Name %}" ); v != nil {
                 args = append(args, v)
-                colNames = append(colNames, "{%s param.Name%}")
+                colNames = append(colNames, "{%s param.Name %}")
             }
         {% endfor %}
 
 	res := []dbEngine.BuildSqlOptions{
-		dbEngine.WhereForSelect(colNames...),
-		dbEngine.ArgsForSelect(args...),
+		dbEngine.Args(args...),
+	}
+	if isWhere {
+		dbEngine.WhereForSelect(colNames...)
+	} else {
+		dbEngine.Columns(colNames...)
 	}
 
 	if r.Limit > 0 {
@@ -137,14 +141,14 @@ var
 			NeedAuth: true,
 		},
 		"/table/{%s e.Table.Name() %}/put": {
-			Fnc:    nil,
+			Fnc:    Handle{%= paramName(e.Name()) %}Put,
 			Desc:   "{%s e.Desc %}",
 			DTO:    &{%= e.dtoName() %}{},
 			Method: apis.POST,
 			NeedAuth: true,
 		},
 		"/table/{%s e.Table.Name() %}/update": {
-			Fnc:    nil,
+			Fnc:    Handle{%= paramName(e.Name()) %}Update,
 			Desc:   "{%s e.Desc %}",
 			DTO:    &{%= e.dtoName() %}{},
 			Method: apis.POST,
@@ -152,32 +156,41 @@ var
 		},
 	}
 
-func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func Get{%= paramName(e.Name()) %}Params(ctx *fasthttp.RequestCtx) (dbEngine.Table, *{%= e.dtoName() %}, error) {
     DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
     if !ok {
-        return nil, dbEngine.ErrDBNotFound
+        return nil, nil, dbEngine.ErrDBNotFound
     }
 
     table, ok := DB.Tables["{%s e.Table.Name() %}"]
     if !ok {
-        return nil, dbEngine.ErrNotFoundTable{Table: "{%s e.Table.Name() %}"}
+        return nil, nil, dbEngine.ErrNotFoundTable{Table: "{%s e.Table.Name() %}"}
     }
 
     params, ok := ctx.UserValue(apis.JSONParams).(*{%= e.dtoName() %})
     if !ok {
-        return nil, apis.ErrWrongParamsList
+        return nil, nil, apis.ErrWrongParamsList
+    }
+
+    return table, params, nil
+}
+
+func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{}, error) {
+    table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
+    if err != nil {
+        return nil, errors.Wrap(err, "")
     }
 
     res := make([]{%= e.dtoName() %}, 0)
     buf := &{%= e.dtoName() %}{}
-    err := table.SelectAndScanEach(ctx,
+    err = table.SelectAndScanEach(ctx,
         func() error {
             res = append(res, *buf)
 
             return nil
         },
         buf,
-        params.SqlOptions(ctx)...
+        params.SqlOptions(ctx, true)...
     )
     if err != nil {
         return nil, errors.Wrap(err, "")
@@ -189,5 +202,80 @@ func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{},
     }
 
     return res, nil
+}
+
+func Handle{%= paramName(e.Name()) %}Put(ctx *fasthttp.RequestCtx) (interface{}, error) {
+    table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
+    if err != nil {
+        return nil, errors.Wrap(err, "")
+    }
+
+		id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
+		if err != nil {
+			return crud.CreateErrResult(err)
+		}
+
+		return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/{%s e.Table.Name() %}/put")
+}
+
+func Handle{%= paramName(e.Name()) %}Update(ctx *fasthttp.RequestCtx) (interface{}, error) {
+    table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
+    if err != nil {
+        return nil, errors.Wrap(err, "")
+    }
+
+	badParams := make(map[string]string, 0)
+	columns := table.Columns()
+	priColumns := make([]string, 0)
+    args := make([]interface{}, 0, len(columns))
+    colSel := make([]string, 0, len(columns))
+	buf := bytes.NewBufferString("")
+    for _, col := range columns {
+        name := col.Name()
+        arg := ctx.UserValue(name)
+        if col.Primary() {
+
+			if arg == nil {
+				badParams[name] = "required params"
+                continue
+			}
+            if arg := ctx.UserValue("new." + name); arg != nil {
+                colSel = append(colSel, name)
+                args = append(args, arg)
+                _, err := fmt.Fprintf(buf, " %v", arg)
+                if err != nil {
+                    return nil, err
+                }
+            }
+            priColumns = append(priColumns, name)
+            continue
+        }
+        if arg == nil {
+            continue
+        }
+
+        crud.AddColumnAndValue(name, table, arg, args, colSel, buf, badParams)
+    }
+
+    for _, name := range priColumns {
+        args = append(args, ctx.UserValue(name))
+    }
+
+    i, err := table.Update(ctx,
+        dbEngine.ColumnsForSelect(colSel...),
+        dbEngine.WhereForSelect(priColumns...),
+        dbEngine.ArgsForSelect(args...),
+    )
+    if err != nil {
+        return nil, err
+    }
+
+    if i <= 0 {
+        logs.DebugLog(colSel, priColumns)
+        logs.DebugLog(args)
+        return map[string]string{"update": fmt.Sprintf("%d inserted for request %+v", i, params)}, apis.ErrWrongParamsList
+    }
+
+    return crud.RenderAcceptedResult(ctx, colSel, buf, "/table/{%s e.Table.Name() %}/update")
 }
 {% endfunc %}

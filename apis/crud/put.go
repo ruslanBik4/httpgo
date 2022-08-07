@@ -1,10 +1,14 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package crud
 
 import (
+	"bytes"
 	"fmt"
 	"go/types"
 	"io/ioutil"
@@ -12,10 +16,11 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/logs"
-	"github.com/valyala/fasthttp"
 )
 
 // TableInsert insert data of params into table
@@ -24,56 +29,19 @@ func TableInsert(preRoute string, DB *dbEngine.DB, table dbEngine.Table, params 
 
 		args := make([]interface{}, 0, len(params))
 		colSel := make([]string, 0, len(params))
-		msg := ""
+		badParams := make(map[string]string, 0)
+		buf := bytes.NewBufferString("")
 		for _, name := range params {
 			arg := ctx.UserValue(name)
 			if arg == nil {
 				continue
 			}
 
-			colName := strings.TrimSuffix(name, "[]")
-			col := table.FindColumn(colName)
-			if col == nil {
-				logs.ErrorLog(dbEngine.ErrNotFoundColumn{Table: table.Name(), Column: colName})
-				continue
-			}
+			AddColumnAndValue(name, table, arg, args, colSel, buf, badParams)
+		}
 
-			if col.BasicType() == types.UnsafePointer {
-
-				switch val := arg.(type) {
-				case nil, string:
-				case []*multipart.FileHeader:
-
-					names, bytea, err := readByteA(val)
-					if err != nil {
-						logs.DebugLog(names)
-						return map[string]string{colName: err.Error()},
-							apis.ErrWrongParamsList
-					}
-
-					switch len(bytea) {
-					case 0:
-					case 1:
-						args = append(args, bytea[0])
-						colSel = append(colSel, colName)
-						msg += "[file]"
-					default:
-						args = append(args, bytea)
-						colSel = append(colSel, colName)
-						msg += "[files]"
-					}
-				default:
-					return map[string]string{colName: fmt.Sprintf("%v", val)},
-						apis.ErrWrongParamsList
-				}
-
-				continue
-			}
-
-			args = append(args, arg)
-			colSel = append(colSel, colName)
-			msg += fmt.Sprintf(" %v", arg)
-
+		if len(badParams) > 0 {
+			return badParams, apis.ErrWrongParamsList
 		}
 
 		id, err := table.Insert(ctx,
@@ -84,7 +52,7 @@ func TableInsert(preRoute string, DB *dbEngine.DB, table dbEngine.Table, params 
 			return CreateErrResult(err)
 		}
 
-		return RenderCreatedResult(ctx, id, msg, colSel, preRoute+table.Name())
+		return RenderCreatedResult(ctx, id, buf, colSel, preRoute+table.Name())
 	}
 }
 
@@ -99,14 +67,9 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 			}
 		}
 
-		if len(badParams) > 0 {
-			return badParams, apis.ErrWrongParamsList
-
-		}
-
 		args := make([]interface{}, 0, len(columns))
 		colSel := make([]string, 0, len(columns))
-		msg := ""
+		buf := bytes.NewBufferString("")
 		for _, name := range columns {
 			isPrimary := false
 			for _, priName := range priColumns {
@@ -115,7 +78,10 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 					if arg != nil {
 						colSel = append(colSel, priName)
 						args = append(args, arg)
-						msg += fmt.Sprintf(" %v", arg)
+						_, err := fmt.Fprintf(buf, " %v", arg)
+						if err != nil {
+							return nil, err
+						}
 					}
 					isPrimary = true
 					break
@@ -131,40 +97,11 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 				continue
 			}
 
-			colName := strings.TrimSuffix(name, "[]")
-			col := table.FindColumn(colName)
-			if col.BasicType() == types.UnsafePointer {
-				switch val := arg.(type) {
-				case nil, string:
-				case []*multipart.FileHeader:
-					names, bytea, err := readByteA(val)
-					if err != nil {
-						logs.DebugLog(names)
-						return map[string]string{colName: err.Error()}, apis.ErrWrongParamsList
-					}
+			AddColumnAndValue(name, table, arg, args, colSel, buf, badParams)
+		}
 
-					switch len(bytea) {
-					case 0:
-					case 1:
-						args = append(args, bytea[0])
-						colSel = append(colSel, colName)
-						msg += "[file]"
-					default:
-						args = append(args, bytea)
-						colSel = append(colSel, colName)
-						msg += "[files]"
-					}
-				default:
-					return map[string]string{colName: fmt.Sprintf("%v", val)}, apis.ErrWrongParamsList
-				}
-
-				continue
-			}
-
-			args = append(args, arg)
-			colSel = append(colSel, colName)
-			msg += fmt.Sprintf(" %v", arg)
-
+		if len(badParams) > 0 {
+			return badParams, apis.ErrWrongParamsList
 		}
 
 		for _, name := range priColumns {
@@ -185,29 +122,53 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 			return map[string]string{"update": fmt.Sprintf("%d", i)}, apis.ErrWrongParamsList
 		}
 
-		msg = "Success update: " + strings.Join(colSel, ", ") + " values:\n" + msg
+		return RenderAcceptedResult(ctx, colSel, buf, preRoute+table.Name())
+	}
+}
 
-		ctx.SetStatusCode(fasthttp.StatusAccepted)
-		g, ok := ctx.UserValue(ParamsGetFormActions.Name).(bool)
-		if ok && g {
-			urlSuffix := "/browse"
-			lang := ctx.UserValue("lang")
-			if l, ok := lang.(string); ok {
-				urlSuffix += "?lang=" + l
+func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, args []interface{}, colSel []string,
+	buf *bytes.Buffer, badParams map[string]string) {
+
+	colName := strings.TrimSuffix(name, "[]")
+	col := table.FindColumn(colName)
+	if col == nil {
+		badParams[colName] = dbEngine.ErrNotFoundColumn{Table: table.Name(), Column: colName}.Error()
+		return
+	}
+
+	switch col.BasicType() {
+	case types.UnsafePointer:
+		switch val := arg.(type) {
+		case nil, string:
+			badParams[colName] = "wrong type of file"
+		case []*multipart.FileHeader:
+			names, bytea, err := readByteA(val)
+			if err != nil {
+				logs.DebugLog(names)
+				badParams[colName] = err.Error()
 			}
 
-			return insertResult{
-				FormActions: []FormActions{
-					{
-						Typ: "redirect",
-						Url: preRoute + table.Name() + urlSuffix,
-					},
-				},
-				Msg: msg,
-			}, nil
+			switch len(bytea) {
+			case 0:
+				badParams[colName] = "empty file"
+			case 1:
+				args = append(args, bytea[0])
+				colSel = append(colSel, colName)
+				buf.WriteString("[file]")
+			default:
+				args = append(args, bytea)
+				colSel = append(colSel, colName)
+			}
+			buf.WriteString("[file]")
+		default:
+			badParams[colName] = fmt.Sprintf("unknown type of value: %T", val)
 		}
 
-		return msg, nil
+	default:
+		args = append(args, arg)
+		colSel = append(colSel, colName)
+		_, err := fmt.Fprintf(buf, " %v", arg)
+		logs.ErrorLog(err)
 	}
 }
 

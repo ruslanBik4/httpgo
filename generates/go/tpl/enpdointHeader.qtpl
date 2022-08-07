@@ -18,15 +18,18 @@ func NewenpdointHeader() *enpdointHeader {
 package db
 
 import (
-	{%- if unSafe -%}"unsafe"{%endif%}
+	"fmt"
+	"bytes"
+	{%- if unSafe -%}"unsafe"
+	{%endif%}
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/logs"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-	{%- if crud -%}"github.com/ruslanBik4/httpgo/apis/crud"{%endif%}
-
+	"github.com/ruslanBik4/httpgo/apis/crud"
+{% if crud %}{%endif%}
 	"github.com/pkg/errors"
 )
 

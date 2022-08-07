@@ -1,18 +1,20 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package crud
 
 import (
 	"regexp"
-	"strings"
 
 	"github.com/jackc/pgconn"
 	"github.com/pkg/errors"
+
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/logs"
-	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -49,32 +51,4 @@ func CreateErrResult(err error) (interface{}, error) {
 	}
 
 	return nil, err
-}
-
-func RenderCreatedResult(ctx *fasthttp.RequestCtx, id int64, msg string, colSel []string, url string) (interface{}, error) {
-	msg = "Success saving: " + strings.Join(colSel, ", ") + " values:\n" + msg
-
-	ctx.SetStatusCode(fasthttp.StatusCreated)
-	g, ok := ctx.UserValue(ParamsGetFormActions.Name).(bool)
-	if ok && g {
-		url += "/form?html"
-
-		lang := ctx.UserValue("lang")
-		if l, ok := lang.(string); ok {
-			url += "&lang=" + l
-		}
-
-		return insertResult{
-			FormActions: []FormActions{
-				{
-					Typ: "redirect",
-					Url: url,
-				},
-			},
-			Id:  id,
-			Msg: msg,
-		}, nil
-	}
-
-	return id, nil
 }
