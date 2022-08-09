@@ -65,7 +65,7 @@ var (
 		// },
 	}
 	fPort     = flag.String("port", ":443", "host address to listen on")
-	fPortRdr  = flag.String("port_redirect", ":80", "redirect anather proto")
+	fPortRdr  = flag.String("port_redirect", ":80", "redirect another proto")
 	fNoSecure = flag.Bool("insecure", true, "flag to force https")
 	fSystem   = flag.String("path", "./", "path to system files")
 	fCfgPath  = flag.String("config_path", "cfg", "path to cfg files")
