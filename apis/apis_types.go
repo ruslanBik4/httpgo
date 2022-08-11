@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package apis
 
@@ -13,9 +16,10 @@ import (
 
 	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
+
 	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
-	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
 )
@@ -122,7 +126,19 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	case types.Int64:
 		return strconv.ParseInt(value, 10, 64)
 
-	case types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64:
+	case types.Uint8:
+		p, err := strconv.ParseUint(value, 10, 8)
+		return uint8(p), err
+
+	case types.Uint16:
+		p, err := strconv.ParseUint(value, 10, 16)
+		return uint16(p), err
+
+	case types.Uint32:
+		p, err := strconv.ParseUint(value, 10, 32)
+		return uint32(p), err
+
+	case types.Uint64:
 		return strconv.ParseUint(value, 10, 64)
 
 	// 	check type convert float64

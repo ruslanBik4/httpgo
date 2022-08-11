@@ -10,9 +10,26 @@ package auth
 import (
 	"reflect"
 
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
+
+	"github.com/ruslanBik4/logs"
+)
+
+type AuthServer uint8
+
+const (
+	Amazon = iota
+	Bitbucket
+	GitHub
+	GitLab
+	Facebook
+	Instagram
+	LinkedIn
+	Microsoft
+	PayPal
 )
 
 type OAuth2 struct {
@@ -20,18 +37,61 @@ type OAuth2 struct {
 	*AuthBearer
 }
 
-func NewOAuth2(tokens Tokens, clientID, redirectURL string) *OAuth2 {
+func NewOAuth2(clientID, clientSecret, redirectURL string, scopes ...string) *OAuth2 {
 
 	return &OAuth2{
 		&oauth2.Config{
 			ClientID:     clientID,
-			ClientSecret: "x",
-			Endpoint:     endpoints.GitHub,
-			RedirectURL:  redirectURL,
-			Scopes:       []string{"read"},
+			ClientSecret: clientSecret,
+			//Endpoint:     nil,
+			RedirectURL: redirectURL,
+			Scopes:      scopes,
+		},
+		NewAuthBearer(nil),
+	}
+}
+
+func NewOAuth2WithCustomTokens(tokens Tokens, clientID, clientSecret, redirectURL string, scopes ...string) *OAuth2 {
+
+	return &OAuth2{
+		&oauth2.Config{
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+			//Endpoint:     nil,
+			RedirectURL: redirectURL,
+			Scopes:      scopes,
 		},
 		NewAuthBearer(tokens),
 	}
+}
+
+func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer) error {
+	switch s {
+	case Amazon:
+		a.Endpoint = endpoints.Amazon
+	case Bitbucket:
+		a.Endpoint = endpoints.Bitbucket
+	case GitHub:
+		a.Endpoint = endpoints.GitHub
+	case GitLab:
+		a.Endpoint = endpoints.GitLab
+	case Facebook:
+		a.Endpoint = endpoints.Facebook
+	case Instagram:
+		a.Endpoint = endpoints.Instagram
+	case LinkedIn:
+		a.Endpoint = endpoints.LinkedIn
+	case Microsoft:
+		a.Endpoint = endpoints.Microsoft
+	case PayPal:
+		a.Endpoint = endpoints.PayPal
+	default:
+		return errors.New("unknown server")
+	}
+	url := a.AuthCodeURL("read")
+	logs.StatusLog(url)
+	ctx.Redirect(url, 200)
+	return nil
 }
 
 func (a *OAuth2) Auth(ctx *fasthttp.RequestCtx) bool {
