@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
+
 package auth
 
 import (
@@ -22,6 +29,25 @@ type TokenData interface {
 	GetUserID() int
 }
 
+type SimpleTokenData struct {
+	isAdmin    bool
+	name, desc string
+	id         int
+	Expiry     time.Time `json:"expiry,omitempty"`
+}
+
+func NewSimpleTokenData(name string, desc string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
+	return &SimpleTokenData{isAdmin: isAdmin, name: name, desc: desc, id: id, Expiry: expiry}
+}
+
+func (s *SimpleTokenData) IsAdmin() bool {
+	return s.isAdmin
+}
+
+func (s *SimpleTokenData) GetUserID() int {
+	return s.id
+}
+
 type mapToken struct {
 	expiresIn *time.Timer
 	signAt    time.Time
@@ -36,7 +62,10 @@ type MapTokens struct {
 }
 
 func NewMapTokens(expiresIn time.Duration) *MapTokens {
-	return &MapTokens{expiresIn: expiresIn}
+	return &MapTokens{
+		expiresIn: expiresIn,
+		tokens:    make(map[string]*mapToken, 0),
+	}
 }
 
 func (m *MapTokens) NewToken(userData TokenData) (string, error) {

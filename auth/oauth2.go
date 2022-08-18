@@ -8,6 +8,7 @@
 package auth
 
 import (
+	"net/url"
 	"reflect"
 
 	"github.com/pkg/errors"
@@ -15,6 +16,7 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/endpoints"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -29,6 +31,7 @@ const (
 	Instagram
 	LinkedIn
 	Microsoft
+	Mira
 	PayPal
 )
 
@@ -65,7 +68,7 @@ func NewOAuth2WithCustomTokens(tokens Tokens, clientID, clientSecret, redirectUR
 	}
 }
 
-func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer) error {
+func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer, state string) error {
 	switch s {
 	case Amazon:
 		a.Endpoint = endpoints.Amazon
@@ -83,12 +86,25 @@ func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer) error {
 		a.Endpoint = endpoints.LinkedIn
 	case Microsoft:
 		a.Endpoint = endpoints.Microsoft
+	case Mira:
+		// todo: neeed to implement Mira endpoints here
+		//a.Endpoint = endpoints.Mira
 	case PayPal:
 		a.Endpoint = endpoints.PayPal
 	default:
 		return errors.New("unknown server")
 	}
-	url := a.AuthCodeURL("read")
+	logs.StatusLog(a.RedirectURL)
+	if u, err := url.Parse(a.RedirectURL); err != nil {
+		return err
+	} else if !u.IsAbs() {
+		uri := ctx.Request.URI()
+		u.Scheme = gotools.BytesToString(uri.Scheme())
+		u.Host = gotools.BytesToString(uri.Host())
+		a.RedirectURL = u.String()
+		logs.StatusLog(a.RedirectURL)
+	}
+	url := a.AuthCodeURL(state)
 	logs.StatusLog(url)
 	ctx.Redirect(url, 200)
 	return nil

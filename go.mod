@@ -2,7 +2,7 @@ module github.com/ruslanBik4/httpgo
 
 go 1.18
 
-replace github.com/ruslanBik4/dbEngine => ../dbEngine
+//replace github.com/ruslanBik4/dbEngine => ../dbEngine
 
 require (
 	github.com/SargtLa/telegrambot v0.0.3
@@ -13,14 +13,14 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/nguyenthenguyen/docx v0.0.0-20220416032853-9fcb531443ea
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.1.35
+	github.com/ruslanBik4/dbEngine v1.1.39
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.7.1
 	github.com/tebeka/selenium v0.9.9
 	github.com/valyala/fasthttp v1.37.0
 	github.com/valyala/fastjson v1.6.3
 	github.com/valyala/quicktemplate v1.7.0
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
 	google.golang.org/api v0.30.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
@@ -34,6 +34,7 @@ require (
 	github.com/go-openapi/runtime v0.19.24
 	github.com/go-openapi/spec v0.20.4
 	github.com/iancoleman/strcase v0.2.0
+	github.com/ruslanBik4/gotools v0.0.0-20220812070354-0ce3c9f73a6f
 	golang.org/x/text v0.3.7
 )
 
@@ -75,7 +76,7 @@ require (
 	go.mongodb.org/mongo-driver v1.7.5 // indirect
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20200825200019-8632dd797987 // indirect
 	google.golang.org/grpc v1.31.0 // indirect

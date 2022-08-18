@@ -7,6 +7,7 @@
 
 package apis
 
+// content types
 const (
 	ContentTypeJSON      = "application/json"
 	ContentTypeMultiPart = "multipart/form-data"
@@ -61,6 +62,8 @@ const (
 	MultiPartParams = "MultiPartParams"
 	ChildRoutePath  = "lastSegment"
 	ApiVersion      = "ACC_VERSION"
+	AuthManager     = "auth"
+	Database        = "DB"
 )
 
 const testRouteSuffix = "_test"

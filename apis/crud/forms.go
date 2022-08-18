@@ -107,7 +107,7 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 				Method:    apis.POST,
 				Multipart: true,
 				NeedAuth:  true,
-				Fnc:       TableInsert(preRoute, db, table, params),
+				Fnc:       TableInsert(preRoute, table, params),
 				Params:    insertParams,
 			}
 		case DbRouteType_Update:

@@ -109,6 +109,11 @@ func main() {
 		routes = append(routes, d.NameRoutes())
 	}
 	CreateMainFile(routes)
+
+	err = ImportReact(*fDstPath, "clone", "https://github.com/markovcy/react")
+	if err != nil {
+		logs.ErrorLog(err, "react")
+	}
 }
 
 func CreateMainFile(routes []string) {
@@ -126,7 +131,7 @@ func CreateMainFile(routes []string) {
 		return
 	}
 
-	m := tpl.NewApiMain("test")
+	m := tpl.NewApiMain("test", tpl.JWT)
 	m.WriteCreateMain(f, path.Join(*fDstGit, *fDstPath), routes)
 	defer func() {
 		err := f.Close()

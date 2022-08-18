@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package auth
 
@@ -21,10 +24,7 @@ type AuthBearer struct {
 
 func NewAuthBearer(tokens Tokens) *AuthBearer {
 	if tokens == nil {
-		tokens = &MapTokens{
-			expiresIn: tokenExpires,
-			tokens:    make(map[string]*mapToken, 0),
-		}
+		tokens = NewMapTokens(tokenExpires)
 	}
 
 	return &AuthBearer{tokens}

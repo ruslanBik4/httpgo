@@ -24,7 +24,7 @@ import (
 )
 
 // TableInsert insert data of params into table
-func TableInsert(preRoute string, DB *dbEngine.DB, table dbEngine.Table, params []string) apis.ApiRouteHandler {
+func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 		args := make([]interface{}, 0, len(params))
