@@ -120,9 +120,9 @@ func (r *{%= e.dtoName() %}) SqlOptions(ctx *fasthttp.RequestCtx, isWhere bool) 
 		dbEngine.Args(args...),
 	}
 	if isWhere {
-		dbEngine.WhereForSelect(colNames...)
+		res = append(res, dbEngine.WhereForSelect(colNames...) )
 	} else {
-		dbEngine.Columns(colNames...)
+		res = append(res, dbEngine.Columns(colNames...) )
 	}
 
 	if r.Limit > 0 {
@@ -154,6 +154,15 @@ var
 			Method: apis.POST,
 			NeedAuth: true,
 		},
+		"/table/{%s e.Table.Name() %}/form": {
+			Fnc:    Handle{%= paramName(e.Name()) %}Form,
+			Desc:   "get form for insert/update data into '{%s e.Table.Name() %}' ({%s e.Desc %})",
+			DTO:    &{%= e.dtoName() %}{},
+			Method: apis.GET,
+			Params: apis.BasicParams,
+			NeedAuth: true,
+			WithCors: true,
+		},
 	}
 
 func Get{%= paramName(e.Name()) %}Params(ctx *fasthttp.RequestCtx) (dbEngine.Table, *{%= e.dtoName() %}, error) {
@@ -178,7 +187,7 @@ func Get{%= paramName(e.Name()) %}Params(ctx *fasthttp.RequestCtx) (dbEngine.Tab
 func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Get")
     }
 
     res := make([]{%= e.dtoName() %}, 0)
@@ -193,7 +202,7 @@ func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{},
         params.SqlOptions(ctx, true)...
     )
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Get")
     }
 
     if len(res) == 0 {
@@ -207,7 +216,7 @@ func Handle{%= paramName(e.Name()) %}Get(ctx *fasthttp.RequestCtx) (interface{},
 func Handle{%= paramName(e.Name()) %}Put(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Put")
     }
 
 		id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
@@ -221,7 +230,7 @@ func Handle{%= paramName(e.Name()) %}Put(ctx *fasthttp.RequestCtx) (interface{},
 func Handle{%= paramName(e.Name()) %}Update(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Update")
     }
 
 	badParams := make(map[string]string, 0)
@@ -277,5 +286,120 @@ func Handle{%= paramName(e.Name()) %}Update(ctx *fasthttp.RequestCtx) (interface
     }
 
     return crud.RenderAcceptedResult(ctx, colSel, buf, "/table/{%s e.Table.Name() %}/update")
+}
+
+func Handle{%= paramName(e.Name()) %}Form(ctx *fasthttp.RequestCtx) (interface{}, error) {
+    table, params, err := Get{%= paramName(e.Name()) %}Params(ctx)
+    if err != nil {
+        return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Form")
+    }
+
+    record := {%= e.dtoName() %}{}
+    err = table.SelectOneAndScan(ctx,
+        &record,
+        params.SqlOptions(ctx, true)...
+    )
+    if err != nil {
+        return nil, errors.Wrap(err, "")
+    }
+
+		// we must copy colsTable into local array
+		f := forms.FormField{
+			Title:       "{%s e.Table.Comment() %}",
+			Action:      "/table/{%s e.Table.Name() %}/",
+			Method:      "POST",
+			Description: "",
+		}
+
+		colDecors := make([]*forms.ColumnDecor, 0)
+
+		columns := table.Columns()
+
+	priColumns := make([]string, 0)
+	buf := bytes.NewBufferString("")
+   for _, col := range columns {
+        name := col.Name()
+        if col.Primary() {
+
+		 /* 	if arg == nil {
+				badParams[name] = "required params"
+                continue
+			}
+          if arg := ctx.UserValue("new." + name); arg != nil {
+                colSel = append(colSel, name)
+                args = append(args, arg)
+                _, err := fmt.Fprintf(buf, " %v", arg)
+                if err != nil {
+                    return nil, err
+                }
+            }
+         */   priColumns = append(priColumns, name)
+            continue
+        }
+				if !(col.AutoIncrement() || col.Name() == "id" ||
+					strings.Contains(col.Comment(), " (read_only)")) {
+
+					colDec := forms.NewColumnDecor(col, nil)
+					colDec.IsDisabled = colDec.IsReadOnly && !(colDec.IsHidden)
+					colDec.IsSlice = strings.HasPrefix(col.Type(), "_")
+					colDec.Value = nil
+
+					if col.Primary() {
+						colDec.IsHidden = true
+						colDec.InputType = "hidden"
+					} else if col.Type() == "text" {
+						colDec.InputType = "textarea"
+					} else if col.Name() == "id_photos" {
+						colDec.InputType = "attachment"
+					} else if col.Name() == "memo" {
+						colDec.InputType = "markdown"
+					}
+					colDecors = append(colDecors, colDec)
+				}
+    }
+
+			f.Action += "/update"
+
+    		lang, ok := ctx.UserValue(apis.ParamsLang.Name).(string)
+    		if ok {
+    			colDecors = append(colDecors, &forms.ColumnDecor{
+    				Column:      dbEngine.NewStringColumn("lang", "lang", true),
+    				IsHidden:    true,
+    				InputType:   "hidden",
+    				PatternList: nil,
+    				Value:       lang,
+    			})
+    		}
+
+ 		btnList := []forms.Button{
+ 			{ButtonType: "submit", Title: "Insert", Position: true},
+ 			{ButtonType: "reset", Title: "Clear", Position: false},
+ 		}
+
+   		blocks := []forms.BlockColumns{
+    			{
+    				Buttons:     btnList,
+    				Columns:     colDecors,
+    				Id:          1,
+    				Title:       "",
+    				Description: "",
+    			},
+    		}
+
+    		_, ok = ctx.UserValue(apis.ParamsHTML.Name).(bool)
+    		if !ok {
+    			views.WriteJSONHeaders(ctx)
+    		}
+
+    		if f.Description == "" {
+    			f.Description = "Input data for " + table.Comment()
+    		}
+    		f.WriteRenderForm(
+    			ctx.Response.BodyWriter(),
+    			ok, // && isHtml,
+    			blocks...)
+
+    		return nil, nil
+
 }
 {% endfunc %}

@@ -1,46 +1,70 @@
-{% func FooterHTML(email, phone1, phone2 string) %}
+{% func FooterHTML(FooterMenu Menu) %}
 <footer class="main-footer">
 		<div class="footer-inner-wrap">
             <div class="footer-block">
                 <h5>Защищенные системы</h5>
-                <img src="/images/bitmap.png" alt="" class="footer-img">
-                <img src="/images/bitmap1.png" alt="" class="footer-img">
             </div>
             <div class="footer-block">
             	<div class="footer-phones">
             		<div class="first-phone clearfix">
-            			<span class="phone-numbers">{%s phone1 %} &ensp;- &ensp;free on country</span>
+            			<span class="phone-numbers">{ phone1 %} &ensp;- &ensp;free on country</span>
             		</div>
             		<div class="second-phone clearfix">
-            			<span class="phone-numbers2">{%s phone2 %}</span>
+            			<span class="phone-numbers2">{ phone2 %}</span>
             			<span class="phone-descr">&ensp;&ensp; - &ensp;согласно тарифам</span>
             			<div class="perenos">Вашего оператора</div>
             		</div>
             		<div class="mail">
-            			<a href="mailto:ingo@82RU.ru" class="footer-mail">{%s email %}</a>
+            			<a href="mailto:ingo@82RU.ru" class="footer-mail">{ email %}</a>
             		</div>
             	</div>
             	<div class="footer-social">
-            		<img src="/images/instagram.svg" alt="" class="social">
-            		<img src="/images/facebook.svg" alt="" class="social">
-            		<img src="/images/vk.svg" alt="" class="social">
+                    <!-- Facebook -->
+                    <i class="fab fa-facebook-f"></i>
+
+                    <!-- Twitter -->
+                    <i class="fab fa-twitter"></i>
+
+                    <!-- Google -->
+                    <i class="fab fa-google"></i>
+
+                    <!-- Instagram -->
+                    <i class="fab fa-instagram"></i>
+
+                    <!-- Linkedin -->
+                    <i class="fab fa-linkedin-in"></i>
+
+                    <!-- Pinterest -->
+                    <i class="fab fa-pinterest"></i>
+
+                    <!-- Vkontakte -->
+                    <i class="fab fa-vk"></i>
+
+                    <!-- Stack overflow -->
+                    <i class="fab fa-stack-overflow"></i>
+
+                    <!-- Youtube -->
+                    <i class="fab fa-youtube"></i>
+
+                    <!-- Slack -->
+                    <i class="fab fa-slack-hash"></i>
+
+                    <!-- Github -->
+                    <i class="fab fa-github"></i>
+
+                    <!-- Dribbble -->
+                    <i class="fab fa-dribbble"></i>
+
+                    <!-- Reddit -->
+                    <i class="fab fa-reddit-alien"></i>
+
+                    <!-- Whatsapp -->
+                    <i class="fab fa-whatsapp"></i>
             	</div>
             </div>
             <div class="footer-block">
             	<div class="footer-mnu">
-            		<ul class="main-list">
-            			<li><a href="#">Главная</a></li>
-            			<li><a href="#">Отели</a></li>
-            			<li><a href="#">Транспорт</a></li>
-            			<li><a href="#">Отдых</a></li>
-            			<li><a href="#">Путеводитель</a></li>
-            			<li><a href="#">Блог</a></li>
-            			<li><a href="#">Партнерам</a></li>
-            		</ul>
-            		<ul class="second-list">
-            				<li><a href="#">F.A.Q.</a></li>
-            				<li><a href="#">О нас</a></li>
-            			</ul>
+                {%= FooterMenu.RenderMenu("main-list", "main-list-item") %}
             	</div>
             </div>
        </div>

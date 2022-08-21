@@ -392,9 +392,9 @@ func (r *`)
 		dbEngine.Args(args...),
 	}
 	if isWhere {
-		dbEngine.WhereForSelect(colNames...)
+		res = append(res, dbEngine.WhereForSelect(colNames...) )
 	} else {
-		dbEngine.Columns(colNames...)
+		res = append(res, dbEngine.Columns(colNames...) )
 	}
 
 	if r.Limit > 0 {
@@ -482,16 +482,45 @@ var
 			Method: apis.POST,
 			NeedAuth: true,
 		},
+		"/table/`)
+//line endpointTpl.qtpl:157
+	qw422016.E().S(e.Table.Name())
+//line endpointTpl.qtpl:157
+	qw422016.N().S(`/form": {
+			Fnc:    Handle`)
+//line endpointTpl.qtpl:158
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:158
+	qw422016.N().S(`Form,
+			Desc:   "get form for insert/update data into '`)
+//line endpointTpl.qtpl:159
+	qw422016.E().S(e.Table.Name())
+//line endpointTpl.qtpl:159
+	qw422016.N().S(`' (`)
+//line endpointTpl.qtpl:159
+	qw422016.E().S(e.Desc)
+//line endpointTpl.qtpl:159
+	qw422016.N().S(`)",
+			DTO:    &`)
+//line endpointTpl.qtpl:160
+	e.streamdtoName(qw422016)
+//line endpointTpl.qtpl:160
+	qw422016.N().S(`{},
+			Method: apis.GET,
+			Params: apis.BasicParams,
+			NeedAuth: true,
+			WithCors: true,
+		},
 	}
 
 func Get`)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:168
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:168
 	qw422016.N().S(`Params(ctx *fasthttp.RequestCtx) (dbEngine.Table, *`)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:168
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:168
 	qw422016.N().S(`, error) {
     DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
     if !ok {
@@ -499,22 +528,22 @@ func Get`)
     }
 
     table, ok := DB.Tables["`)
-//line endpointTpl.qtpl:165
+//line endpointTpl.qtpl:174
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:165
+//line endpointTpl.qtpl:174
 	qw422016.N().S(`"]
     if !ok {
         return nil, nil, dbEngine.ErrNotFoundTable{Table: "`)
-//line endpointTpl.qtpl:167
+//line endpointTpl.qtpl:176
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:167
+//line endpointTpl.qtpl:176
 	qw422016.N().S(`"}
     }
 
     params, ok := ctx.UserValue(apis.JSONParams).(*`)
-//line endpointTpl.qtpl:170
+//line endpointTpl.qtpl:179
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:170
+//line endpointTpl.qtpl:179
 	qw422016.N().S(`)
     if !ok {
         return nil, nil, apis.ErrWrongParamsList
@@ -524,28 +553,32 @@ func Get`)
 }
 
 func Handle`)
-//line endpointTpl.qtpl:178
+//line endpointTpl.qtpl:187
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:178
+//line endpointTpl.qtpl:187
 	qw422016.N().S(`Get(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:179
+//line endpointTpl.qtpl:188
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:179
+//line endpointTpl.qtpl:188
 	qw422016.N().S(`Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle`)
+//line endpointTpl.qtpl:190
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:190
+	qw422016.N().S(`Get")
     }
 
     res := make([]`)
-//line endpointTpl.qtpl:184
+//line endpointTpl.qtpl:193
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:184
+//line endpointTpl.qtpl:193
 	qw422016.N().S(`, 0)
     buf := &`)
-//line endpointTpl.qtpl:185
+//line endpointTpl.qtpl:194
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:185
+//line endpointTpl.qtpl:194
 	qw422016.N().S(`{}
     err = table.SelectAndScanEach(ctx,
         func() error {
@@ -557,7 +590,11 @@ func Handle`)
         params.SqlOptions(ctx, true)...
     )
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle`)
+//line endpointTpl.qtpl:205
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:205
+	qw422016.N().S(`Get")
     }
 
     if len(res) == 0 {
@@ -569,17 +606,21 @@ func Handle`)
 }
 
 func Handle`)
-//line endpointTpl.qtpl:207
+//line endpointTpl.qtpl:216
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:207
+//line endpointTpl.qtpl:216
 	qw422016.N().S(`Put(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:208
+//line endpointTpl.qtpl:217
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:208
+//line endpointTpl.qtpl:217
 	qw422016.N().S(`Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle`)
+//line endpointTpl.qtpl:219
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:219
+	qw422016.N().S(`Put")
     }
 
 		id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
@@ -588,24 +629,28 @@ func Handle`)
 		}
 
 		return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/`)
-//line endpointTpl.qtpl:218
+//line endpointTpl.qtpl:227
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:218
+//line endpointTpl.qtpl:227
 	qw422016.N().S(`/put")
 }
 
 func Handle`)
-//line endpointTpl.qtpl:221
+//line endpointTpl.qtpl:230
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:221
+//line endpointTpl.qtpl:230
 	qw422016.N().S(`Update(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:222
+//line endpointTpl.qtpl:231
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:222
+//line endpointTpl.qtpl:231
 	qw422016.N().S(`Params(ctx)
     if err != nil {
-        return nil, errors.Wrap(err, "")
+        return nil, errors.Wrap(err, "Handle`)
+//line endpointTpl.qtpl:233
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:233
+	qw422016.N().S(`Update")
     }
 
 	badParams := make(map[string]string, 0)
@@ -661,37 +706,176 @@ func Handle`)
     }
 
     return crud.RenderAcceptedResult(ctx, colSel, buf, "/table/`)
-//line endpointTpl.qtpl:279
+//line endpointTpl.qtpl:288
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:279
+//line endpointTpl.qtpl:288
 	qw422016.N().S(`/update")
 }
+
+func Handle`)
+//line endpointTpl.qtpl:291
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:291
+	qw422016.N().S(`Form(ctx *fasthttp.RequestCtx) (interface{}, error) {
+    table, params, err := Get`)
+//line endpointTpl.qtpl:292
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:292
+	qw422016.N().S(`Params(ctx)
+    if err != nil {
+        return nil, errors.Wrap(err, "Handle`)
+//line endpointTpl.qtpl:294
+	streamparamName(qw422016, e.Name())
+//line endpointTpl.qtpl:294
+	qw422016.N().S(`Form")
+    }
+
+    record := `)
+//line endpointTpl.qtpl:297
+	e.streamdtoName(qw422016)
+//line endpointTpl.qtpl:297
+	qw422016.N().S(`{}
+    err = table.SelectOneAndScan(ctx,
+        &record,
+        params.SqlOptions(ctx, true)...
+    )
+    if err != nil {
+        return nil, errors.Wrap(err, "")
+    }
+
+		// we must copy colsTable into local array
+		f := forms.FormField{
+			Title:       "`)
+//line endpointTpl.qtpl:308
+	qw422016.E().S(e.Table.Comment())
+//line endpointTpl.qtpl:308
+	qw422016.N().S(`",
+			Action:      "/table/`)
+//line endpointTpl.qtpl:309
+	qw422016.E().S(e.Table.Name())
+//line endpointTpl.qtpl:309
+	qw422016.N().S(`/",
+			Method:      "POST",
+			Description: "",
+		}
+
+		colDecors := make([]*forms.ColumnDecor, 0)
+
+		columns := table.Columns()
+
+	priColumns := make([]string, 0)
+	buf := bytes.NewBufferString("")
+   for _, col := range columns {
+        name := col.Name()
+        if col.Primary() {
+
+		 /* 	if arg == nil {
+				badParams[name] = "required params"
+                continue
+			}
+          if arg := ctx.UserValue("new." + name); arg != nil {
+                colSel = append(colSel, name)
+                args = append(args, arg)
+                _, err := fmt.Fprintf(buf, " %v", arg)
+                if err != nil {
+                    return nil, err
+                }
+            }
+         */   priColumns = append(priColumns, name)
+            continue
+        }
+				if !(col.AutoIncrement() || col.Name() == "id" ||
+					strings.Contains(col.Comment(), " (read_only)")) {
+
+					colDec := forms.NewColumnDecor(col, nil)
+					colDec.IsDisabled = colDec.IsReadOnly && !(colDec.IsHidden)
+					colDec.IsSlice = strings.HasPrefix(col.Type(), "_")
+					colDec.Value = nil
+
+					if col.Primary() {
+						colDec.IsHidden = true
+						colDec.InputType = "hidden"
+					} else if col.Type() == "text" {
+						colDec.InputType = "textarea"
+					} else if col.Name() == "id_photos" {
+						colDec.InputType = "attachment"
+					} else if col.Name() == "memo" {
+						colDec.InputType = "markdown"
+					}
+					colDecors = append(colDecors, colDec)
+				}
+    }
+
+			f.Action += "/update"
+
+    		lang, ok := ctx.UserValue(apis.ParamsLang.Name).(string)
+    		if ok {
+    			colDecors = append(colDecors, &forms.ColumnDecor{
+    				Column:      dbEngine.NewStringColumn("lang", "lang", true),
+    				IsHidden:    true,
+    				InputType:   "hidden",
+    				PatternList: nil,
+    				Value:       lang,
+    			})
+    		}
+
+ 		btnList := []forms.Button{
+ 			{ButtonType: "submit", Title: "Insert", Position: true},
+ 			{ButtonType: "reset", Title: "Clear", Position: false},
+ 		}
+
+   		blocks := []forms.BlockColumns{
+    			{
+    				Buttons:     btnList,
+    				Columns:     colDecors,
+    				Id:          1,
+    				Title:       "",
+    				Description: "",
+    			},
+    		}
+
+    		_, ok = ctx.UserValue(apis.ParamsHTML.Name).(bool)
+    		if !ok {
+    			views.WriteJSONHeaders(ctx)
+    		}
+
+    		if f.Description == "" {
+    			f.Description = "Input data for " + table.Comment()
+    		}
+    		f.WriteRenderForm(
+    			ctx.Response.BodyWriter(),
+    			ok, // && isHtml,
+    			blocks...)
+
+    		return nil, nil
+
+}
 `)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 }
 
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 func (e *EndpointTpl) WriteApisFile(qq422016 qtio422016.Writer) {
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	e.StreamApisFile(qw422016)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	qt422016.ReleaseWriter(qw422016)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 }
 
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 func (e *EndpointTpl) ApisFile() string {
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	qb422016 := qt422016.AcquireByteBuffer()
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	e.WriteApisFile(qb422016)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	qs422016 := string(qb422016.B)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	qt422016.ReleaseByteBuffer(qb422016)
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 	return qs422016
-//line endpointTpl.qtpl:281
+//line endpointTpl.qtpl:405
 }

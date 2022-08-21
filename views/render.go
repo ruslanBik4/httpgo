@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 // Package views подготовка вывода данных в поток возврата
 package views
@@ -14,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
@@ -58,11 +62,12 @@ func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
 // RenderAnyPage (deprecate)
 //TODO: replace string output by streaming
 func RenderAnyPage(ctx *fasthttp.RequestCtx, strContent string) error {
+	content := gotools.StringToBytes(strContent)
 	if IsAJAXRequest(&ctx.Request) {
-		_, err := ctx.Write([]byte(strContent))
+		_, err := ctx.Write(content)
 		return err
 	}
-	p := &pages.IndexPageBody{Content: strContent, Route: string(ctx.Path()), Buff: ctx}
+	p := &pages.IndexPageBody{Content: content, Route: string(ctx.Path()), Buff: ctx}
 
 	return RenderTemplate(ctx, "index", p)
 }
@@ -104,7 +109,7 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 	case "index":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
 
-		if p.Content == "" {
+		if len(p.Content) == 0 {
 
 			//p.Title   = "Авторизация"
 			headPage.Title = "Страничка управления миром - бета-версия"
@@ -114,7 +119,9 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 			p.Buff = ctx
 		}
 
-		headPage.WriteHeadHTML(ctx)
+		if p.HeadHTML == nil {
+			headPage.WriteHeadHTML(ctx)
+		}
 		p.WriteIndexHTML(ctx)
 	case "signinForm":
 		RenderSignForm(ctx, "Введите пароль, полученный по почте")

@@ -45,15 +45,16 @@ package db
 import (
 	"fmt"
 	"bytes"
+	"strings"
 `)
-//line enpdointHeader.qtpl:23
+//line enpdointHeader.qtpl:24
 	if unSafe {
-//line enpdointHeader.qtpl:23
+//line enpdointHeader.qtpl:24
 		qw422016.N().S(`"unsafe"
 	`)
-//line enpdointHeader.qtpl:24
+//line enpdointHeader.qtpl:25
 	}
-//line enpdointHeader.qtpl:24
+//line enpdointHeader.qtpl:25
 	qw422016.N().S(`
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fastjson"
@@ -63,42 +64,43 @@ import (
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/httpgo/apis/crud"
 `)
-//line enpdointHeader.qtpl:32
+//line enpdointHeader.qtpl:33
 	if crud {
-//line enpdointHeader.qtpl:32
+//line enpdointHeader.qtpl:33
 	}
-//line enpdointHeader.qtpl:32
+//line enpdointHeader.qtpl:33
 	qw422016.N().S(`
 	"github.com/pkg/errors"
+	"github.com/ruslanBik4/httpgo/views/templates/forms"
 )
 
 
 `)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 }
 
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 func WriteHead(qq422016 qtio422016.Writer, crud, unSafe bool) {
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	StreamHead(qw422016, crud, unSafe)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	qt422016.ReleaseWriter(qw422016)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 }
 
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 func Head(crud, unSafe bool) string {
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	qb422016 := qt422016.AcquireByteBuffer()
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	WriteHead(qb422016, crud, unSafe)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	qs422016 := string(qb422016.B)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	qt422016.ReleaseByteBuffer(qb422016)
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 	return qs422016
-//line enpdointHeader.qtpl:37
+//line enpdointHeader.qtpl:39
 }

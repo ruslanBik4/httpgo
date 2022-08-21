@@ -7,6 +7,8 @@
 
 package apis
 
+import "go/types"
+
 // content types
 const (
 	ContentTypeJSON      = "application/json"
@@ -73,5 +75,31 @@ var (
 	schemas = map[bool]string{
 		false: "http",
 		true:  "https",
+	}
+)
+
+var (
+	ParamsHTML = InParam{
+		Name: "html",
+		Desc: "need for get result in html instead JSON",
+		Req:  false,
+		Type: NewTypeInParam(types.Bool),
+	}
+	ParamsLang = InParam{
+		Name:     "lang",
+		Desc:     "need to get result on non-english",
+		DefValue: "en",
+		Req:      true,
+		Type:     NewTypeInParam(types.String),
+	}
+	ParamsGetFormActions = InParam{
+		Name: "is_get_form_actions",
+		Desc: "need to get form actions in response",
+		Req:  false,
+		Type: NewTypeInParam(types.Bool),
+	}
+	BasicParams = []InParam{
+		ParamsHTML,
+		ParamsLang,
 	}
 )

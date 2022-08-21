@@ -2,6 +2,7 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
+	"github.com/ruslanBik4/httpgo/views/js"
 	"io"
 )
 %}
@@ -10,18 +11,23 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     type IndexPageBody struct {
         Name []byte
         Pass []byte
-        Content string
+        Content []byte
         ContentWrite func(w io.Writer)
         Buff    io.Writer
         Catalog []string
         TopMenu layouts.Menu
+        FooterMenu   layouts.Menu
+        HeadHTML     *layouts.HeadHTMLPage
+        OwnerMenu    *layouts.MenuOwnerBody
         Title string
         Route string
     }
 %}
 {% func (body *IndexPageBody) IndexHTML() %}
+{%= body.HeadHTML.HeadHTML() %}
 <body>
-    {%= layouts.HeaderHTML(body.TopMenu) %}
+        {%= js.HeadJSForForm() %}
+        {%= layouts.HeaderHTML(body.TopMenu) %}
 <div class="content-wrap">
 <div id="container-fluid">
     <div class="row-fluid">
@@ -35,6 +41,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
                 {%code
                     if body.ContentWrite != nil {
                         body.ContentWrite(body.Buff)
+                    } else {
+                        body.Buff.Write(body.Content)
                     }
                 %}
             </div>
@@ -43,7 +51,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 </div>
 </div>
 
-    {%= layouts.FooterHTML("test@email.net", "8-000-00-00", "+380(00)000-00-00") %}
+    {%= layouts.FooterHTML(body.FooterMenu) %}
 
 </body>
 {% endfunc %}

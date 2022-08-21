@@ -13,6 +13,7 @@ type AdminPageBody struct {
     Content string
     Catalog layouts.Menu
     TopMenu layouts.Menu
+    FooterMenu   layouts.Menu
     Title string
     Head *layouts.HeadHTMLPage
 }
@@ -35,6 +36,6 @@ type AdminPageBody struct {
 </div>
 </div>
 
-{%= layouts.FooterHTML("test@email.net", "8-000-00-00", "+380(00)000-00-00") %}
+{%= layouts.FooterHTML(body.FooterMenu) %}
 </body>
 {% endfunc %}
