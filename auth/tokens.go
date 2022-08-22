@@ -31,13 +31,13 @@ type TokenData interface {
 
 type SimpleTokenData struct {
 	isAdmin    bool
-	name, desc string
+	Name, Desc string
 	id         int
 	Expiry     time.Time `json:"expiry,omitempty"`
 }
 
 func NewSimpleTokenData(name string, desc string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
-	return &SimpleTokenData{isAdmin: isAdmin, name: name, desc: desc, id: id, Expiry: expiry}
+	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, id: id, Expiry: expiry}
 }
 
 func (s *SimpleTokenData) IsAdmin() bool {
