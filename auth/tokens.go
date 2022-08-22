@@ -30,10 +30,10 @@ type TokenData interface {
 }
 
 type SimpleTokenData struct {
-	isAdmin    bool
-	Name, Desc string
-	id         int
-	Expiry     time.Time `json:"expiry,omitempty"`
+	isAdmin           bool
+	Name, Desc, Token string
+	id                int
+	Expiry            time.Time `json:"expiry,omitempty"`
 }
 
 func NewSimpleTokenData(name string, desc string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
@@ -46,6 +46,10 @@ func (s *SimpleTokenData) IsAdmin() bool {
 
 func (s *SimpleTokenData) GetUserID() int {
 	return s.id
+}
+
+func (s *SimpleTokenData) IsExpired() bool {
+	return s.Expiry.After(time.Now())
 }
 
 type mapToken struct {
