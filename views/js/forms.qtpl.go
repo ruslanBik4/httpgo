@@ -66,7 +66,20 @@ function setClickAll() {
       // add onSubmit event instead default behavirios form
       $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
        // add click event instead default - response will show on div.#content
-     $( 'a[href!="#"]:not([rel]):not(onclick)').each( function () {
+     $( 'a[target=_blank][href!="#"]:not([rel]):not(onclick)').each( function () {
+         $(this).fancybox({
+              'autoScale': true,
+              'transitionIn': 'elastic',
+              'transitionOut': 'elastic',
+              'speedIn': 500,
+              'speedOut': 300,
+              'type':'ajax',
+              'autoDimensions': true,
+              'centerOnScroll': true,
+              'href' : this.href
+           })
+     })
+     $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = this.href
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");
@@ -392,31 +405,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:364
+//line forms.qtpl:377
 }
 
-//line forms.qtpl:364
+//line forms.qtpl:377
 func WriteHeadJSForForm(qq422016 qtio422016.Writer) {
-//line forms.qtpl:364
+//line forms.qtpl:377
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:364
+//line forms.qtpl:377
 	StreamHeadJSForForm(qw422016)
-//line forms.qtpl:364
+//line forms.qtpl:377
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:364
+//line forms.qtpl:377
 }
 
-//line forms.qtpl:364
+//line forms.qtpl:377
 func HeadJSForForm() string {
-//line forms.qtpl:364
+//line forms.qtpl:377
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:364
+//line forms.qtpl:377
 	WriteHeadJSForForm(qb422016)
-//line forms.qtpl:364
+//line forms.qtpl:377
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:364
+//line forms.qtpl:377
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:364
+//line forms.qtpl:377
 	return qs422016
-//line forms.qtpl:364
+//line forms.qtpl:377
 }

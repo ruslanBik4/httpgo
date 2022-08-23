@@ -36,7 +36,20 @@ function setClickAll() {
       // add onSubmit event instead default behavirios form
       $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
        // add click event instead default - response will show on div.#content
-     $( 'a[href!="#"]:not([rel]):not(onclick)').each( function () {
+     $( 'a[target=_blank][href!="#"]:not([rel]):not(onclick)').each( function () {
+         $(this).fancybox({
+              'autoScale': true,
+              'transitionIn': 'elastic',
+              'transitionOut': 'elastic',
+              'speedIn': 500,
+              'speedOut': 300,
+              'type':'ajax',
+              'autoDimensions': true,
+              'centerOnScroll': true,
+              'href' : this.href
+           })
+     })
+     $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = this.href
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");

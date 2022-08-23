@@ -103,9 +103,13 @@ func (menu Menu) StreamRenderMenu(qw422016 *qt422016.Writer, classMenu, classLi 
 //line menu.qtpl:21
 		qw422016.N().S(`"`)
 //line menu.qtpl:22
-		if Target > "" {
+		if item.Target > "" {
 //line menu.qtpl:22
-			qw422016.N().S(`target="%{s= item.Target %}"`)
+			qw422016.N().S(`target="`)
+//line menu.qtpl:22
+			qw422016.N().S(item.Target)
+//line menu.qtpl:22
+			qw422016.N().S(`"`)
 //line menu.qtpl:22
 		}
 //line menu.qtpl:22
