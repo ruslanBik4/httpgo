@@ -105,7 +105,7 @@ func (menu Menu) StreamRenderMenu(qw422016 *qt422016.Writer, classMenu, classLi 
 //line menu.qtpl:22
 		if Target > "" {
 //line menu.qtpl:22
-			qw422016.N().S(`target="%{S= item.Target %}"`)
+			qw422016.N().S(`target="%{s= item.Target %}"`)
 //line menu.qtpl:22
 		}
 //line menu.qtpl:22
