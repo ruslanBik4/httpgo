@@ -3,20 +3,22 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 форма авторизации на сайте.
 {% code
-        type SignForm struct {
-            Email, Password string
-        }
+    type SignForm struct {
+        Email, Password string
+    }
 %}
-{% func (sf *SignForm) SigninForm() %}
+{% func (sf *SignForm) SigningForm() %}
 <div class="main-form-wrap">
-    <form target="content" action="/user/signin/" class="form-signin" onsubmit="return saveForm(this, afterLogin);" >
-        <h2 class="form-signin-heading">Авторизация</h2>
-        <input type="email" name="login" class="input-block-level" placeholder="Email, указанный при регистрации" value="{%s sf.Email %}">
-        <input type="password" name="password" class="input-block-level" placeholder="{%s sf.Password %}">
+    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" >
+        <h2 class="form-signing-heading">SignIn</h2>
+        <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="{%s sf.Email %}">
+        <input type="password" name="key" class="input-block-level" placeholder="{%s sf.Password %}">
         <label class="checkbox">
-         <input type="checkbox" name="remember" value="remember-me"> Запомнить меня в системе
+         <input type="checkbox" name="remember" value="remember-me"> Save me on site
         </label>
-       <button class="main-btn" type="submit">Войти</button>
+       <button class="main-btn" type="submit">Login</button>
+        <output></output>
+        <progress value='0' max='100' hidden > </progress>
     </form>
 </div>
 {% endfunc %}

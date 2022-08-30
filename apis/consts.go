@@ -92,6 +92,18 @@ var (
 		Req:      true,
 		Type:     NewTypeInParam(types.String),
 	}
+	ParamsEmail = InParam{
+		Name: "email",
+		Desc: "email for login",
+		Req:  true,
+		Type: NewTypeInParam(types.String),
+	}
+	ParamsPassword = InParam{
+		Name: "key",
+		Desc: "password or other key word (on future)",
+		Req:  true,
+		Type: NewTypeInParam(types.String),
+	}
 	ParamsGetFormActions = InParam{
 		Name: "is_get_form_actions",
 		Desc: "need to get form actions in response",

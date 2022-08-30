@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Першій пріватний програміст.
+ */
 
 package apis
 
@@ -13,8 +16,9 @@ import (
 	"unsafe"
 
 	jsoniter "github.com/json-iterator/go"
-	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/logs"
 )
 
 type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) interface{}
@@ -29,6 +33,39 @@ type InParam struct {
 	DefValue          interface{}
 	IncompatibleWiths []string
 	TestValue         string
+}
+
+func (param InParam) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 'g':
+		fmt.Fprintf(s,
+			`{
+						Name: "%s", 
+						Desc: %q, 
+						Type: %g,`,
+			param.Name,
+			param.Desc,
+			param.Type,
+		)
+		if len(param.PartReq) > 0 {
+			fmt.Fprintf(s, "\r\t\t\t\t\t\tPartReq: %v,", param.PartReq)
+		}
+		if len(param.IncompatibleWiths) > 0 {
+			fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
+		}
+		if param.DefValue != nil {
+			fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
+		}
+		if param.TestValue > "" {
+			fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
+		}
+		if param.Req {
+			fmt.Fprintf(s, "\r\t\t\t\t\t\tReq: %v,", param.Req)
+		}
+		fmt.Fprintf(s, "\n\t\t\t\t\t}")
+	default:
+		fmt.Fprint(s, param)
+	}
 }
 
 func (param *InParam) isPartReq() bool {

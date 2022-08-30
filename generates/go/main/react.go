@@ -21,6 +21,7 @@ import (
 )
 
 func ImportReact(dst string, args ...string) error {
+	return nil
 	cmd := exec.Command("git", args...)
 	cmd.Dir = path.Join(dst, "static")
 	err := MakeSrcDir(cmd.Dir)

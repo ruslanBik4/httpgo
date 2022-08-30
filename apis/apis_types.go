@@ -17,6 +17,8 @@ import (
 	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
@@ -306,4 +308,26 @@ func (t TypeInParam) String() string {
 	}
 
 	return res
+}
+
+func (t TypeInParam) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 'g':
+		nameFunc := "apis.NewTypeInParam"
+		if t.isSlice {
+			nameFunc = "apis.NewSliceTypeInParam"
+		}
+		res, namePackage := cases.Title(language.English, cases.NoLower).String(typesExt.StringTypeKinds(t.BasicKind)), ""
+		if t.BasicKind < 0 {
+			res = "T" + res
+			namePackage = "Ext"
+		}
+		fmt.Fprintf(s, "%s(types%s.%s)",
+			nameFunc,
+			namePackage,
+			res,
+		)
+	default:
+		fmt.Fprint(s, t)
+	}
 }

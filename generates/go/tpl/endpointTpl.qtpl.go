@@ -156,150 +156,240 @@ func (e *EndpointTpl) NameRoutes() string {
 //line endpointTpl.qtpl:39
 }
 
+//line endpointTpl.qtpl:41
+func (e *EndpointTpl) StreamRequiredFields(qw422016 *qt422016.Writer) {
 //line endpointTpl.qtpl:43
+	isNext := false
+
+//line endpointTpl.qtpl:45
+	for _, col := range e.Table.Columns() {
+//line endpointTpl.qtpl:46
+		if col.Primary() {
+//line endpointTpl.qtpl:47
+			if isNext {
+//line endpointTpl.qtpl:47
+				qw422016.N().S(`,`)
+//line endpointTpl.qtpl:47
+			}
+//line endpointTpl.qtpl:47
+			qw422016.N().S(`"`)
+//line endpointTpl.qtpl:48
+			qw422016.E().S(col.Name())
+//line endpointTpl.qtpl:48
+			qw422016.N().S(`"`)
+//line endpointTpl.qtpl:49
+		}
+//line endpointTpl.qtpl:50
+	}
+//line endpointTpl.qtpl:51
+}
+
+//line endpointTpl.qtpl:51
+func (e *EndpointTpl) WriteRequiredFields(qq422016 qtio422016.Writer) {
+//line endpointTpl.qtpl:51
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line endpointTpl.qtpl:51
+	e.StreamRequiredFields(qw422016)
+//line endpointTpl.qtpl:51
+	qt422016.ReleaseWriter(qw422016)
+//line endpointTpl.qtpl:51
+}
+
+//line endpointTpl.qtpl:51
+func (e *EndpointTpl) RequiredFields() string {
+//line endpointTpl.qtpl:51
+	qb422016 := qt422016.AcquireByteBuffer()
+//line endpointTpl.qtpl:51
+	e.WriteRequiredFields(qb422016)
+//line endpointTpl.qtpl:51
+	qs422016 := string(qb422016.B)
+//line endpointTpl.qtpl:51
+	qt422016.ReleaseByteBuffer(qb422016)
+//line endpointTpl.qtpl:51
+	return qs422016
+//line endpointTpl.qtpl:51
+}
+
+//line endpointTpl.qtpl:55
 func (e *EndpointTpl) StreamApisFile(qw422016 *qt422016.Writer) {
-//line endpointTpl.qtpl:43
+//line endpointTpl.qtpl:55
 	qw422016.N().S(`
 type
     `)
-//line endpointTpl.qtpl:45
+//line endpointTpl.qtpl:57
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:45
+//line endpointTpl.qtpl:57
 	qw422016.N().S(` struct {
        `)
-//line endpointTpl.qtpl:46
+//line endpointTpl.qtpl:58
 	for _, param := range e.Params {
-//line endpointTpl.qtpl:46
+//line endpointTpl.qtpl:58
 		qw422016.N().S(` `)
-//line endpointTpl.qtpl:47
+//line endpointTpl.qtpl:59
 		qw422016.N().S(fmt.Sprintf("%-21s", paramName(param.Name)))
-//line endpointTpl.qtpl:47
+//line endpointTpl.qtpl:59
 		qw422016.N().S(` `)
-//line endpointTpl.qtpl:48
+//line endpointTpl.qtpl:60
 		if t, ok := (param.Type).(apis.TypeInParam); ok && t.DTO != nil {
-//line endpointTpl.qtpl:48
-			qw422016.N().S(` `)
-//line endpointTpl.qtpl:49
+//line endpointTpl.qtpl:61
 			qw422016.N().S(fmt.Sprintf("%T", t.DTO))
-//line endpointTpl.qtpl:49
+//line endpointTpl.qtpl:61
 			qw422016.N().S(` `)
-//line endpointTpl.qtpl:50
+//line endpointTpl.qtpl:62
 		} else {
-//line endpointTpl.qtpl:50
+//line endpointTpl.qtpl:62
 			qw422016.N().S(` `)
-//line endpointTpl.qtpl:51
+//line endpointTpl.qtpl:63
 			qw422016.N().S(param.Type.String())
-//line endpointTpl.qtpl:51
+//line endpointTpl.qtpl:63
 			qw422016.N().S(` `)
-//line endpointTpl.qtpl:52
+//line endpointTpl.qtpl:64
 		}
-//line endpointTpl.qtpl:52
+//line endpointTpl.qtpl:64
 		qw422016.N().S(` `)
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S(`       `)
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S("`")
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S(`json:"`)
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S(`"`)
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S("`")
-//line endpointTpl.qtpl:53
+//line endpointTpl.qtpl:65
 		qw422016.N().S(`
        `)
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	}
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	qw422016.N().S(` Limit                int     `)
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	qw422016.N().S("`")
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	qw422016.N().S(`json:"id_photos"`)
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	qw422016.N().S("`")
-//line endpointTpl.qtpl:54
+//line endpointTpl.qtpl:66
 	qw422016.N().S(`
      }
 // GetValue implement httpgo.RouteDTO interface
 func (r *`)
-//line endpointTpl.qtpl:57
+//line endpointTpl.qtpl:69
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:57
+//line endpointTpl.qtpl:69
+	qw422016.N().S(`) ReadParams(ctx *fasthttp.RequestCtx) {
+   `)
+//line endpointTpl.qtpl:70
+	for _, param := range e.Params {
+//line endpointTpl.qtpl:70
+		qw422016.N().S(`
+        r.`)
+//line endpointTpl.qtpl:71
+		qw422016.N().S(paramName(param.Name))
+//line endpointTpl.qtpl:71
+		qw422016.N().S(`, _ = ctx.UserValue("`)
+//line endpointTpl.qtpl:71
+		qw422016.E().S(param.Name)
+//line endpointTpl.qtpl:71
+		qw422016.N().S(`").(`)
+//line endpointTpl.qtpl:72
+		if t, ok := (param.Type).(apis.TypeInParam); ok && t.DTO != nil {
+//line endpointTpl.qtpl:73
+			qw422016.N().S(fmt.Sprintf("%T", t.DTO))
+//line endpointTpl.qtpl:74
+		} else {
+//line endpointTpl.qtpl:75
+			qw422016.E().S(param.Type.String())
+//line endpointTpl.qtpl:76
+		}
+//line endpointTpl.qtpl:77
+		qw422016.N().S(`)
+   `)
+//line endpointTpl.qtpl:78
+	}
+//line endpointTpl.qtpl:78
+	qw422016.N().S(`
+}
+// GetValue implement httpgo.RouteDTO interface
+func (r *`)
+//line endpointTpl.qtpl:81
+	e.streamdtoName(qw422016)
+//line endpointTpl.qtpl:81
 	qw422016.N().S(`) GetValue() interface{} {
 	return r
 }
 // NewValue implement httpgo.RouteDTO interface
 func (r *`)
-//line endpointTpl.qtpl:61
+//line endpointTpl.qtpl:85
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:61
+//line endpointTpl.qtpl:85
 	qw422016.N().S(`) NewValue() interface{} {
 	return `)
-//line endpointTpl.qtpl:62
+//line endpointTpl.qtpl:86
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:62
+//line endpointTpl.qtpl:86
 	qw422016.N().S(`{}
 }
 // CheckParams implement CheckDTO interface, put each params into user value on context
 func (r *`)
-//line endpointTpl.qtpl:65
+//line endpointTpl.qtpl:89
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:65
+//line endpointTpl.qtpl:89
 	qw422016.N().S(`) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	val := fastjson.MustParseBytes(ctx.Request.Body())
 `)
-//line endpointTpl.qtpl:67
+//line endpointTpl.qtpl:91
 	for _, param := range e.Params {
-//line endpointTpl.qtpl:67
+//line endpointTpl.qtpl:91
 		qw422016.N().S(`	if val.Exists("`)
-//line endpointTpl.qtpl:68
+//line endpointTpl.qtpl:92
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:68
+//line endpointTpl.qtpl:92
 		qw422016.N().S(`") {
 		ctx.SetUserValue("`)
-//line endpointTpl.qtpl:69
+//line endpointTpl.qtpl:93
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:69
+//line endpointTpl.qtpl:93
 		qw422016.N().S(`", r.`)
-//line endpointTpl.qtpl:69
+//line endpointTpl.qtpl:93
 		streamparamName(qw422016, param.Name)
-//line endpointTpl.qtpl:69
+//line endpointTpl.qtpl:93
 		qw422016.N().S(`)
 	}
 `)
-//line endpointTpl.qtpl:71
+//line endpointTpl.qtpl:95
 	}
-//line endpointTpl.qtpl:71
+//line endpointTpl.qtpl:95
 	qw422016.N().S(`	return true
 }
 // RefColValue return referral of column
 func (r *`)
-//line endpointTpl.qtpl:75
+//line endpointTpl.qtpl:99
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:75
+//line endpointTpl.qtpl:99
 	qw422016.N().S(`) RefColValue(name string) interface{}{
 	switch name {
 `)
-//line endpointTpl.qtpl:77
+//line endpointTpl.qtpl:101
 	for _, param := range e.Params {
-//line endpointTpl.qtpl:77
+//line endpointTpl.qtpl:101
 		qw422016.N().S(`	case "`)
-//line endpointTpl.qtpl:78
+//line endpointTpl.qtpl:102
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:78
+//line endpointTpl.qtpl:102
 		qw422016.N().S(`":
         return &r.`)
-//line endpointTpl.qtpl:79
+//line endpointTpl.qtpl:103
 		qw422016.N().S(paramName(param.Name))
-//line endpointTpl.qtpl:79
+//line endpointTpl.qtpl:103
 		qw422016.N().S(`
 `)
-//line endpointTpl.qtpl:80
+//line endpointTpl.qtpl:104
 	}
-//line endpointTpl.qtpl:80
+//line endpointTpl.qtpl:104
 	qw422016.N().S(`   	default:
 		logs.ErrorLog(errors.Errorf("unknown column name '%s'", name))
 		return nil
@@ -307,29 +397,29 @@ func (r *`)
 }
 // ColValue return value of column
 func (r *`)
-//line endpointTpl.qtpl:87
+//line endpointTpl.qtpl:111
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:87
+//line endpointTpl.qtpl:111
 	qw422016.N().S(`) ColValue(name string) interface{}{
 	switch name {
 `)
-//line endpointTpl.qtpl:89
+//line endpointTpl.qtpl:113
 	for _, param := range e.Params {
-//line endpointTpl.qtpl:89
+//line endpointTpl.qtpl:113
 		qw422016.N().S(`	case "`)
-//line endpointTpl.qtpl:90
+//line endpointTpl.qtpl:114
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:90
+//line endpointTpl.qtpl:114
 		qw422016.N().S(`":
         return r.`)
-//line endpointTpl.qtpl:91
+//line endpointTpl.qtpl:115
 		streamparamName(qw422016, param.Name)
-//line endpointTpl.qtpl:91
+//line endpointTpl.qtpl:115
 		qw422016.N().S(`
 `)
-//line endpointTpl.qtpl:92
+//line endpointTpl.qtpl:116
 	}
-//line endpointTpl.qtpl:92
+//line endpointTpl.qtpl:116
 	qw422016.N().S(`   	default:
 		logs.ErrorLog(errors.Errorf("unknown column name '%s'", name))
 		return nil
@@ -337,9 +427,9 @@ func (r *`)
 }
 // GetFields implement dbEngine.RowScanner interface
 func (r *`)
-//line endpointTpl.qtpl:99
+//line endpointTpl.qtpl:123
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:99
+//line endpointTpl.qtpl:123
 	qw422016.N().S(`) GetFields(columns []dbEngine.Column) []interface{} {
 	v := make([]interface{}, len(columns))
 	for i, col := range columns {
@@ -351,41 +441,41 @@ func (r *`)
 
 // NewValue implement httpgo.RouteDTO interface
 func (r *`)
-//line endpointTpl.qtpl:109
+//line endpointTpl.qtpl:133
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:109
+//line endpointTpl.qtpl:133
 	qw422016.N().S(`) SqlOptions(ctx *fasthttp.RequestCtx, isWhere bool) []dbEngine.BuildSqlOptions {
         args := make([]interface{}, 0, `)
-//line endpointTpl.qtpl:110
+//line endpointTpl.qtpl:134
 	qw422016.N().D(len(e.Params))
-//line endpointTpl.qtpl:110
+//line endpointTpl.qtpl:134
 	qw422016.N().S(`)
         colNames := make([]string, 0, `)
-//line endpointTpl.qtpl:111
+//line endpointTpl.qtpl:135
 	qw422016.N().D(len(e.Params))
-//line endpointTpl.qtpl:111
+//line endpointTpl.qtpl:135
 	qw422016.N().S(`)
         `)
-//line endpointTpl.qtpl:112
+//line endpointTpl.qtpl:136
 	for _, param := range e.Params {
-//line endpointTpl.qtpl:112
+//line endpointTpl.qtpl:136
 		qw422016.N().S(`
             if v := ctx.UserValue( "`)
-//line endpointTpl.qtpl:113
+//line endpointTpl.qtpl:137
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:113
+//line endpointTpl.qtpl:137
 		qw422016.N().S(`" ); v != nil {
                 args = append(args, v)
                 colNames = append(colNames, "`)
-//line endpointTpl.qtpl:115
+//line endpointTpl.qtpl:139
 		qw422016.E().S(param.Name)
-//line endpointTpl.qtpl:115
+//line endpointTpl.qtpl:139
 		qw422016.N().S(`")
             }
         `)
-//line endpointTpl.qtpl:117
+//line endpointTpl.qtpl:141
 	}
-//line endpointTpl.qtpl:117
+//line endpointTpl.qtpl:141
 	qw422016.N().S(`
 
 	res := []dbEngine.BuildSqlOptions{
@@ -405,180 +495,257 @@ func (r *`)
 }
 var
 	`)
-//line endpointTpl.qtpl:135
+//line endpointTpl.qtpl:159
 	e.StreamNameRoutes(qw422016)
-//line endpointTpl.qtpl:135
+//line endpointTpl.qtpl:159
 	qw422016.N().S(` = apis.ApiRoutes{
 		"/table/`)
-//line endpointTpl.qtpl:136
+//line endpointTpl.qtpl:160
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:136
+//line endpointTpl.qtpl:160
 	qw422016.N().S(`/get": {
 			Fnc:    Handle`)
-//line endpointTpl.qtpl:137
+//line endpointTpl.qtpl:161
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:137
+//line endpointTpl.qtpl:161
 	qw422016.N().S(`Get,
 			Desc:   "get data of table '`)
-//line endpointTpl.qtpl:138
+//line endpointTpl.qtpl:162
 	qw422016.E().S(e.Name())
-//line endpointTpl.qtpl:138
+//line endpointTpl.qtpl:162
 	qw422016.N().S(`' (`)
-//line endpointTpl.qtpl:138
+//line endpointTpl.qtpl:162
 	qw422016.E().S(e.Desc)
-//line endpointTpl.qtpl:138
+//line endpointTpl.qtpl:162
 	qw422016.N().S(`)",
 			DTO:    &`)
-//line endpointTpl.qtpl:139
+//line endpointTpl.qtpl:163
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:139
+//line endpointTpl.qtpl:163
 	qw422016.N().S(`{},
 			Method: apis.GET,
 			NeedAuth: true,
 		},
 		"/table/`)
-//line endpointTpl.qtpl:143
+//line endpointTpl.qtpl:167
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:143
+//line endpointTpl.qtpl:167
 	qw422016.N().S(`/put": {
 			Fnc:    Handle`)
-//line endpointTpl.qtpl:144
+//line endpointTpl.qtpl:168
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:144
+//line endpointTpl.qtpl:168
 	qw422016.N().S(`Put,
 			Desc:   "`)
-//line endpointTpl.qtpl:145
+//line endpointTpl.qtpl:169
 	qw422016.E().S(e.Desc)
-//line endpointTpl.qtpl:145
+//line endpointTpl.qtpl:169
 	qw422016.N().S(`",
 			DTO:    &`)
-//line endpointTpl.qtpl:146
+//line endpointTpl.qtpl:170
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:146
+//line endpointTpl.qtpl:170
 	qw422016.N().S(`{},
+			Multipart: true,
 			Method: apis.POST,
 			NeedAuth: true,
+			Params: []apis.InParam{
+			        apis.ParamsGetFormActions,
+`)
+//line endpointTpl.qtpl:176
+	for _, param := range e.Params {
+//line endpointTpl.qtpl:176
+		qw422016.N().S(`			        `)
+//line endpointTpl.qtpl:177
+		col := e.Table.FindColumn(param.Name)
+		param.Req = !col.IsNullable() && !col.AutoIncrement()
+
+//line endpointTpl.qtpl:178
+		qw422016.N().S(`
+ 		            `)
+//line endpointTpl.qtpl:179
+		qw422016.N().S(fmt.Sprintf("%g", param))
+//line endpointTpl.qtpl:179
+		qw422016.N().S(`,
+`)
+//line endpointTpl.qtpl:180
+	}
+//line endpointTpl.qtpl:180
+	qw422016.N().S(`
+            },
 		},
 		"/table/`)
-//line endpointTpl.qtpl:150
+//line endpointTpl.qtpl:183
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:150
+//line endpointTpl.qtpl:183
 	qw422016.N().S(`/update": {
 			Fnc:    Handle`)
-//line endpointTpl.qtpl:151
+//line endpointTpl.qtpl:184
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:151
+//line endpointTpl.qtpl:184
 	qw422016.N().S(`Update,
 			Desc:   "`)
-//line endpointTpl.qtpl:152
+//line endpointTpl.qtpl:185
 	qw422016.E().S(e.Desc)
-//line endpointTpl.qtpl:152
+//line endpointTpl.qtpl:185
 	qw422016.N().S(`",
 			DTO:    &`)
-//line endpointTpl.qtpl:153
+//line endpointTpl.qtpl:186
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:153
+//line endpointTpl.qtpl:186
 	qw422016.N().S(`{},
 			Method: apis.POST,
+			Multipart: true,
 			NeedAuth: true,
+			Params: []apis.InParam{
+			        apis.ParamsGetFormActions,
+`)
+//line endpointTpl.qtpl:192
+	for _, param := range e.Params {
+//line endpointTpl.qtpl:192
+		qw422016.N().S(` 			        `)
+//line endpointTpl.qtpl:193
+		col := e.Table.FindColumn(param.Name)
+		param.Req = col.Primary()
+
+//line endpointTpl.qtpl:194
+		qw422016.N().S(`
+		            `)
+//line endpointTpl.qtpl:195
+		qw422016.N().S(fmt.Sprintf("%g", param))
+//line endpointTpl.qtpl:195
+		qw422016.N().S(`,
+`)
+//line endpointTpl.qtpl:196
+	}
+//line endpointTpl.qtpl:196
+	qw422016.N().S(`
+            },
 		},
 		"/table/`)
-//line endpointTpl.qtpl:157
+//line endpointTpl.qtpl:199
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:157
+//line endpointTpl.qtpl:199
 	qw422016.N().S(`/form": {
 			Fnc:    Handle`)
-//line endpointTpl.qtpl:158
+//line endpointTpl.qtpl:200
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:158
+//line endpointTpl.qtpl:200
 	qw422016.N().S(`Form,
 			Desc:   "get form for insert/update data into '`)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:201
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:201
 	qw422016.N().S(`' (`)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:201
 	qw422016.E().S(e.Desc)
-//line endpointTpl.qtpl:159
+//line endpointTpl.qtpl:201
 	qw422016.N().S(`)",
 			DTO:    &`)
-//line endpointTpl.qtpl:160
+//line endpointTpl.qtpl:202
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:160
+//line endpointTpl.qtpl:202
 	qw422016.N().S(`{},
 			Method: apis.GET,
-			Params: apis.BasicParams,
 			NeedAuth: true,
+			Params: append(apis.BasicParams, []apis.InParam{
+			        apis.ParamsGetFormActions,
+`)
+//line endpointTpl.qtpl:207
+	for _, param := range e.Params {
+//line endpointTpl.qtpl:207
+		qw422016.N().S(`			        `)
+//line endpointTpl.qtpl:208
+		param.Req = false
+
+//line endpointTpl.qtpl:208
+		qw422016.N().S(`
+ 		            `)
+//line endpointTpl.qtpl:209
+		qw422016.N().S(fmt.Sprintf("%g", param))
+//line endpointTpl.qtpl:209
+		qw422016.N().S(`,
+`)
+//line endpointTpl.qtpl:210
+	}
+//line endpointTpl.qtpl:210
+	qw422016.N().S(`
+            }...),
 			WithCors: true,
 		},
 	}
 
 func Get`)
-//line endpointTpl.qtpl:168
+//line endpointTpl.qtpl:216
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:168
+//line endpointTpl.qtpl:216
 	qw422016.N().S(`Params(ctx *fasthttp.RequestCtx) (dbEngine.Table, *`)
-//line endpointTpl.qtpl:168
+//line endpointTpl.qtpl:216
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:168
+//line endpointTpl.qtpl:216
 	qw422016.N().S(`, error) {
-    DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
+    DB, ok := ctx.UserValue(apis.Database).(*dbEngine.DB)
     if !ok {
         return nil, nil, dbEngine.ErrDBNotFound
     }
 
     table, ok := DB.Tables["`)
-//line endpointTpl.qtpl:174
+//line endpointTpl.qtpl:222
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:174
+//line endpointTpl.qtpl:222
 	qw422016.N().S(`"]
     if !ok {
         return nil, nil, dbEngine.ErrNotFoundTable{Table: "`)
-//line endpointTpl.qtpl:176
+//line endpointTpl.qtpl:224
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:176
+//line endpointTpl.qtpl:224
 	qw422016.N().S(`"}
     }
 
     params, ok := ctx.UserValue(apis.JSONParams).(*`)
-//line endpointTpl.qtpl:179
+//line endpointTpl.qtpl:227
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:179
+//line endpointTpl.qtpl:227
 	qw422016.N().S(`)
     if !ok {
-        return nil, nil, apis.ErrWrongParamsList
+        params = &`)
+//line endpointTpl.qtpl:229
+	e.streamdtoName(qw422016)
+//line endpointTpl.qtpl:229
+	qw422016.N().S(`{}
+        params.ReadParams(ctx)
     }
 
     return table, params, nil
 }
 
 func Handle`)
-//line endpointTpl.qtpl:187
+//line endpointTpl.qtpl:236
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:187
+//line endpointTpl.qtpl:236
 	qw422016.N().S(`Get(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:188
+//line endpointTpl.qtpl:237
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:188
+//line endpointTpl.qtpl:237
 	qw422016.N().S(`Params(ctx)
     if err != nil {
         return nil, errors.Wrap(err, "Handle`)
-//line endpointTpl.qtpl:190
+//line endpointTpl.qtpl:239
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:190
+//line endpointTpl.qtpl:239
 	qw422016.N().S(`Get")
     }
 
     res := make([]`)
-//line endpointTpl.qtpl:193
+//line endpointTpl.qtpl:242
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:193
+//line endpointTpl.qtpl:242
 	qw422016.N().S(`, 0)
     buf := &`)
-//line endpointTpl.qtpl:194
+//line endpointTpl.qtpl:243
 	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:194
+//line endpointTpl.qtpl:243
 	qw422016.N().S(`{}
     err = table.SelectAndScanEach(ctx,
         func() error {
@@ -591,9 +758,9 @@ func Handle`)
     )
     if err != nil {
         return nil, errors.Wrap(err, "Handle`)
-//line endpointTpl.qtpl:205
+//line endpointTpl.qtpl:254
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:205
+//line endpointTpl.qtpl:254
 	qw422016.N().S(`Get")
     }
 
@@ -606,50 +773,50 @@ func Handle`)
 }
 
 func Handle`)
-//line endpointTpl.qtpl:216
+//line endpointTpl.qtpl:265
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:216
+//line endpointTpl.qtpl:265
 	qw422016.N().S(`Put(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:217
+//line endpointTpl.qtpl:266
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:217
+//line endpointTpl.qtpl:266
 	qw422016.N().S(`Params(ctx)
     if err != nil {
         return nil, errors.Wrap(err, "Handle`)
-//line endpointTpl.qtpl:219
+//line endpointTpl.qtpl:268
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:219
+//line endpointTpl.qtpl:268
 	qw422016.N().S(`Put")
     }
 
-		id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
-		if err != nil {
-			return crud.CreateErrResult(err)
-		}
+    id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
+    if err != nil {
+        return crud.CreateErrResult(err)
+    }
 
-		return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/`)
-//line endpointTpl.qtpl:227
+    return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/`)
+//line endpointTpl.qtpl:276
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:227
+//line endpointTpl.qtpl:276
 	qw422016.N().S(`/put")
 }
 
 func Handle`)
-//line endpointTpl.qtpl:230
+//line endpointTpl.qtpl:279
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:230
+//line endpointTpl.qtpl:279
 	qw422016.N().S(`Update(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:231
+//line endpointTpl.qtpl:280
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:231
+//line endpointTpl.qtpl:280
 	qw422016.N().S(`Params(ctx)
     if err != nil {
         return nil, errors.Wrap(err, "Handle`)
-//line endpointTpl.qtpl:233
+//line endpointTpl.qtpl:282
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:233
+//line endpointTpl.qtpl:282
 	qw422016.N().S(`Update")
     }
 
@@ -706,65 +873,89 @@ func Handle`)
     }
 
     return crud.RenderAcceptedResult(ctx, colSel, buf, "/table/`)
-//line endpointTpl.qtpl:288
+//line endpointTpl.qtpl:337
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:288
+//line endpointTpl.qtpl:337
 	qw422016.N().S(`/update")
 }
 
 func Handle`)
-//line endpointTpl.qtpl:291
+//line endpointTpl.qtpl:340
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:291
+//line endpointTpl.qtpl:340
 	qw422016.N().S(`Form(ctx *fasthttp.RequestCtx) (interface{}, error) {
     table, params, err := Get`)
-//line endpointTpl.qtpl:292
+//line endpointTpl.qtpl:341
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:292
+//line endpointTpl.qtpl:341
 	qw422016.N().S(`Params(ctx)
     if err != nil {
         return nil, errors.Wrap(err, "Handle`)
-//line endpointTpl.qtpl:294
+//line endpointTpl.qtpl:343
 	streamparamName(qw422016, e.Name())
-//line endpointTpl.qtpl:294
+//line endpointTpl.qtpl:343
 	qw422016.N().S(`Form")
     }
 
-    record := `)
-//line endpointTpl.qtpl:297
-	e.streamdtoName(qw422016)
-//line endpointTpl.qtpl:297
-	qw422016.N().S(`{}
-    err = table.SelectOneAndScan(ctx,
-        &record,
-        params.SqlOptions(ctx, true)...
-    )
-    if err != nil {
-        return nil, errors.Wrap(err, "")
-    }
-
-		// we must copy colsTable into local array
-		f := forms.FormField{
-			Title:       "`)
-//line endpointTpl.qtpl:308
+ 		// we must copy colsTable into local array
+ 		f := forms.FormField{
+ 			Title:       "`)
+//line endpointTpl.qtpl:348
 	qw422016.E().S(e.Table.Comment())
-//line endpointTpl.qtpl:308
+//line endpointTpl.qtpl:348
 	qw422016.N().S(`",
-			Action:      "/table/`)
-//line endpointTpl.qtpl:309
+ 			Action:      "/table/`)
+//line endpointTpl.qtpl:349
 	qw422016.E().S(e.Table.Name())
-//line endpointTpl.qtpl:309
+//line endpointTpl.qtpl:349
 	qw422016.N().S(`/",
-			Method:      "POST",
-			Description: "",
+ 			Method:      "POST",
+ 			Description: "",
+ 		}
+
+	val := fastjson.MustParseBytes(ctx.Request.Body())
+ 	if val.Exists(`)
+//line endpointTpl.qtpl:355
+	e.StreamRequiredFields(qw422016)
+//line endpointTpl.qtpl:355
+	qw422016.N().S(`) {
+
+        record := `)
+//line endpointTpl.qtpl:357
+	e.streamdtoName(qw422016)
+//line endpointTpl.qtpl:357
+	qw422016.N().S(`{}
+        err = table.SelectOneAndScan(ctx,
+            &record,
+            params.SqlOptions(ctx, true)...
+        )
+		if err == pgx.ErrNoRows {
+			return map[string]string{`)
+//line endpointTpl.qtpl:357
+	qw422016.N().S("`")
+//line endpointTpl.qtpl:363
+	e.StreamRequiredFields(qw422016)
+//line endpointTpl.qtpl:363
+	qw422016.N().S(``)
+//line endpointTpl.qtpl:363
+	qw422016.N().S("`")
+//line endpointTpl.qtpl:363
+	qw422016.N().S(`: err.Error()}, apis.ErrWrongParamsList
 		}
+        if err != nil {
+            return nil, errors.Wrap(err, "")
+        }
+ 			f.Action += "update"
+   } else {
+   			f.Action += "put"
+   }
+
 
 		colDecors := make([]*forms.ColumnDecor, 0)
 
 		columns := table.Columns()
 
 	priColumns := make([]string, 0)
-	buf := bytes.NewBufferString("")
    for _, col := range columns {
         name := col.Name()
         if col.Primary() {
@@ -806,7 +997,6 @@ func Handle`)
 				}
     }
 
-			f.Action += "/update"
 
     		lang, ok := ctx.UserValue(apis.ParamsLang.Name).(string)
     		if ok {
@@ -851,31 +1041,31 @@ func Handle`)
 
 }
 `)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 }
 
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 func (e *EndpointTpl) WriteApisFile(qq422016 qtio422016.Writer) {
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	e.StreamApisFile(qw422016)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	qt422016.ReleaseWriter(qw422016)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 }
 
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 func (e *EndpointTpl) ApisFile() string {
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	qb422016 := qt422016.AcquireByteBuffer()
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	e.WriteApisFile(qb422016)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	qs422016 := string(qb422016.B)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	qt422016.ReleaseByteBuffer(qb422016)
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 	return qs422016
-//line endpointTpl.qtpl:405
+//line endpointTpl.qtpl:463
 }

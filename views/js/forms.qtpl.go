@@ -63,24 +63,12 @@ function setClickAll() {
   isProcess = true;
 
       console.log('ready click events!')
-      // add onSubmit event instead default behavirios form
+      // add onSubmit event instead default behaviourism form
       $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
        // add click event instead default - response will show on div.#content
-     $( 'a[target=_blank][href!="#"]:not([rel]):not(onclick)').each( function () {
-         $(this).fancybox({
-              'autoScale': true,
-              'transitionIn': 'elastic',
-              'transitionOut': 'elastic',
-              'speedIn': 500,
-              'speedOut': 300,
-              'type':'ajax',
-              'autoDimensions': true,
-              'centerOnScroll': true,
-              'href' : this.href
-           })
-     })
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = this.href
+        var target = this.target
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");
 
@@ -115,7 +103,21 @@ function setClickAll() {
                     }
                     return;
                  }
-                 $('#content').html(data);
+                 if (target !== "_modal") {
+                    $('#content').html(data);
+                 } else {
+                         $.fancybox.open({
+                               'autoScale': true,
+                               'transitionIn': 'elastic',
+                               'transitionOut': 'elastic',
+                               'speedIn': 500,
+                               'speedOut': 300,
+                                'type':'html',
+                               'autoDimensions': true,
+                               'centerOnScroll': true,
+                               'content' : data
+                            })
+                }
               },
               error: function (xhr, status, error) {
                   if (xhr.status == 401) {
@@ -124,8 +126,8 @@ function setClickAll() {
                    return;
                   }
 
-                  alert( "Code : " + xhr.status + " error :"+ error);
-                  console.log(error);
+                  alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
+                  console.log(xhr);
               }
              });
              return false;
@@ -214,7 +216,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
         beforeSubmit: function(a,f,o) {
             o.dataType = "json";
 
-             //удаляем пустые поля
+             // rm field without values
              var isNewRecord = $('input[name=id]').length == 0;
 
              for( var i = a.length -1; i >= 0; --i){
@@ -231,7 +233,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
            });
             a.push({ name: "is_get_form_actions", value: true, type: "boolean" });
 console.log(a);
-           $out.html('Начинаю отправку...');
+           $out.html('Start sending...');
             $progress.show();
             $loading.show();
         },
@@ -250,7 +252,7 @@ console.log(a);
             } else {
                 afterSaveAnyForm(data);
             }
-            // $.fancybox.close();
+             $.fancybox.close();
         },
         error: function(error, status) {
             if (errorFunction !== undefined) {
@@ -289,12 +291,10 @@ function afterSaveAnyForm(data) {
 }
 // собственно, нужен для того, чтобы после авторизации отобразит в заголовке нечто
  function afterLogin(data, thisForm) {
-    if (!data)
+    if (!data) {
+      alert("Need users data!")
       return false;
 
-    if (data.id_roles != 1) {
-      alert("only admin access!")
-      return
     }
 
      token = data.token;

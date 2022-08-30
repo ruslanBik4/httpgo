@@ -142,7 +142,7 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, args 
 		case nil, string:
 			badParams[colName] = "wrong type of file"
 		case []*multipart.FileHeader:
-			names, bytea, err := readByteA(val)
+			names, bytea, err := ReadByteA(val)
 			if err != nil {
 				logs.DebugLog(names)
 				badParams[colName] = err.Error()
@@ -178,7 +178,7 @@ type insertResult struct {
 	Msg         string        `json:"message"`
 }
 
-func readByteA(fHeaders []*multipart.FileHeader) ([]string, [][]byte, error) {
+func ReadByteA(fHeaders []*multipart.FileHeader) ([]string, [][]byte, error) {
 	bytea := make([][]byte, len(fHeaders))
 	names := make([]string, len(fHeaders))
 	for i, fHeader := range fHeaders {

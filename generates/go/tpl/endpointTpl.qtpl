@@ -38,6 +38,18 @@ func NewEndpointTpl(route apis.ApiRoute, table dbEngine.Table) *EndpointTpl {
 {%= paramName(e.Name()) %}Routes
 {% endfunc %}
 
+{% func (e *EndpointTpl) RequiredFields() %}
+{% code
+   isNext := false
+ %}
+{%- for _, col := range e.Table.Columns() -%}
+       	{% if col.Primary() %}
+       	  {% if isNext %},  {% endif %}
+       	  "{%s col.Name() %}"
+        {% endif %}
+    {% endfor %}
+{% endfunc %}
+
 {% endstripspace %}
 
 {% func (e *EndpointTpl) ApisFile() %}
@@ -45,7 +57,7 @@ type
     {%= e.dtoName() %} struct {
        {% for _, param := range e.Params %}{% collapsespace %}
        {%s= fmt.Sprintf("%-21s", paramName(param.Name)) %}
-       {% if t, ok := (param.Type).(apis.TypeInParam); ok && t.DTO != nil %}
+       {%- if t, ok := (param.Type).(apis.TypeInParam); ok && t.DTO != nil -%}
        {%s= fmt.Sprintf("%T", t.DTO) %}
        {% else %}
        {%s= param.Type.String() %}
@@ -53,6 +65,18 @@ type
 {% endcollapsespace %}       `json:"{%s param.Name %}"`
        {% endfor %} Limit                int     `json:"id_photos"`
      }
+// GetValue implement httpgo.RouteDTO interface
+func (r *{%= e.dtoName() %}) ReadParams(ctx *fasthttp.RequestCtx) {
+   {% for _, param := range e.Params %}
+        r.{%s= paramName(param.Name) %}, _ = ctx.UserValue("{%s param.Name %}").({% stripspace %}
+        {%- if t, ok := (param.Type).(apis.TypeInParam); ok && t.DTO != nil -%}
+           {%s= fmt.Sprintf("%T", t.DTO) %}
+          {%- else -%}
+           {%s param.Type.String() %}
+       {% endif %}
+        {% endstripspace %})
+   {% endfor %}
+}
 // GetValue implement httpgo.RouteDTO interface
 func (r *{%= e.dtoName() %}) GetValue() interface{} {
 	return r
@@ -144,29 +168,53 @@ var
 			Fnc:    Handle{%= paramName(e.Name()) %}Put,
 			Desc:   "{%s e.Desc %}",
 			DTO:    &{%= e.dtoName() %}{},
+			Multipart: true,
 			Method: apis.POST,
 			NeedAuth: true,
+			Params: []apis.InParam{
+			        apis.ParamsGetFormActions,
+			        {%- for _, param := range e.Params -%}
+			        {% code col := e.Table.FindColumn(param.Name)
+			                param.Req = !col.IsNullable() && !col.AutoIncrement() %}
+ 		            {%s= fmt.Sprintf("%g",param) %},
+                    {%- endfor %}
+            },
 		},
 		"/table/{%s e.Table.Name() %}/update": {
 			Fnc:    Handle{%= paramName(e.Name()) %}Update,
 			Desc:   "{%s e.Desc %}",
 			DTO:    &{%= e.dtoName() %}{},
 			Method: apis.POST,
+			Multipart: true,
 			NeedAuth: true,
+			Params: []apis.InParam{
+			        apis.ParamsGetFormActions,
+			        {%- for _, param := range e.Params -%}
+ 			        {% code col := e.Table.FindColumn(param.Name)
+ 			                param.Req = col.Primary() %}
+		            {%s= fmt.Sprintf("%g",param) %},
+                    {%- endfor %}
+            },
 		},
 		"/table/{%s e.Table.Name() %}/form": {
 			Fnc:    Handle{%= paramName(e.Name()) %}Form,
 			Desc:   "get form for insert/update data into '{%s e.Table.Name() %}' ({%s e.Desc %})",
 			DTO:    &{%= e.dtoName() %}{},
 			Method: apis.GET,
-			Params: apis.BasicParams,
 			NeedAuth: true,
+			Params: append(apis.BasicParams, []apis.InParam{
+			        apis.ParamsGetFormActions,
+			        {%- for _, param := range e.Params -%}
+			        {% code param.Req = false %}
+ 		            {%s= fmt.Sprintf("%g",param) %},
+                    {%- endfor %}
+            }...),
 			WithCors: true,
 		},
 	}
 
 func Get{%= paramName(e.Name()) %}Params(ctx *fasthttp.RequestCtx) (dbEngine.Table, *{%= e.dtoName() %}, error) {
-    DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
+    DB, ok := ctx.UserValue(apis.Database).(*dbEngine.DB)
     if !ok {
         return nil, nil, dbEngine.ErrDBNotFound
     }
@@ -178,7 +226,8 @@ func Get{%= paramName(e.Name()) %}Params(ctx *fasthttp.RequestCtx) (dbEngine.Tab
 
     params, ok := ctx.UserValue(apis.JSONParams).(*{%= e.dtoName() %})
     if !ok {
-        return nil, nil, apis.ErrWrongParamsList
+        params = &{%= e.dtoName() %}{}
+        params.ReadParams(ctx)
     }
 
     return table, params, nil
@@ -219,12 +268,12 @@ func Handle{%= paramName(e.Name()) %}Put(ctx *fasthttp.RequestCtx) (interface{},
         return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Put")
     }
 
-		id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
-		if err != nil {
-			return crud.CreateErrResult(err)
-		}
+    id, err := table.Insert(ctx, params.SqlOptions(ctx, false)...)
+    if err != nil {
+        return crud.CreateErrResult(err)
+    }
 
-		return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/{%s e.Table.Name() %}/put")
+    return crud.RenderCreatedResult(ctx, id, bytes.NewBufferString(""), nil, "/table/{%s e.Table.Name() %}/put")
 }
 
 func Handle{%= paramName(e.Name()) %}Update(ctx *fasthttp.RequestCtx) (interface{}, error) {
@@ -294,29 +343,39 @@ func Handle{%= paramName(e.Name()) %}Form(ctx *fasthttp.RequestCtx) (interface{}
         return nil, errors.Wrap(err, "Handle{%= paramName(e.Name()) %}Form")
     }
 
-    record := {%= e.dtoName() %}{}
-    err = table.SelectOneAndScan(ctx,
-        &record,
-        params.SqlOptions(ctx, true)...
-    )
-    if err != nil {
-        return nil, errors.Wrap(err, "")
-    }
+ 		// we must copy colsTable into local array
+ 		f := forms.FormField{
+ 			Title:       "{%s e.Table.Comment() %}",
+ 			Action:      "/table/{%s e.Table.Name() %}/",
+ 			Method:      "POST",
+ 			Description: "",
+ 		}
 
-		// we must copy colsTable into local array
-		f := forms.FormField{
-			Title:       "{%s e.Table.Comment() %}",
-			Action:      "/table/{%s e.Table.Name() %}/",
-			Method:      "POST",
-			Description: "",
+	val := fastjson.MustParseBytes(ctx.Request.Body())
+ 	if val.Exists({%= e.RequiredFields() %}) {
+
+        record := {%= e.dtoName() %}{}
+        err = table.SelectOneAndScan(ctx,
+            &record,
+            params.SqlOptions(ctx, true)...
+        )
+		if err == pgx.ErrNoRows {
+			return map[string]string{`{%= e.RequiredFields() %}`: err.Error()}, apis.ErrWrongParamsList
 		}
+        if err != nil {
+            return nil, errors.Wrap(err, "")
+        }
+ 			f.Action += "update"
+   } else {
+   			f.Action += "put"
+   }
+
 
 		colDecors := make([]*forms.ColumnDecor, 0)
 
 		columns := table.Columns()
 
 	priColumns := make([]string, 0)
-	buf := bytes.NewBufferString("")
    for _, col := range columns {
         name := col.Name()
         if col.Primary() {
@@ -358,7 +417,6 @@ func Handle{%= paramName(e.Name()) %}Form(ctx *fasthttp.RequestCtx) (interface{}
 				}
     }
 
-			f.Action += "/update"
 
     		lang, ok := ctx.UserValue(apis.ParamsLang.Name).(string)
     		if ok {

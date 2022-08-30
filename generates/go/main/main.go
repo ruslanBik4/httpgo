@@ -78,13 +78,14 @@ func main() {
 			WithCors:       false,
 			Resp:           nil,
 		}
-		addCrudImport, unSafe := false, false
+		hasTypeExt, unSafe := false, false
 		for _, column := range table.Columns() {
 			p := crud.NewDbApiParams(column)
-			p.Req = !column.IsNullable()
+
 			r.Params = append(r.Params, p.InParam)
 			if t, ok := p.Type.(apis.TypeInParam); ok && t.DTO != nil {
-				addCrudImport = true
+				hasTypeExt = hasTypeExt || t.BasicKind < 0
+
 			} else if ok && t.BasicKind == types.UnsafePointer {
 				unSafe = true
 			}
@@ -96,7 +97,7 @@ func main() {
 			continue
 		}
 
-		tpl.WriteHead(f, addCrudImport, unSafe)
+		tpl.WriteHead(f, hasTypeExt, unSafe)
 		defer func() {
 			err := f.Close()
 			if err != nil {

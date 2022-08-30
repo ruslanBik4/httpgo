@@ -82,6 +82,7 @@ ul li ul.dropdown li {
   clear: both;
   width: 100%;
 }
+// forms
 input[type=text] {
     padding: 8px;
     border: 1px solid #c2c7d1;
@@ -93,6 +94,15 @@ input[type=text] {
 }
 input[type=file] {
     display: inline;
+}
+label textarea {
+    width: 90%;
+    float: inline-end;
+}
+label input {
+    align-content: right;
+    text-align: center;
+    float: inline-end;
 }
 </style>
 {% endfunc %}

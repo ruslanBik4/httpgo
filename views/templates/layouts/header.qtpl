@@ -9,7 +9,7 @@
             <span class="glyphicon-log-out"> </span>
         </a>
         <a href="#" id="burger" class="brg-mnu"></a>
-        <a id="bLogin" href="/show/forms/?name=signin" class="navbar-link btn-login" title="откроется в модальном окне" >Авторизоваться
+        <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="OPen auth form" target="_modal" >SignIn
         <span class="glyphicon-info-sign"> </span></a>
     </div>
 </div>

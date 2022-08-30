@@ -14,7 +14,6 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 )
@@ -25,16 +24,19 @@ type DbApiParams struct {
 }
 
 func NewDbApiParams(col dbEngine.Column) *DbApiParams {
+	param := apis.InParam{
+		Name:              col.Name(),
+		Desc:              col.Comment(),
+		Req:               col.Primary(),
+		PartReq:           nil,
+		IncompatibleWiths: nil,
+		TestValue:         "",
+	}
+	if !col.AutoIncrement() {
+		param.DefValue = col.Default()
+	}
 	p := &DbApiParams{
-		apis.InParam{
-			Name:              col.Name(),
-			Desc:              col.Comment(),
-			DefValue:          col.Default(),
-			Req:               col.Primary(),
-			PartReq:           nil,
-			IncompatibleWiths: nil,
-			TestValue:         "",
-		},
+		param,
 		col,
 	}
 	p.ConvertDbType(col)
