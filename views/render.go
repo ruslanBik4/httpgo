@@ -177,11 +177,15 @@ var (
 func RenderOutWithWrapLine(ctx *fasthttp.RequestCtx, out []byte) error {
 	_, err := startPre.WriteTo(ctx)
 	if err == nil {
-		_, err = ctx.Write(bytes.Replace(out, []byte("\n"), wrapLine, -1))
+		_, err = ctx.Write(ReplaceWrapLines(out))
 		if err == nil {
 			_, err = endPre.WriteTo(ctx)
 		}
 	}
 
 	return errors.Wrap(err, "RenderOutWithWrapLine")
+}
+
+func ReplaceWrapLines(out []byte) []byte {
+	return bytes.ReplaceAll(out, []byte("\n"), wrapLine)
 }

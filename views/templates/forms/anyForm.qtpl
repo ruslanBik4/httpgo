@@ -251,7 +251,7 @@
         </figure>
     {% endif %}
     <div class="form-actions">
-        <button class="main-btn" type="submit">Сохранить</button>
+        <button class="main-btn" type="submit">Save</button>
         {%s= addingButtons %}
     </div>
 </form>

@@ -1,0 +1,54 @@
+{%- func OverClick() -%}
+function() {
+        $.ajax({
+            url: url,
+             data: {
+                     "lang": lang,
+                     "html": true
+             },
+            processData: false,
+            contentType: false,
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+          },
+          success: function (data, status, xhr) {
+              if (xhr.status == 204) {
+                alert("no content!"+status)
+                return
+              }
+
+             var disp = xhr.getResponseHeader('Content-Disposition');
+             var typeCnt = xhr.getResponseHeader('Content-Type');
+             if (disp && disp.search('attachment') != -1) {
+
+                //var blob = new Blob([data], {type: typeCnt});
+                //var URL = window.URL || window.webkitURL;
+                data = "<img src='" + url + "'/>";
+             } else if (typeCnt.startsWith("application/json") ) {
+                if (isSearch) {
+                    showObject(data)
+                } else {
+                    $('#content').html(JSON.stringify(data) )
+                }
+                return;
+             }
+             if (target !== "_modal") {
+                $('#content').html(data);
+             } else {
+                fancyOpen(data);
+             }
+          },
+          error: function (xhr, status, error) {
+              if (xhr.status == 401) {
+                urlAfterLogin = url;
+                $('#bLogin').trigger("click");
+               return;
+              }
+
+              alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
+              console.log(xhr);
+          }
+         });
+         return false;
+   }
+{% endfunc %}

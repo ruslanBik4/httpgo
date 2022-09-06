@@ -50,27 +50,28 @@ type IndexPageBody struct {
 	OwnerMenu    *layouts.MenuOwnerBody
 	Title        string
 	Route        string
+	AfterAuthURL string
 }
 
-//line index.qtpl:26
+//line index.qtpl:27
 func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
-//line index.qtpl:26
+//line index.qtpl:27
 	qw422016.N().S(`
 `)
-//line index.qtpl:27
+//line index.qtpl:28
 	body.HeadHTML.StreamHeadHTML(qw422016)
-//line index.qtpl:27
+//line index.qtpl:28
 	qw422016.N().S(`
 <body>
         `)
-//line index.qtpl:29
-	js.StreamHeadJSForForm(qw422016)
-//line index.qtpl:29
+//line index.qtpl:30
+	js.StreamHeadJSForForm(qw422016, body.AfterAuthURL)
+//line index.qtpl:30
 	qw422016.N().S(`
         `)
-//line index.qtpl:30
+//line index.qtpl:31
 	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
-//line index.qtpl:30
+//line index.qtpl:31
 	qw422016.N().S(`
 <div class="content-wrap">
 <div id="container-fluid">
@@ -78,27 +79,27 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                     `)
-//line index.qtpl:36
+//line index.qtpl:37
 	qw422016.N().V(body.Catalog)
-//line index.qtpl:36
+//line index.qtpl:37
 	qw422016.N().S(`
             </div>
         </div>
         <div class="content-section">
             <div id="content" rel="`)
-//line index.qtpl:40
+//line index.qtpl:41
 	qw422016.E().S(body.Route)
-//line index.qtpl:40
+//line index.qtpl:41
 	qw422016.N().S(`">
                 `)
-//line index.qtpl:42
+//line index.qtpl:43
 	if body.ContentWrite != nil {
 		body.ContentWrite(body.Buff)
 	} else {
 		body.Buff.Write(body.Content)
 	}
 
-//line index.qtpl:47
+//line index.qtpl:48
 	qw422016.N().S(`
             </div>
         </div>
@@ -107,38 +108,38 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 </div>
 
     `)
-//line index.qtpl:54
+//line index.qtpl:55
 	layouts.StreamFooterHTML(qw422016, body.FooterMenu)
-//line index.qtpl:54
+//line index.qtpl:55
 	qw422016.N().S(`
 
 </body>
 `)
-//line index.qtpl:57
+//line index.qtpl:58
 }
 
-//line index.qtpl:57
+//line index.qtpl:58
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line index.qtpl:57
+//line index.qtpl:58
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line index.qtpl:57
+//line index.qtpl:58
 	body.StreamIndexHTML(qw422016)
-//line index.qtpl:57
+//line index.qtpl:58
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:57
+//line index.qtpl:58
 }
 
-//line index.qtpl:57
+//line index.qtpl:58
 func (body *IndexPageBody) IndexHTML() string {
-//line index.qtpl:57
+//line index.qtpl:58
 	qb422016 := qt422016.AcquireByteBuffer()
-//line index.qtpl:57
+//line index.qtpl:58
 	body.WriteIndexHTML(qb422016)
-//line index.qtpl:57
+//line index.qtpl:58
 	qs422016 := string(qb422016.B)
-//line index.qtpl:57
+//line index.qtpl:58
 	qt422016.ReleaseByteBuffer(qb422016)
-//line index.qtpl:57
+//line index.qtpl:58
 	return qs422016
-//line index.qtpl:57
+//line index.qtpl:58
 }

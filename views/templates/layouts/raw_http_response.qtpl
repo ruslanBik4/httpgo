@@ -1,0 +1,7 @@
+{%- func HTTPResponse (msg []byte, statusCode int) -%}
+HTTP/2.0 {%d statusCode %} Success
+Content-Type: text/plain; charset=utf-8
+Content-Length: {%d len(msg) %}
+
+{%z= msg %}
+{% endfunc %}

@@ -144,7 +144,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 		qw422016.N().S(`
         `)
 //line head.qtpl:74
-		qw422016.E().S(head.Scripts[i])
+		qw422016.N().S(head.Scripts[i])
 //line head.qtpl:74
 		qw422016.N().S(`
     `)
@@ -153,53 +153,54 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 //line head.qtpl:75
 	qw422016.N().S(`
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" type="text/css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
     `)
-//line head.qtpl:78
+//line head.qtpl:79
 	StreamPutStyles(qw422016)
-//line head.qtpl:78
+//line head.qtpl:79
 	qw422016.N().S(`
     `)
-//line head.qtpl:79
+//line head.qtpl:80
 	js.StreamJqueryFancyboxButtons(qw422016)
-//line head.qtpl:79
+//line head.qtpl:80
 	qw422016.N().S(`
 
 </head>
 
 `)
-//line head.qtpl:83
+//line head.qtpl:84
 }
 
-//line head.qtpl:83
+//line head.qtpl:84
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:83
+//line head.qtpl:84
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:83
+//line head.qtpl:84
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:83
+//line head.qtpl:84
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:83
+//line head.qtpl:84
 }
 
-//line head.qtpl:83
+//line head.qtpl:84
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:83
+//line head.qtpl:84
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:83
+//line head.qtpl:84
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:83
+//line head.qtpl:84
 	qs422016 := string(qb422016.B)
-//line head.qtpl:83
+//line head.qtpl:84
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:83
+//line head.qtpl:84
 	return qs422016
-//line head.qtpl:83
+//line head.qtpl:84
 }
 
-//line head.qtpl:88
+//line head.qtpl:89
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:88
+//line head.qtpl:89
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -209,9 +210,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:96
+//line head.qtpl:97
 	qw422016.E().S(title)
-//line head.qtpl:96
+//line head.qtpl:97
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -220,39 +221,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:103
+//line head.qtpl:104
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:103
+//line head.qtpl:104
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:107
+//line head.qtpl:108
 }
 
-//line head.qtpl:107
+//line head.qtpl:108
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:107
+//line head.qtpl:108
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:107
+//line head.qtpl:108
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:107
+//line head.qtpl:108
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:107
+//line head.qtpl:108
 }
 
-//line head.qtpl:107
+//line head.qtpl:108
 func AdminHead(title string) string {
-//line head.qtpl:107
+//line head.qtpl:108
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:107
+//line head.qtpl:108
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:107
+//line head.qtpl:108
 	qs422016 := string(qb422016.B)
-//line head.qtpl:107
+//line head.qtpl:108
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:107
+//line head.qtpl:108
 	return qs422016
-//line head.qtpl:107
+//line head.qtpl:108
 }

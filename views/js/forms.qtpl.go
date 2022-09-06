@@ -30,13 +30,28 @@ var (
 )
 
 //line forms.qtpl:5
-func StreamHeadJSForForm(qw422016 *qt422016.Writer) {
+func StreamHeadJSForForm(qw422016 *qt422016.Writer, afterAuthURL string) {
 //line forms.qtpl:5
 	qw422016.N().S(`
 <script>
 var user = ''
 var userStruct
 var urlAfterLogin = ''
+
+function fancyOpen(data) {
+      $.fancybox.open({
+            'autoScale': true,
+            'transitionIn': 'elastic',
+            'transitionOut': 'elastic',
+            'speedIn': 500,
+            'speedOut': 300,
+             'type':'html',
+            'autoDimensions': true,
+            'centerOnScroll': true,
+            'content' : data
+         })
+}
+
 
 function getUser() {
     user = localStorage.getItem("USER")
@@ -46,6 +61,20 @@ function getUser() {
         token =  userStruct.token
         lang  =  userStruct.lang
         $('.auth').removeClass("auth");
+`)
+//line forms.qtpl:34
+	if afterAuthURL > "" {
+//line forms.qtpl:34
+		qw422016.N().S(`           loadContent("`)
+//line forms.qtpl:35
+		qw422016.N().S(afterAuthURL)
+//line forms.qtpl:35
+		qw422016.N().S(`")
+        `)
+//line forms.qtpl:36
+	}
+//line forms.qtpl:36
+	qw422016.N().S(`
     }
 
     return ''
@@ -72,66 +101,11 @@ function setClickAll() {
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");
 
-        $(this).click( function() {
-            $.ajax({
-                url: url,
-                data: {
-                        "lang": lang,
-                        "html": true
-                },
-              beforeSend: function (xhr) {
-                  xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-              },
-              success: function (data, status, xhr) {
-                  if (xhr.status == 204) {
-                    alert("no content!"+status)
-                    return
-                  }
-
-                 var disp = xhr.getResponseHeader('Content-Disposition');
-                 var typeCnt = xhr.getResponseHeader('Content-Type');
-                 if (disp && disp.search('attachment') != -1) {
-
-                    //var blob = new Blob([data], {type: typeCnt});
-                    //var URL = window.URL || window.webkitURL;
-                    data = "<img src='" + url + "'/>";
-                 } else if (typeCnt.startsWith("application/json") ) {
-                    if (isSearch) {
-                        showObject(data)
-                    } else {
-                        $('#content').html(JSON.stringify(data) )
-                    }
-                    return;
-                 }
-                 if (target !== "_modal") {
-                    $('#content').html(data);
-                 } else {
-                         $.fancybox.open({
-                               'autoScale': true,
-                               'transitionIn': 'elastic',
-                               'transitionOut': 'elastic',
-                               'speedIn': 500,
-                               'speedOut': 300,
-                                'type':'html',
-                               'autoDimensions': true,
-                               'centerOnScroll': true,
-                               'content' : data
-                            })
-                }
-              },
-              error: function (xhr, status, error) {
-                  if (xhr.status == 401) {
-                    urlAfterLogin = url;
-                    $('#bLogin').trigger("click");
-                   return;
-                  }
-
-                  alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
-                  console.log(xhr);
-              }
-             });
-             return false;
-       })
+        $(this).click( `)
+//line forms.qtpl:63
+	StreamOverClick(qw422016)
+//line forms.qtpl:63
+	qw422016.N().S(` )
 
       })
   isProcess = false;
@@ -203,77 +177,14 @@ $(function()   {
 
 }) // $(document).ready
 
-function saveForm(thisForm, successFunction, errorFunction) {
-    if (!thisForm.noValidate && !confirm('Do you sure to send form?')) {
-        return false
-    }
-    // TODO: create element form for output form result
-    var $out = $('output', thisForm),
-        $loading = $('.loading', thisForm),
-        $progress = $('.progress', thisForm);
+`)
+//line forms.qtpl:135
+	StreamSaveForm(qw422016)
+//line forms.qtpl:135
+	qw422016.N().S(`
 
-    $(thisForm).ajaxSubmit({
-        beforeSubmit: function(a,f,o) {
-            o.dataType = "json";
-
-             // rm field without values
-             var isNewRecord = $('input[name=id]').length == 0;
-
-             for( var i = a.length -1; i >= 0; --i){
-                 if (a[i].readOnly
-                  || ( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one' || a[i].type === 'file' ))
-                    || (a[i].value.length === 0) ) {
-                     t = a.splice(i,1);
-                     console.log(t);
-                 }
-             }
-
-           $("input[type=checkbox][checked]:not(:checked)", f).each(function() {
-               a.push({ name: this.name, value: 0, type: this.type, required: this.required });
-           });
-            a.push({ name: "is_get_form_actions", value: true, type: "boolean" });
-console.log(a);
-           $out.html('Start sending...');
-            $progress.show();
-            $loading.show();
-        },
-       beforeSend: function (xhr) {
-           xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-       },
-       uploadProgress: function(event, position, total, percentComplete) {
-            $out.html( 'Progress - ' + percentComplete + '%' );
-            $progress.val( percentComplete );
-        },
-        success: function(data, status) {
-            $out.html('Успешно изменили запись.');
-            // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
-            if (successFunction !== undefined) {
-                successFunction(data, thisForm);
-            } else {
-                afterSaveAnyForm(data);
-            }
-             $.fancybox.close();
-        },
-        error: function(error, status) {
-            if (errorFunction !== undefined) {
-                errorFunction(error, thisForm);
-            } else {
-                $out.html( error.responseText );
-                alert(error.responseText);
-            }
-        },
-        complete: function(data, status) {
-            $progress.hide();
-            $loading.hide();
-            console.log(status);
-            console.log(data);
-        }
-    });
-
-    return false;
-}
 // стандартная обработка формы типа AnyForm после успшного сохранения результата
-function afterSaveAnyForm(data) {
+function afterSaveAnyForm(data, status) {
 
     if (data.content_url !== undefined) {
         loadContent(data.content_url);
@@ -294,7 +205,6 @@ function afterSaveAnyForm(data) {
     if (!data) {
       alert("Need users data!")
       return false;
-
     }
 
      token = data.token;
@@ -405,31 +315,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:377
+//line forms.qtpl:268
 }
 
-//line forms.qtpl:377
-func WriteHeadJSForForm(qq422016 qtio422016.Writer) {
-//line forms.qtpl:377
+//line forms.qtpl:268
+func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL string) {
+//line forms.qtpl:268
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:377
-	StreamHeadJSForForm(qw422016)
-//line forms.qtpl:377
+//line forms.qtpl:268
+	StreamHeadJSForForm(qw422016, afterAuthURL)
+//line forms.qtpl:268
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:377
+//line forms.qtpl:268
 }
 
-//line forms.qtpl:377
-func HeadJSForForm() string {
-//line forms.qtpl:377
+//line forms.qtpl:268
+func HeadJSForForm(afterAuthURL string) string {
+//line forms.qtpl:268
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:377
-	WriteHeadJSForForm(qb422016)
-//line forms.qtpl:377
+//line forms.qtpl:268
+	WriteHeadJSForForm(qb422016, afterAuthURL)
+//line forms.qtpl:268
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:377
+//line forms.qtpl:268
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:377
+//line forms.qtpl:268
 	return qs422016
-//line forms.qtpl:377
+//line forms.qtpl:268
 }
