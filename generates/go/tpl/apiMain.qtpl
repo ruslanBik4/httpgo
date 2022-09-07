@@ -81,6 +81,31 @@ var (
 				crud.ParamsName,
 			},
 		},
+		"/user/signin/": &apis.ApiRoute{
+			Desc: "show form",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				a, ok := ctx.UserValue(apis.AuthManager).(*auth.OAuth2)
+				if !ok {
+					return nil, apis.ErrRouteForbidden
+				}
+
+				data := auth.NewSimpleTokenData(
+					ctx.UserValue(apis.ParamsEmail.Name).(string),
+					"desc",
+					-1,
+					true,
+					time.Now().Add(time.Hour))
+
+				data.Token, _ = a.NewToken(data)
+				return data, nil
+
+			},
+			Method: apis.POST,
+			Params: []apis.InParam{
+				apis.ParamsEmail,
+				apis.ParamsPassword,
+			},
+		},
 	{% switch a.auth %}
 	{% case JWT %}
 	{% case OAuth2 %}

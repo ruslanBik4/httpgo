@@ -138,17 +138,42 @@ var (
 				crud.ParamsName,
 			},
 		},
+		"/user/signin/": &apis.ApiRoute{
+			Desc: "show form",
+			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+				a, ok := ctx.UserValue(apis.AuthManager).(*auth.OAuth2)
+				if !ok {
+					return nil, apis.ErrRouteForbidden
+				}
+
+				data := auth.NewSimpleTokenData(
+					ctx.UserValue(apis.ParamsEmail.Name).(string),
+					"desc",
+					-1,
+					true,
+					time.Now().Add(time.Hour))
+
+				data.Token, _ = a.NewToken(data)
+				return data, nil
+
+			},
+			Method: apis.POST,
+			Params: []apis.InParam{
+				apis.ParamsEmail,
+				apis.ParamsPassword,
+			},
+		},
 	`)
-//line apiMain.qtpl:84
+//line apiMain.qtpl:109
 	switch a.auth {
-//line apiMain.qtpl:85
+//line apiMain.qtpl:110
 	case JWT:
-//line apiMain.qtpl:85
+//line apiMain.qtpl:110
 		qw422016.N().S(`
 	`)
-//line apiMain.qtpl:86
+//line apiMain.qtpl:111
 	case OAuth2:
-//line apiMain.qtpl:86
+//line apiMain.qtpl:111
 		qw422016.N().S(`
 		"/callback": &apis.ApiRoute{
 			Desc: "default endpoint",
@@ -195,9 +220,9 @@ var (
 			},
         },
 	`)
-//line apiMain.qtpl:131
+//line apiMain.qtpl:156
 	}
-//line apiMain.qtpl:131
+//line apiMain.qtpl:156
 	qw422016.N().S(`
 	}
 	fPort     = flag.String("port", ":443", "host address to listen on")
@@ -230,17 +255,17 @@ func init() {
 
 	ctxApis.AddValue(apis.Database, DB)
 	`)
-//line apiMain.qtpl:162
+//line apiMain.qtpl:187
 	switch a.auth {
-//line apiMain.qtpl:163
+//line apiMain.qtpl:188
 	case JWT:
-//line apiMain.qtpl:163
+//line apiMain.qtpl:188
 		qw422016.N().S(`
 	authBearer := &auth.AuthBearer{}
 	`)
-//line apiMain.qtpl:165
+//line apiMain.qtpl:190
 	case OAuth2:
-//line apiMain.qtpl:165
+//line apiMain.qtpl:190
 		qw422016.N().S(`
 	authBearer := auth.NewOAuth2(
 		os.Getenv("client_id"),
@@ -248,9 +273,9 @@ func init() {
 		"/callback",
 	)
 	`)
-//line apiMain.qtpl:171
+//line apiMain.qtpl:196
 	}
-//line apiMain.qtpl:171
+//line apiMain.qtpl:196
 	qw422016.N().S(`
 	ctxApis.AddValue(apis.AuthManager, authBearer)
 
@@ -322,30 +347,30 @@ func main() {
 // @/api/version/
 func HandleVersion(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return fmt.Sprintf("`)
-//line apiMain.qtpl:241
+//line apiMain.qtpl:266
 	qw422016.E().S(a.Name)
-//line apiMain.qtpl:241
+//line apiMain.qtpl:266
 	qw422016.N().S(` (%s) Version: %s, Build Time: %s", Branch, Version, Build), nil
 }
 
 func HandleIndex(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 	content := []byte(`)
-//line apiMain.qtpl:241
+//line apiMain.qtpl:266
 	qw422016.N().S("`")
-//line apiMain.qtpl:241
+//line apiMain.qtpl:266
 	qw422016.N().S(`
 	`)
-//line apiMain.qtpl:247
+//line apiMain.qtpl:272
 	switch a.auth {
-//line apiMain.qtpl:248
+//line apiMain.qtpl:273
 	case JWT:
-//line apiMain.qtpl:248
+//line apiMain.qtpl:273
 		qw422016.N().S(`
 	`)
-//line apiMain.qtpl:249
+//line apiMain.qtpl:274
 	case OAuth2:
-//line apiMain.qtpl:249
+//line apiMain.qtpl:274
 		qw422016.N().S(`
 				<html>
 				<form action "/auth">
@@ -354,14 +379,14 @@ func HandleIndex(ctx *fasthttp.RequestCtx) (interface{}, error) {
 				</select>
 				</form>
     `)
-//line apiMain.qtpl:256
+//line apiMain.qtpl:281
 	}
-//line apiMain.qtpl:256
+//line apiMain.qtpl:281
 	qw422016.N().S(`
     `)
-//line apiMain.qtpl:256
+//line apiMain.qtpl:281
 	qw422016.N().S("`")
-//line apiMain.qtpl:256
+//line apiMain.qtpl:281
 	qw422016.N().S(`)
 
     body := &pages.IndexPageBody{
@@ -375,9 +400,9 @@ func HandleIndex(ctx *fasthttp.RequestCtx) (interface{}, error) {
     		Catalog: nil,
     		HeadHTML: &layouts.HeadHTMLPage{
     			Title:      "`)
-//line apiMain.qtpl:269
+//line apiMain.qtpl:294
 	qw422016.E().S(a.Name)
-//line apiMain.qtpl:269
+//line apiMain.qtpl:294
 	qw422016.N().S(`",
     			Language:   "eng",
     			Charset:    "",
@@ -416,20 +441,20 @@ func HandleIndex(ctx *fasthttp.RequestCtx) (interface{}, error) {
 func initMapRoutes() apis.MapRoutes{
 	mapRoutes := apis.NewMapRoutes()
 `)
-//line apiMain.qtpl:306
+//line apiMain.qtpl:331
 	for _, name := range routes {
-//line apiMain.qtpl:306
+//line apiMain.qtpl:331
 		qw422016.N().S(`	if badRoutings := mapRoutes.AddRoutes(api.`)
-//line apiMain.qtpl:307
+//line apiMain.qtpl:332
 		qw422016.N().S(name)
-//line apiMain.qtpl:307
+//line apiMain.qtpl:332
 		qw422016.N().S(`); len(badRoutings) > 0 {
 		logs.ErrorLog(apis.ErrRouteForbidden, badRoutings)
 	}
 `)
-//line apiMain.qtpl:310
+//line apiMain.qtpl:335
 	}
-//line apiMain.qtpl:310
+//line apiMain.qtpl:335
 	qw422016.N().S(`    return mapRoutes
 }
 func getDB(ctx context.Context) *dbEngine.DB {
@@ -450,51 +475,51 @@ func getDB(ctx context.Context) *dbEngine.DB {
 	return DB
 }
 `)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 }
 
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 func (a *ApiMain) WriteCreateMain(qq422016 qtio422016.Writer, packageName string, routes []string) {
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	a.StreamCreateMain(qw422016, packageName, routes)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	qt422016.ReleaseWriter(qw422016)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 }
 
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 func (a *ApiMain) CreateMain(packageName string, routes []string) string {
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	qb422016 := qt422016.AcquireByteBuffer()
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	a.WriteCreateMain(qb422016, packageName, routes)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	qs422016 := string(qb422016.B)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	qt422016.ReleaseByteBuffer(qb422016)
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 	return qs422016
-//line apiMain.qtpl:330
+//line apiMain.qtpl:355
 }
 
-//line apiMain.qtpl:331
+//line apiMain.qtpl:356
 func (a *ApiMain) StreamCreateGoMod(qw422016 *qt422016.Writer, packageName string, routes []string) {
-//line apiMain.qtpl:331
+//line apiMain.qtpl:356
 	qw422016.N().S(`
 module `)
-//line apiMain.qtpl:332
+//line apiMain.qtpl:357
 	qw422016.E().S(packageName)
-//line apiMain.qtpl:332
+//line apiMain.qtpl:357
 	qw422016.N().S(`
 
 go 1.18
 
 replace `)
-//line apiMain.qtpl:336
+//line apiMain.qtpl:361
 	qw422016.E().S(packageName)
-//line apiMain.qtpl:336
+//line apiMain.qtpl:361
 	qw422016.N().S(`/api => ./
 
 require (
@@ -511,31 +536,31 @@ require (
 
 
 `)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 }
 
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 func (a *ApiMain) WriteCreateGoMod(qq422016 qtio422016.Writer, packageName string, routes []string) {
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	a.StreamCreateGoMod(qw422016, packageName, routes)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	qt422016.ReleaseWriter(qw422016)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 }
 
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 func (a *ApiMain) CreateGoMod(packageName string, routes []string) string {
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	qb422016 := qt422016.AcquireByteBuffer()
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	a.WriteCreateGoMod(qb422016, packageName, routes)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	qs422016 := string(qb422016.B)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	qt422016.ReleaseByteBuffer(qb422016)
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 	return qs422016
-//line apiMain.qtpl:351
+//line apiMain.qtpl:376
 }
