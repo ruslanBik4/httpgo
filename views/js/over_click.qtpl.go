@@ -28,7 +28,7 @@ var (
 func StreamOverClick(qw422016 *qt422016.Writer) {
 //line over_click.qtpl:1
 	qw422016.N().S(`function() {
-     var $out = $('#content'),
+     var $out = $('#content');
        $.ajax({
             url: url,
              data: {

@@ -1,6 +1,6 @@
 {%- func OverClick() -%}
 function() {
-     var $out = $('#content'),
+     var $out = $('#content');
        $.ajax({
             url: url,
              data: {
