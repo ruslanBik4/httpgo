@@ -1,6 +1,7 @@
 {%- func OverClick() -%}
 function() {
-        $.ajax({
+     var $out = $('#content'),
+       $.ajax({
             url: url,
              data: {
                      "lang": lang,
@@ -12,9 +13,15 @@ function() {
               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
           },
           success: function (data, status, xhr) {
-              if (xhr.status == 204) {
+              switch (xhr.status) {
+              case 204: {
                 alert("no content!"+status)
                 return
+              }
+              case 206: {
+                OverHijack($out, data);
+                return
+              }
               }
 
              var disp = xhr.getResponseHeader('Content-Disposition');
