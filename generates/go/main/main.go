@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package main
@@ -78,7 +78,7 @@ func main() {
 			WithCors:       false,
 			Resp:           nil,
 		}
-		hasTypeExt, unSafe := false, false
+		hasTypeExt, unSafe := false, ""
 		for _, column := range table.Columns() {
 			p := crud.NewDbApiParams(column)
 
@@ -87,7 +87,7 @@ func main() {
 				hasTypeExt = hasTypeExt || t.BasicKind < 0
 
 			} else if ok && t.BasicKind == types.UnsafePointer {
-				unSafe = true
+				unSafe = "unSafe"
 			}
 		}
 		d := tpl.NewEndpointTpl(r, table)

@@ -1,18 +1,23 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package crud
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 
 	"github.com/jackc/pgconn"
 	"github.com/pkg/errors"
-	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/httpgo/apis"
 )
 
 func TestCreateErrResult(t *testing.T) {
@@ -75,7 +80,7 @@ func Test_createResult(t *testing.T) {
 	type args struct {
 		ctx    *fasthttp.RequestCtx
 		id     int64
-		msg    string
+		msg    *bytes.Buffer
 		colSel []string
 		url    string
 	}

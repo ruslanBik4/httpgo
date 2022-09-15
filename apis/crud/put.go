@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/types"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"strings"
@@ -37,7 +38,9 @@ func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.Ap
 				continue
 			}
 
-			AddColumnAndValue(name, table, arg, args, colSel, buf, badParams)
+			n, a := AddColumnAndValue(name, table, arg, buf, badParams)
+			colSel = append(colSel, n)
+			args = append(args, a)
 		}
 
 		if len(badParams) > 0 {
@@ -97,7 +100,9 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 				continue
 			}
 
-			AddColumnAndValue(name, table, arg, args, colSel, buf, badParams)
+			n, a := AddColumnAndValue(name, table, arg, buf, badParams)
+			colSel = append(colSel, n)
+			args = append(args, a)
 		}
 
 		if len(badParams) > 0 {
@@ -126,14 +131,13 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 	}
 }
 
-func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, args []interface{}, colSel []string,
-	buf *bytes.Buffer, badParams map[string]string) {
+func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, buf io.Writer, badParams map[string]string) (string, interface{}) {
 
 	colName := strings.TrimSuffix(name, "[]")
 	col := table.FindColumn(colName)
 	if col == nil {
 		badParams[colName] = dbEngine.ErrNotFoundColumn{Table: table.Name(), Column: colName}.Error()
-		return
+		return "", nil
 	}
 
 	switch col.BasicType() {
@@ -146,30 +150,35 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, args 
 			if err != nil {
 				logs.DebugLog(names)
 				badParams[colName] = err.Error()
+				return "", nil
 			}
 
 			switch len(bytea) {
 			case 0:
 				badParams[colName] = "empty file"
 			case 1:
-				args = append(args, bytea[0])
-				colSel = append(colSel, colName)
-				buf.WriteString("[file]")
+				_, err := buf.Write([]byte("[file]"))
+				if err != nil {
+					logs.ErrorLog(err)
+				}
+				return colName, bytea[0]
 			default:
-				args = append(args, bytea)
-				colSel = append(colSel, colName)
+				_, err := buf.Write([]byte("[files]"))
+				if err != nil {
+					logs.ErrorLog(err)
+				}
+				return colName, bytea
 			}
-			buf.WriteString("[file]")
 		default:
 			badParams[colName] = fmt.Sprintf("unknown type of value: %T", val)
 		}
 
 	default:
-		args = append(args, arg)
-		colSel = append(colSel, colName)
 		_, err := fmt.Fprintf(buf, " %v", arg)
 		logs.ErrorLog(err)
+		return colName, arg
 	}
+	return "", nil
 }
 
 type insertResult struct {

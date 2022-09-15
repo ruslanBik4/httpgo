@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package forms
 
@@ -11,8 +14,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/valyala/fastjson"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/logs"
@@ -23,6 +27,10 @@ type AttachmentList struct {
 	Url string `json:"url"`
 }
 
+type SuggestionsParams struct {
+	Key   string
+	Value interface{}
+}
 type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
@@ -47,15 +55,20 @@ type ColumnDecor struct {
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
 
-func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnDecor {
+func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions ...SuggestionsParams) *ColumnDecor {
 
-	comment := column.Comment()
+	comment := col.Comment()
 	colDec := &ColumnDecor{
-		Column:            column,
-		IsReadOnly:        column.AutoIncrement() || strings.Contains(comment, "read_only"),
+		Column:            col,
+		IsHidden:          col.Primary(),
+		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || strings.Contains(comment, "read_only")),
 		PatternList:       patternList,
 		SuggestionsParams: make(map[string]interface{}),
 	}
+	for _, item := range suggestions {
+		colDec.SuggestionsParams[item.Key] = item.Value
+	}
+
 	if m := regPattern.FindAllSubmatch([]byte(comment), -1); len(m) > 0 {
 		parse, err := fastjson.ParseBytes(m[0][0])
 		if err != nil {
@@ -82,10 +95,9 @@ func NewColumnDecor(column dbEngine.Column, patternList dbEngine.Table) *ColumnD
 	} else if comment > "" {
 		colDec.Label = comment
 	} else {
-		colDec.Label = column.Name()
+		colDec.Label = col.Name()
 	}
 
-	colDec.IsHidden = column.Primary()
 	colDec.InputType = colDec.inputType()
 
 	return colDec
@@ -316,6 +328,7 @@ type Button struct {
 	Title      string
 	Position   bool
 	ButtonType string
+	OnClick    string
 }
 
 type BlockColumns struct {

@@ -375,18 +375,21 @@ ul.form-field{
                   </div>
                 {% endfor %}
         </figure>
-  {% if block.Multiple %}
+  {%- if block.Multiple -%}
          <button class="main-btn" type="button"
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
-
-  {% endif %}
-
+  {%- endif -%}
     <div class="form-actions">
-      {% for _, btn := range block.Buttons %}
-        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.ButtonType %}">{%s btn.Title %}</button>
-      {% endfor %}
+      {%- for _, btn := range block.Buttons -%}
+        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.ButtonType %}"
+        {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick%}"{%- endif -%}>
+        {%s btn.Title %}
+        </button>
+      {%- endfor -%}
     </div>
   {% endfor %}
+  <output></output>
+  <progress value='0' max='100' hidden > </progress>
 </form>
 <style>
 .errorLabel {
