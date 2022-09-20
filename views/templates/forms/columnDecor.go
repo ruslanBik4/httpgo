@@ -17,6 +17,7 @@ import (
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/gotools"
 
 	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/logs"
@@ -35,6 +36,7 @@ type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
 	SelectWithNew bool
+	ExtProperties     *fastjson.Value
 	InputType         string
 	SpecialInputName  string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
@@ -74,11 +76,12 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 		if err != nil {
 			logs.ErrorLog(err, string(m[0][0]))
 		} else {
+			colDec.ExtProperties = parse
 			p := parse.GetStringBytes("pattern")
-			colDec.getPattern(string(p))
+			colDec.getPattern(gotools.BytesToString(p))
 			p = parse.GetStringBytes("suggestions")
 			if len(p) > 0 {
-				colDec.Suggestions = string(p)
+				colDec.Suggestions = gotools.BytesToString(p)
 			}
 			colDec.multiple = parse.GetBool("multiple")
 			params := parse.GetObject("suggestions_params")
@@ -88,7 +91,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 					logs.ErrorLog(err, key)
 					return
 				}
-				colDec.SuggestionsParams[string(key)] = string(b)
+				colDec.SuggestionsParams[gotools.BytesToString(key)] = gotools.BytesToString(b)
 			})
 		}
 		colDec.Label = strings.Split(comment, "{")[0]
