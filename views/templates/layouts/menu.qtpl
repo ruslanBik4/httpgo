@@ -4,7 +4,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% code
     type Menu []ItemMenu
     type ItemMenu struct {
-        Link, Label, Content, Title, Target string
+        Link, Label, Content, OnClick, Title, Target string
     }
 %}
 {% func (menu Menu) RenderDropdownMenu() %}
@@ -19,7 +19,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     {% for _, item := range menu %}
         <li class="{%s classLi %}">
             <a href="{%s= item.Link %}" title="{%s= item.Title %}"
-             {%- if item.Target > "" -%} target="{%s= item.Target %}"{% endif %}>{%s item.Label %}</a>{%s= item.Content %}
+             {%- if item.OnClick > "" -%} onclick="{%s= item.OnClick %}"{%- endif -%}
+             {%- if item.Target > "" -%} target="{%s= item.Target %}"{%- endif -%}
+             >{%s item.Label %}</a>{%s= item.Content %}
         </li>
     {% endfor %}
 </ul>

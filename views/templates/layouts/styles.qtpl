@@ -7,6 +7,14 @@ standart styles .
 body {
     color: rgb(10, 28, 59);
 }
+
+#catalog_pane {
+    height: 99%;
+    vertical-align: top;
+    padding-left: 1px;
+    padding-right: 5px;
+    padding-top: 3px;
+}
 .content-wrap {
     width: 100%;
 }
@@ -16,10 +24,12 @@ body {
 .sidebar-section {
     width: 15%;
     display: table-cell;
+//        padding-left: 15px;
+        padding-top: 3px;
 }
 .row-fluid {
     width: 100%;
-    display: table-row;
+    display: flex;
 }
 .content-section {
     width: 80%;
@@ -30,6 +40,14 @@ header {
 }
 .top-mnu-list {
     margin-top: 5px;
+}
+.left-mnu-list {
+    margin-left: 5px;
+    display:grid;
+    background-color: transparent;
+}
+li.left-mnu-item a {
+    color: black;
 }
 ul {
   list-style-type: none;

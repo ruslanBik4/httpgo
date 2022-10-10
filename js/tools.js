@@ -1,11 +1,18 @@
 /*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст. 
+ */
+
+/*
  Набор стандартных инструментов для показа страниц со Стилями Артели
  Версия от декабря 2016 г.
  */
 var menu_hide, DivPopMenu, go_history = 1, name_folder = ya_search = '', GlobalError;
-$(function()   {
+$(function () {
 
-    if ( (typeof DivContent === "undefined") && ((DivContent = $("#pane")).length == 0) ) {
+    if ((typeof DivContent === "undefined") && ((DivContent = $("#pane")).length == 0)) {
         DivContent = $('#content');
     }
 })
@@ -96,72 +103,61 @@ function ShowOknoFromHash() {
 //     	|| ( (pane_rel == 'text_main.htm') && !(str_hash) )
         || ( str_path == pane_rel ) ) //убираем лидирующий /
         return;
-    try
-    {
-        if ( (str_search > "")  && ( str_path.search('sitesearch') > -1) ) // для поиска Яндекса
+    try {
+        if ((str_search > "") && (str_path.search('sitesearch') > -1)) // для поиска Яндекса
         {
-            if ( str_path.search('php') == -1 )
-            {
-                DivContent.load( 'http://' + document.domain + '/find.htm' + str_search
-                    + ' #yandex-results-outer' );
+            if (str_path.search('php') == -1) {
+                DivContent.load('http://' + document.domain + '/find.htm' + str_search
+                    + ' #yandex-results-outer');
                 BeginSearch();
             }
-        }
-        else if (str_hash == '')
-        {
-            if ( (str_path == '') || (str_path == '/') || (str_path == root_page) ) {
+        } else if (str_hash == '') {
+            if ((str_path == '') || (str_path == '/') || (str_path == root_page)) {
                 str_path = default_page
             }
 
             button = $('[data-href="' + str_path + '"], a[href="' + str_path + '"], a:has(img[alt="' + str_path + '"])');
 
-            if ( button.length > 0 )
+            if (button.length > 0)
                 button[0].click();
             else
-                ShowOkno( ( str_path && ( str_path.search( root_page ) < 0 ) ? ( str_search ? str_path + str_search : str_path ) : (default_page || 'text_main') ), '');
-        }
-        else if (str_hash == '404')
-            DivContent.load( '404.shtml' );
-        else if (str_hash == 'admin')
-        {
-            $( '<div id=admin> <div>' ).appendTo( $('body') );
-            if ( (default_page) && ( $( 'a:has(img[alt="' + default_page + '"])').length == 1 ) )
-                $( 'a:has(img[alt="' + default_page + '"])').click();
+                ShowOkno((str_path && (str_path.search(root_page) < 0) ? (str_search ? str_path + str_search : str_path) : (default_page || 'text_main')), '');
+        } else if (str_hash == '404')
+            DivContent.load('404.shtml');
+        else if (str_hash == 'admin') {
+            $('<div id=admin> <div>').appendTo($('body'));
+            if ((default_page) && ($('a:has(img[alt="' + default_page + '"])').length == 1))
+                $('a:has(img[alt="' + default_page + '"])').click();
             else
-                ShowOkno( default_page || 'text_main', '');
+                ShowOkno(default_page || 'text_main', '');
 
 
             location.hash = 'admin';
 
 // 			SetDocumentHash( 'admin' );
-        }
-        else if ( $( 'a:has(img[alt="' + str_hash + '"])').length == 1 ) // показ гуглдокументов из кнопок (для текстов сделать позже)
-            $( 'a:has(img[alt="' + str_hash + '"])' ).click();
-        else if ( str_hash.substring( 0, 10 ) == 'googledoc-' )
-        {
+        } else if ($('a:has(img[alt="' + str_hash + '"])').length == 1) // показ гуглдокументов из кнопок (для текстов сделать позже)
+            $('a:has(img[alt="' + str_hash + '"])').click();
+        else if (str_hash.substring(0, 10) == 'googledoc-') {
 
-            if ( (this_ref=$( 'a[href*="' + (doc_google=str_hash.substring( 10 )) + '"]' )).length > 0 )
+            if ((this_ref = $('a[href*="' + (doc_google = str_hash.substring(10)) + '"]')).length > 0)
                 this_ref[0].click();
             else
-                DivContent.attr( 'rel', str_hash ).addClass( 'show_div' ).html( '<iframe id=gdocs style="width:100%; height:' + GetHeightDivContent() + 'px;" frameborder=0 allowtransparency seamless marginheight="0" marginwidth="0" src="https://docs.google.com/document/pub?id='
-                    + str_hash.substring( 10 )
-                    + '&amp;embedded=true"></iframe>' );
-        }
-        else {
+                DivContent.attr('rel', str_hash).addClass('show_div').html('<iframe id=gdocs style="width:100%; height:' + GetHeightDivContent() + 'px;" frameborder=0 allowtransparency seamless marginheight="0" marginwidth="0" src="https://docs.google.com/document/pub?id='
+                    + str_hash.substring(10)
+                    + '&amp;embedded=true"></iframe>');
+        } else {
 
-            if (str_hash.substring(0,1) == '!') {
-                file_ext = ( i > -1 ? str_hash.substring( i ) : '.php' );
-                str_hash = ( i > -1 ? str_hash.substring( 1, i ) : str_hash.substring(1) );
-                ShowOkno( str_hash, '', '', file_ext);
-            }
-            else if (i > -1)
-                ShowOkno( str_hash.substring(0, i), '', '', str_hash.substring( i ) );
+            if (str_hash.substring(0, 1) == '!') {
+                file_ext = (i > -1 ? str_hash.substring(i) : '.php');
+                str_hash = (i > -1 ? str_hash.substring(1, i) : str_hash.substring(1));
+                ShowOkno(str_hash, '', '', file_ext);
+            } else if (i > -1)
+                ShowOkno(str_hash.substring(0, i), '', '', str_hash.substring(i));
             else
-                ShowOkno( str_hash, '');
+                ShowOkno(str_hash, '');
         }
-    }
-    catch(e) {
-        console.log(e, str_hash, str_path );
+    } catch (e) {
+        console.log(e, str_hash, str_path);
     }
 }
 // смена адресной строки с предотвращением перезагрузки Содержимого
@@ -232,8 +228,8 @@ function ShowBubble() {
             clearInterval(idleTimer);
             // кусок ниже только для сайта Артели, потом подумаю - как его поправить для общего случая
 // 					  $('body').scrollTo( $('img[alt="action"]'), 1000, {margin:true, offset: -200} );
-            for(i=0;i<100;i++)
-                $( 'a:has(img[alt="action"])' ).animate( { opacity: 0.1 } ).animate( { opacity: 1 } );
+            for (i = 0; i < 100; i++)
+                $('a:has(img[alt="action"])').animate({opacity: 0.1}).animate({opacity: 1});
         }
     });
     idleTimer = setTimeout( "ShowBubble();", idleWait ); //  продолжаем смену
@@ -289,14 +285,22 @@ function cookieDel(name) {
 function createRequestObject() {
     if (typeof XMLHttpRequest === 'undefined') {
         XMLHttpRequest = function() {
-            try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
-            catch(e) {}
-            try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
-            catch(e) {}
-            try { return new ActiveXObject("Msxml2.XMLHTTP"); }
-            catch(e) {}
-            try { return new ActiveXObject("Microsoft.XMLHTTP"); }
-            catch(e) {}
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP.6.0");
+            } catch (e) {
+            }
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP.3.0");
+            } catch (e) {
+            }
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (e) {
+            }
+            try {
+                return new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {
+            }
             throw new Error("This browser does not support XMLHttpRequest.");
         };
     }
@@ -345,17 +349,16 @@ function GetPreloadImages( str, str_addon ) {
 
     j = str.search( "//-->" );
     if (j > -1) { // подключаю предзагрузку картинок, если она прописана ПРЯМО В ТЕКСТЕ страницы СК (устарело)
-        $.getScript( "sc-pro/buttons.js" );
+        $.getScript("sc-pro/buttons.js");
         str_preload = '<script type="text/javascript"> $(function() {'
-            + str.substring( i+19, j-4 ).replace( /\s/gm, ' ' ).replace( /"b\d+/gi, "$&_" + str_addon  ) + ' })'
-            +  '</script>';
+            + str.substring(i + 19, j - 4).replace(/\s/gm, ' ').replace(/"b\d+/gi, "$&_" + str_addon) + ' })'
+            + '</script>';
 
 
         if (name_folder > '')
-            str_preload = str_preload.replace( /sc-pic(?=\/)/gi, name_folder + "$&" );
+            str_preload = str_preload.replace(/sc-pic(?=\/)/gi, name_folder + "$&");
 
-    }
-    else {
+    } else {
         str_preload = '';
     }
 
@@ -404,10 +407,11 @@ function ReplaceSCText( str, str_addon, name_folder ) {
 
     str_preload = GetPreloadImages( str, str_addon );
     if (str_preload > '') {
-        str_result +=  str_body.replace( /\b(name|id)="b\d+\b/gi, "$&_" + str_addon  ).replace( /'b\d+/gi, "$&_" + str_addon  ) + str_preload;
+        str_result += str_body.replace(/\b(name|id)="b\d+\b/gi, "$&_" + str_addon).replace(/'b\d+/gi, "$&_" + str_addon) + str_preload;
 
+    } else {
+        str_result += str_body;
     }
-    else { str_result += str_body; }
 
     return  GetUserCode(str) + str_result;
 
@@ -438,43 +442,37 @@ function GetAjax( m_adress, file_ext, multilang ) {
 
     if (i > 0) // добавляем имя папочки, если она есть!
     {
-        name_folder = m_adress.substring( 0, i );
+        name_folder = m_adress.substring(0, i);
         str_location += ('/' + name_folder);
-        m_adress  = m_adress.substring( i );
-    }
-    else
-    {
+        m_adress = m_adress.substring(i);
+    } else {
         name_folder = '';
         i = location.pathname.substring(1).search('/') + 2;
-        str_location += (i > 1 ? location.pathname.substring( 0, i ) : '/' );
+        str_location += (i > 1 ? location.pathname.substring(0, i) : '/');
     }
 
     j = m_adress.search( '.htm' );
     if (j == -1)
         j = m_adress.search( '.php' );
 
-    if (j > 0)
-    {
-        file_ext = m_adress.substring( j );
-        m_adress = m_adress.substring( 0, j );
+    if (j > 0) {
+        file_ext = m_adress.substring(j);
+        m_adress = m_adress.substring(0, j);
     }
     // поддержка многоязычности
     isAdmin  = html_multilang = '';
     preAdmin = ( file_ext.search( /\.php\?/ ) > -1 ? '&' : '?' );
 
-    if ( multilang )
-    {
-        if (file_ext == ".htm" )
+    if (multilang) {
+        if (file_ext == ".htm")
             html_multilang = multilang;
         else
             isAdmin = preAdmin + 'multilang=' + multilang;
     }
     // если находимся в админке, добавляю параметр admin
-    if ( ( $('#admin').length > 0 ) && ( file_ext.search( '.php' ) > -1 ) )
-    {
-        isAdmin += ( isAdmin ? '&' : preAdmin ) + 'admin';
+    if (($('#admin').length > 0) && (file_ext.search('.php') > -1)) {
+        isAdmin += (isAdmin ? '&' : preAdmin) + 'admin';
     }
-
 
 
     try {
@@ -516,7 +514,6 @@ function GetAjax( m_adress, file_ext, multilang ) {
             j = str.search( "</style>" );
 
 
-
             str = " .body-pane" + str.substring( i+4, j+8 ).replace(/\.[apt]\d+/gi, "$&_" + str_addon  );
 
             str = '<style type="text/css"> \n <!-- /* Стили Артели для Сайткрафт версии 4.31 */ \n' + str ;
@@ -534,23 +531,23 @@ function GetAjax( m_adress, file_ext, multilang ) {
             }
 
 
-
             i = Res.responseText.search( "preload" );
             j = Res.responseText.search( "//-->" );
             if (i > -1) { // подключаю предзагрузку картинок
                 $.getScript( "sc-pro/buttons.js" );
                 str_preload = '<script type="text/javascript">\n'
                     + ' $(function() {'
-                    + Res.responseText.substring( i+19, j-4 ).replace( /\s/gm, ' ' ).replace( /"b\d+/gi, "$&_" + str_addon  ) + '\n  })'
-                    +  '\n</script>';
+                    + Res.responseText.substring(i + 19, j - 4).replace(/\s/gm, ' ').replace(/"b\d+/gi, "$&_" + str_addon) + '\n  })'
+                    + '\n</script>';
 
 
                 if (name_folder > '')
-                    str_preload = str_preload.replace( /sc-pic(?=\/)/gi, name_folder + "$&" );
+                    str_preload = str_preload.replace(/sc-pic(?=\/)/gi, name_folder + "$&");
                 // sc-pic/
 
+            } else {
+                str_preload = '';
             }
-            else {  str_preload = '';  }
 
             i = Res.responseText.search( "<div" );
             j = Res.responseText.search( "</body>" ); // - 14;
@@ -559,22 +556,23 @@ function GetAjax( m_adress, file_ext, multilang ) {
                 str_body = str_body.replace( /"sc-pic(?=\/)/gi, '"' + name_folder + "sc-pic" ).replace( /"download(?=\/)/gi, '"' + name_folder + "download" );
 
             if (str_preload > '') {
-                str +=  str_body.replace( /\b(name|id)="b\d+\b/gi, "$&_" + str_addon  ).replace( /'b\d+/gi, "$&_" + str_addon  ) + str_preload;
+                str += str_body.replace(/\b(name|id)="b\d+\b/gi, "$&_" + str_addon).replace(/'b\d+/gi, "$&_" + str_addon) + str_preload;
 
+            } else {
+                str += (str_body /* + ' </div>' */);
             }
-            else { str += (str_body /* + ' </div>' */); }
 
 
         } // завершение обработки СК-страниц ДО версии Сайткрафт-Студии 6.5
-        else if (str.search( /<link rel="stylesheet" type="text\/css" href="(..\/)*sc-pro\/sc.css">/) > -1 )
-        // обработка СК-страниц версии Сайткрафт-Студии 6.5 и выше
-        { if (file_ext.search('.php') == -1) //временно не трогаем php
-            str = ReplaceSCText( str, str_addon, name_folder );
+        else if (str.search(/<link rel="stylesheet" type="text\/css" href="(..\/)*sc-pro\/sc.css">/) > -1)
+            // обработка СК-страниц версии Сайткрафт-Студии 6.5 и выше
+        {
+            if (file_ext.search('.php') == -1) //временно не трогаем php
+                str = ReplaceSCText(str, str_addon, name_folder);
         }
-    }
-    catch( e ) {
+    } catch (e) {
 
-        alert( e );
+        alert(e);
         str = e.description;
     }
     return str;
@@ -606,21 +604,19 @@ function RezinaWidth(ch_div, parent_width) {
     var //parent_width = parent_width || parseInt( ch_div.parent().css( "width" ) ) || 998,
         str_style = ch_div.attr('style'), ch_width, ch_div_width, min_width, fMargin, margin_left, fPadding, pad_left;
 
-    if ( str_style )
-    {
-        if ( str_style.match( /width:(\s)*(\d+)%/ ) ) // указан размер - ничего не меняем
+    if (str_style) {
+        if (str_style.match(/width:(\s)*(\d+)%/)) // указан размер - ничего не меняем
             return;
 
-        ch_width = str_style.match( /width:(\s)*(\d+)px/ );
-        ch_div_width = parseInt( ch_width ? ch_width[2] : 0, 10);
-        min_width = str_style.match( /min-width:(\s)*(\d+)px/ );
-        fMargin = str_style.match( /margin-left:(\s)*(\d+)px/ );
-        margin_left = parseInt( fMargin ? fMargin[2] : 0, 10 );
-        fPadding = str_style.match( /padding-left:(\s)*(\d+)px/ );
-        pad_left = parseInt( fPadding ? fPadding[2] : 0, 10 );
+        ch_width = str_style.match(/width:(\s)*(\d+)px/);
+        ch_div_width = parseInt(ch_width ? ch_width[2] : 0, 10);
+        min_width = str_style.match(/min-width:(\s)*(\d+)px/);
+        fMargin = str_style.match(/margin-left:(\s)*(\d+)px/);
+        margin_left = parseInt(fMargin ? fMargin[2] : 0, 10);
+        fPadding = str_style.match(/padding-left:(\s)*(\d+)px/);
+        pad_left = parseInt(fPadding ? fPadding[2] : 0, 10);
 
-    }
-    else
+    } else
         ch_div_width = min_width = pad_left = margin_left = 0;
 
     if ( (ch_div.css('width').search('%') > 0) /* || !ch_width */  || (ch_div.hasClass('completeRezina'))  /* || (ch_div.hasClass('fullW')) */ || (ch_div.hasClass('slide-pane')) || (ch_div.hasClass('pop-pane')) || (ch_div.parents('.pop-pane').length > 0)  )
@@ -640,24 +636,22 @@ function RezinaWidth(ch_div, parent_width) {
     }
 
     childPNG32 =  ch_div.children('.png32:not(.fullW):has(.noresize)'); // не трогать картинки, на которых лежат заготовки с классом noresize
-    if ( ( (childPNG32.length > 0) && (childPNG32.find('div.png32').length == 0) )
-        || ( ch_div.children('img.noresize, img[alt*=noresize]').length == 1) || (ch_div.attr('title') == 'noresize' )
-    )
-    {
+    if (((childPNG32.length > 0) && (childPNG32.find('div.png32').length == 0))
+        || (ch_div.children('img.noresize, img[alt*=noresize]').length == 1) || (ch_div.attr('title') == 'noresize')
+    ) {
         ch_div.wrap('<center></center>');
-        console.log( ch_div, str_style, ch_div_width, parent_width, RoundPre2( (ch_div_width * 100) / parent_width ) + '%', ch_div.css( 'width' ) )
+        console.log(ch_div, str_style, ch_div_width, parent_width, RoundPre2((ch_div_width * 100) / parent_width) + '%', ch_div.css('width'))
 
         return;
     }
-    if ( (ch_div.children('.noresize').length > 0) || ch_div.hasClass('noresize') ) // строим двухколоночный макет
+    if ((ch_div.children('.noresize').length > 0) || ch_div.hasClass('noresize')) // строим двухколоночный макет
     {
-        console.log( ch_div, str_style, ch_div_width, parent_width, RoundPre2( (ch_div_width * 100) / parent_width ) + '%', ch_div.css( 'width' ) );
+        console.log(ch_div, str_style, ch_div_width, parent_width, RoundPre2((ch_div_width * 100) / parent_width) + '%', ch_div.css('width'));
 
-        if ( ch_div.next('div').children('#pane').length == 1)
-        {
-            new_margin = ( ch_div.hasClass('noresize') && ch_div_width ? ch_div_width : ch_div.children('.noresize').width() );
-            ch_div.next('div').css({ width:'100%', float: 'right', 'margin-left': -new_margin + 'px' })
-                .prepend('<div class="completeRezina" style="float: left; height: 1px;width:' + new_margin + 'px;"></div><div class="completeRezina" style="float: left; height: 1px; width: 50%; margin-right:-'+ DivContent.width() / 2 + 'px;"></div>');
+        if (ch_div.next('div').children('#pane').length == 1) {
+            new_margin = (ch_div.hasClass('noresize') && ch_div_width ? ch_div_width : ch_div.children('.noresize').width());
+            ch_div.next('div').css({width: '100%', float: 'right', 'margin-left': -new_margin + 'px'})
+                .prepend('<div class="completeRezina" style="float: left; height: 1px;width:' + new_margin + 'px;"></div><div class="completeRezina" style="float: left; height: 1px; width: 50%; margin-right:-' + DivContent.width() / 2 + 'px;"></div>');
 // 		   DivContent.css({ width:'', 'margin-left': new_margin }).wrap('<center></center>');
             return;
         }
@@ -667,17 +661,16 @@ function RezinaWidth(ch_div, parent_width) {
 
     if ( ch_div_width > 0 ) // меняем ширину тем, у кого показан реальный размер
     {
-        if ( min_width  )	    // устанавливаем мин. ширину, только если была запись в самом элементе  (от СК)
-            ch_div.css( { "min-width": min_width[2] } );
+        if (min_width)	    // устанавливаем мин. ширину, только если была запись в самом элементе  (от СК)
+            ch_div.css({"min-width": min_width[2]});
         else
-            ch_div.css( { "min-width": ch_div_width } );
+            ch_div.css({"min-width": ch_div_width});
 
-        if ( ch_div_width < parent_width )
-            ch_div.css( { 'width': RoundPre2( (ch_div_width * 100) / parent_width - margin_left - pad_left*2 ) + '%' } );
+        if (ch_div_width < parent_width)
+            ch_div.css({'width': RoundPre2((ch_div_width * 100) / parent_width - margin_left - pad_left * 2) + '%'});
         else
-            ch_div.css( { 'width': 100 - margin_left - pad_left*2 + '%' } );
-    }
-    else
+            ch_div.css({'width': 100 - margin_left - pad_left * 2 + '%'});
+    } else
         ch_div_width = parent_width;
 
     ch_div.addClass('completeRezina');
@@ -789,11 +782,15 @@ function SetElementPosition( parent_this ) {
     $('.hide').hide();
 
     // определяем элементы, которые всегда должны оставаться на экране при прокрутке окна вверх либо становиться видимыми при данном событии
-    $(window).bind('scroll', function(){
-        var hhead = $('.notHidden').each( function()
-            { SetFixedElements( $(this), 'topfixed' ); return true; }),
-            hfooter = $('.bottomHidden').each( function()
-            { SetFixedElements( $(this), 'bottomfixed' ); return true; });
+    $(window).bind('scroll', function() {
+        var hhead = $('.notHidden').each(function () {
+                SetFixedElements($(this), 'topfixed');
+                return true;
+            }),
+            hfooter = $('.bottomHidden').each(function () {
+                SetFixedElements($(this), 'bottomfixed');
+                return true;
+            });
 
     });
     $("a[title*='text-shadow']", parent_this ).each( function () {
@@ -810,10 +807,9 @@ function SetParentFixedElements ( elem, class_name ) {
     if ( parent_back.length == 0)
         parent_back = elem.closest('div[style*=border]'); // если не находим никого с фоном, то ищем с бордюром
 
-    if ( parent_back.length > 0)
-    {
-        parent_back.addClass( class_name );
-        elem.removeClass( class_name );
+    if (parent_back.length > 0) {
+        parent_back.addClass(class_name);
+        elem.removeClass(class_name);
     }
 
 
@@ -824,21 +820,18 @@ function SetFixedElements( catalog_pane, class_name ) {
     var scrlzone = $('#scrlzone, #pane');
     /*      alert($(window).scrollTop()); */
 // закрепляем элемент на экране, если прокрутка окна превышает верхнюю гшраницу СОДЕРЖИМОГО, но только при условии, что ширина окна БОЛЬШЕ, чем ширина элемента
-    if ( ($(window).scrollTop() > scrlzone.offset().top ) && ($(window).width() > catalog_pane.width()) )
-    {
-        if ( catalog_pane.hasClass( class_name ) )
-        {} // ничего не делаем, уже класс присвоен раньше
+    if (($(window).scrollTop() > scrlzone.offset().top) && ($(window).width() > catalog_pane.width())) {
+        if (catalog_pane.hasClass(class_name)) {
+        } // ничего не делаем, уже класс присвоен раньше
         else {
-            catalog_pane.css('width', catalog_pane.width()+'px');
-            if ( (catalog_pane.prev().length == 0) && (catalog_pane.next().length == 0) )
-                catalog_pane.parent().height( catalog_pane.height() );
-            catalog_pane.addClass( class_name ).show();
+            catalog_pane.css('width', catalog_pane.width() + 'px');
+            if ((catalog_pane.prev().length == 0) && (catalog_pane.next().length == 0))
+                catalog_pane.parent().height(catalog_pane.height());
+            catalog_pane.addClass(class_name).show();
         }
-    }
-    else
-    {
-        catalog_pane.removeClass( class_name );
-        if ( catalog_pane.hasClass('hide') )
+    } else {
+        catalog_pane.removeClass(class_name);
+        if (catalog_pane.hasClass('hide'))
             catalog_pane.hide();
     }
 }
@@ -867,19 +860,19 @@ function OldChangeButton(this_ref) {
         Button_img.attr( 'src', Button_img.attr( 'rel' )  );
     }
 
-    if ( $(this_ref).children().is('img') )
-    {	Button =   $(this_ref).children();
-        Button_name = Button.attr( 'id' );
+    if ($(this_ref).children().is('img')) {
+        Button = $(this_ref).children();
+        Button_name = Button.attr('id');
 
 
-        if ( (Button_name) && ( document.wb_pre) && ( document.wb_pre[Button_name] ) )
-        {
+        if ((Button_name) && (document.wb_pre) && (document.wb_pre[Button_name])) {
 
             if (document.wb_normal) {
-                Button.attr( 'rel', document.wb_normal );
+                Button.attr('rel', document.wb_normal);
             }
-            this_ref.onmouseout = function onmouseout(event) {  };
-            $(this_ref).mouseout( );
+            this_ref.onmouseout = function onmouseout(event) {
+            };
+            $(this_ref).mouseout();
             $(this_ref).addClass('down_button');
         }
     }
@@ -899,15 +892,14 @@ function GetGoogleDoc(){
         thisalt = this.alt || 'googledoc-' + ( point_pub > -1 ? this.href.substr( point_pub + 7 ) : this.href.substr( point_document + 11, this.href.search("/pub") - point_document - 11 ) ),
         end_str = '"></iframe>';
 
-    if ( $('#admin').length > 0 ) // режим администрирования
+    if ($('#admin').length > 0) // режим администрирования
     {
         if (point_document > -1)
-            str_div +=  ( point_pub > -1 ? this.href.replace( "pub?id=", "d/") :  this.href.replace( "/pub", "") ) + '/edit' + end_str;
+            str_div += (point_pub > -1 ? this.href.replace("pub?id=", "d/") : this.href.replace("/pub", "")) + '/edit' + end_str;
         else
-            str_div +=  this.href.replace( "pub?key=", "ccc?key=").replace('&output=html', '') + end_str;
-    }
-    else
-        str_div += this.href + ( this.href.search('edit') > -1 ? '' : ( point_pub > -1 ? '&amp;' : '?') + 'embedded=true&amp;widget=true' ) + end_str;
+            str_div += this.href.replace("pub?key=", "ccc?key=").replace('&output=html', '') + end_str;
+    } else
+        str_div += this.href + (this.href.search('edit') > -1 ? '' : (point_pub > -1 ? '&amp;' : '?') + 'embedded=true&amp;widget=true') + end_str;
 
     //HtmlToPane( str_div, thisalt );
     name_page = '/';
@@ -1005,13 +997,11 @@ function VerifyIncludeFancyHelpers() {
     if ( !VerifyIncludeFancyBox( VerifyIncludeFancyHelpers ) )
         return false;
 
-    if ( ( $.fancybox.helpers === undefined ) || ( $.fancybox.helpers.buttons === undefined ) )
-    {
+    if (($.fancybox.helpers === undefined) || ($.fancybox.helpers.buttons === undefined)) {
         $('head').append('<link rel="stylesheet" type="text/css" href="/fancybox2/helpers/jquery.fancybox-buttons.css" media="screen">');
-        LoadJScript("/fancybox2/helpers/jquery.fancybox-buttons.js", true, true, PutSlideShow );
+        LoadJScript("/fancybox2/helpers/jquery.fancybox-buttons.js", true, true, PutSlideShow);
         return false;
-    }
-    else
+    } else
         PutSlideShow();
     return true;
 }
@@ -1072,28 +1062,27 @@ function PutFancyBox( ) {
             autoSize: true,
             autoResize: true,
             centerOnScroll : true,
-            transitionIn	 : 'elastic',
-            transitionOut	 : 'elastic',
+            transitionIn: 'elastic',
+            transitionOut: 'elastic',
             autoDimensions: true,
             overlayShow: true,
-            title			: title || 'Для закрытия окна шелкните мышкой за его пределами!',
-            helpers		: {
-                title	: { type : 'float' }
+            title: title || 'Для закрытия окна шелкните мышкой за его пределами!',
+            helpers: {
+                title: {type: 'float'}
             }
         };
 
-    }
-    else
+    } else
         params = {
 // 		href	: this_href,
-            scrolling : 'auto',
+            scrolling: 'auto',
             padding: 5,
-            type : ( ShowIframe(this_href) ? 'iframe' : 'ajax'),
-            ajax	: {dataType : 'html', content : 'text/html; charset=windows-1251'},
+            type: (ShowIframe(this_href) ? 'iframe' : 'ajax'),
+            ajax: {dataType: 'html', content: 'text/html; charset=windows-1251'},
             autoSize: true,
             autoResize: true,
             /* 		width	  : 'auto', */
-            centerOnScroll : true,
+            centerOnScroll: true,
             transitionIn	 : 'elastic',
             transitionOut	 : 'elastic',
             title			: title || 'Для закрытия окна шелкните мышкой за его пределами!',
@@ -1129,12 +1118,9 @@ function AddClickToElement(data) {
 // показ ссылки в диве pane
 function ShowInPane(){
     var result = false;
-    try
-    {
-        ShowOkno( this.href, this.title, this  );
-    }
-    catch(e)
-    {
+    try {
+        ShowOkno(this.href, this.title, this);
+    } catch (e) {
         result = true;
         GlobalError = e.message;
     }
@@ -1187,7 +1173,7 @@ function AddClickShowOkno( parent_this ) {
     $('a[title*="откроется в новом окне"], a[target*="в новом окне"], a:has(img[alt*=modal]), a[title*="откроется в модальном окне"], a[alt*=referal], a:has( img[alt*=referal] ), a[title*="(переход)"], a[rel=nofollow], a.modal', parent_this ).addClass('referal');
 
     if( (target_blank = $('a[target="_blank"]:not( a.fancybox-button, a:has(img.fancybox-button), a.referal )', parent_this )).length > 0 )
-    // показ в отдельном окне переделаем в вызов всплывающего окна
+        // показ в отдельном окне переделаем в вызов всплывающего окна
         MakePutFuncybox();
 
 
@@ -1206,10 +1192,12 @@ function AddClickShowOkno( parent_this ) {
             var i, j;
 
             i = str.search( "javascript" ); // оставлено для совместимости со старыими версиями СК
-            if (i > -1)
-            {
+            if (i > -1) {
                 this.data = this.href.substring(11);
-                this.onclick = function() { eval( this.data ); return false; };
+                this.onclick = function () {
+                    eval(this.data);
+                    return false;
+                };
                 /* 			          	  this.href= "#" + this.href.substring(11);   */
                 return true;
             }
@@ -1217,25 +1205,23 @@ function AddClickShowOkno( parent_this ) {
             j = str.search( '.htm' );
             i = str.search( document.domain);
 
-            if (i == -1)
-            {
-                i = str.search( 'http://' );
-                if  (i > -1) { // ссылка на внешний домен - пока оставляем как есть http://www.youtube.com/embed/P5stpcLie7U?feature=player_detailpage
-                    i = str.search( 'youtube.com' );
-                    if ( i > -1 )
-                    { this.onclick = GetYoutube;
-                        this.rel = str.replace( 'watch?v=', 'embed/' ).replace( "&feature=player_embedded", "?feature=player_detailpage");
-                        this.alt = 'youtube' + str.substring( str.search('v=') + 2, str.search('/?feature') ); // позже добавить уникальное имя
-                    }
-                    else if (str.search( 'picasaweb' ) > -1) // Picasa albom
+            if (i == -1) {
+                i = str.search('http://');
+                if (i > -1) { // ссылка на внешний домен - пока оставляем как есть http://www.youtube.com/embed/P5stpcLie7U?feature=player_detailpage
+                    i = str.search('youtube.com');
+                    if (i > -1) {
+                        this.onclick = GetYoutube;
+                        this.rel = str.replace('watch?v=', 'embed/').replace("&feature=player_embedded", "?feature=player_detailpage");
+                        this.alt = 'youtube' + str.substring(str.search('v=') + 2, str.search('/?feature')); // позже добавить уникальное имя
+                    } else if (str.search('picasaweb') > -1) // Picasa albom
                         this.onclick = GetPicasaAlbom;
                     else // для остальных ссылок
                     {
-                        this.onclick = function(){
+                        this.onclick = function () {
                             var this_href = this.href, thisalt = this.alt;
-                            DivContent.animate({ opacity: 0 },
+                            DivContent.animate({opacity: 0},
                                 function () {
-                                    DivContent.load(this_href).animate({ opacity: 1 });
+                                    DivContent.load(this_href).animate({opacity: 1});
                                     PostShow(thisalt);
                                     ChangeButton(this_href);
 
@@ -1243,20 +1229,19 @@ function AddClickShowOkno( parent_this ) {
                                 });
                             return false;
                         };
-                        this.rel = 	this.href;
+                        this.rel = this.href;
                     }
 
                     SetTitleAlt(this, this_img);
                     return true;
-                }
-                else {
-                    i = str.search( 'https://' );
+                } else {
+                    i = str.search('https://');
 
-                    if  (i > -1) //обработки сссылок на https:
+                    if (i > -1) //обработки сссылок на https:
                     {
-                        if (str.search( 'picasaweb' ) > -1) // Picasa albom
+                        if (str.search('picasaweb') > -1) // Picasa albom
                             this.onclick = GetPicasaAlbom;
-                        else if (str.search( 'docs.google.com' ) > -1) //  документы Гугла
+                        else if (str.search('docs.google.com') > -1) //  документы Гугла
                             this.onclick = GetGoogleDoc;
                         /*
                          else
@@ -1281,50 +1266,44 @@ function AddClickShowOkno( parent_this ) {
                 else
                     i += str_location.length;
 
-                if (str.search( '#' ) > j) // якоря
-                {  str = str.substring( i, j ) + '#' + str.substring( str.search( '#' )+1 );
-                }
-                else str = str.substring( i, j );
+                if (str.search('#') > j) // якоря
+                {
+                    str = str.substring(i, j) + '#' + str.substring(str.search('#') + 1);
+                } else str = str.substring(i, j);
                 //	alert(str);
 
-                if ( str.substring( 0, 4 ) == 'menu' )
-                {
-                    if ( AddLoadMenu( str, this ) ) // на случай рекурсии
+                if (str.substring(0, 4) == 'menu') {
+                    if (AddLoadMenu(str, this)) // на случай рекурсии
                         this.rel = str;
                     else
                         this.rel = "";
 
-                }
-                else if ( str.substring( 0, 7 ) == 'popmenu' )
-                {
-                    if ( AddPopMenu( str, $(this) ) ) // на случай рекурсии
+                } else if (str.substring(0, 7) == 'popmenu') {
+                    if (AddPopMenu(str, $(this))) // на случай рекурсии
                         this.rel = str;
                     else
                         this.rel = "";
 
-                    this.onclick = function(){ return false;};
-                }
-                else
-                {
+                    this.onclick = function () {
+                        return false;
+                    };
+                } else {
                     this.onclick = ShowInPane;
                     this.rel = str;
                 }
 
 
             } // завершение обработки на '.htm'- файлы
-            else if ( str.search( '.php' ) > 0)
-            {
-                str = str.substring( i );
-                j = str.search( '.php' );
+            else if (str.search('.php') > 0) {
+                str = str.substring(i);
+                j = str.search('.php');
                 // отсекаю доменное имя
-                i = str.search( str_location );
-                if (i == -1)
-                {
+                i = str.search(str_location);
+                if (i == -1) {
 
-                    i = document.domain.length + (str.substring(0,7) == 'http://' ? 8 : 0); // учитываем http://, если он есть + 1 символ
+                    i = document.domain.length + (str.substring(0, 7) == 'http://' ? 8 : 0); // учитываем http://, если он есть + 1 символ
 
-                }
-                else
+                } else
                     i += str_location.length;
 
                 this.rel = str.substring( i, j );
@@ -1361,8 +1340,8 @@ function AddClickShowOkno( parent_this ) {
                 }
             }
 
-            if (!this.title)
-            { this.title = ( this_img.is('img')  ? this_img.attr( 'title' ) || $(this).text() : $(this).text() ).replace( /\s\s\s\s/gm, '' );
+            if (!this.title) {
+                this.title = (this_img.is('img') ? this_img.attr('title') || $(this).text() : $(this).text()).replace(/\s\s\s\s/gm, '');
             }
 
         });
@@ -1427,8 +1406,9 @@ function AddPopMenu( str, aRef )
         if (menu_hide)
             clearTimeout( menu_hide );
 
-        if (DivPopMenu.hasClass( 'pop_menu' ))
-        { return true;}
+        if (DivPopMenu.hasClass('pop_menu')) {
+            return true;
+        }
 
         $( '.pop_menu' ).not( $(this).parents( ' .pop-pane' ) ).removeClass( 'pop_menu' ).hide();
         DivPopMenu.addClass( 'pop_menu' ).slideDown( "fast" ).show();
@@ -1450,10 +1430,11 @@ function AddPopMenu( str, aRef )
     $(aRef).click( function(){ return false;} );
 
     DivForLoad.mouseover( function onmouseover(event) {
-        if ( DivPopMenu && ( DivPopMenu.attr('id') == $(this).attr('id') ) )
-        { if (menu_hide)
-            clearTimeout( menu_hide);
-            DivPopMenu = null;	}
+        if (DivPopMenu && (DivPopMenu.attr('id') == $(this).attr('id'))) {
+            if (menu_hide)
+                clearTimeout(menu_hide);
+            DivPopMenu = null;
+        }
         return true; } );
 
     DivForLoad.mouseleave( function mouseleave(event) {
@@ -1480,11 +1461,12 @@ function AddLoadMenu( name_page, aRef ) {
 
     DivForLoad =  $( '<div id="' + idDiv + '" class="slide-pane" ></div>' ).appendTo( $(aRef).parent() );
 
-    $.post( name_page + '.htm', function (data, status)
-    {
-        DivForLoad.html( data.replace(/(<style[\s\S]*>\s*)(body)(?=\s+\{[^<]+<\/style>)/mg, '$1#' + idDiv) );
-        AddClickShowOkno( DivForLoad );
-        aRef.onclick = function(){ return LoadMenuToDiv( this.rel, '.htm', this ); };
+    $.post(name_page + '.htm', function (data, status) {
+        DivForLoad.html(data.replace(/(<style[\s\S]*>\s*)(body)(?=\s+\{[^<]+<\/style>)/mg, '$1#' + idDiv));
+        AddClickShowOkno(DivForLoad);
+        aRef.onclick = function () {
+            return LoadMenuToDiv(this.rel, '.htm', this);
+        };
     }).fail( function(data) {alert(data)});
 
     return true;
@@ -1502,22 +1484,19 @@ function ToggleOpacityClasses(this_ref) {
 function FindCascadinSheets( this_ref ) {
     var style = '';
     $(document.styleSheets).each( function() {
-        try
-        {
-            $(this.cssRules).each( function(){
-                if( ( match=this.cssText.match(/(.+)a:hover/) )
+        try {
+            $(this.cssRules).each(function () {
+                if ((match = this.cssText.match(/(.+)a:hover/))
                     && ($(this_ref).closest(match[1]).length > 0)
-                )
-                {
-                    style = GetStylesFromCSSRules( this );
+                ) {
+                    style = GetStylesFromCSSRules(this);
                     return false;
                 }
             });
-            if ( style )
+            if (style)
                 return false;
-        }
-        catch(e) {
-            console.log(e, this );
+        } catch (e) {
+            console.log(e, this);
         }
     });
     return style;
@@ -1527,28 +1506,23 @@ function GetStylesFromCSSRules( css ) {
     return css.cssText;
 
     var  styles = new Object();
-    for( var k=0; k < css.style.length; k++ )
-        if ( css.style[k] )
-            styles[ css.style[k] ] = css.style[ css.style[k] ]; // переписываем свойства в массив!
+    for (var k = 0; k < css.style.length; k++)
+        if (css.style[k])
+            styles[css.style[k]] = css.style[css.style[k]]; // переписываем свойства в массив!
     return styles;
 }
 function FindCSSinSheets( selector ) {
-    for (var i = 0; i < document.styleSheets.length; i++ )
-    {
-        try
-        {
-            if ( document.styleSheets[i].cssRules )
-                for (var j = 0; j < document.styleSheets[i].cssRules.length; j++ )
-                {
+    for (var i = 0; i < document.styleSheets.length; i++) {
+        try {
+            if (document.styleSheets[i].cssRules)
+                for (var j = 0; j < document.styleSheets[i].cssRules.length; j++) {
                     var css = document.styleSheets[i].cssRules[j];
-                    if (css.selectorText == selector)
-                    {
-                        return GetStylesFromCSSRules( css );
+                    if (css.selectorText == selector) {
+                        return GetStylesFromCSSRules(css);
                     }
                 }
-        }
-        catch(e) {
-            console.log( e, 'i='+i, 'j='+j, document.styleSheets[i] );
+        } catch (e) {
+            console.log(e, 'i=' + i, 'j=' + j, document.styleSheets[i]);
         }
     }
     return false;
@@ -1564,49 +1538,39 @@ function RemoveOver_Off( class_name, this_ref ) {
 
         if ( (img_id) && ( document.wb_pre) && ( document.wb_pre[img_id] ) ) // СК-кнопка
         {
-            if (document.wb_normal)
-            {
-                img.attr( 'old_src', document.wb_normal );
+            if (document.wb_normal) {
+                img.attr('old_src', document.wb_normal);
                 document.wb_normal = '';
+            } else {
+                img.attr('old_src', img.attr('src'));
+                img.attr('src', document.wb_pre[img_id].src);
             }
-            else
-            {
-                img.attr( 'old_src', img.attr('src') );
-                img.attr( 'src', document.wb_pre[img_id].src );
-            }
-            removeEvent( this_ref, 'mouseout', over_off ); // удаляем все обработчики ухода мышки с кнопки
+            removeEvent(this_ref, 'mouseout', over_off); // удаляем все обработчики ухода мышки с кнопки
 // 	    	$(this_ref).trigger('focus');
-        }
-        else if ( $(this_ref).hasClass( 'button' ) )
-        {
-            $(this_ref).addClass( 'button_down' );
-        }
-        else if ( !ToggleOpacityClasses(this_ref) )
+        } else if ($(this_ref).hasClass('button')) {
+            $(this_ref).addClass('button_down');
+        } else if (!ToggleOpacityClasses(this_ref))
 
             $(this_ref).trigger('hover');
-    }
-    else  // будем искать в стилях описание Ховера
+    } else  // будем искать в стилях описание Ховера
     {
-        if ( classes = $(this_ref).attr('class') )
-        {
-            classes = classes.substring( classes.search('a') );
+        if (classes = $(this_ref).attr('class')) {
+            classes = classes.substring(classes.search('a'));
 
-            if ( styles = FindCSSinSheets( '.' + classes + ':hover' ) )
-            {
-                styles = styles.replace(/(.+){/, '.down_button {' );
+            if (styles = FindCSSinSheets('.' + classes + ':hover')) {
+                styles = styles.replace(/(.+){/, '.down_button {');
             }
+        } else if (styles = FindCascadinSheets(this_ref))
+            styles = styles.replace(/:hover/, '.down_button '); //$(this_ref).css( styles );
+        else if (styles = FindCSSinSheets('a:hover'))
+            styles = styles.replace(/:hover/, '.down_button '); //$(this_ref).css( styles );
+        else {
+            styles = '.down_button { color: ' + $(this_ref).css('color') + '; opacity:' + $(this_ref).css('opacity') + '}';
         }
-        else if ( styles = FindCascadinSheets( this_ref ) )
-            styles = styles.replace(/:hover/, '.down_button ' ); //$(this_ref).css( styles );
-        else if ( styles = FindCSSinSheets( 'a:hover' ) )
-            styles = styles.replace(/:hover/, '.down_button ' ); //$(this_ref).css( styles );
-        else
-        {
-            styles = '.down_button { color: ' + $(this_ref).css( 'color' ) + '; opacity:' + $(this_ref).css( 'opacity' ) + '}';
-        }
-        if ( $('head > style#down_button').length == 0 )
+        let $head = $('head > style#down_button');
+        if ($head.length === 0)
             $('head').append('<style type="text/css" id="down_button"> </style>');
-        $('head > style#down_button').html( styles );
+        $head.html(styles);
     }
 
     $(this_ref).addClass( class_name );
@@ -1623,15 +1587,12 @@ function RestoreOver_Off( class_name ) {
         Button_ref.removeClass( class_name )
             .each( function () {
 
-                if ( $(this).children().is('img') )
-                {
+                if ($(this).children().is('img')) {
                     Button_img = $(this).children('img');
-                    if ( old_img = Button_img.attr( 'old_src' ) )
-                    {
-                        Button_img.attr( 'src', old_img ); // восстанавливаем изначальную картинку
-                        buttonsAE( this, "mouseout", over_off ); // назначаем обратно оживление кнопки картинкой
-                    }
-                    else if ( !ToggleOpacityClasses(this) )
+                    if (old_img = Button_img.attr('old_src')) {
+                        Button_img.attr('src', old_img); // восстанавливаем изначальную картинку
+                        buttonsAE(this, "mouseout", over_off); // назначаем обратно оживление кнопки картинкой
+                    } else if (!ToggleOpacityClasses(this))
                         return Button_ref;
                 }
                 /* уже не нужно
@@ -1670,11 +1631,10 @@ function LoadMenuToDiv( name_page, str_ext, this_ref ) {
     Down_menu = $( 'div.show_div' );
     RestoreOver_Off( 'show_div' );
 
-    if (Down_menu.attr( 'id' ) != 'pane' )
-    {
-        Down_menu.slideUp( "fast",
+    if (Down_menu.attr('id') != 'pane') {
+        Down_menu.slideUp("fast",
             function () {
-                Down_menu.attr( 'rel', '' ).removeClass( 'show_div' );
+                Down_menu.attr('rel', '').removeClass('show_div');
             });
     }
 

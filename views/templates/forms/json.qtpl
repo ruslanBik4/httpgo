@@ -12,7 +12,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% code
     type FormField struct {
         Title, Action, Method, Description string
-        HideBlock interface{}
+        HideBlock any
     }
 %}
 {% collapsespace %}
@@ -199,7 +199,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     {% endswitch %}
 {% endfunc %}
 
-{% func (col *ColumnDecor) RenderValue(value interface{})  %}
+{% func (col *ColumnDecor) RenderValue(value any)  %}
     {% switch vv := value.(type) %}
       {% case string %} {%s= strings.ReplaceAll( vv, "\r\n", `
       `) %}
@@ -223,7 +223,7 @@ name="{%s col.InputName(i) %}"
 
 {% endfunc %}
 
-{% func (col *ColumnDecor) RenderInputs(data map[string]interface {})  %}
+{% func (col *ColumnDecor) RenderInputs(data map[string]any)  %}
  {% if col.IsSlice %}
     <ul class="form-field">
  {% endif %}
@@ -235,7 +235,7 @@ name="{%s col.InputName(i) %}"
 	{% switch %}
    	{% case  col.SelectOptions != nil %}
             <select {%= col.RenderAttr(i) %}
-                    {% if d, ok := data[ col.InputName(i) ].(map[string]interface {}); ok %}
+                    {% if d, ok := data[ col.InputName(i) ].(map[string]any); ok %}
                       data-show-blocks='{%= json.Element(d) %}'
                       onchange="ShowBlocks(this);"
                     {% endif %}
@@ -306,7 +306,9 @@ figcaption {
     text-align: center;
 }
 .input-label{
-    position: relative;
+//    position: relative;
+    width: 98%;
+    align-content: center;
 }
 li.form-field{
     position: relative;
@@ -337,12 +339,12 @@ ul.form-field{
 {% code
   idShake := strings.ReplaceAll(f.Title, " ", "_")
   defBlocks := make([]string, 0)
-  var data map[string]interface {}
-  if h, ok := f.HideBlock.(map[string]interface{}); ok {
-    for _, p := range h["defaultBlocks"].([]interface {}) {
+  var data map[string]any
+  if h, ok := f.HideBlock.(map[string]any); ok {
+    for _, p := range h["defaultBlocks"].([]any) {
         defBlocks = append(defBlocks, p.(string))
     }
-    data = h["data"].(map[string]interface {})
+    data = h["data"].(map[string]any)
   }
 %}
 <form id="{%s idShake %}form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
@@ -395,10 +397,6 @@ ul.form-field{
 .errorLabel {
     display: none;
     color:red;
-}
-.input-label {
-    width: 98%;
-    align-content: center;
 }
 .hiddenInput > input[type=file] {
     width: 100%;

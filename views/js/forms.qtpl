@@ -66,7 +66,54 @@ function setClickAll() {
   isProcess = false;
 }
 
+function LoadStyles(id, styles) {
+        let $head = $('head > style#' + id);
+       if ( $head.length == 0 )
+            $head = $('head').append('<style type="text/css" id="' + id + '"> </style>');
+        $head.html( styles );
+}
+
+var go_history=1;
+// Эта функция отрабатывает при перемещении по истории просмотром (кнопки вперед-назад в браузере)
+function MyPopState(event) {
+    if ( (go_history == 0) || (event.state == null) /* || (str_hash == DivContent.attr( 'rel') )|| (ya_search == 'process') */  )
+        return true;
+    go_history = 0;
+    console.log(event);
+    loadContent( event.state );
+}
+// смена адресной строки с предотвращением перезагрузки Содержимого
+function SetDocumentHash( str_path ) {
+let root_page ="/";
+let default_page = "index.html";
+    // обрезаю доменное имя и меняю скрипты для магазинов, затем готовлю полный путь для записи в Хистори браузера
+    str_path = GetShortURL( str_path )
+    var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
+            + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
+
+// 	document.location.hash = new_hash;
+    if ( (go_history)  ) {
+
+        window.history.pushState( str_path, document.title, document.location.origin );
+        console.log(str_path);
+    }
+    go_history = 1;
+}
+function GetShortURL(m_adress) {
+    var origin   = document.location.origin + '/',
+
+    i = m_adress.search( origin );
+    if (i > -1)
+        return m_adress.substring( i + origin.length );
+
+    return m_adress;
+}
+
+
 $(function()   {
+    if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
+        window.onpopstate = MyPopState;
+
     if (user == '') {
       getUser();
     }
@@ -188,7 +235,7 @@ function loadContent(url) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
             },
             success: function (data, status) {
-              $('#content').html(data);
+                PutContent(data, url);
             },
             error: function (xhr, status, error) {
                  if (xhr.status == 401) {
@@ -201,6 +248,11 @@ function loadContent(url) {
                 console.log(error);
             }
        });
+}
+
+function PutContent(data, url) {
+	$('#content').html(data);
+	SetDocumentHash(url);
 }
 
 function showObject(data, thisForm) {

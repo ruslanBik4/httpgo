@@ -9,13 +9,13 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 це главная страница.
 {% code
     type IndexPageBody struct {
-        Name []byte
-        Pass []byte
-        Content []byte
+        Name         []byte
+        Pass         []byte
+        Content      []byte
         ContentWrite func(w io.Writer)
-        Buff    io.Writer
-        Catalog []string
-        TopMenu layouts.Menu
+        Buff         io.Writer
+        Catalog      layouts.Menu
+        TopMenu      layouts.Menu
         FooterMenu   layouts.Menu
         HeadHTML     *layouts.HeadHTMLPage
         OwnerMenu    *layouts.MenuOwnerBody
@@ -34,7 +34,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
-                    {%v= body.Catalog  %}
+                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
             </div>
         </div>
         <div class="content-section">

@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -322,12 +322,18 @@ func (t TypeInParam) Format(s fmt.State, verb rune) {
 			res = "T" + res
 			namePackage = "Ext"
 		}
-		fmt.Fprintf(s, "%s(types%s.%s)",
+		_, err := fmt.Fprintf(s, "%s(types%s.%s)",
 			nameFunc,
 			namePackage,
-			res,
+			strings.ReplaceAll(res, ".", ""),
 		)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
 	default:
-		fmt.Fprint(s, t)
+		_, err := fmt.Fprint(s, t)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
 	}
 }

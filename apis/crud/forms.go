@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -458,7 +458,7 @@ func ToStandartColumnValueType(tableName, colName string, id int32, values inter
 
 	// case *pgtype.Daterange, pgtype.Daterange:
 	//
-	// 	d := &DateMarshal{}
+	// 	d := &DateRangeMarshal{}
 	// 	err := d.Set(v)
 	// 	if err != nil {
 	// 		return fmt.Sprintf("wrong DataMershal %v", err)

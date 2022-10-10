@@ -17,7 +17,7 @@
 {%code
    colLen := make([]int, len(columns))
    colDeep := make([]int, len(columns))
-   lSymb := 7
+   lSymb := 11
    allWidth := 0
    for i, col := range columns {
         colLen[i] = len(col.Label)*(lSymb + 1)
@@ -28,7 +28,19 @@
 <script>
 function getElementsByText(str, name) {
   var items = document.getElementsByClassName(name);
-  var elem = Array.prototype.slice.call(items).filter(el => el.textContent.includes( str.trim() ) );
+  var elem = Array.prototype.slice.call(items).forEach(
+  function(el, ind, arr) {
+    if (str.trim() == "") {
+        el.parentElement.style = "";
+        return true;
+    }
+    if ( el.textContent.includes( str.trim() ) || el.parentElement.className.includes("usr-table__filter")) {
+        el.parentElement.style = "";
+        return true;
+    }
+     el.parentElement.style = "display:none";
+    });
+    return
   if (elem.length > 0) {
 //todo- chg on each
     elem[0].scrollIntoView({block: "center", behavior: "smooth"});
@@ -63,7 +75,32 @@ function getElementsByText(str, name) {
                     {% if col.LinkNew > "" %}
                      {%s= col.LinkNew %}
                     {% else %}
-                   <input type="search" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
+	{% switch %}
+   	{% case  col.SelectOptions != nil %}
+            <select {%= col.RenderAttr(i) %} onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+             {%code
+                 sortList := make([]string, 0, len(col.SelectOptions))
+                 for title := range col.SelectOptions {
+                     sortList = append(sortList, title)
+                 }
+                 sort.Strings(sortList)
+             %}
+                <option value="" >All</option>
+             {% for _, title := range sortList %}
+                <option value="{%s title %}" >{%s title %}</option>
+             {% endfor %}
+          </select>
+  	{% case col.InputType == "file" %}
+        <span class="hiddenInput" style="background-image: url('%v val %');"> </span>
+    {% case col.Suggestions > "" %}
+        <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
+                autocapitalize="none" autocorrect="off" autocomplete="off"
+                onkeyup="inputSearchKeyUp(this,event);" />
+        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
+        </select>
+    {% default %}
+                   <input type="{%s col.InputType %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
+    {% endswitch %}
                     {% endif %}
                 </div>
             </div>

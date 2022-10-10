@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -37,6 +37,28 @@ type InParam struct {
 
 func (param InParam) Format(s fmt.State, verb rune) {
 	switch verb {
+	case 's':
+		fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %g,`,
+			param.Name,
+			param.Desc,
+			param.Type,
+		)
+		if len(param.PartReq) > 0 {
+			fmt.Fprintf(s, "PartReq: %v,", param.PartReq)
+		}
+		if len(param.IncompatibleWiths) > 0 {
+			fmt.Fprintf(s, "IncompatibleWiths: %v,", param.IncompatibleWiths)
+		}
+		if param.DefValue != nil {
+			fmt.Fprintf(s, "DefValue: %q,", param.DefValue)
+		}
+		if param.TestValue > "" {
+			fmt.Fprintf(s, "TestValue: %v,", param.TestValue)
+		}
+		if param.Req {
+			fmt.Fprintf(s, "Req: %v,", param.Req)
+		}
+
 	case 'g':
 		fmt.Fprintf(s,
 			`{
@@ -64,7 +86,7 @@ func (param InParam) Format(s fmt.State, verb rune) {
 		}
 		fmt.Fprintf(s, "\n\t\t\t\t\t}")
 	default:
-		fmt.Fprint(s, param)
+		fmt.Fprint(s, param.Name, param.Desc, param.Type, param.Req, param.DefValue)
 	}
 }
 

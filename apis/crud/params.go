@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -26,7 +26,7 @@ type DbApiParams struct {
 func NewDbApiParams(col dbEngine.Column) *DbApiParams {
 	param := apis.InParam{
 		Name:              col.Name(),
-		Desc:              col.Comment(),
+		Desc:              strings.Split(col.Comment(), "{")[0],
 		Req:               col.Primary(),
 		PartReq:           nil,
 		IncompatibleWiths: nil,
@@ -45,30 +45,30 @@ func NewDbApiParams(col dbEngine.Column) *DbApiParams {
 }
 
 func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
-	if strings.HasPrefix(col.Type(), "_") {
-		p.Type = apis.NewSliceTypeInParam(col.BasicType())
-		p.Name += "[]"
-	}
+	isArray := strings.HasPrefix(col.Type(), "_")
 	switch col.Type() {
 	case "date", "timestamp", "timestamptz", "time":
-		// todo add new type of date/time
-		// p.Type = apis.NewStructInParam(&DateTimeString{})
-		p.Type = apis.NewTypeInParam(types.String)
+		p.Type = apis.NewStructInParam(&DateTimeString{})
 	case "daterange": // col.BasicType() == typesExt.TStruct {
-		p.Type = apis.NewStructInParam(&DateMarshal{})
+		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
+	case "bytea":
+		p.Type = apis.NewSliceTypeInParam(types.Byte)
 	case "json":
-		p.Type = apis.NewStructInParam(&DateMarshal{})
-
-		// } else if col.Foreign() != nil {
-		// 	p.Type
+		p.Type = apis.NewStructInParam(&DtoField{})
+	case "inet", "interval":
+		p.Type = apis.NewStructInParam(&IntervalMarshal{})
 	default:
-		p.Type = apis.NewTypeInParam(col.BasicType())
+		if isArray {
+			p.Type = apis.NewSliceTypeInParam(col.BasicType())
+			p.Name += "[]"
+		} else {
+			p.Type = apis.NewTypeInParam(col.BasicType())
+		}
 	}
-
 }
 
 func ToColDev(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, patternList dbEngine.Table, col dbEngine.Column,
-	value interface{}) *forms.ColumnDecor {
+	value any) *forms.ColumnDecor {
 
 	colDec := forms.NewColumnDecor(col, patternList)
 	colDec.IsDisabled = colDec.IsReadOnly && !(colDec.IsHidden)
@@ -91,7 +91,7 @@ func ToColDev(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, patternList dbEngine.Ta
 	return colDec
 }
 
-func GetForeignOptions(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, colDec *forms.ColumnDecor, id interface{}) {
+func GetForeignOptions(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, colDec *forms.ColumnDecor, id any) {
 	if f := colDec.Foreign(); f != nil && colDec.Suggestions == "" {
 		colDec.Suggestions = "/search/" + f.Parent
 		colDec.DefaultInputValue, _ = GetForeignName(ctx, DB, colDec, id).(string)

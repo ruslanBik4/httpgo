@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -25,6 +25,14 @@ import (
 
 type DateTimeString time.Time
 
+func (d *DateTimeString) GetValue() any {
+	return d
+}
+
+func (d *DateTimeString) NewValue() any {
+	return &DateTimeString{}
+}
+
 func (d *DateTimeString) UnmarshalJSON(src []byte) error {
 	t, err := time.Parse(time.RFC3339, string(src))
 	if err != nil {
@@ -40,7 +48,7 @@ func (d *DateTimeString) MarshalJSON() ([]byte, error) {
 	return []byte((*time.Time)(d).Format(time.RFC3339)), nil
 }
 
-func (d *DateTimeString) Scan(src interface{}) error {
+func (d *DateTimeString) Scan(src any) error {
 	switch s := src.(type) {
 	case string:
 		t, err := time.Parse(time.RFC3339, s)
@@ -70,17 +78,19 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 	return true
 }
 
-type dtoField map[string]interface{}
+type DtoField map[string]any
 
 // CheckParams implement CheckDTO interface, put each params into user value on context
-func (d *dtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
+func (d *DtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for key, val := range *d {
 		if strings.HasSuffix(key, "[]") {
 			// key = strings.TrimSuffix(key, "[]")
 			switch v := val.(type) {
+			case []string:
+				val = v
 			case string:
 				val = []string{v}
-			case []interface{}:
+			case []any:
 				s := make([]string, len(v))
 				for i, str := range v {
 					s[i] = fmt.Sprintf("%v", str)
@@ -94,12 +104,12 @@ func (d *dtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]st
 	return true
 }
 
-func (d dtoField) GetValue() interface{} {
+func (d DtoField) GetValue() any {
 	return d
 }
 
-func (d dtoField) NewValue() interface{} {
-	d = make(map[string]interface{}, 0)
+func (d DtoField) NewValue() any {
+	d = make(map[string]any, 0)
 	// todo check later
 	return &d
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -14,23 +14,23 @@ import (
 	"github.com/jackc/pgtype"
 )
 
-type DateMarshal struct {
+type DateRangeMarshal struct {
 	*pgtype.Daterange
 }
 
-func (d *DateMarshal) GetValue() interface{} {
+func (d *DateRangeMarshal) GetValue() interface{} {
 	return d
 }
 
-func (d *DateMarshal) NewValue() interface{} {
-	return &DateMarshal{&pgtype.Daterange{}}
+func (d *DateRangeMarshal) NewValue() interface{} {
+	return &DateRangeMarshal{&pgtype.Daterange{}}
 }
 
-func (d *DateMarshal) Value() (driver.Value, error) {
+func (d *DateRangeMarshal) Value() (driver.Value, error) {
 	return d.Daterange, nil
 }
 
-func (d *DateMarshal) Set(src interface{}) error {
+func (d *DateRangeMarshal) Set(src interface{}) error {
 	if d.Daterange == nil {
 		d.Daterange = &pgtype.Daterange{Status: pgtype.Null}
 	}
@@ -80,4 +80,16 @@ func (d *DateMarshal) Set(src interface{}) error {
 	}
 
 	return nil
+}
+
+type IntervalMarshal struct {
+	*pgtype.Interval
+}
+
+func (i *IntervalMarshal) GetValue() interface{} {
+	return i
+}
+
+func (i *IntervalMarshal) NewValue() interface{} {
+	return &IntervalMarshal{&pgtype.Interval{}}
 }

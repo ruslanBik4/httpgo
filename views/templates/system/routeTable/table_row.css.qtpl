@@ -16,23 +16,22 @@
 .usr-table-row:nth-child(2n){
   background-color: rgba(120, 147, 182, 0.1);
 }
-.usr-table-col{
+.usr-table-col {
   padding: 1px;
   align-content:  center;
   max-height: 100px;
   overflow: hidden;
   word-break: break-all;
-  input {
-      width: 98%;
-  }
 }
-
+.usr-table-col  input {
+      width: 98%;
+}
 .usr-table-col:nth-child(1){
     padding-left: 3px;
-  }
+}
 .usr-table-col:hover{
     overflow-y: visible;
- }
+}
 
 .usr-table__t-head .usr-table-col{
     color: #8d8e8e;
@@ -42,7 +41,7 @@
 
 
 .usr-table{
-  font-size: 10px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1.8;
   letter-spacing: 0.2px;

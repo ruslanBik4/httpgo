@@ -30,20 +30,24 @@ function() {
 
                 //var blob = new Blob([data], {type: typeCnt});
                 //var URL = window.URL || window.webkitURL;
-                data = "<img src='" + url + "'/>";
-             } else if (typeCnt.startsWith("application/json") ) {
-                if (isSearch) {
-                    showObject(data)
-                } else {
-                    $('#content').html(JSON.stringify(data) )
-                }
-                return;
-             }
-             if (target !== "_modal") {
-                $('#content').html(data);
-             } else {
-                fancyOpen(data);
-             }
+				data = "<img src='" + url + "'/>";
+			} else if (typeCnt.startsWith("text/css") ) {
+				var id = xhr.getResponseHeader('Section-Name');
+				LoadStyles(id, data)
+				return;
+			} else if (typeCnt.startsWith("application/json") ) {
+				if (isSearch) {
+				    showObject(data)
+				} else {
+				    $('#content').html(JSON.stringify(data) )
+				}
+				return;
+			}
+			if (target !== "_modal") {
+				PutContent(data, url);
+			} else {
+				fancyOpen(data);
+			}
           },
           error: function (xhr, status, error) {
               if (xhr.status == 401) {
@@ -57,5 +61,5 @@ function() {
           }
          });
          return false;
-   }
+}
 {% endfunc %}

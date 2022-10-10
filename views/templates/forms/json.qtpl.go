@@ -40,7 +40,7 @@ var (
 //line json.qtpl:13
 type FormField struct {
 	Title, Action, Method, Description string
-	HideBlock                          interface{}
+	HideBlock                          any
 }
 
 // json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
@@ -557,7 +557,7 @@ func (col *ColumnDecor) InputTypeForJSON() string {
 }
 
 //line json.qtpl:202
-func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value interface{}) {
+func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value any) {
 //line json.qtpl:203
 	switch vv := value.(type) {
 //line json.qtpl:204
@@ -575,7 +575,7 @@ func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value inter
 }
 
 //line json.qtpl:209
-func (col *ColumnDecor) WriteRenderValue(qq422016 qtio422016.Writer, value interface{}) {
+func (col *ColumnDecor) WriteRenderValue(qq422016 qtio422016.Writer, value any) {
 //line json.qtpl:209
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line json.qtpl:209
@@ -586,7 +586,7 @@ func (col *ColumnDecor) WriteRenderValue(qq422016 qtio422016.Writer, value inter
 }
 
 //line json.qtpl:209
-func (col *ColumnDecor) RenderValue(value interface{}) string {
+func (col *ColumnDecor) RenderValue(value any) string {
 //line json.qtpl:209
 	qb422016 := qt422016.AcquireByteBuffer()
 //line json.qtpl:209
@@ -694,7 +694,7 @@ func (col *ColumnDecor) RenderAttr(i int) string {
 }
 
 //line json.qtpl:226
-func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[string]interface{}) {
+func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[string]any) {
 //line json.qtpl:226
 	qw422016.N().S(` `)
 //line json.qtpl:227
@@ -728,7 +728,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line json.qtpl:237
 			qw422016.N().S(` `)
 //line json.qtpl:238
-			if d, ok := data[col.InputName(i)].(map[string]interface{}); ok {
+			if d, ok := data[col.InputName(i)].(map[string]any); ok {
 //line json.qtpl:238
 				qw422016.N().S(` data-show-blocks='`)
 //line json.qtpl:239
@@ -884,7 +884,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 }
 
 //line json.qtpl:289
-func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]interface{}) {
+func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]any) {
 //line json.qtpl:289
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line json.qtpl:289
@@ -895,7 +895,7 @@ func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[s
 }
 
 //line json.qtpl:289
-func (col *ColumnDecor) RenderInputs(data map[string]interface{}) string {
+func (col *ColumnDecor) RenderInputs(data map[string]any) string {
 //line json.qtpl:289
 	qb422016 := qt422016.AcquireByteBuffer()
 //line json.qtpl:289
@@ -912,49 +912,49 @@ func (col *ColumnDecor) RenderInputs(data map[string]interface{}) string {
 //line json.qtpl:291
 func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockColumns) {
 //line json.qtpl:291
-	qw422016.N().S(` <style> figure { border: thin #c0c0c0 solid; display: flex; flex-flow: column; padding: 5px; max-width: 80%; margin: auto; } figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; } .input-label{ position: relative; } li.form-field{ position: relative; margin: 0 10px; display: flex; flex-wrap: wrap; padding: 12px 0; box-sizing: border-box; } ul.form-field{ position: relative; margin: 0 -10px; list-style: none; background-color: white; } .removeField { position: absolute; top: 4px; right: -8px; width: 16px; height: 16px; border-radius: 50%; background: #ffa30c; z-index: 1; transition: all .3s ease-in-out; } </style> `)
-//line json.qtpl:338
+	qw422016.N().S(` <style> figure { border: thin #c0c0c0 solid; display: flex; flex-flow: column; padding: 5px; max-width: 80%; margin: auto; } figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; } .input-label{ //    position: relative; width: 98%; align-content: center; } li.form-field{ position: relative; margin: 0 10px; display: flex; flex-wrap: wrap; padding: 12px 0; box-sizing: border-box; } ul.form-field{ position: relative; margin: 0 -10px; list-style: none; background-color: white; } .removeField { position: absolute; top: 4px; right: -8px; width: 16px; height: 16px; border-radius: 50%; background: #ffa30c; z-index: 1; transition: all .3s ease-in-out; } </style> `)
+//line json.qtpl:340
 	idShake := strings.ReplaceAll(f.Title, " ", "_")
 	defBlocks := make([]string, 0)
-	var data map[string]interface{}
-	if h, ok := f.HideBlock.(map[string]interface{}); ok {
-		for _, p := range h["defaultBlocks"].([]interface{}) {
+	var data map[string]any
+	if h, ok := f.HideBlock.(map[string]any); ok {
+		for _, p := range h["defaultBlocks"].([]any) {
 			defBlocks = append(defBlocks, p.(string))
 		}
-		data = h["data"].(map[string]interface{})
+		data = h["data"].(map[string]any)
 	}
 
-//line json.qtpl:347
+//line json.qtpl:349
 	qw422016.N().S(` <form id="`)
-//line json.qtpl:348
+//line json.qtpl:350
 	qw422016.E().S(idShake)
-//line json.qtpl:348
+//line json.qtpl:350
 	qw422016.N().S(`form" name="`)
-//line json.qtpl:348
+//line json.qtpl:350
 	qw422016.E().S(f.Title)
-//line json.qtpl:348
+//line json.qtpl:350
 	qw422016.N().S(`" role='form' class="form-horizontal" target="content" action="`)
-//line json.qtpl:349
+//line json.qtpl:351
 	qw422016.E().S(f.Action)
-//line json.qtpl:349
+//line json.qtpl:351
 	qw422016.N().S(`" method="`)
-//line json.qtpl:349
+//line json.qtpl:351
 	qw422016.N().S(f.Method)
-//line json.qtpl:349
+//line json.qtpl:351
 	qw422016.N().S(`" enctype="multipart/form-data" oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};" onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};" onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
-//line json.qtpl:352
+//line json.qtpl:354
 	qw422016.E().S(f.Title)
-//line json.qtpl:352
+//line json.qtpl:354
 	qw422016.N().S(`" > <figcaption>`)
-//line json.qtpl:354
+//line json.qtpl:356
 	qw422016.N().S(f.Description)
-//line json.qtpl:354
+//line json.qtpl:356
 	qw422016.N().S(`</figcaption> `)
-//line json.qtpl:355
-	for _, block := range blocks {
-//line json.qtpl:355
-		qw422016.N().S(` `)
 //line json.qtpl:357
+	for _, block := range blocks {
+//line json.qtpl:357
+		qw422016.N().S(` `)
+//line json.qtpl:359
 		isHide := (len(defBlocks) > 0)
 		for _, id := range defBlocks {
 			if id == strconv.Itoa(block.Id) {
@@ -963,133 +963,133 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer, blocks ...BlockCol
 			}
 		}
 
-//line json.qtpl:364
+//line json.qtpl:366
 		qw422016.N().S(` <figure id = "block`)
-//line json.qtpl:365
+//line json.qtpl:367
 		qw422016.N().D(block.Id)
-//line json.qtpl:365
+//line json.qtpl:367
 		qw422016.N().S(`" `)
-//line json.qtpl:365
+//line json.qtpl:367
 		if isHide {
-//line json.qtpl:365
+//line json.qtpl:367
 			qw422016.N().S(` style="display:none"`)
-//line json.qtpl:365
+//line json.qtpl:367
 		}
-//line json.qtpl:365
+//line json.qtpl:367
 		qw422016.N().S(` > `)
-//line json.qtpl:366
+//line json.qtpl:368
 		if block.Title > "" {
-//line json.qtpl:366
+//line json.qtpl:368
 			qw422016.N().S(` <figcaption>`)
-//line json.qtpl:366
+//line json.qtpl:368
 			qw422016.E().S(block.Title)
-//line json.qtpl:366
+//line json.qtpl:368
 			qw422016.N().S(`</figcaption>`)
-//line json.qtpl:366
+//line json.qtpl:368
 		}
-//line json.qtpl:366
+//line json.qtpl:368
 		qw422016.N().S(` `)
-//line json.qtpl:367
+//line json.qtpl:369
 		if block.Description > "" {
-//line json.qtpl:367
+//line json.qtpl:369
 			qw422016.N().S(` <p>`)
-//line json.qtpl:367
+//line json.qtpl:369
 			qw422016.E().S(block.Description)
-//line json.qtpl:367
+//line json.qtpl:369
 			qw422016.N().S(` </p> `)
-//line json.qtpl:367
+//line json.qtpl:369
 		}
-//line json.qtpl:367
+//line json.qtpl:369
 		qw422016.N().S(` `)
-//line json.qtpl:368
+//line json.qtpl:370
 		for i, col := range block.Columns {
-//line json.qtpl:368
+//line json.qtpl:370
 			qw422016.N().S(` <div id="divField`)
-//line json.qtpl:369
+//line json.qtpl:371
 			qw422016.N().D(i)
-//line json.qtpl:369
+//line json.qtpl:371
 			qw422016.N().S(`" class="input-wrap" `)
-//line json.qtpl:370
+//line json.qtpl:372
 			if col.IsHidden {
-//line json.qtpl:370
+//line json.qtpl:372
 				qw422016.N().S(` style="display:none" `)
-//line json.qtpl:370
+//line json.qtpl:372
 			}
-//line json.qtpl:370
+//line json.qtpl:372
 			qw422016.N().S(` > <label class="input-label" for="`)
-//line json.qtpl:371
+//line json.qtpl:373
 			qw422016.E().S(col.Name())
-//line json.qtpl:371
+//line json.qtpl:373
 			qw422016.N().S(`">`)
-//line json.qtpl:371
+//line json.qtpl:373
 			qw422016.E().S(col.Label)
-//line json.qtpl:371
+//line json.qtpl:373
 			qw422016.N().S(` `)
-//line json.qtpl:372
+//line json.qtpl:374
 			col.StreamRenderInputs(qw422016, data)
-//line json.qtpl:372
+//line json.qtpl:374
 			qw422016.N().S(` <h6 class="errorLabel">`)
-//line json.qtpl:373
+//line json.qtpl:375
 			qw422016.N().S(col.patternDesc)
-//line json.qtpl:373
+//line json.qtpl:375
 			qw422016.N().S(`</h6> </label> </div> `)
-//line json.qtpl:376
+//line json.qtpl:378
 		}
-//line json.qtpl:376
+//line json.qtpl:378
 		qw422016.N().S(` </figure> `)
-//line json.qtpl:378
+//line json.qtpl:380
 		if block.Multiple {
-//line json.qtpl:378
+//line json.qtpl:380
 			qw422016.N().S(`<button class="main-btn" type="button" onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button> `)
-//line json.qtpl:381
+//line json.qtpl:383
 		}
-//line json.qtpl:381
+//line json.qtpl:383
 		qw422016.N().S(`<div class="form-actions"> `)
-//line json.qtpl:383
+//line json.qtpl:385
 		for _, btn := range block.Buttons {
-//line json.qtpl:383
+//line json.qtpl:385
 			qw422016.N().S(`<button class="`)
-//line json.qtpl:384
+//line json.qtpl:386
 			if btn.Position {
-//line json.qtpl:384
+//line json.qtpl:386
 				qw422016.N().S(` hidden `)
-//line json.qtpl:384
+//line json.qtpl:386
 			} else {
-//line json.qtpl:384
+//line json.qtpl:386
 				qw422016.N().S(` button `)
-//line json.qtpl:384
+//line json.qtpl:386
 			}
-//line json.qtpl:384
+//line json.qtpl:386
 			qw422016.N().S(`" type="`)
-//line json.qtpl:384
+//line json.qtpl:386
 			qw422016.N().S(btn.ButtonType)
-//line json.qtpl:384
+//line json.qtpl:386
 			qw422016.N().S(`" `)
-//line json.qtpl:385
+//line json.qtpl:387
 			if btn.OnClick > "" {
-//line json.qtpl:385
+//line json.qtpl:387
 				qw422016.N().S(`onClick="`)
-//line json.qtpl:385
+//line json.qtpl:387
 				qw422016.E().S(btn.OnClick)
-//line json.qtpl:385
+//line json.qtpl:387
 				qw422016.N().S(`"`)
-//line json.qtpl:385
+//line json.qtpl:387
 			}
-//line json.qtpl:385
+//line json.qtpl:387
 			qw422016.N().S(`> `)
-//line json.qtpl:386
+//line json.qtpl:388
 			qw422016.E().S(btn.Title)
-//line json.qtpl:386
+//line json.qtpl:388
 			qw422016.N().S(` </button> `)
-//line json.qtpl:388
+//line json.qtpl:390
 		}
-//line json.qtpl:388
+//line json.qtpl:390
 		qw422016.N().S(`</div> `)
-//line json.qtpl:390
+//line json.qtpl:392
 	}
-//line json.qtpl:390
-	qw422016.N().S(` <output></output> <progress value='0' max='100' hidden > </progress> </form> <style> .errorLabel { display: none; color:red; } .input-label { width: 98%; align-content: center; } .hiddenInput > input[type=file] { width: 100%; height: 100%; opacity: 0; cursor: pointer; } form > span.hiddenInput:hover{ position: fixed; top: 1%; right: 1%; width: 25%; max-height: 75%; } .hiddenInput { border: 1px solid #ccc; width: 100%; height: 100%; min-height: 50px; display: inline-block; overflow: hidden; cursor: pointer; background: center center no-repeat scroll; background-size: contain; } .suggestions-select-hide { opacity: 0; height: 0.1px !important; position: absolute; left: -400px; } .suggestions-select-show { opacity: 1; height: 200px !important; position: static; } </style> <script> `)
-//line json.qtpl:443
+//line json.qtpl:392
+	qw422016.N().S(` <output></output> <progress value='0' max='100' hidden > </progress> </form> <style> .errorLabel { display: none; color:red; } .hiddenInput > input[type=file] { width: 100%; height: 100%; opacity: 0; cursor: pointer; } form > span.hiddenInput:hover{ position: fixed; top: 1%; right: 1%; width: 25%; max-height: 75%; } .hiddenInput { border: 1px solid #ccc; width: 100%; height: 100%; min-height: 50px; display: inline-block; overflow: hidden; cursor: pointer; background: center center no-repeat scroll; background-size: contain; } .suggestions-select-hide { opacity: 0; height: 0.1px !important; position: absolute; left: -400px; } .suggestions-select-show { opacity: 1; height: 200px !important; position: static; } </style> <script> `)
+//line json.qtpl:441
 	qw422016.N().S(`
 function validatePattern(thisElem) {
     var re = thisElem.pattern,
@@ -1190,31 +1190,31 @@ function ShowBlocks(thisElem){
 }
 </script>
 `)
-//line json.qtpl:542
+//line json.qtpl:540
 }
 
-//line json.qtpl:542
+//line json.qtpl:540
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer, blocks ...BlockColumns) {
-//line json.qtpl:542
+//line json.qtpl:540
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:542
+//line json.qtpl:540
 	f.StreamFormHTML(qw422016, blocks...)
-//line json.qtpl:542
+//line json.qtpl:540
 	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:542
+//line json.qtpl:540
 }
 
-//line json.qtpl:542
+//line json.qtpl:540
 func (f *FormField) FormHTML(blocks ...BlockColumns) string {
-//line json.qtpl:542
+//line json.qtpl:540
 	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:542
+//line json.qtpl:540
 	f.WriteFormHTML(qb422016, blocks...)
-//line json.qtpl:542
+//line json.qtpl:540
 	qs422016 := string(qb422016.B)
-//line json.qtpl:542
+//line json.qtpl:540
 	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:542
+//line json.qtpl:540
 	return qs422016
-//line json.qtpl:542
+//line json.qtpl:540
 }

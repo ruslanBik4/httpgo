@@ -30,7 +30,7 @@ type AttachmentList struct {
 
 type SuggestionsParams struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 type ColumnDecor struct {
 	dbEngine.Column
@@ -50,9 +50,9 @@ type ColumnDecor struct {
 	multiple          bool
 	pattern           string
 	patternDesc       string
-	Value             interface{}
+	Value             any
 	Suggestions       string
-	SuggestionsParams map[string]interface{}
+	SuggestionsParams map[string]any
 }
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
@@ -65,7 +65,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 		IsHidden:          col.Primary(),
 		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || strings.Contains(comment, "read_only")),
 		PatternList:       patternList,
-		SuggestionsParams: make(map[string]interface{}),
+		SuggestionsParams: make(map[string]any),
 	}
 	for _, item := range suggestions {
 		colDec.SuggestionsParams[item.Key] = item.Value
@@ -161,12 +161,12 @@ func (col *ColumnDecor) Pattern() string {
 	return col.pattern
 }
 
-func (col *ColumnDecor) GetFields(columns []dbEngine.Column) []interface{} {
+func (col *ColumnDecor) GetFields(columns []dbEngine.Column) []any {
 	if len(columns) == 0 {
-		return []interface{}{&col.Value}
+		return []any{&col.Value}
 	}
 
-	v := make([]interface{}, len(columns))
+	v := make([]any, len(columns))
 	for i, c := range columns {
 		switch c.Name() {
 		case "pattern":
@@ -215,42 +215,42 @@ func (col *ColumnDecor) Type() string {
 	return col.Column.Type()
 }
 
-func (col *ColumnDecor) GetValues() (values []interface{}) {
+func (col *ColumnDecor) GetValues() (values []any) {
 
 	switch val := col.Value.(type) {
-	case []interface{}:
+	case []any:
 		values = val
 		col.IsSlice = true
 	case []string:
-		values = make([]interface{}, len(val))
+		values = make([]any, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
 		col.IsSlice = true
 
 	case []int32:
-		values = make([]interface{}, len(val))
+		values = make([]any, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
 		col.IsSlice = true
 
 	case []int64:
-		values = make([]interface{}, len(val))
+		values = make([]any, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
 		col.IsSlice = true
 
 	case []float32:
-		values = make([]interface{}, len(val))
+		values = make([]any, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
 		col.IsSlice = true
 
 	case []float64:
-		values = make([]interface{}, len(val))
+		values = make([]any, len(val))
 		for i, val := range val {
 			values[i] = val
 		}
@@ -258,6 +258,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 
 	case nil:
 		values = append(values, nil)
+
 	case driver.Valuer:
 		v, err := val.Value()
 		if err != nil {
@@ -266,6 +267,7 @@ func (col *ColumnDecor) GetValues() (values []interface{}) {
 		} else {
 			values = append(values, v)
 		}
+
 	default:
 		values = append(values, val)
 	}
