@@ -1,0 +1,95 @@
+{% import (
+	"go/types"
+
+	jsoniter "github.com/json-iterator/go"
+
+	"github.com/ruslanBik4/logs"
+	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
+
+)
+%}
+
+{% code
+type qInParam struct {
+    in string
+}
+
+func NewqInParam(in string) *qInParam {
+    return &qInParam{
+        in: in,
+    }
+} 
+%}
+{%- func (q *qInParam) SwaggerParams(params []any) -%}
+"parameters": [
+ {%- for i, p := range params -%}
+	{%- if i > 0 -%}, {% endif %}
+	{
+	{%- if param, ok := p.(InParam); ok -%}
+		{%- if t, ok := param.Type.(jsoniter.ValEncoder); ok -%}
+		{%- code
+			s, err := jsoniter.MarshalToString(t)
+			if err != nil {
+				logs.ErrorLog(err)
+			}
+		-%}
+    	{%s s %}
+        {%- else -%}
+		"name": "{%s param.Name %}",
+		"description": "{%s param.Desc %}",
+		"in":   "{%s q.in %}",
+		"type": {%- switch t, ok := (param.Type).(TypeInParam); -%} {
+				{%- case ok && t.BasicKind == types.Bool-%}
+					"boolean"
+				{%- case ok && t.BasicKind > types.Bool && t.BasicKind < types.Float32 -%}
+					"integer",
+		"format": 	"{%= t.Format() %}"
+				{%- case ok && (t.BasicKind == types.Float32 || t.BasicKind == types.Float64) -%}
+					"number",
+		"format": 	"{%= t.Format() %}"
+				{%- case ok && t.BasicKind == types.String -%}
+					"array[string]",
+		"format": 	"string"
+				{%- case ok && t.BasicKind > types.UnsafePointer -%}
+					"untyped",
+		"format": 	"{%= t.Format() %}"
+				{%- case ok && t.BasicKind == typesExt.TStruct -%}
+					"{%= t.RequestType() %}",
+		"format":   "{%= t.Format() %}"
+				{%- case ok -%}
+					"{%= t.Format() %}",
+		"format": 	"{%= t.Format() %}"
+				{%- default -%}
+					"{%v param.Type %}",
+		"format": 	"{%v param.Type %}"
+				{%- endswitch -%},
+
+        {%- endif -%}
+    {%- else -%}
+        {%= json.Wrap(p) %}
+    {%- endif -%}
+    }
+ {%- endfor -%}
+]
+{%- endfunc -%}
+{%- func Bearer(desc string) -%}
+"components": {
+  "securitySchemes": {
+	"auth":{
+	  "name": "auth",
+	  "in": "header",
+	  "description": "{%j desc %}",
+	  "type": "http",
+	  "scheme": "bearer",
+	  "bearerFormat": "JWT",
+	  "url": "/auth"
+	}
+  }
+}
+{%- endfunc -%}
+{%- func Security(desc string) -%}
+"security": [
+  "auth":  "JWT"
+]
+{%- endfunc -%}

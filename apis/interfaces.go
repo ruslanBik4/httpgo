@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -38,4 +38,10 @@ type FncVisit func([]byte, *fastjson.Value)
 type Visit interface {
 	Each([]byte, *fastjson.Value)
 	Result() (interface{}, error)
+}
+
+type Docs interface {
+	Expect() string
+	Format() string
+	RequestType() string
 }

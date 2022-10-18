@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 // формирование JSON из разного вида данных и выдача текста в поток
@@ -38,7 +38,6 @@ func StreamWrap(w *quicktemplate.Writer, value any) {
 }
 
 func StreamSlice[T any](w *quicktemplate.Writer, value []T) {
-	logs.StatusLog("slice", value)
 	w.N().S(`[`)
 	for key, v := range value {
 		if key > 0 {

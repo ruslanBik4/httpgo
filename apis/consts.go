@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -32,7 +32,7 @@ const (
 	CONNECT
 	OPTIONS
 	TRACE
-	UNKNOW
+	UNKNOWN
 )
 
 var methodNames = []string{
@@ -49,13 +49,28 @@ var methodNames = []string{
 }
 
 func methodFromName(nameMethod string) tMethod {
-	for method, name := range methodNames {
-		if name == nameMethod {
-			return tMethod(method)
-		}
+	switch nameMethod {
+	case "GET":
+		return GET
+	case "POST":
+		return POST
+	case "HEAD":
+		return HEAD
+	case "PUT":
+		return PUT
+	case "PATCH":
+		return PATCH
+	case "DELETE":
+		return DELETE
+	case "CONNECT":
+		return CONNECT
+	case "OPTIONS":
+		return OPTIONS
+	case "TRACE":
+		return TRACE
+	default:
+		return UNKNOWN
 	}
-
-	return UNKNOW
 }
 
 //  const of values ctx parameters names

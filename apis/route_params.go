@@ -18,6 +18,8 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -37,8 +39,8 @@ type InParam struct {
 
 func (param InParam) Format(s fmt.State, verb rune) {
 	switch verb {
-	case 's':
-		fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %g,`,
+	case 's', 'v':
+		fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %v,`,
 			param.Name,
 			param.Desc,
 			param.Type,
@@ -86,7 +88,9 @@ func (param InParam) Format(s fmt.State, verb rune) {
 		}
 		fmt.Fprintf(s, "\n\t\t\t\t\t}")
 	default:
-		fmt.Fprint(s, param.Name, param.Desc, param.Type, param.Req, param.DefValue)
+		s.Write(gotools.StringToBytes(fmt.Sprintf(`Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
+			param.Name, param.Desc, param.Type, param.Req, param.DefValue)),
+		)
 	}
 }
 
@@ -200,9 +204,10 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			stream.WriteMore()
 			t.Encode(unsafe.Pointer(&t), stream)
 		} else {
+			AddFieldToJSON(stream, "format", "formdata")
 			t, ok := (param.Type).(TypeInParam)
+			s := param.Type.String()
 			if ok {
-				AddFieldToJSON(stream, "format", param.Type.String())
 				switch {
 				case t.BasicKind > types.Bool && t.BasicKind < types.Float32:
 					AddFieldToJSON(stream, "type", "integer")
@@ -210,13 +215,13 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 					AddFieldToJSON(stream, "type", "string")
 				case t.BasicKind > types.UnsafePointer:
 					AddFieldToJSON(stream, "type", "untyped")
+				case t.BasicKind == typesExt.TStruct:
+					AddFieldToJSON(stream, "type", t.TypeString())
 				default:
-					AddFieldToJSON(stream, "type", param.Type.String())
+					AddFieldToJSON(stream, "type", s)
 				}
 			} else {
-				AddFieldToJSON(stream, "format", param.Type.String())
-				AddFieldToJSON(stream, "type", param.Type.String())
-
+				AddFieldToJSON(stream, "type", s)
 			}
 		}
 	}

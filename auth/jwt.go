@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package auth
@@ -89,7 +89,7 @@ func getStringOfFnc(pc uintptr) string {
 	fncName := fnc.Name()
 	shortName := strings.TrimSuffix(path.Base(fncName), "-fm")
 
-	return fmt.Sprintf(`<a href="https://pkg.go.dev/%s/%s" target="_blank">%s(), %s:%d</a>`,
+	return fmt.Sprintf(`<a href='https://pkg.go.dev/%s/%s' target='_blank'>%s(), %s:%d</a>`,
 		path.Dir(fncName),
 		strings.ReplaceAll(strings.ReplaceAll(shortName, ".(*", "#"), ")", ""),
 		shortName,

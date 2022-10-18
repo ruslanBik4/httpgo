@@ -20,10 +20,23 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 )
 
 type DateTimeString time.Time
+
+func (d *DateTimeString) Expect() string {
+	return "date as string format #" + time.RFC3339
+}
+
+func (d *DateTimeString) Format() string {
+	return "date-time"
+}
+
+func (d *DateTimeString) RequestType() string {
+	return "string"
+}
 
 func (d *DateTimeString) GetValue() any {
 	return d
@@ -34,7 +47,7 @@ func (d *DateTimeString) NewValue() any {
 }
 
 func (d *DateTimeString) UnmarshalJSON(src []byte) error {
-	t, err := time.Parse(time.RFC3339, string(src))
+	t, err := time.Parse(time.RFC3339, gotools.BytesToString(src))
 	if err != nil {
 		return errors.Wrap(err, "Parse(time.RFC3339")
 	}
@@ -45,7 +58,7 @@ func (d *DateTimeString) UnmarshalJSON(src []byte) error {
 }
 
 func (d *DateTimeString) MarshalJSON() ([]byte, error) {
-	return []byte((*time.Time)(d).Format(time.RFC3339)), nil
+	return gotools.StringToBytes((*time.Time)(d).Format(time.RFC3339)), nil
 }
 
 func (d *DateTimeString) Scan(src any) error {
@@ -80,6 +93,10 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 
 type DtoField map[string]any
 
+func (d *DtoField) Expect() string {
+	return "JSON object {'key':'value'...}"
+}
+
 // CheckParams implement CheckDTO interface, put each params into user value on context
 func (d *DtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for key, val := range *d {
@@ -104,14 +121,13 @@ func (d *DtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]st
 	return true
 }
 
-func (d DtoField) GetValue() any {
+func (d *DtoField) GetValue() any {
 	return d
 }
 
-func (d DtoField) NewValue() any {
-	d = make(map[string]any, 0)
-	// todo check later
-	return &d
+func (d *DtoField) NewValue() any {
+	n := new(DtoField)
+	return n
 }
 
 type FormActions struct {

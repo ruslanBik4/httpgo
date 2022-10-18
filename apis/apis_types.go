@@ -17,9 +17,11 @@ import (
 	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/quicktemplate"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/ruslanBik4/gotools"
 	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 
@@ -32,8 +34,8 @@ type ApisValues string
 type APIRouteParamsType interface {
 	fmt.Stringer
 	CheckType(ctx *fasthttp.RequestCtx, value string) bool
-	ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error)
-	ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error)
+	ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, error)
+	ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (any, error)
 	IsSlice() bool
 }
 
@@ -53,6 +55,7 @@ func NewTypeInParam(bk types.BasicKind) TypeInParam {
 	}
 }
 
+// NewStructInParam create TypeInParam for struct
 func NewStructInParam(dto RouteDTO) TypeInParam {
 
 	return TypeInParam{
@@ -61,7 +64,7 @@ func NewStructInParam(dto RouteDTO) TypeInParam {
 	}
 }
 
-// NewTypeInParam create TypeInParam
+// NewSliceTypeInParam create TypeInParam for slice
 func NewSliceTypeInParam(bk types.BasicKind) TypeInParam {
 	return TypeInParam{bk, true, nil}
 }
@@ -103,7 +106,7 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 }
 
 // ConvertValue convert value according to TypeInParam's type
-func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error) {
+func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, error) {
 	switch t.BasicKind {
 	case types.String:
 		return value, nil
@@ -151,7 +154,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return nil, nil
 
 	case typesExt.TMap:
-		res := make(map[string]interface{}, 0)
+		res := make(map[string]any, 0)
 		err := Json.UnmarshalFromString(value, &res)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
@@ -159,7 +162,7 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 		return res, nil
 
 	case typesExt.TArray:
-		res := make([]interface{}, 0)
+		res := make([]any, 0)
 		return t.ReadValue(value, res)
 
 	case typesExt.TStruct:
@@ -174,20 +177,21 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (inter
 	}
 }
 
-func (t TypeInParam) ReadValue(s string, v interface{}) (interface{}, error) {
+func (t TypeInParam) ReadValue(s string, v any) (any, error) {
 	switch v := v.(type) {
 	case pgtype.Value:
 		err := v.Set(s)
 		if err != nil {
 			return nil, errors.Wrap(err, "Set s")
 		}
+
 	case json.Unmarshaler:
-		err := v.UnmarshalJSON([]byte(s))
+		err := v.UnmarshalJSON(gotools.StringToBytes(s))
 		if err != nil {
 			return nil, errors.Wrap(err, "Unmarshal ")
 		}
-	default:
 
+	default:
 		err := Json.UnmarshalFromString(s, &v)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
@@ -197,7 +201,7 @@ func (t TypeInParam) ReadValue(s string, v interface{}) (interface{}, error) {
 	return v, nil
 }
 
-func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {
+func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (any, error) {
 	switch tp := t.BasicKind; tp {
 	case types.String:
 		return values, nil
@@ -283,7 +287,7 @@ func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (in
 		return nil, nil
 
 	default:
-		arr := make([]interface{}, len(values))
+		arr := make([]any, len(values))
 		for i, val := range values {
 			v, err := t.ConvertValue(ctx, val)
 			if err != nil {
@@ -310,30 +314,74 @@ func (t TypeInParam) String() string {
 	return res
 }
 
+func (t TypeInParam) StreamRequestType(w *quicktemplate.Writer) {
+	if d, ok := t.DTO.(Docs); ok {
+		w.N().S(d.RequestType())
+		return
+	}
+
+	res := typesExt.StringTypeKinds(t.BasicKind)
+	if t.isSlice {
+		w.N().S(`array[` + res + "]")
+	}
+
+	w.N().S(res)
+}
+
+func (t TypeInParam) StreamFormat(w *quicktemplate.Writer) {
+	if d, ok := t.DTO.(Docs); ok {
+		w.N().S(d.Format())
+		return
+	}
+
+	res := typesExt.StringTypeKinds(t.BasicKind)
+	if t.isSlice {
+		w.N().S(`array[` + res + "]")
+	}
+
+	w.N().S(res)
+}
+
 func (t TypeInParam) Format(s fmt.State, verb rune) {
 	switch verb {
+	case 's', 'v':
+		_, err := fmt.Fprintf(s, t.TypeString())
+		if err != nil {
+			logs.ErrorLog(err)
+		}
 	case 'g':
-		nameFunc := "apis.NewTypeInParam"
-		if t.isSlice {
-			nameFunc = "apis.NewSliceTypeInParam"
-		}
-		res, namePackage := cases.Title(language.English, cases.NoLower).String(typesExt.StringTypeKinds(t.BasicKind)), ""
-		if t.BasicKind < 0 {
-			res = "T" + res
-			namePackage = "Ext"
-		}
-		_, err := fmt.Fprintf(s, "%s(types%s.%s)",
-			nameFunc,
-			namePackage,
-			strings.ReplaceAll(res, ".", ""),
-		)
+		_, err := fmt.Fprintf(s, t.TypeString())
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	default:
-		_, err := fmt.Fprint(s, t)
+		_, err := s.Write(gotools.StringToBytes(t.TypeString()))
 		if err != nil {
 			logs.ErrorLog(err)
 		}
+	}
+}
+
+func (t TypeInParam) StreamTypeString(w *quicktemplate.Writer) {
+	w.N().S(t.TypeString())
+}
+
+func (t TypeInParam) TypeString() string {
+	res, namePackage := cases.Title(language.English, cases.NoLower).String(typesExt.StringTypeKinds(t.BasicKind)), ""
+	if t.BasicKind < 0 {
+		res = "T" + res
+		namePackage = "Ext"
+	}
+	switch {
+	case t.isSlice:
+		return fmt.Sprintf("apis.NewSliceTypeInParam(types%s.%s)",
+			namePackage,
+			strings.ReplaceAll(res, ".", ""))
+	case t.DTO != nil:
+		return strings.Replace(fmt.Sprintf("apis.NewStructInParam(%T{})", t.DTO), "*", "&", 1)
+	default:
+		return fmt.Sprintf("apis.NewTypeInParam(types%s.%s)",
+			namePackage,
+			strings.ReplaceAll(res, ".", ""))
 	}
 }

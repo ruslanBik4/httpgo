@@ -1,16 +1,24 @@
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package apis
 
 import (
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
-	"github.com/valyala/fasthttp"
 )
 
-func (apis Apis) DefaultRoutes() ApiRoutes {
+func (a *Apis) DefaultRoutes() ApiRoutes {
 	return ApiRoutes{
 		"/apis": {
 			Desc:     "full routers list current *APIS*",
-			Fnc:      apis.renderApis,
+			Fnc:      a.renderApis,
 			WithCors: true,
 			Params: []InParam{
 				{
@@ -28,7 +36,7 @@ func (apis Apis) DefaultRoutes() ApiRoutes {
 		},
 		"/onboarding": {
 			Desc:      "onboarding routes from local services into *APIS*",
-			Fnc:       apis.onboarding,
+			Fnc:       a.onboarding,
 			OnlyLocal: true,
 			Params:    onboardParams,
 		},

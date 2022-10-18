@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -258,15 +258,16 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}
 
 // addRoute with safe on concurrency
 func (a *Apis) addRoute(path string, route *ApiRoute) error {
-	_, ok := a.routes[route.Method][path]
-	if ok {
-		return ErrPathAlreadyExists
-	}
 
 	a.Lock()
 	defer a.Unlock()
 
-	a.routes[route.Method][path] = route
+	m := mapRoute{route.Method, path}
+	_, ok := a.routes[m]
+	if ok {
+		return ErrPathAlreadyExists
+	}
+	a.routes[m] = route
 
 	return nil
 }
@@ -296,23 +297,26 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	rows := make([][]interface{}, 0)
 
 	i := 0
-	for method, routes := range a.routes {
-		sortList := make([]string, 0, len(routes))
-		for url := range routes {
-			sortList = append(sortList, url)
-		}
-		sort.Strings(sortList)
+	sortList := make(map[tMethod][]string, 0)
+	for m := range a.routes {
+		a := sortList[m.method]
+		a = append(a, m.path)
+		sortList[m.method] = a
+	}
+	for method, list := range sortList {
+		sort.Strings(list)
 
-		for _, url := range sortList {
-			route := routes[url]
-			if url == string(ctx.Path()) || strings.HasSuffix(url, testRouteSuffix) {
+		for _, url := range list {
+			m := mapRoute{method, url}
+			route := a.routes[m]
+			if m.path == string(ctx.Path()) || strings.HasSuffix(m.path, testRouteSuffix) {
 				continue
 			}
 
 			row := make([]interface{}, len(columns))
-			testURL := path.Join(url, a.routes.GetTestRouteSuffix(route))
+			testURL := path.Join(m.path, a.routes.GetTestRouteSuffix(route))
 
-			row[0] = fmt.Sprintf(`<a href="%s" title="see test">%s</a> - %s`, testURL, url, method)
+			row[0] = fmt.Sprintf(`<a href="%s" title="see test">%s</a> - %s`, testURL, m.path, method)
 			if route.Multipart {
 				row[0] = row[0].(string) + ", MULTIPART"
 			}
@@ -328,9 +332,9 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 			}
 
 			if route.FncAuth != nil {
-				s += strings.Replace(route.FncAuth.String(), "\n", "</br>", -1)
+				s += strings.Replace(route.FncAuth.String(), "\n\r", "</br>", -1)
 			} else if route.NeedAuth {
-				s += strings.Replace(a.fncAuth.String(), "\n", "</br>", -1)
+				s += strings.Replace(a.fncAuth.String(), "\n\r", "</br>", -1)
 			} else {
 				s = ""
 			}

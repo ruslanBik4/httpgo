@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package apis
@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"go/types"
 	"math"
-	"path"
-	"reflect"
 	"strings"
 	"time"
 
@@ -25,11 +23,8 @@ import (
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/ruslanBik4/httpgo/views"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
-	"github.com/ruslanBik4/httpgo/views/templates/pages"
-
 	"github.com/ruslanBik4/dbEngine/typesExt"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -79,8 +74,8 @@ func MultiPartForm() BuildRouteOptions {
 }
 
 type (
-	ApiRouteHandler  func(ctx *fasthttp.RequestCtx) (interface{}, error)
-	ApiSimpleHandler func() (interface{}, error)
+	ApiRouteHandler  func(ctx *fasthttp.RequestCtx) (any, error)
+	ApiSimpleHandler func() (any, error)
 	ApiRouteFuncAuth func(ctx *fasthttp.RequestCtx) error
 )
 
@@ -94,13 +89,13 @@ type ApiRoute struct {
 	TestFncAuth                                         FncAuth                             `json:"-"`
 	Method                                              tMethod                             `json:"method,string"`
 	Multipart, NeedAuth, OnlyAdmin, OnlyLocal, WithCors bool
-	Params                                              []InParam   `json:"parameters,omitempty"`
-	Resp                                                interface{} `json:"response,omitempty"`
+	Params                                              []InParam `json:"parameters,omitempty"`
+	Resp                                                any       `json:"response,omitempty"`
 }
 
 // NewAPIRoute create customizing ApiRoute
 func NewAPIRoute(desc string, method tMethod, params []InParam, needAuth bool, fnc ApiRouteHandler,
-	resp interface{}, Options ...BuildRouteOptions) *ApiRoute {
+	resp any, Options ...BuildRouteOptions) *ApiRoute {
 	route := &ApiRoute{
 		Desc:     desc,
 		Fnc:      fnc,
@@ -122,7 +117,7 @@ func NewSimplePOSTRoute(desc string, params []InParam, fnc ApiSimpleHandler,
 	Options ...BuildRouteOptions) *ApiRoute {
 	route := &ApiRoute{
 		Desc: desc,
-		Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+		Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 			return fnc()
 		},
 		Method: POST,
@@ -141,7 +136,7 @@ func NewSimpleGETRoute(desc string, params []InParam, fnc ApiSimpleHandler,
 	Options ...BuildRouteOptions) *ApiRoute {
 	route := &ApiRoute{
 		Desc: desc,
-		Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+		Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 			return fnc()
 		},
 		Method: GET,
@@ -161,13 +156,13 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 
 	route := &ApiRoute{
 		Desc: desc,
-		Fnc: func(ctx *fasthttp.RequestCtx) (resp interface{}, err error) {
+		Fnc: func(ctx *fasthttp.RequestCtx) (resp any, err error) {
 			DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
 			if !ok {
 				return nil, dbEngine.ErrDBNotFound
 			}
 
-			args := make([]interface{}, 0, len(params))
+			args := make([]any, 0, len(params))
 			for _, param := range params {
 				p := ctx.UserValue(param.Name)
 				if p != nil {
@@ -400,7 +395,7 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 }
 
 // CheckAndRun check & run route handler
-func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp interface{}, err error) {
+func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp any, err error) {
 
 	if route.WithCors && !route.Multipart {
 		setCORSHeaders(ctx)
@@ -511,7 +506,7 @@ func setCORSHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 }
 
-func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
 	badParams := make(map[string]string, 0)
 	// check JSON parsing
 	dto := route.DTO.NewValue()
@@ -565,7 +560,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 	return len(badParams) == 0
 }
 
-func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (interface{}, error) {
+func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (any, error) {
 	// find param in InParams list & convert according to Type
 	for _, param := range route.Params {
 		if param.Name == name {
@@ -607,14 +602,14 @@ func writeResponseForAuth(stream *jsoniter.Stream) {
 	stream.WriteObjectEnd()
 }
 
-func writeResponse(stream *jsoniter.Stream, params map[string]InParam, resp interface{}) {
+func writeResponse(stream *jsoniter.Stream, params map[string]InParam, resp any) {
 	stream.WriteObjectField("responses")
 	stream.WriteObjectStart()
 	if len(params) > 0 {
 
-		mapC := map[string]interface{}{
+		mapC := map[string]any{
 			"description": statusMsg(fasthttp.StatusBadRequest),
-			"schema": map[string]interface{}{
+			"schema": map[string]any{
 				"type":       "object",
 				"properties": params,
 			},
@@ -661,217 +656,5 @@ func statusMsg(status int) string {
 	return fasthttp.StatusMessage(status)
 }
 
-func indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
-	for kind == reflect.Ptr || kind == reflect.Interface {
-		if value.IsZero() {
-			value = reflect.New(value.Type().Elem())
-		} else {
-			value = value.Elem()
-		}
-		kind = value.Kind()
-	}
-
-	return kind, value
-}
-
 // ApiRoutes is hair of APIRoute
 type ApiRoutes map[string]*ApiRoute
-type MapRoutes map[tMethod]map[string]*ApiRoute
-
-// NewMapRoutes create APIRotes instance
-func NewMapRoutes() MapRoutes {
-	m := make(MapRoutes, 0)
-	for method := range methodNames {
-		m[tMethod(method)] = make(ApiRoutes, 0)
-	}
-
-	return m
-}
-
-// AddRoutes add ApiRoute into hair onsafe
-func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
-	for url, route := range routes {
-		if !strings.HasPrefix(url, "/") {
-			url = "/" + url
-		}
-		_, ok := r[route.Method][url]
-		if ok {
-			logs.ErrorLog(ErrPathAlreadyExists, url)
-			badRouting = append(badRouting, url)
-			continue
-		}
-
-		r[route.Method][url] = route
-		// may allow OPTIONS request for "preflighted" requests
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
-		if route.WithCors && route.Method != OPTIONS && (route.DTO != nil || route.NeedAuth) {
-			_, ok := r[OPTIONS][url]
-			if !ok {
-				// 	add empty OPTIONS route for
-				r[OPTIONS][url] = &ApiRoute{
-					Desc: "allow for preflighted:" + route.Desc,
-					DTO:  nil,
-					Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-						ctx.SetStatusCode(fasthttp.StatusNoContent)
-						origin := ctx.Request.Header.Peek("Origin")
-						ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
-
-						logs.DebugLog("allow OPTIONS from %s for '%s'", origin, route.Desc)
-						return nil, nil
-					},
-					Method:   OPTIONS,
-					WithCors: true,
-				}
-			}
-		}
-		testRoute := &ApiRoute{
-			Desc:      "test handler for " + url,
-			DTO:       route.DTO,
-			Fnc:       nil,
-			FncAuth:   route.TestFncAuth,
-			Method:    GET,
-			Multipart: false,
-			NeedAuth:  false,
-			OnlyAdmin: false,
-			OnlyLocal: false,
-			Params:    make([]InParam, len(route.Params)),
-			Resp:      route.Resp,
-			WithCors:  true,
-		}
-		for i, param := range route.Params {
-			testRoute.Params[i] = param
-			if param.Req {
-				testRoute.Params[i].Req = false
-				// testRoute.Params[i].DefValue = param.TestValue
-			}
-		}
-
-		testRoute.Fnc = func(url string, route *ApiRoute) ApiRouteHandler {
-			return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-				// if route.Multipart {
-				// 	var b bytes.Buffer
-				// 	w := multipart.NewWriter(&b)
-				// 	for _, param := range route.Params {
-				// 		err := w.WriteField(param.Name, param.TestValue)
-				// 		if err != nil {
-				// 			return nil, err
-				// 		}
-				// 	}
-				// 	if err := w.Close(); err != nil {
-				// 		return nil, errors.Wrap(err, "w.Close")
-				// 	}
-				//
-				// 	ctx.Request.Header.SetMethod(fasthttp.MethodPost)
-				// 	ctx.Request.Header.Set("Content-Type", w.FormDataContentType())
-				// 	ctx.Request.SetBody(b.Bytes())
-				// 	return route.Fnc(ctx)
-				// }
-
-				views.WriteHeaders(ctx)
-				s, err := jsoniter.MarshalToString(testRoute.Resp)
-				if err != nil {
-					logs.ErrorLog(err, "MarshalToString")
-				}
-				page := pages.URLTestPage{
-					Host:       string(ctx.Host()),
-					Method:     methodNames[route.Method],
-					Multipart:  route.Multipart,
-					Path:       url,
-					Language:   "",
-					Charset:    "",
-					LinkStyles: nil,
-					MetaTags:   nil,
-					Params:     make([]pages.ParamUrlTestPage, len(testRoute.Params)),
-					Resp:       s,
-				}
-				for i, val := range testRoute.Params {
-					arrReq := map[bool]string{
-						true:  "(require)",
-						false: "",
-					}
-
-					page.Params[i] = pages.ParamUrlTestPage{
-						Basic:   types.Typ[types.Invalid],
-						Name:    val.Name + arrReq[val.Req],
-						Req:     val.Req,
-						Type:    val.Type.String(),
-						Comment: val.Desc,
-					}
-					if val.TestValue > "" {
-						page.Params[i].Value = val.TestValue
-					}
-
-					t, ok := val.Type.(TypeInParam)
-					if ok {
-						page.Params[i].Basic = typesExt.Basic(t.BasicKind)
-						page.Params[i].IsSlice = t.isSlice
-					}
-				}
-				page.WriteShowURlTestPage(ctx.Response.BodyWriter())
-				return nil, nil
-			}
-		}(url, route)
-
-		r[GET][path.Join(url, r.GetTestRouteSuffix(route))] = testRoute
-
-	}
-
-	return
-}
-
-func (r MapRoutes) GetTestRouteSuffix(route *ApiRoute) string {
-
-	if route.Method != GET {
-		return methodNames[route.Method] + testRouteSuffix
-	}
-
-	return testRouteSuffix
-}
-func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
-	pathURL := string(ctx.Path())
-	method := methodFromName(string(ctx.Method()))
-
-	// check exactly
-	if route, ok := r[method][pathURL]; ok {
-		return route, nil
-	}
-
-	// find parent pathURL with some method
-	if route, parent := r.findParentRoute(method, pathURL); route != nil {
-		ctx.SetUserValue(ChildRoutePath, strings.TrimPrefix(pathURL, parent))
-		return route, nil
-	}
-
-	for m, routes := range r {
-		if method == m {
-			continue
-		}
-		route, ok := routes[pathURL]
-		if ok {
-			return route, errMethodNotAllowed
-		}
-	}
-
-	return nil, errNotFoundPage
-}
-
-func (r MapRoutes) findParentRoute(method tMethod, path string) (*ApiRoute, string) {
-	for p := getParentPath(path); p > ""; p = getParentPath(p) {
-		route, ok := r[method][p]
-		// check method
-		if ok {
-			return route, p
-		}
-	}
-
-	return nil, ""
-}
-
-func getParentPath(path string) string {
-	n := strings.LastIndex(strings.TrimSuffix(path, "/"), "/")
-	if n < 0 {
-		return ""
-	}
-
-	return path[:n+1]
-}

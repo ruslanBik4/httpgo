@@ -1,46 +1,55 @@
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package apis
 
 import (
 	"fmt"
-	"github.com/go-openapi/spec"
-	"github.com/ruslanBik4/logs"
-	"github.com/valyala/fasthttp"
 	"go/types"
 	"reflect"
 	"strings"
+
+	"github.com/go-openapi/spec"
+	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/logs"
 )
 
 type SwaggerUnit struct {
 	Properties []spec.SchemaProps `json:"properties,omitempty"`
-	Items      interface{}        `json:"items,omitempty"`
+	Items      any                `json:"items,omitempty"`
 	Type       string
 }
 
-type SwaggerParam map[string]interface{}
+type SwaggerParam map[string]any
 
-func NewSwaggerObjectRoot(props interface{}) SwaggerParam {
-	return map[string]interface{}{
+func NewSwaggerObjectRoot(props any) SwaggerParam {
+	return map[string]any{
 		"name": "body",
 		"in":   "body",
-		"schema": map[string]interface{}{
+		"schema": map[string]any{
 			"type":       "object",
 			"properties": props,
 		},
 	}
 }
 
-func NewSwaggerObject(props interface{}, name string) SwaggerParam {
-	return map[string]interface{}{
+func NewSwaggerObject(props any, name string) SwaggerParam {
+	return map[string]any{
 		"name": name,
 		"in":   "body",
-		//"items": map[string]interface{}{
+		//"items": map[string]any{
 		"type":       "object",
 		"properties": props,
 		//},
 	}
 }
 
-func NewSwaggerArray(desc string, props ...interface{}) SwaggerParam {
+func NewSwaggerArray(desc string, props ...any) SwaggerParam {
 	items := make([]spec.Items, len(props))
 	for i, prop := range props {
 		items[i] = spec.Items{SimpleSchema: spec.SimpleSchema{
@@ -50,7 +59,7 @@ func NewSwaggerArray(desc string, props ...interface{}) SwaggerParam {
 	}
 	logs.StatusLog(items)
 
-	return map[string]interface{}{
+	return map[string]any{
 		"description": desc,
 		"schema": SwaggerUnit{
 			Type:  "array",
@@ -59,19 +68,19 @@ func NewSwaggerArray(desc string, props ...interface{}) SwaggerParam {
 	}
 }
 
-func NewSwaggerParam(props interface{}, name, typ string) SwaggerParam {
-	return map[string]interface{}{
+func NewSwaggerParam(props any, name, typ string) SwaggerParam {
+	return map[string]any{
 		"name": name,
 		"in":   "body",
-		"schema": map[string]interface{}{
+		"schema": map[string]any{
 			"type":       typ,
 			"properties": props,
 		},
 	}
 }
 
-func NewSwaggerArray1(props interface{}, name string) SwaggerParam {
-	mapC := NewSwaggerContent(map[string]interface{}{
+func NewSwaggerArray1(props any, name string) SwaggerParam {
+	mapC := NewSwaggerContent(map[string]any{
 		"type":  "array",
 		"items": props,
 	})
@@ -81,10 +90,10 @@ func NewSwaggerArray1(props interface{}, name string) SwaggerParam {
 	return mapC
 }
 
-func NewSwaggerContent(schema map[string]interface{}) map[string]interface{} {
-	return map[string]interface{}{
-		//"content": map[string]interface{}{
-		//	"application/json": map[string]interface{}{
+func NewSwaggerContent(schema map[string]any) map[string]any {
+	return map[string]any{
+		//"content": map[string]any{
+		//	"application/json": map[string]any{
 		"schema": schema,
 		//	},
 		//},
@@ -94,10 +103,10 @@ func NewSwaggerContent(schema map[string]interface{}) map[string]interface{} {
 type ReflectType struct {
 	reflect.Type
 	value reflect.Value
-	Props interface{}
+	Props any
 }
 
-func NewReflectType(value interface{}) *ReflectType {
+func NewReflectType(value any) *ReflectType {
 	val := reflect.ValueOf(value)
 	r := &ReflectType{Type: val.Type(), value: val}
 	r.Props = r.convertValue(fmt.Sprintf("%v", value), val)
@@ -110,12 +119,12 @@ func (r ReflectType) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	panic("implement me")
 }
 
-func (r ReflectType) ConvertValue(ctx *fasthttp.RequestCtx, value string) (interface{}, error) {
+func (r ReflectType) ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (r ReflectType) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (interface{}, error) {
+func (r ReflectType) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (any, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -125,7 +134,7 @@ func (r ReflectType) IsSlice() bool {
 	panic("implement me")
 }
 
-func (r *ReflectType) convertValue(title string, value reflect.Value) interface{} {
+func (r *ReflectType) convertValue(title string, value reflect.Value) any {
 
 	kind := value.Kind()
 	// Handle pointers specially.
@@ -168,7 +177,7 @@ func (r *ReflectType) convertValue(title string, value reflect.Value) interface{
 	return r.WriteReflectKind(kind, value, sType, title)
 }
 
-func (r *ReflectType) WriteReflectKind(kind reflect.Kind, value reflect.Value, sType, title string) interface{} {
+func (r *ReflectType) WriteReflectKind(kind reflect.Kind, value reflect.Value, sType, title string) any {
 	switch kind {
 	case reflect.Struct:
 		return r.WriteStruct(value, title)
@@ -229,7 +238,7 @@ func (r *ReflectType) WriteReflectKind(kind reflect.Kind, value reflect.Value, s
 	}
 }
 
-func (r *ReflectType) WriteMap(value reflect.Value, title string) interface{} {
+func (r *ReflectType) WriteMap(value reflect.Value, title string) any {
 	// nil maps should be indicated as different than empty maps
 	if value.IsNil() {
 		logs.StatusLog(title, value)
@@ -237,7 +246,7 @@ func (r *ReflectType) WriteMap(value reflect.Value, title string) interface{} {
 	}
 
 	keys := value.MapKeys()
-	propers := make([]interface{}, 0)
+	propers := make([]any, 0)
 	for i, v := range keys {
 		propers = append(propers, r.convertValue(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v))
 	}
@@ -245,7 +254,7 @@ func (r *ReflectType) WriteMap(value reflect.Value, title string) interface{} {
 	return NewSwaggerParam(propers, title, "object")
 }
 
-func (r *ReflectType) WriteSlice(value reflect.Value, title string) interface{} {
+func (r *ReflectType) WriteSlice(value reflect.Value, title string) any {
 
 	vType := value.Type()
 	numEntries := value.Len()
@@ -269,7 +278,7 @@ func (r *ReflectType) WriteSlice(value reflect.Value, title string) interface{} 
 		}
 	}
 
-	propers := make([]interface{}, numEntries)
+	propers := make([]any, numEntries)
 	for i := 0; i < numEntries; i++ {
 		v := value.Index(i)
 
@@ -279,8 +288,8 @@ func (r *ReflectType) WriteSlice(value reflect.Value, title string) interface{} 
 	return NewSwaggerArray(title, propers...)
 }
 
-func (r *ReflectType) WriteStruct(value reflect.Value, title string) interface{} {
-	propers := make(map[string]interface{}, 0)
+func (r *ReflectType) WriteStruct(value reflect.Value, title string) any {
+	propers := make(map[string]any, 0)
 	vType := value.Type()
 	for i := 0; i < value.NumField(); i++ {
 		v := vType.Field(i)
