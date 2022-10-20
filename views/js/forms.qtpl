@@ -68,9 +68,11 @@ function setClickAll() {
 
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
-       if ( $head.length == 0 )
-            $head = $('head').append('<style type="text/css" id="' + id + '"> </style>');
-        $head.html( styles );
+       if ( $head.length == 0 ) {
+            $head = $('head').append('<style type="text/css" id="' + id + '">' + styles + '</style>');
+        } else {
+            $head.html( styles );
+        }
 }
 
 var go_history=1;

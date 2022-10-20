@@ -113,9 +113,11 @@ function setClickAll() {
 
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
-       if ( $head.length == 0 )
-            $head = $('head').append('<style type="text/css" id="' + id + '"> </style>');
-        $head.html( styles );
+       if ( $head.length == 0 ) {
+            $head = $('head').append('<style type="text/css" id="' + id + '">' + styles + '</style>');
+        } else {
+            $head.html( styles );
+        }
 }
 
 var go_history=1;
@@ -225,9 +227,9 @@ $(function()   {
 }) // $(document).ready
 
 `)
-//line forms.qtpl:182
+//line forms.qtpl:184
 	StreamSaveForm(qw422016)
-//line forms.qtpl:182
+//line forms.qtpl:184
 	qw422016.N().S(`
 
 // стандартная обработка формы типа AnyForm после успшного сохранения результата
@@ -367,31 +369,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:320
+//line forms.qtpl:322
 }
 
-//line forms.qtpl:320
+//line forms.qtpl:322
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL string) {
-//line forms.qtpl:320
+//line forms.qtpl:322
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:320
+//line forms.qtpl:322
 	StreamHeadJSForForm(qw422016, afterAuthURL)
-//line forms.qtpl:320
+//line forms.qtpl:322
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:320
+//line forms.qtpl:322
 }
 
-//line forms.qtpl:320
+//line forms.qtpl:322
 func HeadJSForForm(afterAuthURL string) string {
-//line forms.qtpl:320
+//line forms.qtpl:322
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:320
+//line forms.qtpl:322
 	WriteHeadJSForForm(qb422016, afterAuthURL)
-//line forms.qtpl:320
+//line forms.qtpl:322
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:320
+//line forms.qtpl:322
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:320
+//line forms.qtpl:322
 	return qs422016
-//line forms.qtpl:320
+//line forms.qtpl:322
 }
