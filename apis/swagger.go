@@ -40,8 +40,6 @@ func NewSwaggerObjectRoot(props any) SwaggerParam {
 
 func NewSwaggerObject(props any, name string) SwaggerParam {
 	return map[string]any{
-		"name": name,
-		"in":   "body",
 		//"items": map[string]any{
 		"type":       "object",
 		"properties": props,
@@ -68,13 +66,13 @@ func NewSwaggerArray(desc string, props ...any) SwaggerParam {
 	}
 }
 
-func NewSwaggerParam(props any, name, typ string) SwaggerParam {
+func NewSwaggerParam(name, in, typ, f string) SwaggerParam {
 	return map[string]any{
 		"name": name,
-		"in":   "body",
+		"in":   in,
 		"schema": map[string]any{
-			"type":       typ,
-			"properties": props,
+			"type":   typ,
+			"format": f,
 		},
 	}
 }
@@ -251,7 +249,7 @@ func (r *ReflectType) WriteMap(value reflect.Value, title string) any {
 		propers = append(propers, r.convertValue(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v))
 	}
 
-	return NewSwaggerParam(propers, title, "object")
+	return NewSwaggerObject(propers, title)
 }
 
 func (r *ReflectType) WriteSlice(value reflect.Value, title string) any {

@@ -602,20 +602,31 @@ func writeResponseForAuth(stream *jsoniter.Stream) {
 	stream.WriteObjectEnd()
 }
 
-func writeResponse(stream *jsoniter.Stream, params map[string]InParam, resp any) {
+func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
 	stream.WriteObjectField("responses")
 	stream.WriteObjectStart()
 	if len(params) > 0 {
+		stream.WriteObjectField("400")
+		stream.WriteObjectStart()
+		FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusBadRequest))
+		stream.WriteMore()
+		stream.WriteObjectField("content")
+		stream.WriteObjectStart()
 
-		mapC := map[string]any{
-			"description": statusMsg(fasthttp.StatusBadRequest),
-			"schema": map[string]any{
-				"type":       "object",
-				"properties": params,
-			},
-		}
+		stream.WriteObjectField("application/json")
+		stream.WriteObjectStart()
 
-		FirstObjectToJSON(stream, "400", mapC)
+		stream.WriteObjectField("schema")
+		stream.WriteObjectStart()
+		FirstObjectToJSON(stream, "type", "object")
+
+		stream.WriteMore()
+		jParam := NewqInParam("body")
+		jParam.WriteSwaggerProperties(stream, params)
+		stream.WriteObjectEnd()
+		stream.WriteObjectEnd()
+		stream.WriteObjectEnd()
+		stream.WriteObjectEnd()
 		stream.WriteMore()
 	}
 

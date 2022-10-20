@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 // Package views подготовка вывода данных в поток возврата
@@ -12,13 +12,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/gotools"
-	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
@@ -30,7 +28,6 @@ var HEADERS = map[string]string{
 	"author":           "ruslanBik4",
 	"Server":           "HTTPGO/0.9 (CentOS) Go 1.14",
 	"Content-Language": "en, ru",
-	"Age":              fmt.Sprintf("%f", time.Since(server.GetServerConfig().StartTime).Seconds()),
 }
 
 // WriteHeaders выдаем стандартные заголовки страницы
@@ -43,6 +40,10 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 	for key, value := range HEADERS {
 		ctx.Response.Header.Set(key, value)
+	}
+	age, ok := ctx.UserValue(AgeOfServer).(float64)
+	if ok {
+		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
 	}
 }
 
@@ -189,3 +190,5 @@ func RenderOutWithWrapLine(ctx *fasthttp.RequestCtx, out []byte) error {
 func ReplaceWrapLines(out []byte) []byte {
 	return bytes.ReplaceAll(out, []byte("\n"), wrapLine)
 }
+
+const AgeOfServer = "AGE"

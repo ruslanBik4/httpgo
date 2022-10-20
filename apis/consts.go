@@ -80,6 +80,8 @@ const (
 	ChildRoutePath  = "lastSegment"
 	ApiVersion      = "ACC_VERSION"
 	AuthManager     = "auth"
+	ServerName      = "name of server httpgo"
+	ServerVersion   = "version of server httpgo"
 	Database        = "DB"
 )
 

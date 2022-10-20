@@ -97,6 +97,14 @@ func (d *DtoField) Expect() string {
 	return "JSON object {'key':'value'...}"
 }
 
+func (d *DtoField) Format() string {
+	return "json"
+}
+
+func (d *DtoField) RequestType() string {
+	return "string"
+}
+
 // CheckParams implement CheckDTO interface, put each params into user value on context
 func (d *DtoField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for key, val := range *d {

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"go/types"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"unsafe"
@@ -18,6 +19,7 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -99,7 +101,7 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
-	FirstFieldToJSON(stream, "Descriptor", "routers description, params response format, ect")
+	FirstFieldToJSON(stream, "description", "routers description, params response format, ect")
 	for _, name := range sortList {
 		AddObjectToJSON(stream, name, *(routes[name]))
 	}
@@ -109,36 +111,29 @@ func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 // Based on real data of the executable application, does not require additional documentation.
 func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	route := (*ApiRoute)(ptr)
+	in := "query"
+	if route.Multipart {
+		in = "header"
+	}
 
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
 	FirstFieldToJSON(stream, "description", route.Desc)
 	summary := ""
-	//AddFieldToJSON(stream, "Method", methodNames[route.Method])
 
 	if route.FncAuth != nil {
+		//todo: create custom security object
 		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
-	} else if route.NeedAuth {
-		AddFieldToJSON(stream, "Auth", "use standard method for checking authorization")
 	}
-
-	if route.OnlyAdmin {
-		AddFieldToJSON(stream, "AdminOnly", "only admin request be allowed")
-	}
-
-	if route.OnlyLocal {
-		AddFieldToJSON(stream, "LocalOnly", "only local request be allowed")
-	}
-
-	respErrors := make(map[string]InParam)
+	respErrors := make([]InParam, 0)
 	ctx := &fasthttp.RequestCtx{}
 	// print parameters
 	params := make([]any, 0)
 	if len(route.Params) > 0 {
 		for _, param := range route.Params {
-			if param.DefValue == ChildRoutePath {
-				summary += fmt.Sprintf("/{%s}", param.Name)
+			if param.DefValue == ApisValues(ChildRoutePath) {
+				summary += fmt.Sprintf("{%s} ", param.Name)
 			}
 
 			params = append(params, param)
@@ -163,53 +158,36 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 				}
 			}
 
-			respErrors[param.Name] = param
+			respErrors = append(respErrors, param)
 		}
 	}
 
-	if route.FncAuth != nil {
-		summary += route.FncAuth.String()
+	replacer := strings.NewReplacer("*", "", "#", "")
+	if len(route.Desc) < 255 {
+		summary += replacer.Replace(route.Desc)
+	} else {
+		summary += replacer.Replace(strings.TrimRightFunc(route.Desc, func(r rune) bool {
+			return r == ',' || r == '.' || r == ';' || r == ':' || r == '\n'
+		}))
 	}
 	if route.DTO != nil {
 		value := route.DTO.NewValue()
 		v := reflect.ValueOf(value)
 		if !v.IsZero() {
-			stream.WriteMore()
-
-			p := writeReflect("JSON", v, stream)
-			params = append(params, p)
-			r, ok := (value).(Visit)
-			if ok {
-				//fastjson.MustParse(`{}`).GetObject().Visit(r.Each)
-				badParams, err := r.Result()
-				if err != nil {
-					respErrors["body"] = InParam{
-						Name:     err.Error(),
-						Desc:     "JSON",
-						Req:      true,
-						DefValue: badParams,
-					}
-				}
-			} else if c, ok := (value).(CheckDTO); ok {
-				badParams := make(map[string]string)
-				if !c.CheckParams(ctx, badParams) {
-					for name, s := range badParams {
-						_, ok := respErrors[name]
-						if ok {
-							continue
-						}
-
-						respErrors[name] = InParam{
-							Name:     name,
-							Desc:     "",
-							Req:      true,
-							DefValue: s,
-						}
-					}
-
+			writeRequestBody(stream, v)
+		}
+		resp := getRespError(ctx, value)
+		if resp != nil {
+			isDublicate := false
+			for _, r := range respErrors {
+				if r.Name == resp.Name {
+					isDublicate = true
+					break
 				}
 			}
-
+			if !isDublicate {
+				respErrors = append(respErrors, *resp)
+			}
 		}
 	}
 
@@ -220,10 +198,12 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		summary += ", multipart"
 	}
 	if route.NeedAuth {
-		summary += ", only auth access"
-	}
-	if route.OnlyAdmin {
-		summary += ", only admin access"
+		a := "user"
+		if route.OnlyAdmin {
+			summary += ", only admin access"
+			a = "admin"
+		}
+		AddObjectToJSON(stream, "security", []map[string][]string{{AuthManager: []string{a}}})
 	}
 	if route.OnlyLocal {
 		summary += ", only local request"
@@ -231,42 +211,30 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	AddFieldToJSON(stream, "summary", summary)
 
-	stream.WriteMore()
-	in := "query"
-	if route.Multipart {
-		in = "formdata"
+	if len(params) > 0 {
+		stream.WriteMore()
+		jParam := NewqInParam(in)
+		jParam.WriteSwaggerParams(stream, params)
 	}
-	jParam := NewqInParam(in)
-	jParam.WriteSwaggerParams(stream, params)
 
 	tags := make([]string, 0)
 	if strings.Contains(route.Desc, "test handler") {
 		tags = append(tags, "Test handlers (auto generated)")
-	} else if strings.Contains(route.Desc, "get form") {
-		tags = append(tags, "Forms handlers (auto generated)")
-	} else if strings.Contains(route.Desc, "APIS") {
-		tags = append(tags, "APIS handlers (auto generated)")
 	} else if strings.Contains(route.Desc, "table") {
 		tags = append(tags, "CRUD")
-	} else if strings.Contains(route.Desc, "httpgo") {
-		tags = append(tags, "HttpGo managements")
-	} else {
-		parts := strings.Split(route.Desc, "#")
-		if len(parts) > 2 {
-			tags = append(tags, parts[1])
-		} else if parts := strings.Split(route.Desc, "*"); len(parts) > 2 {
-			tags = append(tags, parts[1])
-		}
 	}
 
-	AddObjectToJSON(stream, "tags", tags)
-	//AddObjectToJSON(stream, "consumes", []string{
-	//	"application/json",
-	//})
-	//AddObjectToJSON(stream, "produces", []string{
-	//	"application/json",
-	//	"text/plain",
-	//})
+	if parts := regTitle.FindStringSubmatch(route.Desc); len(parts) > 0 {
+		tags = append(tags, parts[1])
+	}
+
+	if parts := regTags.FindStringSubmatch(route.Desc); len(parts) > 1 {
+		tags = append(tags, parts[1:]...)
+	}
+
+	if len(tags) > 0 {
+		AddObjectToJSON(stream, "tags", tags)
+	}
 	stream.WriteMore()
 	writeResponse(stream, respErrors, route.Resp)
 
@@ -274,11 +242,62 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		writeResponseForAuth(stream)
 	}
 
-	//if route.NeedAuth {
-	//	stream.WriteMore()
-	//	WriteSecurity(stream, "")
-	//}
 	stream.WriteObjectEnd()
+}
+
+var regTitle = regexp.MustCompile(`(?m)^#\s+([^\n]+)$`)
+var regTags = regexp.MustCompile(`\*([^*]+)\**`)
+
+func writeRequestBody(stream *jsoniter.Stream, v reflect.Value) any {
+	stream.WriteMore()
+	stream.WriteObjectField("requestBody")
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
+	stream.WriteObjectField("content")
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
+	stream.WriteObjectField("application/json")
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
+	p := writeReflect("properties", v, stream)
+
+	//jParam := NewqInParam("body")
+	//jParam.WriteSwaggerProperties(stream, p)
+
+	FirstObjectToJSON(stream, "schema", p)
+	return p
+}
+
+func getRespError(ctx *fasthttp.RequestCtx, value interface{}) *InParam {
+	r, ok := (value).(Visit)
+	if ok {
+		badParams, err := r.Result()
+		if err != nil {
+			return &InParam{
+				Name:     err.Error(),
+				Desc:     "JSON",
+				Req:      true,
+				DefValue: badParams,
+			}
+		}
+	} else if c, ok := (value).(CheckDTO); ok {
+		badParams := make(map[string]string)
+		if !c.CheckParams(ctx, badParams) {
+			for name, s := range badParams {
+				return &InParam{
+					Name:     name,
+					Desc:     "",
+					Req:      true,
+					DefValue: s,
+				}
+			}
+
+		}
+	}
+	return nil
 }
 
 func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) any {
@@ -294,9 +313,6 @@ func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) an
 	}()
 
 	if kind > reflect.UnsafePointer || kind <= 0 {
-		stream.WriteObjectField(title)
-		stream.WriteObjectField(val.String())
-		stream.WriteString(kind.String())
 		desc := ""
 		if parts := strings.Split(title, ","); len(parts) > 1 {
 			title = parts[0]
@@ -324,13 +340,11 @@ func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) an
 		sType += ", " + parts[1]
 	}
 
-	stream.WriteObjectField(title)
 	elem := WriteReflectKind(kind, val, stream, sType, title)
 	if elem == nil {
 		var typ APIRouteParamsType = &ReflectType{Type: value.Type()}
 		if d, ok := i.(Docs); ok {
 			title = d.Expect()
-
 		} else if d, ok := i.(*Docs); ok {
 			title = (*d).Expect()
 		}
@@ -338,7 +352,6 @@ func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) an
 			typ = NewStructInParam(r)
 		}
 
-		stream.WriteString(title)
 		elem = InParam{
 			Name:              title,
 			Desc:              "default",
@@ -366,11 +379,9 @@ func WriteReflectKind(kind reflect.Kind, value reflect.Value, stream *jsoniter.S
 		return WriteSlice(value, stream, title)
 
 	default:
-		//logs.StatusLog(title, sType, value)
-		stream.WriteString(sType) //writeReflect(title, value, stream)
 		return InParam{
 			Name:              title,
-			Desc:              "",
+			Desc:              sType,
 			Req:               false,
 			PartReq:           nil,
 			Type:              &ReflectType{Type: value.Type()},
@@ -384,28 +395,26 @@ func WriteReflectKind(kind reflect.Kind, value reflect.Value, stream *jsoniter.S
 func WriteMap(value reflect.Value, stream *jsoniter.Stream, title string) any {
 	// nil maps should be indicated as different than empty maps
 	if value.IsNil() {
-		stream.WriteEmptyObject()
 		return nil
 	}
 
-	stream.WriteObjectStart()
 	keys := value.MapKeys()
-	propers := make([]any, 0)
+	props := make([]any, 0)
 	for i, v := range keys {
 		if i > 0 {
 			stream.WriteMore()
 		}
-		propers = append(propers, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
+		props = append(props, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
 	}
 
-	stream.WriteObjectEnd()
-	return NewSwaggerParam(propers, title, "object")
+	if len(props) > 0 {
+		return NewSwaggerObject(props, title)
+	}
+
+	return nil
 }
 
 func WriteSlice(value reflect.Value, stream *jsoniter.Stream, title string) any {
-	stream.WriteArrayStart()
-	defer stream.WriteArrayEnd()
-
 	vType := value.Type()
 	numEntries := value.Len()
 	if numEntries == 0 {
@@ -428,17 +437,18 @@ func WriteSlice(value reflect.Value, stream *jsoniter.Stream, title string) any 
 		}
 	}
 
-	propers := make([]any, 0)
+	props := make([]any, 0)
 
 	for i := 0; i < numEntries; i++ {
-		if i > 0 {
-			stream.WriteMore()
-		}
 		v := value.Index(i)
-		propers = append(propers, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
+		props = append(props, writeReflect(fmt.Sprintf("%d: %s %s `%s`", i, v.Kind(), v.Type(), v.String()), v, stream))
 	}
 
-	return NewSwaggerArray(title, propers...)
+	if len(props) > 0 {
+		return NewSwaggerArray(title, props...)
+	}
+
+	return nil
 }
 
 func WriteStruct(value reflect.Value, stream *jsoniter.Stream, title string) any {
@@ -475,22 +485,7 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 		return
 	}
 
-	stream.WriteObjectStart()
-	defer func() {
-		err, ok := recover().(error)
-		if ok {
-			logs.ErrorStack(err)
-		}
-		stream.WriteObjectEnd()
-	}()
-
-	isFirst := true
 	for name, tField := range list {
-
-		if !isFirst {
-			stream.WriteMore()
-		}
-
 		val := value.FieldByName(name)
 		tag := tField.Tag.Get("json")
 		if tag == "" {
@@ -504,7 +499,6 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 		} else {
 			props[tag] = writeReflect(tag, val, stream)
 		}
-		isFirst = false
 	}
 }
 
@@ -563,11 +557,16 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectField("info")
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "description", "API Specification, include endpoints description, ect")
-	version, ok := apis.Ctx.Value(ApiVersion).(string)
-	if ok {
-		AddFieldToJSON(stream, "version", version)
+	title := "httpgo"
+	if n, ok := apis.Ctx[ServerName].(string); ok && n > "" {
+		title = n
 	}
-	AddFieldToJSON(stream, "title", "httpgo")
+	version, hasVersion := apis.Ctx.Value(ServerVersion).(string)
+	if !hasVersion {
+		version = apis.Ctx.Value(ApiVersion).(string)
+	}
+	AddFieldToJSON(stream, "version", version)
+	AddFieldToJSON(stream, "title", title)
 	stream.WriteMore()
 
 	stream.WriteObjectField("license")
@@ -580,9 +579,13 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	if apis.fncAuth != nil {
 		stream.WriteMore()
-		WriteBearer(stream, apis.fncAuth.String())
+		if a, ok := apis.fncAuth.(*auth.AuthBearer); ok {
+			WriteBearer(stream, AuthManager, a.String())
+		} else {
+			//todo: impleements others auth
+			WriteBearer(stream, AuthManager, apis.fncAuth.String())
+		}
 	}
 
-	AddObjectToJSON(stream, "schemes", []string{schemas[apis.Https]})
 	AddObjectToJSON(stream, "paths", apis.routes)
 }

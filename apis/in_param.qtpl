@@ -38,7 +38,43 @@ func NewqInParam(in string) *qInParam {
         {%- else -%}
 		"name": "{%s param.Name %}",
 		"description": "{%s param.Desc %}",
-		"in":   "{%s q.in %}",
+		"in": "{%s q.in %}",
+		"schema": {
+		{%= Schema(param) %}
+		}
+        {%- endif -%}
+    {%- else -%}
+        {%= json.Wrap(p) %}
+    {%- endif -%}
+    }
+ {%- endfor -%}
+]
+{%- endfunc -%}
+
+{%- func (q *qInParam) SwaggerProperties(params []InParam) -%}
+"properties": {
+ {%- for i, param := range params -%}
+	{%- if i > 0 -%}, {% endif %}
+	"{%s param.Name %}": {
+		"description": "{%s param.Desc %}",
+		{%= Schema(param) %}
+	}
+ {%- endfor -%}
+}
+{%- endfunc -%}
+{%- func Bearer(name, desc string) -%}
+"components": {
+  "securitySchemes": {
+	"{%s name %}":{
+	  "description": "{%j desc %}",
+	  "type": "http",
+	  "scheme": "bearer",
+	  "bearerFormat": "JWT",
+	}
+  }
+}
+{%- endfunc -%}
+{%- func Schema(param InParam) -%}
 		"type": {%- switch t, ok := (param.Type).(TypeInParam); -%} {
 				{%- case ok && t.BasicKind == types.Bool-%}
 					"boolean"
@@ -49,7 +85,7 @@ func NewqInParam(in string) *qInParam {
 					"number",
 		"format": 	"{%= t.Format() %}"
 				{%- case ok && t.BasicKind == types.String -%}
-					"array[string]",
+					{%- if t.IsSlice() -%} "array", "items": {"type": "string"} {%- else -%} "string" {% endif -%},
 		"format": 	"string"
 				{%- case ok && t.BasicKind > types.UnsafePointer -%}
 					"untyped",
@@ -60,33 +96,12 @@ func NewqInParam(in string) *qInParam {
 				{%- case ok -%}
 					"{%= t.Format() %}",
 		"format": 	"{%= t.Format() %}"
+				{% case param.Type == nil %}
+				nil
 				{%- default -%}
 					"{%v param.Type %}",
 		"format": 	"{%v param.Type %}"
 				{%- endswitch -%},
-
-        {%- endif -%}
-    {%- else -%}
-        {%= json.Wrap(p) %}
-    {%- endif -%}
-    }
- {%- endfor -%}
-]
-{%- endfunc -%}
-{%- func Bearer(desc string) -%}
-"components": {
-  "securitySchemes": {
-	"auth":{
-	  "name": "auth",
-	  "in": "header",
-	  "description": "{%j desc %}",
-	  "type": "http",
-	  "scheme": "bearer",
-	  "bearerFormat": "JWT",
-	  "url": "/auth"
-	}
-  }
-}
 {%- endfunc -%}
 {%- func Security(desc string) -%}
 "security": [

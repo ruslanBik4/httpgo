@@ -8,6 +8,8 @@
 package apis
 
 import (
+	"go/types"
+
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/views"
@@ -23,6 +25,8 @@ func (a *Apis) DefaultRoutes() ApiRoutes {
 			Params: []InParam{
 				{
 					Name: "json",
+					Desc: "response must has json format",
+					Type: NewTypeInParam(types.Bool),
 				},
 			},
 		},
