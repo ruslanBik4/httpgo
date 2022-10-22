@@ -74,6 +74,11 @@
 .filt-arrow  input[type=search] {
     width: 98%;
 }
+
+.filt-arrow  input {
+    width: 98%;
+    height: 25px;
+}
 .filt-arrow__link.active{
     &:before{
       border-color:  #229be6;

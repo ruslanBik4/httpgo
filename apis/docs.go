@@ -488,8 +488,11 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 	for name, tField := range list {
 		val := value.FieldByName(name)
 		tag := tField.Tag.Get("json")
-		if tag == "" {
+		switch tag {
+		case "":
 			tag = tField.Name
+		case "-":
+			continue
 		}
 
 		if tField.Anonymous {

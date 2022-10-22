@@ -2,7 +2,7 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 .
-{% func HeadJSForForm(afterAuthURL string) %}
+{% func HeadJSForForm(afterAuthURL, changeTheme string) %}
 <script>
 var user = ''
 var userStruct
@@ -15,7 +15,7 @@ function fancyOpen(data) {
             'transitionOut': 'elastic',
             'speedIn': 500,
             'speedOut': 300,
-             'type':'html',
+            'type':'html',
             'autoDimensions': true,
             'centerOnScroll': true,
             'content' : data
@@ -26,14 +26,18 @@ function fancyOpen(data) {
 function getUser() {
     user = localStorage.getItem("USER")
     if (user > '') {
-        userStruct = JSON.parse(user)
+        userStruct = JSON.parse(user);
+        console.log(userStruct);
         document.getElementById('bLogin').textContent = userStruct.name + "(" + userStruct.lang +")";
         token =  userStruct.token
         lang  =  userStruct.lang
         $('.auth').removeClass("auth");
-        {%- if  afterAuthURL > "" -%}
-           loadContent("{%s= afterAuthURL %}")
-        {% endif %}
+    {%- if  changeTheme > "" -%}
+        {%s= changeTheme %}(userStruct.theme);
+    {%- endif -%}
+    {%- if  afterAuthURL > "" -%}
+        loadContent("{%s= afterAuthURL %}");
+    {%- endif -%}
     }
 
     return ''
@@ -51,6 +55,7 @@ function setClickAll() {
   isProcess = true;
 
       console.log('ready click events!')
+      console.log(event);
       // add onSubmit event instead default behaviourism form
       $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
        // add click event instead default - response will show on div.#content
@@ -116,12 +121,12 @@ $(function()   {
     if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
         window.onpopstate = MyPopState;
 
+    console.log('$(document).ready function events!')
+
+    setClickAll();
     if (user == '') {
       getUser();
     }
-      console.log('ready function events!')
-
-    setClickAll();
     $('#content').on('DOMSubtreeModified', setClickAll );
 
         $("#inpS:not([rel])").on("blur", function(){
@@ -202,27 +207,29 @@ function afterSaveAnyForm(data, status) {
 }
 // собственно, нужен для того, чтобы после авторизации отобразит в заголовке нечто
  function afterLogin(data, thisForm) {
-    if (!data) {
-      alert("Need users data!")
-      return false;
-    }
+	if (!data) {
+		alert("Need users data!")
+		return false;
+	}
 
-     token = data.token;
-     lang = data.lang;
-     localStorage.setItem("USER",  JSON.stringify(data) );
+	token = data.token;
+	lang = data.lang;
+	localStorage.setItem("USER",  JSON.stringify(data) );
 
-   $('#bLogin').text(data.name + "(" + lang +")");
-    $('.auth').removeClass("auth");
+	$('#bLogin').text(data.name + "(" + lang +")");
+	$('.auth').removeClass("auth");
 
-   if (urlAfterLogin == '') {
-    if (data.formActions !== undefined) {
-     urlAfterLogin = data.formActions[0].url;
-    } else {
-     urlAfterLogin = "/user/profile";
-    }
-   }
+	{%- if  changeTheme > "" -%} {%s= changeTheme %}(userStruct.theme); {%- endif -%}
 
-   loadContent(urlAfterLogin)
+	if (urlAfterLogin == '') {
+		if (data.formActions !== undefined) {
+		 urlAfterLogin = data.formActions[0].url;
+		} else {
+		 urlAfterLogin = {%- if  afterAuthURL > "" -%} "{%s= afterAuthURL %}" {% else %} "/user/profile" {%- endif -%};
+		}
+	}
+
+	loadContent(urlAfterLogin)
 }
 // run request & show content
 function loadContent(url) {

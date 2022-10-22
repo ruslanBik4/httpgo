@@ -59,53 +59,52 @@ function getElementsByText(str, name) {
 {% stripspace %}
 
 <div class="usr-table  table-custom">
-    <div class="usr-table-header">
-        <div class="usr-table__t-head  usr-table-row">
-        {% for i, col := range columns %}
-            <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
-                {%s col.Label %}
-            </div>
-        {% endfor %}
-        </div>
+	<div class="usr-table-header">
+	    <div class="usr-table__t-head  usr-table-row">
+	    {% for i, col := range columns %}
+	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
+	            {%s col.Label %}
+	        </div>
+	    {% endfor %}
+	    </div>
 
-        <div class="usr-table__filter  usr-table-row">
-         {% for i, col := range columns %}
-           <div class="usr-table-col table-col-{%d i%}">
-                <div class="filt-arrow" style="word-break: break-word;">
-                    {% if col.LinkNew > "" %}
-                     {%s= col.LinkNew %}
-                    {% else %}
-	{% switch %}
-   	{% case  col.SelectOptions != nil %}
-            <select {%= col.RenderAttr(i) %} onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
-             {%code
-                 sortList := make([]string, 0, len(col.SelectOptions))
-                 for title := range col.SelectOptions {
-                     sortList = append(sortList, title)
-                 }
-                 sort.Strings(sortList)
-             %}
+	    <div class="usr-table__filter  usr-table-row">
+		{% for i, col := range columns %}
+		<div class="usr-table-col table-col-{%d i%}">
+		<div class="filt-arrow" style="word-break: break-word;">
+		{%- if col.LinkNew > "" -%} {%s= col.LinkNew %}
+		{% else %}
+			{% switch %}
+			{% case  col.SelectOptions != nil %}
+				<select {%= col.RenderAttr(i) %} onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+				{%code
+					sortList := make([]string, 0, len(col.SelectOptions))
+					for title := range col.SelectOptions {
+					 sortList = append(sortList, title)
+					}
+					sort.Strings(sortList)
+				%}
                 <option value="" >All</option>
-             {% for _, title := range sortList %}
-                <option value="{%s title %}" >{%s title %}</option>
-             {% endfor %}
-          </select>
-  	{% case col.InputType == "file" %}
-        <span class="hiddenInput" style="background-image: url('%v val %');"> </span>
-    {% case col.Suggestions > "" %}
-        <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
-                autocapitalize="none" autocorrect="off" autocomplete="off"
-                onkeyup="inputSearchKeyUp(this,event);" />
-        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
-        </select>
-    {% default %}
-                   <input type="{%s col.InputType %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
-    {% endswitch %}
-                    {% endif %}
-                </div>
-            </div>
-          {% endfor %}
-         </div>
+	             {% for _, title := range sortList %}
+	                <option value="{%s title %}" >{%s title %}</option>
+	             {% endfor %}
+                </select>
+			{% case col.InputType == "file" %}
+	            <span class="hiddenInput" style="background-image: url('%v val %');"> </span>
+			{% case col.Suggestions > "" %}
+	            <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
+	                autocapitalize="none" autocorrect="off" autocomplete="off"
+	                onkeyup="inputSearchKeyUp(this,event);" />
+		        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
+		        </select>
+			{% default %}
+				<input type="{%s col.InputType %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
+			{% endswitch %}
+		{% endif %}
+		</div>
+		</div>
+		{% endfor %}
+		</div>
     </div>
 
     <div class="usr-table-content">

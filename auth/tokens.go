@@ -2,7 +2,7 @@
  * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package auth
@@ -33,13 +33,14 @@ type SimpleTokenData struct {
 	isAdmin bool
 	Name    string `json:"name"`
 	Desc    string `json:"desc"`
+	Lang    string `json:"lang"`
 	Token   string `json:"token"`
 	id      int
 	Expiry  time.Time `json:"expiry,omitempty"`
 }
 
-func NewSimpleTokenData(name string, desc string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
-	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, id: id, Expiry: expiry}
+func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
+	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, Lang: lang, id: id, Expiry: expiry}
 }
 
 func (s *SimpleTokenData) IsAdmin() bool {

@@ -30,7 +30,7 @@ var (
 )
 
 //line forms.qtpl:5
-func StreamHeadJSForForm(qw422016 *qt422016.Writer, afterAuthURL string) {
+func StreamHeadJSForForm(qw422016 *qt422016.Writer, afterAuthURL, changeTheme string) {
 //line forms.qtpl:5
 	qw422016.N().S(`
 <script>
@@ -45,7 +45,7 @@ function fancyOpen(data) {
             'transitionOut': 'elastic',
             'speedIn': 500,
             'speedOut': 300,
-             'type':'html',
+            'type':'html',
             'autoDimensions': true,
             'centerOnScroll': true,
             'content' : data
@@ -56,26 +56,37 @@ function fancyOpen(data) {
 function getUser() {
     user = localStorage.getItem("USER")
     if (user > '') {
-        userStruct = JSON.parse(user)
+        userStruct = JSON.parse(user);
+        console.log(userStruct);
         document.getElementById('bLogin').textContent = userStruct.name + "(" + userStruct.lang +")";
         token =  userStruct.token
         lang  =  userStruct.lang
         $('.auth').removeClass("auth");
 `)
-//line forms.qtpl:34
-	if afterAuthURL > "" {
-//line forms.qtpl:34
-		qw422016.N().S(`           loadContent("`)
 //line forms.qtpl:35
-		qw422016.N().S(afterAuthURL)
+	if changeTheme > "" {
 //line forms.qtpl:35
-		qw422016.N().S(`")
-        `)
+		qw422016.N().S(`        `)
 //line forms.qtpl:36
+		qw422016.N().S(changeTheme)
+//line forms.qtpl:36
+		qw422016.N().S(`(userStruct.theme);
+`)
+//line forms.qtpl:37
 	}
-//line forms.qtpl:36
-	qw422016.N().S(`
-    }
+//line forms.qtpl:38
+	if afterAuthURL > "" {
+//line forms.qtpl:38
+		qw422016.N().S(`        loadContent("`)
+//line forms.qtpl:39
+		qw422016.N().S(afterAuthURL)
+//line forms.qtpl:39
+		qw422016.N().S(`");
+`)
+//line forms.qtpl:40
+	}
+//line forms.qtpl:40
+	qw422016.N().S(`    }
 
     return ''
 }
@@ -92,6 +103,7 @@ function setClickAll() {
   isProcess = true;
 
       console.log('ready click events!')
+      console.log(event);
       // add onSubmit event instead default behaviourism form
       $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
        // add click event instead default - response will show on div.#content
@@ -102,9 +114,9 @@ function setClickAll() {
         isSearch = (this.target=="search");
 
         $(this).click( `)
-//line forms.qtpl:63
+//line forms.qtpl:68
 	StreamOverClick(qw422016)
-//line forms.qtpl:63
+//line forms.qtpl:68
 	qw422016.N().S(` )
 
       })
@@ -161,12 +173,12 @@ $(function()   {
     if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
         window.onpopstate = MyPopState;
 
+    console.log('$(document).ready function events!')
+
+    setClickAll();
     if (user == '') {
       getUser();
     }
-      console.log('ready function events!')
-
-    setClickAll();
     $('#content').on('DOMSubtreeModified', setClickAll );
 
         $("#inpS:not([rel])").on("blur", function(){
@@ -227,9 +239,9 @@ $(function()   {
 }) // $(document).ready
 
 `)
-//line forms.qtpl:184
+//line forms.qtpl:189
 	StreamSaveForm(qw422016)
-//line forms.qtpl:184
+//line forms.qtpl:189
 	qw422016.N().S(`
 
 // стандартная обработка формы типа AnyForm после успшного сохранения результата
@@ -251,27 +263,54 @@ function afterSaveAnyForm(data, status) {
 }
 // собственно, нужен для того, чтобы после авторизации отобразит в заголовке нечто
  function afterLogin(data, thisForm) {
-    if (!data) {
-      alert("Need users data!")
-      return false;
-    }
+	if (!data) {
+		alert("Need users data!")
+		return false;
+	}
 
-     token = data.token;
-     lang = data.lang;
-     localStorage.setItem("USER",  JSON.stringify(data) );
+	token = data.token;
+	lang = data.lang;
+	localStorage.setItem("USER",  JSON.stringify(data) );
 
-   $('#bLogin').text(data.name + "(" + lang +")");
-    $('.auth').removeClass("auth");
+	$('#bLogin').text(data.name + "(" + lang +")");
+	$('.auth').removeClass("auth");
 
-   if (urlAfterLogin == '') {
-    if (data.formActions !== undefined) {
-     urlAfterLogin = data.formActions[0].url;
-    } else {
-     urlAfterLogin = "/user/profile";
-    }
-   }
+`)
+//line forms.qtpl:222
+	if changeTheme > "" {
+//line forms.qtpl:222
+		qw422016.N().S(changeTheme)
+//line forms.qtpl:222
+		qw422016.N().S(`(userStruct.theme);`)
+//line forms.qtpl:222
+	}
+//line forms.qtpl:222
+	qw422016.N().S(`
+	if (urlAfterLogin == '') {
+		if (data.formActions !== undefined) {
+		 urlAfterLogin = data.formActions[0].url;
+		} else {
+		 urlAfterLogin =`)
+//line forms.qtpl:228
+	if afterAuthURL > "" {
+//line forms.qtpl:228
+		qw422016.N().S(`"`)
+//line forms.qtpl:228
+		qw422016.N().S(afterAuthURL)
+//line forms.qtpl:228
+		qw422016.N().S(`" `)
+//line forms.qtpl:228
+	} else {
+//line forms.qtpl:228
+		qw422016.N().S(` "/user/profile"`)
+//line forms.qtpl:228
+	}
+//line forms.qtpl:228
+	qw422016.N().S(`;
+		}
+	}
 
-   loadContent(urlAfterLogin)
+	loadContent(urlAfterLogin)
 }
 // run request & show content
 function loadContent(url) {
@@ -369,31 +408,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:322
+//line forms.qtpl:329
 }
 
-//line forms.qtpl:322
-func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL string) {
-//line forms.qtpl:322
+//line forms.qtpl:329
+func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
+//line forms.qtpl:329
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:322
-	StreamHeadJSForForm(qw422016, afterAuthURL)
-//line forms.qtpl:322
+//line forms.qtpl:329
+	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
+//line forms.qtpl:329
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:322
+//line forms.qtpl:329
 }
 
-//line forms.qtpl:322
-func HeadJSForForm(afterAuthURL string) string {
-//line forms.qtpl:322
+//line forms.qtpl:329
+func HeadJSForForm(afterAuthURL, changeTheme string) string {
+//line forms.qtpl:329
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:322
-	WriteHeadJSForForm(qb422016, afterAuthURL)
-//line forms.qtpl:322
+//line forms.qtpl:329
+	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
+//line forms.qtpl:329
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:322
+//line forms.qtpl:329
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:322
+//line forms.qtpl:329
 	return qs422016
-//line forms.qtpl:322
+//line forms.qtpl:329
 }
