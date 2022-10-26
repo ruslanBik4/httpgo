@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package crud
 
@@ -48,12 +51,27 @@ var (
 		Req:  false,
 		Type: apis.NewTypeInParam(types.Bool),
 	}
-	ParamsValue = apis.InParam{
-		Name:    "value",
-		Desc:    "part of polymers name, its Synonyms or Abbreviations",
-		PartReq: []string{ParamsID.Name},
-		Req:     false,
-		Type:    apis.NewTypeInParam(types.String),
+	ParamsEmail = apis.InParam{
+		Name: "email",
+		Desc: "email for login",
+		Req:  true,
+		Type: apis.NewTypeInParam(types.String),
+	}
+	ParamsPassword = apis.InParam{
+		Name: "key",
+		Desc: "password or other key word (on future)",
+		Req:  true,
+		Type: apis.NewTypeInParam(types.String),
+	}
+	ParamsWhere = apis.InParam{
+		Name: "where",
+		Desc: "conditions for query ('where' clause)",
+		Type: apis.NewTypeInParam(types.String),
+	}
+	ParamsSelect = apis.InParam{
+		Name: "select[]",
+		Desc: "list of columns for query ('select' clause)",
+		Type: apis.NewSliceTypeInParam(types.String),
 	}
 	ParamsName = apis.InParam{
 		Name:     "name",
@@ -61,6 +79,10 @@ var (
 		DefValue: apis.ApisValues(apis.ChildRoutePath),
 		Req:      true,
 		Type:     apis.NewTypeInParam(types.String),
+	}
+	BasicParams = []apis.InParam{
+		ParamsHTML,
+		ParamsLang,
 	}
 )
 

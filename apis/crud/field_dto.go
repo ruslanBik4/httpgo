@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"strings"
 	"time"
 	"unsafe"
@@ -89,6 +90,41 @@ func (d *DateTimeString) Scan(src any) error {
 
 func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	return true
+}
+
+type DtoFileField []*multipart.FileHeader
+
+func (d *DtoFileField) GetValue() interface{} {
+	return d
+}
+
+func (d *DtoFileField) NewValue() interface{} {
+	return new(DtoFileField)
+}
+
+func (d *DtoFileField) Expect() string {
+	return "multipart file"
+}
+
+func (d *DtoFileField) Format() string {
+	return "file"
+}
+
+func (d *DtoFileField) RequestType() string {
+	return "file"
+}
+
+// CheckParams implement CheckDTO interface, put each params into user value on context
+func (d *DtoFileField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
+	for i, header := range *d {
+		_, err := header.Open()
+		if err != nil {
+			logs.DebugLog(err, header)
+			badParams[header.Filename] = errors.Wrapf(err, "%d. open file", i).Error()
+		}
+	}
+
+	return len(badParams) == 0
 }
 
 type DtoField map[string]any

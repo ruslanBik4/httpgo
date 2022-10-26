@@ -1,6 +1,14 @@
 {% func SaveForm() %}
 function saveForm(thisForm, successFunction, errorFunction) {
-    if (!thisForm.noValidate && !confirm('Do you sure to send form?')) {
+	let title = $('figcaption', thisForm).text();
+	if (title === "") {
+		if (thisForm.id > "") {
+			title = thisForm.id;
+		} else {
+			title = $('h2', thisForm).text();
+		}
+	}
+    if (!thisForm.noValidate && !confirm('Do you sure to send form "' + title + '"?')) {
         return false
     }
     // TODO: create element form for output form result
@@ -10,7 +18,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
 
     $(thisForm).ajaxSubmit({
         beforeSubmit: function(a,f,o) {
-            o.dataType = "json";
+             o.dataType = "json";
 
              // rm field without values
              var isNewRecord = $('input[name=id]').length == 0;
@@ -29,6 +37,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
            });
             a.push({ name: "is_get_form_actions", value: true, type: "boolean" });
             $out.html('Start sending...');
+            $('.errorLabel').hide();
             $progress.show();
             $loading.show();
         },
@@ -48,7 +57,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
             if (successFunction !== undefined) {
                 successFunction(data, thisForm);
             } else {
-                $out.html('Успешно изменили запись.');
+                $out.html(status);
                 afterSaveAnyForm(data, status);
             }
              $.fancybox.close();
@@ -67,19 +76,25 @@ function saveForm(thisForm, successFunction, errorFunction) {
                 if (xhr.responseJSON.formErrors !== undefined) {
                     formErrors = xhr.responseJSON.formErrors
                     for (x in formErrors) {
-                        formsInputs = thisForm.getElementsByTagName('input')
-                        for (y in formsInputs) {
-                         if (formsInputs[y].name == x) {
-                            formsInputs[y].value = formErrors[x]
+                        formsInput = $('input[name=' + x +']', thisForm)
+                         if (formsInput.length > 0) {
+                            let errorLabel = formsInput[0].nextElementSibling;
+                            errorLabel.textContent = formErrors[x];
+                            $(errorLabel).show();
                             break;
                          }
-                        }
                     }
                 }
                 return
               }
+              case 401: {
+                urlAfterLogin = thisForm;
+                $('#bLogin').trigger("click");
+                return;
+              }
+
               default:
-                      alert(xhr.responseText);
+                  alert(xhr.responseText);
               }
            }
         },

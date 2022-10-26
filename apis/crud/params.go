@@ -8,7 +8,6 @@
 package crud
 
 import (
-	"go/types"
 	"strings"
 
 	"github.com/valyala/fasthttp"
@@ -52,7 +51,7 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	case "daterange": // col.BasicType() == typesExt.TStruct {
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
 	case "bytea":
-		p.Type = apis.NewSliceTypeInParam(types.Byte)
+		p.Type = apis.NewStructInParam(&DtoFileField{})
 	case "json":
 		p.Type = apis.NewStructInParam(&DtoField{})
 	case "inet", "interval":

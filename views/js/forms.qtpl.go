@@ -225,7 +225,7 @@ $(function()   {
                  $('select.suggestions-constraints option').on('mouseup', function(e) {
                     $("#inpS").val( $(this).text() );
                     $('select.suggestions-constraints').hide();
-                   $('button[type="search"]').click();
+                    $('button[type="search"]').click();
                     return true;
                  });
                },
@@ -244,7 +244,7 @@ $(function()   {
 //line forms.qtpl:189
 	qw422016.N().S(`
 
-// стандартная обработка формы типа AnyForm после успшного сохранения результата
+// handling response AnyForm & render result according to structures of data
 function afterSaveAnyForm(data, status) {
 
     if (data.content_url !== undefined) {
@@ -261,18 +261,18 @@ function afterSaveAnyForm(data, status) {
         alert(data.message);
     }
 }
-// собственно, нужен для того, чтобы после авторизации отобразит в заголовке нечто
+// handling response login form, save users data & render some properties
  function afterLogin(data, thisForm) {
 	if (!data) {
 		alert("Need users data!")
 		return false;
 	}
 
+	localStorage.setItem("USER",  JSON.stringify(data) );
 	token = data.token;
 	lang = data.lang;
-	localStorage.setItem("USER",  JSON.stringify(data) );
 
-	$('#bLogin').text(data.name + "(" + lang +")");
+	$('#bLogin').text(data.name + lang > "" ? "(" + lang +")" : "");
 	$('.auth').removeClass("auth");
 
 `)
@@ -286,7 +286,7 @@ function afterSaveAnyForm(data, status) {
 	}
 //line forms.qtpl:222
 	qw422016.N().S(`
-	if (urlAfterLogin == '') {
+	if (urlAfterLogin === '') {
 		if (data.formActions !== undefined) {
 		 urlAfterLogin = data.formActions[0].url;
 		} else {
@@ -308,6 +308,10 @@ function afterSaveAnyForm(data, status) {
 //line forms.qtpl:228
 	qw422016.N().S(`;
 		}
+	} else if (urlAfterLogin.onsubmit !== undefined ) {
+		urlAfterLogin.onsubmit();
+		urlAfterLogin = "";
+		return;
 	}
 
 	loadContent(urlAfterLogin)
@@ -408,31 +412,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:329
+//line forms.qtpl:333
 }
 
-//line forms.qtpl:329
+//line forms.qtpl:333
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:329
+//line forms.qtpl:333
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:329
+//line forms.qtpl:333
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:329
+//line forms.qtpl:333
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:329
+//line forms.qtpl:333
 }
 
-//line forms.qtpl:329
+//line forms.qtpl:333
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:329
+//line forms.qtpl:333
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:329
+//line forms.qtpl:333
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:329
+//line forms.qtpl:333
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:329
+//line forms.qtpl:333
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:329
+//line forms.qtpl:333
 	return qs422016
-//line forms.qtpl:329
+//line forms.qtpl:333
 }

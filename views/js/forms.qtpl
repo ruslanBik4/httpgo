@@ -173,7 +173,7 @@ $(function()   {
                  $('select.suggestions-constraints option').on('mouseup', function(e) {
                     $("#inpS").val( $(this).text() );
                     $('select.suggestions-constraints').hide();
-                   $('button[type="search"]').click();
+                    $('button[type="search"]').click();
                     return true;
                  });
                },
@@ -188,7 +188,7 @@ $(function()   {
 
 {%= SaveForm() %}
 
-// стандартная обработка формы типа AnyForm после успшного сохранения результата
+// handling response AnyForm & render result according to structures of data
 function afterSaveAnyForm(data, status) {
 
     if (data.content_url !== undefined) {
@@ -205,28 +205,32 @@ function afterSaveAnyForm(data, status) {
         alert(data.message);
     }
 }
-// собственно, нужен для того, чтобы после авторизации отобразит в заголовке нечто
+// handling response login form, save users data & render some properties
  function afterLogin(data, thisForm) {
 	if (!data) {
 		alert("Need users data!")
 		return false;
 	}
 
+	localStorage.setItem("USER",  JSON.stringify(data) );
 	token = data.token;
 	lang = data.lang;
-	localStorage.setItem("USER",  JSON.stringify(data) );
 
-	$('#bLogin').text(data.name + "(" + lang +")");
+	$('#bLogin').text(data.name + lang > "" ? "(" + lang +")" : "");
 	$('.auth').removeClass("auth");
 
 	{%- if  changeTheme > "" -%} {%s= changeTheme %}(userStruct.theme); {%- endif -%}
 
-	if (urlAfterLogin == '') {
+	if (urlAfterLogin === '') {
 		if (data.formActions !== undefined) {
 		 urlAfterLogin = data.formActions[0].url;
 		} else {
 		 urlAfterLogin = {%- if  afterAuthURL > "" -%} "{%s= afterAuthURL %}" {% else %} "/user/profile" {%- endif -%};
 		}
+	} else if (urlAfterLogin.onsubmit !== undefined ) {
+		urlAfterLogin.onsubmit();
+		urlAfterLogin = "";
+		return;
 	}
 
 	loadContent(urlAfterLogin)

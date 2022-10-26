@@ -30,7 +30,7 @@ import (
 
 type ApisValues string
 
-// APIRouteParamsType encapsulates types operation for apis parameters
+// APIRouteParamsType encapsulates types operation for apis parameters`
 type APIRouteParamsType interface {
 	fmt.Stringer
 	CheckType(ctx *fasthttp.RequestCtx, value string) bool
@@ -42,7 +42,6 @@ type APIRouteParamsType interface {
 // TypeInParam has type definition of params ApiRoute
 type TypeInParam struct {
 	types.BasicKind
-	// types.Struct
 	isSlice bool
 	DTO     RouteDTO
 }
