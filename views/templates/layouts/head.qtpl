@@ -27,7 +27,7 @@ type HeadHTMLPage struct {
     <meta name="description" content="">
     <meta name="author" content="httpgo">
     {% for i := 0; i< len(head.MetaTags); i++ %}
-        {%s head.MetaTags[i] %}
+        {%s= head.MetaTags[i] %}
     {% endfor %}
     <title>{%s head.Title %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" type="text/css" media="screen">
@@ -51,7 +51,7 @@ type HeadHTMLPage struct {
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
     {% for i := 0; i< len(head.LinkStyles); i++ %}
-        {%s head.LinkStyles[i] %}
+        {%s= head.LinkStyles[i] %}
     {% endfor %}
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->

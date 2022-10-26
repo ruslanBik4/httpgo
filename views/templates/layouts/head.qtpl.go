@@ -72,7 +72,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 		qw422016.N().S(`
         `)
 //line head.qtpl:30
-		qw422016.E().S(head.MetaTags[i])
+		qw422016.N().S(head.MetaTags[i])
 //line head.qtpl:30
 		qw422016.N().S(`
     `)
@@ -112,7 +112,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 		qw422016.N().S(`
         `)
 //line head.qtpl:54
-		qw422016.E().S(head.LinkStyles[i])
+		qw422016.N().S(head.LinkStyles[i])
 //line head.qtpl:54
 		qw422016.N().S(`
     `)
