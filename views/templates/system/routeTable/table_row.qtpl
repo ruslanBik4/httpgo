@@ -1,5 +1,6 @@
 {% import (
 	"regexp"
+	"fmt"
 	"time"
 	"sort"
 	"go/types"
@@ -118,7 +119,12 @@ function getElementsByText(str, name) {
                     {% for i, column := range columns %}
                         <div class="usr-table-col  table-col-{%d i%}">
                             {% switch val := row[i].(type) %}
-                            {% case time.Time %}  {%s val.Format("2006-01-02") %}
+                            {% case time.Time %}  {%s val.Format("2006-01-02") %} {%- code
+                                                    hour, min, sec := val.Clock()
+                                                    -%}
+                                                    {%- if hour > 0 || min > 0 || sec > 0 -%}<br>
+                                                    {%s= fmt.Sprintf("%2.2d:%2.2d:%2.2d", hour, min, sec) %}
+                                                    {%- endif -%}
                             {% case string %}
                               {%s= val %}
                               {%code

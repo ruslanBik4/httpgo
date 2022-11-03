@@ -12,6 +12,8 @@ import (
 	"strings"
 
 	"github.com/jackc/pgtype"
+
+	"github.com/ruslanBik4/gotools"
 )
 
 type DateRangeMarshal struct {
@@ -92,4 +94,13 @@ func (i *IntervalMarshal) GetValue() interface{} {
 
 func (i *IntervalMarshal) NewValue() interface{} {
 	return &IntervalMarshal{&pgtype.Interval{}}
+}
+
+func (i *IntervalMarshal) Set(src interface{}) error {
+	switch src := src.(type) {
+	case string:
+		return i.Interval.DecodeText(nil, gotools.StringToBytes(src))
+	default:
+		return i.Interval.Scan(src)
+	}
 }
