@@ -19,7 +19,7 @@ import (
 
 type DbApiParams struct {
 	apis.InParam
-	col dbEngine.Column
+	Col dbEngine.Column
 }
 
 func NewDbApiParams(col dbEngine.Column) *DbApiParams {
