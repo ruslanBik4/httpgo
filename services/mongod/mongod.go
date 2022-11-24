@@ -5,12 +5,10 @@
  * Першій пріватний програміст.
  */
 
-//Package mongod Реализует работу с базой данных mongodb
+// Package mongod Реализует работу с базой данных mongodb
 package mongod
 
 import (
-	"go/types"
-
 	"golang.org/x/net/context"
 	mongo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -29,8 +27,8 @@ type mdService struct {
 	status  string
 }
 
-//Запускает связь с mongodb на дефолтный порт. (localhost:27017)
-//TODO: перенести порт для связи в config для его настройки
+// Запускает связь с mongodb на дефолтный порт. (localhost:27017)
+// TODO: перенести порт для связи в config для его настройки
 func (mongod *mdService) Init(ctx context.Context) error {
 
 	session, err := mongo.Dial("localhost:27017")
@@ -69,7 +67,7 @@ func (mongod *mdService) Close(out chan<- interface{}) error {
 	return nil
 }
 
-//получаем текущий статус сервиса
+// получаем текущий статус сервиса
 func (mongod *mdService) Status() string {
 	return mongod.status
 }
@@ -154,7 +152,7 @@ func (mongod *mdService) Send(ctx context.Context, args ...interface{}) error {
 	return services.ErrServiceNotEnoughParameter{Name: mongod.name, Param: args}
 }
 
-//поиск записей в mongodb
+// поиск записей в mongodb
 func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, error) {
 
 	if len(args) < 4 {
@@ -201,7 +199,7 @@ func findRecord(cConnect *mongo.Collection, args []interface{}) (interface{}, er
 	return nil, nil
 }
 
-//создание новой записи в mongodb
+// создание новой записи в mongodb
 func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
@@ -215,7 +213,7 @@ func insertRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
-//обновление записи в mongodb
+// обновление записи в mongodb
 func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 4 {
@@ -229,7 +227,7 @@ func updateRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
-//удаление записи в mongodb
+// удаление записи в mongodb
 func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 
 	if len(args) < 3 {
@@ -244,12 +242,12 @@ func removeRecord(cConnect *mongo.Collection, args []interface{}) error {
 	return nil
 }
 
-//GetMongoCollectionConnect функция для получения соединения к колекции по названию
+// GetMongoCollectionConnect функция для получения соединения к колекции по названию
 func GetMongoCollectionConnect(collection string) *mongo.Collection {
 	return mongod.connect.DB(server.GetMongodConfig().MongoDBName()).C(collection)
 }
 
 func init() {
 	services.AddService(mongod.name, mongod)
-	types.AssertableTo()
+	// types.AssertableTo()
 }

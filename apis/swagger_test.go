@@ -2,12 +2,13 @@ package apis
 
 import (
 	"fmt"
+	"reflect"
+	"testing"
+
 	"github.com/go-openapi/spec"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/valyala/fasthttp"
-	"reflect"
-	"testing"
 )
 
 type testStruct struct {
@@ -155,7 +156,7 @@ func TestNewSwaggerParam(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewSwaggerParam(tt.args.props, tt.args.name, tt.args.typ, "l"), "NewSwaggerParam(%v, %v, %v)", tt.args.props, tt.args.name, tt.args.typ)
+			assert.Equalf(t, tt.want, NewSwaggerParam(tt.args.name, "body", tt.args.typ, "g"), "NewSwaggerParam(%v, %v, %v)", tt.args.props, tt.args.name, tt.args.typ)
 		})
 	}
 }
