@@ -155,7 +155,7 @@ func TestNewSwaggerParam(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, NewSwaggerParam(tt.args.props, tt.args.name, tt.args.typ), "NewSwaggerParam(%v, %v, %v)", tt.args.props, tt.args.name, tt.args.typ)
+			assert.Equalf(t, tt.want, NewSwaggerParam(tt.args.props, tt.args.name, tt.args.typ, "l"), "NewSwaggerParam(%v, %v, %v)", tt.args.props, tt.args.name, tt.args.typ)
 		})
 	}
 }

@@ -20,8 +20,8 @@ type FncAuth interface {
 
 // RouteDTO must help create some types into routing handling
 type RouteDTO interface {
-	GetValue() interface{}
-	NewValue() interface{}
+	GetValue() any
+	NewValue() any
 }
 
 type CheckDTO interface {
@@ -34,10 +34,10 @@ type CompoundDTO interface {
 
 type FncVisit func([]byte, *fastjson.Value)
 
-//todo add description
+// todo add description
 type Visit interface {
 	Each([]byte, *fastjson.Value)
-	Result() (interface{}, error)
+	Result() (any, error)
 }
 
 type Docs interface {

@@ -49,7 +49,10 @@ func StreamSlice[T any](w *quicktemplate.Writer, value []T) {
 }
 
 func StreamMap[E comparable, T any](w *quicktemplate.Writer, value map[E]T) {
-	logs.StatusLog("map", value)
+	if value == nil {
+		w.N().S("nil")
+		return
+	}
 	sortList := make([]E, 0, len(value))
 	for name := range value {
 		sortList = append(sortList, name)

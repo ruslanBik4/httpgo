@@ -54,7 +54,9 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 		p.Type = apis.NewStructInParam(&DtoFileField{})
 	case "json":
 		p.Type = apis.NewStructInParam(&DtoField{})
-	case "inet", "interval":
+	case "inet":
+		p.Type = apis.NewStructInParam(&InetMarshal{})
+	case "interval":
 		p.Type = apis.NewStructInParam(&IntervalMarshal{})
 	default:
 		if isArray {

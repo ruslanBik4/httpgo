@@ -1,19 +1,20 @@
 package apis
 
 import (
-	//"bufio"
-	//"go/types"
-	//"net"
-	//"sync"
+	// "bufio"
+	// "go/types"
+	// "net"
+	// "sync"
 	"encoding/json"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"go/types"
 	"sync"
 	"testing"
 	"unsafe"
 
-	//"github.com/json-iterator/go"
+	jsoniter "github.com/json-iterator/go"
+
+	// "github.com/json-iterator/go"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
@@ -59,11 +60,11 @@ func TestCheckAndRun(t *testing.T) {
 
 	dto := route.DTO.NewValue()
 	val := &dto
-	//err := jsoniter.UnmarshalFromString(json, &val)
+	// err := jsoniter.UnmarshalFromString(json, &val)
 
-	//assert.Nil(t, err)
+	// assert.Nil(t, err)
 
-	//t.Logf("%+v", DTO)
+	// t.Logf("%+v", DTO)
 
 	err := json.Unmarshal([]byte(jsonText), &val)
 
@@ -346,11 +347,11 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
 			}
-			got, err := route.checkTypeParam(tt.args.ctx, tt.args.name, tt.args.values)
-			if !tt.wantErr(t, err, fmt.Sprintf("checkTypeParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)) {
+			got, err := route.checkTypeAndConvertParam(tt.args.ctx, tt.args.name, tt.args.values)
+			if !tt.wantErr(t, err, fmt.Sprintf("checkTypeAndConvertParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "checkTypeParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)
+			assert.Equalf(t, tt.want, got, "checkTypeAndConvertParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)
 		})
 	}
 }
@@ -594,7 +595,7 @@ func TestMapRoutes_findParentRoute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.r.findParentRoute(tt.args.method, tt.args.path)
+			got, got1 := tt.r.findParentRoute(mapRoute{tt.args.method, tt.args.path})
 			assert.Equalf(t, tt.want, got, "findParentRoute(%v, %v)", tt.args.method, tt.args.path)
 			assert.Equalf(t, tt.want1, got1, "findParentRoute(%v, %v)", tt.args.method, tt.args.path)
 		})

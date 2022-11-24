@@ -411,7 +411,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		return nil, ErrUnAuthorized
 	}
 
-	//check forbidden
+	// check forbidden
 	if route.FncIsForbidden != nil && route.FncIsForbidden(ctx) {
 		return nil, ErrRouteForbidden
 	}
@@ -445,7 +445,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		ctx.SetUserValue(MultiPartParams, mf.Value)
 
 		for key, value := range mf.Value {
-			val, err := route.checkTypeParam(ctx, key, value)
+			val, err := route.checkTypeAndConvertParam(ctx, key, value)
 			if err != nil {
 				if val != nil {
 					logs.DebugLog(val)
@@ -472,7 +472,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (r
 		args.VisitAll(func(k, v []byte) {
 
 			key := string(k)
-			val, err := route.checkTypeParam(ctx, key, []string{string(v)})
+			val, err := route.checkTypeAndConvertParam(ctx, key, []string{string(v)})
 			if err != nil {
 				badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
 			} else {
@@ -560,7 +560,7 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 	return len(badParams) == 0
 }
 
-func (route *ApiRoute) checkTypeParam(ctx *fasthttp.RequestCtx, name string, values []string) (any, error) {
+func (route *ApiRoute) checkTypeAndConvertParam(ctx *fasthttp.RequestCtx, name string, values []string) (any, error) {
 	// find param in InParams list & convert according to Type
 	for _, param := range route.Params {
 		if param.Name == name {

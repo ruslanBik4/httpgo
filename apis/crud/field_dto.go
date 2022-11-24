@@ -117,11 +117,12 @@ func (d *DtoFileField) RequestType() string {
 // CheckParams implement CheckDTO interface, put each params into user value on context
 func (d *DtoFileField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	for i, header := range *d {
-		_, err := header.Open()
+		f, err := header.Open()
 		if err != nil {
 			logs.DebugLog(err, header)
 			badParams[header.Filename] = errors.Wrapf(err, "%d. open file", i).Error()
 		}
+		_ = f.Close()
 	}
 
 	return len(badParams) == 0

@@ -159,9 +159,12 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 func WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
 
 	defer func() {
-		errR := recover()
-		if errR != nil {
-			err = errors.Wrap(errR.(error), "marshal json")
+		if err == nil {
+			errR := recover()
+			if errR != nil {
+				logs.ErrorStack(err, "WriteJSON")
+				err = errors.Wrap(errR.(error), "marshal json")
+			}
 		}
 	}()
 
