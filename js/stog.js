@@ -1,10 +1,20 @@
-// Эта функция jQuery выполняется после полной загрузки страницы - запускаем дополнительные скрипты и заполняем содержимое страницы
-var default_page = default_edit_page = 'text_main.htm', new_editor = multilang = correct_pass = isNewSitecraft = RunDialog = adminMode = name_page = type_page = scrollcolor = body_scrollcolor = '', title_doc ='Главная', tools_is_load = isNoSitecraft = false, editor, DivContent, input_focused, typeAnimate, password, topEditorOffset, root_page = 'index.htm', NotZagl, min_rez;
+/*
+ * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст. 
+ */
 
-var multilang_ext = {  'Рус' : '',  'Укр' : '_ua', 'Eng' : '_eng' };
+// Эта функция jQuery выполняется после полной загрузки страницы - запускаем дополнительные скрипты и заполняем содержимое страницы
+var default_page = default_edit_page = 'text_main.htm',
+    new_editor = multilang = correct_pass = isNewSitecraft = RunDialog = adminMode = name_page = type_page = scrollcolor = body_scrollcolor = '',
+    title_doc = 'Главная', tools_is_load = isNoSitecraft = false, editor, DivContent, input_focused, typeAnimate,
+    password, topEditorOffset, root_page = 'index.htm', NotZagl, min_rez;
+
+var multilang_ext = {'Рус': '', 'Укр': '_ua', 'Eng': '_eng'};
 var anchor = '', str_location = document.domain + document.location.pathname;
 
-$(function()   {
+$(function () {
     var password = '';
 
     if( (DivContent = $("#pane")).length == 0) {
@@ -15,12 +25,11 @@ $(function()   {
         default_page = 'text_main';
 
 // инициализация доп. скрипов при запуске сайта	
-    try
-    {
+    try {
         if (!$('body').hasClass( 'complete' ) ) //первая загрузка, догружаем скрипты и содержимое
         {
             if (body_scrollcolor || scrollcolor)
-            // подключаю продвинутые полосы прокрутки к окну или Содержимому
+                // подключаю продвинутые полосы прокрутки к окну или Содержимому
                 LoadJScript( "/jquery.nicescroll.js", true, true,
                     function () {
                         if (scrollcolor)
@@ -36,8 +45,7 @@ $(function()   {
 
         if ( NotZagl=($("#zag").length == 0) )
             DivContent.before( '<div id="zag" style="display:none" > </div>');
-    }
-    catch(e) {
+    } catch(e) {
         alert(e.message);
 
     }
@@ -54,8 +62,7 @@ function InitEditor(id) {
         btnEditorDown = '<a href="" onclick="return EditorDown();" > <img src="http://solution.allservice.in.ua/images/ddn.png" /> </a>',
         i = str_hash.search('.php');
 
-    if ( !name_page && (i > 0)  )
-    {
+    if ( !name_page && (i > 0)  ) {
         ShowOknoFromHash();
         return;
     }
@@ -136,8 +143,7 @@ function ChangeLang( new_lang ) {
     // меняю тексты на элементах страницы
     $('input[' + (multilang || '_rus') + ']').each( SwapLanguage );
     cookieSet('language', multilang);
-    if (input_focused !== undefined)
-    {
+    if (input_focused !== undefined) {
         $('#'+input_focused).focus();
         $('body').scrollTo( $('#'+input_focused), 800, {margin:true, axis: 'y'} );
     }
@@ -179,8 +185,7 @@ function FirstLoads(data, textStatus) {
      }
      */
 
-    if ( DivContent.hasClass('fullW') )
-    {
+    if ( DivContent.hasClass('fullW') ) {
 
 
         divFirst  =  $('div:first' );
@@ -236,8 +241,7 @@ function FirstLoads(data, textStatus) {
             alert('Ошибка при проверки пароля! ' + success.statusText);
             input_focused = success;
         });
-    }
-    else // если не редактор - подгружаем страницу
+    } else // если не редактор - подгружаем страницу
         ShowOknoFromHash();
 
     if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
@@ -248,7 +252,6 @@ function FirstLoads(data, textStatus) {
 }
 
 function LoadJScript(url, asyncS, cacheS, successFunc) {
-
     $.ajax({
         type: "GET",
         async: asyncS,
@@ -257,12 +260,12 @@ function LoadJScript(url, asyncS, cacheS, successFunc) {
         global: false,
         dataType: "script",
         success: successFunc,
+        complete:
         error: function (XMLHttpRequest, textStatus, errorThrown) {
-            if (textStatus == '')
-                alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
-        }
-    });
-
+        if (textStatus == '')
+            alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
+    }
+});
 }
 
 /* var CKEDITOR_BASEPATH = "/ckeditor-full/"; */
@@ -273,8 +276,7 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
         editForCKEDITOR = ( window.pageCKEDITOR  !== undefined ); // CKEDITOR редактор вкладышей 
 
     /* всякие проверки корректности работы */
-    if (!tools_is_load)
-    {
+    if (!tools_is_load) {
         $("#zag").html('Ждем загрузки программных модулей!');
         return false;
     }
@@ -294,8 +296,7 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
     if ( (!file_ext) && ( id.substring(0,1) == '!' )) {
         id = id.substring(1);
         file_ext = '.php';
-    }
-    else if ( (!file_ext) && ( (i=id.search(/\.[htm|php|svg|psd|pdf]/)) > -1 )) {
+    } else if ( (!file_ext) && ( (i=id.search(/\.[htm|php|svg|psd|pdf]/)) > -1 )) {
         file_ext = id.substring( i );
         id = id.substring( 0, i );
     }
@@ -305,8 +306,7 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
     {
         anchor = anchor_split[0];
         id     = anchor_split[1];
-    }
-    else if ( file_ext && ((anchor_split = file_ext.split( '#' )).length > 1) ) // якоря
+    } else if ( file_ext && ((anchor_split = file_ext.split( '#' )).length > 1) ) // якоря
     {
         file_ext = anchor_split[0];
         anchor   = anchor_split[1];
@@ -316,8 +316,7 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
 
     if ( (DivRel == id + ( !file_ext ? "" : file_ext) )
         || ( (document.location.pathname == '/') && (DivRel == 'text-main') )
-        || (id == '') )
-    {
+        || (id == '') ) {
         if (anchor > '')
             GotoAncor( anchor );
         return false;
@@ -349,12 +348,11 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
         if ($('.tinyedit#admin').length > 0 )  // старое редактирование от Цитовича
             ReadFileToEditor( id + file_ext );
         else
-            try
-            {
+            try {
                 if ( $('input[name=name_page]').length == 0 )
                     InitEditor( id );
                 else
-                // пока будет всегда брать исходный
+                    // пока будет всегда брать исходный
                     $.post( document.location.protocol + '//' + document.location.host + '/loadpage.php', {name_page : id },
                         function(data, status) {
                             editor.setData( data , function() {
@@ -363,13 +361,10 @@ function ShowOkno( id, zag, this_ref, file_ext ) {
                             });
                         }).fail( function(data, status) { alert( status ) } );
                 $('input[name=name_page]').val( id );
-            }
-            catch(e) {
+            } catch(e) {
                 alert(e);
             }
-    }
-    else
-    {
+    } else {
         // индикатор загрузки						
         $("#zag").css('display', 'block').html( "<img src='http://solution.allservice.in.ua/images/load.gif' />" ).show();
         // поддержка мультиязычности только при загрузке, больше ничего не меняем
@@ -399,8 +394,7 @@ function AfterHide() {
     if (type_page == '.svg') {
         $.get( name_page + type_page, PutContentIntoPane, 'html' ).fail(failLoadPage);
     } else if (new_editor || isNewSitecraft) { // загрузка для свежих версий СК 
-        if (type_page == ".htm")
-        {
+        if (type_page == ".htm") {
             if (new_editor) // при использование редактора страниц
                 $.post( document.location.protocol + '//' + document.location.host + '/loadpage.php', {name_page : name_page + multilang}, // довести до ума попозже
                     PutContentIntoPane ).fail( LoadPageToPane );
@@ -448,13 +442,11 @@ function FindAndCutPart( data, element, re, default_html ) {
     if (element.length == 0)
         return data;
 
-    if ( match = data.match( re ) )
-    {
+    if ( match = data.match( re ) ) {
         element.html( match[1] );
         AddClickShowOkno( element );
         data = data.replace( match[0], '' );
-    }
-    else if ( typeof default_html !== "undefined")
+    } else if ( typeof default_html !== "undefined")
         element.html( default_html );
 
     return data;
@@ -496,8 +488,7 @@ function LoadContent( href, this_ref ) {
 }
 // заполнение содержимого при удачной загрузке, разделяют текст на составляющие, убирает лишнее
 function PutContentIntoPane(data, status) {
-    if (status == 'success' )
-    {
+    if (status == 'success' ) {
         try {
             if (typeof data == 'object')
                 data = data.toString();
@@ -511,8 +502,7 @@ function PutContentIntoPane(data, status) {
             alert(e.message);
         }
         PostLoadOkno();
-    }
-    else
+    } else
         alert('Ошибка при загрузке страницы :' + status + '(' + name_page + type_page + ')' )
 }
 // спецобработки после заполнение содержимого (счетчики, обработка ссылок, история ссылок и т.п.
@@ -527,7 +517,7 @@ function PostLoadOkno( ) {
         /*if ( this.id == 'show_tovar') //пока временно специально для обработки выборки лотов
             $.get( 'show_tovar.php', function (data, success) { pane.html( GetBodyBackground(data) ); AddClickShowOkno( pane ); } );
         else*/
-            $.get( URL, function (data, success) { pane.html( GetBodyBackground(data) ); AddClickShowOkno( pane ); } );
+        $.get( URL, function (data, success) { pane.html( GetBodyBackground(data) ); AddClickShowOkno( pane ); } );
     });
 
     divFirst = $('div:first', DivContent);
@@ -571,14 +561,12 @@ function AfterShow() {
     $('.captcha').attr( 'src', 'my_codegen260808.php?' + Date() );
 
 
-    try
-    {  // устанавливаем значение Яндекс-Метрики, если она подключена к сайту
+    try {  // устанавливаем значение Яндекс-Метрики, если она подключена к сайту
         if (window.yaCounterXXXXXX)
             yaCounterXXXXXX.hit( name_page + type_page, document.title, document.domain);
         if ( window.SitePostShow !== undefined ) // если определена отдельная фукция для сайта либо странички
             SitePostShow();
-    }
-    catch(e) {
+    } catch(e) {
         alert(e);
     }
     // загружаем скрипт увеличения картинок, если есть подходящие по классу картинки

@@ -349,6 +349,24 @@ function PutContent(data, url) {
 	SetDocumentHash(url);
 }
 
+
+function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
+    $.ajax({
+        type: "GET",
+        async: asyncS,
+        cache: cacheS,
+        url: url,
+        global: false,
+        dataType: "script",
+        success: successFunc,
+        complete: completeFunc,
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if (errorThrown !== undefined)
+                alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
+                console.log(errorThrown);
+        }
+    });
+}
 function showObject(data, thisForm) {
     if (!data) {
       alert('no results!')
@@ -412,31 +430,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:333
+//line forms.qtpl:351
 }
 
-//line forms.qtpl:333
+//line forms.qtpl:351
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:333
+//line forms.qtpl:351
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:333
+//line forms.qtpl:351
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:333
+//line forms.qtpl:351
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:333
+//line forms.qtpl:351
 }
 
-//line forms.qtpl:333
+//line forms.qtpl:351
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:333
+//line forms.qtpl:351
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:333
+//line forms.qtpl:351
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:333
+//line forms.qtpl:351
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:333
+//line forms.qtpl:351
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:333
+//line forms.qtpl:351
 	return qs422016
-//line forms.qtpl:333
+//line forms.qtpl:351
 }

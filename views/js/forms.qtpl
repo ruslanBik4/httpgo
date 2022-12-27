@@ -268,6 +268,24 @@ function PutContent(data, url) {
 	SetDocumentHash(url);
 }
 
+
+function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
+    $.ajax({
+        type: "GET",
+        async: asyncS,
+        cache: cacheS,
+        url: url,
+        global: false,
+        dataType: "script",
+        success: successFunc,
+        complete: completeFunc,
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if (errorThrown !== undefined)
+                alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
+                console.log(errorThrown);
+        }
+    });
+}
 function showObject(data, thisForm) {
     if (!data) {
       alert('no results!')

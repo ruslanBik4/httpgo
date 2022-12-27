@@ -5,6 +5,7 @@
  * Перший приватний програміст.
  */
 
+// Package apis consists of interfaces for managements endpoints httpgo
 package apis
 
 import (

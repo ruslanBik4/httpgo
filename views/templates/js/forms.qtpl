@@ -304,5 +304,7 @@ function addNewRowTableID(thisButton) {
 
     return false;
 }
+
 </script>
+
 {% endfunc %}

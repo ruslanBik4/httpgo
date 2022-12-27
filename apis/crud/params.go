@@ -48,7 +48,7 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	switch col.Type() {
 	case "date", "timestamp", "timestamptz", "time":
 		p.Type = apis.NewStructInParam(&DateTimeString{})
-	case "daterange": // col.BasicType() == typesExt.TStruct {
+	case "daterange":
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
 	case "bytea":
 		p.Type = apis.NewStructInParam(&DtoFileField{})
