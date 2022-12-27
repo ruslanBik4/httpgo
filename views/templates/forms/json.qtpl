@@ -3,9 +3,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
     "fmt"
+	"go/types"
     "strconv"
 	"sort"
 	"strings"
+
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 %}
@@ -269,7 +271,9 @@ name="{%s col.InputName(i) %}"
         </select>
     {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
-                {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
+                {% if val != nil %} value = '{%= col.RenderValue(val) %}'
+                    {% if col.BasicType() == types.Bool %}checked{% endif %}
+                {% endif %}
                >
     {% endswitch %}
  {% if col.IsSlice %}
