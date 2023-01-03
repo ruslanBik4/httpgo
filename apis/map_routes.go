@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -62,16 +62,10 @@ func (r MapRoutes) AddRoutes(routes ApiRoutes) (badRouting []string) {
 			if !ok {
 				// 	add empty OPTIONS route for
 				r[mOpt] = &ApiRoute{
-					Desc: "allow for preflighted:" + route.Desc,
-					DTO:  nil,
-					Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-						ctx.SetStatusCode(fasthttp.StatusNoContent)
-						origin := ctx.Request.Header.Peek("Origin")
-						ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
-
-						logs.DebugLog("allow OPTIONS from %s for '%s'", origin, route.Desc)
-						return nil, nil
-					},
+					Desc: fmt.Sprintf(`<abbr title="Cross-Origin Resource Sharing">CORS</abbr> [allow for preflighted](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) route '%s %s':  
+%s`, route.Method, url, route.Desc),
+					DTO:      nil,
+					Fnc:      HandlerForPreflightedCORS,
 					Method:   OPTIONS,
 					WithCors: true,
 				}
@@ -111,7 +105,7 @@ func (r MapRoutes) addTestRoute(url string, route *ApiRoute) {
 	}
 
 	testRoute.Fnc = func(url string, route *ApiRoute) ApiRouteHandler {
-		return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+		return func(ctx *fasthttp.RequestCtx) (any, error) {
 			// if route.Multipart {
 			// 	var b bytes.Buffer
 			// 	w := multipart.NewWriter(&b)
@@ -235,4 +229,12 @@ func getParentPath(path string) string {
 	}
 
 	return path[:n+1]
+}
+
+func HandlerForPreflightedCORS(ctx *fasthttp.RequestCtx) (any, error) {
+	ctx.SetStatusCode(fasthttp.StatusNoContent)
+	origin := ctx.Request.Header.Peek("Origin")
+	ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
+
+	return nil, nil
 }

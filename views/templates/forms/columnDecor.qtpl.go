@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -732,7 +732,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:209
 			if col.BasicType() == types.Bool {
 //line columnDecor.qtpl:209
-				qw422016.N().S(`value = 'true'
+				qw422016.N().S(`onclick="this.value = this.checked;"
                 `)
 //line columnDecor.qtpl:210
 				if val == true {
@@ -747,36 +747,35 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 			}
 //line columnDecor.qtpl:211
 			qw422016.N().S(`
-
                >
     `)
-//line columnDecor.qtpl:214
+//line columnDecor.qtpl:213
 		}
-//line columnDecor.qtpl:214
+//line columnDecor.qtpl:213
 		qw422016.N().S(`
  `)
-//line columnDecor.qtpl:215
+//line columnDecor.qtpl:214
 		if col.IsSlice {
-//line columnDecor.qtpl:215
+//line columnDecor.qtpl:214
 			qw422016.N().S(`
          <button class="removeField" type="button"
              onclick="this.parentNode.remove(); return false;">-</button>
     </li>
  `)
-//line columnDecor.qtpl:219
+//line columnDecor.qtpl:218
 		}
-//line columnDecor.qtpl:219
+//line columnDecor.qtpl:218
 		qw422016.N().S(`
 
  `)
-//line columnDecor.qtpl:221
+//line columnDecor.qtpl:220
 	}
-//line columnDecor.qtpl:221
+//line columnDecor.qtpl:220
 	qw422016.N().S(`
  `)
-//line columnDecor.qtpl:222
+//line columnDecor.qtpl:221
 	if col.IsSlice {
-//line columnDecor.qtpl:222
+//line columnDecor.qtpl:221
 		qw422016.N().S(`
      <li class="form-field">
         <button class="main-btn" type="button"
@@ -784,36 +783,36 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
     </li>
     </ul>
  `)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:227
 	}
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:227
 	qw422016.N().S(`
 `)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 }
 
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]any) {
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	col.StreamRenderInputs(qw422016, data)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 }
 
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 func (col *ColumnDecor) RenderInputs(data map[string]any) string {
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	col.WriteRenderInputs(qb422016, data)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 	return qs422016
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:228
 }

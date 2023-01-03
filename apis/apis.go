@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -23,7 +23,6 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-
 	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/views"
@@ -32,13 +31,13 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
 
-type CtxApis map[string]interface{}
+type CtxApis map[string]any
 
 func NewCtxApis(cap int) CtxApis {
 	ctx := make(CtxApis, cap)
 	return ctx
 }
-func (c CtxApis) AddValue(key string, val interface{}) {
+func (c CtxApis) AddValue(key string, val any) {
 	c[key] = val
 }
 func (c CtxApis) Deadline() (deadline time.Time, ok bool) {
@@ -50,7 +49,7 @@ func (c CtxApis) Done() <-chan struct{} {
 func (c CtxApis) Err() error {
 	return nil
 }
-func (c CtxApis) Value(key interface{}) interface{} {
+func (c CtxApis) Value(key any) any {
 	if key, ok := key.(string); ok {
 		return c[key]
 	}
@@ -157,7 +156,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 }
 
 // WriteJSON write JSON to response
-func WriteJSON(ctx *fasthttp.RequestCtx, r interface{}) (err error) {
+func WriteJSON(ctx *fasthttp.RequestCtx, r any) (err error) {
 
 	defer func() {
 		if err == nil {
@@ -184,7 +183,7 @@ func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 const jsonHEADERSContentType = "application/json; charset=utf-8"
 
 // renderError send error message into response
-func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp interface{}) {
+func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 	statusCode := fasthttp.StatusInternalServerError
 	errMsg := err.Error()
@@ -283,9 +282,13 @@ func (a *Apis) AddRoutes(routes ApiRoutes) (badRouting []string) {
 }
 
 // renderApis show list routers for developers (as JSON)
-func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (any, error) {
 	if ctx.UserValue("json") != nil {
 		return a, nil
+	}
+
+	if ctx.UserValue("diagram") != nil {
+		return a.getDiagram(ctx)
 	}
 
 	columns := dbEngine.SimpleColumns(
@@ -298,7 +301,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 		"Response",
 	)
 
-	rows := make([][]interface{}, 0)
+	rows := make([][]any, 0)
 
 	i := 0
 	sortList := make(map[tMethod][]string, 0)
@@ -317,7 +320,7 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (interface{}, error) {
 				continue
 			}
 
-			row := make([]interface{}, len(columns))
+			row := make([]any, len(columns))
 			testURL := path.Join(m.path, a.routes.GetTestRouteSuffix(route))
 
 			row[0] = fmt.Sprintf(`<a href="%s" title="see test">%s</a> - %s`, testURL, m.path, method)

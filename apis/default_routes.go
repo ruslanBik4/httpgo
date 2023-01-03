@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -19,7 +19,7 @@ import (
 func (a *Apis) DefaultRoutes() ApiRoutes {
 	return ApiRoutes{
 		"/apis": {
-			Desc:     "full routers list current *APIS*",
+			Desc:     "# full routers list current *APIS*",
 			Fnc:      a.renderApis,
 			WithCors: true,
 			Params: []InParam{
@@ -28,10 +28,15 @@ func (a *Apis) DefaultRoutes() ApiRoutes {
 					Desc: "response must has json format",
 					Type: NewTypeInParam(types.Bool),
 				},
+				{
+					Name: "diagram",
+					Desc: "response must d2 diagram as **svg**",
+					Type: NewTypeInParam(types.Bool),
+				},
 			},
 		},
 		"/swagger.io": {
-			Desc: "Scale Your *APIS* Design with Confidence",
+			Desc: "# Scale Your *APIS* Design with Confidence",
 			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
 				views.RenderHTMLPage(ctx, pages.WriteSwaggerPage)
 				return nil, nil
@@ -39,7 +44,7 @@ func (a *Apis) DefaultRoutes() ApiRoutes {
 			WithCors: true,
 		},
 		"/onboarding": {
-			Desc:      "onboarding routes from local services into *APIS*",
+			Desc:      "# onboarding routes from local services into *APIS*",
 			Fnc:       a.onboarding,
 			OnlyLocal: true,
 			Params:    onboardParams,

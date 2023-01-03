@@ -206,10 +206,9 @@ name="{%s col.InputName(i) %}"
     {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
                 {% if val != nil %} value = '{%= col.RenderValue(val) %}'{% endif %}
-                {% if col.BasicType() == types.Bool %}value = 'true'
+                {% if col.BasicType() == types.Bool %}onclick="this.value = this.checked;"
                 {% if val == true %}checked{% endif %}
                 {% endif %}
-
                >
     {% endswitch %}
  {% if col.IsSlice %}
