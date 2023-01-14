@@ -8,24 +8,18 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 %}
-{% code
-    type FormField struct {
-        Title, Action, Method, Description string
-        HideBlock any
-    }
-%}
 {% collapsespace %}
 {% stripspace %}
 json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
-{% func (f *FormField) RenderForm(isHTML bool, blocks ... BlockColumns) %}
+{% func (f *FormField) RenderForm(isHTML bool) %}
         {% if isHTML %}
-            {%= f.FormHTML(blocks ...) %}
+            {%= f.FormHTML() %}
         {% else %}
-             {%= f.FormJSON(blocks ...) %}
+             {%= f.FormJSON() %}
        {% endif %}
 {% endfunc %}
 
-{% func (f *FormField) FormJSON(blocks ... BlockColumns) %}
+{% func (f *FormField) FormJSON() %}
   {
     "title" : "{%s= f.Title %}",
     "action": "{%s= f.Action %}",
@@ -33,7 +27,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
     {% if f.HideBlock != nil %} "hideBlock": {%= json.Element( f.HideBlock ) %},{% endif %}
     "method": "{%s= f.Method %}",
     "blocks": [
-        {% for i, block := range blocks %}
+        {% for i, block := range f.Blocks %}
         {% if i > 0 %}
             ,
         {% endif %}
@@ -57,9 +51,9 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                                 ,
                             {% endif %}
                          {
-                             "buttonType":  "{%s= button.ButtonType %}",
+                             "buttonType":  "{%s= button.Type %}",
                              "title": "{%s= button.Title %}",
-                             "type": "{%s= button.ButtonType %}"
+                             "type": "{%s= button.Type %}"
                          }
                          {% endfor %}
                          ]
@@ -71,7 +65,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
   }
 {% endfunc %}
 
-{% func (f *FormField) FormHTML(blocks ... BlockColumns) %}
+{% func (f *FormField) FormHTML() %}
 <style>
 figure {
     border: thin #c0c0c0 solid;
@@ -138,7 +132,7 @@ ul.form-field{
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
 
          <figcaption>{%s= f.Description %}</figcaption>
-        {% for _, block := range blocks %}
+        {% for _, block := range f.Blocks %}
            {% code
                 isHide := (len(defBlocks) > 0)
                 for _, id := range defBlocks {
@@ -167,7 +161,7 @@ ul.form-field{
   {%- endif -%}
     <div class="form-actions">
       {%- for _, btn := range block.Buttons -%}
-        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.ButtonType %}"
+        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.Type %}"
         {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick%}"{%- endif -%}>
         {%s btn.Title %}
         </button>

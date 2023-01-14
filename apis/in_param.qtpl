@@ -13,19 +13,53 @@
 {% code
 type qInParam struct {
     in string
+    dto any
+    multiPart bool
 }
 
-func NewqInParam(in string) *qInParam {
+func NewqInParam(in string, dto any) *qInParam {
     return &qInParam{
         in: in,
+        dto: dto,
+        multiPart: in == "body",
     }
 } 
 %}
 {%- func (q *qInParam) SwaggerParams(params []any) -%}
-"parameters": [
+{%- if !q.multiPart %}
+  {%- if q.dto != nil -%}
+"requestBody": {
+  "content": {
+    "application/json": {
+      "schema": {%= json.Wrap(q.dto) %}
+    },
+   },
+  },
+{%- endif -%}
+"parameters":[{%= q.swaggerParams(params) %}]
+{%- else -%}
+"requestBody": {
+  "content": {
+  {%- if q.dto != nil -%}
+    "application/json": {
+      "schema": {%= json.Wrap(q.dto) %}
+    },
+  {%- endif -%}
+    "multipart/form-data": {
+      "schema": {
+        "type": "object",
+        "properties": {{%= q.swaggerParams(params) %}}
+      }
+    }
+ }
+}
+{%- endif -%}
+{%- endfunc -%}
+
+{%- func (q *qInParam) swaggerParams(params []any) -%}
  {%- for i, p := range params -%}
 	{%- if i > 0 -%}, {% endif %}
-	{
+
 	{%- if param, ok := p.(InParam); ok -%}
 		{%- if t, ok := param.Type.(jsoniter.ValEncoder); ok -%}
 		{%- code
@@ -36,25 +70,28 @@ func NewqInParam(in string) *qInParam {
 		-%}
     	{%s s %}
         {%- else -%}
-		"name": "{%s param.Name %}",
+		{%- if !q.multiPart %}{"name":"{%s param.Name %}",
+		{%- else -%} "{%s param.Name %}":{
+		{%- endif -%}
 		"description": "{%s param.Desc %}",
-		"in": "{%s q.in %}",
-		"schema": {
-		{%= Schema(param) %}
+		{%- if !q.multiPart %}
+			"in": "{%s q.in %}",
+			"schema": {
+	    {%- endif -%}
+			{%= Schema(param) %}
+		{%- if !q.multiPart %}}{%- endif -%}
 		}
         {%- endif -%}
     {%- else -%}
-        {%= json.Wrap(p) %}
+        { {%= json.Wrap(p) %} }
     {%- endif -%}
-    }
  {%- endfor -%}
-]
 {%- endfunc -%}
 
 {%- func (q *qInParam) SwaggerProperties(params []InParam) -%}
 "properties": {
  {%- for i, param := range params -%}
-	{%- if i > 0 -%}, {% endif %}
+	{%- if i > 0 -%}, {%- endif -%}
 	"{%s param.Name %}": {
 		"description": "{%s param.Desc %}",
 		{%= Schema(param) %}
@@ -75,7 +112,14 @@ func NewqInParam(in string) *qInParam {
 }
 {%- endfunc -%}
 {%- func Schema(param InParam) -%}
-		"type": {%- switch t, ok := (param.Type).(TypeInParam); -%} {
+{%- code
+	t, ok := (param.Type).(TypeInParam)
+-%}
+	{%- if param.Req -%}
+		"required": true,
+		"allowEmptyValue": false,
+	{%- endif -%}
+		"type": {%- switch  -%}
 				{%- case ok && t.BasicKind == types.Bool-%}
 					"boolean"
 				{%- case ok && t.BasicKind > types.Bool && t.BasicKind < types.Float32 -%}
@@ -87,6 +131,8 @@ func NewqInParam(in string) *qInParam {
 				{%- case ok && t.BasicKind == types.String -%}
 					{%- if t.IsSlice() -%} "array", "items": {"type": "string"} {%- else -%} "string" {% endif -%},
 		"format": 	"string"
+				{%- case ok && t.BasicKind == types.UnsafePointer -%}
+					"file"
 				{%- case ok && t.BasicKind > types.UnsafePointer -%}
 					"untyped",
 		"format": 	"{%= t.Format() %}"

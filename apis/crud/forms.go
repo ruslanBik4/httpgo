@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -220,8 +220,8 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 		}
 
 		btnList := []forms.Button{
-			{ButtonType: "submit", Title: "Insert", Position: true},
-			{ButtonType: "reset", Title: "Clear", Position: false},
+			{Type: "submit", Title: "Insert", Position: true},
+			{Type: "reset", Title: "Clear", Position: false},
 		}
 
 		if ok {
@@ -291,7 +291,7 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 			})
 		}
 
-		blocks := []forms.BlockColumns{
+		f.Blocks = []forms.BlockColumns{
 			{
 				Buttons:     btnList,
 				Columns:     colDecors,
@@ -312,7 +312,7 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 		f.WriteRenderForm(
 			ctx.Response.BodyWriter(),
 			ok, // && isHtml,
-			blocks...)
+		)
 
 		return nil, nil
 	}

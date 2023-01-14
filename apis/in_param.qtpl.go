@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -37,205 +37,326 @@ var (
 
 //line in_param.qtpl:14
 type qInParam struct {
-	in string
+	in        string
+	dto       any
+	multiPart bool
 }
 
-func NewqInParam(in string) *qInParam {
+func NewqInParam(in string, dto any) *qInParam {
 	return &qInParam{
-		in: in,
+		in:        in,
+		dto:       dto,
+		multiPart: in == "body",
 	}
 }
 
-//line in_param.qtpl:24
+//line in_param.qtpl:28
 func (q *qInParam) StreamSwaggerParams(qw422016 *qt422016.Writer, params []any) {
-//line in_param.qtpl:24
-	qw422016.N().S(`"parameters": [
-`)
-//line in_param.qtpl:26
-	for i, p := range params {
-//line in_param.qtpl:27
-		if i > 0 {
-//line in_param.qtpl:27
-			qw422016.N().S(`, `)
-//line in_param.qtpl:27
-		}
-//line in_param.qtpl:27
-		qw422016.N().S(`
-	{
-`)
 //line in_param.qtpl:29
-		if param, ok := p.(InParam); ok {
+	if !q.multiPart {
+//line in_param.qtpl:29
+		qw422016.N().S(`
+`)
 //line in_param.qtpl:30
+		if q.dto != nil {
+//line in_param.qtpl:30
+			qw422016.N().S(`"requestBody": {
+  "content": {
+    "application/json": {
+      "schema": `)
+//line in_param.qtpl:34
+			json.StreamWrap(qw422016, q.dto)
+//line in_param.qtpl:34
+			qw422016.N().S(`
+    },
+   },
+  },
+`)
+//line in_param.qtpl:38
+		}
+//line in_param.qtpl:38
+		qw422016.N().S(`"parameters":[`)
+//line in_param.qtpl:39
+		q.streamswaggerParams(qw422016, params)
+//line in_param.qtpl:39
+		qw422016.N().S(`]
+`)
+//line in_param.qtpl:40
+	} else {
+//line in_param.qtpl:40
+		qw422016.N().S(`"requestBody": {
+  "content": {
+`)
+//line in_param.qtpl:43
+		if q.dto != nil {
+//line in_param.qtpl:43
+			qw422016.N().S(`    "application/json": {
+      "schema": `)
+//line in_param.qtpl:45
+			json.StreamWrap(qw422016, q.dto)
+//line in_param.qtpl:45
+			qw422016.N().S(`
+    },
+`)
+//line in_param.qtpl:47
+		}
+//line in_param.qtpl:47
+		qw422016.N().S(`    "multipart/form-data": {
+      "schema": {
+        "type": "object",
+        "properties": {`)
+//line in_param.qtpl:51
+		q.streamswaggerParams(qw422016, params)
+//line in_param.qtpl:51
+		qw422016.N().S(`}
+      }
+    }
+ }
+}
+`)
+//line in_param.qtpl:56
+	}
+//line in_param.qtpl:57
+}
+
+//line in_param.qtpl:57
+func (q *qInParam) WriteSwaggerParams(qq422016 qtio422016.Writer, params []any) {
+//line in_param.qtpl:57
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line in_param.qtpl:57
+	q.StreamSwaggerParams(qw422016, params)
+//line in_param.qtpl:57
+	qt422016.ReleaseWriter(qw422016)
+//line in_param.qtpl:57
+}
+
+//line in_param.qtpl:57
+func (q *qInParam) SwaggerParams(params []any) string {
+//line in_param.qtpl:57
+	qb422016 := qt422016.AcquireByteBuffer()
+//line in_param.qtpl:57
+	q.WriteSwaggerParams(qb422016, params)
+//line in_param.qtpl:57
+	qs422016 := string(qb422016.B)
+//line in_param.qtpl:57
+	qt422016.ReleaseByteBuffer(qb422016)
+//line in_param.qtpl:57
+	return qs422016
+//line in_param.qtpl:57
+}
+
+//line in_param.qtpl:59
+func (q *qInParam) streamswaggerParams(qw422016 *qt422016.Writer, params []any) {
+//line in_param.qtpl:60
+	for i, p := range params {
+//line in_param.qtpl:61
+		if i > 0 {
+//line in_param.qtpl:61
+			qw422016.N().S(`, `)
+//line in_param.qtpl:61
+		}
+//line in_param.qtpl:61
+		qw422016.N().S(`
+
+`)
+//line in_param.qtpl:63
+		if param, ok := p.(InParam); ok {
+//line in_param.qtpl:64
 			if t, ok := param.Type.(jsoniter.ValEncoder); ok {
-//line in_param.qtpl:32
+//line in_param.qtpl:66
 				s, err := jsoniter.MarshalToString(t)
 				if err != nil {
 					logs.ErrorLog(err)
 				}
 
-//line in_param.qtpl:36
+//line in_param.qtpl:70
 				qw422016.N().S(`    	`)
-//line in_param.qtpl:37
+//line in_param.qtpl:71
 				qw422016.E().S(s)
-//line in_param.qtpl:37
+//line in_param.qtpl:71
 				qw422016.N().S(`
 `)
-//line in_param.qtpl:38
+//line in_param.qtpl:72
 			} else {
-//line in_param.qtpl:38
-				qw422016.N().S(`		"name": "`)
-//line in_param.qtpl:39
-				qw422016.E().S(param.Name)
-//line in_param.qtpl:39
-				qw422016.N().S(`",
-		"description": "`)
-//line in_param.qtpl:40
+//line in_param.qtpl:73
+				if !q.multiPart {
+//line in_param.qtpl:73
+					qw422016.N().S(`{"name":"`)
+//line in_param.qtpl:73
+					qw422016.E().S(param.Name)
+//line in_param.qtpl:73
+					qw422016.N().S(`",
+`)
+//line in_param.qtpl:74
+				} else {
+//line in_param.qtpl:74
+					qw422016.N().S(`"`)
+//line in_param.qtpl:74
+					qw422016.E().S(param.Name)
+//line in_param.qtpl:74
+					qw422016.N().S(`":{
+`)
+//line in_param.qtpl:75
+				}
+//line in_param.qtpl:75
+				qw422016.N().S(`		"description": "`)
+//line in_param.qtpl:76
 				qw422016.E().S(param.Desc)
-//line in_param.qtpl:40
+//line in_param.qtpl:76
 				qw422016.N().S(`",
-		"in": "`)
-//line in_param.qtpl:41
-				qw422016.E().S(q.in)
-//line in_param.qtpl:41
-				qw422016.N().S(`",
-		"schema": {
-		`)
-//line in_param.qtpl:43
+`)
+//line in_param.qtpl:77
+				if !q.multiPart {
+//line in_param.qtpl:77
+					qw422016.N().S(`
+			"in": "`)
+//line in_param.qtpl:78
+					qw422016.E().S(q.in)
+//line in_param.qtpl:78
+					qw422016.N().S(`",
+			"schema": {
+`)
+//line in_param.qtpl:80
+				}
+//line in_param.qtpl:80
+				qw422016.N().S(`			`)
+//line in_param.qtpl:81
 				StreamSchema(qw422016, param)
-//line in_param.qtpl:43
+//line in_param.qtpl:81
 				qw422016.N().S(`
-		}
 `)
-//line in_param.qtpl:45
+//line in_param.qtpl:82
+				if !q.multiPart {
+//line in_param.qtpl:82
+					qw422016.N().S(`}`)
+//line in_param.qtpl:82
+				}
+//line in_param.qtpl:82
+				qw422016.N().S(`		}
+`)
+//line in_param.qtpl:84
 			}
-//line in_param.qtpl:46
+//line in_param.qtpl:85
 		} else {
-//line in_param.qtpl:46
-			qw422016.N().S(`        `)
-//line in_param.qtpl:47
+//line in_param.qtpl:85
+			qw422016.N().S(`        { `)
+//line in_param.qtpl:86
 			json.StreamWrap(qw422016, p)
-//line in_param.qtpl:47
-			qw422016.N().S(`
+//line in_param.qtpl:86
+			qw422016.N().S(` }
 `)
-//line in_param.qtpl:48
+//line in_param.qtpl:87
 		}
-//line in_param.qtpl:48
-		qw422016.N().S(`    }
-`)
-//line in_param.qtpl:50
+//line in_param.qtpl:88
 	}
-//line in_param.qtpl:50
-	qw422016.N().S(`]
-`)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
 }
 
-//line in_param.qtpl:52
-func (q *qInParam) WriteSwaggerParams(qq422016 qtio422016.Writer, params []any) {
-//line in_param.qtpl:52
+//line in_param.qtpl:89
+func (q *qInParam) writeswaggerParams(qq422016 qtio422016.Writer, params []any) {
+//line in_param.qtpl:89
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line in_param.qtpl:52
-	q.StreamSwaggerParams(qw422016, params)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
+	q.streamswaggerParams(qw422016, params)
+//line in_param.qtpl:89
 	qt422016.ReleaseWriter(qw422016)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
 }
 
-//line in_param.qtpl:52
-func (q *qInParam) SwaggerParams(params []any) string {
-//line in_param.qtpl:52
+//line in_param.qtpl:89
+func (q *qInParam) swaggerParams(params []any) string {
+//line in_param.qtpl:89
 	qb422016 := qt422016.AcquireByteBuffer()
-//line in_param.qtpl:52
-	q.WriteSwaggerParams(qb422016, params)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
+	q.writeswaggerParams(qb422016, params)
+//line in_param.qtpl:89
 	qs422016 := string(qb422016.B)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
 	qt422016.ReleaseByteBuffer(qb422016)
-//line in_param.qtpl:52
+//line in_param.qtpl:89
 	return qs422016
-//line in_param.qtpl:52
+//line in_param.qtpl:89
 }
 
-//line in_param.qtpl:54
+//line in_param.qtpl:91
 func (q *qInParam) StreamSwaggerProperties(qw422016 *qt422016.Writer, params []InParam) {
-//line in_param.qtpl:54
+//line in_param.qtpl:91
 	qw422016.N().S(`"properties": {
 `)
-//line in_param.qtpl:56
+//line in_param.qtpl:93
 	for i, param := range params {
-//line in_param.qtpl:57
+//line in_param.qtpl:94
 		if i > 0 {
-//line in_param.qtpl:57
-			qw422016.N().S(`, `)
-//line in_param.qtpl:57
+//line in_param.qtpl:94
+			qw422016.N().S(`,`)
+//line in_param.qtpl:94
 		}
-//line in_param.qtpl:57
-		qw422016.N().S(`
-	"`)
-//line in_param.qtpl:58
+//line in_param.qtpl:94
+		qw422016.N().S(`	"`)
+//line in_param.qtpl:95
 		qw422016.E().S(param.Name)
-//line in_param.qtpl:58
+//line in_param.qtpl:95
 		qw422016.N().S(`": {
 		"description": "`)
-//line in_param.qtpl:59
+//line in_param.qtpl:96
 		qw422016.E().S(param.Desc)
-//line in_param.qtpl:59
+//line in_param.qtpl:96
 		qw422016.N().S(`",
 		`)
-//line in_param.qtpl:60
+//line in_param.qtpl:97
 		StreamSchema(qw422016, param)
-//line in_param.qtpl:60
+//line in_param.qtpl:97
 		qw422016.N().S(`
 	}
 `)
-//line in_param.qtpl:62
+//line in_param.qtpl:99
 	}
-//line in_param.qtpl:62
+//line in_param.qtpl:99
 	qw422016.N().S(`}
 `)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 }
 
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 func (q *qInParam) WriteSwaggerProperties(qq422016 qtio422016.Writer, params []InParam) {
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	q.StreamSwaggerProperties(qw422016, params)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	qt422016.ReleaseWriter(qw422016)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 }
 
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 func (q *qInParam) SwaggerProperties(params []InParam) string {
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	qb422016 := qt422016.AcquireByteBuffer()
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	q.WriteSwaggerProperties(qb422016, params)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	qs422016 := string(qb422016.B)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	qt422016.ReleaseByteBuffer(qb422016)
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 	return qs422016
-//line in_param.qtpl:64
+//line in_param.qtpl:101
 }
 
-//line in_param.qtpl:65
+//line in_param.qtpl:102
 func StreamBearer(qw422016 *qt422016.Writer, name, desc string) {
-//line in_param.qtpl:65
+//line in_param.qtpl:102
 	qw422016.N().S(`"components": {
   "securitySchemes": {
 	"`)
-//line in_param.qtpl:68
+//line in_param.qtpl:105
 	qw422016.E().S(name)
-//line in_param.qtpl:68
+//line in_param.qtpl:105
 	qw422016.N().S(`":{
 	  "description": "`)
-//line in_param.qtpl:69
+//line in_param.qtpl:106
 	qw422016.E().J(desc)
-//line in_param.qtpl:69
+//line in_param.qtpl:106
 	qw422016.N().S(`",
 	  "type": "http",
 	  "scheme": "bearer",
@@ -244,208 +365,222 @@ func StreamBearer(qw422016 *qt422016.Writer, name, desc string) {
   }
 }
 `)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 }
 
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 func WriteBearer(qq422016 qtio422016.Writer, name, desc string) {
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	StreamBearer(qw422016, name, desc)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	qt422016.ReleaseWriter(qw422016)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 }
 
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 func Bearer(name, desc string) string {
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	qb422016 := qt422016.AcquireByteBuffer()
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	WriteBearer(qb422016, name, desc)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	qs422016 := string(qb422016.B)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	qt422016.ReleaseByteBuffer(qb422016)
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 	return qs422016
-//line in_param.qtpl:76
+//line in_param.qtpl:113
 }
 
-//line in_param.qtpl:77
+//line in_param.qtpl:114
 func StreamSchema(qw422016 *qt422016.Writer, param InParam) {
-//line in_param.qtpl:77
-	qw422016.N().S(`		"type":`)
-//line in_param.qtpl:78
-	switch t, ok := (param.Type).(TypeInParam); {
-	// {
+//line in_param.qtpl:116
+	t, ok := (param.Type).(TypeInParam)
 
-//line in_param.qtpl:79
+//line in_param.qtpl:118
+	if param.Req {
+//line in_param.qtpl:118
+		qw422016.N().S(`		"required": true,
+		"allowEmptyValue": false,
+`)
+//line in_param.qtpl:121
+	}
+//line in_param.qtpl:121
+	qw422016.N().S(`		"type":`)
+//line in_param.qtpl:122
+	switch {
+//line in_param.qtpl:123
 	case ok && t.BasicKind == types.Bool:
-//line in_param.qtpl:79
+//line in_param.qtpl:123
 		qw422016.N().S(`					"boolean"
 `)
-//line in_param.qtpl:81
+//line in_param.qtpl:125
 	case ok && t.BasicKind > types.Bool && t.BasicKind < types.Float32:
-//line in_param.qtpl:81
+//line in_param.qtpl:125
 		qw422016.N().S(`					"integer",
 		"format": 	"`)
-//line in_param.qtpl:83
+//line in_param.qtpl:127
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:83
+//line in_param.qtpl:127
 		qw422016.N().S(`"
 `)
-//line in_param.qtpl:84
+//line in_param.qtpl:128
 	case ok && (t.BasicKind == types.Float32 || t.BasicKind == types.Float64):
-//line in_param.qtpl:84
+//line in_param.qtpl:128
 		qw422016.N().S(`					"number",
 		"format": 	"`)
-//line in_param.qtpl:86
+//line in_param.qtpl:130
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:86
+//line in_param.qtpl:130
 		qw422016.N().S(`"
 `)
-//line in_param.qtpl:87
+//line in_param.qtpl:131
 	case ok && t.BasicKind == types.String:
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 		if t.IsSlice() {
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 			qw422016.N().S(`"array", "items": {"type": "string"}`)
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 		} else {
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 			qw422016.N().S(`"string" `)
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 		}
-//line in_param.qtpl:88
+//line in_param.qtpl:132
 		qw422016.N().S(`,
 		"format": 	"string"
 `)
-//line in_param.qtpl:90
+//line in_param.qtpl:134
+	case ok && t.BasicKind == types.UnsafePointer:
+//line in_param.qtpl:134
+		qw422016.N().S(`					"file"
+`)
+//line in_param.qtpl:136
 	case ok && t.BasicKind > types.UnsafePointer:
-//line in_param.qtpl:90
+//line in_param.qtpl:136
 		qw422016.N().S(`					"untyped",
 		"format": 	"`)
-//line in_param.qtpl:92
+//line in_param.qtpl:138
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:92
+//line in_param.qtpl:138
 		qw422016.N().S(`"
 `)
-//line in_param.qtpl:93
+//line in_param.qtpl:139
 	case ok && t.BasicKind == typesExt.TStruct:
-//line in_param.qtpl:93
+//line in_param.qtpl:139
 		qw422016.N().S(`					"`)
-//line in_param.qtpl:94
+//line in_param.qtpl:140
 		t.StreamRequestType(qw422016)
-//line in_param.qtpl:94
+//line in_param.qtpl:140
 		qw422016.N().S(`",
 		"format":   "`)
-//line in_param.qtpl:95
+//line in_param.qtpl:141
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:95
+//line in_param.qtpl:141
 		qw422016.N().S(`"
 `)
-//line in_param.qtpl:96
+//line in_param.qtpl:142
 	case ok:
-//line in_param.qtpl:96
+//line in_param.qtpl:142
 		qw422016.N().S(`					"`)
-//line in_param.qtpl:97
+//line in_param.qtpl:143
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:97
+//line in_param.qtpl:143
 		qw422016.N().S(`",
 		"format": 	"`)
-//line in_param.qtpl:98
+//line in_param.qtpl:144
 		t.StreamFormat(qw422016)
-//line in_param.qtpl:98
+//line in_param.qtpl:144
 		qw422016.N().S(`"
 				`)
-//line in_param.qtpl:99
+//line in_param.qtpl:145
 	case param.Type == nil:
-//line in_param.qtpl:99
+//line in_param.qtpl:145
 		qw422016.N().S(`
 				nil
 `)
-//line in_param.qtpl:101
+//line in_param.qtpl:147
 	default:
-//line in_param.qtpl:101
+//line in_param.qtpl:147
 		qw422016.N().S(`					"`)
-//line in_param.qtpl:102
+//line in_param.qtpl:148
 		qw422016.E().V(param.Type)
-//line in_param.qtpl:102
+//line in_param.qtpl:148
 		qw422016.N().S(`",
 		"format": 	"`)
-//line in_param.qtpl:103
+//line in_param.qtpl:149
 		qw422016.E().V(param.Type)
-//line in_param.qtpl:103
+//line in_param.qtpl:149
 		qw422016.N().S(`"
 `)
-//line in_param.qtpl:104
+//line in_param.qtpl:150
 	}
-//line in_param.qtpl:104
+//line in_param.qtpl:150
 	qw422016.N().S(`,
 `)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 }
 
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 func WriteSchema(qq422016 qtio422016.Writer, param InParam) {
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	StreamSchema(qw422016, param)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	qt422016.ReleaseWriter(qw422016)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 }
 
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 func Schema(param InParam) string {
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	qb422016 := qt422016.AcquireByteBuffer()
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	WriteSchema(qb422016, param)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	qs422016 := string(qb422016.B)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	qt422016.ReleaseByteBuffer(qb422016)
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 	return qs422016
-//line in_param.qtpl:105
+//line in_param.qtpl:151
 }
 
-//line in_param.qtpl:106
+//line in_param.qtpl:152
 func StreamSecurity(qw422016 *qt422016.Writer, desc string) {
-//line in_param.qtpl:106
+//line in_param.qtpl:152
 	qw422016.N().S(`"security": [
   "auth":  "JWT"
 ]
 `)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 }
 
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 func WriteSecurity(qq422016 qtio422016.Writer, desc string) {
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	StreamSecurity(qw422016, desc)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	qt422016.ReleaseWriter(qw422016)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 }
 
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 func Security(desc string) string {
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	qb422016 := qt422016.AcquireByteBuffer()
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	WriteSecurity(qb422016, desc)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	qs422016 := string(qb422016.B)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	qt422016.ReleaseByteBuffer(qb422016)
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 	return qs422016
-//line in_param.qtpl:110
+//line in_param.qtpl:156
 }

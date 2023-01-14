@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"go/types"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"unsafe"
@@ -88,7 +87,7 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 }
 
 // apiRoutesToJSON produces a human-friendly description of Apis.
-//Based on real data of the executable application, does not require additional documentation.
+// Based on real data of the executable application, does not require additional documentation.
 func apiRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	routes := *(*ApiRoutes)(ptr)
 
@@ -113,7 +112,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	route := (*ApiRoute)(ptr)
 	in := "query"
 	if route.Multipart {
-		in = "header"
+		in = "body"
 	}
 
 	stream.WriteObjectStart()
@@ -162,58 +161,33 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		}
 	}
 
-	replacer := strings.NewReplacer("*", "", "#", "")
-	if len(route.Desc) < 255 {
-		summary += replacer.Replace(route.Desc)
-	} else {
-		summary += replacer.Replace(strings.TrimRightFunc(route.Desc, func(r rune) bool {
-			return r == ',' || r == '.' || r == ';' || r == ':' || r == '\n'
-		}))
-	}
-	if route.DTO != nil {
-		value := route.DTO.NewValue()
+	var valueDTO any
+	if dto := route.DTO; dto != nil {
+		value := dto.NewValue()
 		v := reflect.ValueOf(value)
 		if !v.IsZero() {
-			writeRequestBody(stream, v)
+			valueDTO = writeRequestBody(stream, v)
 		}
 		resp := getRespError(ctx, value)
 		if resp != nil {
-			isDublicate := false
+			isDuplicate := false
 			for _, r := range respErrors {
 				if r.Name == resp.Name {
-					isDublicate = true
+					isDuplicate = true
 					break
 				}
 			}
-			if !isDublicate {
+			if !isDuplicate {
 				respErrors = append(respErrors, *resp)
 			}
 		}
 	}
 
-	if route.WithCors {
-		summary += ", CORS"
-	}
-	if route.Multipart {
-		summary += ", multipart"
-	}
-	if route.NeedAuth {
-		a := "user"
-		if route.OnlyAdmin {
-			summary += ", only admin access"
-			a = "admin"
-		}
-		AddObjectToJSON(stream, "security", []map[string][]string{{AuthManager: []string{a}}})
-	}
-	if route.OnlyLocal {
-		summary += ", only local request"
-	}
+	writeSummary(stream, route, summary)
 
-	AddFieldToJSON(stream, "summary", summary)
-
-	if len(params) > 0 {
+	if len(params) > 0 || valueDTO != nil {
 		stream.WriteMore()
-		jParam := NewqInParam(in)
+		jParam := NewqInParam(in, valueDTO)
 		jParam.WriteSwaggerParams(stream, params)
 	}
 
@@ -245,29 +219,54 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectEnd()
 }
 
-var regTitle = regexp.MustCompile(`(?m)^#\s+([^\n]+)$`)
-var regTags = regexp.MustCompile(`\*([^*]+)\**`)
+func writeSummary(stream *jsoniter.Stream, route *ApiRoute, summary string) {
+	desc := regAbbr.ReplaceAllString(route.Desc, "$1")
+	replacer := strings.NewReplacer("\n", " ", "*", "", "#", "", "[", " ", "]", " ")
+	if len(route.Desc) < 255 {
+		summary += replacer.Replace(desc)
+	} else {
+		summary += replacer.Replace(strings.TrimRightFunc(desc, func(r rune) bool {
+			return r == ',' || r == '.' || r == ';' || r == ':' || r == '\n'
+		}))
+	}
+	if route.Multipart {
+		summary += ", multipart"
+	}
+	if route.NeedAuth {
+		a := "user"
+		if route.OnlyAdmin {
+			summary += ", only admin access"
+			a = "admin"
+		}
+		AddObjectToJSON(stream, "security", []map[string][]string{{AuthManager: []string{a}}})
+	}
+	if route.OnlyLocal {
+		summary += ", only local request"
+	}
+
+	AddFieldToJSON(stream, "summary", summary)
+}
 
 func writeRequestBody(stream *jsoniter.Stream, v reflect.Value) any {
-	stream.WriteMore()
-	stream.WriteObjectField("requestBody")
-	stream.WriteObjectStart()
-	defer stream.WriteObjectEnd()
-
-	stream.WriteObjectField("content")
-	stream.WriteObjectStart()
-	defer stream.WriteObjectEnd()
-
-	stream.WriteObjectField("application/json")
-	stream.WriteObjectStart()
-	defer stream.WriteObjectEnd()
+	//stream.WriteMore()
+	//stream.WriteObjectField("requestBody")
+	//stream.WriteObjectStart()
+	//defer stream.WriteObjectEnd()
+	//
+	//stream.WriteObjectField("content")
+	//stream.WriteObjectStart()
+	//defer stream.WriteObjectEnd()
+	//
+	//stream.WriteObjectField("application/json")
+	//stream.WriteObjectStart()
+	//defer stream.WriteObjectEnd()
 
 	p := writeReflect("properties", v, stream)
 
 	//jParam := NewqInParam("body")
 	//jParam.WriteSwaggerProperties(stream, p)
 
-	FirstObjectToJSON(stream, "schema", p)
+	//FirstObjectToJSON(stream, "schema", p)
 	return p
 }
 

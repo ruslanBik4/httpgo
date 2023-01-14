@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
 
 package apis
+
+import "regexp"
 
 // content types
 const (
@@ -19,7 +21,7 @@ func (t tMethod) String() string {
 	return methodNames[t]
 }
 
-//  const of tMethod type values
+// const of tMethod type values
 const (
 	GET tMethod = iota
 	POST
@@ -71,7 +73,7 @@ func methodFromName(nameMethod string) tMethod {
 	}
 }
 
-//  const of values ctx parameters names
+// const of values ctx parameters names
 const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
@@ -85,3 +87,10 @@ const (
 
 const testRouteSuffix = "_test"
 const PARAM_REQUIRED = "is required parameter"
+
+// vars fr regexp replacer for Docs
+var (
+	regAbbr  = regexp.MustCompile(`<abbr[^<]*>([^<]+)</abbr>`)
+	regTitle = regexp.MustCompile(`(?m)^#\s+([^\n]+)$`)
+	regTags  = regexp.MustCompile(`\*([^*]+)\**`)
+)

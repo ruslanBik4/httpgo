@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
@@ -53,6 +54,93 @@ type ColumnDecor struct {
 	Value             any
 	Suggestions       string
 	SuggestionsParams map[string]any
+}
+
+func (col *ColumnDecor) Each(key []byte, val *fastjson.Value) {
+	switch gotools.BytesToString(key) {
+	case "name":
+		//b., err = v.Int()
+	case "required":
+		col.Required()
+	case "pattern":
+		col.pattern = gotools.BytesToString(val.GetStringBytes())
+	case "type":
+		col.InputType = gotools.BytesToString(val.GetStringBytes())
+	}
+
+}
+
+func NewColumnDecorFromJSON(val *fastjson.Value) *ColumnDecor {
+	col := ColumnDecor{}
+
+	obj, err := val.Object()
+	if err != nil {
+		logs.ErrorLog(err)
+		return nil
+	}
+
+	name, comment := "", ""
+	isRequired := false
+	obj.Visit(func(key []byte, val *fastjson.Value) {
+		switch gotools.BytesToString(key) {
+		case "name":
+			name = gotools.BytesToString(val.GetStringBytes())
+		case "title":
+			comment = gotools.BytesToString(val.GetStringBytes())
+			col.Label = comment
+		case "required":
+			isRequired = true
+		case "readOnly":
+			col.IsReadOnly = true
+		case "suggestions":
+			col.Suggestions = gotools.BytesToString(val.GetStringBytes())
+		case "data":
+			col.parseSelect(val)
+		case "hidden":
+			col.IsHidden = true
+			col.InputType = "hidden"
+		case "multiple":
+			col.multiple = true
+		case "pattern":
+			col.pattern = gotools.BytesToString(val.GetStringBytes())
+		case "type":
+			col.InputType = gotools.BytesToString(val.GetStringBytes())
+		case "defaultInputValue":
+			col.DefaultInputValue = gotools.BytesToString(val.GetStringBytes())
+		case "value":
+			col.Value = gotools.BytesToString(val.GetStringBytes())
+		}
+
+	})
+
+	col.Column = dbEngine.NewStringColumn(name, comment, isRequired)
+
+	return &col
+}
+
+func (col *ColumnDecor) Result() (any, error) {
+	return col, nil
+}
+
+func (col *ColumnDecor) parseSelect(val *fastjson.Value) error {
+	blocks, err := val.Array()
+	if err != nil {
+		return err
+	}
+
+	col.SelectOptions = make(map[string]string, len(blocks))
+
+	for _, val := range blocks {
+		name := val.GetStringBytes("label")
+		value := val.GetStringBytes("value")
+		if len(name) == 0 || len(value) == 0 {
+			return errors.New("name or value empty")
+		}
+
+		col.SelectOptions[gotools.BytesToString(name)] = gotools.BytesToString(value)
+	}
+
+	return nil
 }
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
@@ -327,19 +415,4 @@ func (col *ColumnDecor) inputType() string {
 
 		return "text"
 	}
-}
-
-type Button struct {
-	Title      string
-	Position   bool
-	ButtonType string
-	OnClick    string
-}
-
-type BlockColumns struct {
-	Buttons            []Button
-	Columns            []*ColumnDecor
-	Id                 int
-	Multiple           bool
-	Title, Description string
 }

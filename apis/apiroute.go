@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -621,7 +621,7 @@ func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
 		FirstObjectToJSON(stream, "type", "object")
 
 		stream.WriteMore()
-		jParam := NewqInParam("body")
+		jParam := NewqInParam("body", nil)
 		jParam.WriteSwaggerProperties(stream, params)
 		stream.WriteObjectEnd()
 		stream.WriteObjectEnd()
