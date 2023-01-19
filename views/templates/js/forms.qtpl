@@ -140,6 +140,33 @@ function validateReguiredFields(thisForm) {
 
     return result;
 }
+function validatePattern(thisElem) {
+    var re = thisElem.pattern,
+        result = true;
+
+    if (re == "") {
+        return true;
+    }
+
+    try {
+
+        re = new RegExp(re);
+        result = re.test(thisElem.value);
+        if(result){
+            thisElem.style.borderColor = 'green';
+            thisElem.nextElementSibling.style.display = 'none';
+        } else {
+            thisElem.style.borderColor = 'red';
+            thisElem.nextElementSibling.style.display = 'block';
+       }
+
+    } catch (e) {
+        console.log(e)
+    }
+
+    return result;
+}
+
 // проверка полей с выставленными патеррнами
 function validatePatternsField(thisForm) {
     var result = true;

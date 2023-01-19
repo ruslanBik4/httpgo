@@ -1,11 +1,15 @@
-// Copyright 2018 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package services
 
 import (
 	"bytes"
+	"crypto/tls"
 	"io"
 	"mime/multipart"
 	"strings"
@@ -93,6 +97,8 @@ func DoGetRequest(url string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response,
 	req.SetRequestURI(url)
 
 	c := fasthttp.Client{}
+	//avoid error when server has not trust certificate
+	c.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	for {
 
 		resp := &fasthttp.Response{}

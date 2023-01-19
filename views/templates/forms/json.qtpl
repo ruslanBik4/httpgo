@@ -131,85 +131,46 @@ ul.form-field{
          onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
       onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="{%s f.Title %}" >
 
-         <figcaption>{%s= f.Description %}</figcaption>
-        {% for _, block := range f.Blocks %}
-           {% code
-                isHide := (len(defBlocks) > 0)
-                for _, id := range defBlocks {
-                      if id == strconv.Itoa(block.Id) {
-                         isHide = false
-                         break
-                      }
-                }
-           %}
-            <figure id = "block{%d block.Id %}" {% if isHide %} style="display:none"{% endif %} >
-            {% if block.Title > "" %} <figcaption>{%s block.Title %}</figcaption>{% endif %}
-            {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
-                {% for i, col := range block.Columns %}
-                  <div id="divField{%d i %}" class="input-wrap"
-                  {% if col.IsHidden %} style="display:none" {% endif %} >
-                    <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}
-                    {%= col.RenderInputs(data) %}
-                    <h6 class="errorLabel">{%s= col.patternDesc %}</h6>
-                    </label>
-                  </div>
-                {% endfor %}
-        </figure>
+     <figcaption>{%s= f.Description %}</figcaption>
+     {% for _, block := range f.Blocks %}
+       {% code
+            isHide := (len(defBlocks) > 0)
+            for _, id := range defBlocks {
+                  if id == strconv.Itoa(block.Id) {
+                     isHide = false
+                     break
+                  }
+            }
+       %}
+        <figure id = "block{%d block.Id %}" {% if isHide %} style="display:none"{% endif %} >
+        {% if block.Title > "" %} <figcaption>{%s block.Title %}</figcaption>{% endif %}
+        {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
+            {% for i, col := range block.Columns %}
+              <div id="divField{%d i %}" class="input-wrap" {% if col.IsHidden %} style="display:none" {% endif %} >
+                <label class="input-label" for="{%s col.Name() %}">{%s col.Label %}
+                {%= col.RenderInputs(data) %}
+                <h6 class="errorLabel">{%s= col.patternDesc %}</h6>
+                </label>
+              </div>
+            {% endfor %}
   {%- if block.Multiple -%}
          <button class="main-btn" type="button"
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
   {%- endif -%}
-    <div class="form-actions">
+  {%- if len(block.Buttons) > 0 -%}  <div class="form-actions">
       {%- for _, btn := range block.Buttons -%}
         <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.Type %}"
-        {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick%}"{%- endif -%}>
+        {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick %}"{%- endif -%}>
         {%s btn.Title %}
         </button>
       {%- endfor -%}
     </div>
+  {%- endif -%}
+    </figure>
   {% endfor %}
   <output></output>
   <progress value='0' max='100' hidden > </progress>
 </form>
-<script>
-$(function()   {
-	textInputs = $('textarea');
-	if (textInputs.length > 0) {
-		if (tinymce === undefined) {
-			LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
-		}
-
-		textInputs.focus(
-			function (event) {
-				let name = event.target.name;
-			    tinymce.init({
-                  target: event.target,
-                  menubar: false,
-                  plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker ',
-                  toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                  mergetags_list: [
-                    { value: "name", title: name },
-                    { value: 'placeholder', title: name },
-                  ],
-                  setup: (editor) => {
-                      editor.on('input', (e) => {
-                       console.log(e);
-                       $('#{%s idShake %}_form button.hidden').removeClass('hidden').addClass('main-btn');
-                      });
-
-                      editor.on('focusout', (e) => {
-                      console.log(e);
-                      console.log(editor);
-
-                       console.log( editor.getContent({ format: 'text' }));
-                       $('textarea[name="' + name +'"]').text( editor.getContent({ format: 'text' }) );
-                      });
-                    }
-                });
-        });
-	}
-	});
-</script>
 <style>
 .errorLabel {
     display: none;
@@ -244,46 +205,21 @@ form > span.hiddenInput:hover{
 .suggestions-select-hide {
   opacity: 0;
   height: 0.1px !important;
-  position: absolute;
-  left: -400px;
+//  position: absolute;
+	left: -399.109375px;
 }
 
 .suggestions-select-show {
   opacity: 1;
-  height: 200px !important;
-  position: static;
+  height: 200px;
+  position: relative;
+  left: 1%;
 }
 
 </style>
-<script>
 {% endstripspace %}
 {% endcollapsespace %}
-function validatePattern(thisElem) {
-    var re = thisElem.pattern,
-        result = true;
-
-    if (re == "") {
-        return true;
-    }
-
-    try {
-
-        re = new RegExp(re);
-        result = re.test(thisElem.value);
-        if(result){
-            thisElem.style.borderColor = 'green';
-            thisElem.nextElementSibling.style.display = 'none';
-        } else {
-            thisElem.style.borderColor = 'red';
-            thisElem.nextElementSibling.style.display = 'block';
-       }
-
-    } catch (e) {
-        console.log(e)
-    }
-
-    return result;
-}
+<script>
 function inputSearchKeyUp(thisElem, event){
 
         var x = event.which || event.keyCode;
@@ -291,63 +227,63 @@ function inputSearchKeyUp(thisElem, event){
         var thisClass = 'select.suggestions-select-show.'+thisElem.attributes.data.value
         var thisClassH = 'select.suggestions-select-hide.'+thisElem.attributes.data.value
 
-            if (x == 40) {
-                elem.unbind("blur");
-                $(thisClass).focus();
-                $(thisClass + ' option:first').selected();
+        if (x == 40) {
+            elem.unbind("blur");
+            $(thisClass).focus();
+            $(thisClass + ' option:first').selected();
 
-               return;
-            }
+           return;
+        }
 
-             elem.on("blur", function(){
+         elem.on("blur", function(){
 
-                   if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
-                             return;
-                   }
-
-                     console.log(event);
-                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-                 })
-
-             if (elem.val().length < 2) {
-                return true;
-             }
-
-             $.ajax({
-                 url: thisElem.src,
-                 data: {
-                         "lang": lang,
-                         "value": thisElem.value,
-                         "count": 10,
-                         "html": true
-                 },
-               beforeSend: function (xhr) {
-                   xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-               },
-               success: function (data, status) {
-                 $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
-                 .on('keyup', function(event) {
-                             var x = event.which || event.keyCode;
-                             if (x == 32) {
-                                     thisElem.value = $(thisClass + ' option:selected').text();
-                                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                                     return false;
-                              }
-                       });
-                 $(thisClass + ' option').on('mouseup', function(e) {
-                    thisElem.value = $(this).text();
-                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                    return true;
-                 });
-
-               },
-               error: function (xhr, status, error) {
-                   alert( "Code : " + xhr.status + " error :"+ error);
-                   console.log(error);
+               if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
+                         return;
                }
-              });
+
+                 console.log(event);
+                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+             })
+
+         if (elem.val().length < 2) {
+            return true;
+         }
+
+         $.ajax({
+             url: thisElem.src,
+             data: {
+                     "lang": lang,
+                     "value": thisElem.value,
+                     "count": 10,
+                     "html": true
+             },
+           beforeSend: function (xhr) {
+               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+           },
+           success: function (data, status) {
+             $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
+             .on('keyup', function(event) {
+                         var x = event.which || event.keyCode;
+                         if (x == 32) {
+                                 thisElem.value = $(thisClass + ' option:selected').text();
+                                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+
+                                 return false;
+                          }
+                   });
+             $(thisClass + ' option').on('mouseup', function(e) {
+                thisElem.value = $(this).text();
+                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+
+                return true;
+             });
+
+           },
+           error: function (xhr, status, error) {
+               alert( "Code : " + xhr.status + " error :"+ error);
+               console.log(error);
+           }
+          });
 }
 
 function ShowBlocks(thisElem){
@@ -355,5 +291,54 @@ function ShowBlocks(thisElem){
     $(thisElem).parents('form').children('figure').hide();
     d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
 }
+
+function Next(elem, id) {
+	block = $(elem).parents('figure');
+    if (!validateFields(block[0]))
+        return false;
+
+	block.hide();
+	newBlock = $('#block'+id).show()[0];
+	newBlock.scrollIntoView();
+	fields = $('input, select', newBlock)
+	if (fields.length > 0) {
+		fields[0].focus();
+	}
+	return false;
+}
+
+$(function()   {
+	textInputs = $('textarea');
+	if (textInputs.length > 0) {
+		if (tinymce === undefined) {
+			LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
+		}
+
+		textInputs.focus(
+			function (event) {
+				let name = event.target.name;
+			    tinymce.init({
+                  target: event.target,
+                  menubar: false,
+                  plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount    ',
+                  toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
+                  mergetags_list: [
+                    { value: "name", title: name },
+                    { value: 'placeholder', title: name },
+                  ],
+                  setup: (editor) => {
+                      editor.on('input', (e) => {
+                       console.log(e);
+                       $('#{%s idShake %}_form button.hidden').removeClass('hidden').addClass('main-btn');
+                      });
+
+                      editor.on('focusout', (e) => {
+                       $('textarea[name="' + name +'"]').text( editor.getContent({ format: 'text' }) );
+                      });
+                    }
+                });
+        });
+	}
+});
 </script>
 {% endfunc %}

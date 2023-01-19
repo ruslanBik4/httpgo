@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -37,6 +37,54 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
 body {
     color: rgb(10, 28, 59);
 }
+header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 68px;
+    border-bottom: 1px solid #f6f7f8;
+    box-shadow: 0 0 6px -3px #f6f7f8;
+    box-sizing: border-box;
+    z-index: 9;
+    align-items: center;
+}
+header .topline {
+    -webkit-flex-direction: row;
+    -webkit-align-items: center;
+    -webkit-justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+header .topline-btns {
+    display: inline-block;
+    width: auto;
+    right: -12px;
+    padding: 4px 8px;
+    border: 0;
+    position: absolute;
+    min-width: auto;
+    color: white;
+}
+header nav {
+    display: inline-flex;
+    align-items: start;
+    height: 100%;
+}
+.top-mnu-list {
+    margin-top: 5px;
+    height: 38px;
+}
+li.top-mnu-item a {
+    margin: 0 10px;
+    height: 100%;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: color .3s ease-in-out;
+}
 
 #catalog_pane {
     height: 99%;
@@ -64,12 +112,6 @@ body {
 .content-section {
     width: 80%;
     display: table-cell;
-}
-header {
-    position: sticky;
-}
-.top-mnu-list {
-    margin-top: 5px;
 }
 .left-mnu-list {
     margin-left: 5px;
@@ -143,51 +185,42 @@ input[type=text] {
 input[type=file] {
     display: inline;
 }
-label textarea {
+label > textarea {
     width: 90%;
     float: inline-end;
 }
-label input {
+label > input {
     align-content: right;
     text-align: center;
     float: inline-end;
-    width: 40%;
-	min-width: 200px;
-}
-label select {
-    align-content: right;
-    text-align: center;
-    float: inline-end;
-    width: 40%;
-	min-width: 200px;
 }
 </style>
 `)
-//line styles.qtpl:126
+//line styles.qtpl:168
 }
 
-//line styles.qtpl:126
+//line styles.qtpl:168
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line styles.qtpl:126
+//line styles.qtpl:168
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line styles.qtpl:126
+//line styles.qtpl:168
 	StreamPutStyles(qw422016)
-//line styles.qtpl:126
+//line styles.qtpl:168
 	qt422016.ReleaseWriter(qw422016)
-//line styles.qtpl:126
+//line styles.qtpl:168
 }
 
-//line styles.qtpl:126
+//line styles.qtpl:168
 func PutStyles() string {
-//line styles.qtpl:126
+//line styles.qtpl:168
 	qb422016 := qt422016.AcquireByteBuffer()
-//line styles.qtpl:126
+//line styles.qtpl:168
 	WritePutStyles(qb422016)
-//line styles.qtpl:126
+//line styles.qtpl:168
 	qs422016 := string(qb422016.B)
-//line styles.qtpl:126
+//line styles.qtpl:168
 	qt422016.ReleaseByteBuffer(qb422016)
-//line styles.qtpl:126
+//line styles.qtpl:168
 	return qs422016
-//line styles.qtpl:126
+//line styles.qtpl:168
 }

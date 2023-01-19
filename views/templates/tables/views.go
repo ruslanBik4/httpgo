@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package tables
 
@@ -11,9 +14,10 @@ import (
 
 	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views"
@@ -111,7 +115,7 @@ func getForeigthVal(DB *dbEngine.DB, colDec *forms.ColumnDecor, id interface{}) 
 	if strings.HasPrefix(colDec.Name(), "id_") {
 		table, ok := DB.Tables[strings.TrimPrefix(colDec.Name(), "id_")]
 		if ok {
-			colDec.SelectOptions = make(map[string]string)
+			colDec.SelectOptions = make(map[string]forms.SelectOption)
 			// selectParams := []dbEngine.BuildSqlOptions{
 			//
 			// }
@@ -121,7 +125,7 @@ func getForeigthVal(DB *dbEngine.DB, colDec *forms.ColumnDecor, id interface{}) 
 			// }
 			err := table.SelectAndRunEach(context.Background(),
 				func(values []interface{}, columns []dbEngine.Column) error {
-					colDec.SelectOptions[values[1].(string)] = strconv.Itoa(int(values[0].(int32)))
+					colDec.SelectOptions[values[1].(string)] = forms.SelectOption{Value: strconv.Itoa(int(values[0].(int32)))}
 					if id != nil {
 						colDec.Value = id
 					}

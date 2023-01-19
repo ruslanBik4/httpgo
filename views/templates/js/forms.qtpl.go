@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -170,6 +170,33 @@ function validateReguiredFields(thisForm) {
 
     return result;
 }
+function validatePattern(thisElem) {
+    var re = thisElem.pattern,
+        result = true;
+
+    if (re == "") {
+        return true;
+    }
+
+    try {
+
+        re = new RegExp(re);
+        result = re.test(thisElem.value);
+        if(result){
+            thisElem.style.borderColor = 'green';
+            thisElem.nextElementSibling.style.display = 'none';
+        } else {
+            thisElem.style.borderColor = 'red';
+            thisElem.nextElementSibling.style.display = 'block';
+       }
+
+    } catch (e) {
+        console.log(e)
+    }
+
+    return result;
+}
+
 // проверка полей с выставленными патеррнами
 function validatePatternsField(thisForm) {
     var result = true;
@@ -338,31 +365,31 @@ function addNewRowTableID(thisButton) {
 </script>
 
 `)
-//line forms.qtpl:310
+//line forms.qtpl:337
 }
 
-//line forms.qtpl:310
+//line forms.qtpl:337
 func WritePutFormsJS(qq422016 qtio422016.Writer) {
-//line forms.qtpl:310
+//line forms.qtpl:337
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:310
+//line forms.qtpl:337
 	StreamPutFormsJS(qw422016)
-//line forms.qtpl:310
+//line forms.qtpl:337
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:310
+//line forms.qtpl:337
 }
 
-//line forms.qtpl:310
+//line forms.qtpl:337
 func PutFormsJS() string {
-//line forms.qtpl:310
+//line forms.qtpl:337
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:310
+//line forms.qtpl:337
 	WritePutFormsJS(qb422016)
-//line forms.qtpl:310
+//line forms.qtpl:337
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:310
+//line forms.qtpl:337
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:310
+//line forms.qtpl:337
 	return qs422016
-//line forms.qtpl:310
+//line forms.qtpl:337
 }

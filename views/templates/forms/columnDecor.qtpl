@@ -106,7 +106,9 @@
             {
                     "title": "{%s title %}",
                     "label": "{%s title %}",
-                    "value": "{%s col.SelectOptions[title] %}"
+                    "value": "{%s col.SelectOptions[title].Value %}",
+                    {%- if col.SelectOptions[title].Disabled -%} "disabled": true {%- endif -%}
+                    {%- if col.SelectOptions[title].Selected -%} "selected": true {%- endif -%}
             }
         {% endfor %}
          {% if col.SelectWithNew %}
@@ -184,8 +186,9 @@ name="{%s col.InputName(i) %}"
                  sort.Strings(sortList)
              %}
              {% for _, title := range sortList %}
-                <option value="{%s col.SelectOptions[title] %}"
-                {% if fmt.Sprintf("%v", val) == col.SelectOptions[title] %} selected {% endif %}
+                <option value="{%s col.SelectOptions[title].Value %}"
+                {% if fmt.Sprintf("%v", val) == col.SelectOptions[title].Value || col.SelectOptions[title].Selected %} selected {% endif %}
+                {% if col.SelectOptions[title].Disabled %} disabled {% endif %}
                 >{%s title %}</option>
              {% endfor %}
           </select>
@@ -201,8 +204,15 @@ name="{%s col.InputName(i) %}"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
                 {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
                 onkeyup="inputSearchKeyUp(this,event);" />
-        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
-        </select>
+        <div class="suggestions-wrapper" style="width:100%">
+            <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 80%;"></span>
+	        <select size="10" {%= col.RenderAttr(i) %}
+	            class="suggestions-constraints suggestions-select-hide {%s col.InputName(i) %}-sel"
+	            style="width:98%">
+	        </select>
+             <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;">
+             </div>
+         </div>
     {% default %}
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
                 {% if val != nil %} value = '{%= col.RenderValue(val) %}'{% endif %}

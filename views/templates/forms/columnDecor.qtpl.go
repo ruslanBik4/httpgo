@@ -282,500 +282,530 @@ func (col *ColumnDecor) StreamDataForJSON(qw422016 *qt422016.Writer) {
 //line columnDecor.qtpl:108
 			qw422016.N().S(`","value": "`)
 //line columnDecor.qtpl:109
-			qw422016.E().S(col.SelectOptions[title])
+			qw422016.E().S(col.SelectOptions[title].Value)
 //line columnDecor.qtpl:109
-			qw422016.N().S(`"}`)
+			qw422016.N().S(`",`)
+//line columnDecor.qtpl:110
+			if col.SelectOptions[title].Disabled {
+//line columnDecor.qtpl:110
+				qw422016.N().S(`"disabled": true`)
+//line columnDecor.qtpl:110
+			}
 //line columnDecor.qtpl:111
+			if col.SelectOptions[title].Selected {
+//line columnDecor.qtpl:111
+				qw422016.N().S(`"selected": true`)
+//line columnDecor.qtpl:111
+			}
+//line columnDecor.qtpl:111
+			qw422016.N().S(`}`)
+//line columnDecor.qtpl:113
 		}
-//line columnDecor.qtpl:112
+//line columnDecor.qtpl:114
 		if col.SelectWithNew {
-//line columnDecor.qtpl:112
+//line columnDecor.qtpl:114
 			qw422016.N().S(`,{"title": "add new item","label": "add new item","value": "new"}`)
-//line columnDecor.qtpl:119
-		}
-//line columnDecor.qtpl:119
-		qw422016.N().S(`]`)
 //line columnDecor.qtpl:121
+		}
+//line columnDecor.qtpl:121
+		qw422016.N().S(`]`)
+//line columnDecor.qtpl:123
 	}
-//line columnDecor.qtpl:122
-}
-
-//line columnDecor.qtpl:122
-func (col *ColumnDecor) WriteDataForJSON(qq422016 qtio422016.Writer) {
-//line columnDecor.qtpl:122
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:122
-	col.StreamDataForJSON(qw422016)
-//line columnDecor.qtpl:122
-	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:122
-}
-
-//line columnDecor.qtpl:122
-func (col *ColumnDecor) DataForJSON() string {
-//line columnDecor.qtpl:122
-	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:122
-	col.WriteDataForJSON(qb422016)
-//line columnDecor.qtpl:122
-	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:122
-	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:122
-	return qs422016
-//line columnDecor.qtpl:122
+//line columnDecor.qtpl:124
 }
 
 //line columnDecor.qtpl:124
-func (col *ColumnDecor) StreamInputTypeForJSON(qw422016 *qt422016.Writer) {
-//line columnDecor.qtpl:125
-	switch {
-//line columnDecor.qtpl:126
-	case col.InputType == "checkbox":
-//line columnDecor.qtpl:126
-		qw422016.N().S(`switch`)
-//line columnDecor.qtpl:128
-	case col.InputType == "textarea":
-//line columnDecor.qtpl:128
-		qw422016.N().S(`textarea`)
-//line columnDecor.qtpl:130
-	case col.SelectOptions != nil || col.Suggestions > "":
-//line columnDecor.qtpl:130
-		qw422016.N().S(`select`)
-//line columnDecor.qtpl:132
-	default:
-//line columnDecor.qtpl:133
-		qw422016.N().S(col.InputType)
-//line columnDecor.qtpl:134
-	}
-//line columnDecor.qtpl:135
-}
-
-//line columnDecor.qtpl:135
-func (col *ColumnDecor) WriteInputTypeForJSON(qq422016 qtio422016.Writer) {
-//line columnDecor.qtpl:135
+func (col *ColumnDecor) WriteDataForJSON(qq422016 qtio422016.Writer) {
+//line columnDecor.qtpl:124
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:135
-	col.StreamInputTypeForJSON(qw422016)
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
+	col.StreamDataForJSON(qw422016)
+//line columnDecor.qtpl:124
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
 }
 
-//line columnDecor.qtpl:135
-func (col *ColumnDecor) InputTypeForJSON() string {
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
+func (col *ColumnDecor) DataForJSON() string {
+//line columnDecor.qtpl:124
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:135
-	col.WriteInputTypeForJSON(qb422016)
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
+	col.WriteDataForJSON(qb422016)
+//line columnDecor.qtpl:124
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:135
+//line columnDecor.qtpl:124
 	return qs422016
+//line columnDecor.qtpl:124
+}
+
+//line columnDecor.qtpl:126
+func (col *ColumnDecor) StreamInputTypeForJSON(qw422016 *qt422016.Writer) {
+//line columnDecor.qtpl:127
+	switch {
+//line columnDecor.qtpl:128
+	case col.InputType == "checkbox":
+//line columnDecor.qtpl:128
+		qw422016.N().S(`switch`)
+//line columnDecor.qtpl:130
+	case col.InputType == "textarea":
+//line columnDecor.qtpl:130
+		qw422016.N().S(`textarea`)
+//line columnDecor.qtpl:132
+	case col.SelectOptions != nil || col.Suggestions > "":
+//line columnDecor.qtpl:132
+		qw422016.N().S(`select`)
+//line columnDecor.qtpl:134
+	default:
 //line columnDecor.qtpl:135
+		qw422016.N().S(col.InputType)
+//line columnDecor.qtpl:136
+	}
+//line columnDecor.qtpl:137
 }
 
 //line columnDecor.qtpl:137
+func (col *ColumnDecor) WriteInputTypeForJSON(qq422016 qtio422016.Writer) {
+//line columnDecor.qtpl:137
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line columnDecor.qtpl:137
+	col.StreamInputTypeForJSON(qw422016)
+//line columnDecor.qtpl:137
+	qt422016.ReleaseWriter(qw422016)
+//line columnDecor.qtpl:137
+}
+
+//line columnDecor.qtpl:137
+func (col *ColumnDecor) InputTypeForJSON() string {
+//line columnDecor.qtpl:137
+	qb422016 := qt422016.AcquireByteBuffer()
+//line columnDecor.qtpl:137
+	col.WriteInputTypeForJSON(qb422016)
+//line columnDecor.qtpl:137
+	qs422016 := string(qb422016.B)
+//line columnDecor.qtpl:137
+	qt422016.ReleaseByteBuffer(qb422016)
+//line columnDecor.qtpl:137
+	return qs422016
+//line columnDecor.qtpl:137
+}
+
+//line columnDecor.qtpl:139
 func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value any) {
-//line columnDecor.qtpl:138
+//line columnDecor.qtpl:140
 	switch vv := value.(type) {
-//line columnDecor.qtpl:139
+//line columnDecor.qtpl:141
 	case string:
-//line columnDecor.qtpl:139
+//line columnDecor.qtpl:141
 		qw422016.N().S(strings.ReplaceAll(vv, "\r\n", `
       `))
-//line columnDecor.qtpl:141
-	default:
-//line columnDecor.qtpl:142
-		json.StreamElement(qw422016, value)
 //line columnDecor.qtpl:143
+	default:
+//line columnDecor.qtpl:144
+		json.StreamElement(qw422016, value)
+//line columnDecor.qtpl:145
 	}
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 }
 
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 func (col *ColumnDecor) WriteRenderValue(qq422016 qtio422016.Writer, value any) {
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	col.StreamRenderValue(qw422016, value)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 }
 
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 func (col *ColumnDecor) RenderValue(value any) string {
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	col.WriteRenderValue(qb422016, value)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 	return qs422016
-//line columnDecor.qtpl:144
+//line columnDecor.qtpl:146
 }
 
-//line columnDecor.qtpl:148
+//line columnDecor.qtpl:150
 func (col *ColumnDecor) StreamRenderAttr(qw422016 *qt422016.Writer, i int) {
-//line columnDecor.qtpl:148
+//line columnDecor.qtpl:150
 	qw422016.N().S(`
 name="`)
-//line columnDecor.qtpl:149
+//line columnDecor.qtpl:151
 	qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:149
+//line columnDecor.qtpl:151
 	qw422016.N().S(`"
          `)
-//line columnDecor.qtpl:150
+//line columnDecor.qtpl:152
 	if col.Required() {
-//line columnDecor.qtpl:150
+//line columnDecor.qtpl:152
 		qw422016.N().S(` required="true" `)
-//line columnDecor.qtpl:150
+//line columnDecor.qtpl:152
 	}
-//line columnDecor.qtpl:150
+//line columnDecor.qtpl:152
 	qw422016.N().S(`
          `)
-//line columnDecor.qtpl:151
+//line columnDecor.qtpl:153
 	if col.IsReadOnly {
-//line columnDecor.qtpl:151
+//line columnDecor.qtpl:153
 		qw422016.N().S(` readonly disabled `)
-//line columnDecor.qtpl:151
+//line columnDecor.qtpl:153
 	}
-//line columnDecor.qtpl:151
+//line columnDecor.qtpl:153
 	qw422016.N().S(`
          `)
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 	if col.CharacterMaximumLength() > 0 {
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 		qw422016.N().S(`  max = "`)
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 		qw422016.N().D(col.CharacterMaximumLength())
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 		qw422016.N().S(`" `)
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 	}
-//line columnDecor.qtpl:152
+//line columnDecor.qtpl:154
 	qw422016.N().S(`
          `)
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 	if col.Placeholder() > "" {
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 		qw422016.N().S(` placeholder="`)
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 		qw422016.E().S(col.Placeholder())
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 		qw422016.N().S(`" `)
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 	}
-//line columnDecor.qtpl:153
+//line columnDecor.qtpl:155
 	qw422016.N().S(`
          `)
-//line columnDecor.qtpl:154
+//line columnDecor.qtpl:156
 	if p := col.Suggestions; p > "" {
-//line columnDecor.qtpl:154
+//line columnDecor.qtpl:156
 		qw422016.N().S(`
          `)
-//line columnDecor.qtpl:155
+//line columnDecor.qtpl:157
 	} else if col.Pattern() > "" {
-//line columnDecor.qtpl:155
+//line columnDecor.qtpl:157
 		qw422016.N().S(`
                 pattern="`)
-//line columnDecor.qtpl:156
+//line columnDecor.qtpl:158
 		qw422016.N().S(col.Pattern())
-//line columnDecor.qtpl:156
+//line columnDecor.qtpl:158
 		qw422016.N().S(`"  onkeyup="return validatePattern(this);"
          `)
-//line columnDecor.qtpl:157
+//line columnDecor.qtpl:159
 	}
-//line columnDecor.qtpl:157
+//line columnDecor.qtpl:159
 	qw422016.N().S(`
 
 `)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 }
 
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 func (col *ColumnDecor) WriteRenderAttr(qq422016 qtio422016.Writer, i int) {
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 }
 
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 func (col *ColumnDecor) RenderAttr(i int) string {
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	col.WriteRenderAttr(qb422016, i)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 	return qs422016
-//line columnDecor.qtpl:159
+//line columnDecor.qtpl:161
 }
 
-//line columnDecor.qtpl:161
+//line columnDecor.qtpl:163
 func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[string]any) {
-//line columnDecor.qtpl:161
+//line columnDecor.qtpl:163
 	qw422016.N().S(`
  `)
-//line columnDecor.qtpl:162
+//line columnDecor.qtpl:164
 	if col.IsSlice {
-//line columnDecor.qtpl:162
+//line columnDecor.qtpl:164
 		qw422016.N().S(`
     <ul class="form-field">
  `)
-//line columnDecor.qtpl:164
+//line columnDecor.qtpl:166
 	}
-//line columnDecor.qtpl:164
+//line columnDecor.qtpl:166
 	qw422016.N().S(`
 
  `)
-//line columnDecor.qtpl:166
+//line columnDecor.qtpl:168
 	for i, val := range col.GetValues() {
-//line columnDecor.qtpl:166
+//line columnDecor.qtpl:168
 		qw422016.N().S(`
   `)
-//line columnDecor.qtpl:167
+//line columnDecor.qtpl:169
 		if col.IsSlice {
-//line columnDecor.qtpl:167
+//line columnDecor.qtpl:169
 			qw422016.N().S(`
      <li class="form-field">
   `)
-//line columnDecor.qtpl:169
+//line columnDecor.qtpl:171
 		}
-//line columnDecor.qtpl:169
+//line columnDecor.qtpl:171
 		qw422016.N().S(`
 
 	`)
-//line columnDecor.qtpl:171
+//line columnDecor.qtpl:173
 		switch {
-//line columnDecor.qtpl:172
+//line columnDecor.qtpl:174
 		case col.SelectOptions != nil:
-//line columnDecor.qtpl:172
+//line columnDecor.qtpl:174
 			qw422016.N().S(`
             <select `)
-//line columnDecor.qtpl:173
+//line columnDecor.qtpl:175
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:173
+//line columnDecor.qtpl:175
 			qw422016.N().S(`
                     `)
-//line columnDecor.qtpl:174
+//line columnDecor.qtpl:176
 			if d, ok := data[col.InputName(i)].(map[string]any); ok {
-//line columnDecor.qtpl:174
+//line columnDecor.qtpl:176
 				qw422016.N().S(`
                       data-show-blocks='`)
-//line columnDecor.qtpl:175
+//line columnDecor.qtpl:177
 				json.StreamElement(qw422016, d)
-//line columnDecor.qtpl:175
+//line columnDecor.qtpl:177
 				qw422016.N().S(`'
                       onchange="ShowBlocks(this);"
                     `)
-//line columnDecor.qtpl:177
+//line columnDecor.qtpl:179
 			}
-//line columnDecor.qtpl:177
+//line columnDecor.qtpl:179
 			qw422016.N().S(`
              >
              `)
-//line columnDecor.qtpl:180
+//line columnDecor.qtpl:182
 			sortList := make([]string, 0, len(col.SelectOptions))
 			for title := range col.SelectOptions {
 				sortList = append(sortList, title)
 			}
 			sort.Strings(sortList)
 
-//line columnDecor.qtpl:185
+//line columnDecor.qtpl:187
 			qw422016.N().S(`
              `)
-//line columnDecor.qtpl:186
+//line columnDecor.qtpl:188
 			for _, title := range sortList {
-//line columnDecor.qtpl:186
+//line columnDecor.qtpl:188
 				qw422016.N().S(`
                 <option value="`)
-//line columnDecor.qtpl:187
-				qw422016.E().S(col.SelectOptions[title])
-//line columnDecor.qtpl:187
+//line columnDecor.qtpl:189
+				qw422016.E().S(col.SelectOptions[title].Value)
+//line columnDecor.qtpl:189
 				qw422016.N().S(`"
                 `)
-//line columnDecor.qtpl:188
-				if fmt.Sprintf("%v", val) == col.SelectOptions[title] {
-//line columnDecor.qtpl:188
+//line columnDecor.qtpl:190
+				if fmt.Sprintf("%v", val) == col.SelectOptions[title].Value || col.SelectOptions[title].Selected {
+//line columnDecor.qtpl:190
 					qw422016.N().S(` selected `)
-//line columnDecor.qtpl:188
+//line columnDecor.qtpl:190
 				}
-//line columnDecor.qtpl:188
+//line columnDecor.qtpl:190
+				qw422016.N().S(`
+                `)
+//line columnDecor.qtpl:191
+				if col.SelectOptions[title].Disabled {
+//line columnDecor.qtpl:191
+					qw422016.N().S(` disabled `)
+//line columnDecor.qtpl:191
+				}
+//line columnDecor.qtpl:191
 				qw422016.N().S(`
                 >`)
-//line columnDecor.qtpl:189
+//line columnDecor.qtpl:192
 				qw422016.E().S(title)
-//line columnDecor.qtpl:189
+//line columnDecor.qtpl:192
 				qw422016.N().S(`</option>
              `)
-//line columnDecor.qtpl:190
+//line columnDecor.qtpl:193
 			}
-//line columnDecor.qtpl:190
+//line columnDecor.qtpl:193
 			qw422016.N().S(`
           </select>
  	`)
-//line columnDecor.qtpl:192
+//line columnDecor.qtpl:195
 		case col.InputType == "textarea":
-//line columnDecor.qtpl:192
+//line columnDecor.qtpl:195
 			qw422016.N().S(`
           <textarea `)
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 			qw422016.N().S(` >`)
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 			if val != nil {
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 				col.StreamRenderValue(qw422016, val)
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 			}
-//line columnDecor.qtpl:193
+//line columnDecor.qtpl:196
 			qw422016.N().S(`</textarea>
   	`)
-//line columnDecor.qtpl:194
+//line columnDecor.qtpl:197
 		case col.InputType == "file":
-//line columnDecor.qtpl:194
+//line columnDecor.qtpl:197
 			qw422016.N().S(`
         <span class="hiddenInput"
             style="background-image: url('`)
-//line columnDecor.qtpl:196
+//line columnDecor.qtpl:199
 			qw422016.E().V(val)
-//line columnDecor.qtpl:196
+//line columnDecor.qtpl:199
 			qw422016.N().S(`');">
             <input `)
-//line columnDecor.qtpl:197
+//line columnDecor.qtpl:200
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:197
+//line columnDecor.qtpl:200
 			qw422016.N().S(` type="file" accept="image">
         </span>
     `)
-//line columnDecor.qtpl:199
+//line columnDecor.qtpl:202
 		case col.Suggestions > "":
-//line columnDecor.qtpl:199
+//line columnDecor.qtpl:202
 			qw422016.N().S(`
         <input type="text" src="`)
-//line columnDecor.qtpl:200
+//line columnDecor.qtpl:203
 			qw422016.N().J(col.Suggestions)
-//line columnDecor.qtpl:200
+//line columnDecor.qtpl:203
 			qw422016.N().S(`" data="`)
-//line columnDecor.qtpl:200
+//line columnDecor.qtpl:203
 			qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:200
+//line columnDecor.qtpl:203
 			qw422016.N().S(`-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
                 `)
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 			if val != nil {
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 				qw422016.N().S(` value = '`)
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 				col.StreamRenderValue(qw422016, val)
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 				qw422016.N().S(`' `)
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 			}
-//line columnDecor.qtpl:202
+//line columnDecor.qtpl:205
 			qw422016.N().S(`
                 onkeyup="inputSearchKeyUp(this,event);" />
-        <select `)
-//line columnDecor.qtpl:204
+        <div class="suggestions-wrapper" style="width:100%">
+            <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 80%;"></span>
+	        <select size="10" `)
+//line columnDecor.qtpl:209
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:204
-			qw422016.N().S(` size=10 class="suggestions-select-hide `)
-//line columnDecor.qtpl:204
+//line columnDecor.qtpl:209
+			qw422016.N().S(`
+	            class="suggestions-constraints suggestions-select-hide `)
+//line columnDecor.qtpl:210
 			qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:204
-			qw422016.N().S(`-sel" style="left: -399.109375px; top: 50px;">
-        </select>
+//line columnDecor.qtpl:210
+			qw422016.N().S(`-sel"
+	            style="width:98%">
+	        </select>
+             <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;">
+             </div>
+         </div>
     `)
-//line columnDecor.qtpl:206
+//line columnDecor.qtpl:216
 		default:
-//line columnDecor.qtpl:206
+//line columnDecor.qtpl:216
 			qw422016.N().S(`
                <input type="`)
-//line columnDecor.qtpl:207
+//line columnDecor.qtpl:217
 			qw422016.E().S(col.InputType)
-//line columnDecor.qtpl:207
+//line columnDecor.qtpl:217
 			qw422016.N().S(`" `)
-//line columnDecor.qtpl:207
+//line columnDecor.qtpl:217
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:207
+//line columnDecor.qtpl:217
 			qw422016.N().S(`
                 `)
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 			if val != nil {
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 				qw422016.N().S(` value = '`)
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 				col.StreamRenderValue(qw422016, val)
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 				qw422016.N().S(`'`)
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 			}
-//line columnDecor.qtpl:208
+//line columnDecor.qtpl:218
 			qw422016.N().S(`
                 `)
-//line columnDecor.qtpl:209
+//line columnDecor.qtpl:219
 			if col.BasicType() == types.Bool {
-//line columnDecor.qtpl:209
+//line columnDecor.qtpl:219
 				qw422016.N().S(`onclick="this.value = this.checked;"
                 `)
-//line columnDecor.qtpl:210
+//line columnDecor.qtpl:220
 				if val == true {
-//line columnDecor.qtpl:210
+//line columnDecor.qtpl:220
 					qw422016.N().S(`checked`)
-//line columnDecor.qtpl:210
+//line columnDecor.qtpl:220
 				}
-//line columnDecor.qtpl:210
+//line columnDecor.qtpl:220
 				qw422016.N().S(`
                 `)
-//line columnDecor.qtpl:211
+//line columnDecor.qtpl:221
 			}
-//line columnDecor.qtpl:211
+//line columnDecor.qtpl:221
 			qw422016.N().S(`
                >
     `)
-//line columnDecor.qtpl:213
+//line columnDecor.qtpl:223
 		}
-//line columnDecor.qtpl:213
+//line columnDecor.qtpl:223
 		qw422016.N().S(`
  `)
-//line columnDecor.qtpl:214
+//line columnDecor.qtpl:224
 		if col.IsSlice {
-//line columnDecor.qtpl:214
+//line columnDecor.qtpl:224
 			qw422016.N().S(`
          <button class="removeField" type="button"
              onclick="this.parentNode.remove(); return false;">-</button>
     </li>
  `)
-//line columnDecor.qtpl:218
+//line columnDecor.qtpl:228
 		}
-//line columnDecor.qtpl:218
+//line columnDecor.qtpl:228
 		qw422016.N().S(`
 
  `)
-//line columnDecor.qtpl:220
+//line columnDecor.qtpl:230
 	}
-//line columnDecor.qtpl:220
+//line columnDecor.qtpl:230
 	qw422016.N().S(`
  `)
-//line columnDecor.qtpl:221
+//line columnDecor.qtpl:231
 	if col.IsSlice {
-//line columnDecor.qtpl:221
+//line columnDecor.qtpl:231
 		qw422016.N().S(`
      <li class="form-field">
         <button class="main-btn" type="button"
@@ -783,36 +813,36 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
     </li>
     </ul>
  `)
-//line columnDecor.qtpl:227
+//line columnDecor.qtpl:237
 	}
-//line columnDecor.qtpl:227
+//line columnDecor.qtpl:237
 	qw422016.N().S(`
 `)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 }
 
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]any) {
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	col.StreamRenderInputs(qw422016, data)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 }
 
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 func (col *ColumnDecor) RenderInputs(data map[string]any) string {
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	col.WriteRenderInputs(qb422016, data)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 	return qs422016
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:238
 }

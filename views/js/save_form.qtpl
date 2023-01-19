@@ -8,6 +8,9 @@ function saveForm(thisForm, successFunction, errorFunction) {
 			title = $('h2', thisForm).text();
 		}
 	}
+    if (!validateFields(thisForm))
+        return false;
+
     if (!thisForm.noValidate && !confirm('Do you sure to send form "' + title + '"?')) {
         return false
     }
@@ -155,4 +158,113 @@ function OverHijack($out, resp) {
           }
          });
  }
+ function validateFields(thisForm) {
+     if (thisForm === undefined) {
+        console.log("empty form elem");
+        return false;
+     }
+
+     return (validateRequiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
+ }
+function validatePattern(thisElem) {
+    var re = thisElem.pattern,
+        result = true;
+
+    if (re == "") {
+        return true;
+    }
+
+    try {
+
+        re = new RegExp(re);
+        result = re.test(thisElem.value);
+        if(result){
+            thisElem.style.borderColor = 'green';
+            thisElem.nextElementSibling.style.display = 'none';
+        } else {
+            thisElem.style.borderColor = 'red';
+            thisElem.nextElementSibling.style.display = 'block';
+       }
+
+    } catch (e) {
+        console.log(e)
+    }
+
+    return result;
+}
+
+// проверка полей с выставленными патеррнами
+function validatePatternsField(thisForm) {
+    var result = true;
+
+    $('input[pattern]:visible', thisForm).each(
+        function (index) {
+            result = result && validatePattern(this);
+            if (!result) {
+                alertField(this);
+
+            }
+
+            return result;
+
+        });
+
+    return result;
+}
+// проверка запоолнения обязательных полей
+//   TODO: добавить попозже проверку типов полей!
+function validateRequiredFields(thisForm) {
+
+    var result = true;
+
+    $('input[required]:visible, select[required]:visible', thisForm).each(
+        function (index) {
+            //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
+            if ( !this.value || ( (this.type == "checkbox") && !(this.checked) ) ) {
+                result = false;
+                alertField(this);
+
+                return false;
+            }
+            else {
+                correctField(this);
+            }
+        }
+    );
+
+    return result;
+}
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+function validateEmailFields(thisForm) {
+
+    var result = true;
+
+    $('input[type=email]:visible', thisForm).each(
+        function (index) {
+            result = validateEmail(this.value);
+            if (result) {
+                correctField(this);
+            } else {
+                alertField(this);
+                return false;
+            }
+        });
+
+    return result;
+}
+function correctField(thisElem) {
+    $(thisElem).css( { border: '' } );
+}
+function alertField(thisElem) {
+    debugger
+    var nameField = $(thisElem).parent('label').text();
+    if (nameField === "" || nameField === undefined) {
+        nameField = thisElem.placeholder
+    }
+    alert( 'Заполните поле - ' + nameField );
+    $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus().next('.errorLabel').show();
+}
 {% endfunc %}

@@ -33,6 +33,12 @@ type SuggestionsParams struct {
 	Key   string
 	Value any
 }
+
+type SelectOption struct {
+	Disabled, Selected bool
+	Value              string
+}
+
 type ColumnDecor struct {
 	dbEngine.Column
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
@@ -42,7 +48,7 @@ type ColumnDecor struct {
 	SpecialInputName  string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
 	Attachments       []AttachmentList
-	SelectOptions     map[string]string
+	SelectOptions     map[string]SelectOption
 	PatternList       dbEngine.Table
 	PatternName       string
 	PlaceHolder       string
@@ -70,8 +76,10 @@ func (col *ColumnDecor) Each(key []byte, val *fastjson.Value) {
 
 }
 
-func NewColumnDecorFromJSON(val *fastjson.Value) *ColumnDecor {
-	col := ColumnDecor{}
+func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *ColumnDecor {
+	col := ColumnDecor{
+		PatternList: patternList,
+	}
 
 	obj, err := val.Object()
 	if err != nil {
@@ -95,14 +103,17 @@ func NewColumnDecorFromJSON(val *fastjson.Value) *ColumnDecor {
 		case "suggestions":
 			col.Suggestions = gotools.BytesToString(val.GetStringBytes())
 		case "data":
-			col.parseSelect(val)
+			err := col.parseSelect(val)
+			if err != nil {
+				logs.ErrorLog(err)
+			}
 		case "hidden":
 			col.IsHidden = true
 			col.InputType = "hidden"
 		case "multiple":
 			col.multiple = true
 		case "pattern":
-			col.pattern = gotools.BytesToString(val.GetStringBytes())
+			col.getPattern(gotools.BytesToString(val.GetStringBytes()))
 		case "type":
 			col.InputType = gotools.BytesToString(val.GetStringBytes())
 		case "defaultInputValue":
@@ -128,16 +139,40 @@ func (col *ColumnDecor) parseSelect(val *fastjson.Value) error {
 		return err
 	}
 
-	col.SelectOptions = make(map[string]string, len(blocks))
+	col.SelectOptions = make(map[string]SelectOption, len(blocks))
 
 	for _, val := range blocks {
 		name := val.GetStringBytes("label")
+		if len(name) == 0 {
+			return errors.New("name is empty")
+		}
 		value := val.GetStringBytes("value")
-		if len(name) == 0 || len(value) == 0 {
-			return errors.New("name or value empty")
+		if len(value) == 0 {
+			return errors.New("value is empty")
 		}
 
-		col.SelectOptions[gotools.BytesToString(name)] = gotools.BytesToString(value)
+		option := SelectOption{
+			Value: gotools.BytesToString(value),
+		}
+		if val.Exists("disabled") {
+			d, err := val.Get("disabled").Bool()
+			if err != nil {
+				logs.ErrorLog(err, "%s.disabled is wrong %s", name, val.GetStringBytes("disabled"))
+			} else {
+				option.Disabled = d
+			}
+		}
+
+		if val.Exists("selected") {
+			d, err := val.Get("selected").Bool()
+			if err != nil {
+				logs.ErrorLog(err, "%s.selected is wrong %s", name, val.GetStringBytes("selected"))
+			} else {
+				option.Selected = d
+			}
+		}
+
+		col.SelectOptions[gotools.BytesToString(name)] = option
 	}
 
 	return nil
@@ -182,7 +217,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 				colDec.SuggestionsParams[gotools.BytesToString(key)] = gotools.BytesToString(b)
 			})
 		}
-		colDec.Label = strings.Split(comment, "{")[0]
+		colDec.Label, _, _ = strings.Cut(comment, "{")
 	} else if comment > "" {
 		colDec.Label = comment
 	} else {
@@ -240,10 +275,13 @@ func (col *ColumnDecor) Pattern() string {
 		col.getPattern(name)
 	} else if col.BasicTypeInfo() == types.IsInteger && len(col.Attachments) == 0 {
 		col.pattern = `^-?\d+$`
+		col.patternDesc = "only digital"
 	} else if col.BasicTypeInfo() == types.IsFloat {
 		col.pattern = `^-?\d+(\.\d{1,2})?$`
+		col.patternDesc = "float value"
 	} else if col.BasicTypeInfo() == types.IsComplex {
 		col.pattern = `^[+±-]?\d+(\.\d{1,2})?$`
+		col.patternDesc = "complex value"
 	}
 
 	return col.pattern

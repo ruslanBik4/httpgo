@@ -21,13 +21,14 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         OwnerMenu    *layouts.MenuOwnerBody
         Title string
         Route string
+        Attr string
         AfterAuthURL string
         ChangeTheme string
     }
 %}
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
-<body>
+<body {%s body.Attr %}>
         {%= js.HeadJSForForm(body.AfterAuthURL, body.ChangeTheme) %}
         {%= layouts.HeaderHTML(body.TopMenu) %}
 <div class="content-wrap">

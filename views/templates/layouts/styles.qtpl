@@ -7,6 +7,54 @@ standart styles .
 body {
     color: rgb(10, 28, 59);
 }
+header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 68px;
+    border-bottom: 1px solid #f6f7f8;
+    box-shadow: 0 0 6px -3px #f6f7f8;
+    box-sizing: border-box;
+    z-index: 9;
+    align-items: center;
+}
+header .topline {
+    -webkit-flex-direction: row;
+    -webkit-align-items: center;
+    -webkit-justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+    display: table;
+}
+header .topline-btns {
+    display: inline-block;
+    width: auto;
+    right: -12px;
+    padding: 4px 8px;
+    border: 0;
+    position: absolute;
+    min-width: auto;
+    color: white;
+}
+header nav {
+    display: inline-flex;
+    align-items: start;
+    height: 100%;
+}
+.top-mnu-list {
+    margin-top: 5px;
+    height: 38px;
+}
+li.top-mnu-item a {
+    margin: 0 10px;
+    height: 100%;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: color .3s ease-in-out;
+}
 
 #catalog_pane {
     height: 99%;
@@ -34,12 +82,6 @@ body {
 .content-section {
     width: 80%;
     display: table-cell;
-}
-header {
-    position: sticky;
-}
-.top-mnu-list {
-    margin-top: 5px;
 }
 .left-mnu-list {
     margin-left: 5px;
@@ -113,11 +155,11 @@ input[type=text] {
 input[type=file] {
     display: inline;
 }
-label textarea {
+label > textarea {
     width: 90%;
     float: inline-end;
 }
-label input {
+label > input {
     align-content: right;
     text-align: center;
     float: inline-end;
