@@ -25,7 +25,7 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -100,7 +100,7 @@ func TestColumnDecor_InputTypeForJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -161,7 +161,7 @@ func TestColumnDecor_RenderAttr(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -226,7 +226,7 @@ func TestColumnDecor_RenderInputs(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -291,7 +291,7 @@ func TestColumnDecor_RenderValue(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -356,7 +356,7 @@ func TestColumnDecor_StreamDataForJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -420,7 +420,7 @@ func TestColumnDecor_StreamInputTypeForJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -484,7 +484,7 @@ func TestColumnDecor_StreamRenderAttr(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -549,7 +549,7 @@ func TestColumnDecor_StreamRenderInputs(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -614,7 +614,7 @@ func TestColumnDecor_StreamRenderValue(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -679,7 +679,7 @@ func TestColumnDecor_WriteDataForJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -742,7 +742,7 @@ func TestColumnDecor_WriteInputTypeForJSON(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -805,7 +805,7 @@ func TestColumnDecor_WriteRenderAttr(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -872,7 +872,7 @@ func TestColumnDecor_WriteRenderInputs(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -939,7 +939,7 @@ func TestColumnDecor_WriteRenderValue(t *testing.T) {
 		InputType         string
 		DefaultInputValue string
 		Attachments       []AttachmentList
-		SelectOptions     map[string]string
+		SelectOptions     map[string]SelectOption
 		PatternList       dbEngine.Table
 		PatternName       string
 		PlaceHolder       string
@@ -1021,8 +1021,9 @@ func TestFormField_FormHTML(t *testing.T) {
 				Method:      tt.fields.Method,
 				Description: tt.fields.Description,
 				HideBlock:   tt.fields.HideBlock,
+				Blocks:      tt.args.blocks,
 			}
-			if got := f.FormHTML(tt.args.blocks...); got != tt.want {
+			if got := f.FormHTML(); got != tt.want {
 				t.Errorf("FormHTML() = %v, want %v", got, tt.want)
 			}
 		})
@@ -1076,7 +1077,7 @@ func TestFormField_FormJSON(t *testing.T) {
 				Description: tt.fields.Description,
 				HideBlock:   tt.fields.HideBlock,
 			}
-			got := f.FormJSON(tt.fields.blocks...)
+			got := f.FormJSON()
 			assert.Equal(t, tt.want, got)
 
 		})
@@ -1112,7 +1113,7 @@ func TestFormField_RenderForm(t *testing.T) {
 				Description: tt.fields.Description,
 				HideBlock:   tt.fields.HideBlock,
 			}
-			if got := f.RenderForm(tt.args.isHTML, tt.args.blocks...); got != tt.want {
+			if got := f.RenderForm(tt.args.isHTML); got != tt.want {
 				t.Errorf("RenderForm() = %v, want %v", got, tt.want)
 			}
 		})
@@ -1254,7 +1255,7 @@ func TestFormField_WriteFormHTML(t *testing.T) {
 				HideBlock:   tt.fields.HideBlock,
 			}
 			qq422016 := &bytes.Buffer{}
-			f.WriteFormHTML(qq422016, tt.args.blocks...)
+			f.WriteFormHTML(qq422016)
 			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
 				t.Errorf("WriteFormHTML() = %v, want %v", gotQq422016, tt.wantQq422016)
 			}
@@ -1291,7 +1292,7 @@ func TestFormField_WriteFormJSON(t *testing.T) {
 				HideBlock:   tt.fields.HideBlock,
 			}
 			qq422016 := &bytes.Buffer{}
-			f.WriteFormJSON(qq422016, tt.args.blocks...)
+			f.WriteFormJSON(qq422016)
 			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
 				t.Errorf("WriteFormJSON() = %v, want %v", gotQq422016, tt.wantQq422016)
 			}
@@ -1329,7 +1330,7 @@ func TestFormField_WriteRenderForm(t *testing.T) {
 				HideBlock:   tt.fields.HideBlock,
 			}
 			qq422016 := &bytes.Buffer{}
-			f.WriteRenderForm(qq422016, tt.args.isHTML, tt.args.blocks...)
+			f.WriteRenderForm(qq422016, tt.args.isHTML)
 			if gotQq422016 := qq422016.String(); gotQq422016 != tt.wantQq422016 {
 				t.Errorf("WriteRenderForm() = %v, want %v", gotQq422016, tt.wantQq422016)
 			}

@@ -39,7 +39,7 @@ func TestColumnDecor_GetValues(t *testing.T) {
 		IsReadOnly    bool
 		IsSlice       bool
 		InputType     string
-		SelectOptions map[string]string
+		SelectOptions map[string]SelectOption
 		PatternList   dbEngine.Table
 		PatternName   string
 		PlaceHolder   string

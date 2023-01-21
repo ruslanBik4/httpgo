@@ -1,0 +1,73 @@
+All the text outside function templates is treated as comments,
+i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
+
+{% import (
+	"fmt"
+)
+%}
+
+{% func (f * FormField) Create() %}
+package test
+
+import (
+    "github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+		"github.com/valyala/fastjson"
+
+)
+var c = forms.FormField {
+        	Title: "{%s f.Title %}",
+        	Action: "{%s f.Action %}",
+        	Method: "{%s f.Method %}",
+        	Description: "{%s f.Description %}",
+        	{%- if f.HideBlock != nil -%}
+        	HideBlock: {%s= fmt.Sprintf("%#v", f.HideBlock)  %},
+        	{%- endif -%}
+        	Blocks: []forms.BlockColumns{
+                {%- for _, block := range f.Blocks -%}
+                {
+                   Id: {%d block.Id %},
+                   Title: "{%s= block.Title %}",
+                   Description: "{%s= block.Description %}",
+                   Multiple: {%v block.Multiple %},
+                   Columns: []*forms.ColumnDecor{
+                        {%- for _, col := range block.Columns -%}
+                        {
+                            {%- if col.Column != nil -%}
+                            Column: {%s= fmt.Sprintf("%+#v", col.Column) %},
+                            {%- endif -%}
+                            IsHidden: {%v col.IsHidden %},
+                            IsDisabled: {%v col.IsDisabled %},
+                            IsReadOnly: {%v col.IsReadOnly %},
+                            IsSlice: {%v col.IsSlice %},
+                            IsNewPrimary: {%v col.IsNewPrimary %},
+                            SelectWithNew: {%v col.SelectWithNew %},
+                            ExtProperties: {%s= fmt.Sprintf("%+#v", col.ExtProperties) %},
+                            InputType: "{%s= col.InputType %}",
+                            SpecialInputName: "{%s= col.SpecialInputName %}",
+                            DefaultInputValue: "{%s= col.DefaultInputValue %}",
+                            Attachments: {%s= fmt.Sprintf("%+#v", col.Attachments) %},
+                            SelectOptions: {%s= fmt.Sprintf("%+#v", col.SelectOptions) %},
+                            PatternList: dbEngine.Table(nil),
+                            PatternName: "{%s= col.PatternName %}",
+                            PlaceHolder: "{%s= col.PlaceHolder %}",
+                            LinkNew: "{%s= col.LinkNew %}",
+                            Label: "{%s= col.Label %}",
+                            {%- if col.Column != nil -%}
+                            Value: {%v col.Value %},
+                            {%- endif -%}
+                            Suggestions: "",
+                            SuggestionsParams: {%s= fmt.Sprintf("%+#v", col.SuggestionsParams) %},
+                        },
+                        {%- endfor -%}
+                        },
+                    Buttons:[]forms.Button{
+                        {% for _, btn := range block.Buttons %}
+                            {%s= fmt.Sprintf("%#v", btn)  %},
+                        {% endfor %}
+                    },
+                },
+                {%- endfor -%}
+            },
+        }
+{% endfunc %}
