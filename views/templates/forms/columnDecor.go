@@ -113,7 +113,8 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 		case "multiple":
 			col.multiple = true
 		case "pattern":
-			col.getPattern(gotools.BytesToString(val.GetStringBytes()))
+			col.PatternName = gotools.BytesToString(val.GetStringBytes())
+			col.getPattern(col.PatternName)
 		case "type":
 			col.InputType = gotools.BytesToString(val.GetStringBytes())
 		case "defaultInputValue":

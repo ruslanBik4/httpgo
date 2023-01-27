@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -262,17 +262,17 @@ function afterSaveAnyForm(data, status) {
     }
 }
 // handling response login form, save users data & render some properties
- function afterLogin(data, thisForm) {
-	if (!data) {
+ function afterLogin(userStruct, thisForm) {
+	if (!userStruct) {
 		alert("Need users data!")
 		return false;
 	}
 
-	localStorage.setItem("USER",  JSON.stringify(data) );
-	token = data.token;
-	lang = data.lang;
+	localStorage.setItem("USER",  JSON.stringify(userStruct) );
+	token = userStruct.token;
+	lang = userStruct.lang;
 
-	$('#bLogin').text(data.name + lang > "" ? "(" + lang +")" : "");
+	$('#bLogin').text(userStruct.name + lang > "" ? "(" + lang +")" : "");
 	$('.auth').removeClass("auth");
 
 `)
@@ -287,8 +287,8 @@ function afterSaveAnyForm(data, status) {
 //line forms.qtpl:222
 	qw422016.N().S(`
 	if (urlAfterLogin === '') {
-		if (data.formActions !== undefined) {
-		 urlAfterLogin = data.formActions[0].url;
+		if (userStruct.formActions !== undefined) {
+		 urlAfterLogin = userStruct.formActions[0].url;
 		} else {
 		 urlAfterLogin =`)
 //line forms.qtpl:228
