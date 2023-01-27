@@ -11,7 +11,7 @@ header {
     position: sticky;
     top: 0;
     width: 100%;
-    height: 68px;
+//    height: 68px;
     border-bottom: 1px solid #f6f7f8;
     box-shadow: 0 0 6px -3px #f6f7f8;
     box-sizing: border-box;
@@ -46,7 +46,7 @@ header nav {
 }
 .top-mnu-list {
     margin-top: 5px;
-    height: 38px;
+//    height: 38px;
 }
 li.top-mnu-item a {
     margin: 0 10px;
@@ -57,17 +57,20 @@ li.top-mnu-item a {
 }
 
 #catalog_pane {
-    height: 99%;
+    height: 97%;
     vertical-align: top;
     padding-left: 1px;
-    padding-right: 5px;
-    padding-top: 3px;
+    padding-right: 5%;
+    padding-top: 3%;
 }
 .content-wrap {
     width: 100%;
+    height: 90%;
 }
-.content-sep {
-    width: 5%;
+
+#content {
+    overflow: scroll;
+    height: 99%;
 }
 .sidebar-section {
     width: 15%;
@@ -80,7 +83,7 @@ li.top-mnu-item a {
     display: flex;
 }
 .content-section {
-    width: 80%;
+    width: 85%;
     display: table-cell;
 }
 .left-mnu-list {

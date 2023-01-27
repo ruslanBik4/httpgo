@@ -72,7 +72,7 @@ function getElementsByText(str, name) {
 	    <div class="usr-table__filter  usr-table-row">
 		{% for i, col := range columns %}
 		<div class="usr-table-col table-col-{%d i%}">
-		<div class="filt-arrow" style="word-break: break-word;">
+		<div class="filt-arrow">
 		{%- if col.LinkNew > "" -%} {%s= col.LinkNew %}
 		{% else %}
 			{% switch %}

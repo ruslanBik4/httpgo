@@ -1,23 +1,6 @@
 {% func FooterHTML(FooterMenu Menu) %}
 <footer class="main-footer">
 		<div class="footer-inner-wrap">
-            <div class="footer-block">
-                <h5>Защищенные системы</h5>
-            </div>
-            <div class="footer-block">
-            	<div class="footer-phones">
-            		<div class="first-phone clearfix">
-            			<span class="phone-numbers">{ phone1 %} &ensp;- &ensp;free on country</span>
-            		</div>
-            		<div class="second-phone clearfix">
-            			<span class="phone-numbers2">{ phone2 %}</span>
-            			<span class="phone-descr">&ensp;&ensp; - &ensp;согласно тарифам</span>
-            			<div class="perenos">Вашего оператора</div>
-            		</div>
-            		<div class="mail">
-            			<a href="mailto:ingo@82RU.ru" class="footer-mail">{ email %}</a>
-            		</div>
-            	</div>
             	<div class="footer-social">
                     <!-- Facebook -->
                     <i class="fab fa-facebook-f"></i>
@@ -61,7 +44,6 @@
                     <!-- Whatsapp -->
                     <i class="fab fa-whatsapp"></i>
             	</div>
-            </div>
             <div class="footer-block">
             	<div class="footer-mnu">
                 {%= FooterMenu.RenderMenu("main-list", "main-list-item") %}
