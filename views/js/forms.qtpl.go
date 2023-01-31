@@ -102,10 +102,9 @@ function setClickAll() {
 
   isProcess = true;
 
-      console.log('ready click events!')
       console.log(event);
       // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
+      $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = this.href
@@ -114,9 +113,9 @@ function setClickAll() {
         isSearch = (this.target=="search");
 
         $(this).click( `)
-//line forms.qtpl:68
+//line forms.qtpl:67
 	StreamOverClick(qw422016)
-//line forms.qtpl:68
+//line forms.qtpl:67
 	qw422016.N().S(` )
 
       })
@@ -135,43 +134,101 @@ function LoadStyles(id, styles) {
 var go_history=1;
 // Эта функция отрабатывает при перемещении по истории просмотром (кнопки вперед-назад в браузере)
 function MyPopState(event) {
-    if ( (go_history == 0) || (event.state == null) /* || (str_hash == DivContent.attr( 'rel') )|| (ya_search == 'process') */  )
+    if ( (go_history == 0) || (event.state == null) )
         return true;
-    go_history = 0;
     console.log(event);
-    loadContent( event.state );
+		document.title = event.title;
+    $('#content').html(event.state.data);
 }
 // смена адресной строки с предотвращением перезагрузки Содержимого
-function SetDocumentHash( str_path ) {
+function SetDocumentHash( str_path, data ) {
 let root_page ="/";
 let default_page = "index.html";
-    // обрезаю доменное имя и меняю скрипты для магазинов, затем готовлю полный путь для записи в Хистори браузера
+var title = $(data).filter('title').text();
+
     str_path = GetShortURL( str_path )
+
+if (title === "") {
+	title = str_path;
+}
+	console.log(`)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`setHash ${title}`)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`)
     var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
             + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
-
-// 	document.location.hash = new_hash;
-    if ( (go_history)  ) {
-
-        window.history.pushState( str_path, document.title, document.location.origin );
-        console.log(str_path);
-    }
-    go_history = 1;
+	document.title = title;
+    window.history.pushState( {'url':str_path, 'data':data}, document.title, origin );
 }
-function GetShortURL(m_adress) {
-    var origin   = document.location.origin + '/',
+function GetShortURL(str_path) {
+	if (str_path > "" ) {
+        console.log(str_path)
+	    if (str_path.startsWith(document.location.origin)) {
+	        return str_path.slice( document.location.origin.length + 1);
+        }
+        return str_path
+    }
 
-    i = m_adress.search( origin );
-    if (i > -1)
-        return m_adress.substring( i + origin.length );
-
-    return m_adress;
+	return '/';
 }
 
 
 $(function()   {
-    if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
+    if (!window.onpopstate) {
         window.onpopstate = MyPopState;
+	}
+
+	window.addEventListener("beforeunload",  function (evt) {
+			  var evt = evt || window.event;
+
+//			  evt.returnValue = "Do you want to do it?";
+
+			  if (evt) {
+				var y = evt.pageY || evt.clientY;
+				if ( y === undefined) {
+					console.log(evt)
+				}
+				console.log( `)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`beforeunload ${document.location} pageY:${y}`)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`);
+		        evt.preventDefault();
+				if (y < 0) {
+					return evt.returnValue = "Do you want to close this page?"
+				}
+
+				if (document.location.pathname > "/") {
+					url = document.location
+					document.location.href = document.location.origin;
+//					loadContent(url.toString());
+//					url.pathname = "/";
+					console.log(`)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`reload ${url}`)
+//line forms.qtpl:67
+	qw422016.N().S("`")
+//line forms.qtpl:67
+	qw422016.N().S(`)
+					evt.target.URL = url.origin;
+					evt.srcElement.URL = evt.target.URL;
+					console.log(evt)
+				}
+			}
+			return false
+		})
+
 
     console.log('$(document).ready function events!')
 
@@ -239,9 +296,9 @@ $(function()   {
 }) // $(document).ready
 
 `)
-//line forms.qtpl:189
+//line forms.qtpl:222
 	StreamSaveForm(qw422016)
-//line forms.qtpl:189
+//line forms.qtpl:222
 	qw422016.N().S(`
 
 // handling response AnyForm & render result according to structures of data
@@ -276,36 +333,36 @@ function afterSaveAnyForm(data, status) {
 	$('.auth').removeClass("auth");
 
 `)
-//line forms.qtpl:222
+//line forms.qtpl:255
 	if changeTheme > "" {
-//line forms.qtpl:222
+//line forms.qtpl:255
 		qw422016.N().S(changeTheme)
-//line forms.qtpl:222
+//line forms.qtpl:255
 		qw422016.N().S(`(userStruct.theme);`)
-//line forms.qtpl:222
+//line forms.qtpl:255
 	}
-//line forms.qtpl:222
+//line forms.qtpl:255
 	qw422016.N().S(`
 	if (urlAfterLogin === '') {
 		if (userStruct.formActions !== undefined) {
 		 urlAfterLogin = userStruct.formActions[0].url;
 		} else {
 		 urlAfterLogin =`)
-//line forms.qtpl:228
+//line forms.qtpl:261
 	if afterAuthURL > "" {
-//line forms.qtpl:228
+//line forms.qtpl:261
 		qw422016.N().S(`"`)
-//line forms.qtpl:228
+//line forms.qtpl:261
 		qw422016.N().S(afterAuthURL)
-//line forms.qtpl:228
+//line forms.qtpl:261
 		qw422016.N().S(`" `)
-//line forms.qtpl:228
+//line forms.qtpl:261
 	} else {
-//line forms.qtpl:228
+//line forms.qtpl:261
 		qw422016.N().S(` "/user/profile"`)
-//line forms.qtpl:228
+//line forms.qtpl:261
 	}
-//line forms.qtpl:228
+//line forms.qtpl:261
 	qw422016.N().S(`;
 		}
 	} else if (urlAfterLogin.onsubmit !== undefined ) {
@@ -332,21 +389,32 @@ function loadContent(url) {
                 PutContent(data, url);
             },
             error: function (xhr, status, error) {
-                 if (xhr.status == 401) {
+                 switch (xhr.status) {
+                 case 401:
                     urlAfterLogin = url;
                     $('#bLogin').trigger("click");
-                   return;
-                  }
+                    return;
+                 case 0:
+                    console.log(xhr);
+                 }
 
                 alert( "Code : " + xhr.status + " error :"+ error);
-                console.log(error);
+                console.log(`)
+//line forms.qtpl:261
+	qw422016.N().S("`")
+//line forms.qtpl:261
+	qw422016.N().S(`${url} ${status} ${error}`)
+//line forms.qtpl:261
+	qw422016.N().S("`")
+//line forms.qtpl:261
+	qw422016.N().S(`);
             }
        });
 }
 
 function PutContent(data, url) {
 	$('#content').html(data);
-	SetDocumentHash(url);
+	SetDocumentHash(url, data);
 }
 
 
@@ -430,31 +498,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:351
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:351
+//line forms.qtpl:387
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:351
+//line forms.qtpl:387
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:351
+//line forms.qtpl:387
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:351
+//line forms.qtpl:387
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:351
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:351
+//line forms.qtpl:387
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:351
+//line forms.qtpl:387
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:351
+//line forms.qtpl:387
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:351
+//line forms.qtpl:387
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:351
+//line forms.qtpl:387
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:351
+//line forms.qtpl:387
 	return qs422016
-//line forms.qtpl:351
+//line forms.qtpl:387
 }

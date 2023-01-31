@@ -180,14 +180,19 @@ func (col *ColumnDecor) parseSelect(val *fastjson.Value) error {
 }
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
+var regReadOnly = regexp.MustCompile(`\(*read_only\)*`)
 
 func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions ...SuggestionsParams) *ColumnDecor {
 
 	comment := col.Comment()
+	isReadOnly := regReadOnly.MatchString(comment)
+	if isReadOnly {
+		comment = regReadOnly.ReplaceAllString(comment, "")
+	}
 	colDec := &ColumnDecor{
 		Column:            col,
 		IsHidden:          col.Primary(),
-		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || strings.Contains(comment, "read_only")),
+		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || isReadOnly),
 		PatternList:       patternList,
 		SuggestionsParams: make(map[string]any),
 	}

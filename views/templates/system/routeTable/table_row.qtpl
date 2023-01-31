@@ -12,7 +12,10 @@
 {%code
 	var regHTML = regexp.MustCompile(`>([^<]+)<\/`)
 %}
-{% func TableRow(columns []*forms.ColumnDecor, rows [][] interface{}) %}
+{% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
+	{%= Table("test", columns, rows) %}
+{% endfunc %}
+{% func Table(name string, columns []*forms.ColumnDecor, rows [][] any) %}
 <style>
 {%= TableCSS() %}
 {%code
@@ -21,12 +24,62 @@
    lSymb := 11
    allWidth := 0
    for i, col := range columns {
-        colLen[i] = len(col.Label)*(lSymb + 1)
+        colLen[i] = len(col.Label)*lSymb
         colDeep[i] = 1
    }
 %}
 </style>
 <script>
+function ClickPseudo(event) {
+var elem = event.target;
+var offset = event.offsetX || event.originalEvent.offsetX;
+    console.log(`${offset} > ${elem.offsetWidth}`);
+    if (offset > elem.offsetWidth) {
+        loadTable(elem.attributes.column.value);
+    } else {
+        elem.color = 'blue';
+    }
+}
+function loadTable(order_by) {
+$.ajaxSetup({
+    'headers':{'Authorization': 'Bearer ' + token}
+});
+var url = document.location.href;
+if (document.location.search > "") {
+	url += '&'
+} else {
+	url +='?'
+}
+$('.usr-table-row-cont').load(url + 'order_by=' + order_by + ' .usr-table-row-cont');
+return true;
+
+       $.ajax({
+            url: 'https://localhost/table/projects/browse?order_by=name .usr-table-row-cont',
+             data: {
+                     "lang": lang,
+                     "html": true
+             },
+            processData: false,
+            contentType: false,
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+          },
+          success: function (data, status, xhr) {
+                $('.usr-table-row-cont').html(data);
+          },
+          error: function (xhr, status, error) {
+              if (xhr.status == 401) {
+                urlAfterLogin = url;
+                $('#bLogin').trigger("click");
+               return;
+              }
+
+              alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
+              console.log(xhr);
+          }
+         });
+         return false;
+}
 function getElementsByText(str, name) {
   var items = document.getElementsByClassName(name);
   var elem = Array.prototype.slice.call(items).forEach(
@@ -35,7 +88,9 @@ function getElementsByText(str, name) {
         el.parentElement.style = "";
         return true;
     }
-    if ( el.textContent.includes( str.trim() ) || el.parentElement.className.includes("usr-table__filter")) {
+    if ( el.textContent.includes( str.trim() )
+        || el.parentElement.className.includes("usr-table__t-head")
+        || el.parentElement.className.includes("usr-table__filter")) {
         el.parentElement.style = "";
         return true;
     }
@@ -55,16 +110,42 @@ function getElementsByText(str, name) {
     });
   }
 }
+function ScrollToElem(selector) {
+	var list = $(selector);
+	if (list.length > 0) {
+		list[0].scrollIntoView(100);
+	} else {
+		alert(selector + ' not found!');
+	}
+	return true;
+}
+$(function(){
+ $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
+});
 </script>
 {% collapsespace %}
 {% stripspace %}
-
-<div class="usr-table  table-custom">
+<title> Table of "{%s name %}"</title>
+<div class="usr-table  table-custom" id="t_{%s name %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range columns %}
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
-	            {%s col.Label %}
+	            {% if col.Label == "id" && i < len(columns)-1 %}
+        <style> .usr-table-header > .usr-table__t-head > .table-col-{%d i%}{
+            position: sticky;
+        }
+        </style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
+	                <ul class="dropdown">go to column...
+				    {% for j, c := range columns[i+1:] %}
+				           <li class="top-mnu-item">
+				                <a href='#' onclick="return ScrollToElem('.table-col-{%d i+j+1 %}');" title='{%s c.Label %}'>
+				                {%s fmt.Sprintf("%.20s", c.Label) %} </a>
+		                   </li>
+				    {% endfor %}
+				    </ul></li></ul>
+	            {% else %} <span column="{%s col.Name() %}">{%s col.Label %}</span>
+	            {% endif %}
 	        </div>
 	    {% endfor %}
 	    </div>
@@ -119,12 +200,7 @@ function getElementsByText(str, name) {
                     {% for i, column := range columns %}
                         <div class="usr-table-col  table-col-{%d i%}">
                             {% switch val := row[i].(type) %}
-                            {% case time.Time %}  {%s val.Format("2006-01-02") %} {%- code
-                                                    hour, min, sec := val.Clock()
-                                                    -%}
-                                                    {%- if hour > 0 || min > 0 || sec > 0 -%}<br>
-                                                    {%s= fmt.Sprintf("%2.2d:%2.2d:%2.2d", hour, min, sec) %}
-                                                    {%- endif -%}
+                            {% case time.Time %} {%s= RenderTime(i,val) %}
                             {% case string %}
                               {%s= val %}
                               {%code
@@ -140,7 +216,17 @@ function getElementsByText(str, name) {
                                     colLen[i] = lenVal
                                 }
                               %}
-                            {% case bool %}  {% if val %}X{% endif %}
+                            {% case bool %}
+                              {% if val %}
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>
+                               {% endif %}
+                            {% case int, int32, int64 %}
+                                    {%code s := fmt.Sprintf("%v", val)
+		                                if lenVal := len(s) * lSymb; lenVal > colLen[i] {
+		                                    colLen[i] = lenVal
+		                                }
+                                    %}
+                                    {%s s %}
                             {% case float32 %}   {%v= val %}
                             {% case float64 %}   {%f.2 val %}
                             {% case []string %}
@@ -195,7 +281,7 @@ function getElementsByText(str, name) {
                                      {% endfor %}
                                 </table>
 
-                            {% case map[string]interface{} %}
+                            {% case map[string]any %}
                                       {% code
 
                                         if colDeep[i] < len(val) {
@@ -212,7 +298,7 @@ function getElementsByText(str, name) {
                                         <b>{%s= key %}</b>: {%= json.Element(val[key])%}<br>
                                       {% endfor %}
 
-                            {% case []interface{} %}
+                            {% case []any %}
                                    {%code
                                      if colDeep[i] < len(val) {
                                          colDeep[i] = len(val)
@@ -220,7 +306,7 @@ function getElementsByText(str, name) {
                                    %}
                                 {% for _, value := range val %}
 
-                                    {% if m, ok := value.(map[string]interface{}); ok %}
+                                    {% if m, ok := value.(map[string]any); ok %}
                                       <p>
                                       {% for key, value := range m %}
                                         <b>{%s key %}</b>: {%= json.Element(value)%}<br>
@@ -248,8 +334,8 @@ function getElementsByText(str, name) {
 <style>
 {% for i, cLen := range colLen %}
   {% code
-    if columns[i].BasicType() == types.UnsafePointer {
-        cLen = 20 * lSymb
+    if columns[i].BasicType() == types.UnsafePointer && (cLen < 10 * lSymb){
+        cLen = 10 * lSymb
     } else if (cLen > 50 * lSymb) && (colDeep[i] == 1) {
         cLen = 50 * lSymb
     }
@@ -259,18 +345,34 @@ function getElementsByText(str, name) {
     .table-col-{%d i%}{
         width: {%d cLen %}px;
     }
-    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
-       text-align: {% switch columns[i].InputType %}
-                    {% case "number" %}center
-                    {% case "date", "datetime" %} right
-                    {% default %} left
-                    {% endswitch %};
-    }
+//    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
+//       text-align: {% switch columns[i].InputType %}
+//                    {% case "number" %}center
+//                    {% case "date", "datetime" %} right
+//                    {% default %} left
+//                    {% endswitch %};
+//    }
 {% endfor %}
 .table-custom{
     width: {%d allWidth %}px;
 }
 </style>
+{% endfunc %}
+{% func RenderTime(i int, val time.Time)%}
+	{%- code hour, min, sec := val.Clock() -%}
+    {%- if hour > 0 || min > 0 || sec > 0 -%}
+        <style> .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
+            word-break: break-word;
+        }
+        </style>
+        {% if val.Location() == time.UTC %}
+            {%s= val.Format("2006-01-02 15:04:05")  %}
+        {% else %}
+            {%s= val.Format("2006-01-02 15:04:05 Z-0700")  %}
+        {%- endif -%}
+    {% else %}
+        {%s val.Format("2006-01-02") %}
+    {%- endif -%}
 {% endfunc %}
 {% endcollapsespace %}
 {% endstripspace %}

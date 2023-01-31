@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -66,6 +66,11 @@ var (
 	ParamsWhere = apis.InParam{
 		Name: "where",
 		Desc: "conditions for query ('where' clause)",
+		Type: apis.NewTypeInParam(types.String),
+	}
+	ParamsOrderBy = apis.InParam{
+		Name: "order_by",
+		Desc: "conditions for sort queries data ('order by' clause)",
 		Type: apis.NewTypeInParam(types.String),
 	}
 	ParamsSelect = apis.InParam{

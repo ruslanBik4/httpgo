@@ -54,10 +54,9 @@ function setClickAll() {
 
   isProcess = true;
 
-      console.log('ready click events!')
       console.log(event);
       // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("onsubmit", function () {return saveForm(this); });
+      $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = this.href
@@ -83,43 +82,77 @@ function LoadStyles(id, styles) {
 var go_history=1;
 // Эта функция отрабатывает при перемещении по истории просмотром (кнопки вперед-назад в браузере)
 function MyPopState(event) {
-    if ( (go_history == 0) || (event.state == null) /* || (str_hash == DivContent.attr( 'rel') )|| (ya_search == 'process') */  )
+    if ( (go_history == 0) || (event.state == null) )
         return true;
-    go_history = 0;
     console.log(event);
-    loadContent( event.state );
+		document.title = event.title;
+    $('#content').html(event.state.data);
 }
 // смена адресной строки с предотвращением перезагрузки Содержимого
-function SetDocumentHash( str_path ) {
+function SetDocumentHash( str_path, data ) {
 let root_page ="/";
 let default_page = "index.html";
-    // обрезаю доменное имя и меняю скрипты для магазинов, затем готовлю полный путь для записи в Хистори браузера
+var title = $(data).filter('title').text();
+
     str_path = GetShortURL( str_path )
+
+if (title === "") {
+	title = str_path;
+}
+	console.log(`setHash ${title}`)
     var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
             + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
-
-// 	document.location.hash = new_hash;
-    if ( (go_history)  ) {
-
-        window.history.pushState( str_path, document.title, document.location.origin );
-        console.log(str_path);
-    }
-    go_history = 1;
+	document.title = title;
+    window.history.pushState( {'url':str_path, 'data':data}, document.title, origin );
 }
-function GetShortURL(m_adress) {
-    var origin   = document.location.origin + '/',
+function GetShortURL(str_path) {
+	if (str_path > "" ) {
+        console.log(str_path)
+	    if (str_path.startsWith(document.location.origin)) {
+	        return str_path.slice( document.location.origin.length + 1);
+        }
+        return str_path
+    }
 
-    i = m_adress.search( origin );
-    if (i > -1)
-        return m_adress.substring( i + origin.length );
-
-    return m_adress;
+	return '/';
 }
 
 
 $(function()   {
-    if (!window.onpopstate)   // подключаем запись посещенных вкладышей в истории посещений
+    if (!window.onpopstate) {
         window.onpopstate = MyPopState;
+	}
+
+	window.addEventListener("beforeunload",  function (evt) {
+			  var evt = evt || window.event;
+
+//			  evt.returnValue = "Do you want to do it?";
+
+			  if (evt) {
+				var y = evt.pageY || evt.clientY;
+				if ( y === undefined) {
+					console.log(evt)
+				}
+				console.log( `beforeunload ${document.location} pageY:${y}`);
+		        evt.preventDefault();
+				if (y < 0) {
+					return evt.returnValue = "Do you want to close this page?"
+				}
+
+				if (document.location.pathname > "/") {
+					url = document.location
+					document.location.href = document.location.origin;
+//					loadContent(url.toString());
+//					url.pathname = "/";
+					console.log(`reload ${url}`)
+					evt.target.URL = url.origin;
+					evt.srcElement.URL = evt.target.URL;
+					console.log(evt)
+				}
+			}
+			return false
+		})
+
 
     console.log('$(document).ready function events!')
 
@@ -251,21 +284,24 @@ function loadContent(url) {
                 PutContent(data, url);
             },
             error: function (xhr, status, error) {
-                 if (xhr.status == 401) {
+                 switch (xhr.status) {
+                 case 401:
                     urlAfterLogin = url;
                     $('#bLogin').trigger("click");
-                   return;
-                  }
+                    return;
+                 case 0:
+                    console.log(xhr);
+                 }
 
                 alert( "Code : " + xhr.status + " error :"+ error);
-                console.log(error);
+                console.log(`${url} ${status} ${error}`);
             }
        });
 }
 
 function PutContent(data, url) {
 	$('#content').html(data);
-	SetDocumentHash(url);
+	SetDocumentHash(url, data);
 }
 
 
