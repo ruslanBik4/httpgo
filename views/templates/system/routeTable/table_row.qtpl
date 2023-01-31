@@ -133,7 +133,7 @@ $(function(){
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
 	            {% if col.Label == "id" && i < len(columns)-1 %}
         <style> .usr-table-header > .usr-table__t-head > .table-col-{%d i%}{
-            position: sticky;
+//            position: sticky;
         }
         </style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
@@ -192,11 +192,8 @@ $(function(){
     <div class="usr-table-content">
         <div class="usr-table-content-scroll">
             <div class="usr-table-row-cont">
-
                {% for _, row  := range rows %}
-
                     <div  class="usr-table-row">
-
                     {% for i, column := range columns %}
                         <div class="usr-table-col  table-col-{%d i%}">
                             {% switch val := row[i].(type) %}

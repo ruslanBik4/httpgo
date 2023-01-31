@@ -236,7 +236,7 @@ $(function(){
 //line table_row.qtpl:135
 			qw422016.N().D(i)
 //line table_row.qtpl:135
-			qw422016.N().S(`{position: sticky;}</style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a><ul class="dropdown">go to column...`)
+			qw422016.N().S(`{//            position: sticky;}</style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a><ul class="dropdown">go to column...`)
 //line table_row.qtpl:140
 			for j, c := range columns[i+1:] {
 //line table_row.qtpl:140
@@ -376,29 +376,29 @@ $(function(){
 	}
 //line table_row.qtpl:188
 	qw422016.N().S(`</div></div><div class="usr-table-content"><div class="usr-table-content-scroll"><div class="usr-table-row-cont">`)
-//line table_row.qtpl:196
+//line table_row.qtpl:195
 	for _, row := range rows {
-//line table_row.qtpl:196
+//line table_row.qtpl:195
 		qw422016.N().S(`<div  class="usr-table-row">`)
-//line table_row.qtpl:200
+//line table_row.qtpl:197
 		for i, column := range columns {
-//line table_row.qtpl:200
+//line table_row.qtpl:197
 			qw422016.N().S(`<div class="usr-table-col  table-col-`)
-//line table_row.qtpl:201
+//line table_row.qtpl:198
 			qw422016.N().D(i)
-//line table_row.qtpl:201
+//line table_row.qtpl:198
 			qw422016.N().S(`">`)
-//line table_row.qtpl:202
+//line table_row.qtpl:199
 			switch val := row[i].(type) {
-//line table_row.qtpl:203
+//line table_row.qtpl:200
 			case time.Time:
-//line table_row.qtpl:203
+//line table_row.qtpl:200
 				qw422016.N().S(RenderTime(i, val))
-//line table_row.qtpl:204
+//line table_row.qtpl:201
 			case string:
-//line table_row.qtpl:205
+//line table_row.qtpl:202
 				qw422016.N().S(val)
-//line table_row.qtpl:207
+//line table_row.qtpl:204
 				lenVal := lSymb
 				s := regHTML.FindString(val)
 				if len(s) > 0 {
@@ -411,76 +411,76 @@ $(function(){
 					colLen[i] = lenVal
 				}
 
-//line table_row.qtpl:219
+//line table_row.qtpl:216
 			case bool:
-//line table_row.qtpl:220
+//line table_row.qtpl:217
 				if val {
-//line table_row.qtpl:220
+//line table_row.qtpl:217
 					qw422016.N().S(`<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>`)
-//line table_row.qtpl:222
+//line table_row.qtpl:219
 				}
-//line table_row.qtpl:223
+//line table_row.qtpl:220
 			case int, int32, int64:
-//line table_row.qtpl:224
+//line table_row.qtpl:221
 				s := fmt.Sprintf("%v", val)
 				if lenVal := len(s) * lSymb; lenVal > colLen[i] {
 					colLen[i] = lenVal
 				}
 
-//line table_row.qtpl:229
+//line table_row.qtpl:226
 				qw422016.E().S(s)
-//line table_row.qtpl:230
+//line table_row.qtpl:227
 			case float32:
-//line table_row.qtpl:230
+//line table_row.qtpl:227
 				qw422016.N().V(val)
-//line table_row.qtpl:231
+//line table_row.qtpl:228
 			case float64:
-//line table_row.qtpl:231
+//line table_row.qtpl:228
 				qw422016.N().FPrec(val, 2)
-//line table_row.qtpl:232
+//line table_row.qtpl:229
 			case []string:
-//line table_row.qtpl:234
+//line table_row.qtpl:231
 				for _, str := range val {
-//line table_row.qtpl:234
+//line table_row.qtpl:231
 					qw422016.N().S(`<p>`)
-//line table_row.qtpl:235
+//line table_row.qtpl:232
 					qw422016.N().S(str)
-//line table_row.qtpl:235
+//line table_row.qtpl:232
 					qw422016.N().S(`</p>`)
-//line table_row.qtpl:237
+//line table_row.qtpl:234
 					lenVal := lSymb * (len(str) + 2)
 					if lenVal > colLen[i] {
 						colLen[i] = lenVal
 					}
 
-//line table_row.qtpl:242
+//line table_row.qtpl:239
 				}
-//line table_row.qtpl:244
+//line table_row.qtpl:241
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
 
-//line table_row.qtpl:249
+//line table_row.qtpl:246
 			case []int32:
-//line table_row.qtpl:250
+//line table_row.qtpl:247
 				for _, val := range val {
+//line table_row.qtpl:248
+					qw422016.N().V(val)
+//line table_row.qtpl:249
+				}
 //line table_row.qtpl:251
-					qw422016.N().V(val)
-//line table_row.qtpl:252
-				}
-//line table_row.qtpl:254
 			case []int64:
-//line table_row.qtpl:255
+//line table_row.qtpl:252
 				for _, val := range val {
-//line table_row.qtpl:256
+//line table_row.qtpl:253
 					qw422016.N().V(val)
-//line table_row.qtpl:257
+//line table_row.qtpl:254
 				}
-//line table_row.qtpl:259
+//line table_row.qtpl:256
 			case map[string]string:
-//line table_row.qtpl:259
+//line table_row.qtpl:256
 				qw422016.N().S(`<table>`)
-//line table_row.qtpl:263
+//line table_row.qtpl:260
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -491,31 +491,31 @@ $(function(){
 				}
 				sort.Strings(sortList)
 
-//line table_row.qtpl:273
+//line table_row.qtpl:270
 				for _, key := range sortList {
-//line table_row.qtpl:273
+//line table_row.qtpl:270
 					qw422016.N().S(`<tr><td><b>`)
-//line table_row.qtpl:274
+//line table_row.qtpl:271
 					qw422016.N().S(key)
-//line table_row.qtpl:274
+//line table_row.qtpl:271
 					qw422016.N().S(`</b></td><td>`)
-//line table_row.qtpl:274
+//line table_row.qtpl:271
 					qw422016.N().S(val[key])
-//line table_row.qtpl:274
+//line table_row.qtpl:271
 					qw422016.N().S(`</td></tr>`)
-//line table_row.qtpl:276
+//line table_row.qtpl:273
 					lenVal := (lSymb+2)*len(key) + lSymb*len(val[key]) + 2
 					if lenVal > colLen[i] {
 						colLen[i] = lenVal
 					}
 
-//line table_row.qtpl:281
+//line table_row.qtpl:278
 				}
-//line table_row.qtpl:281
+//line table_row.qtpl:278
 				qw422016.N().S(`</table>`)
-//line table_row.qtpl:284
+//line table_row.qtpl:281
 			case map[string]any:
-//line table_row.qtpl:287
+//line table_row.qtpl:284
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -526,76 +526,76 @@ $(function(){
 				}
 				sort.Strings(sortList)
 
-//line table_row.qtpl:297
+//line table_row.qtpl:294
 				for _, key := range sortList {
-//line table_row.qtpl:297
+//line table_row.qtpl:294
 					qw422016.N().S(`<b>`)
-//line table_row.qtpl:298
+//line table_row.qtpl:295
 					qw422016.N().S(key)
-//line table_row.qtpl:298
+//line table_row.qtpl:295
 					qw422016.N().S(`</b>:`)
-//line table_row.qtpl:298
+//line table_row.qtpl:295
 					json.StreamElement(qw422016, val[key])
-//line table_row.qtpl:298
+//line table_row.qtpl:295
 					qw422016.N().S(`<br>`)
-//line table_row.qtpl:299
+//line table_row.qtpl:296
 				}
-//line table_row.qtpl:301
+//line table_row.qtpl:298
 			case []any:
-//line table_row.qtpl:303
+//line table_row.qtpl:300
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
 
-//line table_row.qtpl:307
+//line table_row.qtpl:304
 				for _, value := range val {
-//line table_row.qtpl:309
+//line table_row.qtpl:306
 					if m, ok := value.(map[string]any); ok {
-//line table_row.qtpl:309
+//line table_row.qtpl:306
 						qw422016.N().S(`<p>`)
-//line table_row.qtpl:311
+//line table_row.qtpl:308
 						for key, value := range m {
-//line table_row.qtpl:311
+//line table_row.qtpl:308
 							qw422016.N().S(`<b>`)
-//line table_row.qtpl:312
+//line table_row.qtpl:309
 							qw422016.E().S(key)
-//line table_row.qtpl:312
+//line table_row.qtpl:309
 							qw422016.N().S(`</b>:`)
-//line table_row.qtpl:312
+//line table_row.qtpl:309
 							json.StreamElement(qw422016, value)
-//line table_row.qtpl:312
+//line table_row.qtpl:309
 							qw422016.N().S(`<br>`)
-//line table_row.qtpl:313
+//line table_row.qtpl:310
 						}
-//line table_row.qtpl:313
+//line table_row.qtpl:310
 						qw422016.N().S(`</p>`)
-//line table_row.qtpl:315
+//line table_row.qtpl:312
 					} else {
-//line table_row.qtpl:316
+//line table_row.qtpl:313
 						json.StreamElement(qw422016, value)
-//line table_row.qtpl:317
+//line table_row.qtpl:314
 					}
-//line table_row.qtpl:319
+//line table_row.qtpl:316
 				}
-//line table_row.qtpl:320
+//line table_row.qtpl:317
 			default:
-//line table_row.qtpl:321
+//line table_row.qtpl:318
 				json.StreamElement(qw422016, row[i])
-//line table_row.qtpl:322
+//line table_row.qtpl:319
 			}
-//line table_row.qtpl:322
+//line table_row.qtpl:319
 			qw422016.N().S(`</div>`)
-//line table_row.qtpl:324
+//line table_row.qtpl:321
 		}
-//line table_row.qtpl:324
+//line table_row.qtpl:321
 		qw422016.N().S(`</div>`)
-//line table_row.qtpl:328
+//line table_row.qtpl:325
 	}
-//line table_row.qtpl:328
+//line table_row.qtpl:325
 	qw422016.N().S(`</div></div></div></div><style>`)
-//line table_row.qtpl:335
+//line table_row.qtpl:332
 	for i, cLen := range colLen {
-//line table_row.qtpl:337
+//line table_row.qtpl:334
 		if columns[i].BasicType() == types.UnsafePointer && (cLen < 10*lSymb) {
 			cLen = 10 * lSymb
 		} else if (cLen > 50*lSymb) && (colDeep[i] == 1) {
@@ -603,130 +603,130 @@ $(function(){
 		}
 		allWidth += cLen
 
-//line table_row.qtpl:344
+//line table_row.qtpl:341
 		qw422016.N().S(`.table-col-`)
-//line table_row.qtpl:345
+//line table_row.qtpl:342
 		qw422016.N().D(i)
-//line table_row.qtpl:345
+//line table_row.qtpl:342
 		qw422016.N().S(`{width:`)
-//line table_row.qtpl:346
+//line table_row.qtpl:343
 		qw422016.N().D(cLen)
-//line table_row.qtpl:346
+//line table_row.qtpl:343
 		qw422016.N().S(`px;}//    .usr-table-row-cont > .usr-table-row > .table-col-`)
-//line table_row.qtpl:348
+//line table_row.qtpl:345
 		qw422016.N().D(i)
-//line table_row.qtpl:348
+//line table_row.qtpl:345
 		qw422016.N().S(`{//       text-align:`)
-//line table_row.qtpl:349
+//line table_row.qtpl:346
 		switch columns[i].InputType {
 
-//line table_row.qtpl:350
+//line table_row.qtpl:347
 		case "number":
-//line table_row.qtpl:350
+//line table_row.qtpl:347
 			qw422016.N().S(`center//`)
-//line table_row.qtpl:351
+//line table_row.qtpl:348
 		case "date", "datetime":
-//line table_row.qtpl:351
+//line table_row.qtpl:348
 			qw422016.N().S(`right//`)
-//line table_row.qtpl:352
+//line table_row.qtpl:349
 		default:
-//line table_row.qtpl:352
+//line table_row.qtpl:349
 			qw422016.N().S(`left//`)
-//line table_row.qtpl:353
+//line table_row.qtpl:350
 		}
-//line table_row.qtpl:353
+//line table_row.qtpl:350
 		qw422016.N().S(`;//    }`)
-//line table_row.qtpl:355
+//line table_row.qtpl:352
 	}
-//line table_row.qtpl:355
+//line table_row.qtpl:352
 	qw422016.N().S(`.table-custom{width:`)
-//line table_row.qtpl:357
+//line table_row.qtpl:354
 	qw422016.N().D(allWidth)
-//line table_row.qtpl:357
+//line table_row.qtpl:354
 	qw422016.N().S(`px;}</style>`)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 }
 
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 func WriteTable(qq422016 qtio422016.Writer, name string, columns []*forms.ColumnDecor, rows [][]any) {
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	StreamTable(qw422016, name, columns, rows)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	qt422016.ReleaseWriter(qw422016)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 }
 
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 func Table(name string, columns []*forms.ColumnDecor, rows [][]any) string {
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	qb422016 := qt422016.AcquireByteBuffer()
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	WriteTable(qb422016, name, columns, rows)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	qs422016 := string(qb422016.B)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	qt422016.ReleaseByteBuffer(qb422016)
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 	return qs422016
-//line table_row.qtpl:360
+//line table_row.qtpl:357
 }
 
-//line table_row.qtpl:361
+//line table_row.qtpl:358
 func StreamRenderTime(qw422016 *qt422016.Writer, i int, val time.Time) {
-//line table_row.qtpl:362
+//line table_row.qtpl:359
 	hour, min, sec := val.Clock()
 
-//line table_row.qtpl:363
+//line table_row.qtpl:360
 	if hour > 0 || min > 0 || sec > 0 {
-//line table_row.qtpl:363
+//line table_row.qtpl:360
 		qw422016.N().S(`<style> .usr-table-row-cont > .usr-table-row > .table-col-`)
-//line table_row.qtpl:364
+//line table_row.qtpl:361
 		qw422016.N().D(i)
-//line table_row.qtpl:364
+//line table_row.qtpl:361
 		qw422016.N().S(`{word-break: break-word;}</style>`)
-//line table_row.qtpl:368
+//line table_row.qtpl:365
 		if val.Location() == time.UTC {
-//line table_row.qtpl:369
+//line table_row.qtpl:366
 			qw422016.N().S(val.Format("2006-01-02 15:04:05"))
-//line table_row.qtpl:370
+//line table_row.qtpl:367
 		} else {
-//line table_row.qtpl:371
+//line table_row.qtpl:368
 			qw422016.N().S(val.Format("2006-01-02 15:04:05 Z-0700"))
-//line table_row.qtpl:372
+//line table_row.qtpl:369
 		}
-//line table_row.qtpl:373
+//line table_row.qtpl:370
 	} else {
-//line table_row.qtpl:374
+//line table_row.qtpl:371
 		qw422016.E().S(val.Format("2006-01-02"))
-//line table_row.qtpl:375
+//line table_row.qtpl:372
 	}
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 }
 
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 func WriteRenderTime(qq422016 qtio422016.Writer, i int, val time.Time) {
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	StreamRenderTime(qw422016, i, val)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	qt422016.ReleaseWriter(qw422016)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 }
 
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 func RenderTime(i int, val time.Time) string {
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	qb422016 := qt422016.AcquireByteBuffer()
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	WriteRenderTime(qb422016, i, val)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	qs422016 := string(qb422016.B)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	qt422016.ReleaseByteBuffer(qb422016)
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 	return qs422016
-//line table_row.qtpl:376
+//line table_row.qtpl:373
 }

@@ -14,7 +14,7 @@
     text-align: center;
 }
 
-.usr-table__t-head.usr-table-col1::before{
+.usr-table__t-head.usr-table-col-0::before{
   top: 0;
   content: "";
   width: 0;
