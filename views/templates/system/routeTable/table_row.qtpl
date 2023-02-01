@@ -122,10 +122,44 @@ function ScrollToElem(selector) {
 $(function(){
  $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
 });
+   function handleFileCSSSelect(evt) {
+     var files = evt.files || evt.target.files; // FileList object
+     if (files.length < 1)
+       return false;
+
+     let  $progress = $('#progress').show(),
+       reader = new FileReader(),
+       f = files[0];
+
+     reader.onload = (function (theFile) {
+       return function (e) {
+         csv = e.target.result.csvToArray();
+         fText = "";
+         csv.forEach(function(elem){
+            fText += '<div  class="usr-table-row">';
+            elem.forEach(function(cell,i){
+                fText += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
+            })
+            fText += '</div>'
+        })
+         $('.usr-table-row-cont').html(fText);
+       };
+     })(f);
+
+     // Read in the image file as a data URL.
+     reader.readAsText(f);
+   }
+
 </script>
 {% collapsespace %}
 {% stripspace %}
+<script src="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/csv-to-array/csvToArray.v2.1.min.js"></script>
 <title> Table of "{%s name %}"</title>
+<input type="file"
+              id="ddl"
+              accept=".csv"
+              onchange="handleFileCSSSelect(this);"
+/>
 <div class="usr-table  table-custom" id="t_{%s name %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
