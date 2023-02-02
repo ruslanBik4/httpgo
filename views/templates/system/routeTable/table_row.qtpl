@@ -5,17 +5,25 @@
 	"sort"
 	"go/types"
 
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 	)
 %}
 {%code
 	var regHTML = regexp.MustCompile(`>([^<]+)<\/`)
+	type TableRender struct {
+	    dbEngine.Table
+	    ApiImport string
+	}
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
-	{%= Table("test", columns, rows) %}
+{%code
+	t := &TableRender{}
+%}
+	{%= t.AllTable(columns, rows) %}
 {% endfunc %}
-{% func Table(name string, columns []*forms.ColumnDecor, rows [][] any) %}
+{% func (t *TableRender) AllTable(columns []*forms.ColumnDecor, rows [][] any) %}
 <style>
 {%= TableCSS() %}
 {%code
@@ -52,33 +60,6 @@ if (document.location.search > "") {
 }
 $('.usr-table-row-cont').load(url + 'order_by=' + order_by + ' .usr-table-row-cont');
 return true;
-
-       $.ajax({
-            url: 'https://localhost/table/projects/browse?order_by=name .usr-table-row-cont',
-             data: {
-                     "lang": lang,
-                     "html": true
-             },
-            processData: false,
-            contentType: false,
-          beforeSend: function (xhr) {
-              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-          },
-          success: function (data, status, xhr) {
-                $('.usr-table-row-cont').html(data);
-          },
-          error: function (xhr, status, error) {
-              if (xhr.status == 401) {
-                urlAfterLogin = url;
-                $('#bLogin').trigger("click");
-               return;
-              }
-
-              alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
-              console.log(xhr);
-          }
-         });
-         return false;
 }
 function getElementsByText(str, name) {
   var items = document.getElementsByClassName(name);
@@ -133,16 +114,17 @@ $(function(){
 
      reader.onload = (function (theFile) {
        return function (e) {
-         csv = e.target.result.csvToArray();
-         fText = "";
+         csv = e.target.result.csvToArray({head:true, rSep: "\n"});
+         fText = '';
          csv.forEach(function(elem){
-            fText += '<div  class="usr-table-row">';
+            row = '';
             elem.forEach(function(cell,i){
-                fText += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
-            })
-            fText += '</div>'
-        })
-         $('.usr-table-row-cont').html(fText);
+                row += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
+            });
+            console.log(row);
+            fText += `<div  class="usr-table-row">${row}</div>`;
+        });
+         $('#t_{%s t.Name() %} .usr-table-row-cont').html(fText);
        };
      })(f);
 
@@ -154,13 +136,33 @@ $(function(){
 {% collapsespace %}
 {% stripspace %}
 <script src="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/csv-to-array/csvToArray.v2.1.min.js"></script>
-<title> Table of "{%s name %}"</title>
-<input type="file"
-              id="ddl"
-              accept=".csv"
-              onchange="handleFileCSSSelect(this);"
-/>
-<div class="usr-table  table-custom" id="t_{%s name %}">
+<title> Table of "{%s t.Comment() %}"</title>
+<div class="sidebar">
+<form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit= "return saveForm(this);">
+<h2> Import to '{%s t.Comment() %}'</h2>
+<label for="csv" class="table-files__label" style="height:30px;">
+                <span class="hiddenInput">
+						<input type="file"
+						              id="csv"
+						              name="csv"
+						              accept=".csv"
+						              onchange="handleFileCSSSelect(this);"
+						/>
+                    </span>
+ </label>
+ <p>
+ <label for="truncate_data"> Truncate table before import <input type="checkbox" name="truncate_data" />
+ </label>
+ </p>
+        <button type="submit">Put in table '{%s t.Name() %}'</button>
+        <button type="reset">Reset form</button>
+
+  <output></output>
+  <progress value='0' max='100' hidden > </progress>
+ </form>
+ <a href=""> Save data to disk </a>
+</div>
+<div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range columns %}

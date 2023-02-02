@@ -302,6 +302,8 @@ function loadContent(url) {
 function PutContent(data, url) {
 	$('#content').html(data);
 	SetDocumentHash(url, data);
+	$('#catalog_pane .sidebar').remove();
+	$('#content .sidebar').appendTo('#catalog_pane');
 }
 
 
