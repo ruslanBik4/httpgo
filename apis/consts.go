@@ -7,7 +7,11 @@
 
 package apis
 
-import "regexp"
+import (
+	"regexp"
+
+	"github.com/valyala/fasthttp"
+)
 
 // content types
 const (
@@ -50,7 +54,7 @@ var methodNames = []string{
 
 func methodFromName(nameMethod string) tMethod {
 	switch nameMethod {
-	case "GET":
+	case fasthttp.MethodGet:
 		return GET
 	case "POST":
 		return POST

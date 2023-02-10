@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -76,6 +76,8 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		// }
 	}
 	cfg.Server.Logger = &fastHTTPLogger{}
+	cfg.Server.KeepHijackedConns = true
+	cfg.Server.CloseOnShutdown = true
 
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
 	var h *HttpGo
@@ -144,6 +146,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
 		}
 	}
+
 	// add cfg refresh routers, ignore errors
 	apisRoute := createAdminRoutes(cfg)
 

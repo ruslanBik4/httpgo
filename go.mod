@@ -14,7 +14,7 @@ require (
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.8.1
 	github.com/tebeka/selenium v0.9.9
-	github.com/valyala/fasthttp v1.37.0
+	github.com/valyala/fasthttp v1.44.0
 	github.com/valyala/fastjson v1.6.3
 	github.com/valyala/quicktemplate v1.7.0
 	golang.org/x/net v0.2.0
@@ -73,7 +73,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/puddle v1.3.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
-	github.com/klauspost/compress v1.15.0 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

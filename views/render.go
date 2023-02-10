@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -26,21 +26,22 @@ import (
 var HEADERS = map[string]string{
 	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
-	"Server":           "HTTPGO/0.9 (CentOS) Go 1.14",
+	"Server":           "%v HTTPGO/%v (CentOS) Go 1.19",
 	"Content-Language": "en, ru",
 }
 
 // WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
 	for key, value := range HEADERS {
+		if key == "Server" {
+			value = fmt.Sprintf(value, ctx.UserValue("name of server httpgo"), ctx.UserValue("ACC_VERSION"))
+		}
 		ctx.Response.Header.Set(key, value)
 	}
 }
 
 func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
-	for key, value := range HEADERS {
-		ctx.Response.Header.Set(key, value)
-	}
+	WriteHeaders(ctx)
 	age, ok := ctx.UserValue(AgeOfServer).(float64)
 	if ok {
 		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
@@ -61,7 +62,7 @@ func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
 }
 
 // RenderAnyPage (deprecate)
-//TODO: replace string output by streaming
+// TODO: replace string output by streaming
 func RenderAnyPage(ctx *fasthttp.RequestCtx, strContent string) error {
 	content := gotools.StringToBytes(strContent)
 	if IsAJAXRequest(&ctx.Request) {

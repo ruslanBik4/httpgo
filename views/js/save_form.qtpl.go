@@ -80,8 +80,58 @@ function saveForm(thisForm, successFunction, errorFunction) {
             $out.html( 'Progress - ' + percentComplete + '%' );
             $progress.val( percentComplete );
         },
+        statusCode: {
+			206: function(data, status, xhr) {
+                    console.log(status);
+                    console.log(data);
+                    console.log(xhr);
+
+			}
+        },
         success: function(data, status, xhr) {
             if (xhr.status === 206) {
+//                $out.html(`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`<pre>${data.message}</pre>`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`);
+//                let socket = new WebSocket(`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`wss://${location.host}${data.url}`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`);
+//                socket.onmessage = function(event) {
+//                  $out.append(`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`<pre>${event.message}</pre>`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`);
+//                };
+//                socket.onerror = function(error) {
+//                  console.log(error)
+//                  $out.append(`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`<pre>${error}</pre>`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`);
+//                };
+//                    console.log(xhr);
                 OverHijack($out, data);
                 return
             }
@@ -133,7 +183,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
         complete: function(xhr, status, obj) {
             $progress.hide();
             $loading.hide();
-            console.log(status);
+            console.log(xhr);
             console.log(obj);
        }
     });
@@ -141,12 +191,26 @@ function saveForm(thisForm, successFunction, errorFunction) {
     return false;
 }
 function OverHijack($out, resp) {
-        $out.append('<pre>'+resp.message+'</pre>');
+        $out.append(`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`<pre>${resp.message}</pre>`)
+//line save_form.qtpl:1
+	qw422016.N().S("`")
+//line save_form.qtpl:1
+	qw422016.N().S(`);
+        var method = "GET";
+        if (resp.method !== undefined) {
+            method = resp.method
+        }
+
        $.ajax({
             url: resp.url,
             async: true,
             cache: false,
             contentType: false,
+            type: method,
              data: {
                      "lang": lang,
                      "html": true
@@ -165,6 +229,7 @@ function OverHijack($out, resp) {
                     } else {
                         resp.message = data
                     }
+                    console.log(data);
                     OverHijack($out, resp);
                     return;
                case 202: {
@@ -297,31 +362,31 @@ function alertField(thisElem) {
     $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus().next('.errorLabel').show();
 }
 `)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 }
 
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 func WriteSaveForm(qq422016 qtio422016.Writer) {
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	StreamSaveForm(qw422016)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	qt422016.ReleaseWriter(qw422016)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 }
 
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 func SaveForm() string {
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	qb422016 := qt422016.AcquireByteBuffer()
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	WriteSaveForm(qb422016)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	qs422016 := string(qb422016.B)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	qt422016.ReleaseByteBuffer(qb422016)
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 	return qs422016
-//line save_form.qtpl:270
+//line save_form.qtpl:295
 }

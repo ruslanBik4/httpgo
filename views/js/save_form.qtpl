@@ -51,8 +51,26 @@ function saveForm(thisForm, successFunction, errorFunction) {
             $out.html( 'Progress - ' + percentComplete + '%' );
             $progress.val( percentComplete );
         },
+        statusCode: {
+			206: function(data, status, xhr) {
+                    console.log(status);
+                    console.log(data);
+                    console.log(xhr);
+
+			}
+        },
         success: function(data, status, xhr) {
             if (xhr.status === 206) {
+//                $out.html(`<pre>${data.message}</pre>`);
+//                let socket = new WebSocket(`wss://${location.host}${data.url}`);
+//                socket.onmessage = function(event) {
+//                  $out.append(`<pre>${event.message}</pre>`);
+//                };
+//                socket.onerror = function(error) {
+//                  console.log(error)
+//                  $out.append(`<pre>${error}</pre>`);
+//                };
+//                    console.log(xhr);
                 OverHijack($out, data);
                 return
             }
@@ -104,7 +122,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
         complete: function(xhr, status, obj) {
             $progress.hide();
             $loading.hide();
-            console.log(status);
+            console.log(xhr);
             console.log(obj);
        }
     });
@@ -112,12 +130,18 @@ function saveForm(thisForm, successFunction, errorFunction) {
     return false;
 }
 function OverHijack($out, resp) {
-        $out.append('<pre>'+resp.message+'</pre>');
+        $out.append(`<pre>${resp.message}</pre>`);
+        var method = "GET";
+        if (resp.method !== undefined) {
+            method = resp.method
+        }
+
        $.ajax({
             url: resp.url,
             async: true,
             cache: false,
             contentType: false,
+            type: method,
              data: {
                      "lang": lang,
                      "html": true
@@ -136,6 +160,7 @@ function OverHijack($out, resp) {
                     } else {
                         resp.message = data
                     }
+                    console.log(data);
                     OverHijack($out, resp);
                     return;
                case 202: {
