@@ -4,9 +4,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 .
 {% func HeadJSForForm(afterAuthURL, changeTheme string) %}
 <script>
-var user = ''
-var userStruct
-var urlAfterLogin = ''
+var user = '';
+var userStruct;
+var urlAfterLogin = '{%s= afterAuthURL %}';
 
 function fancyOpen(data) {
       $.fancybox.open({
@@ -24,23 +24,40 @@ function fancyOpen(data) {
 
 
 function getUser() {
-    user = localStorage.getItem("USER")
+    user = localStorage.getItem("USER");
     if (user > '') {
         userStruct = JSON.parse(user);
-        console.log(userStruct);
-        document.getElementById('bLogin').textContent = userStruct.name + "(" + userStruct.lang +")";
-        token =  userStruct.token
-        lang  =  userStruct.lang
-        $('.auth').removeClass("auth");
-    {%- if  changeTheme > "" -%}
-        {%s= changeTheme %}(userStruct.theme);
-    {%- endif -%}
-    {%- if  afterAuthURL > "" -%}
-        loadContent("{%s= afterAuthURL %}");
-    {%- endif -%}
+        saveUser(userStruct);
     }
+}
 
-    return ''
+function saveUser(userStruct) {
+	var userSuffix = userStruct.lang ? `(${userStruct.lang})`: '';
+        console.log(userStruct);
+        lang  =  userStruct.lang;
+        document.getElementById('bLogin').textContent = userStruct.name + userSuffix;
+        token =  userStruct.token || userStruct.access_token || userStruct.bearer_token || userStruct.auth_token;
+
+ 	$('#bLogin').text(userStruct.name + userSuffix);
+ 	$('.auth').removeClass("auth");
+
+ 	{%- if changeTheme > "" -%} {%s= changeTheme %}(userStruct.theme); {%- endif -%}
+
+ 	if (urlAfterLogin === '') {
+ 		if (userStruct.formActions !== undefined) {
+ 		 urlAfterLogin = userStruct.formActions[0].url;
+ 		} else {
+ 		 urlAfterLogin = {%- if  afterAuthURL > "" -%} "{%s= afterAuthURL %}" {% else %} "/user/profile" {%- endif -%};
+ 		}
+ 	} else if (urlAfterLogin.onsubmit !== undefined ) {
+ 		urlAfterLogin.onsubmit();
+ 		urlAfterLogin = "";
+ 		return;
+ 	}
+
+ 	if (urlAfterLogin > '') {
+ 	    loadContent(urlAfterLogin);
+ 	}
 }
 
 var token = '';
@@ -246,27 +263,8 @@ function afterSaveAnyForm(data, status) {
 	}
 
 	localStorage.setItem("USER",  JSON.stringify(userStruct) );
-	token = userStruct.token;
-	lang = userStruct.lang;
-
-	$('#bLogin').text(userStruct.name + lang > "" ? "(" + lang +")" : "");
-	$('.auth').removeClass("auth");
-
-	{%- if  changeTheme > "" -%} {%s= changeTheme %}(userStruct.theme); {%- endif -%}
-
-	if (urlAfterLogin === '') {
-		if (userStruct.formActions !== undefined) {
-		 urlAfterLogin = userStruct.formActions[0].url;
-		} else {
-		 urlAfterLogin = {%- if  afterAuthURL > "" -%} "{%s= afterAuthURL %}" {% else %} "/user/profile" {%- endif -%};
-		}
-	} else if (urlAfterLogin.onsubmit !== undefined ) {
-		urlAfterLogin.onsubmit();
-		urlAfterLogin = "";
-		return;
-	}
-
-	loadContent(urlAfterLogin)
+	saveUser(userStruct);
+	return true;
 }
 // run request & show content
 function loadContent(url) {

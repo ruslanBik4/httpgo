@@ -15,6 +15,7 @@
 	type TableRender struct {
 	    dbEngine.Table
 	    ApiImport string
+        OnlyView bool
 	}
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
@@ -137,6 +138,7 @@ $(function(){
 {% stripspace %}
 <script src="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/csv-to-array/csvToArray.v2.1.min.js"></script>
 <title> Table of "{%s t.Comment() %}"</title>
+{%- if !t.OnlyView -%}
 <div class="sidebar">
 <form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit= "return saveForm(this);">
 <h2> Import to '{%s t.Comment() %}'</h2>
@@ -162,6 +164,7 @@ $(function(){
  </form>
  <a href=""> Save data to disk </a>
 </div>
+{%- endif -%}
 <div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">

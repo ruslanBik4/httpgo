@@ -34,9 +34,13 @@ func StreamHeadJSForForm(qw422016 *qt422016.Writer, afterAuthURL, changeTheme st
 //line forms.qtpl:5
 	qw422016.N().S(`
 <script>
-var user = ''
-var userStruct
-var urlAfterLogin = ''
+var user = '';
+var userStruct;
+var urlAfterLogin = '`)
+//line forms.qtpl:9
+	qw422016.N().S(afterAuthURL)
+//line forms.qtpl:9
+	qw422016.N().S(`';
 
 function fancyOpen(data) {
       $.fancybox.open({
@@ -54,41 +58,73 @@ function fancyOpen(data) {
 
 
 function getUser() {
-    user = localStorage.getItem("USER")
+    user = localStorage.getItem("USER");
     if (user > '') {
         userStruct = JSON.parse(user);
-        console.log(userStruct);
-        document.getElementById('bLogin').textContent = userStruct.name + "(" + userStruct.lang +")";
-        token =  userStruct.token
-        lang  =  userStruct.lang
-        $('.auth').removeClass("auth");
-`)
-//line forms.qtpl:35
-	if changeTheme > "" {
-//line forms.qtpl:35
-		qw422016.N().S(`        `)
-//line forms.qtpl:36
-		qw422016.N().S(changeTheme)
-//line forms.qtpl:36
-		qw422016.N().S(`(userStruct.theme);
-`)
-//line forms.qtpl:37
-	}
-//line forms.qtpl:38
-	if afterAuthURL > "" {
-//line forms.qtpl:38
-		qw422016.N().S(`        loadContent("`)
-//line forms.qtpl:39
-		qw422016.N().S(afterAuthURL)
-//line forms.qtpl:39
-		qw422016.N().S(`");
-`)
-//line forms.qtpl:40
-	}
-//line forms.qtpl:40
-	qw422016.N().S(`    }
+        saveUser(userStruct);
+    }
+}
 
-    return ''
+function saveUser(userStruct) {
+	var userSuffix = userStruct.lang ? `)
+//line forms.qtpl:9
+	qw422016.N().S("`")
+//line forms.qtpl:9
+	qw422016.N().S(`(${userStruct.lang})`)
+//line forms.qtpl:9
+	qw422016.N().S("`")
+//line forms.qtpl:9
+	qw422016.N().S(`: '';
+        console.log(userStruct);
+        lang  =  userStruct.lang;
+        document.getElementById('bLogin').textContent = userStruct.name + userSuffix;
+        token =  userStruct.token || userStruct.access_token || userStruct.bearer_token || userStruct.auth_token;
+
+ 	$('#bLogin').text(userStruct.name + userSuffix);
+ 	$('.auth').removeClass("auth");
+
+`)
+//line forms.qtpl:44
+	if changeTheme > "" {
+//line forms.qtpl:44
+		qw422016.N().S(changeTheme)
+//line forms.qtpl:44
+		qw422016.N().S(`(userStruct.theme);`)
+//line forms.qtpl:44
+	}
+//line forms.qtpl:44
+	qw422016.N().S(`
+ 	if (urlAfterLogin === '') {
+ 		if (userStruct.formActions !== undefined) {
+ 		 urlAfterLogin = userStruct.formActions[0].url;
+ 		} else {
+ 		 urlAfterLogin =`)
+//line forms.qtpl:50
+	if afterAuthURL > "" {
+//line forms.qtpl:50
+		qw422016.N().S(`"`)
+//line forms.qtpl:50
+		qw422016.N().S(afterAuthURL)
+//line forms.qtpl:50
+		qw422016.N().S(`" `)
+//line forms.qtpl:50
+	} else {
+//line forms.qtpl:50
+		qw422016.N().S(` "/user/profile"`)
+//line forms.qtpl:50
+	}
+//line forms.qtpl:50
+	qw422016.N().S(`;
+ 		}
+ 	} else if (urlAfterLogin.onsubmit !== undefined ) {
+ 		urlAfterLogin.onsubmit();
+ 		urlAfterLogin = "";
+ 		return;
+ 	}
+
+ 	if (urlAfterLogin > '') {
+ 	    loadContent(urlAfterLogin);
+ 	}
 }
 
 var token = '';
@@ -113,9 +149,9 @@ function setClickAll() {
         isSearch = (this.target=="search");
 
         $(this).click( `)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	StreamOverClick(qw422016)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(` )
 
       })
@@ -152,13 +188,13 @@ if (title === "") {
 	title = str_path;
 }
 	console.log(`)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`setHash ${title}`)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`)
     var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
             + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
@@ -194,13 +230,13 @@ $(function()   {
 					console.log(evt)
 				}
 				console.log( `)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`beforeunload ${document.location} pageY:${y}`)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`);
 		        evt.preventDefault();
 				if (y < 0) {
@@ -213,13 +249,13 @@ $(function()   {
 //					loadContent(url.toString());
 //					url.pathname = "/";
 					console.log(`)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`reload ${url}`)
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:67
+//line forms.qtpl:84
 	qw422016.N().S(`)
 					evt.target.URL = url.origin;
 					evt.srcElement.URL = evt.target.URL;
@@ -296,9 +332,9 @@ $(function()   {
 }) // $(document).ready
 
 `)
-//line forms.qtpl:222
+//line forms.qtpl:239
 	StreamSaveForm(qw422016)
-//line forms.qtpl:222
+//line forms.qtpl:239
 	qw422016.N().S(`
 
 // handling response AnyForm & render result according to structures of data
@@ -326,52 +362,8 @@ function afterSaveAnyForm(data, status) {
 	}
 
 	localStorage.setItem("USER",  JSON.stringify(userStruct) );
-	token = userStruct.token;
-	lang = userStruct.lang;
-
-	$('#bLogin').text(userStruct.name + lang > "" ? "(" + lang +")" : "");
-	$('.auth').removeClass("auth");
-
-`)
-//line forms.qtpl:255
-	if changeTheme > "" {
-//line forms.qtpl:255
-		qw422016.N().S(changeTheme)
-//line forms.qtpl:255
-		qw422016.N().S(`(userStruct.theme);`)
-//line forms.qtpl:255
-	}
-//line forms.qtpl:255
-	qw422016.N().S(`
-	if (urlAfterLogin === '') {
-		if (userStruct.formActions !== undefined) {
-		 urlAfterLogin = userStruct.formActions[0].url;
-		} else {
-		 urlAfterLogin =`)
-//line forms.qtpl:261
-	if afterAuthURL > "" {
-//line forms.qtpl:261
-		qw422016.N().S(`"`)
-//line forms.qtpl:261
-		qw422016.N().S(afterAuthURL)
-//line forms.qtpl:261
-		qw422016.N().S(`" `)
-//line forms.qtpl:261
-	} else {
-//line forms.qtpl:261
-		qw422016.N().S(` "/user/profile"`)
-//line forms.qtpl:261
-	}
-//line forms.qtpl:261
-	qw422016.N().S(`;
-		}
-	} else if (urlAfterLogin.onsubmit !== undefined ) {
-		urlAfterLogin.onsubmit();
-		urlAfterLogin = "";
-		return;
-	}
-
-	loadContent(urlAfterLogin)
+	saveUser(userStruct);
+	return true;
 }
 // run request & show content
 function loadContent(url) {
@@ -400,13 +392,13 @@ function loadContent(url) {
 
                 alert( "Code : " + xhr.status + " error :"+ error);
                 console.log(`)
-//line forms.qtpl:261
+//line forms.qtpl:239
 	qw422016.N().S("`")
-//line forms.qtpl:261
+//line forms.qtpl:239
 	qw422016.N().S(`${url} ${status} ${error}`)
-//line forms.qtpl:261
+//line forms.qtpl:239
 	qw422016.N().S("`")
-//line forms.qtpl:261
+//line forms.qtpl:239
 	qw422016.N().S(`);
             }
        });
@@ -500,31 +492,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:389
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:389
+//line forms.qtpl:387
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:389
+//line forms.qtpl:387
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:389
+//line forms.qtpl:387
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	return qs422016
-//line forms.qtpl:389
+//line forms.qtpl:387
 }
