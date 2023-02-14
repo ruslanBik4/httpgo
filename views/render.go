@@ -24,7 +24,6 @@ import (
 
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
-	"Content-Type":     "text/html; charset=utf-8",
 	"author":           "ruslanBik4",
 	"Server":           "%v HTTPGO/%v (CentOS) Go 1.19",
 	"Content-Language": "en, ru",
@@ -32,11 +31,15 @@ var HEADERS = map[string]string{
 
 // WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.SetContentType("text/html; charset=utf-8")
+	ctx.Response.Header.SetContentEncoding("utf-8")
 	for key, value := range HEADERS {
 		if key == "Server" {
 			value = fmt.Sprintf(value, ctx.UserValue("name of server httpgo"), ctx.UserValue("ACC_VERSION"))
 		}
-		ctx.Response.Header.Set(key, value)
+		if len(ctx.Response.Header.Peek(key)) == 0 {
+			ctx.Response.Header.Set(key, value)
+		}
 	}
 }
 

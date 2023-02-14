@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -27,7 +27,8 @@ var (
 //line over_click.qtpl:1
 func StreamOverClick(qw422016 *qt422016.Writer) {
 //line over_click.qtpl:1
-	qw422016.N().S(`function() {
+	qw422016.N().S(`
+function() {
      var $out = $('#content');
        $.ajax({
             url: url,
@@ -39,6 +40,7 @@ func StreamOverClick(qw422016 *qt422016.Writer) {
             contentType: false,
           beforeSend: function (xhr) {
               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+              xhr.setRequestHeader('Content-Language', lang);
           },
           success: function (data, status, xhr) {
               switch (xhr.status) {
@@ -91,31 +93,31 @@ func StreamOverClick(qw422016 *qt422016.Writer) {
          return false;
 }
 `)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 }
 
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 func WriteOverClick(qq422016 qtio422016.Writer) {
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	StreamOverClick(qw422016)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	qt422016.ReleaseWriter(qw422016)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 }
 
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 func OverClick() string {
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	qb422016 := qt422016.AcquireByteBuffer()
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	WriteOverClick(qb422016)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	qs422016 := string(qb422016.B)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	qt422016.ReleaseByteBuffer(qb422016)
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 	return qs422016
-//line over_click.qtpl:65
+//line over_click.qtpl:67
 }

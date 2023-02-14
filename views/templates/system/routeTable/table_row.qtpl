@@ -14,25 +14,30 @@
 	var regHTML = regexp.MustCompile(`>([^<]+)<\/`)
 	type TableRender struct {
 	    dbEngine.Table
+	    columns []*forms.ColumnDecor
+	    rows [][] any
 	    ApiImport string
         OnlyView bool
 	}
+
+	func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, apiImport string, onlyView bool) *TableRender {
+    	return &TableRender{Table: table, columns: columns, rows: rows, ApiImport: apiImport, OnlyView: onlyView}
+    }
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
 {%code
-	t := &TableRender{}
+	t := &TableRender{columns: columns, rows: rows}
 %}
-	{%= t.AllTable(columns, rows) %}
+	{%= t.AllTable() %}
 {% endfunc %}
-{% func (t *TableRender) AllTable(columns []*forms.ColumnDecor, rows [][] any) %}
+{% func (t *TableRender) AllTable() %}
 <style>
 {%= TableCSS() %}
 {%code
-   colLen := make([]int, len(columns))
-   colDeep := make([]int, len(columns))
+   colLen := make([]int, len(t.columns))
+   colDeep := make([]int, len(t.columns))
    lSymb := 11
-   allWidth := 0
-   for i, col := range columns {
+   for i, col := range t.columns {
         colLen[i] = len(col.Label)*lSymb
         colDeep[i] = 1
    }
@@ -53,44 +58,94 @@ function loadTable(order_by) {
 $.ajaxSetup({
     'headers':{'Authorization': 'Bearer ' + token}
 });
-var url = document.location.href;
-if (document.location.search > "") {
-	url += '&'
-} else {
-	url +='?'
-}
+var url = document.location.href + (document.location.search > "" ? '&': '?');
+
 $('.usr-table-row-cont').load(url + 'order_by=' + order_by + ' .usr-table-row-cont');
 return true;
 }
+function appendTable() {
+var elem =  $('.usr-table-content')[0];
+var lines = $('.usr-table-row-cont').children('div:visible').length;
+let url = document.location.href;
+if (url.indexOf('offset') == -1) {
+	url += `&offset=${lines}`
+} else {
+	url = url.replace(/(offset=)(\d+)/, '$1'+lines);
+}
+$('div.filt-arrow > input').each(
+function(i,elem) {
+	if (elem.value) {
+		if (url.indexOf(`${elem.dataset.name}=`) == -1) {
+			url += `&${elem.dataset.name}=${elem.value}`;
+		} else {
+			var r =new RegExp(`(${elem.dataset.name}=)(\\w+)`);
+         	url = url.replace(r, `$1${elem.value}`);
+        }
+	}
+});
+       $.ajax({
+            url: url,
+             data: {
+                     "lang": lang,
+                     "html": true
+             },
+            processData: false,
+            contentType: false,
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+          },
+          success: function (data, status, xhr) {
+				$(elem).append($('<div />').html(data).find('.usr-table-row-cont').html());
+				SetDocumentHash(url, data);
+		  },
+          error: function (xhr, status, error) {
+              if (xhr.status == 401) {
+                urlAfterLogin = url;
+                $('#bLogin').trigger("click");
+               return;
+              }
+
+              alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
+              console.log(xhr);
+          }
+         });
+return true;
+}
 function getElementsByText(str, name) {
+	let i = 0;
   var items = document.getElementsByClassName(name);
   var elem = Array.prototype.slice.call(items).forEach(
-  function(el, ind, arr) {
-    if (str.trim() == "") {
-        el.parentElement.style = "";
-        return true;
-    }
-    if ( el.textContent.includes( str.trim() )
-        || el.parentElement.className.includes("usr-table__t-head")
-        || el.parentElement.className.includes("usr-table__filter")) {
-        el.parentElement.style = "";
-        return true;
-    }
-     el.parentElement.style = "display:none";
+	  function(el, ind, arr) {
+	    if (str.trim() == "") {
+	        el.parentElement.style = "";
+	        i++
+	        return true;
+	    }
+	    if ( el.textContent.includes( str.trim() )
+	        || el.parentElement.className.includes("usr-table__t-head")
+	        || el.parentElement.className.includes("usr-table__filter")) {
+	        el.parentElement.style = "";
+	        i++
+	        return true;
+	    }
+	     el.parentElement.style = "display:none";
     });
-    return
-  if (elem.length > 0) {
-//todo- chg on each
-    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
-    elem[0].focus();
-    elem[0].animate([
-      {color: 'blue'},
-      {color: 'red'}
-    ], {
-        duration: 3000,
-        iterations: 100
-    });
+  if (i < 30) {
+    appendTable();
   }
+    return
+//  if (elem.length > 0) {
+////todo- chg on each
+//    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
+//    elem[0].focus();
+//    elem[0].animate([
+//      {color: 'blue'},
+//      {color: 'red'}
+//    ], {
+//        duration: 3000,
+//        iterations: 100
+//    });
+//  }
 }
 function ScrollToElem(selector) {
 	var list = $(selector);
@@ -103,7 +158,25 @@ function ScrollToElem(selector) {
 }
 $(function(){
  $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
+ tableCnt = $('.usr-table-content');
+ tableCnt.on('mousewheel', function(e, delta){
+    if(delta == -1 && tableCnt.scrollTop() + tableCnt.height() + 30 > tableCnt[0].scrollHeight) {
+		var elem =  $('.usr-table-content')[0];
+		console.log(`${elem.scrollTop} ${elem.scrollHeight}`);
+        throttle( appendTable, 500);
+    }
+ })
 });
+var throttleTimer;
+const throttle = (callback, time) => {
+  if (throttleTimer) return;
+   throttleTimer = true;
+   callback();
+   setTimeout(() => {
+    throttleTimer = false;
+  }, time);
+
+};
    function handleFileCSSSelect(evt) {
      var files = evt.files || evt.target.files; // FileList object
      if (files.length < 1)
@@ -168,15 +241,15 @@ $(function(){
 <div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
-	    {% for i, col := range columns %}
+	    {% for i, col := range t.columns %}
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
-	            {% if col.Label == "id" && i < len(columns)-1 %}
+	            {% if col.Label == "id" && i < len(t.columns)-1 %}
         <style> .usr-table-header > .usr-table__t-head > .table-col-{%d i%}{
 //            position: sticky;
         }
         </style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
-				    {% for j, c := range columns[i+1:] %}
+				    {% for j, c := range t.columns[i+1:] %}
 				           <li class="top-mnu-item">
 				                <a href='#' onclick="return ScrollToElem('.table-col-{%d i+j+1 %}');" title='{%s c.Label %}'>
 				                {%s fmt.Sprintf("%.20s", c.Label) %} </a>
@@ -190,7 +263,7 @@ $(function(){
 	    </div>
 
 	    <div class="usr-table__filter  usr-table-row">
-		{% for i, col := range columns %}
+		{% for i, col := range t.columns %}
 		<div class="usr-table-col table-col-{%d i%}">
 		<div class="filt-arrow">
 		{%- if col.LinkNew > "" -%} {%s= col.LinkNew %}
@@ -219,7 +292,7 @@ $(function(){
 		        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
 		        </select>
 			{% default %}
-				<input type="{%s col.InputType %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
+				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
 			{% endswitch %}
 		{% endif %}
 		</div>
@@ -231,146 +304,20 @@ $(function(){
     <div class="usr-table-content">
         <div class="usr-table-content-scroll">
             <div class="usr-table-row-cont">
-               {% for _, row  := range rows %}
-                    <div  class="usr-table-row">
-                    {% for i, column := range columns %}
-                        <div class="usr-table-col  table-col-{%d i%}">
-                            {% switch val := row[i].(type) %}
-                            {% case time.Time %} {%s= RenderTime(i,val) %}
-                            {% case string %}
-                              {%s= val %}
-                              {%code
-                                   lenVal := lSymb
-                                   s := regHTML.FindString(val)
-                                   if len(s) > 0 {
-                                    lenVal *= len(s)
-                                   } else {
-                                    lenVal *= len(val)
-                                   }
-
-                                if lenVal > colLen[i] && (column.Name() != "id") {
-                                    colLen[i] = lenVal
-                                }
-                              %}
-                            {% case bool %}
-                              {% if val %}
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>
-                               {% endif %}
-                            {% case int, int32, int64 %}
-                                    {%code s := fmt.Sprintf("%v", val)
-		                                if lenVal := len(s) * lSymb; lenVal > colLen[i] {
-		                                    colLen[i] = lenVal
-		                                }
-                                    %}
-                                    {%s s %}
-                            {% case float32 %}   {%v= val %}
-                            {% case float64 %}   {%f.2 val %}
-                            {% case []string %}
-
-                                  {% for _, str := range val %}
-                                   <p>{%s= str %}</p>
-                                    {%code
-                                      lenVal := lSymb * (len(str) + 2)
-                                      if lenVal > colLen[i] {
-                                        colLen[i] = lenVal
-                                      }
-                                    %}
-                                    {% endfor %}
-                                  {%code
-                                    if colDeep[i] < len(val) {
-                                        colDeep[i] = len(val)
-                                    }
-                                  %}
-
-                            {% case []int32 %}
-                                  {% for _, val := range val %}
-                                    {%v= val %}
-                                  {% endfor %}
-
-                            {% case []int64 %}
-                                  {% for _, val := range val %}
-                                    {%v= val %}
-                                  {% endfor %}
-
-                            {% case map[string]string %}
-                                <table>
-                                      {% code
-
-                                     if colDeep[i] < len(val) {
-                                         colDeep[i] = len(val)
-                                     }
-
-                                     	sortList := make([]string, 0, len(val))
-                                      	for name := range val {
-                                      		sortList = append(sortList, name)
-                                      	}
-                                      	sort.Strings(sortList)
-                                      %}
-                                      {% for _, key := range sortList %}
-                                        <tr><td><b>{%s= key %}</b></td><td>{%s= val[key] %}</td></tr>
-                                         {%code
-                                           lenVal := (lSymb+2) * len(key) + lSymb * len(val[key]) + 2
-                                           if lenVal > colLen[i] {
-                                             colLen[i] = lenVal
-                                           }
-                                          %}
-                                     {% endfor %}
-                                </table>
-
-                            {% case map[string]any %}
-                                      {% code
-
-                                        if colDeep[i] < len(val) {
-                                            colDeep[i] = len(val)
-                                        }
-
-                                      	sortList := make([]string, 0, len(val))
-                                      	for name := range val {
-                                      		sortList = append(sortList, name)
-                                      	}
-                                      	sort.Strings(sortList)
-                                      %}
-                                      {% for _, key := range sortList %}
-                                        <b>{%s= key %}</b>: {%= json.Element(val[key])%}<br>
-                                      {% endfor %}
-
-                            {% case []any %}
-                                   {%code
-                                     if colDeep[i] < len(val) {
-                                         colDeep[i] = len(val)
-                                     }
-                                   %}
-                                {% for _, value := range val %}
-
-                                    {% if m, ok := value.(map[string]any); ok %}
-                                      <p>
-                                      {% for key, value := range m %}
-                                        <b>{%s key %}</b>: {%= json.Element(value)%}<br>
-                                      {% endfor %}
-                                      </p>
-                                    {% else %}
-                                          {%= json.Element(value) %}
-                                    {% endif %}
-
-                                {% endfor %}
-                           {% default %}
-                                    {%= json.Element(row[i]) %}
-                            {% endswitch %}
-                        </div>
-                    {% endfor %}
-
-                  </div>
-
-                {% endfor %}
-
+                {%= t.RenderRows(lSymb, colLen, colDeep) %}
             </div>
         </div>
     </div>
 </div>
+{% endfunc %}
+{% func (t *TableRender) RenderRowsStyles(lSymb int, colLen, colDeep []int)%}
 <style>
+  {% code
+   allWidth := 0
+   %}
 {% for i, cLen := range colLen %}
   {% code
-    if columns[i].BasicType() == types.UnsafePointer && (cLen < 10 * lSymb){
+    if t.columns[i].BasicType() == types.UnsafePointer && (cLen < 10 * lSymb){
         cLen = 10 * lSymb
     } else if (cLen > 50 * lSymb) && (colDeep[i] == 1) {
         cLen = 50 * lSymb
@@ -382,7 +329,7 @@ $(function(){
         width: {%d cLen %}px;
     }
 //    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
-//       text-align: {% switch columns[i].InputType %}
+//       text-align: {% switch t.columns[i].InputType %}
 //                    {% case "number" %}center
 //                    {% case "date", "datetime" %} right
 //                    {% default %} left
@@ -410,5 +357,140 @@ $(function(){
         {%s val.Format("2006-01-02") %}
     {%- endif -%}
 {% endfunc %}
+func render Table rows{
+{% func (t *TableRender) RenderRows(lSymb int, colLen, colDeep []int)%}
+   {% for _, row  := range t.rows %}
+        <div  class="usr-table-row">
+        {% for i, column := range t.columns %}
+            <div class="usr-table-col  table-col-{%d i%}">
+                {% switch val := row[i].(type) %}
+                {% case time.Time %} {%s= RenderTime(i,val) %}
+                {% case string %}
+                  {%s= val %}
+                  {%code
+                       lenVal := lSymb
+                       s := regHTML.FindString(val)
+                       if len(s) > 0 {
+                        lenVal *= len(s)
+                       } else {
+                        lenVal *= len(val)
+                       }
+
+                    if lenVal > colLen[i] && (column.Name() != "id") {
+                        colLen[i] = lenVal
+                    }
+                  %}
+                {% case bool %}
+                  {% if val %}
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>
+                   {% endif %}
+                {% case int, int32, int64 %}
+                        {%code s := fmt.Sprintf("%v", val)
+                            if lenVal := len(s) * lSymb; lenVal > colLen[i] {
+                                colLen[i] = lenVal
+                            }
+                        %}
+                        {%s s %}
+                {% case float32 %}   {%v= val %}
+                {% case float64 %}   {%f.2 val %}
+                {% case []string %}
+
+                      {% for _, str := range val %}
+                       <p>{%s= str %}</p>
+                        {%code
+                          lenVal := lSymb * (len(str) + 2)
+                          if lenVal > colLen[i] {
+                            colLen[i] = lenVal
+                          }
+                        %}
+                        {% endfor %}
+                      {%code
+                        if colDeep[i] < len(val) {
+                            colDeep[i] = len(val)
+                        }
+                      %}
+
+                {% case []int32 %}
+                      {% for _, val := range val %}
+                        {%v= val %}
+                      {% endfor %}
+
+                {% case []int64 %}
+                      {% for _, val := range val %}
+                        {%v= val %}
+                      {% endfor %}
+
+                {% case map[string]string %}
+                    <table>
+                          {% code
+
+                         if colDeep[i] < len(val) {
+                             colDeep[i] = len(val)
+                         }
+
+                            sortList := make([]string, 0, len(val))
+                            for name := range val {
+                                sortList = append(sortList, name)
+                            }
+                            sort.Strings(sortList)
+                          %}
+                          {% for _, key := range sortList %}
+                            <tr><td><b>{%s= key %}</b></td><td>{%s= val[key] %}</td></tr>
+                             {%code
+                               lenVal := (lSymb+2) * len(key) + lSymb * len(val[key]) + 2
+                               if lenVal > colLen[i] {
+                                 colLen[i] = lenVal
+                               }
+                              %}
+                         {% endfor %}
+                    </table>
+
+                {% case map[string]any %}
+                          {% code
+
+                            if colDeep[i] < len(val) {
+                                colDeep[i] = len(val)
+                            }
+
+                            sortList := make([]string, 0, len(val))
+                            for name := range val {
+                                sortList = append(sortList, name)
+                            }
+                            sort.Strings(sortList)
+                          %}
+                          {% for _, key := range sortList %}
+                            <b>{%s= key %}</b>: {%= json.Element(val[key])%}<br>
+                          {% endfor %}
+
+                {% case []any %}
+                       {%code
+                         if colDeep[i] < len(val) {
+                             colDeep[i] = len(val)
+                         }
+                       %}
+                    {% for _, value := range val %}
+
+                        {% if m, ok := value.(map[string]any); ok %}
+                          <p>
+                          {% for key, value := range m %}
+                            <b>{%s key %}</b>: {%= json.Element(value)%}<br>
+                          {% endfor %}
+                          </p>
+                        {% else %}
+                              {%= json.Element(value) %}
+                        {% endif %}
+
+                    {% endfor %}
+               {% default %}
+                        {%= json.Element(row[i]) %}
+                {% endswitch %}
+            </div>
+        {% endfor %}
+
+      </div>
+    {% endfor %}
+    {%= t.RenderRowsStyles(lSymb, colLen, colDeep) %}
+{% endfunc %}
+}
 {% endcollapsespace %}
 {% endstripspace %}

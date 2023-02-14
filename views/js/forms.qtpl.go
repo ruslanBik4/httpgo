@@ -143,7 +143,7 @@ function setClickAll() {
       $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
-        var url = this.href
+        var url = replMacros(this.href)
         var target = this.target
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");
@@ -157,7 +157,9 @@ function setClickAll() {
       })
   isProcess = false;
 }
-
+function replMacros(url) {
+	return url.replace(/{page}/, Math.round((window.innerHeight-60) / 22))
+}
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
        if ( $head.length == 0 ) {
@@ -332,9 +334,9 @@ $(function()   {
 }) // $(document).ready
 
 `)
-//line forms.qtpl:239
+//line forms.qtpl:241
 	StreamSaveForm(qw422016)
-//line forms.qtpl:239
+//line forms.qtpl:241
 	qw422016.N().S(`
 
 // handling response AnyForm & render result according to structures of data
@@ -392,13 +394,13 @@ function loadContent(url) {
 
                 alert( "Code : " + xhr.status + " error :"+ error);
                 console.log(`)
-//line forms.qtpl:239
+//line forms.qtpl:241
 	qw422016.N().S("`")
-//line forms.qtpl:239
+//line forms.qtpl:241
 	qw422016.N().S(`${url} ${status} ${error}`)
-//line forms.qtpl:239
+//line forms.qtpl:241
 	qw422016.N().S("`")
-//line forms.qtpl:239
+//line forms.qtpl:241
 	qw422016.N().S(`);
             }
        });
@@ -492,31 +494,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:387
+//line forms.qtpl:389
 }
 
-//line forms.qtpl:387
+//line forms.qtpl:389
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:387
+//line forms.qtpl:389
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:387
+//line forms.qtpl:389
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:387
+//line forms.qtpl:389
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:387
+//line forms.qtpl:389
 }
 
-//line forms.qtpl:387
+//line forms.qtpl:389
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:387
+//line forms.qtpl:389
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:387
+//line forms.qtpl:389
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:387
+//line forms.qtpl:389
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:387
+//line forms.qtpl:389
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:387
+//line forms.qtpl:389
 	return qs422016
-//line forms.qtpl:387
+//line forms.qtpl:389
 }

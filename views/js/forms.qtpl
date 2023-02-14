@@ -76,7 +76,7 @@ function setClickAll() {
       $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
-        var url = this.href
+        var url = replMacros(this.href)
         var target = this.target
         this.rel = 'setClickAll';
         isSearch = (this.target=="search");
@@ -86,7 +86,9 @@ function setClickAll() {
       })
   isProcess = false;
 }
-
+function replMacros(url) {
+	return url.replace(/{page}/, Math.round((window.innerHeight-60) / 22))
+}
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
        if ( $head.length == 0 ) {

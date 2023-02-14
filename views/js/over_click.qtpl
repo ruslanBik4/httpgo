@@ -1,4 +1,5 @@
 {%- func OverClick() -%}
+
 function() {
      var $out = $('#content');
        $.ajax({
@@ -11,6 +12,7 @@ function() {
             contentType: false,
           beforeSend: function (xhr) {
               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+              xhr.setRequestHeader('Content-Language', lang);
           },
           success: function (data, status, xhr) {
               switch (xhr.status) {

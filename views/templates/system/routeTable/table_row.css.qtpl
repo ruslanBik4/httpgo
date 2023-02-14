@@ -110,6 +110,14 @@
 	height: 98%;
 }
 
+div.filt-arrow > input[type=number]::-webkit-outer-spin-button, div.filt-arrow > input[type=number]::-webkit-inner-spin-button  {
+/* hide arrows
+ Chrome, Safari, Edge, Opera */
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+/* Firefox */
+  -moz-appearance: textfield !important;
+}
 div.filt-arrow > input[type=search], div.filt-arrow > input[type=text], div.filt-arrow > input[type=email], div.filt-arrow > input {
     width: 98%;
     height: 25px;
