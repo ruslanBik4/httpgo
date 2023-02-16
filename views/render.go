@@ -12,6 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -31,8 +32,12 @@ var HEADERS = map[string]string{
 
 // WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetContentType("text/html; charset=utf-8")
 	ctx.Response.Header.SetContentEncoding("utf-8")
+	age, ok := ctx.UserValue(AgeOfServer).(float64)
+	if ok {
+		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
+	}
+	ctx.Response.Header.SetLastModified(time.Now().Add(-(time.Second * time.Duration(age))))
 	for key, value := range HEADERS {
 		if key == "Server" {
 			value = fmt.Sprintf(value, ctx.UserValue("name of server httpgo"), ctx.UserValue("ACC_VERSION"))
@@ -45,10 +50,7 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 
 func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 	WriteHeaders(ctx)
-	age, ok := ctx.UserValue(AgeOfServer).(float64)
-	if ok {
-		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
-	}
+	ctx.Response.Header.SetContentType("text/html; charset=utf-8")
 }
 
 // IsAJAXRequest - is this AJAX-request
@@ -102,12 +104,12 @@ type ParamNotCorrect map[string]string
 // RenderTemplate render from template tmplName
 func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface{}) error {
 
-	WriteHeaders(ctx)
+	WriteHeadersHTML(ctx)
 
 	headPage := &layouts.HeadHTMLPage{
 		Charset:  "charset=utf-8",
-		Language: "ru",
-		Title:    "Заголовок новой страницы",
+		Language: "eu",
+		Title:    "Title of new page",
 	}
 
 	switch tmplName {

@@ -28,188 +28,13 @@
 {%code
 	t := &TableRender{columns: columns, rows: rows}
 %}
+<link rel="stylesheet" href="/css/tables.css" media="screen">
+<script src="/js/tables.js" async></script>
 	{%= t.AllTable() %}
 {% endfunc %}
 {% func (t *TableRender) AllTable() %}
-<style>
-{%= TableCSS() %}
-{%code
-   colLen := make([]int, len(t.columns))
-   colDeep := make([]int, len(t.columns))
-   lSymb := 11
-   for i, col := range t.columns {
-        colLen[i] = len(col.Label)*lSymb
-        colDeep[i] = 1
-   }
-%}
-</style>
-<script>
-function ClickPseudo(event) {
-var elem = event.target;
-var offset = event.offsetX || event.originalEvent.offsetX;
-    console.log(`${offset} > ${elem.offsetWidth}`);
-    if (offset > elem.offsetWidth) {
-        loadTable(elem.attributes.column.value);
-    } else {
-        elem.color = 'blue';
-    }
-}
-function loadTable(order_by) {
-$.ajaxSetup({
-    'headers':{'Authorization': 'Bearer ' + token}
-});
-var url = document.location.href + (document.location.search > "" ? '&': '?');
-
-$('.usr-table-row-cont').load(url + 'order_by=' + order_by + ' .usr-table-row-cont');
-return true;
-}
-function appendTable() {
-var elem =  $('.usr-table-content')[0];
-var lines = $('.usr-table-row-cont').children('div:visible').length;
-let url = document.location.href;
-if (url.indexOf('offset') == -1) {
-	url += `&offset=${lines}`
-} else {
-	url = url.replace(/(offset=)(\d+)/, '$1'+lines);
-}
-$('div.filt-arrow > input').each(
-function(i,elem) {
-	if (elem.value) {
-		if (url.indexOf(`${elem.dataset.name}=`) == -1) {
-			url += `&${elem.dataset.name}=${elem.value}`;
-		} else {
-			var r =new RegExp(`(${elem.dataset.name}=)(\\w+)`);
-         	url = url.replace(r, `$1${elem.value}`);
-        }
-	}
-});
-       $.ajax({
-            url: url,
-             data: {
-                     "lang": lang,
-                     "html": true
-             },
-            processData: false,
-            contentType: false,
-          beforeSend: function (xhr) {
-              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-          },
-          success: function (data, status, xhr) {
-				$(elem).append($('<div />').html(data).find('.usr-table-row-cont').html());
-				SetDocumentHash(url, data);
-		  },
-          error: function (xhr, status, error) {
-              if (xhr.status == 401) {
-                urlAfterLogin = url;
-                $('#bLogin').trigger("click");
-               return;
-              }
-
-              alert( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
-              console.log(xhr);
-          }
-         });
-return true;
-}
-function getElementsByText(str, name) {
-	let i = 0;
-  var items = document.getElementsByClassName(name);
-  var elem = Array.prototype.slice.call(items).forEach(
-	  function(el, ind, arr) {
-	    if (str.trim() == "") {
-	        el.parentElement.style = "";
-	        i++
-	        return true;
-	    }
-	    if ( el.textContent.includes( str.trim() )
-	        || el.parentElement.className.includes("usr-table__t-head")
-	        || el.parentElement.className.includes("usr-table__filter")) {
-	        el.parentElement.style = "";
-	        i++
-	        return true;
-	    }
-	     el.parentElement.style = "display:none";
-    });
-  if (i < 30) {
-    appendTable();
-  }
-    return
-//  if (elem.length > 0) {
-////todo- chg on each
-//    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
-//    elem[0].focus();
-//    elem[0].animate([
-//      {color: 'blue'},
-//      {color: 'red'}
-//    ], {
-//        duration: 3000,
-//        iterations: 100
-//    });
-//  }
-}
-function ScrollToElem(selector) {
-	var list = $(selector);
-	if (list.length > 0) {
-		list[0].scrollIntoView(100);
-	} else {
-		alert(selector + ' not found!');
-	}
-	return true;
-}
-$(function(){
- $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
- tableCnt = $('.usr-table-content');
- tableCnt.on('mousewheel', function(e, delta){
-    if(delta == -1 && tableCnt.scrollTop() + tableCnt.height() + 30 > tableCnt[0].scrollHeight) {
-		var elem =  $('.usr-table-content')[0];
-		console.log(`${elem.scrollTop} ${elem.scrollHeight}`);
-        throttle( appendTable, 500);
-    }
- })
-});
-var throttleTimer;
-const throttle = (callback, time) => {
-  if (throttleTimer) return;
-   throttleTimer = true;
-   callback();
-   setTimeout(() => {
-    throttleTimer = false;
-  }, time);
-
-};
-   function handleFileCSSSelect(evt) {
-     var files = evt.files || evt.target.files; // FileList object
-     if (files.length < 1)
-       return false;
-
-     let  $progress = $('#progress').show(),
-       reader = new FileReader(),
-       f = files[0];
-
-     reader.onload = (function (theFile) {
-       return function (e) {
-         csv = e.target.result.csvToArray({head:true, rSep: "\n"});
-         fText = '';
-         csv.forEach(function(elem){
-            row = '';
-            elem.forEach(function(cell,i){
-                row += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
-            });
-            console.log(row);
-            fText += `<div  class="usr-table-row">${row}</div>`;
-        });
-         $('#t_{%s t.Name() %} .usr-table-row-cont').html(fText);
-       };
-     })(f);
-
-     // Read in the image file as a data URL.
-     reader.readAsText(f);
-   }
-
-</script>
 {% collapsespace %}
 {% stripspace %}
-<script src="https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/csv-to-array/csvToArray.v2.1.min.js"></script>
 <title> Table of "{%s t.Comment() %}"</title>
 {%- if !t.OnlyView -%}
 <div class="sidebar">
@@ -304,7 +129,7 @@ const throttle = (callback, time) => {
     <div class="usr-table-content">
         <div class="usr-table-content-scroll">
             <div class="usr-table-row-cont">
-                {%= t.RenderRows(lSymb, colLen, colDeep) %}
+                {%= t.RenderRows() %}
             </div>
         </div>
     </div>
@@ -358,7 +183,16 @@ const throttle = (callback, time) => {
     {%- endif -%}
 {% endfunc %}
 func render Table rows{
-{% func (t *TableRender) RenderRows(lSymb int, colLen, colDeep []int)%}
+{% func (t *TableRender) RenderRows()%}
+	{%code
+	   colLen := make([]int, len(t.columns))
+	   colDeep := make([]int, len(t.columns))
+	   lSymb := 11
+	   for i, col := range t.columns {
+	        colLen[i] = len(col.Label)*lSymb
+	        colDeep[i] = 1
+	   }
+	%}
    {% for _, row  := range t.rows %}
         <div  class="usr-table-row">
         {% for i, column := range t.columns %}
@@ -386,7 +220,7 @@ func render Table rows{
                    {% endif %}
                 {% case int, int32, int64 %}
                         {%code s := fmt.Sprintf("%v", val)
-                            if lenVal := len(s) * lSymb; lenVal > colLen[i] {
+                            if lenVal := (len(s) + 2) * lSymb; lenVal > colLen[i] {
                                 colLen[i] = lenVal
                             }
                         %}
@@ -490,6 +324,9 @@ func render Table rows{
       </div>
     {% endfor %}
     {%= t.RenderRowsStyles(lSymb, colLen, colDeep) %}
+   <script>
+    SetTableEvents()
+   </script>
 {% endfunc %}
 }
 {% endcollapsespace %}

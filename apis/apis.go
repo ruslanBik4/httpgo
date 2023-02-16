@@ -64,8 +64,9 @@ type Apis struct {
 	// authentication method
 	fncAuth FncAuth
 	// list of endpoints
-	routes MapRoutes
-	Https  bool
+	routes    MapRoutes
+	Https     bool
+	StartTime time.Time
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
@@ -87,12 +88,15 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
+	//reset user values for HTTP/2
+	ctx.ResetUserValues()
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
 		a.renderError(ctx, err, route)
 		return
 	}
 
+	ctx.SetUserValue(views.AgeOfServer, time.Since(a.StartTime).Seconds())
 	// add Cfg params to requestCtx
 	for name, val := range a.Ctx {
 		ctx.SetUserValue(name, val)

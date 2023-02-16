@@ -22,13 +22,11 @@ import (
 	"github.com/valyala/fasthttp"
 
 	. "github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/logs"
 )
 
 // HttpGo implement rest api http/https server for operation with storage
 type HttpGo struct {
-	StartTime  time.Time
 	mainServer *fasthttp.Server
 	listener   net.Listener
 	broadcast  chan string
@@ -43,7 +41,7 @@ var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	if apis.Ctx == nil {
-		apis.Ctx = make(map[string]interface{}, 0)
+		apis.Ctx = make(map[string]any, 0)
 	}
 
 	apis.Ctx[ApiVersion] = httpgoVersion
@@ -83,7 +81,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	var h *HttpGo
 	if len(cfg.Domains) == 0 {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			ctx.SetUserValue(views.AgeOfServer, time.Since(h.StartTime).Seconds())
 			apis.Handler(ctx)
 		}
 	} else {
@@ -182,21 +179,21 @@ func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
 		"/httpgo/cfg/reload": {
 			Desc: `# HttpGo managements
 reload cfg of httpgo from starting config file`,
-			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 				return cfg.Reload()
 			},
 		},
 		"/httpgo/cfg/": {
 			Desc: `# HttpGo managements
 show config of httpGo`,
-			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 				return cfg, nil
 			},
 		},
 		"/httpgo/cfg/add_ip": {
 			Desc: `# HttpGo managements
 add IP addresses into config of httpGo`,
-			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 				if ips, ok := ctx.UserValue("allow_ip").([]string); ok {
 					cfg.AllowIP = append(cfg.AllowIP, ips...)
 				}
@@ -218,7 +215,7 @@ add IP addresses into config of httpGo`,
 		"/httpgo/cfg/rm_ip": {
 			Desc: `# HttpGo managements
 remove IP addresses show config of httpGo`,
-			Fnc: func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
 				if ips, ok := ctx.UserValue("allow_ip").([]string); ok {
 					cfg.AllowIP = filterIPs(cfg.AllowIP, ips)
 				}
@@ -261,7 +258,7 @@ func filterIPs(curIPs []string, ips []string) []string {
 func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 
 	h.apis.Https = secure
-	h.StartTime = time.Now()
+	h.apis.StartTime = time.Now()
 	//todo change parameters type on
 	go h.listenOnShutdown()
 	if secure {
@@ -299,15 +296,15 @@ type fastHTTPLogger struct {
 	logs.LogsType
 }
 
-func (log *fastHTTPLogger) Printf(mess string, args ...interface{}) {
+func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 
 	if strings.Contains(mess, "error") {
 		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(append([]interface{}{mess}, args...)...)
+			logs.StatusLog(append([]any{mess}, args...)...)
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}
 	} else {
-		logs.DebugLog(append([]interface{}{mess}, args...)...)
+		logs.DebugLog(append([]any{mess}, args...)...)
 	}
 }

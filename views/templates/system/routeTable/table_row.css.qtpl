@@ -54,7 +54,7 @@
   overflow: hidden;
   word-break: break-all;
 }
-.usr-table-col  input {
+.usr-table-col input {
       width: 98%;
 }
 .usr-table-col:nth-child(1){
@@ -99,8 +99,7 @@
 
 .usr-table__filter .usr-table-col{
     justify-content: center;
-    padding: 0 10px;
-    font-size: 0;
+    padding: 0 1px;
 }
 
 .filt-arrow{
