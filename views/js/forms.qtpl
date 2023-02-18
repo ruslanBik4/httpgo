@@ -73,7 +73,7 @@ function setClickAll() {
 
       console.log(event);
       // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
+      $('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = replMacros(this.href)
