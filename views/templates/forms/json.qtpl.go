@@ -17,527 +17,188 @@ package forms
 
 //line json.qtpl:4
 import (
-	"strconv"
-	"strings"
-
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 
 // json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
 
-//line json.qtpl:14
+//line json.qtpl:11
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line json.qtpl:14
+//line json.qtpl:11
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line json.qtpl:14
+//line json.qtpl:11
 func (f *FormField) StreamRenderForm(qw422016 *qt422016.Writer, isHTML bool) {
-//line json.qtpl:15
+//line json.qtpl:12
 	if isHTML {
-//line json.qtpl:16
+//line json.qtpl:13
 		f.StreamFormHTML(qw422016)
-//line json.qtpl:17
+//line json.qtpl:14
 	} else {
-//line json.qtpl:18
+//line json.qtpl:15
 		f.StreamFormJSON(qw422016)
-//line json.qtpl:19
+//line json.qtpl:16
 	}
-//line json.qtpl:20
+//line json.qtpl:17
 }
 
-//line json.qtpl:20
+//line json.qtpl:17
 func (f *FormField) WriteRenderForm(qq422016 qtio422016.Writer, isHTML bool) {
-//line json.qtpl:20
+//line json.qtpl:17
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:20
+//line json.qtpl:17
 	f.StreamRenderForm(qw422016, isHTML)
-//line json.qtpl:20
+//line json.qtpl:17
 	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:20
+//line json.qtpl:17
 }
 
-//line json.qtpl:20
+//line json.qtpl:17
 func (f *FormField) RenderForm(isHTML bool) string {
-//line json.qtpl:20
+//line json.qtpl:17
 	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:20
+//line json.qtpl:17
 	f.WriteRenderForm(qb422016, isHTML)
-//line json.qtpl:20
+//line json.qtpl:17
 	qs422016 := string(qb422016.B)
-//line json.qtpl:20
+//line json.qtpl:17
 	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:20
+//line json.qtpl:17
 	return qs422016
-//line json.qtpl:20
+//line json.qtpl:17
 }
 
-//line json.qtpl:22
+//line json.qtpl:19
 func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer) {
-//line json.qtpl:22
+//line json.qtpl:19
 	qw422016.N().S(`{"title" : "`)
-//line json.qtpl:24
+//line json.qtpl:21
 	qw422016.N().S(f.Title)
-//line json.qtpl:24
+//line json.qtpl:21
 	qw422016.N().S(`","action": "`)
-//line json.qtpl:25
+//line json.qtpl:22
 	qw422016.N().S(f.Action)
-//line json.qtpl:25
+//line json.qtpl:22
 	qw422016.N().S(`","description": "`)
-//line json.qtpl:26
+//line json.qtpl:23
 	qw422016.N().S(f.Description)
-//line json.qtpl:26
+//line json.qtpl:23
 	qw422016.N().S(`",`)
-//line json.qtpl:27
+//line json.qtpl:24
 	if f.HideBlock != nil {
-//line json.qtpl:27
+//line json.qtpl:24
 		qw422016.N().S(`"hideBlock":`)
-//line json.qtpl:27
+//line json.qtpl:24
 		json.StreamElement(qw422016, f.HideBlock)
-//line json.qtpl:27
+//line json.qtpl:24
 		qw422016.N().S(`,`)
-//line json.qtpl:27
+//line json.qtpl:24
 	}
-//line json.qtpl:27
+//line json.qtpl:24
 	qw422016.N().S(`"method": "`)
-//line json.qtpl:28
+//line json.qtpl:25
 	qw422016.N().S(f.Method)
-//line json.qtpl:28
+//line json.qtpl:25
 	qw422016.N().S(`","blocks": [`)
-//line json.qtpl:30
+//line json.qtpl:27
 	for i, block := range f.Blocks {
-//line json.qtpl:31
+//line json.qtpl:28
 		if i > 0 {
-//line json.qtpl:31
+//line json.qtpl:28
 			qw422016.N().S(`,`)
-//line json.qtpl:33
+//line json.qtpl:30
 		}
-//line json.qtpl:33
+//line json.qtpl:30
 		qw422016.N().S(`{"id": "`)
-//line json.qtpl:35
+//line json.qtpl:32
 		qw422016.N().D(block.Id)
-//line json.qtpl:35
+//line json.qtpl:32
 		qw422016.N().S(`","title": "`)
-//line json.qtpl:36
+//line json.qtpl:33
 		qw422016.N().S(block.Title)
-//line json.qtpl:36
+//line json.qtpl:33
 		qw422016.N().S(`","description": "`)
-//line json.qtpl:37
+//line json.qtpl:34
 		qw422016.N().S(block.Description)
-//line json.qtpl:37
+//line json.qtpl:34
 		qw422016.N().S(`","fields": [`)
-//line json.qtpl:39
+//line json.qtpl:36
 		for j, col := range block.Columns {
-//line json.qtpl:40
+//line json.qtpl:37
 			if j > 0 {
+//line json.qtpl:37
+				qw422016.N().S(`,`)
+//line json.qtpl:39
+			}
 //line json.qtpl:40
-				qw422016.N().S(`,`)
-//line json.qtpl:42
-			}
-//line json.qtpl:43
 			col.StreamToJSON(qw422016)
-//line json.qtpl:44
+//line json.qtpl:41
 		}
-//line json.qtpl:44
+//line json.qtpl:41
 		qw422016.N().S(`],"actions": [{"groups": [`)
-//line json.qtpl:49
+//line json.qtpl:46
 		for i, button := range block.Buttons {
-//line json.qtpl:50
+//line json.qtpl:47
 			if i > 0 {
-//line json.qtpl:50
+//line json.qtpl:47
 				qw422016.N().S(`,`)
-//line json.qtpl:52
+//line json.qtpl:49
 			}
-//line json.qtpl:52
+//line json.qtpl:49
 			qw422016.N().S(`{"buttonType":  "`)
-//line json.qtpl:54
+//line json.qtpl:51
 			qw422016.N().S(button.Type)
-//line json.qtpl:54
+//line json.qtpl:51
 			qw422016.N().S(`","title": "`)
-//line json.qtpl:55
+//line json.qtpl:52
 			qw422016.N().S(button.Title)
-//line json.qtpl:55
+//line json.qtpl:52
 			qw422016.N().S(`","type": "`)
-//line json.qtpl:56
+//line json.qtpl:53
 			qw422016.N().S(button.Type)
-//line json.qtpl:56
+//line json.qtpl:53
 			qw422016.N().S(`"}`)
-//line json.qtpl:58
+//line json.qtpl:55
 		}
-//line json.qtpl:58
+//line json.qtpl:55
 		qw422016.N().S(`]}]}`)
-//line json.qtpl:63
+//line json.qtpl:60
 	}
-//line json.qtpl:63
+//line json.qtpl:60
 	qw422016.N().S(`]}`)
-//line json.qtpl:66
+//line json.qtpl:63
 }
 
-//line json.qtpl:66
+//line json.qtpl:63
 func (f *FormField) WriteFormJSON(qq422016 qtio422016.Writer) {
-//line json.qtpl:66
+//line json.qtpl:63
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:66
+//line json.qtpl:63
 	f.StreamFormJSON(qw422016)
-//line json.qtpl:66
+//line json.qtpl:63
 	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:66
+//line json.qtpl:63
 }
 
-//line json.qtpl:66
+//line json.qtpl:63
 func (f *FormField) FormJSON() string {
-//line json.qtpl:66
+//line json.qtpl:63
 	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:66
+//line json.qtpl:63
 	f.WriteFormJSON(qb422016)
-//line json.qtpl:66
+//line json.qtpl:63
 	qs422016 := string(qb422016.B)
-//line json.qtpl:66
+//line json.qtpl:63
 	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:66
+//line json.qtpl:63
 	return qs422016
-//line json.qtpl:66
-}
-
-//line json.qtpl:68
-func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
-//line json.qtpl:68
-	qw422016.N().S(`<style>figure {border: thin #c0c0c0 solid;display: flex;flex-flow: column;padding: 5px;max-width: 80%;margin: auto;}figcaption {background-color: #222;color: #fff;font: italic smaller sans-serif;padding: 3px;text-align: center;}.input-label{//    position: relative;width: 98%;align-content: center;}li.form-field{position: relative;margin: 0 10px;display: flex;flex-wrap: wrap;padding: 12px 0;box-sizing: border-box;}ul.form-field{position: relative;margin: 0 -10px;list-style: none;background-color: white;}.removeField {position: absolute;top: 4px;right: -8px;width: 16px;height: 16px;border-radius: 50%;background: #ffa30c;z-index: 1;transition: all .3s ease-in-out;}</style>`)
-//line json.qtpl:118
-	idShake := strings.ReplaceAll(f.Title, " ", "_")
-	defBlocks := make([]string, 0)
-	var data map[string]any
-	if h, ok := f.HideBlock.(map[string]any); ok {
-		for _, p := range h["defaultBlocks"].([]any) {
-			defBlocks = append(defBlocks, p.(string))
-		}
-		data = h["data"].(map[string]any)
-	}
-
-//line json.qtpl:127
-	qw422016.N().S(`<form id="`)
-//line json.qtpl:128
-	qw422016.E().S(idShake)
-//line json.qtpl:128
-	qw422016.N().S(`_form" name="`)
-//line json.qtpl:128
-	qw422016.E().S(f.Title)
-//line json.qtpl:128
-	qw422016.N().S(`" role='form' class="form-horizontal" target="content"action="`)
-//line json.qtpl:129
-	qw422016.E().S(f.Action)
-//line json.qtpl:129
-	qw422016.N().S(`" method="`)
-//line json.qtpl:129
-	qw422016.N().S(f.Method)
-//line json.qtpl:129
-	qw422016.N().S(`" enctype="multipart/form-data"oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"onsubmit="return saveForm(this, afterSaveAnyForm);"  caption="`)
-//line json.qtpl:132
-	qw422016.E().S(f.Title)
-//line json.qtpl:132
-	qw422016.N().S(`" ><figcaption>`)
-//line json.qtpl:134
-	qw422016.N().S(f.Description)
-//line json.qtpl:134
-	qw422016.N().S(`</figcaption>`)
-//line json.qtpl:135
-	for _, block := range f.Blocks {
-//line json.qtpl:137
-		isHide := (len(defBlocks) > 0)
-		for _, id := range defBlocks {
-			if id == strconv.Itoa(block.Id) {
-				isHide = false
-				break
-			}
-		}
-
-//line json.qtpl:144
-		qw422016.N().S(`<figure id = "block`)
-//line json.qtpl:145
-		qw422016.N().D(block.Id)
-//line json.qtpl:145
-		qw422016.N().S(`"`)
-//line json.qtpl:145
-		if isHide {
-//line json.qtpl:145
-			qw422016.N().S(`style="display:none"`)
-//line json.qtpl:145
-		}
-//line json.qtpl:145
-		qw422016.N().S(`>`)
-//line json.qtpl:146
-		if block.Title > "" {
-//line json.qtpl:146
-			qw422016.N().S(`<figcaption>`)
-//line json.qtpl:146
-			qw422016.E().S(block.Title)
-//line json.qtpl:146
-			qw422016.N().S(`</figcaption>`)
-//line json.qtpl:146
-		}
-//line json.qtpl:147
-		if block.Description > "" {
-//line json.qtpl:147
-			qw422016.N().S(`<p>`)
-//line json.qtpl:147
-			qw422016.E().S(block.Description)
-//line json.qtpl:147
-			qw422016.N().S(`</p>`)
-//line json.qtpl:147
-		}
-//line json.qtpl:148
-		for i, col := range block.Columns {
-//line json.qtpl:148
-			qw422016.N().S(`<div id="divField`)
-//line json.qtpl:149
-			qw422016.N().D(i)
-//line json.qtpl:149
-			qw422016.N().S(`" class="input-wrap"`)
-//line json.qtpl:149
-			if col.IsHidden {
-//line json.qtpl:149
-				qw422016.N().S(`style="display:none"`)
-//line json.qtpl:149
-			}
-//line json.qtpl:149
-			qw422016.N().S(`><label class="input-label" for="`)
-//line json.qtpl:150
-			qw422016.E().S(col.Name())
-//line json.qtpl:150
-			qw422016.N().S(`">`)
-//line json.qtpl:150
-			qw422016.E().S(col.Label)
-//line json.qtpl:151
-			col.StreamRenderInputs(qw422016, data)
-//line json.qtpl:151
-			qw422016.N().S(`<h6 class="errorLabel">`)
-//line json.qtpl:152
-			qw422016.N().S(col.patternDesc)
-//line json.qtpl:152
-			qw422016.N().S(`</h6></label></div>`)
-//line json.qtpl:155
-		}
-//line json.qtpl:156
-		if block.Multiple {
-//line json.qtpl:156
-			qw422016.N().S(`<button class="main-btn" type="button"onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>`)
-//line json.qtpl:159
-		}
-//line json.qtpl:160
-		if len(block.Buttons) > 0 {
-//line json.qtpl:160
-			qw422016.N().S(`<div class="form-actions">`)
-//line json.qtpl:161
-			for _, btn := range block.Buttons {
-//line json.qtpl:161
-				qw422016.N().S(`<button class="`)
-//line json.qtpl:162
-				if btn.Position {
-//line json.qtpl:162
-					qw422016.N().S(`hidden`)
-//line json.qtpl:162
-				} else {
-//line json.qtpl:162
-					qw422016.N().S(`button`)
-//line json.qtpl:162
-				}
-//line json.qtpl:162
-				qw422016.N().S(`" type="`)
-//line json.qtpl:162
-				qw422016.N().S(btn.Type)
-//line json.qtpl:162
-				qw422016.N().S(`"`)
-//line json.qtpl:163
-				if btn.OnClick > "" {
-//line json.qtpl:163
-					qw422016.N().S(`onClick="`)
-//line json.qtpl:163
-					qw422016.E().S(btn.OnClick)
-//line json.qtpl:163
-					qw422016.N().S(`"`)
-//line json.qtpl:163
-				}
-//line json.qtpl:163
-				qw422016.N().S(`>`)
-//line json.qtpl:164
-				qw422016.E().S(btn.Title)
-//line json.qtpl:164
-				qw422016.N().S(`</button>`)
-//line json.qtpl:166
-			}
-//line json.qtpl:166
-			qw422016.N().S(`</div>`)
-//line json.qtpl:168
-		}
-//line json.qtpl:168
-		qw422016.N().S(`</figure>`)
-//line json.qtpl:170
-	}
-//line json.qtpl:170
-	qw422016.N().S(`<output></output><progress value='0' max='100' hidden > </progress></form><style>.errorLabel {display: none;color:red;}.hiddenInput > input[type=file] {width: 100%;height: 100%;opacity: 0;cursor: pointer;}form > span.hiddenInput:hover{position: fixed;top: 1%;right: 1%;width: 25%;max-height: 75%;}.hiddenInput {border: 1px solid #ccc;width: 100%;height: 100%;min-height: 50px;display: inline-block;overflow: hidden;cursor: pointer;background: center center no-repeat scroll;background-size: contain;background-image:  url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBoZWlnaHQ9IjUxMnB4IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9Ii01MyAxIDUxMSA1MTEuOTk5MDYiIHdpZHRoPSI1MTJweCI+CjxnIGlkPSJzdXJmYWNlMSI+CjxwYXRoIGQ9Ik0gMjc2LjQxMDE1NiAzLjk1NzAzMSBDIDI3NC4wNjI1IDEuNDg0Mzc1IDI3MC44NDM3NSAwIDI2Ny41MDc4MTIgMCBMIDY3Ljc3NzM0NCAwIEMgMzAuOTIxODc1IDAgMC41IDMwLjMwMDc4MSAwLjUgNjcuMTUyMzQ0IEwgMC41IDQ0NC44NDM3NSBDIDAuNSA0ODEuNjk5MjE5IDMwLjkyMTg3NSA1MTIgNjcuNzc3MzQ0IDUxMiBMIDMzOC44NjMyODEgNTEyIEMgMzc1LjcxODc1IDUxMiA0MDYuMTQwNjI1IDQ4MS42OTkyMTkgNDA2LjE0MDYyNSA0NDQuODQzNzUgTCA0MDYuMTQwNjI1IDE0NC45NDE0MDYgQyA0MDYuMTQwNjI1IDE0MS43MjY1NjIgNDA0LjY1NjI1IDEzOC42MzY3MTkgNDAyLjU1NDY4OCAxMzYuMjg1MTU2IFogTSAyNzkuOTk2MDk0IDQzLjY1NjI1IEwgMzY0LjQ2NDg0NCAxMzIuMzI4MTI1IEwgMzA5LjU1NDY4OCAxMzIuMzI4MTI1IEMgMjkzLjIzMDQ2OSAxMzIuMzI4MTI1IDI3OS45OTYwOTQgMTE5LjIxODc1IDI3OS45OTYwOTQgMTAyLjg5NDUzMSBaIE0gMzM4Ljg2MzI4MSA0ODcuMjY1NjI1IEwgNjcuNzc3MzQ0IDQ4Ny4yNjU2MjUgQyA0NC42NTIzNDQgNDg3LjI2NTYyNSAyNS4yMzQzNzUgNDY4LjA5NzY1NiAyNS4yMzQzNzUgNDQ0Ljg0Mzc1IEwgMjUuMjM0Mzc1IDY3LjE1MjM0NCBDIDI1LjIzNDM3NSA0NC4wMjczNDQgNDQuNTI3MzQ0IDI0LjczNDM3NSA2Ny43NzczNDQgMjQuNzM0Mzc1IEwgMjU1LjI2MTcxOSAyNC43MzQzNzUgTCAyNTUuMjYxNzE5IDEwMi44OTQ1MzEgQyAyNTUuMjYxNzE5IDEzMi45NDUzMTIgMjc5LjUwMzkwNiAxNTcuMDYyNSAzMDkuNTU0Njg4IDE1Ny4wNjI1IEwgMzgxLjQwNjI1IDE1Ny4wNjI1IEwgMzgxLjQwNjI1IDQ0NC44NDM3NSBDIDM4MS40MDYyNSA0NjguMDk3NjU2IDM2Mi4xMTMyODEgNDg3LjI2NTYyNSAzMzguODYzMjgxIDQ4Ny4yNjU2MjUgWiBNIDMzOC44NjMyODEgNDg3LjI2NTYyNSAiIHN0eWxlPSIgZmlsbC1ydWxlOm5vbnplcm87ZmlsbC1vcGFjaXR5OjE7IiBzdHJva2U9IiMwMDAwMDAiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTSAzMDUuMTAxNTYyIDQwMS45MzM1OTQgTCAxMDEuNTM5MDYyIDQwMS45MzM1OTQgQyA5NC43MzgyODEgNDAxLjkzMzU5NCA4OS4xNzE4NzUgNDA3LjQ5NjA5NCA4OS4xNzE4NzUgNDE0LjMwMDc4MSBDIDg5LjE3MTg3NSA0MjEuMTAxNTYyIDk0LjczODI4MSA0MjYuNjY3OTY5IDEwMS41MzkwNjIgNDI2LjY2Nzk2OSBMIDMwNS4yMjY1NjIgNDI2LjY2Nzk2OSBDIDMxMi4wMjczNDQgNDI2LjY2Nzk2OSAzMTcuNTkzNzUgNDIxLjEwMTU2MiAzMTcuNTkzNzUgNDE0LjMwMDc4MSBDIDMxNy41OTM3NSA0MDcuNDk2MDk0IDMxMi4wMjczNDQgNDAxLjkzMzU5NCAzMDUuMTAxNTYyIDQwMS45MzM1OTQgWiBNIDMwNS4xMDE1NjIgNDAxLjkzMzU5NCAiIHN0eWxlPSIgZmlsbC1ydWxlOm5vbnplcm87ZmlsbC1vcGFjaXR5OjE7IiBzdHJva2U9IiMwMDAwMDAiIGZpbGw9IiMwMDAwMDAiLz4KPHBhdGggZD0iTSAxNDAgMjY4Ljg2MzI4MSBMIDE5MC45NTMxMjUgMjE0LjA3NDIxOSBMIDE5MC45NTMxMjUgMzQ5LjEyNSBDIDE5MC45NTMxMjUgMzU1LjkyNTc4MSAxOTYuNTE5NTMxIDM2MS40OTIxODggMjAzLjMyMDMxMiAzNjEuNDkyMTg4IEMgMjEwLjEyNSAzNjEuNDkyMTg4IDIxNS42ODc1IDM1NS45MjU3ODEgMjE1LjY4NzUgMzQ5LjEyNSBMIDIxNS42ODc1IDIxNC4wNzQyMTkgTCAyNjYuNjQwNjI1IDI2OC44NjMyODEgQyAyNjkuMTEzMjgxIDI3MS40NTcwMzEgMjcyLjMzMjAzMSAyNzIuODIwMzEyIDI3NS42Njc5NjkgMjcyLjgyMDMxMiBDIDI3OC42MzY3MTkgMjcyLjgyMDMxMiAyODEuNzMwNDY5IDI3MS43MDcwMzEgMjg0LjA3ODEyNSAyNjkuNDgwNDY5IEMgMjg5LjAyNzM0NCAyNjQuNzgxMjUgMjg5LjM5ODQzOCAyNTYuOTg4MjgxIDI4NC42OTkyMTkgMjUyLjA0Mjk2OSBMIDIxMi4yMjY1NjIgMTc0LjI1MzkwNiBDIDIwOS44NzUgMTcxLjc4MTI1IDIwNi42NjAxNTYgMTcwLjI5Njg3NSAyMDMuMTk5MjE5IDE3MC4yOTY4NzUgQyAxOTkuNzM0Mzc1IDE3MC4yOTY4NzUgMTk2LjUxOTUzMSAxNzEuNzgxMjUgMTk0LjE3MTg3NSAxNzQuMjUzOTA2IEwgMTIxLjY5OTIxOSAyNTIuMDQyOTY5IEMgMTE3IDI1Ni45ODgyODEgMTE3LjM3MTA5NCAyNjQuOTAyMzQ0IDEyMi4zMTY0MDYgMjY5LjQ4MDQ2OSBDIDEyNy41MTE3MTkgMjc0LjE3OTY4OCAxMzUuMzAwNzgxIDI3My44MDg1OTQgMTQwIDI2OC44NjMyODEgWiBNIDE0MCAyNjguODYzMjgxICIgc3R5bGU9IiBmaWxsLXJ1bGU6bm9uemVybztmaWxsLW9wYWNpdHk6MTsiIHN0cm9rZT0iIzAwMDAwMCIgZmlsbD0iIzAwMDAwMCIvPgo8L2c+Cjwvc3ZnPgo=)}.suggestions-select-hide {opacity: 0;height: 0.1px !important;//  position: absolute;left: -399.109375px;}.suggestions-select-show {opacity: 1;height: 200px;position: relative;left: 1%;}</style>`)
-//line json.qtpl:220
-	qw422016.N().S(` `)
-//line json.qtpl:221
-	qw422016.N().S(`
-<script>
-function inputSearchKeyUp(thisElem, event){
-
-        var x = event.which || event.keyCode;
-        var elem = $(thisElem)
-        var thisClass = 'select.suggestions-select-show.'+thisElem.attributes.data.value
-        var thisClassH = 'select.suggestions-select-hide.'+thisElem.attributes.data.value
-
-        if (x == 40) {
-            elem.unbind("blur");
-            $(thisClass).focus();
-            $(thisClass + ' option:first').selected();
-
-           return;
-        }
-
-         elem.on("blur", function(){
-
-               if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
-                         return;
-               }
-
-                 console.log(event);
-                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-             })
-
-         if (elem.val().length < 2) {
-            return true;
-         }
-
-         $.ajax({
-             url: thisElem.src,
-             data: {
-                     "lang": lang,
-                     "value": thisElem.value,
-                     "count": 10,
-                     "html": true
-             },
-           beforeSend: function (xhr) {
-               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-           },
-           success: function (data, status) {
-             $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
-             .on('keyup', function(event) {
-                         var x = event.which || event.keyCode;
-                         if (x == 32) {
-                                 thisElem.value = $(thisClass + ' option:selected').text();
-                                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                                 return false;
-                          }
-                   });
-             $(thisClass + ' option').on('mouseup', function(e) {
-                thisElem.value = $(this).text();
-                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                return true;
-             });
-
-           },
-           error: function (xhr, status, error) {
-               alert( "Code : " + xhr.status + " error :"+ error);
-               console.log(error);
-           }
-          });
-}
-
-function ShowBlocks(thisElem){
-    d=$(thisElem).data('show-blocks');
-    $(thisElem).parents('form').children('figure').hide();
-    d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
-}
-
-function Next(elem, id) {
-	block = $(elem).parents('figure');
-    if (!validateFields(block[0]))
-        return false;
-
-	block.hide();
-	newBlock = $('#block'+id).show()[0];
-	newBlock.scrollIntoView();
-	fields = $('input, select', newBlock)
-	if (fields.length > 0) {
-		fields[0].focus();
-	}
-	return false;
-}
-
-$(function()   {
-	textInputs = $('textarea');
-	if (textInputs.length > 0) {
-		if (tinymce === undefined) {
-			LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
-		}
-
-		textInputs.focus(
-			function (event) {
-				let name = event.target.name;
-			    tinymce.init({
-                  target: event.target,
-                  menubar: false,
-                  plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount    ',
-                  toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
-                  mergetags_list: [
-                    { value: "name", title: name },
-                    { value: 'placeholder', title: name },
-                  ],
-                  setup: (editor) => {
-                      editor.on('input', (e) => {
-                       console.log(e);
-                       $('#`)
-//line json.qtpl:332
-	qw422016.E().S(idShake)
-//line json.qtpl:332
-	qw422016.N().S(`_form button.hidden').removeClass('hidden').addClass('main-btn');
-                      });
-
-                      editor.on('focusout', (e) => {
-                       $('textarea[name="' + name +'"]').text( editor.getContent({ format: 'text' }) );
-                      });
-                    }
-                });
-        });
-	}
-});
-</script>
-`)
-//line json.qtpl:344
-}
-
-//line json.qtpl:344
-func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer) {
-//line json.qtpl:344
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:344
-	f.StreamFormHTML(qw422016)
-//line json.qtpl:344
-	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:344
-}
-
-//line json.qtpl:344
-func (f *FormField) FormHTML() string {
-//line json.qtpl:344
-	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:344
-	f.WriteFormHTML(qb422016)
-//line json.qtpl:344
-	qs422016 := string(qb422016.B)
-//line json.qtpl:344
-	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:344
-	return qs422016
-//line json.qtpl:344
+//line json.qtpl:63
 }

@@ -40,7 +40,8 @@
 <div class="sidebar">
 <form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit= "return saveForm(this);">
 <h2> Import to '{%s t.Comment() %}'</h2>
-<label for="csv" class="table-files__label" style="height:30px;">
+<div id="divFieldImport" class="input-wrap">
+<label class="table-files__label" style="height:30px;">
                 <span class="hiddenInput">
 						<input type="file"
 						              id="csv"
@@ -50,13 +51,14 @@
 						/>
                     </span>
  </label>
- <p>
- <label for="truncate_data"> Truncate table before import <input type="checkbox" name="truncate_data" />
- </label>
- </p>
+ </div>
+ <div  class="input-wrap">
+ <label> Truncate table before import <input type="checkbox" name="truncate_data" /></label>
+ </div>
+ <div class="form-actions">
         <button type="submit">Put in table '{%s t.Name() %}'</button>
         <button type="reset">Reset form</button>
-
+</div>
   <output></output>
   <progress value='0' max='100' hidden > </progress>
  </form>

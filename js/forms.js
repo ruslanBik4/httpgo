@@ -1,21 +1,35 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 "use strict";
+
 // ОБщие события для форм - стандарт
 function formInput(thisForm) {
 
 }
+
 function formReset(thisForm) {
-    if ( confirm('Очистить все введенные данные?') )
+    if (confirm('Очистить все введенные данные?'))
         return false;
 
 }
-function FormIsModified( event, this_form ) {
+
+function FormIsModified(event, this_form) {
     event = event || window.event;
 
-    $( 'input[type=image], input[type=submit], input[type=button]', this_form ).show();
+    $('input[type=image], input[type=submit], input[type=button]', this_form).show();
     this_form.State.value = '✎';
 }
+
 function formDelClick(thisButton) {
-    $.post('/admin/row/del/', {table: $('input[name="table"]').val(), id: $('input[name="id"]').val() }, succesDelRecord);
+    $.post('/admin/row/del/', {
+        table: $('input[name="table"]').val(),
+        id: $('input[name="id"]').val()
+    }, succesDelRecord);
 }
 function succesDelRecord(data, status) {
     if (status == "Success") {
@@ -71,7 +85,7 @@ function validatePattern(thisElem) {
     var re = thisElem.pattern,
         result = true;
 
-    if (re == "") {
+    if (re === "") {
         return true;
     }
     // TODO: добавить проверку на валидность - иногда вылетает тут
@@ -120,13 +134,12 @@ function validateReguiredFields(thisForm) {
     $('input[required]:visible, select[required]:visible', thisForm).each(
         function (index) {
             //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
-            if ( !this.value || ( (this.type == "checkbox") && !(this.checked) ) ) {
+            if (!this.value || ((this.type == "checkbox") && !(this.checked))) {
                 result = false;
                 alertField(this);
 
                 return false;
-            }
-            else {
+            } else {
                 correctField(this);
             }
         }
@@ -175,23 +188,23 @@ function saveForm(thisForm, successFunction, errorFunction)
             //удаляем пустые поля
             var isNewRecord = $('input[name=id]').length == 0;
 
-            for( var i = a.length -1; i >= 0; --i){
-                if (( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one'))
-                  || (a[i].value.length === 0)) {
-                    a.splice(i,1);
+            for (var i = a.length - 1; i >= 0; --i) {
+                if (((a[i].value === '') && (isNewRecord || a[i].type === 'select-one'))
+                    || (a[i].value.length === 0)) {
+                    a.splice(i, 1);
                 }
             }
 
             // добавляем чекбокс-поля, которые были отменены в форме
 
             if (f.attr('data-form-id')) {
-              $("input[form='"+ f.attr('id') + "'][type=checkbox][checked]:not(:checked)").each(function() {
-                a.push({ name: this.name, value: 0, type : this.type, required: this.required })
-              });
+                $("input[form='" + f.attr('id') + "'][type=checkbox][checked]:not(:checked)").each(function () {
+                    a.push({name: this.name, value: 0, type: this.type, required: this.required})
+                });
             } else {
-              $("input[type=checkbox][checked]:not(:checked)", f).each(function() {
-                  a.push({ name: this.name, value: 0, type : this.type, required: this.required })
-              });
+                $("input[type=checkbox][checked]:not(:checked)", f).each(function () {
+                    a.push({name: this.name, value: 0, type: this.type, required: this.required})
+                });
             }
 
 

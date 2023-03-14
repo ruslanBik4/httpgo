@@ -260,11 +260,12 @@ function OverHijack($out, resp) {
 
      return (validateRequiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
  }
+
 function validatePattern(thisElem) {
     var re = thisElem.pattern,
         result = true;
 
-    if (re == "") {
+    if (re === "") {
         return true;
     }
 
@@ -274,10 +275,10 @@ function validatePattern(thisElem) {
         result = re.test(thisElem.value);
         if(result){
             thisElem.style.borderColor = 'green';
-            thisElem.nextElementSibling.style.display = 'none';
+            $(thisElem).next('.errorLabel').hide();
         } else {
             thisElem.style.borderColor = 'red';
-            thisElem.nextElementSibling.style.display = 'block';
+            $(thisElem).next('.errorLabel').show();
        }
 
     } catch (e) {
@@ -328,65 +329,32 @@ function validateRequiredFields(thisForm) {
 
     return result;
 }
-function validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-}
-function validateEmailFields(thisForm) {
-
-    var result = true;
-
-    $('input[type=email]:visible', thisForm).each(
-        function (index) {
-            result = validateEmail(this.value);
-            if (result) {
-                correctField(this);
-            } else {
-                alertField(this);
-                return false;
-            }
-        });
-
-    return result;
-}
-function correctField(thisElem) {
-    $(thisElem).css( { border: '' } );
-}
-function alertField(thisElem) {
-    debugger
-    var nameField = $(thisElem).parent('label').text();
-    if (nameField === "" || nameField === undefined) {
-        nameField = thisElem.placeholder
-    }
-    alert( 'Заполните поле - ' + nameField );
-    $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus().next('.errorLabel').show();
-}
 `)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 }
 
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 func WriteSaveForm(qq422016 qtio422016.Writer) {
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	StreamSaveForm(qw422016)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	qt422016.ReleaseWriter(qw422016)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 }
 
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 func SaveForm() string {
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	qb422016 := qt422016.AcquireByteBuffer()
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	WriteSaveForm(qb422016)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	qs422016 := string(qb422016.B)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	qt422016.ReleaseByteBuffer(qb422016)
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 	return qs422016
-//line save_form.qtpl:295
+//line save_form.qtpl:263
 }

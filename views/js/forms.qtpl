@@ -238,8 +238,6 @@ $(function()   {
 
 }) // $(document).ready
 
-{%= SaveForm() %}
-
 // handling response AnyForm & render result according to structures of data
 function afterSaveAnyForm(data, status) {
 
