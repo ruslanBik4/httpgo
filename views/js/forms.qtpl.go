@@ -140,7 +140,7 @@ function setClickAll() {
 
       console.log(event);
       // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("onsubmit", function () { return saveForm(this); });
+      $('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
        // add click event instead default - response will show on div.#content
      $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
         var url = replMacros(this.href)
@@ -333,12 +333,6 @@ $(function()   {
 
 }) // $(document).ready
 
-`)
-//line forms.qtpl:241
-	StreamSaveForm(qw422016)
-//line forms.qtpl:241
-	qw422016.N().S(`
-
 // handling response AnyForm & render result according to structures of data
 function afterSaveAnyForm(data, status) {
 
@@ -394,13 +388,13 @@ function loadContent(url) {
 
                 alert( "Code : " + xhr.status + " error :"+ error);
                 console.log(`)
-//line forms.qtpl:241
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:241
+//line forms.qtpl:84
 	qw422016.N().S(`${url} ${status} ${error}`)
-//line forms.qtpl:241
+//line forms.qtpl:84
 	qw422016.N().S("`")
-//line forms.qtpl:241
+//line forms.qtpl:84
 	qw422016.N().S(`);
             }
        });
@@ -494,31 +488,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:389
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:389
+//line forms.qtpl:387
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 }
 
-//line forms.qtpl:389
+//line forms.qtpl:387
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:389
+//line forms.qtpl:387
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:389
+//line forms.qtpl:387
 	return qs422016
-//line forms.qtpl:389
+//line forms.qtpl:387
 }

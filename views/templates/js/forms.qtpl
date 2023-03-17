@@ -3,8 +3,192 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 .
 {% func PutFormsJS() %}
-<script>
 "use strict";
+function saveForm(thisForm, successFunction, errorFunction) {
+	let title = $('figcaption', thisForm).text();
+	if (title === "") {
+		if (thisForm.id > "") {
+			title = thisForm.id;
+		} else {
+			title = $('h2', thisForm).text();
+		}
+	}
+    if (!validateFields(thisForm))
+        return false;
+
+    if (!thisForm.noValidate && !confirm('Do you sure to send form "' + title + '"?')) {
+        return false
+    }
+    // TODO: create element form for output form result
+    var $out = $('output', thisForm),
+        $loading = $('.loading', thisForm),
+        $progress = $('progress', thisForm);
+
+    $(thisForm).ajaxSubmit({
+        beforeSubmit: function(a,f,o) {
+             o.dataType = "json";
+
+             // rm field without values
+             var isNewRecord = $('input[name=id]').length == 0;
+
+             for( var i = a.length -1; i >= 0; --i){
+                 if (a[i].readOnly
+                  || ( (a[i].value === '') && (isNewRecord || a[i].type === 'select-one' || a[i].type === 'file' ))
+                    || (a[i].value.length === 0) ) {
+                     t = a.splice(i,1);
+                     console.log(t);
+                 }
+             }
+
+           $("input[type=checkbox][checked]:not(:checked)", f).each(function() {
+               a.push({ name: this.name, value: 0, type: this.type, required: this.required });
+           });
+            a.push({ name: "is_get_form_actions", value: true, type: "boolean" });
+            $out.html('Start sending...');
+            $('.errorLabel').hide();
+            $progress.show();
+            $loading.show();
+        },
+       beforeSend: function (xhr) {
+           xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+       },
+       uploadProgress: function(event, position, total, percentComplete) {
+            $out.html( 'Progress - ' + percentComplete + '%' );
+            $progress.val( percentComplete );
+        },
+        statusCode: {
+			206: function(data, status, xhr) {
+                    console.log(status);
+                    console.log(data);
+                    console.log(xhr);
+
+			}
+        },
+        success: function(data, status, xhr) {
+            if (xhr.status === 206) {
+//                $out.html(`<pre>${data.message}</pre>`);
+//                let socket = new WebSocket(`wss://${location.host}${data.url}`);
+//                socket.onmessage = function(event) {
+//                  $out.append(`<pre>${event.message}</pre>`);
+//                };
+//                socket.onerror = function(error) {
+//                  console.log(error)
+//                  $out.append(`<pre>${error}</pre>`);
+//                };
+//                    console.log(xhr);
+                OverHijack($out, data);
+                return
+            }
+            // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
+            if (successFunction !== undefined) {
+                successFunction(data, thisForm);
+            } else {
+                $out.html(status);
+                afterSaveAnyForm(data, status);
+            }
+             $.fancybox.close();
+        },
+        error: function(xhr, status, error) {
+            if (errorFunction !== undefined) {
+                errorFunction(error, thisForm);
+            } else {
+                $out.html( xhr.responseText );
+              switch (xhr.status) {
+              case 206: {
+                  fancyOpen( xhr.responseText );
+                  return
+              }
+              case 400: {
+                if (xhr.responseJSON.formErrors !== undefined) {
+                    formErrors = xhr.responseJSON.formErrors
+                    for (x in formErrors) {
+                        formsInput = $('input[name=' + x +']', thisForm)
+                         if (formsInput.length > 0) {
+                            let errorLabel = formsInput[0].nextElementSibling;
+                            errorLabel.textContent = formErrors[x];
+                            $(errorLabel).show();
+                            break;
+                         }
+                    }
+                }
+                return
+              }
+              case 401: {
+                urlAfterLogin = thisForm;
+                $('#bLogin').trigger("click");
+                return;
+              }
+
+              default:
+                  alert(xhr.responseText);
+              }
+           }
+        },
+        complete: function(xhr, status, obj) {
+            $progress.hide();
+            $loading.hide();
+            console.log(xhr);
+            console.log(obj);
+       }
+    });
+
+    return false;
+}
+function OverHijack($out, resp) {
+        $out.append(`<pre>${resp.message}</pre>`);
+        var method = "GET";
+        if (resp.method !== undefined) {
+            method = resp.method
+        }
+
+       $.ajax({
+            url: resp.url,
+            async: true,
+            cache: false,
+            contentType: false,
+            type: method,
+             data: {
+                     "lang": lang,
+                     "html": true
+             },
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+          },
+          success: function (data, status, xhr) {
+               switch (xhr.status) {
+               case 206:
+                    if (data.url !== undefined) {
+                        resp.url = data.url
+                    }
+                    if (data.message != undefined) {
+                        resp.message = data.message;
+                    } else {
+                        resp.message = data
+                    }
+                    console.log(data);
+                    OverHijack($out, resp);
+                    return;
+               case 202: {
+                    $out.html(data);
+                    return
+               }
+               default:
+                     $out.html(data);
+              }
+          },
+          error: function (xhr, status, error) {
+             if (xhr.status == 401) {
+                urlAfterLogin = url;
+                $('#bLogin').trigger("click");
+               return;
+              }
+
+              fancyOpen( "Code : " + xhr.status + ", "+ error + ": "+ xhr.responseText);
+              console.log(xhr);
+          }
+         });
+ }
+
 // ОБщие события для форм - стандарт
 function formInput(thisForm) {
 
@@ -63,12 +247,12 @@ function showFormModal(data) {
 }
 function alertField(thisElem) {
     debugger
-    var nameField = $(thisElem).attr('label');
-    if (nameField == "") {
+    var nameField = $(thisElem).parent('label').text();
+    if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder
     }
     alert( 'Заполните поле - ' + nameField );
-    $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus();
+    $(thisElem).css( { 'border-bottom': '1px red solid' } ).focus().next('.errorLabel').show();
 }
 function correctField(thisElem) {
     $(thisElem).css( { border: '' } );
@@ -77,47 +261,29 @@ function validatePattern(thisElem) {
     var re = thisElem.pattern,
         result = true;
 
-    if (re == "") {
+    if (re === "") {
         return true;
     }
-    // TODO: добавить проверку на валидность - иногда вылетает тут
+
     try {
 
         re = new RegExp(re);
         result = re.test(thisElem.value);
         if(result){
-            $(thisElem).css('border-color','green');
+            thisElem.style.borderColor = 'green';
+            $(thisElem).next('.errorLabel').hide();
         } else {
-            $(thisElem).css('border-color','red');
-        }
+            thisElem.style.borderColor = 'red';
+            $(thisElem).next('.errorLabel').show();
+       }
 
     } catch (e) {
         console.log(e)
     }
-    return result;
-}
-function validateEmail(email) {
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-}
-function validateEmailFields(thisForm) {
-
-    var result = true;
-
-    $('input[type=email]:visible', thisForm).each(
-        function (index) {
-            result = validateEmail(this.value);
-            if (result) {
-                correctField(this);
-            } else {
-                alertField(this);
-                return false;
-            }
-        });
 
     return result;
 }
-// проверка запоолнения обязательных полей
+
 //   TODO: добавить попозже проверку типов полей!
 function validateReguiredFields(thisForm) {
 
@@ -140,33 +306,6 @@ function validateReguiredFields(thisForm) {
 
     return result;
 }
-function validatePattern(thisElem) {
-    var re = thisElem.pattern,
-        result = true;
-
-    if (re == "") {
-        return true;
-    }
-
-    try {
-
-        re = new RegExp(re);
-        result = re.test(thisElem.value);
-        if(result){
-            thisElem.style.borderColor = 'green';
-            thisElem.nextElementSibling.style.display = 'none';
-        } else {
-            thisElem.style.borderColor = 'red';
-            thisElem.nextElementSibling.style.display = 'block';
-       }
-
-    } catch (e) {
-        console.log(e)
-    }
-
-    return result;
-}
-
 // проверка полей с выставленными патеррнами
 function validatePatternsField(thisForm) {
     var result = true;
@@ -176,7 +315,6 @@ function validatePatternsField(thisForm) {
             result = result && validatePattern(this);
             if (!result) {
                 alertField(this);
-
             }
 
             return result;
@@ -190,6 +328,28 @@ function validateFields(thisForm) {
 
     return (validateReguiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
 }
+function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+function validateEmailFields(thisForm) {
+
+    var result = true;
+
+    $('input[type=email]:visible', thisForm).each(
+        function (index) {
+            result = validateEmail(this.value);
+            if (result) {
+                correctField(this);
+            } else {
+                alertField(this);
+                return false;
+            }
+        });
+
+    return result;
+}
+
 // стандарт созранения форм, требуется расширить количество обработчиков (callback) типа ошибок записи и т.П.
 function saveForm(thisForm, successFunction, errorFunction)
 {
@@ -331,7 +491,4 @@ function addNewRowTableID(thisButton) {
 
     return false;
 }
-
-</script>
-
 {% endfunc %}

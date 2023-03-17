@@ -7,7 +7,9 @@
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 %}
+{% collapsespace %}
 {% stripspace %}
+
 {% func (col *ColumnDecor) ToJSON() %}
 {
         {% code
@@ -136,23 +138,21 @@
     {% endswitch %}
 {% endfunc %}
 
-{% func (col *ColumnDecor) RenderValue(value any)  %}
-    {% switch vv := value.(type) %}
-      {% case string %} {%s= strings.ReplaceAll( vv, "\r\n", `
+{%- func (col *ColumnDecor) RenderValue(value any)  -%}
+    {%- switch vv := value.(type) -%}
+      {%- case string -%}{%s= strings.ReplaceAll( vv, "\r\n", `
       `) %}
-      {% default %}
-            {%= json.Element(value) %}
-      {% endswitch %}
-{% endfunc %}
-
+      {%- default -%}{%= json.Element(value) %}
+    {%- endswitch -%}
+{%- endfunc -%}
 {% endstripspace %}
 
 {% func (col *ColumnDecor) RenderAttr(i int)  %}
 name="{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
-         {% if col.CharacterMaximumLength() > 0 %}  max = "{%d col.CharacterMaximumLength() %}" {% endif %}
-         {% if col.Placeholder() > "" %} placeholder="{%s col.Placeholder() %}" {% endif %}
+         {% if col.CharacterMaximumLength() > 0 %}  max="{%d col.CharacterMaximumLength() %}" {% endif %}
+         {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
                 pattern="{%s= col.Pattern() %}"  onkeyup="return validatePattern(this);"
@@ -162,6 +162,7 @@ name="{%s col.InputName(i) %}"
 
 {% func (col *ColumnDecor) RenderInputs(data map[string]any)  %}
  {% if col.IsSlice %}
+        {%s col.Label %}
     <ul class="form-field">
  {% endif %}
 
@@ -171,9 +172,13 @@ name="{%s col.InputName(i) %}"
   {% endif %}
 
 	{% switch %}
+   	{% case  col.IsReadOnly %}
+   	     {%s col.Label %}: {%= col.RenderValue(val) %}
    	{% case  col.SelectOptions != nil %}
+        {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
             <select {%= col.RenderAttr(i) %}
                     {% if d, ok := data[ col.InputName(i) ].(map[string]any); ok %}
+                    {% comment %} mest have '' for internal presentation strings with "" {% endcomment %}
                       data-show-blocks='{%= json.Element(d) %}'
                       onchange="ShowBlocks(this);"
                     {% endif %}
@@ -194,16 +199,22 @@ name="{%s col.InputName(i) %}"
           </select>
  	{% case col.InputType == "textarea" %}
           <textarea {%= col.RenderAttr(i) %} >{% if val != nil %}{%= col.RenderValue(val) %}{% endif %}</textarea>
+        {%- if !col.IsSlice -%}
+            <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
+        {%- endif -%}
   	{% case col.InputType == "file" %}
-        <span class="hiddenInput"
-            style="background-image: url('{%v val %}');">
+        {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
+        <span class="hiddenInput" style="background-image: url('{%v val %}');">
             <input {%= col.RenderAttr(i) %} type="file" accept="image">
         </span>
     {% case col.Suggestions > "" %}
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
-                {% if val != nil %} value = '{%= col.RenderValue(val) %}' {% endif %}
+                {% if val != nil %} value ="{%= col.RenderValue(val) %}" {% endif %}
                 onkeyup="inputSearchKeyUp(this,event);" />
+        {%- if !col.IsSlice -%}
+            <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
+        {%- endif -%}
         <div class="suggestions-wrapper" style="width:100%">
             <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 80%;"></span>
 	        <select size="10" {%= col.RenderAttr(i) %}
@@ -214,25 +225,31 @@ name="{%s col.InputName(i) %}"
              </div>
          </div>
     {% default %}
+
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
-                {% if val != nil %} value = '{%= col.RenderValue(val) %}'{% endif %}
-                {% if col.BasicType() == types.Bool %}onclick="this.value = this.checked;"
-                {% if val == true %}checked{% endif %}
+                {% if val != nil %} value="{%= col.RenderValue(val) %}" {% endif %}
+                {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
+                {% if col.BasicType() == types.Bool %}
+	                onclick="this.value = this.checked;"
+	                {% if val == true %}checked{% endif %}
                 {% endif %}
                >
+        {%- if !col.IsSlice -%}
+            <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
+        {%- endif -%}
     {% endswitch %}
  {% if col.IsSlice %}
-         <button class="removeField" type="button"
-             onclick="this.parentNode.remove(); return false;">-</button>
+     <button class="removeField" type="button" onclick="this.parentNode.remove(); return false;">-</button>
     </li>
  {% endif %}
 
  {% endfor %}
  {% if col.IsSlice %}
-     <li class="form-field">
-        <button class="main-btn" type="button"
-            onclick="l = this.parentNode; l.parentNode.insertBefore(l.previousElementSibling.cloneNode(true), l); return false;">+</button>
-    </li>
-    </ul>
- {% endif %}
+       </ul>
+      <button class="main-btn" type="button"
+            onclick="l = this.parentNode.firstElementChild.lastElementChild; l.parentNode.insertBefore(l.cloneNode(true), l); return false;">
+            Add new one
+        </button>
+{% endif %}
 {% endfunc %}
+{% endcollapsespace %}

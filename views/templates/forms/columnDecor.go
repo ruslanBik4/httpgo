@@ -121,6 +121,8 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.DefaultInputValue = gotools.BytesToString(val.GetStringBytes())
 		case "value":
 			col.Value = gotools.BytesToString(val.GetStringBytes())
+		default:
+			logs.StatusLog("unknown field property '%s'", key)
 		}
 
 	})
