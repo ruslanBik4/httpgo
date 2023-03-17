@@ -75,17 +75,12 @@ func NewMapTokens(expiresIn time.Duration) *MapTokens {
 	}
 }
 
-func (m *MapTokens) NewToken(userData TokenData) (string, error) {
+func (m *MapTokens) SetToken(s string, userData TokenData) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
 	if m.tokens == nil {
 		m.tokens = make(map[string]*mapToken, 0)
-	}
-
-	s, err := generateRandomString(16)
-	if err != nil {
-		return "", err
 	}
 
 	m.tokens[s] = &mapToken{
@@ -99,7 +94,15 @@ func (m *MapTokens) NewToken(userData TokenData) (string, error) {
 		signAt:   time.Now(),
 		lock:     &sync.RWMutex{},
 	}
+}
 
+func (m *MapTokens) NewToken(userData TokenData) (string, error) {
+	s, err := generateRandomString(16)
+	if err != nil {
+		return "", err
+	}
+
+	m.SetToken(s, userData)
 	return s, nil
 }
 
