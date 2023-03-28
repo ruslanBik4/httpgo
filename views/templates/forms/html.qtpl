@@ -143,6 +143,11 @@ function ShowBlocks(thisElem){
     d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
 }
 
+function Prev(elem, id) {
+	block = $(elem).parents('figure');
+	block.hide();
+	$('#block'+id).show();
+}
 function Next(elem, id) {
 	block = $(elem).parents('figure');
     if (!validateFields(block[0]))

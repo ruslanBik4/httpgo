@@ -280,6 +280,11 @@ function ShowBlocks(thisElem){
     d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
 }
 
+function Prev(elem, id) {
+	block = $(elem).parents('figure');
+	block.hide();
+	$('#block'+id).show();
+}
 function Next(elem, id) {
 	block = $(elem).parents('figure');
     if (!validateFields(block[0]))
@@ -318,9 +323,9 @@ $(function()   {
                       editor.on('input', (e) => {
                        console.log(e);
                        $('#`)
-//line html.qtpl:183
+//line html.qtpl:188
 	qw422016.E().S(idShake)
-//line html.qtpl:183
+//line html.qtpl:188
 	qw422016.N().S(`_form button.hidden').removeClass('hidden').addClass('main-btn');
                       });
 
@@ -334,31 +339,31 @@ $(function()   {
 });
 </script>
 `)
-//line html.qtpl:195
+//line html.qtpl:200
 }
 
-//line html.qtpl:195
+//line html.qtpl:200
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer) {
-//line html.qtpl:195
+//line html.qtpl:200
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line html.qtpl:195
+//line html.qtpl:200
 	f.StreamFormHTML(qw422016)
-//line html.qtpl:195
+//line html.qtpl:200
 	qt422016.ReleaseWriter(qw422016)
-//line html.qtpl:195
+//line html.qtpl:200
 }
 
-//line html.qtpl:195
+//line html.qtpl:200
 func (f *FormField) FormHTML() string {
-//line html.qtpl:195
+//line html.qtpl:200
 	qb422016 := qt422016.AcquireByteBuffer()
-//line html.qtpl:195
+//line html.qtpl:200
 	f.WriteFormHTML(qb422016)
-//line html.qtpl:195
+//line html.qtpl:200
 	qs422016 := string(qb422016.B)
-//line html.qtpl:195
+//line html.qtpl:200
 	qt422016.ReleaseByteBuffer(qb422016)
-//line html.qtpl:195
+//line html.qtpl:200
 	return qs422016
-//line html.qtpl:195
+//line html.qtpl:200
 }
