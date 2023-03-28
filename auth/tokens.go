@@ -45,7 +45,7 @@ func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry ti
 	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, Lang: lang, id: id, Expiry: expiry}
 }
 
-// WithExtension
+// WithExtension sets extension to SimpleTokenData.Extensions and returns SimpleTokenData.
 func (s *SimpleTokenData) WithExtension(key string, value any) *SimpleTokenData {
 	if s == nil {
 		return nil
@@ -56,6 +56,16 @@ func (s *SimpleTokenData) WithExtension(key string, value any) *SimpleTokenData 
 	}
 
 	s.Extensions[key] = value
+	return s
+}
+
+// WithToken sets token and returns SimpleTokenData.
+func (s *SimpleTokenData) WithToken(token string) *SimpleTokenData {
+	if s == nil {
+		return nil
+	}
+
+	s.Token = token
 	return s
 }
 
