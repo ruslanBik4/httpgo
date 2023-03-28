@@ -30,17 +30,33 @@ type TokenData interface {
 }
 
 type SimpleTokenData struct {
-	isAdmin bool
-	Name    string `json:"name"`
-	Desc    string `json:"desc"`
-	Lang    string `json:"lang"`
-	Token   string `json:"token"`
+	Name       string         `json:"name"`
+	Desc       string         `json:"desc"`
+	Lang       string         `json:"lang"`
+	Token      string         `json:"token"`
+	Expiry     time.Time      `json:"expiry,omitempty"`
+	Extensions map[string]any `json:"extensions,omitempty"`
+
 	id      int
-	Expiry  time.Time `json:"expiry,omitempty"`
+	isAdmin bool
 }
 
 func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
 	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, Lang: lang, id: id, Expiry: expiry}
+}
+
+// WithExtension
+func (s *SimpleTokenData) WithExtension(key string, value any) *SimpleTokenData {
+	if s == nil {
+		return nil
+	}
+
+	if s.Extensions == nil {
+		s.Extensions = make(map[string]any)
+	}
+
+	s.Extensions[key] = value
+	return s
 }
 
 func (s *SimpleTokenData) IsAdmin() bool {
