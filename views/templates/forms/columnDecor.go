@@ -54,6 +54,8 @@ type ColumnDecor struct {
 	PlaceHolder       string
 	LinkNew           string
 	Label             string
+	Max               string
+	Min               string
 	multiple          bool
 	pattern           string
 	patternDesc       string
@@ -91,6 +93,10 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 	isRequired := false
 	obj.Visit(func(key []byte, val *fastjson.Value) {
 		switch gotools.BytesToString(key) {
+		case "max":
+			col.Max = gotools.BytesToString(val.GetStringBytes())
+		case "min":
+			col.Min = gotools.BytesToString(val.GetStringBytes())
 		case "name":
 			name = gotools.BytesToString(val.GetStringBytes())
 		case "title":

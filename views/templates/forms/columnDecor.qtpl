@@ -151,7 +151,9 @@
 name="{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
-         {% if col.CharacterMaximumLength() > 0 %}  max="{%d col.CharacterMaximumLength() %}" {% endif %}
+         {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
+         {% if col.Max > "" %}max="{%d col.Max %}"{%- endif -%}
+         {% if col.Min > "" %}min="{%d col.Min %}"{%- endif -%}
          {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
