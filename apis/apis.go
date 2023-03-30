@@ -23,6 +23,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/views"
@@ -144,19 +145,29 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// success execution
+	if out, err := WriteResponse(ctx, resp); err != nil {
+		a.renderError(ctx, err, resp)
+	} else if out > "" {
+		ctx.Response.SetBodyString(out)
+	}
+}
+
+// todo: may  be we gave overhead by mem allocation
+func WriteResponse(ctx *fasthttp.RequestCtx, resp any) (string, error) {
 	switch resp := resp.(type) {
 	case nil:
+		return "", nil
 	case []byte:
-		ctx.Response.SetBodyString(string(resp))
+		return gotools.BytesToString(resp), nil
 	case string:
-		ctx.Response.SetBodyString(resp)
+		return resp, nil
 	default:
-		err = WriteJSON(ctx, resp)
+		err := WriteJSON(ctx, resp)
 		if err != nil {
-			a.renderError(ctx, err, resp)
+			return "", err
 		}
+		return "", nil
 	}
-
 }
 
 // WriteJSON write JSON to response

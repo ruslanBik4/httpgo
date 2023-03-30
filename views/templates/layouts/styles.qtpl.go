@@ -182,7 +182,7 @@ figure {
     display: flex;
     flex-flow: column;
     padding: 5px;
-//    max-width: 80%;
+    max-width: 300px;
     margin: auto;
 //    width: max-content;
 }
@@ -213,6 +213,9 @@ input[type=file] {
 	min-width: fit-content;
 //    border-bottom: 2px solid #adadad;
 //    margin-bottom:37px;
+}
+.input-wrap .suggestions-constraints {
+	z-index: 100;
 }
 .input-wrap > label.input-label {
 	position: relative;
@@ -383,31 +386,31 @@ form span.hiddenInput {
 }
 </style>
 `)
-//line styles.qtpl:355
+//line styles.qtpl:358
 }
 
-//line styles.qtpl:355
+//line styles.qtpl:358
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line styles.qtpl:355
+//line styles.qtpl:358
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line styles.qtpl:355
+//line styles.qtpl:358
 	StreamPutStyles(qw422016)
-//line styles.qtpl:355
+//line styles.qtpl:358
 	qt422016.ReleaseWriter(qw422016)
-//line styles.qtpl:355
+//line styles.qtpl:358
 }
 
-//line styles.qtpl:355
+//line styles.qtpl:358
 func PutStyles() string {
-//line styles.qtpl:355
+//line styles.qtpl:358
 	qb422016 := qt422016.AcquireByteBuffer()
-//line styles.qtpl:355
+//line styles.qtpl:358
 	WritePutStyles(qb422016)
-//line styles.qtpl:355
+//line styles.qtpl:358
 	qs422016 := string(qb422016.B)
-//line styles.qtpl:355
+//line styles.qtpl:358
 	qt422016.ReleaseByteBuffer(qb422016)
-//line styles.qtpl:355
+//line styles.qtpl:358
 	return qs422016
-//line styles.qtpl:355
+//line styles.qtpl:358
 }
