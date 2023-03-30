@@ -77,7 +77,7 @@ func (s *SimpleTokenData) GetUserID() int {
 	return s.id
 }
 
-func (s *SimpleTokenData) IsExpired() bool {
+func (s *SimpleTokenData) IsNotExpired() bool {
 	return s.Expiry.After(time.Now())
 }
 
