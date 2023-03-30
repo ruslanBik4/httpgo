@@ -24,6 +24,9 @@
       onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate caption="{%s f.Title %}" >
 
      <figcaption>{%s= f.Description %}</figcaption>
+     {% if len(defBlocks) > 0 %}
+     <header id="navBlocks"> </header>
+     {% endif %}
      {% for _, block := range f.Blocks %}
        {% code
             isHide := (len(defBlocks) > 0)
@@ -71,102 +74,14 @@
 {% endstripspace %}
 {% endcollapsespace %}
 <script>
-function inputSearchKeyUp(thisElem, event){
-
-        var x = event.which || event.keyCode;
-        var elem = $(thisElem)
-        var thisClass = 'select.suggestions-select-show.'+thisElem.attributes.data.value
-        var thisClassH = 'select.suggestions-select-hide.'+thisElem.attributes.data.value
-
-        if (x == 40) {
-            elem.unbind("blur");
-            $(thisClass).focus();
-            $(thisClass + ' option:first').selected();
-
-           return;
-        }
-
-         elem.on("blur", function(){
-
-               if (event.relatedTarget && event.relatedTarget.className == "suggestions-select-show") {
-                         return;
-               }
-
-                 console.log(event);
-                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-             })
-
-         if (elem.val().length < 2) {
-            return true;
-         }
-
-         $.ajax({
-             url: thisElem.src,
-             data: {
-                     "lang": lang,
-                     "value": thisElem.value,
-                     "count": 10,
-                     "html": true
-             },
-           beforeSend: function (xhr) {
-               xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-           },
-           success: function (data, status) {
-             $(thisClassH).html(data).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
-             .on('keyup', function(event) {
-                         var x = event.which || event.keyCode;
-                         if (x == 32) {
-                                 thisElem.value = $(thisClass + ' option:selected').text();
-                                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                                 return false;
-                          }
-                   });
-             $(thisClass + ' option').on('mouseup', function(e) {
-                thisElem.value = $(this).text();
-                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
-                return true;
-             });
-
-           },
-           error: function (xhr, status, error) {
-               alert( "Code : " + xhr.status + " error :"+ error);
-               console.log(error);
-           }
-          });
-}
-
-function ShowBlocks(thisElem){
-    d=$(thisElem).data('show-blocks');
-    $(thisElem).parents('form').children('figure').hide();
-    d[$('option:selected', thisElem).val()].every(function (e) {$('#block'+ e).show(); return true;})
-}
-
-function Prev(elem, id) {
-	block = $(elem).parents('figure');
-	block.hide();
-	$('#block'+id).show();
-}
-function Next(elem, id) {
-	block = $(elem).parents('figure');
-    if (!validateFields(block[0]))
-        return false;
-
-	block.hide();
-	newBlock = $('#block'+id).show()[0];
-	newBlock.scrollIntoView();
-	fields = $('input, select', newBlock)
-	if (fields.length > 0) {
-		fields[0].focus();
-	}
-	return false;
-}
-
 $(function()   {
 	textInputs = $('textarea');
 	if (textInputs.length > 0) {
-		if (tinymce === undefined) {
+		let scripts = Array
+            .from(document.querySelectorAll('script'))
+            .map(scr => scr.src);
+
+        if (!scripts.includes('tinymce.min')) {
 			LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
 		}
 

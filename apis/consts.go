@@ -81,6 +81,7 @@ func methodFromName(nameMethod string) tMethod {
 const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
+	ContentHandler  = "pageContent"
 	ChildRoutePath  = "lastSegment"
 	ApiVersion      = "ACC_VERSION"
 	AuthManager     = "auth"

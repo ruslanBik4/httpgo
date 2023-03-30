@@ -152,8 +152,8 @@ name="{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
          {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
-         {% if col.Max > "" %}max="{%d col.Max %}"{%- endif -%}
-         {% if col.Min > "" %}min="{%d col.Min %}"{%- endif -%}
+         {% if col.Max > "" %}max="{%s col.Max %}"{%- endif -%}
+         {% if col.Min > "" %}min="{%s col.Min %}"{%- endif -%}
          {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
@@ -213,7 +213,7 @@ name="{%s col.InputName(i) %}"
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
                 {% if val != nil %} value ="{%= col.RenderValue(val) %}" {% endif %}
-                onkeyup="inputSearchKeyUp(this,event);" />
+                onkeyup="return inputSearchKeyUp(this,event);" />
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}
@@ -221,7 +221,8 @@ name="{%s col.InputName(i) %}"
             <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 80%;"></span>
 	        <select size="10" {%= col.RenderAttr(i) %}
 	            class="suggestions-constraints suggestions-select-hide {%s col.InputName(i) %}-sel"
-	            style="width:98%">
+	            style="width:98%"
+	            data-placeholder="{%s col.Label %}">
 	        </select>
              <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;">
              </div>

@@ -152,7 +152,7 @@ figure {
     display: flex;
     flex-flow: column;
     padding: 5px;
-//    max-width: 80%;
+    max-width: 300px;
     margin: auto;
 //    width: max-content;
 }
@@ -183,6 +183,9 @@ input[type=file] {
 	min-width: fit-content;
 //    border-bottom: 2px solid #adadad;
 //    margin-bottom:37px;
+}
+.input-wrap .suggestions-constraints {
+	z-index: 100;
 }
 .input-wrap > label.input-label {
 	position: relative;
