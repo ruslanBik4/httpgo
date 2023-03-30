@@ -37,12 +37,12 @@ type SimpleTokenData struct {
 	Expiry     time.Time      `json:"expiry,omitempty"`
 	Extensions map[string]any `json:"extensions,omitempty"`
 
-	id      int
-	isAdmin bool
+	Id    int  `json:"id"`
+	Admin bool `json:"admin"`
 }
 
 func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
-	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, Lang: lang, id: id, Expiry: expiry}
+	return &SimpleTokenData{Admin: isAdmin, Name: name, Desc: desc, Lang: lang, Id: id, Expiry: expiry}
 }
 
 // WithExtension sets extension to SimpleTokenData.Extensions and returns SimpleTokenData.
@@ -70,11 +70,11 @@ func (s *SimpleTokenData) WithToken(token string) *SimpleTokenData {
 }
 
 func (s *SimpleTokenData) IsAdmin() bool {
-	return s.isAdmin
+	return s.Admin
 }
 
 func (s *SimpleTokenData) GetUserID() int {
-	return s.id
+	return s.Id
 }
 
 func (s *SimpleTokenData) IsNotExpired() bool {
