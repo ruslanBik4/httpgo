@@ -57,6 +57,10 @@
 .usr-table-col input {
       width: 98%;
 }
+.usr-table-col p {
+      margin: 1%;
+      padding: 0;
+}
 .usr-table-col:nth-child(1){
     padding-left: 3px;
 }
@@ -102,11 +106,15 @@
     padding: 0 1px;
 }
 
+.usr-table__filter .usr-table-col input[type=text] {
+	width: 98%;
+}
 .filt-arrow{
 	display: flex;
 	padding:2px;
 	width: 98%;
 	height: 98%;
+	justify-content: center;
 }
 
 div.filt-arrow > input[type=number]::-webkit-outer-spin-button, div.filt-arrow > input[type=number]::-webkit-inner-spin-button  {

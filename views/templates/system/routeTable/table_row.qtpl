@@ -38,7 +38,7 @@
 <title> Table of "{%s t.Comment() %}"</title>
 {%- if !t.OnlyView -%}
 <div class="sidebar">
-<form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit= "return saveForm(this);">
+<form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit="return saveForm(this);">
 <h2> Import to '{%s t.Comment() %}'</h2>
 <div id="divFieldImport" class="input-wrap">
 <label class="table-files__label" style="height:30px;">
@@ -71,10 +71,7 @@
 	    {% for i, col := range t.columns %}
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
-        <style> .usr-table-header > .usr-table__t-head > .table-col-{%d i%}{
-//            position: sticky;
-        }
-        </style>	                <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
+                    <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
 				    {% for j, c := range t.columns[i+1:] %}
 				           <li class="top-mnu-item">
@@ -248,12 +245,22 @@ func render Table rows{
 
                 {% case []int32 %}
                       {% for _, val := range val %}
-                        {%v= val %}
+                        <p>{%v= val %}</p>
                       {% endfor %}
 
                 {% case []int64 %}
                       {% for _, val := range val %}
-                        {%v= val %}
+                        <p>{%v= val %}</p>
+                      {% endfor %}
+
+                {% case []float32 %}
+                      {% for _, val := range val %}
+                        <p>{%v= val %}</p>
+                      {% endfor %}
+
+                {% case []float64 %}
+                      {% for _, val := range val %}
+                        <p>{%v= val %}</p>
                       {% endfor %}
 
                 {% case map[string]string %}

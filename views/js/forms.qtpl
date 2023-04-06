@@ -181,60 +181,6 @@ $(function()   {
     }
     $('#content').on('DOMSubtreeModified', setClickAll );
 
-        $("#inpS:not([rel])").on("blur", function(){
-
-          if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
-                    return;
-            }
-            console.log(event);
-            $('select.suggestions-constraints').hide();
-        }).on('keyup',function(e){
-        var x = event.which || event.keyCode;
-            if (x == 40) {
-                $("#inpS").unbind("blur");
-                $('select.suggestions-constraints').focus();
-                $('select.suggestions-constraints option:first').selected();
-                return;
-            }
-
-             if ($("#inpS").val().length < 2) {
-                return true;
-             }
-
-             $.ajax({
-                 url: "/api/v1/search/list",
-                 data: {
-                         "lang": lang,
-                         "value": $("#inpS").val(),
-                         "count": 10,
-                         "html": true
-                 },
-               beforeSend: function (xhr) {
-                   xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-               },
-               success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
-                                                     var x = event.which || event.keyCode;
-                                                     if (x == 32) {
-                                                             $("#inpS").val( $('select.suggestions-constraints option:selected').text() );
-                                                             $('select.suggestions-constraints').hide();
-                                                             $('button[type="search"]').click();
-                                                             return false;
-                                                      }
-                                               });
-                 $('select.suggestions-constraints option').on('mouseup', function(e) {
-                    $("#inpS").val( $(this).text() );
-                    $('select.suggestions-constraints').hide();
-                    $('button[type="search"]').click();
-                    return true;
-                 });
-               },
-               error: function (xhr, status, error) {
-                   alert( "Code : " + xhr.status + " error :"+ error);
-                   console.log(error);
-               }
-              });
-        }).attr('rel', true);
 
 }) // $(document).ready
 

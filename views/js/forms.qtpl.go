@@ -276,60 +276,6 @@ $(function()   {
     }
     $('#content').on('DOMSubtreeModified', setClickAll );
 
-        $("#inpS:not([rel])").on("blur", function(){
-
-          if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
-                    return;
-            }
-            console.log(event);
-            $('select.suggestions-constraints').hide();
-        }).on('keyup',function(e){
-        var x = event.which || event.keyCode;
-            if (x == 40) {
-                $("#inpS").unbind("blur");
-                $('select.suggestions-constraints').focus();
-                $('select.suggestions-constraints option:first').selected();
-                return;
-            }
-
-             if ($("#inpS").val().length < 2) {
-                return true;
-             }
-
-             $.ajax({
-                 url: "/api/v1/search/list",
-                 data: {
-                         "lang": lang,
-                         "value": $("#inpS").val(),
-                         "count": 10,
-                         "html": true
-                 },
-               beforeSend: function (xhr) {
-                   xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-               },
-               success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
-                                                     var x = event.which || event.keyCode;
-                                                     if (x == 32) {
-                                                             $("#inpS").val( $('select.suggestions-constraints option:selected').text() );
-                                                             $('select.suggestions-constraints').hide();
-                                                             $('button[type="search"]').click();
-                                                             return false;
-                                                      }
-                                               });
-                 $('select.suggestions-constraints option').on('mouseup', function(e) {
-                    $("#inpS").val( $(this).text() );
-                    $('select.suggestions-constraints').hide();
-                    $('button[type="search"]').click();
-                    return true;
-                 });
-               },
-               error: function (xhr, status, error) {
-                   alert( "Code : " + xhr.status + " error :"+ error);
-                   console.log(error);
-               }
-              });
-        }).attr('rel', true);
 
 }) // $(document).ready
 
@@ -488,31 +434,31 @@ function showObject(data, thisForm) {
 }
 </script>
 `)
-//line forms.qtpl:387
+//line forms.qtpl:333
 }
 
-//line forms.qtpl:387
+//line forms.qtpl:333
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:387
+//line forms.qtpl:333
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:387
+//line forms.qtpl:333
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:387
+//line forms.qtpl:333
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:387
+//line forms.qtpl:333
 }
 
-//line forms.qtpl:387
+//line forms.qtpl:333
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:387
+//line forms.qtpl:333
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:387
+//line forms.qtpl:333
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:387
+//line forms.qtpl:333
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:387
+//line forms.qtpl:333
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:387
+//line forms.qtpl:333
 	return qs422016
-//line forms.qtpl:387
+//line forms.qtpl:333
 }

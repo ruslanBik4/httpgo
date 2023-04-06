@@ -24,6 +24,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         Attr string
         AfterAuthURL string
         ChangeTheme string
+        SearchAction string
     }
 %}
 {% func (body *IndexPageBody) IndexHTML() %}
@@ -33,6 +34,11 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%= layouts.HeaderHTML(body.TopMenu) %}
 <div class="content-wrap">
 <div id="container-fluid">
+	{%- if body.SearchAction > "" -%}
+        <div class="row-fluid">
+         {%= layouts.SearchPanel(body.SearchAction, "") %}
+       </div>
+   {%- endif -%}
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
