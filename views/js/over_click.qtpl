@@ -38,11 +38,7 @@ function() {
 				LoadStyles(id, data)
 				return;
 			} else if (typeCnt.startsWith("application/json") ) {
-				if (isSearch) {
-				    showObject(data)
-				} else {
 				    $('#content').html(JSON.stringify(data) )
-				}
 				return;
 			}
 			if (target !== "_modal") {

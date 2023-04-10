@@ -326,7 +326,17 @@ form  span.hiddenInput:hover{
     width: 25%;
     max-height: 75%;
 }
-
+form#fSearch input[type=search]{
+	align-items: center;
+	vertical-align: middle;
+	width: 70%;
+}
+form#fSearch {
+	width: 100%;
+	margin: 0;
+	align-items: center;
+	vertical-align: middle;
+}
 form span.hiddenInput {
     position: relative;
     border: 1px solid #ccc;

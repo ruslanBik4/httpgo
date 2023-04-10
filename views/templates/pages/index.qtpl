@@ -6,8 +6,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	"io"
 )
 %}
-це главная страница.
-{% code
+content of Index page
+{%- code
     type IndexPageBody struct {
         Name         []byte
         Pass         []byte
@@ -24,9 +24,9 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         Attr string
         AfterAuthURL string
         ChangeTheme string
-        SearchAction string
+        SearchPanel   *layouts.SearchPanel
     }
-%}
+-%}
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
 <body {%s body.Attr %}>
@@ -34,11 +34,6 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         {%= layouts.HeaderHTML(body.TopMenu) %}
 <div class="content-wrap">
 <div id="container-fluid">
-	{%- if body.SearchAction > "" -%}
-        <div class="row-fluid">
-         {%= layouts.SearchPanel(body.SearchAction, "") %}
-       </div>
-   {%- endif -%}
     <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
@@ -46,7 +41,12 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
             </div>
         </div>
         <div class="content-section">
-            <div id="content" rel="{%s body.Route %}">
+ 	{%- if body.SearchPanel != nil -%}
+    <div class="row-fluid">
+          {%= body.SearchPanel.Render() %}
+        </div>
+    {%- endif -%}
+           <div id="content" rel="{%s body.Route %}">
                 {%code
                     if body.ContentWrite != nil {
                         body.ContentWrite(body.Buff)

@@ -356,7 +356,17 @@ form  span.hiddenInput:hover{
     width: 25%;
     max-height: 75%;
 }
-
+form#fSearch input[type=search]{
+	align-items: center;
+	vertical-align: middle;
+	width: 70%;
+}
+form#fSearch {
+	width: 100%;
+	margin: 0;
+	align-items: center;
+	vertical-align: middle;
+}
 form span.hiddenInput {
     position: relative;
     border: 1px solid #ccc;
@@ -386,31 +396,31 @@ form span.hiddenInput {
 }
 </style>
 `)
-//line styles.qtpl:358
+//line styles.qtpl:368
 }
 
-//line styles.qtpl:358
+//line styles.qtpl:368
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line styles.qtpl:358
+//line styles.qtpl:368
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line styles.qtpl:358
+//line styles.qtpl:368
 	StreamPutStyles(qw422016)
-//line styles.qtpl:358
+//line styles.qtpl:368
 	qt422016.ReleaseWriter(qw422016)
-//line styles.qtpl:358
+//line styles.qtpl:368
 }
 
-//line styles.qtpl:358
+//line styles.qtpl:368
 func PutStyles() string {
-//line styles.qtpl:358
+//line styles.qtpl:368
 	qb422016 := qt422016.AcquireByteBuffer()
-//line styles.qtpl:358
+//line styles.qtpl:368
 	WritePutStyles(qb422016)
-//line styles.qtpl:358
+//line styles.qtpl:368
 	qs422016 := string(qb422016.B)
-//line styles.qtpl:358
+//line styles.qtpl:368
 	qt422016.ReleaseByteBuffer(qb422016)
-//line styles.qtpl:358
+//line styles.qtpl:368
 	return qs422016
-//line styles.qtpl:358
+//line styles.qtpl:368
 }

@@ -21,7 +21,7 @@ import (
 	"io"
 )
 
-// це главная страница.
+// content of Index page
 
 //line index.qtpl:10
 import (
@@ -53,7 +53,7 @@ type IndexPageBody struct {
 	Attr         string
 	AfterAuthURL string
 	ChangeTheme  string
-	SearchAction string
+	SearchPanel  *layouts.SearchPanel
 }
 
 //line index.qtpl:30
@@ -82,33 +82,33 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 <div class="content-wrap">
 <div id="container-fluid">
-`)
-//line index.qtpl:37
-	if body.SearchAction > "" {
-//line index.qtpl:37
-		qw422016.N().S(`        <div class="row-fluid">
-         `)
-//line index.qtpl:39
-		layouts.StreamSearchPanel(qw422016, body.SearchAction, "")
-//line index.qtpl:39
-		qw422016.N().S(`
-       </div>
-`)
-//line index.qtpl:41
-	}
-//line index.qtpl:41
-	qw422016.N().S(`    <div class="row-fluid">
+    <div class="row-fluid">
         <div class="sidebar-section">
             <div id="catalog_pane"  class="well sidebar-nav">
                 `)
-//line index.qtpl:45
+//line index.qtpl:40
 	body.Catalog.StreamRenderMenu(qw422016, "left-mnu-list", "left-mnu-item")
-//line index.qtpl:45
+//line index.qtpl:40
 	qw422016.N().S(`
             </div>
         </div>
         <div class="content-section">
-            <div id="content" rel="`)
+`)
+//line index.qtpl:44
+	if body.SearchPanel != nil {
+//line index.qtpl:44
+		qw422016.N().S(`    <div class="row-fluid">
+          `)
+//line index.qtpl:46
+		body.SearchPanel.StreamRender(qw422016)
+//line index.qtpl:46
+		qw422016.N().S(`
+        </div>
+`)
+//line index.qtpl:48
+	}
+//line index.qtpl:48
+	qw422016.N().S(`           <div id="content" rel="`)
 //line index.qtpl:49
 	qw422016.E().S(body.Route)
 //line index.qtpl:49

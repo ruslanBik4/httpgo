@@ -13,86 +13,48 @@ package layouts
 
 //line search_panel.qtpl:1
 import (
-	"fmt"
-)
-
-// sdsdsdsd
-
-//line search_panel.qtpl:6
-import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line search_panel.qtpl:6
+//line search_panel.qtpl:1
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line search_panel.qtpl:7
-type search_panel struct {
-	dec string
+//line search_panel.qtpl:2
+type SearchPanel struct {
+	action      string
+	suggestions string
+	showObject  string
 }
 
-func Newsearch_panel() *search_panel {
-	return &search_panel{
-		fmt.Sprintf("%s", 1),
+func NewSearchPanel(action, suggestions, showObject string) *SearchPanel {
+	return &SearchPanel{
+		action,
+		suggestions,
+		showObject,
 	}
 }
 
+//line search_panel.qtpl:16
+func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
+//line search_panel.qtpl:16
+	qw422016.N().S(` <form id="fSearch" action="`)
 //line search_panel.qtpl:17
-func (i *search_panel) StreamSearchPanel(qw422016 *qt422016.Writer) {
+	qw422016.E().S(s.action)
 //line search_panel.qtpl:17
-	qw422016.N().S(`
-
-`)
-//line search_panel.qtpl:19
-}
-
-//line search_panel.qtpl:19
-func (i *search_panel) WriteSearchPanel(qq422016 qtio422016.Writer) {
-//line search_panel.qtpl:19
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:19
-	i.StreamSearchPanel(qw422016)
-//line search_panel.qtpl:19
-	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:19
-}
-
-//line search_panel.qtpl:19
-func (i *search_panel) SearchPanel() string {
-//line search_panel.qtpl:19
-	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:19
-	i.WriteSearchPanel(qb422016)
-//line search_panel.qtpl:19
-	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:19
-	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:19
-	return qs422016
-//line search_panel.qtpl:19
-}
-
-//line search_panel.qtpl:20
-func StreamSearchPanel(qw422016 *qt422016.Writer, action, suggestions string) {
-//line search_panel.qtpl:20
-	qw422016.N().S(`
-   <form id="fSearch" action="`)
-//line search_panel.qtpl:21
-	qw422016.E().S(action)
-//line search_panel.qtpl:21
 	qw422016.N().S(`" method="GET" target="#content" novalidate
-   onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, showObject, function(error, status) { $('#content').html(error.responseText); } );"
-   style="width:100%">
-        <div class="w3-clear">
+   onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, `)
+//line search_panel.qtpl:18
+	qw422016.E().S(s.showObject)
+//line search_panel.qtpl:18
+	qw422016.N().S(`, function(error, status) { $('#content').html(error.responseText); } );">
          <input type="hidden" name="html" value="true"/>
          <input type="hidden" name="counter" value="5"/>
-         <input id="inpS" name="name" type="search" placeholder="Smart search" required
-            autocapitalize="none" autocorrect="off" autocomplete="off">
+         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"  autofocus>
          <div class="suggestions-wrapper">
             <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 42px;"></span>
          <select name="id" size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;"></select>
@@ -100,14 +62,13 @@ func StreamSearchPanel(qw422016 *qt422016.Writer, action, suggestions string) {
          </div>
          </div>
          <button type="search"><i class="fa fa-search">Go!</i></button>
-       </div>
         <output></output>
         <progress value='0' max='100' hidden > </progress>
     </form>
 `)
-//line search_panel.qtpl:40
-	if suggestions > "" {
-//line search_panel.qtpl:40
+//line search_panel.qtpl:32
+	if s.suggestions > "" {
+//line search_panel.qtpl:32
 		qw422016.N().S(`	<script>
 	        $("#inpS:not([rel])").on("blur", function(){
 
@@ -131,9 +92,9 @@ func StreamSearchPanel(qw422016 *qt422016.Writer, action, suggestions string) {
 
                  $.ajax({
                      url: "`)
-//line search_panel.qtpl:63
-		qw422016.E().S(suggestions)
-//line search_panel.qtpl:63
+//line search_panel.qtpl:55
+		qw422016.E().S(s.suggestions)
+//line search_panel.qtpl:55
 		qw422016.N().S(`",
                      data: {
                              "lang": lang,
@@ -169,33 +130,33 @@ func StreamSearchPanel(qw422016 *qt422016.Writer, action, suggestions string) {
             }).attr('rel', true);
  </script>
 `)
-//line search_panel.qtpl:97
+//line search_panel.qtpl:89
 	}
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
 }
 
-//line search_panel.qtpl:98
-func WriteSearchPanel(qq422016 qtio422016.Writer, action, suggestions string) {
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
+func (s *SearchPanel) WriteRender(qq422016 qtio422016.Writer) {
+//line search_panel.qtpl:90
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:98
-	StreamSearchPanel(qw422016, action, suggestions)
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
+	s.StreamRender(qw422016)
+//line search_panel.qtpl:90
 	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
 }
 
-//line search_panel.qtpl:98
-func SearchPanel(action, suggestions string) string {
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
+func (s *SearchPanel) Render() string {
+//line search_panel.qtpl:90
 	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:98
-	WriteSearchPanel(qb422016, action, suggestions)
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
+	s.WriteRender(qb422016)
+//line search_panel.qtpl:90
 	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
 	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
 	return qs422016
-//line search_panel.qtpl:98
+//line search_panel.qtpl:90
 }

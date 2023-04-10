@@ -66,11 +66,7 @@ function() {
 				LoadStyles(id, data)
 				return;
 			} else if (typeCnt.startsWith("application/json") ) {
-				if (isSearch) {
-				    showObject(data)
-				} else {
 				    $('#content').html(JSON.stringify(data) )
-				}
 				return;
 			}
 			if (target !== "_modal") {
@@ -93,31 +89,31 @@ function() {
          return false;
 }
 `)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 }
 
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 func WriteOverClick(qq422016 qtio422016.Writer) {
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	StreamOverClick(qw422016)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	qt422016.ReleaseWriter(qw422016)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 }
 
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 func OverClick() string {
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	qb422016 := qt422016.AcquireByteBuffer()
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	WriteOverClick(qb422016)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	qs422016 := string(qb422016.B)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	qt422016.ReleaseByteBuffer(qb422016)
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 	return qs422016
-//line over_click.qtpl:67
+//line over_click.qtpl:63
 }

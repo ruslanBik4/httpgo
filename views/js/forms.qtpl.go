@@ -154,7 +154,8 @@ function setClickAll() {
 //line forms.qtpl:84
 	qw422016.N().S(` )
 
-      })
+      });
+  $('input[autofocus]:last').focus();
   isProcess = false;
 }
 function replMacros(url) {
@@ -305,6 +306,8 @@ function afterSaveAnyForm(data, status) {
 
 	localStorage.setItem("USER",  JSON.stringify(userStruct) );
 	saveUser(userStruct);
+  $('input[autofocus]:last').focus();
+
 	return true;
 }
 // run request & show content
@@ -371,94 +374,33 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         }
     });
 }
-function showObject(data, thisForm) {
-    if (!data) {
-      alert('no results!')
-      return false;
-    }
-
-    $('#content').html( '' );
-
-    for (x in data) {
-        $('#content').append('<div>');
-        div = $('#content').children(':last').attr('id', data[x].id)
-        div.append('<div>');
-        titleDiv = div.children(':last')
-        titleDiv.append('<h3> Group: <a href="/api/v1/search/?name=' + data[x].title + '" target="search">' + data[x].title + '</a></h3>');
-        if (data[x].abbr > "") {
-            titleDiv.append('<h4>' + data[x].abbr + '</h4>');
-        }
-
-        if (data[x].id_article > "") {
-            titleDiv.append('<h4><a href="article/' + data[x].id_article + '" target="search">' + data[x].id_article + '</a></h4>');
-        }
-
-        for (y in data[x].company_names ) {
-            titleDiv.append('<span>' + data[x].company_names[y] + '</span>');
-        }
-        
-        for (y in data[x].list ) {
-          div.append('<a href="' + data[x].list[y].document_url + '" rel="true" target="_blank">PDF</a>')
-          brand = data[x].list[y].brand
-          if (brand !== undefined) {
-            div.append('<div>' + brand + '<a href="/api/v1/search/analog/' + brand + '" target="search"> Search analog</a></div>')
-          }
-
-           idPolymers = data[x].list[y].id_polymers
-          if (data[x].list[y].has_additives !== false) {
-            div.append('<div><a href="/api/v1/search/additives/?id=' + idPolymers + '" target="search"> Search additives</a></div>')
-          }
-
-          if (data[x].list[y].has_fillers !== false) {
-            div.append('<div><a href="/api/v1/search/fillers/?id=' + idPolymers + '" target="search"> Search fillers</a></div>')
-          }
-
-          div.append('<div>' + data[x].list[y].company_name+ '</div>')
-          div.append('<table>');
-            div.append('<thr><thd> Values </thd><thd> Qty </thd> </thr>')
-
-            for (z in data[x].list[y].characteristics) {
-              div.append('<tr><td>'+z+'</td><td></td><td>'+data[x].list[y].characteristics[z]+'</td></tr>');
-            }
-
-           for (z in data[x].list[y].files) {
-              div.append('<p><a href="'+data[x].list[y].files[z].url+'" rel="true" target="_blank">'+data[x].list[y].files[z].title+'</a></p>');
-           }
-
-           notes = data[x].list[y].description
-           if (notes  > "") {
-                div.append('<div>' + notes + '</div>')
-           }
-        }
-    }
-}
 </script>
 `)
-//line forms.qtpl:333
+//line forms.qtpl:275
 }
 
-//line forms.qtpl:333
+//line forms.qtpl:275
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:333
+//line forms.qtpl:275
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:333
+//line forms.qtpl:275
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:333
+//line forms.qtpl:275
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:333
+//line forms.qtpl:275
 }
 
-//line forms.qtpl:333
+//line forms.qtpl:275
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:333
+//line forms.qtpl:275
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:333
+//line forms.qtpl:275
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:333
+//line forms.qtpl:275
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:333
+//line forms.qtpl:275
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:333
+//line forms.qtpl:275
 	return qs422016
-//line forms.qtpl:333
+//line forms.qtpl:275
 }

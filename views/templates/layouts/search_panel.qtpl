@@ -1,31 +1,24 @@
-{% import (
-	"fmt"
-)
-%}
-sdsdsdsd
 {% code
-type search_panel struct {
-    dec string
-}
+    type SearchPanel struct {
+        action string
+        suggestions string
+        showObject string
+    }
 
-func Newsearch_panel() *search_panel {
-    return &search_panel{
-    fmt.Sprintf("%s", 1),
+func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
+    return &SearchPanel{
+                action,
+                suggestions,
+                showObject,
     }
 } 
 %}
-{% func (i *search_panel) SearchPanel() %}
-
-{% endfunc %}
-{% func SearchPanel(action, suggestions string) %}
-   <form id="fSearch" action="{%s action %}" method="GET" target="#content" novalidate
-   onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, showObject, function(error, status) { $('#content').html(error.responseText); } );"
-   style="width:100%">
-        <div class="w3-clear">
+{%- func (s *SearchPanel) Render()  -%}
+ <form id="fSearch" action="{%s s.action %}" method="GET" target="#content" novalidate
+   onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
          <input type="hidden" name="html" value="true"/>
          <input type="hidden" name="counter" value="5"/>
-         <input id="inpS" name="name" type="search" placeholder="Smart search" required
-            autocapitalize="none" autocorrect="off" autocomplete="off">
+         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"  autofocus>
          <div class="suggestions-wrapper">
             <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 42px;"></span>
          <select name="id" size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;"></select>
@@ -33,11 +26,10 @@ func Newsearch_panel() *search_panel {
          </div>
          </div>
          <button type="search"><i class="fa fa-search">Go!</i></button>
-       </div>
         <output></output>
         <progress value='0' max='100' hidden > </progress>
     </form>
-	{%- if suggestions > "" -%}
+	{%- if s.suggestions > "" -%}
 	<script>
 	        $("#inpS:not([rel])").on("blur", function(){
 
@@ -60,7 +52,7 @@ func Newsearch_panel() *search_panel {
                  }
 
                  $.ajax({
-                     url: "{%s suggestions %}",
+                     url: "{%s s.suggestions %}",
                      data: {
                              "lang": lang,
                              "value": $("#inpS").val(),
