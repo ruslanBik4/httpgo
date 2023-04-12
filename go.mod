@@ -5,12 +5,18 @@ go 1.20
 //replace github.com/ruslanBik4/dbEngine => ../dbEngine
 
 require (
+	github.com/go-openapi/loads v0.20.2
+	github.com/go-openapi/runtime v0.19.24
+	github.com/go-openapi/spec v0.20.4
+	github.com/iancoleman/strcase v0.2.0
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgtype v1.14.0
+	github.com/jackc/pgx/v4 v4.18.1
 	github.com/json-iterator/go v1.1.12
 	github.com/nguyenthenguyen/docx v0.0.0-20220416032853-9fcb531443ea
 	github.com/pkg/errors v0.9.1
 	github.com/ruslanBik4/dbEngine v1.1.49
+	github.com/ruslanBik4/gotools v0.0.0-20220812070354-0ce3c9f73a6f
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.8.2
 	github.com/tebeka/selenium v0.9.9
@@ -19,18 +25,12 @@ require (
 	github.com/valyala/quicktemplate v1.7.0
 	golang.org/x/net v0.8.0
 	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
+	golang.org/x/text v0.8.0
 	google.golang.org/api v0.30.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/yaml.v2 v2.4.0
-	github.com/go-openapi/loads v0.20.2
-	github.com/go-openapi/runtime v0.19.24
-	github.com/go-openapi/spec v0.20.4
-	github.com/iancoleman/strcase v0.2.0
-	github.com/jackc/pgx/v4 v4.18.1
-	github.com/ruslanBik4/gotools v0.0.0-20220812070354-0ce3c9f73a6f
-	golang.org/x/text v0.8.0
 	oss.terrastruct.com/d2 v0.4.0
 )
 
@@ -90,7 +90,7 @@ require (
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9 // indirect
-	golang.org/x/image v0.3.0 // indirect
+	golang.org/x/image v0.5.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/term v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
