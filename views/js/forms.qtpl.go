@@ -132,29 +132,29 @@ var lang  = 'ua'
 var isProcess = false;
 
 function setClickAll() {
- if (isProcess) {
-   return;
- }
+	if (isProcess) {
+	return;
+	}
 
-  isProcess = true;
+	isProcess = true;
 
-      console.log(event);
-      // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
-       // add click event instead default - response will show on div.#content
-     $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
-        var url = replMacros(this.href)
-        var target = this.target
-        this.rel = 'setClickAll';
-        isSearch = (this.target=="search");
+	console.log(event);
+	// add onSubmit event instead default behaviourism form
+	$('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
+	// add click event instead default - response will show on div.#content
+	$( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
+		var url = replMacros(this.href)
+		var target = this.target
+		this.rel = 'setClickAll';
+		isSearch = (this.target=="search");
 
-        $(this).click( `)
+		$(this).click( `)
 //line forms.qtpl:84
 	StreamOverClick(qw422016)
 //line forms.qtpl:84
 	qw422016.N().S(` )
+	});
 
-      });
   $('input[autofocus]:last').focus();
   isProcess = false;
 }
@@ -176,7 +176,7 @@ function MyPopState(event) {
     if ( (go_history == 0) || (event.state == null) )
         return true;
     console.log(event);
-		document.title = event.title;
+	document.title = event.title;
     $('#content').html(event.state.data);
 }
 // смена адресной строки с предотвращением перезагрузки Содержимого
@@ -187,9 +187,9 @@ var title = $(data).filter('title').text();
 
     str_path = GetShortURL( str_path )
 
-if (title === "") {
-	title = str_path;
-}
+	if (title === "") {
+		title = str_path;
+	}
 	console.log(`)
 //line forms.qtpl:84
 	qw422016.N().S("`")

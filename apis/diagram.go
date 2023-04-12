@@ -23,7 +23,6 @@ import (
 	"oss.terrastruct.com/d2/d2exporter"
 	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
 	"oss.terrastruct.com/d2/d2renderers/d2svg"
-	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
 	"oss.terrastruct.com/d2/lib/textmeasure"
 
 	"github.com/ruslanBik4/logs"
@@ -35,7 +34,6 @@ const (
 	`
 	tplCol = `'%s': '%s' # %s
 	`
-	tplEntry     = `%s(%s)`
 	tplParamDesc = `  
 + **%s**: *%s*`
 	tplEndpointEnd = `}
@@ -83,7 +81,7 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	diagram, err := d2exporter.Export(ctx, graph, d2themescatalog.NeutralDefault.ID, nil)
+	diagram, err := d2exporter.Export(ctx, graph, nil)
 	if err != nil {
 		return nil, err
 	}

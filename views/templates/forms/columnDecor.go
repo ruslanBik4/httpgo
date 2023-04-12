@@ -131,7 +131,7 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 		return nil
 	}
 
-	name, comment := "", ""
+	name, comment, errMsg := "", "", ""
 	isRequired := false
 	obj.Visit(func(key []byte, val *fastjson.Value) {
 		switch gotools.BytesToString(key) {
@@ -164,6 +164,9 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.InputType = "hidden"
 		case "multiple":
 			col.multiple = true
+		case "error":
+			v := val.Get("message")
+			errMsg = gotools.BytesToString(v.GetStringBytes())
 		case "pattern":
 			col.PatternName = gotools.BytesToString(val.GetStringBytes())
 			col.getPattern(col.PatternName)
@@ -179,6 +182,9 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 
 	})
 
+	if errMsg > "" && col.patternDesc == "" {
+		col.patternDesc = errMsg
+	}
 	col.Column = dbEngine.NewStringColumn(name, comment, isRequired)
 
 	return &col

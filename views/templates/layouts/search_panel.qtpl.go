@@ -54,109 +54,61 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`, function(error, status) { $('#content').html(error.responseText); } );">
          <input type="hidden" name="html" value="true"/>
          <input type="hidden" name="counter" value="5"/>
-         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"  autofocus>
+         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"
+`)
+//line search_panel.qtpl:22
+	if s.suggestions == "" {
+//line search_panel.qtpl:22
+		qw422016.N().S(`autofocus=true />
+	`)
+//line search_panel.qtpl:23
+	} else {
+//line search_panel.qtpl:23
+		qw422016.N().S(`
+         src="`)
+//line search_panel.qtpl:24
+		qw422016.E().S(s.suggestions)
+//line search_panel.qtpl:24
+		qw422016.N().S(`"  data="search-name" onkeyup="return inputSearchKeyUp(this,event);" />
          <div class="suggestions-wrapper">
-            <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 42px;"></span>
-         <select name="id" size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;"></select>
-         <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;">
+            <span class="suggestions-addon" data-addon-type="spinner"></span>
+            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
+            <div class="suggestions-suggestions"></div>
          </div>
-         </div>
-         <button type="search"><i class="fa fa-search">Go!</i></button>
+`)
+//line search_panel.qtpl:30
+	}
+//line search_panel.qtpl:30
+	qw422016.N().S(`         <button type="search"><i class="fa fa-search">Go!</i></button>
         <output></output>
         <progress value='0' max='100' hidden > </progress>
     </form>
 `)
-//line search_panel.qtpl:32
-	if s.suggestions > "" {
-//line search_panel.qtpl:32
-		qw422016.N().S(`	<script>
-	        $("#inpS:not([rel])").on("blur", function(){
-
-              if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
-                        return;
-                }
-                console.log(event);
-                $('select.suggestions-constraints').hide();
-            }).on('keyup',function(e){
-            var x = event.which || event.keyCode;
-                if (x == 40) {
-                    $("#inpS").unbind("blur");
-                    $('select.suggestions-constraints').focus();
-                    $('select.suggestions-constraints option:first').selected();
-                    return;
-                }
-
-                 if ($("#inpS").val().length < 2) {
-                    return true;
-                 }
-
-                 $.ajax({
-                     url: "`)
-//line search_panel.qtpl:55
-		qw422016.E().S(s.suggestions)
-//line search_panel.qtpl:55
-		qw422016.N().S(`",
-                     data: {
-                             "lang": lang,
-                             "value": $("#inpS").val(),
-                             "count": 10,
-                             "html": true
-                     },
-                   beforeSend: function (xhr) {
-                       xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-                   },
-                   success: function (data, status) {
-                     $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
-                                                         var x = event.which || event.keyCode;
-                                                         if (x == 32) {
-                                                                 $("#inpS").val( $('select.suggestions-constraints option:selected').text() );
-                                                                 $('select.suggestions-constraints').hide();
-                                                                 $('button[type="search"]').click();
-                                                                 return false;
-                                                          }
-                                                   });
-                     $('select.suggestions-constraints option').on('mouseup', function(e) {
-                        $("#inpS").val( $(this).text() );
-                        $('select.suggestions-constraints').hide();
-                        $('button[type="search"]').click();
-                        return true;
-                     });
-                   },
-                   error: function (xhr, status, error) {
-                       alert( "Code : " + xhr.status + " error :"+ error);
-                       console.log(error);
-                   }
-                  });
-            }).attr('rel', true);
- </script>
-`)
-//line search_panel.qtpl:89
-	}
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 }
 
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 func (s *SearchPanel) WriteRender(qq422016 qtio422016.Writer) {
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	s.StreamRender(qw422016)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 }
 
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 func (s *SearchPanel) Render() string {
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	s.WriteRender(qb422016)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 	return qs422016
-//line search_panel.qtpl:90
+//line search_panel.qtpl:35
 }

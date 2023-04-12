@@ -18,18 +18,22 @@ func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
    onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
          <input type="hidden" name="html" value="true"/>
          <input type="hidden" name="counter" value="5"/>
-         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"  autofocus>
+         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"
+	{%- if s.suggestions == "" -%} autofocus=true />
+	{%else %}
+         src="{%s s.suggestions %}"  data="search-name" onkeyup="return inputSearchKeyUp(this,event);" />
          <div class="suggestions-wrapper">
-            <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 42px;"></span>
-         <select name="id" size=10 class="suggestions-constraints" style="left: -399.109375px; top: 50px;"></select>
-         <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;">
+            <span class="suggestions-addon" data-addon-type="spinner"></span>
+            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
+            <div class="suggestions-suggestions"></div>
          </div>
-         </div>
+    {%- endif -%}
          <button type="search"><i class="fa fa-search">Go!</i></button>
         <output></output>
         <progress value='0' max='100' hidden > </progress>
     </form>
-	{%- if s.suggestions > "" -%}
+{% endfunc %}
+{% comment %}
 	<script>
 	        $("#inpS:not([rel])").on("blur", function(){
 
@@ -52,7 +56,7 @@ func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
                  }
 
                  $.ajax({
-                     url: "{%s s.suggestions %}",
+                     url: ,
                      data: {
                              "lang": lang,
                              "value": $("#inpS").val(),
@@ -86,5 +90,4 @@ func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
                   });
             }).attr('rel', true);
  </script>
- {%- endif -%}
-{% endfunc %}
+{% endcomment %}
