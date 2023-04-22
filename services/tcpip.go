@@ -24,7 +24,7 @@ import (
 func DoRequest(url string, params map[string]string) (*fasthttp.Response, error) {
 	return DoPostRequest(url, params, nil)
 }
-func DoPostRequest(url string, params map[string]string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response, error) {
+func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
 
 	if strings.HasPrefix(url, ":") {
 		url = "http://localhost" + url
