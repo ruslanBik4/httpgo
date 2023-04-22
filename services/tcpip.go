@@ -22,12 +22,18 @@ import (
 )
 
 func DoRequest(url string, params map[string]string) (*fasthttp.Response, error) {
+	return DoPostRequest(url, params, nil)
+}
+func DoPostRequest(url string, params map[string]string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response, error) {
 
 	if strings.HasPrefix(url, ":") {
 		url = "http://localhost" + url
 	}
 
 	req := &fasthttp.Request{}
+	if hdr != nil {
+		req.Header.AppendBytes(hdr.Header())
+	}
 
 	if params != nil {
 		var b bytes.Buffer
