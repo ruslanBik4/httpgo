@@ -8,9 +8,11 @@
 package crud
 
 import (
+	"database/sql"
 	"regexp"
 
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 
 	"github.com/ruslanBik4/httpgo/apis"
@@ -39,8 +41,6 @@ func CreateErrResult(err error) (any, error) {
 		return apis.NewErrorResp(map[string]string{
 			s[1]: "`" + s[2] + "`" + s[3],
 		}), apis.ErrWrongParamsList
-	} else {
-		logs.StatusLog(regKeyWrong.String(), s)
 	}
 	if s := regDuplicated.FindStringSubmatch(msg); len(s) > 0 {
 		logs.DebugLog("%#v %[1]T", errors.Cause(err))
@@ -49,6 +49,9 @@ func CreateErrResult(err error) (any, error) {
 		}), apis.ErrWrongParamsList
 	}
 
+	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 	logs.ErrorLog(err)
 	return nil, err
 }

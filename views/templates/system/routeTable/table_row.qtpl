@@ -47,7 +47,7 @@
 						              id="csv"
 						              name="csv"
 						              accept=".csv"
-						              onchange="handleFileCSSSelect(this);"
+						              onchange="handleFileCSVSelect(this);"
 						/>
                     </span>
  </label>

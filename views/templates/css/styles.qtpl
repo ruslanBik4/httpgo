@@ -1,7 +1,7 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
-.
-{% func PutFormsJS() %}
- {% cat "src/forms.js" %}
+standard styles .
+{% func PutStyles() %}
+	{% cat "src/styles.css" %}
 {% endfunc %}

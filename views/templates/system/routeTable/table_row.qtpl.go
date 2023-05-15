@@ -123,7 +123,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:42
 		qw422016.E().S(t.Comment())
 //line table_row.qtpl:42
-		qw422016.N().S(`'</h2><div id="divFieldImport" class="input-wrap"><label class="table-files__label" style="height:30px;"><span class="hiddenInput"><input type="file"id="csv"name="csv"accept=".csv"onchange="handleFileCSSSelect(this);"/></span></label></div><div  class="input-wrap"><label> Truncate table before import <input type="checkbox" name="truncate_data" /></label></div><div class="form-actions"><button type="submit">Put in table '`)
+		qw422016.N().S(`'</h2><div id="divFieldImport" class="input-wrap"><label class="table-files__label" style="height:30px;"><span class="hiddenInput"><input type="file"id="csv"name="csv"accept=".csv"onchange="handleFileCSVSelect(this);"/></span></label></div><div  class="input-wrap"><label> Truncate table before import <input type="checkbox" name="truncate_data" /></label></div><div class="form-actions"><button type="submit">Put in table '`)
 //line table_row.qtpl:59
 		qw422016.E().S(t.Name())
 //line table_row.qtpl:59

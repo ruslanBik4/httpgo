@@ -1,0 +1,3 @@
+{% func TableJS() %}
+ {% cat "src/table-row.js" %}
+{% endfunc %}

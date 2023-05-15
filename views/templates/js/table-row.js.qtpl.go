@@ -9,7 +9,7 @@
 // See https://github.com/valyala/quicktemplate for details.
 
 //line table-row.js.qtpl:1
-package routeTable
+package js
 
 //line table-row.js.qtpl:1
 import (
@@ -28,17 +28,26 @@ var (
 func StreamTableJS(qw422016 *qt422016.Writer) {
 //line table-row.js.qtpl:1
 	qw422016.N().S(`
+ `)
+//line table-row.js.qtpl:2
+	qw422016.N().S(`/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст. 
+ */
+
 function ClickPseudo(event) {
 var elem = event.target;
 var offset = event.offsetX || event.originalEvent.offsetX;
     console.log(`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`${offset} > ${elem.offsetWidth}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`);
     if (offset > elem.offsetWidth) {
         loadTable(elem.attributes.column.value);
@@ -59,25 +68,25 @@ function appendTable() {
 var elem =  $('.usr-table-row-cont')[0];
 var lines = $('.usr-table-row-cont').children('div:visible').length;
 let url = document.location.href;
-if (url.indexOf('offset') == -1) {
+if (url.indexOf('offset') === -1) {
 	url += `)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`&offset=${lines}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`
 } else {
 	url = url.replace(/(offset=)(\d+)/, `)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`$1${lines}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`);
 }
 $('div.filt-arrow > input').each(
@@ -91,41 +100,41 @@ function(i,elem) {
 			value = true
 		}
 		if (url.indexOf(`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`${elem.dataset.name}=`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
-	qw422016.N().S(`) == -1) {
+//line table-row.js.qtpl:2
+	qw422016.N().S(`) === -1) {
 			url += `)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`&${elem.dataset.name}=${value}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`;
 		} else {
 			var r =new RegExp(`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`(${elem.dataset.name}=)(\[^&]+)`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`);
          	url = url.replace(r, `)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`$1${value}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`);
         }
 	}
@@ -162,7 +171,7 @@ function getElementsByText(str, name) {
 	let i = 0;
   var items = document.getElementsByClassName(name);
   var elem = Array.prototype.slice.call(items).forEach(
-	  function(el, ind, arr) {
+      (el, ind, arr) => {
 	    if (str.trim() == "") {
 	        el.parentElement.style = "";
 	        i++
@@ -176,6 +185,7 @@ function getElementsByText(str, name) {
 	        return true;
 	    }
 	     el.parentElement.style = "display:none";
+          return true;
     });
   if (i < 30) {
     appendTable();
@@ -207,16 +217,16 @@ function SetTableEvents() {
  $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
  tableCnt = $('.usr-table-content');
  tableCnt.on('mousewheel', function(e, delta){
-    if((delta == -1) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight/2)) {
+    if((delta === -1) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight/2)) {
 		var elem =  $('.usr-table-content')[0];
 		console.log(`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`${elem.scrollTop} ${elem.scrollHeight}`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`);
         throttle( appendTable, 300);
     }
@@ -232,77 +242,79 @@ const throttle = (callback, time) => {
   }, time);
 
 };
-   function handleFileCSSSelect(evt) {
-     var files = evt.files || evt.target.files; // FileList object
-     if (files.length < 1)
+function handleFileCSVSelect(evt) {
+   var files = evt.files || evt.target.files; // FileList object
+   if (files.length < 1)
        return false;
 
-     let  $progress = $('#progress').show(),
+   let $progress = $('#progress').show(),
        reader = new FileReader(),
        f = files[0];
 
-     reader.onload = (function (theFile) {
+   reader.onload = (function (theFile) {
        return function (e) {
-         csv = e.target.result.csvToArray({head:true, rSep: "\n"});
-         fText = '';
-         csv.forEach(function(elem){
-            row = '';
-            elem.forEach(function(cell,i){
-                row += `)
-//line table-row.js.qtpl:1
+           csv = e.target.result.csvToArray({head: true, rSep: "\n"});
+           fText = '';
+           csv.forEach(function (elem) {
+               row = '';
+               elem.forEach(function (cell, i) {
+                   row += `)
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`<div  class="usr-table-col  table-col-${i}">${cell}</div>`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`;
-            });
-            console.log(row);
-            fText += `)
-//line table-row.js.qtpl:1
+               });
+               console.log(row);
+               fText += `)
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`<div  class="usr-table-row">${row}</div>`)
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S("`")
-//line table-row.js.qtpl:1
+//line table-row.js.qtpl:2
 	qw422016.N().S(`;
-        });
-         $('.usr-table-row-cont').html(fText);
+           });
+           $('.usr-table-row-cont').html(fText);
        };
-     })(f);
+   })(f);
 
-     // Read in the image file as a data URL.
-     reader.readAsText(f);
-   }
-
+   // Read in the image file as a data URL.
+   reader.readAsText(f);
+}
 `)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:2
+	qw422016.N().S(`
+`)
+//line table-row.js.qtpl:3
 }
 
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 func WriteTableJS(qq422016 qtio422016.Writer) {
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	StreamTableJS(qw422016)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	qt422016.ReleaseWriter(qw422016)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 }
 
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 func TableJS() string {
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	qb422016 := qt422016.AcquireByteBuffer()
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	WriteTableJS(qb422016)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	qs422016 := string(qb422016.B)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	qt422016.ReleaseByteBuffer(qb422016)
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 	return qs422016
-//line table-row.js.qtpl:171
+//line table-row.js.qtpl:3
 }

@@ -1,0 +1,7 @@
+{% collapsespace %}
+{% stripspace %}
+{% func TableCSS() %}
+ {% cat "src/table-row.css" %}
+{% endfunc %}
+{% endcollapsespace %}
+{% endstripspace %}
