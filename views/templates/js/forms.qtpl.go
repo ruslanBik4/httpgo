@@ -647,7 +647,7 @@ function Next(elem, id) {
 //line forms.qtpl:6
 	qw422016.N().S("`")
 //line forms.qtpl:6
-	qw422016.N().S(`, f).length === 0 {
+	qw422016.N().S(`, f).length === 0) {
         $('header#navBlocks', f).append('<button>' + $(`)
 //line forms.qtpl:6
 	qw422016.N().S("`")
@@ -659,8 +659,7 @@ function Next(elem, id) {
 	qw422016.N().S(`).text() + '</button>')
     }
     return false;
-}
-`)
+}`)
 //line forms.qtpl:6
 	qw422016.N().S(`
 `)

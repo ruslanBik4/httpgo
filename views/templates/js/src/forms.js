@@ -545,7 +545,7 @@ function Next(elem, id) {
         fields[0].focus();
     }
 
-    if ($(`header#navBlocks button:contains('${newBlockName}')`, f).length === 0 {
+    if ($(`header#navBlocks button:contains('${newBlockName}')`, f).length === 0) {
         $('header#navBlocks', f).append('<button>' + $(`${newBlockName} figcaption`).text() + '</button>')
     }
     return false;
