@@ -163,7 +163,7 @@ function OverHijack($out, resp) {
                     if (data.url !== undefined) {
                         resp.url = data.url
                     }
-                    if (data.message != undefined) {
+                    if (data.message !== undefined) {
                         resp.message = data.message;
                     } else {
                         resp.message = data
@@ -180,7 +180,7 @@ function OverHijack($out, resp) {
             }
         },
         error: function (xhr, status, error) {
-            if (xhr.status == 401) {
+            if (xhr.status === 401) {
                 urlAfterLogin = url;
                 $('#bLogin').trigger("click");
                 return;
@@ -218,7 +218,7 @@ function formDelClick(thisButton) {
 }
 
 function succesDelRecord(data, status) {
-    if (status == "Success") {
+    if (status === "Success") {
         $('form').hide();
         alert("Успешно удалили запись!" + data)
 
@@ -307,7 +307,7 @@ function validateReguiredFields(thisForm) {
     $('input[required]:visible, select[required]:visible', thisForm).each(
         function (index) {
             //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
-            if (!this.value || ((this.type == "checkbox") && !(this.checked))) {
+            if (!this.value || ((this.type === "checkbox") && !(this.checked))) {
                 result = false;
                 alertField(this);
 
@@ -479,27 +479,29 @@ function inputSearchKeyUp(thisElem, event) {
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         },
         success: function (data, status) {
+            $(thisClassH).removeClass('suggestions-select-hide').addClass('suggestions-select-show');
             if (typeof data === 'string') {
-                $(thisClassH).html(data)
+                $(thisClass).html(data)
             } else if (Array.isArray(data)) {
                 let opts = '';
                 data.forEach(function (item) {
                     opts += `<option value=${item.id} title=${item.title}>${item.name}</option>`;
                 })
-                $(thisClassH).html(opts);
+                $(thisClass).html(opts);
+            } else if (data === null) {
+                $(thisClass).html(`Not fount from '${thisElem.value}'`);
             } else {
                 console.log(typeof data);
             }
-            $(thisClassH).removeClass('suggestions-select-hide').addClass('suggestions-select-show')
-                .on('keyup', function (event) {
-                    var x = event.which || event.keyCode;
-                    if ((x === 32) || (x === 13)) {
-                        thisElem.value = $(thisClass + ' option:selected').text();
-                        $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+            $(thisClass).on('keyup', function (event) {
+                var x = event.which || event.keyCode;
+                if ((x === 32) || (x === 13)) {
+                    thisElem.value = $(thisClass + ' option:selected').text();
+                    $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
 
-                        return false;
-                    }
-                });
+                    return false;
+                }
+            });
             $(thisClass + ' option').on('mouseup', function (e) {
                 thisElem.value = $(this).text();
                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
