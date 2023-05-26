@@ -139,10 +139,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
 
 function OverHijack($out, resp) {
     $out.append(`<pre>${resp.message}</pre>`);
-    var method = "GET";
-    if (resp.method !== undefined) {
-        method = resp.method
-    }
+    var method = (resp.method !== undefined ? resp.method : "GET");
 
     $.ajax({
         url: resp.url,
@@ -220,7 +217,7 @@ function formDelClick(thisButton) {
 function succesDelRecord(data, status) {
     if (status === "Success") {
         $('form').hide();
-        alert("Успешно удалили запись!" + data)
+        alert("Success remove record !" + data)
 
     } else {
         alert(data);
@@ -264,8 +261,16 @@ function alertField(thisElem) {
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || $(thisElem).data("placeholder")
     }
-    alert(`Input field '${nameField}' need correct data!`);
-    $(thisElem).css({'border-bottom': '1px red solid'}).focus().next('.errorLabel').show();
+    let errLabel = $(thisElem).parent('label').children('.errorLabel');
+    let msg = 'need correct data!';
+    if (thisElem.required) {
+        msg = ' is required. Please, fill it';
+    } else if (errLabel && errLabel.text() > "") {
+        msg = errLabel.text();
+    }
+    alert(`Field '${nameField}' ${msg}`);
+    $(thisElem).css({'border-bottom': '1px red solid'}).focus();
+    errLabel.show();
 }
 
 function correctField(thisElem) {
@@ -527,28 +532,39 @@ function ShowBlocks(thisElem) {
     })
 }
 
+function GotoBlock(elem, blockId) {
+    $(elem).parents('form').children('figure:visible').hide();
+    $(`#${blockId}`).show();
+    return false;
+}
+
 function Prev(elem, id) {
-    let block = $(elem).parents('figure');
-    block.hide();
-    $('#block' + id).show();
+    $(elem).parents('figure').hide();
+    $(`#block${id}`).show();
+    return false;
 }
 
 function Next(elem, id) {
     let block = $(elem).parents('figure');
+    let oldId = block[0].id;
+    let f = block.parent('form');
     if (!validateFields(block[0]))
         return false;
 
     block.hide();
-    let newBlockName = `#block${id}`;
-    let newBlock = $(newBlockName).show()[0];
+
+    let newBlock = $(`#block${id}`).show()[0];
     newBlock.scrollIntoView();
     let fields = $('input, select', newBlock)
     if (fields.length > 0) {
         fields[0].focus();
     }
 
-    if ($(`header#navBlocks button:contains('${newBlockName}')`, f).length === 0) {
-        $('header#navBlocks', f).append('<button>' + $(`${newBlockName} figcaption`).text() + '</button>')
+    let nav = $('header#navBlocks', f);
+    if (nav.children(`button#go${oldId}`).length === 0) {
+        let caption = block.children('figcaption').text();
+        nav.append(`<button id="go${oldId}" onClick="return GotoBlock(this, '${oldId}')">${caption}</button>`);
     }
+
     return false;
 }

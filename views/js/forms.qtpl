@@ -22,7 +22,6 @@ function fancyOpen(data) {
          })
 }
 
-
 function getUser() {
     user = localStorage.getItem("USER");
     if (user > '') {
@@ -66,7 +65,7 @@ var isProcess = false;
 
 function setClickAll() {
 	if (isProcess) {
-	return;
+		return;
 	}
 
 	isProcess = true;
@@ -87,8 +86,13 @@ function setClickAll() {
   $('input[autofocus]:last').focus();
   isProcess = false;
 }
+//replace special symbols
 function replMacros(url) {
-	return url.replace(/{page}/, Math.round((window.innerHeight-60) / 22))
+	return url.replace(/{page}/, GetPageLines())
+}
+// get lines for table according to windows height
+function GetPageLines() {
+	return Math.round((window.innerHeight-60) / 22)
 }
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
@@ -236,6 +240,9 @@ function loadContent(url) {
                     urlAfterLogin = url;
                     $('#bLogin').trigger("click");
                     return;
+                 case 404:
+                    alert(`address '${url}' not found!`)
+                    return;
                  case 0:
                     console.log(xhr);
                  }
@@ -266,7 +273,7 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         complete: completeFunc,
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             if (errorThrown !== undefined)
-                alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
+                alert(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`);
                 console.log(errorThrown);
         }
     });

@@ -209,10 +209,7 @@ function OverHijack($out, resp) {
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
 	qw422016.N().S(`);
-    var method = "GET";
-    if (resp.method !== undefined) {
-        method = resp.method
-    }
+    var method = (resp.method !== undefined ? resp.method : "GET");
 
     $.ajax({
         url: resp.url,
@@ -290,7 +287,7 @@ function formDelClick(thisButton) {
 function succesDelRecord(data, status) {
     if (status === "Success") {
         $('form').hide();
-        alert("Успешно удалили запись!" + data)
+        alert("Success remove record !" + data)
 
     } else {
         alert(data);
@@ -334,16 +331,24 @@ function alertField(thisElem) {
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || $(thisElem).data("placeholder")
     }
+    let errLabel = $(thisElem).parent('label').children('.errorLabel');
+    let msg = 'need correct data!';
+    if (thisElem.required) {
+        msg = ' is required. Please, fill it';
+    } else if (errLabel && errLabel.text() > "") {
+        msg = errLabel.text();
+    }
     alert(`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`Input field '${nameField}' need correct data!`)
+	qw422016.N().S(`Field '${nameField}' ${msg}`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
 	qw422016.N().S(`);
-    $(thisElem).css({'border-bottom': '1px red solid'}).focus().next('.errorLabel').show();
+    $(thisElem).css({'border-bottom': '1px red solid'}).focus();
+    errLabel.show();
 }
 
 function correctField(thisElem) {
@@ -621,19 +626,23 @@ function ShowBlocks(thisElem) {
     })
 }
 
-function Prev(elem, id) {
-    let block = $(elem).parents('figure');
-    block.hide();
-    $('#block' + id).show();
+function GotoBlock(elem, blockId) {
+    $(elem).parents('form').children('figure:visible').hide();
+    $(`)
+//line forms.js.qtpl:6
+	qw422016.N().S("`")
+//line forms.js.qtpl:6
+	qw422016.N().S(`#${blockId}`)
+//line forms.js.qtpl:6
+	qw422016.N().S("`")
+//line forms.js.qtpl:6
+	qw422016.N().S(`).show();
+    return false;
 }
 
-function Next(elem, id) {
-    let block = $(elem).parents('figure');
-    if (!validateFields(block[0]))
-        return false;
-
-    block.hide();
-    let newBlockName = `)
+function Prev(elem, id) {
+    $(elem).parents('figure').hide();
+    $(`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
@@ -641,33 +650,56 @@ function Next(elem, id) {
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`;
-    let newBlock = $(newBlockName).show()[0];
+	qw422016.N().S(`).show();
+    return false;
+}
+
+function Next(elem, id) {
+    let block = $(elem).parents('figure');
+    let oldId = block[0].id;
+    let f = block.parent('form');
+    if (!validateFields(block[0]))
+        return false;
+
+    block.hide();
+
+    let newBlock = $(`)
+//line forms.js.qtpl:6
+	qw422016.N().S("`")
+//line forms.js.qtpl:6
+	qw422016.N().S(`#block${id}`)
+//line forms.js.qtpl:6
+	qw422016.N().S("`")
+//line forms.js.qtpl:6
+	qw422016.N().S(`).show()[0];
     newBlock.scrollIntoView();
     let fields = $('input, select', newBlock)
     if (fields.length > 0) {
         fields[0].focus();
     }
 
-    if ($(`)
+    let nav = $('header#navBlocks', f);
+    if (nav.children(`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`header#navBlocks button:contains('${newBlockName}')`)
+	qw422016.N().S(`button#go${oldId}`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`, f).length === 0) {
-        $('header#navBlocks', f).append('<button>' + $(`)
+	qw422016.N().S(`).length === 0) {
+        let caption = block.children('figcaption').text();
+        nav.append(`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`${newBlockName} figcaption`)
+	qw422016.N().S(`<button id="go${oldId}" onClick="return GotoBlock(this, '${oldId}')">${caption}</button>`)
 //line forms.js.qtpl:6
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
-	qw422016.N().S(`).text() + '</button>')
+	qw422016.N().S(`);
     }
+
     return false;
 }`)
 //line forms.js.qtpl:6

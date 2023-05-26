@@ -94,7 +94,7 @@
 		{% else %}
 			{% switch %}
 			{% case  col.SelectOptions != nil %}
-				<select {%= col.RenderAttr(i) %} onchange="getElementsByText(this.value, 'table-col-{%d i%}');">
+				<select {%= col.RenderAttr(i) %} data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.selectedOptions[0].text, 'table-col-{%d i%}');">
 				{%code
 					sortList := make([]string, 0, len(col.SelectOptions))
 					for title := range col.SelectOptions {
@@ -104,19 +104,19 @@
 				%}
                 <option value="" >All</option>
 	             {% for _, title := range sortList %}
-	                <option value="{%s title %}" >{%s title %}</option>
+	                <option value="{%s col.SelectOptions[title].Value %}" >{%s title %}</option>
 	             {% endfor %}
                 </select>
 			{% case col.InputType == "file" %}
 	            <span class="hiddenInput" style="background-image: url('%v val %');"> </span>
 			{% case col.Suggestions > "" %}
-	            <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
+	            <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel" data-name="{%s col.InputName(i) %}"
 	                autocapitalize="none" autocorrect="off" autocomplete="off"
-	                onkeyup="inputSearchKeyUp(this,event);" />
+	                onkeyup="inputSearchKeyUp(this,event);" onchange="filterTableData(this.value, 'table-col-{%d i%}');" />
 		        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
 		        </select>
 			{% default %}
-				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="getElementsByText(this.value, 'table-col-{%d i%}');"/>
+				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 			{% endswitch %}
 		{% endif %}
 		</div>
@@ -127,9 +127,7 @@
 
     <div class="usr-table-content">
         <div class="usr-table-content-scroll">
-            <div class="usr-table-row-cont">
                 {%= t.RenderRows() %}
-            </div>
         </div>
     </div>
 </div>
@@ -150,7 +148,7 @@
 
   %}
     .table-col-{%d i%}{
-        width: {%d cLen %}px;
+        min-width: {%d cLen %}px;
     }
 //    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
 //       text-align: {% switch t.columns[i].InputType %}
@@ -192,6 +190,7 @@ func render Table rows{
 	        colDeep[i] = 1
 	   }
 	%}
+<div class="usr-table-row-cont">
    {% for _, row  := range t.rows %}
         <div  class="usr-table-row">
         {% for i, column := range t.columns %}
@@ -332,6 +331,7 @@ func render Table rows{
 
       </div>
     {% endfor %}
+</div>
     {%= t.RenderRowsStyles(lSymb, colLen, colDeep) %}
    <script>
     SetTableEvents()

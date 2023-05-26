@@ -10,33 +10,42 @@ function ClickPseudo(event) {
     var offset = event.offsetX || event.originalEvent.offsetX;
     console.log(`${offset} > ${elem.offsetWidth}`);
     if (offset > elem.offsetWidth) {
-        loadTable(elem.attributes.column.value);
+        loadTableWithOrder(elem.attributes.column.value);
     } else {
         elem.color = 'blue';
     }
 }
 
-function loadTable(order_by) {
+// reorder data & get new table content
+function loadTableWithOrder(order_by) {
     $.ajaxSetup({
         'headers': {'Authorization': 'Bearer ' + token}
     });
-    var url = document.location.href + (document.location.search > "" ? '&' : '?');
+    var url = document.location.href + (document.location.search > "" ? '&' : '?') + 'order_by=' + order_by;
 
-    $('.usr-table-row-cont').load(url + 'order_by=' + order_by + ' .usr-table-row-cont');
+    // load only table rows content
+    $('.usr-table-row-cont').load(url + ' .usr-table-row-cont');
+    return setHashFromTable(url)
+}
+
+// set hash with all data of table
+function setHashFromTable(url) {
+    SetDocumentHash(url, $('.usr-table').html());
     return true;
 }
 
+// append data over limit into table content
 function appendTable() {
-    var elem = $('.usr-table-row-cont')[0];
-    var lines = $('.usr-table-row-cont').children('div:visible').length;
+    var elem = $('.usr-table-row-cont');
+    var lines = elem.children('div:visible').length;
     let url = document.location.href;
     if (url.indexOf('offset') === -1) {
-        url += `&offset=${lines}`
+        url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
     } else {
         url = url.replace(/(offset=)(\d+)/, `$1${lines}`);
     }
-    $('div.filt-arrow > input').each(
-        function (i, elem) {
+    $('div.filt-arrow > input, div.filt-arrow > select').each(
+        (i, elem) => {
             if (elem.value) {
                 let value = elem.value;
                 if (elem.type === 'checkbox') {
@@ -53,6 +62,7 @@ function appendTable() {
                 }
             }
         });
+    console.log(url);
     $.ajax({
         url: url,
         data: {
@@ -65,8 +75,8 @@ function appendTable() {
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
         },
         success: function (data, status, xhr) {
-            $(elem).append($('<div />').html(data).find('.usr-table-row-cont').html());
-            SetDocumentHash(url, data);
+            elem.append($('<div />').html(data).find('.usr-table-row-cont').html());
+            setHashFromTable(url);
         },
         error: function (xhr, status, error) {
             if (xhr.status === 401) {
@@ -82,17 +92,18 @@ function appendTable() {
     return true;
 }
 
-function getElementsByText(str, name) {
+function filterTableData(value, className) {
+    if (value.trim() === "") {
+        $('.usr-table-row-cont .usr-table-row').show();
+        return true;
+    }
+
     let i = 0;
-    var items = document.getElementsByClassName(name);
-    var elem = Array.prototype.slice.call(items).forEach(
+    var items = document.getElementsByClassName(className);
+    // filter rows according to input text/value
+    Array.prototype.slice.call(items).forEach(
         (el, ind, arr) => {
-            if (str.trim() == "") {
-                el.parentElement.style = "";
-                i++
-                return true;
-            }
-            if (el.textContent.includes(str.trim())
+            if (el.textContent.includes(value.trim())
                 || el.parentElement.className.includes("usr-table__t-head")
                 || el.parentElement.className.includes("usr-table__filter")) {
                 el.parentElement.style = "";
@@ -102,10 +113,11 @@ function getElementsByText(str, name) {
             el.parentElement.style = "display:none";
             return true;
         });
-    if (i < 30) {
+    // append data if we filter too  least lines
+    if (i < GetPageLines()) {
         appendTable();
     }
-    return
+
 //  if (elem.length > 0) {
 ////todo- chg on each
 //    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
