@@ -270,11 +270,11 @@ function formReset(thisForm) {
 
 }
 
-function FormIsModified(event, this_form) {
+function FormIsModified(event, thisForm) {
     event = event || window.event;
 
-    $('input[type=image], input[type=submit], input[type=button]', this_form).show();
-    this_form.State.value = '✎';
+    $('input[type=image], input[type=submit], input[type=button]', thisForm).show();
+    thisForm.State.value = '✎';
 }
 
 function formDelClick(thisButton) {
@@ -347,7 +347,11 @@ function alertField(thisElem) {
 	qw422016.N().S("`")
 //line forms.js.qtpl:6
 	qw422016.N().S(`);
-    $(thisElem).css({'border-bottom': '1px red solid'}).focus();
+    let elem = $(thisElem);
+    if (elem.hasClass('suggestions-constraints')) {
+        elem = elem.parents('label').children('input:first');
+    }
+    elem.css({'border-bottom': '1px red solid'}).focus();
     errLabel.show();
 }
 
@@ -591,21 +595,27 @@ function inputSearchKeyUp(thisElem, event) {
 	qw422016.N().S(`);
             } else {
                 console.log(typeof data);
+                return
             }
-            $(thisClass).on('keyup', function (event) {
+            $(thisClass).off("keydown");
+            $(thisClass).on("keydown", event => {
                 var x = event.which || event.keyCode;
                 if ((x === 32) || (x === 13)) {
                     thisElem.value = $(thisClass + ' option:selected').text();
                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-
+                    event.stopPropagation();
                     return false;
                 }
             });
-            $(thisClass + ' option').on('mouseup', function (e) {
+            $(thisClass + ' option').off("mouseup");
+            $(thisClass + ' option').on("mouseup", function (e) {
+                console.log(e);
                 thisElem.value = $(this).text();
                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+                console.log(thisElem.value)
+                event.stopPropagation();
 
-                return true;
+                return false;
             });
 
         },
