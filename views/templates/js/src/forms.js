@@ -273,12 +273,12 @@ function alertField(thisElem) {
     if (elem.hasClass('suggestions-constraints')) {
         elem = elem.parents('label').children('input:first');
     }
-    elem.css({'border-bottom': '1px red solid'}).focus();
+    elem.addClass('error-field').focus().scrollIntoView(100);
     errLabel.show();
 }
 
 function correctField(thisElem) {
-    $(thisElem).css({border: ''});
+    $(thisElem).removeClass('error-field');
 }
 
 function validatePattern(thisElem) {

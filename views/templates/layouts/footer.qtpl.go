@@ -22,87 +22,44 @@ func StreamFooterHTML(qw422016 *qt422016.Writer, FooterMenu Menu) {
 //line footer.qtpl:1
 	qw422016.N().S(`
 <footer class="main-footer">
-		<div class="footer-inner-wrap">
-            	<div class="footer-social">
-                    <!-- Facebook -->
-                    <i class="fab fa-facebook-f"></i>
-
-                    <!-- Twitter -->
-                    <i class="fab fa-twitter"></i>
-
-                    <!-- Google -->
-                    <i class="fab fa-google"></i>
-
-                    <!-- Instagram -->
-                    <i class="fab fa-instagram"></i>
-
-                    <!-- Linkedin -->
-                    <i class="fab fa-linkedin-in"></i>
-
-                    <!-- Pinterest -->
-                    <i class="fab fa-pinterest"></i>
-
-                    <!-- Vkontakte -->
-                    <i class="fab fa-vk"></i>
-
-                    <!-- Stack overflow -->
-                    <i class="fab fa-stack-overflow"></i>
-
-                    <!-- Youtube -->
-                    <i class="fab fa-youtube"></i>
-
-                    <!-- Slack -->
-                    <i class="fab fa-slack-hash"></i>
-
-                    <!-- Github -->
-                    <i class="fab fa-github"></i>
-
-                    <!-- Dribbble -->
-                    <i class="fab fa-dribbble"></i>
-
-                    <!-- Reddit -->
-                    <i class="fab fa-reddit-alien"></i>
-
-                    <!-- Whatsapp -->
-                    <i class="fab fa-whatsapp"></i>
-            	</div>
-            <div class="footer-block">
-            	<div class="footer-mnu">
-                `)
-//line footer.qtpl:49
-	FooterMenu.StreamRenderMenu(qw422016, "main-list", "main-list-item")
-//line footer.qtpl:49
+    <nav class="footer-navbar">
+        <div class="footer-block">
+            <div class="footer-mnu">
+            `)
+//line footer.qtpl:6
+	FooterMenu.StreamRenderMenu(qw422016, "foot-mnu-list", "foot-mnu-item")
+//line footer.qtpl:6
 	qw422016.N().S(`
-            	</div>
             </div>
-       </div>
-	</footer>
+        </div>
+    </nav>
+</footer>
 `)
-//line footer.qtpl:54
+//line footer.qtpl:11
 }
 
-//line footer.qtpl:54
+//line footer.qtpl:11
 func WriteFooterHTML(qq422016 qtio422016.Writer, FooterMenu Menu) {
-//line footer.qtpl:54
+//line footer.qtpl:11
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line footer.qtpl:54
+//line footer.qtpl:11
 	StreamFooterHTML(qw422016, FooterMenu)
-//line footer.qtpl:54
+//line footer.qtpl:11
 	qt422016.ReleaseWriter(qw422016)
-//line footer.qtpl:54
+//line footer.qtpl:11
 }
 
-//line footer.qtpl:54
+//line footer.qtpl:11
 func FooterHTML(FooterMenu Menu) string {
-//line footer.qtpl:54
+//line footer.qtpl:11
 	qb422016 := qt422016.AcquireByteBuffer()
-//line footer.qtpl:54
+//line footer.qtpl:11
 	WriteFooterHTML(qb422016, FooterMenu)
-//line footer.qtpl:54
+//line footer.qtpl:11
 	qs422016 := string(qb422016.B)
-//line footer.qtpl:54
+//line footer.qtpl:11
 	qt422016.ReleaseByteBuffer(qb422016)
-//line footer.qtpl:54
+//line footer.qtpl:11
 	return qs422016
-//line footer.qtpl:54
+//line footer.qtpl:11
 }
