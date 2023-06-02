@@ -17,11 +17,12 @@
 	    columns []*forms.ColumnDecor
 	    rows [][] any
 	    ApiImport string
+	    ApiExport string
         OnlyView bool
 	}
 
 	func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, apiImport string, onlyView bool) *TableRender {
-    	return &TableRender{Table: table, columns: columns, rows: rows, ApiImport: apiImport, OnlyView: onlyView}
+    	return &TableRender{Table: table, columns: columns, rows: rows, ApiImport: apiImport+"import", ApiExport: apiImport+"export", OnlyView: onlyView}
     }
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
@@ -36,8 +37,8 @@
 {% collapsespace %}
 {% stripspace %}
 <title> Table of "{%s t.Comment() %}"</title>
-{%- if !t.OnlyView -%}
 <div class="sidebar">
+{%- if !t.OnlyView -%}
 <form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit="return saveForm(this);">
 <h2> Import to '{%s t.Comment() %}'</h2>
 <div id="divFieldImport" class="input-wrap">
@@ -62,9 +63,9 @@
   <output></output>
   <progress value='0' max='100' hidden > </progress>
  </form>
- <a href=""> Save data to disk </a>
-</div>
 {%- endif -%}
+ <a href="{%s t.ApiExport %}" download="{%s t.Name() %}.csv" rel="gen"> Save data to disk </a>
+</div>
 <div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
