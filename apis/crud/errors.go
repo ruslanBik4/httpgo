@@ -1,16 +1,18 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
 
 import (
+	"database/sql"
 	"regexp"
 
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"github.com/pkg/errors"
 
 	"github.com/ruslanBik4/httpgo/apis"
@@ -22,13 +24,12 @@ var (
 	regKeyWrong   = regexp.MustCompile(`[Kk]ey\s+(?:[(\w\s]+)?\((\w+)(?:,[^=]+)?\)+=\(([^)]+)\)([^.]+)`)
 )
 
-func CreateErrResult(err error) (interface{}, error) {
+func CreateErrResult(err error) (any, error) {
 	msg := err.Error()
 	e, ok := errors.Cause(err).(*pgconn.PgError)
 	if ok {
 		msg = e.Detail
-		logs.DebugLog(e)
-		logs.StatusLog(e, msg)
+		logs.DebugLog(e, msg)
 	}
 
 	// Key (id)=(3) already exists. duplicate key value violates unique constraint "candidates_name_uindex"
@@ -37,18 +38,20 @@ func CreateErrResult(err error) (interface{}, error) {
 	// key (phone)=(+380) already exists.
 
 	if s := regKeyWrong.FindStringSubmatch(msg); len(s) > 0 {
-		return map[string]string{
+		return apis.NewErrorResp(map[string]string{
 			s[1]: "`" + s[2] + "`" + s[3],
-		}, apis.ErrWrongParamsList
-	} else {
-		logs.StatusLog(regKeyWrong.String(), s)
+		}), apis.ErrWrongParamsList
 	}
 	if s := regDuplicated.FindStringSubmatch(msg); len(s) > 0 {
 		logs.DebugLog("%#v %[1]T", errors.Cause(err))
-		return map[string]string{
+		return apis.NewErrorResp(map[string]string{
 			s[1]: "duplicate key value violates unique constraint",
-		}, apis.ErrWrongParamsList
+		}), apis.ErrWrongParamsList
 	}
 
+	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	logs.ErrorLog(err)
 	return nil, err
 }

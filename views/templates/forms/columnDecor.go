@@ -64,18 +64,60 @@ type ColumnDecor struct {
 	SuggestionsParams map[string]any
 }
 
-func (col *ColumnDecor) Each(key []byte, val *fastjson.Value) {
-	switch gotools.BytesToString(key) {
-	case "name":
-		//b., err = v.Int()
-	case "required":
-		col.Required()
-	case "pattern":
-		col.pattern = gotools.BytesToString(val.GetStringBytes())
-	case "type":
-		col.InputType = gotools.BytesToString(val.GetStringBytes())
+var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
+var regReadOnly = regexp.MustCompile(`\(*read_only\)*`)
+
+func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions ...SuggestionsParams) *ColumnDecor {
+
+	comment := col.Comment()
+	isReadOnly := regReadOnly.MatchString(comment)
+	if isReadOnly {
+		comment = regReadOnly.ReplaceAllString(comment, "")
+	}
+	colDec := &ColumnDecor{
+		Column:            col,
+		IsHidden:          col.Primary() && (col.AutoIncrement() || isReadOnly),
+		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || isReadOnly),
+		PatternList:       patternList,
+		SuggestionsParams: make(map[string]any),
+	}
+	for _, item := range suggestions {
+		colDec.SuggestionsParams[item.Key] = item.Value
 	}
 
+	if m := regPattern.FindAllSubmatch([]byte(comment), -1); len(m) > 0 {
+		parse, err := fastjson.ParseBytes(m[0][0])
+		if err != nil {
+			logs.ErrorLog(err, string(m[0][0]))
+		} else {
+			colDec.ExtProperties = parse
+			p := parse.GetStringBytes("pattern")
+			colDec.getPattern(gotools.BytesToString(p))
+			p = parse.GetStringBytes("suggestions")
+			if len(p) > 0 {
+				colDec.Suggestions = gotools.BytesToString(p)
+			}
+			colDec.multiple = parse.GetBool("multiple")
+			params := parse.GetObject("suggestions_params")
+			params.Visit(func(key []byte, v *fastjson.Value) {
+				b, err := v.StringBytes()
+				if err != nil {
+					logs.ErrorLog(err, key)
+					return
+				}
+				colDec.SuggestionsParams[gotools.BytesToString(key)] = gotools.BytesToString(b)
+			})
+		}
+		colDec.Label, _, _ = strings.Cut(comment, "{")
+	} else if comment > "" {
+		colDec.Label = comment
+	} else {
+		colDec.Label = col.Name()
+	}
+
+	colDec.InputType = colDec.inputType()
+
+	return colDec
 }
 
 func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *ColumnDecor {
@@ -89,7 +131,7 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 		return nil
 	}
 
-	name, comment := "", ""
+	name, comment, errMsg := "", "", ""
 	isRequired := false
 	obj.Visit(func(key []byte, val *fastjson.Value) {
 		switch gotools.BytesToString(key) {
@@ -103,7 +145,11 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			comment = gotools.BytesToString(val.GetStringBytes())
 			col.Label = comment
 		case "required":
-			isRequired = true
+			b, err := val.Bool()
+			if err != nil {
+				logs.ErrorLog(err)
+			}
+			isRequired = b
 		case "readOnly":
 			col.IsReadOnly = true
 		case "suggestions":
@@ -118,6 +164,9 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.InputType = "hidden"
 		case "multiple":
 			col.multiple = true
+		case "error":
+			v := val.Get("message")
+			errMsg = gotools.BytesToString(v.GetStringBytes())
 		case "pattern":
 			col.PatternName = gotools.BytesToString(val.GetStringBytes())
 			col.getPattern(col.PatternName)
@@ -133,9 +182,26 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 
 	})
 
+	if errMsg > "" && col.patternDesc == "" {
+		col.patternDesc = errMsg
+	}
 	col.Column = dbEngine.NewStringColumn(name, comment, isRequired)
 
 	return &col
+}
+
+func (col *ColumnDecor) Each(key []byte, val *fastjson.Value) {
+	switch gotools.BytesToString(key) {
+	case "name":
+		//b., err = v.Int()
+	case "required":
+		col.Required()
+	case "pattern":
+		col.pattern = gotools.BytesToString(val.GetStringBytes())
+	case "type":
+		col.InputType = gotools.BytesToString(val.GetStringBytes())
+	}
+
 }
 
 func (col *ColumnDecor) Result() (any, error) {
@@ -185,62 +251,6 @@ func (col *ColumnDecor) parseSelect(val *fastjson.Value) error {
 	}
 
 	return nil
-}
-
-var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
-var regReadOnly = regexp.MustCompile(`\(*read_only\)*`)
-
-func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions ...SuggestionsParams) *ColumnDecor {
-
-	comment := col.Comment()
-	isReadOnly := regReadOnly.MatchString(comment)
-	if isReadOnly {
-		comment = regReadOnly.ReplaceAllString(comment, "")
-	}
-	colDec := &ColumnDecor{
-		Column:            col,
-		IsHidden:          col.Primary(),
-		IsReadOnly:        !col.Primary() && (col.AutoIncrement() || isReadOnly),
-		PatternList:       patternList,
-		SuggestionsParams: make(map[string]any),
-	}
-	for _, item := range suggestions {
-		colDec.SuggestionsParams[item.Key] = item.Value
-	}
-
-	if m := regPattern.FindAllSubmatch([]byte(comment), -1); len(m) > 0 {
-		parse, err := fastjson.ParseBytes(m[0][0])
-		if err != nil {
-			logs.ErrorLog(err, string(m[0][0]))
-		} else {
-			colDec.ExtProperties = parse
-			p := parse.GetStringBytes("pattern")
-			colDec.getPattern(gotools.BytesToString(p))
-			p = parse.GetStringBytes("suggestions")
-			if len(p) > 0 {
-				colDec.Suggestions = gotools.BytesToString(p)
-			}
-			colDec.multiple = parse.GetBool("multiple")
-			params := parse.GetObject("suggestions_params")
-			params.Visit(func(key []byte, v *fastjson.Value) {
-				b, err := v.StringBytes()
-				if err != nil {
-					logs.ErrorLog(err, key)
-					return
-				}
-				colDec.SuggestionsParams[gotools.BytesToString(key)] = gotools.BytesToString(b)
-			})
-		}
-		colDec.Label, _, _ = strings.Cut(comment, "{")
-	} else if comment > "" {
-		colDec.Label = comment
-	} else {
-		colDec.Label = col.Name()
-	}
-
-	colDec.InputType = colDec.inputType()
-
-	return colDec
 }
 
 func (col *ColumnDecor) Copy() *ColumnDecor {

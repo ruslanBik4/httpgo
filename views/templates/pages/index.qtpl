@@ -6,8 +6,8 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 	"io"
 )
 %}
-це главная страница.
-{% code
+content of Index page
+{%- code
     type IndexPageBody struct {
         Name         []byte
         Pass         []byte
@@ -24,35 +24,41 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         Attr string
         AfterAuthURL string
         ChangeTheme string
+        SearchPanel   *layouts.SearchPanel
     }
-%}
+-%}
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
 <body {%s body.Attr %}>
-        {%= js.HeadJSForForm(body.AfterAuthURL, body.ChangeTheme) %}
-        {%= layouts.HeaderHTML(body.TopMenu) %}
-<div class="content-wrap">
-<div id="container-fluid">
-    <div class="row-fluid">
-        <div class="sidebar-section">
-            <div id="catalog_pane"  class="well sidebar-nav">
-                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
-            </div>
-        </div>
-        <div class="content-section">
-            <div id="content" rel="{%s body.Route %}">
-                {%code
-                    if body.ContentWrite != nil {
-                        body.ContentWrite(body.Buff)
-                    } else {
-                        body.Buff.Write(body.Content)
-                    }
-                %}
-            </div>
-        </div>
-    </div>
-</div>
-</div>
+    {%= js.HeadJSForForm(body.AfterAuthURL, body.ChangeTheme) %}
+    {%= layouts.HeaderHTML(body.TopMenu) %}
+<main class="content-wrap">
+	<div id="container-fluid">
+	    <div class="row-fluid">
+	        <div class="sidebar-section">
+	            <div id="catalog_pane"  class="well sidebar-nav">
+	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
+	            </div>
+	        </div>
+	        <div class="content-section">
+			    {%- if body.SearchPanel != nil -%}
+			    <div class="row-fluid">
+			          {%= body.SearchPanel.Render() %}
+			    </div>
+			    {%- endif -%}
+		        <div id="content" rel="{%s body.Route %}">
+	            {%code
+	                if body.ContentWrite != nil {
+	                    body.ContentWrite(body.Buff)
+	                } else {
+	                    body.Buff.Write(body.Content)
+	                }
+	            %}
+		        </div>
+	        </div>
+		</div>
+	</div>
+</main>
 
     {%= layouts.FooterHTML(body.FooterMenu) %}
 

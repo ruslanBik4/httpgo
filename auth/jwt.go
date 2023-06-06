@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -16,6 +16,8 @@ import (
 	"strings"
 
 	"github.com/valyala/fasthttp"
+
+	"github.com/ruslanBik4/gotools"
 )
 
 type AuthBearer struct {
@@ -55,7 +57,7 @@ func (a *AuthBearer) getBearer(ctx *fasthttp.RequestCtx) string {
 		return ""
 	}
 
-	return string(b[1])
+	return gotools.BytesToString(b[1])
 }
 
 func (a *AuthBearer) String() string {

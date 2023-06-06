@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -154,47 +154,42 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" type="text/css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
-    `)
-//line head.qtpl:78
-	StreamPutStyles(qw422016)
-//line head.qtpl:78
-	qw422016.N().S(`
 
 </head>
 
 `)
-//line head.qtpl:82
+//line head.qtpl:81
 }
 
-//line head.qtpl:82
+//line head.qtpl:81
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:82
+//line head.qtpl:81
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:82
+//line head.qtpl:81
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:82
+//line head.qtpl:81
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:82
+//line head.qtpl:81
 }
 
-//line head.qtpl:82
+//line head.qtpl:81
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:82
+//line head.qtpl:81
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:82
+//line head.qtpl:81
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:82
+//line head.qtpl:81
 	qs422016 := string(qb422016.B)
-//line head.qtpl:82
+//line head.qtpl:81
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:82
+//line head.qtpl:81
 	return qs422016
-//line head.qtpl:82
+//line head.qtpl:81
 }
 
-//line head.qtpl:87
+//line head.qtpl:86
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:87
+//line head.qtpl:86
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -204,9 +199,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:95
+//line head.qtpl:94
 	qw422016.E().S(title)
-//line head.qtpl:95
+//line head.qtpl:94
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -215,39 +210,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:102
+//line head.qtpl:101
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:102
+//line head.qtpl:101
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:106
+//line head.qtpl:105
 }
 
-//line head.qtpl:106
+//line head.qtpl:105
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:106
+//line head.qtpl:105
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:106
+//line head.qtpl:105
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:106
+//line head.qtpl:105
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:106
+//line head.qtpl:105
 }
 
-//line head.qtpl:106
+//line head.qtpl:105
 func AdminHead(title string) string {
-//line head.qtpl:106
+//line head.qtpl:105
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:106
+//line head.qtpl:105
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:106
+//line head.qtpl:105
 	qs422016 := string(qb422016.B)
-//line head.qtpl:106
+//line head.qtpl:105
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:106
+//line head.qtpl:105
 	return qs422016
-//line head.qtpl:106
+//line head.qtpl:105
 }

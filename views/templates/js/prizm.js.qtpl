@@ -1,0 +1,3 @@
+{% func PrizmJS() %}
+ {% cat "src/prizm.js" %}
+{% endfunc %}

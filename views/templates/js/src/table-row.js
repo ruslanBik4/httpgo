@@ -1,0 +1,195 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст. 
+ */
+
+function ClickPseudo(event) {
+    var elem = event.target;
+    var offset = event.offsetX || event.originalEvent.offsetX;
+    console.log(`${offset} > ${elem.offsetWidth}`);
+    if (offset > elem.offsetWidth) {
+        loadTableWithOrder(elem.attributes.column.value);
+    } else {
+        elem.color = 'blue';
+    }
+}
+
+// reorder data & get new table content
+function loadTableWithOrder(order_by) {
+    $.ajaxSetup({
+        'headers': {'Authorization': 'Bearer ' + token}
+    });
+    var url = document.location.href + (document.location.search > "" ? '&' : '?') + 'order_by=' + order_by;
+
+    // load only table rows content
+    $('.usr-table-row-cont').load(url + ' .usr-table-row-cont');
+    return setHashFromTable(url)
+}
+
+// set hash with all data of table
+function setHashFromTable(url) {
+    SetDocumentHash(url, $('.usr-table').html());
+    return true;
+}
+
+// append data over limit into table content
+function appendTable() {
+    var elem = $('.usr-table-row-cont');
+    var lines = elem.children('div:visible').length;
+    let url = document.location.href;
+    if (url.indexOf('offset') === -1) {
+        url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
+    } else {
+        url = url.replace(/(offset=)(\d+)/, `$1${lines}`);
+    }
+    $('div.filt-arrow > input, div.filt-arrow > select').each(
+        (i, elem) => {
+            if (elem.value) {
+                let value = elem.value;
+                if (elem.type === 'checkbox') {
+                    if (!elem.checked) {
+                        return
+                    }
+                    value = true
+                }
+                if (url.indexOf(`${elem.dataset.name}=`) === -1) {
+                    url += `&${elem.dataset.name}=${value}`;
+                } else {
+                    var r = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
+                    url = url.replace(r, `$1${value}`);
+                }
+            }
+        });
+    console.log(url);
+    $.ajax({
+        url: url,
+        data: {
+            "lang": lang,
+            "html": true
+        },
+        processData: false,
+        contentType: false,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        },
+        success: function (data, status, xhr) {
+            elem.append($('<div />').html(data).find('.usr-table-row-cont').html());
+            setHashFromTable(url);
+        },
+        error: function (xhr, status, error) {
+            if (xhr.status === 401) {
+                urlAfterLogin = url;
+                $('#bLogin').trigger("click");
+                return;
+            }
+
+            alert("Code : " + xhr.status + ", " + error + ": " + xhr.responseText);
+            console.log(xhr);
+        }
+    });
+    return true;
+}
+
+function filterTableData(value, className) {
+    if (value.trim() === "") {
+        $('.usr-table-row-cont .usr-table-row').show();
+        return true;
+    }
+
+    let i = 0;
+    var items = document.getElementsByClassName(className);
+    // filter rows according to input text/value
+    Array.prototype.slice.call(items).forEach(
+        (el, ind, arr) => {
+            if (el.textContent.includes(value.trim())
+                || el.parentElement.className.includes("usr-table__t-head")
+                || el.parentElement.className.includes("usr-table__filter")) {
+                el.parentElement.style = "";
+                i++
+                return true;
+            }
+            el.parentElement.style = "display:none";
+            return true;
+        });
+    // append data if we filter too  least lines
+    if (i < GetPageLines()) {
+        appendTable();
+    }
+
+//  if (elem.length > 0) {
+////todo- chg on each
+//    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
+//    elem[0].focus();
+//    elem[0].animate([
+//      {color: 'blue'},
+//      {color: 'red'}
+//    ], {
+//        duration: 3000,
+//        iterations: 100
+//    });
+//  }
+}
+
+function ScrollToElem(selector) {
+    var list = $(selector);
+    if (list.length > 0) {
+        list[0].scrollIntoView(100);
+    } else {
+        alert(selector + ' not found!');
+    }
+    return true;
+}
+
+function SetTableEvents() {
+    $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
+    tableCnt = $('.usr-table-content');
+    tableCnt.on('mousewheel', function (e, delta) {
+        if ((delta === -1) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
+            var elem = $('.usr-table-content')[0];
+            console.log(`${elem.scrollTop} ${elem.scrollHeight}`);
+            throttle(appendTable, 300);
+        }
+    })
+}
+
+var throttleTimer;
+const throttle = (callback, time) => {
+    if (throttleTimer) return;
+    throttleTimer = true;
+    callback();
+    setTimeout(() => {
+        throttleTimer = false;
+    }, time);
+
+};
+
+function handleFileCSVSelect(evt) {
+    var files = evt.files || evt.target.files; // FileList object
+    if (files.length < 1)
+        return false;
+
+    let $progress = $('#progress').show(),
+        reader = new FileReader(),
+        f = files[0];
+
+    reader.onload = (function (theFile) {
+        return function (e) {
+            csv = e.target.result.csvToArray({head: true, rSep: "\n"});
+            fText = '';
+            csv.forEach(function (elem) {
+                row = '';
+                elem.forEach(function (cell, i) {
+                    row += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
+                });
+                console.log(row);
+                fText += `<div  class="usr-table-row">${row}</div>`;
+            });
+            $('.usr-table-row-cont').html(fText);
+        };
+    })(f);
+
+    // Read in the image file as a data URL.
+    reader.readAsText(f);
+}

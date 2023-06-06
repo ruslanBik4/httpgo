@@ -1,0 +1,93 @@
+{% code
+    type SearchPanel struct {
+        action string
+        suggestions string
+        showObject string
+    }
+
+func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
+    return &SearchPanel{
+                action,
+                suggestions,
+                showObject,
+    }
+} 
+%}
+{%- func (s *SearchPanel) Render()  -%}
+ <form id="fSearch" action="{%s s.action %}" method="GET" target="#content" novalidate
+   onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
+         <input type="hidden" name="html" value="true"/>
+         <input type="hidden" name="counter" value="5"/>
+         <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"
+	{%- if s.suggestions == "" -%} autofocus=true />
+	{%else %}
+         src="{%s s.suggestions %}"  data="search-name" onkeyup="return inputSearchKeyUp(this,event);" />
+         <div class="suggestions-wrapper">
+            <span class="suggestions-addon" data-addon-type="spinner"></span>
+            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
+            <div class="suggestions-suggestions"></div>
+         </div>
+    {%- endif -%}
+         <button type="search"><i class="fa fa-search">Go!</i></button>
+        <output></output>
+        <progress value='0' max='100' hidden > </progress>
+    </form>
+{% endfunc %}
+{% comment %}
+	<script>
+	        $("#inpS:not([rel])").on("blur", function(){
+
+              if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
+                        return;
+                }
+                console.log(event);
+                $('select.suggestions-constraints').hide();
+            }).on('keyup',function(e){
+            var x = event.which || event.keyCode;
+                if (x == 40) {
+                    $("#inpS").unbind("blur");
+                    $('select.suggestions-constraints').focus();
+                    $('select.suggestions-constraints option:first').selected();
+                    return;
+                }
+
+                 if ($("#inpS").val().length < 2) {
+                    return true;
+                 }
+
+                 $.ajax({
+                     url: ,
+                     data: {
+                             "lang": lang,
+                             "value": $("#inpS").val(),
+                             "count": 10,
+                             "html": true
+                     },
+                   beforeSend: function (xhr) {
+                       xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                   },
+                   success: function (data, status) {
+                     $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
+                                                         var x = event.which || event.keyCode;
+                                                         if (x == 32) {
+                                                                 $("#inpS").val( $('select.suggestions-constraints option:selected').text() );
+                                                                 $('select.suggestions-constraints').hide();
+                                                                 $('button[type="search"]').click();
+                                                                 return false;
+                                                          }
+                                                   });
+                     $('select.suggestions-constraints option').on('mouseup', function(e) {
+                        $("#inpS").val( $(this).text() );
+                        $('select.suggestions-constraints').hide();
+                        $('button[type="search"]').click();
+                        return true;
+                     });
+                   },
+                   error: function (xhr, status, error) {
+                       alert( "Code : " + xhr.status + " error :"+ error);
+                       console.log(error);
+                   }
+                  });
+            }).attr('rel', true);
+ </script>
+{% endcomment %}

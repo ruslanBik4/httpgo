@@ -756,7 +756,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:219
 			}
 //line columnDecor.qtpl:219
-			qw422016.N().S(`<div class="suggestions-wrapper" style="width:100%"> <span class="suggestions-addon" data-addon-type="spinner" style="left: -97px; top: 1px; height: 42px; width: 80%;"></span> <select size="10" `)
+			qw422016.N().S(`<div class="suggestions-wrapper" style="width:100%"> <span class="suggestions-addon" data-addon-type="spinner"></span> <select size="10" `)
 //line columnDecor.qtpl:222
 			col.StreamRenderAttr(qw422016, i)
 //line columnDecor.qtpl:222
@@ -768,7 +768,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:225
 			qw422016.E().S(col.Label)
 //line columnDecor.qtpl:225
-			qw422016.N().S(`"> </select> <div class="suggestions-suggestions" style="position: absolute; display: none; left: -311.109375px; top: 43px; width: 256.109375px;"> </div> </div> `)
+			qw422016.N().S(`"> </select> <div class="suggestions-suggestions"> </div> </div> `)
 //line columnDecor.qtpl:230
 		default:
 //line columnDecor.qtpl:230

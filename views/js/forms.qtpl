@@ -22,7 +22,6 @@ function fancyOpen(data) {
          })
 }
 
-
 function getUser() {
     user = localStorage.getItem("USER");
     if (user > '') {
@@ -65,29 +64,35 @@ var lang  = 'ua'
 var isProcess = false;
 
 function setClickAll() {
- if (isProcess) {
-   return;
- }
+	if (isProcess) {
+		return;
+	}
 
-  isProcess = true;
+	isProcess = true;
 
-      console.log(event);
-      // add onSubmit event instead default behaviourism form
-      $('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
-       // add click event instead default - response will show on div.#content
-     $( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
-        var url = replMacros(this.href)
-        var target = this.target
-        this.rel = 'setClickAll';
-        isSearch = (this.target=="search");
+	console.log(event);
+	// add onSubmit event instead default behaviourism form
+	$('form:not([onsubmit])').on("submit", function () { return saveForm(this); });
+	// add click event instead default - response will show on div.#content
+	$( 'a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each( function () {
+		var url = replMacros(this.href)
+		var target = this.target
+		this.rel = 'setClickAll';
+		isSearch = (this.target=="search");
 
-        $(this).click( {%= OverClick() %} )
+		$(this).click( {%= OverClick() %} )
+	});
 
-      })
+  $('input[autofocus]:last').focus();
   isProcess = false;
 }
+//replace special symbols
 function replMacros(url) {
-	return url.replace(/{page}/, Math.round((window.innerHeight-60) / 22))
+	return url.replace(/{page}/, GetPageLines())
+}
+// get lines for table according to windows height
+function GetPageLines() {
+	return Math.round((window.innerHeight-60) / 22)
 }
 function LoadStyles(id, styles) {
         let $head = $('head > style#' + id);
@@ -104,7 +109,7 @@ function MyPopState(event) {
     if ( (go_history == 0) || (event.state == null) )
         return true;
     console.log(event);
-		document.title = event.title;
+	document.title = event.title;
     $('#content').html(event.state.data);
 }
 // смена адресной строки с предотвращением перезагрузки Содержимого
@@ -115,9 +120,9 @@ var title = $(data).filter('title').text();
 
     str_path = GetShortURL( str_path )
 
-if (title === "") {
-	title = str_path;
-}
+	if (title === "") {
+		title = str_path;
+	}
 	console.log(`setHash ${title}`)
     var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
             + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
@@ -181,60 +186,6 @@ $(function()   {
     }
     $('#content').on('DOMSubtreeModified', setClickAll );
 
-        $("#inpS:not([rel])").on("blur", function(){
-
-          if (event.relatedTarget && event.relatedTarget.className == "suggestions-constraints") {
-                    return;
-            }
-            console.log(event);
-            $('select.suggestions-constraints').hide();
-        }).on('keyup',function(e){
-        var x = event.which || event.keyCode;
-            if (x == 40) {
-                $("#inpS").unbind("blur");
-                $('select.suggestions-constraints').focus();
-                $('select.suggestions-constraints option:first').selected();
-                return;
-            }
-
-             if ($("#inpS").val().length < 2) {
-                return true;
-             }
-
-             $.ajax({
-                 url: "/api/v1/search/list",
-                 data: {
-                         "lang": lang,
-                         "value": $("#inpS").val(),
-                         "count": 10,
-                         "html": true
-                 },
-               beforeSend: function (xhr) {
-                   xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-               },
-               success: function (data, status) {
-                 $('select.suggestions-constraints').html(data).show().on('keyup', function(e) {
-                                                     var x = event.which || event.keyCode;
-                                                     if (x == 32) {
-                                                             $("#inpS").val( $('select.suggestions-constraints option:selected').text() );
-                                                             $('select.suggestions-constraints').hide();
-                                                             $('button[type="search"]').click();
-                                                             return false;
-                                                      }
-                                               });
-                 $('select.suggestions-constraints option').on('mouseup', function(e) {
-                    $("#inpS").val( $(this).text() );
-                    $('select.suggestions-constraints').hide();
-                    $('button[type="search"]').click();
-                    return true;
-                 });
-               },
-               error: function (xhr, status, error) {
-                   alert( "Code : " + xhr.status + " error :"+ error);
-                   console.log(error);
-               }
-              });
-        }).attr('rel', true);
 
 }) // $(document).ready
 
@@ -264,6 +215,8 @@ function afterSaveAnyForm(data, status) {
 
 	localStorage.setItem("USER",  JSON.stringify(userStruct) );
 	saveUser(userStruct);
+  $('input[autofocus]:last').focus();
+
 	return true;
 }
 // run request & show content
@@ -286,6 +239,9 @@ function loadContent(url) {
                  case 401:
                     urlAfterLogin = url;
                     $('#bLogin').trigger("click");
+                    return;
+                 case 404:
+                    alert(`address '${url}' not found!`)
                     return;
                  case 0:
                     console.log(xhr);
@@ -317,71 +273,10 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         complete: completeFunc,
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             if (errorThrown !== undefined)
-                alert('Неудачная загрузка скрипта "' + url + '"! (' + textStatus + '). Перегрузите страницу!');
+                alert(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`);
                 console.log(errorThrown);
         }
     });
-}
-function showObject(data, thisForm) {
-    if (!data) {
-      alert('no results!')
-      return false;
-    }
-
-    $('#content').html( '' );
-
-    for (x in data) {
-        $('#content').append('<div>');
-        div = $('#content').children(':last').attr('id', data[x].id)
-        div.append('<div>');
-        titleDiv = div.children(':last')
-        titleDiv.append('<h3> Group: <a href="/api/v1/search/?name=' + data[x].title + '" target="search">' + data[x].title + '</a></h3>');
-        if (data[x].abbr > "") {
-            titleDiv.append('<h4>' + data[x].abbr + '</h4>');
-        }
-
-        if (data[x].id_article > "") {
-            titleDiv.append('<h4><a href="article/' + data[x].id_article + '" target="search">' + data[x].id_article + '</a></h4>');
-        }
-
-        for (y in data[x].company_names ) {
-            titleDiv.append('<span>' + data[x].company_names[y] + '</span>');
-        }
-        
-        for (y in data[x].list ) {
-          div.append('<a href="' + data[x].list[y].document_url + '" rel="true" target="_blank">PDF</a>')
-          brand = data[x].list[y].brand
-          if (brand !== undefined) {
-            div.append('<div>' + brand + '<a href="/api/v1/search/analog/' + brand + '" target="search"> Search analog</a></div>')
-          }
-
-           idPolymers = data[x].list[y].id_polymers
-          if (data[x].list[y].has_additives !== false) {
-            div.append('<div><a href="/api/v1/search/additives/?id=' + idPolymers + '" target="search"> Search additives</a></div>')
-          }
-
-          if (data[x].list[y].has_fillers !== false) {
-            div.append('<div><a href="/api/v1/search/fillers/?id=' + idPolymers + '" target="search"> Search fillers</a></div>')
-          }
-
-          div.append('<div>' + data[x].list[y].company_name+ '</div>')
-          div.append('<table>');
-            div.append('<thr><thd> Values </thd><thd> Qty </thd> </thr>')
-
-            for (z in data[x].list[y].characteristics) {
-              div.append('<tr><td>'+z+'</td><td></td><td>'+data[x].list[y].characteristics[z]+'</td></tr>');
-            }
-
-           for (z in data[x].list[y].files) {
-              div.append('<p><a href="'+data[x].list[y].files[z].url+'" rel="true" target="_blank">'+data[x].list[y].files[z].title+'</a></p>');
-           }
-
-           notes = data[x].list[y].description
-           if (notes  > "") {
-                div.append('<div>' + notes + '</div>')
-           }
-        }
-    }
 }
 </script>
 {% endfunc %}
