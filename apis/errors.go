@@ -4,7 +4,10 @@
 
 package apis
 
-import "errors"
+import (
+	"errors"
+	"github.com/valyala/fasthttp"
+)
 
 // errors declaration
 var (
@@ -29,4 +32,18 @@ func NewErrorResp(formErrors map[string]string) *ErrorResp {
 
 func NewErrorRespBadDTO() *ErrorResp {
 	return NewErrorResp(map[string]string{"DTO": "wrong struct"})
+}
+
+func WriteCustomErrorResponse(ctx *fasthttp.RequestCtx, code int, err error, args map[string]string) (any, error) {
+	if args == nil {
+		args = make(map[string]string)
+	}
+	if err != nil {
+		args["error"] = err.Error()
+	}
+
+	ret := NewErrorResp(args)
+	ctx.SetStatusCode(code)
+
+	return ret, nil
 }
