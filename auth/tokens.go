@@ -30,28 +30,54 @@ type TokenData interface {
 }
 
 type SimpleTokenData struct {
-	isAdmin bool
-	Name    string `json:"name"`
-	Desc    string `json:"desc"`
-	Lang    string `json:"lang"`
-	Token   string `json:"token"`
-	id      int
-	Expiry  time.Time `json:"expiry,omitempty"`
+	Name       string         `json:"name"`
+	Desc       string         `json:"desc"`
+	Lang       string         `json:"lang"`
+	Token      string         `json:"token"`
+	Expiry     time.Time      `json:"expiry,omitempty"`
+	Extensions map[string]any `json:"extensions,omitempty"`
+
+	Id    int  `json:"id"`
+	Admin bool `json:"admin"`
 }
 
 func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
-	return &SimpleTokenData{isAdmin: isAdmin, Name: name, Desc: desc, Lang: lang, id: id, Expiry: expiry}
+	return &SimpleTokenData{Admin: isAdmin, Name: name, Desc: desc, Lang: lang, Id: id, Expiry: expiry}
+}
+
+// WithExtension sets extension to SimpleTokenData.Extensions and returns SimpleTokenData.
+func (s *SimpleTokenData) WithExtension(key string, value any) *SimpleTokenData {
+	if s == nil {
+		return nil
+	}
+
+	if s.Extensions == nil {
+		s.Extensions = make(map[string]any)
+	}
+
+	s.Extensions[key] = value
+	return s
+}
+
+// WithToken sets token and returns SimpleTokenData.
+func (s *SimpleTokenData) WithToken(token string) *SimpleTokenData {
+	if s == nil {
+		return nil
+	}
+
+	s.Token = token
+	return s
 }
 
 func (s *SimpleTokenData) IsAdmin() bool {
-	return s.isAdmin
+	return s.Admin
 }
 
 func (s *SimpleTokenData) GetUserID() int {
-	return s.id
+	return s.Id
 }
 
-func (s *SimpleTokenData) IsExpired() bool {
+func (s *SimpleTokenData) IsNotExpired() bool {
 	return s.Expiry.After(time.Now())
 }
 
@@ -75,17 +101,12 @@ func NewMapTokens(expiresIn time.Duration) *MapTokens {
 	}
 }
 
-func (m *MapTokens) NewToken(userData TokenData) (string, error) {
+func (m *MapTokens) SetToken(s string, userData TokenData) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
 	if m.tokens == nil {
 		m.tokens = make(map[string]*mapToken, 0)
-	}
-
-	s, err := generateRandomString(16)
-	if err != nil {
-		return "", err
 	}
 
 	m.tokens[s] = &mapToken{
@@ -99,7 +120,15 @@ func (m *MapTokens) NewToken(userData TokenData) (string, error) {
 		signAt:   time.Now(),
 		lock:     &sync.RWMutex{},
 	}
+}
 
+func (m *MapTokens) NewToken(userData TokenData) (string, error) {
+	s, err := generateRandomString(16)
+	if err != nil {
+		return "", err
+	}
+
+	m.SetToken(s, userData)
 	return s, nil
 }
 

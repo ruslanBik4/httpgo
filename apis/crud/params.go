@@ -52,7 +52,7 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
 	case "bytea":
 		p.Type = apis.NewStructInParam(&DtoFileField{})
-	case "json":
+	case "json", "jsonb":
 		p.Type = apis.NewStructInParam(&DtoField{})
 	case "inet":
 		p.Type = apis.NewStructInParam(&InetMarshal{})

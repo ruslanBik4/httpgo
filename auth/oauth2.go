@@ -68,7 +68,7 @@ func NewOAuth2WithCustomTokens(tokens Tokens, clientID, clientSecret, redirectUR
 	}
 }
 
-func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer, state string) error {
+func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer, state string, authOpts ...oauth2.AuthCodeOption) error {
 	switch s {
 	case Amazon:
 		a.Endpoint = endpoints.Amazon
@@ -104,7 +104,7 @@ func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer, state string) er
 		a.RedirectURL = u.String()
 		logs.StatusLog(a.RedirectURL)
 	}
-	url := a.AuthCodeURL(state)
+	url := a.AuthCodeURL(state, authOpts...)
 	logs.StatusLog(url)
 	ctx.Redirect(url, 200)
 	return nil
