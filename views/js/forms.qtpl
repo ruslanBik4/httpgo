@@ -30,6 +30,14 @@ function getUser() {
     }
 }
 
+function changeLang(lang) {
+    $.ajaxSetup({
+        'headers': {'Authorization': 'Bearer ' + token, "Accept-Language": lang}
+    });
+ 	$('.topline-navbar').load('/top_menu');
+ 	$('.footer-mnu').load('/foot_menu');
+}
+
 function saveUser(userStruct) {
 	var userSuffix = userStruct.lang ? `(${userStruct.lang})`: '';
         console.log(userStruct);
@@ -39,7 +47,7 @@ function saveUser(userStruct) {
 
  	$('#bLogin').text(userStruct.name + userSuffix);
  	$('.auth').removeClass("auth");
-
+	changeLang(userStruct.lang);
  	{%- if changeTheme > "" -%} {%s= changeTheme %}(userStruct.theme); {%- endif -%}
 
  	if (urlAfterLogin === '') {
@@ -60,7 +68,7 @@ function saveUser(userStruct) {
 }
 
 var token = '';
-var lang  = 'ua'
+var lang  = 'en'
 var isProcess = false;
 
 function setClickAll() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -23,7 +23,7 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) interface{}
+type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) any
 
 // InParam implement params on request
 type InParam struct {
@@ -32,7 +32,7 @@ type InParam struct {
 	Req               bool
 	PartReq           []string
 	Type              APIRouteParamsType
-	DefValue          interface{}
+	DefValue          any
 	IncompatibleWiths []string
 	TestValue         string
 }
@@ -128,7 +128,7 @@ func (param *InParam) Check(ctx *fasthttp.RequestCtx, badParams map[string]strin
 }
 
 // found params incompatible with 'param'
-func (param InParam) isHasIncompatibleParams(ctx *fasthttp.RequestCtx) (string, interface{}) {
+func (param InParam) isHasIncompatibleParams(ctx *fasthttp.RequestCtx) (string, any) {
 	for _, name := range param.IncompatibleWiths {
 		val := ctx.FormValue(name)
 		if len(val) > 0 {
@@ -153,7 +153,7 @@ func (param InParam) presentOtherRegParam(ctx *fasthttp.RequestCtx) bool {
 }
 
 // defaultValueOfParams return value as default for param, it is only for single required param
-func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams map[string]string) interface{} {
+func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams map[string]string) any {
 	switch def := param.DefValue.(type) {
 	case DefValueCalcFnc:
 		if ctx != nil {

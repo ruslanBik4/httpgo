@@ -256,12 +256,13 @@ function showFormModal(data) {
 }
 
 function alertField(thisElem) {
-    var nameField = $(thisElem).next('span').data("placeholder") || $(thisElem).next('span').text() ||
-        $(thisElem).parent('label').text();
+    let elem = $(thisElem);
+    var nameField = elem.next('span').data("placeholder") || elem.next('span').text() ||
+        elem.parent('label').text();
     if (nameField === "" || nameField === undefined) {
-        nameField = thisElem.placeholder || $(thisElem).data("placeholder")
+        nameField = thisElem.placeholder || elem.data("placeholder")
     }
-    let errLabel = $(thisElem).parent('label').children('.errorLabel');
+    let errLabel = elem.parent('label').children('.errorLabel');
     let msg = 'need correct data!';
     if (thisElem.required) {
         msg = ' is required. Please, fill it';
@@ -269,11 +270,11 @@ function alertField(thisElem) {
         msg = errLabel.text();
     }
     alert(`Field '${nameField}' ${msg}`);
-    let elem = $(thisElem);
     if (elem.hasClass('suggestions-constraints')) {
         elem = elem.parents('label').children('input:first');
     }
-    elem.addClass('error-field').focus().scrollIntoView(100);
+    elem.addClass('error-field').focus();
+    thisElem.scrollIntoView(100);
     errLabel.show();
 }
 

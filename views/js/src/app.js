@@ -1,0 +1,305 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст. 
+ */
+var user = '';
+var userStruct;
+var urlAfterLogin = '{%s= afterAuthURL %}';
+
+function fancyOpen(data) {
+    $.fancybox.open({
+        'autoScale': true,
+        'transitionIn': 'elastic',
+        'transitionOut': 'elastic',
+        'speedIn': 500,
+        'speedOut': 300,
+        'type': 'html',
+        'autoDimensions': true,
+        'centerOnScroll': true,
+        'content': data
+    })
+}
+
+function getUser() {
+    user = localStorage.getItem("USER");
+    if (user > '') {
+        userStruct = JSON.parse(user);
+        saveUser(userStruct);
+    }
+}
+
+function saveUser(userStruct) {
+    var userSuffix = userStruct.lang ? `(${userStruct.lang})` : '';
+    console.log(userStruct);
+    lang = userStruct.lang;
+    document.getElementById('bLogin').textContent = userStruct.name + userSuffix;
+    token = userStruct.token || userStruct.access_token || userStruct.bearer_token || userStruct.auth_token;
+
+    $('#bLogin').text(userStruct.name + userSuffix);
+    $('.auth').removeClass("auth");
+
+    if (ChangeTheme !== undefined) {
+        ChangeTheme(userStruct.theme);
+    }
+
+    if (urlAfterLogin === '') {
+        if (userStruct.formActions !== undefined) {
+            urlAfterLogin = userStruct.formActions[0].url;
+        } else {
+            urlAfterLogin = afterAuthURL > "" - %
+        }
+        "{%s= afterAuthURL %}"
+        {% else %
+        }
+        "/user/profile"
+        {%
+            -endif - %
+        }
+        ;
+    }
+}
+
+else
+if (urlAfterLogin.onsubmit !== undefined) {
+    urlAfterLogin.onsubmit();
+    urlAfterLogin = "";
+    return;
+}
+
+if (urlAfterLogin > '') {
+    loadContent(urlAfterLogin);
+}
+}
+
+var token = '';
+var lang = 'en'
+var isProcess = false;
+
+function setClickAll() {
+    if (isProcess) {
+        return;
+    }
+
+    isProcess = true;
+
+    console.log(event);
+    // add onSubmit event instead default behaviourism form
+    $('form:not([onsubmit])').on("submit", function () {
+        return saveForm(this);
+    });
+    // add click event instead default - response will show on div.#content
+    $('a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each(function () {
+        var url = replMacros(this.href)
+        var target = this.target
+        this.rel = 'setClickAll';
+        isSearch = (this.target === "search");
+
+        $(this).click({ %= OverClick() %
+    } )
+    });
+
+    $('input[autofocus]:last').focus();
+    isProcess = false;
+}
+
+//replace special symbols
+function replMacros(url) {
+    return url.replace(/{page}/, GetPageLines())
+}
+
+// get lines for table according to windows height
+function GetPageLines() {
+    return Math.round((window.innerHeight - 60) / 22)
+}
+
+function LoadStyles(id, styles) {
+    let $head = $('head > style#' + id);
+    if ($head.length == 0) {
+        $head = $('head').append('<style type="text/css" id="' + id + '">' + styles + '</style>');
+    } else {
+        $head.html(styles);
+    }
+}
+
+var go_history = 1;
+
+// Эта функция отрабатывает при перемещении по истории просмотром (кнопки вперед-назад в браузере)
+function MyPopState(event) {
+    if ((go_history == 0) || (event.state == null))
+        return true;
+    console.log(event);
+    document.title = event.title;
+    $('#content').html(event.state.data);
+}
+
+// смена адресной строки с предотвращением перезагрузки Содержимого
+function SetDocumentHash(str_path, data) {
+    let root_page = "/";
+    let default_page = "index.html";
+    var title = $(data).filter('title').text();
+
+    str_path = GetShortURL(str_path)
+
+    if (title === "") {
+        title = str_path;
+    }
+    console.log(`setHash ${title}`)
+    var origin = document.location.origin + (str_path[0] == '/' ? '' : "/")
+        + ((str_path != root_page) && (str_path != default_page) ? str_path : '');
+    document.title = title;
+    window.history.pushState({'url': str_path, 'data': data}, document.title, origin);
+}
+
+function GetShortURL(str_path) {
+    if (str_path > "") {
+        console.log(str_path)
+        if (str_path.startsWith(document.location.origin)) {
+            return str_path.slice(document.location.origin.length + 1);
+        }
+        return str_path
+    }
+
+    return '/';
+}
+
+
+$(function () {
+    if (!window.onpopstate) {
+        window.onpopstate = MyPopState;
+    }
+
+    window.addEventListener("beforeunload", function (evt) {
+        var evt = evt || window.event;
+
+//			  evt.returnValue = "Do you want to do it?";
+
+        if (evt) {
+            var y = evt.pageY || evt.clientY;
+            if (y === undefined) {
+                console.log(evt)
+            }
+            console.log(`beforeunload ${document.location} pageY:${y}`);
+            evt.preventDefault();
+            if (y < 0) {
+                return evt.returnValue = "Do you want to close this page?"
+            }
+
+            if (document.location.pathname > "/") {
+                url = document.location
+                document.location.href = document.location.origin;
+//					loadContent(url.toString());
+//					url.pathname = "/";
+                console.log(`reload ${url}`)
+                evt.target.URL = url.origin;
+                evt.srcElement.URL = evt.target.URL;
+                console.log(evt)
+            }
+        }
+        return false
+    })
+
+
+    console.log('$(document).ready function events!')
+
+    setClickAll();
+    if (user == '') {
+        getUser();
+    }
+    $('#content').on('DOMSubtreeModified', setClickAll);
+
+
+}) // $(document).ready
+
+// handling response AnyForm & render result according to structures of data
+function afterSaveAnyForm(data, status) {
+
+    if (data.content_url !== undefined) {
+        loadContent(data.content_url);
+    } else if (data.formActions !== undefined) {
+        loadContent(data.formActions[0].url);
+    } else if (data.error !== undefined) {
+        alert(data.error);
+    } else {
+        console.log(data);
+    }
+
+    if (data.message !== undefined) {
+        alert(data.message);
+    }
+}
+
+// handling response login form, save users data & render some properties
+function afterLogin(userStruct, thisForm) {
+    if (!userStruct) {
+        alert("Need users data!")
+        return false;
+    }
+
+    localStorage.setItem("USER", JSON.stringify(userStruct));
+    saveUser(userStruct);
+    $('input[autofocus]:last').focus();
+
+    return true;
+}
+
+// run request & show content
+function loadContent(url) {
+
+    $.ajax({
+        url: url,
+        data: {
+            "lang": lang,
+            "html": true
+        },
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        },
+        success: function (data, status) {
+            PutContent(data, url);
+        },
+        error: function (xhr, status, error) {
+            switch (xhr.status) {
+                case 401:
+                    urlAfterLogin = url;
+                    $('#bLogin').trigger("click");
+                    return;
+                case 404:
+                    alert(`address '${url}' not found!`)
+                    return;
+                case 0:
+                    console.log(xhr);
+            }
+
+            alert("Code : " + xhr.status + " error :" + error);
+            console.log(`${url} ${status} ${error}`);
+        }
+    });
+}
+
+function PutContent(data, url) {
+    $('#content').html(data);
+    SetDocumentHash(url, data);
+    $('#catalog_pane .sidebar').remove();
+    $('#content .sidebar').appendTo('#catalog_pane');
+}
+
+
+function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
+    $.ajax({
+        type: "GET",
+        async: asyncS,
+        cache: cacheS,
+        url: url,
+        global: false,
+        dataType: "script",
+        success: successFunc,
+        complete: completeFunc,
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            if (errorThrown !== undefined)
+                alert(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`);
+            console.log(errorThrown);
+        }
+    });
+}

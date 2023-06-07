@@ -57,6 +57,14 @@ function getUser() {
     }
 }
 
+function changeLang(lang) {
+    $.ajaxSetup({
+        'headers': {'Authorization': 'Bearer ' + token, "Accept-Language": lang}
+    });
+ 	$('.topline-navbar').load('/top_menu');
+ 	$('.footer-mnu').load('/foot_menu');
+}
+
 function saveUser(userStruct) {
 	var userSuffix = userStruct.lang ? `)
 //line forms.qtpl:9
@@ -74,38 +82,38 @@ function saveUser(userStruct) {
 
  	$('#bLogin').text(userStruct.name + userSuffix);
  	$('.auth').removeClass("auth");
-
+	changeLang(userStruct.lang);
 `)
-//line forms.qtpl:43
+//line forms.qtpl:51
 	if changeTheme > "" {
-//line forms.qtpl:43
+//line forms.qtpl:51
 		qw422016.N().S(changeTheme)
-//line forms.qtpl:43
+//line forms.qtpl:51
 		qw422016.N().S(`(userStruct.theme);`)
-//line forms.qtpl:43
+//line forms.qtpl:51
 	}
-//line forms.qtpl:43
+//line forms.qtpl:51
 	qw422016.N().S(`
  	if (urlAfterLogin === '') {
  		if (userStruct.formActions !== undefined) {
  		 urlAfterLogin = userStruct.formActions[0].url;
  		} else {
  		 urlAfterLogin =`)
-//line forms.qtpl:49
+//line forms.qtpl:57
 	if afterAuthURL > "" {
-//line forms.qtpl:49
+//line forms.qtpl:57
 		qw422016.N().S(`"`)
-//line forms.qtpl:49
+//line forms.qtpl:57
 		qw422016.N().S(afterAuthURL)
-//line forms.qtpl:49
+//line forms.qtpl:57
 		qw422016.N().S(`" `)
-//line forms.qtpl:49
+//line forms.qtpl:57
 	} else {
-//line forms.qtpl:49
+//line forms.qtpl:57
 		qw422016.N().S(` "/user/profile"`)
-//line forms.qtpl:49
+//line forms.qtpl:57
 	}
-//line forms.qtpl:49
+//line forms.qtpl:57
 	qw422016.N().S(`;
  		}
  	} else if (urlAfterLogin.onsubmit !== undefined ) {
@@ -120,7 +128,7 @@ function saveUser(userStruct) {
 }
 
 var token = '';
-var lang  = 'ua'
+var lang  = 'en'
 var isProcess = false;
 
 function setClickAll() {
@@ -141,9 +149,9 @@ function setClickAll() {
 		isSearch = (this.target=="search");
 
 		$(this).click( `)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	StreamOverClick(qw422016)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(` )
 	});
 
@@ -188,13 +196,13 @@ var title = $(data).filter('title').text();
 		title = str_path;
 	}
 	console.log(`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`setHash ${title}`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`)
     var  origin   = document.location.origin + ( str_path[0] == '/' ? '' : "/" )
             + ( ( str_path != root_page ) && (str_path != default_page) ? str_path : '' );
@@ -230,13 +238,13 @@ $(function()   {
 					console.log(evt)
 				}
 				console.log( `)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`beforeunload ${document.location} pageY:${y}`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`);
 		        evt.preventDefault();
 				if (y < 0) {
@@ -249,13 +257,13 @@ $(function()   {
 //					loadContent(url.toString());
 //					url.pathname = "/";
 					console.log(`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`reload ${url}`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`)
 					evt.target.URL = url.origin;
 					evt.srcElement.URL = evt.target.URL;
@@ -330,13 +338,13 @@ function loadContent(url) {
                     return;
                  case 404:
                     alert(`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`address '${url}' not found!`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`)
                     return;
                  case 0:
@@ -345,13 +353,13 @@ function loadContent(url) {
 
                 alert( "Code : " + xhr.status + " error :"+ error);
                 console.log(`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`${url} ${status} ${error}`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`);
             }
        });
@@ -378,13 +386,13 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             if (errorThrown !== undefined)
                 alert(`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`)
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S("`")
-//line forms.qtpl:83
+//line forms.qtpl:91
 	qw422016.N().S(`);
                 console.log(errorThrown);
         }
@@ -392,31 +400,31 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
 }
 </script>
 `)
-//line forms.qtpl:282
+//line forms.qtpl:290
 }
 
-//line forms.qtpl:282
+//line forms.qtpl:290
 func WriteHeadJSForForm(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:282
+//line forms.qtpl:290
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:282
+//line forms.qtpl:290
 	StreamHeadJSForForm(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:282
+//line forms.qtpl:290
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:282
+//line forms.qtpl:290
 }
 
-//line forms.qtpl:282
+//line forms.qtpl:290
 func HeadJSForForm(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:282
+//line forms.qtpl:290
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:282
+//line forms.qtpl:290
 	WriteHeadJSForForm(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:282
+//line forms.qtpl:290
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:282
+//line forms.qtpl:290
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:282
+//line forms.qtpl:290
 	return qs422016
-//line forms.qtpl:282
+//line forms.qtpl:290
 }

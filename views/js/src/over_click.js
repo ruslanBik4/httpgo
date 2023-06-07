@@ -16,7 +16,7 @@ function OverClick() {
         contentType: false,
         beforeSend: function (xhr) {
             xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-            xhr.setRequestHeader('Content-Language', lang);
+            xhr.setRequestHeader('Accept-Language', lang);
         },
         success: function (data, status, xhr) {
             switch (xhr.status) {
@@ -34,8 +34,16 @@ function OverClick() {
             var typeCnt = xhr.getResponseHeader('Content-Type');
             if (disp && disp.search('attachment') !== -1) {
 
-                //var blob = new Blob([data], {type: typeCnt});
-                //var URL = window.URL || window.webkitURL;
+                var blob = new Blob([data], {type: typeCnt});
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'file.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
                 data = `<img src='data:${data}' alt='${url}'/>`;
             } else if (typeCnt.startsWith("text/css")) {
                 var id = xhr.getResponseHeader('Section-Name');
@@ -58,7 +66,7 @@ function OverClick() {
                 return;
             }
 
-            alert("Code : " + xhr.status + ", " + error + ": " + xhr.responseText);
+            alert(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`);
             console.log(xhr);
         }
     });
