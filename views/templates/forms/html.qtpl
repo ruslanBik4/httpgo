@@ -21,7 +21,7 @@
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
          onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
-      onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate caption="{%s f.Title %}" >
+      onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="{%s f.Title %}" >
 
      <figcaption>{%s= f.Description %}</figcaption>
      {% if len(defBlocks) > 0 %}

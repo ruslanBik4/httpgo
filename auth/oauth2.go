@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package auth
@@ -104,9 +104,8 @@ func (a *OAuth2) DoAuth(ctx *fasthttp.RequestCtx, s AuthServer, state string, au
 		a.RedirectURL = u.String()
 		logs.StatusLog(a.RedirectURL)
 	}
-	url := a.AuthCodeURL(state, authOpts...)
-	logs.StatusLog(url)
-	ctx.Redirect(url, 200)
+
+	ctx.Redirect(a.AuthCodeURL(state, authOpts...), 200)
 	return nil
 }
 

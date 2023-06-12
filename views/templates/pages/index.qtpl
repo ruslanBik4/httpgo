@@ -2,7 +2,6 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
-	"github.com/ruslanBik4/httpgo/views/js"
 	"io"
 )
 %}
@@ -30,7 +29,6 @@ content of Index page
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
 <body {%s body.Attr %}>
-    {%= js.HeadJSForForm(body.AfterAuthURL, body.ChangeTheme) %}
     {%= layouts.HeaderHTML(body.TopMenu) %}
 <main class="content-wrap">
 	<div id="container-fluid">
@@ -59,8 +57,6 @@ content of Index page
 		</div>
 	</div>
 </main>
-
-    {%= layouts.FooterHTML(body.FooterMenu) %}
-
+{%= layouts.FooterHTML(body.FooterMenu) %}
 </body>
 {% endfunc %}

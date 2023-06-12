@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package crud
@@ -14,7 +14,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func RenderCreatedResult(ctx *fasthttp.RequestCtx, id int64, buf *bytes.Buffer, colSel []string, url string) (interface{}, error) {
+func RenderCreatedResult(ctx *fasthttp.RequestCtx, id int64, buf *bytes.Buffer, colSel []string, url string) (any, error) {
 	msg := "Success saving: " + strings.Join(colSel, ", ") + " values:\n" + buf.String()
 
 	ctx.SetStatusCode(fasthttp.StatusCreated)
@@ -42,7 +42,7 @@ func RenderCreatedResult(ctx *fasthttp.RequestCtx, id int64, buf *bytes.Buffer, 
 	return id, nil
 }
 
-func RenderAcceptedResult(ctx *fasthttp.RequestCtx, colSel []string, buf *bytes.Buffer, route string) (interface{}, error) {
+func RenderAcceptedResult(ctx *fasthttp.RequestCtx, colSel []string, buf *bytes.Buffer, route string) (any, error) {
 	msg := "Success update: " + strings.Join(colSel, ", ") + " values:\n" + buf.String()
 
 	ctx.SetStatusCode(fasthttp.StatusAccepted)

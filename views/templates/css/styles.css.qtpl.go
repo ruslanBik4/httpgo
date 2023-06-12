@@ -108,12 +108,12 @@ li.foot-mnu-item a {
 
 .content-wrap {
     width: 100%;
-    height: 90%;
+    height: calc(100% - 66px);
 }
 
 #content {
     overflow: scroll;
-    height: 99%;
+    height: calc(100% - 42px);
 }
 .sidebar-section {
     width: 15%;

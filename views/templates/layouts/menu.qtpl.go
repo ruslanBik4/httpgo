@@ -119,7 +119,7 @@ func (menu Menu) StreamRenderMenu(qw422016 *qt422016.Writer, classMenu, classLi 
 //line menu.qtpl:23
 		qw422016.N().S(`>`)
 //line menu.qtpl:24
-		qw422016.E().S(item.Label)
+		qw422016.N().S(item.Label)
 //line menu.qtpl:24
 		qw422016.N().S(`</a>`)
 //line menu.qtpl:25

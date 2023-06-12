@@ -1,0 +1,3 @@
+{% func UserJS() %}
+	{% cat "src/user.js" %}
+{% endfunc %}

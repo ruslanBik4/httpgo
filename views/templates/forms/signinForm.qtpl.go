@@ -6,43 +6,43 @@
 //
 // форма авторизации на сайте.
 
-//line views/templates/forms/signinForm.qtpl:5
+//line signinForm.qtpl:5
 package forms
 
-//line views/templates/forms/signinForm.qtpl:5
+//line signinForm.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line views/templates/forms/signinForm.qtpl:5
+//line signinForm.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line views/templates/forms/signinForm.qtpl:6
+//line signinForm.qtpl:6
 type SignForm struct {
 	Email, Password string
 }
 
-//line views/templates/forms/signinForm.qtpl:10
+//line signinForm.qtpl:10
 func (sf *SignForm) StreamSigningForm(qw422016 *qt422016.Writer) {
-//line views/templates/forms/signinForm.qtpl:10
+//line signinForm.qtpl:10
 	qw422016.N().S(`
 <div class="main-form-wrap">
-    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" >
+    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);">
         <h2 class="form-signing-heading">SignIn</h2>
         <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="`)
-//line views/templates/forms/signinForm.qtpl:14
+//line signinForm.qtpl:14
 	qw422016.E().S(sf.Email)
-//line views/templates/forms/signinForm.qtpl:14
+//line signinForm.qtpl:14
 	qw422016.N().S(`">
         <input type="password" name="key" class="input-block-level" placeholder="`)
-//line views/templates/forms/signinForm.qtpl:15
+//line signinForm.qtpl:15
 	qw422016.E().S(sf.Password)
-//line views/templates/forms/signinForm.qtpl:15
+//line signinForm.qtpl:15
 	qw422016.N().S(`">
         <label class="checkbox">
          <input type="checkbox" name="remember" value="remember-me"> Save me on site
@@ -53,31 +53,31 @@ func (sf *SignForm) StreamSigningForm(qw422016 *qt422016.Writer) {
     </form>
 </div>
 `)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 }
 
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 func (sf *SignForm) WriteSigningForm(qq422016 qtio422016.Writer) {
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	sf.StreamSigningForm(qw422016)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	qt422016.ReleaseWriter(qw422016)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 }
 
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 func (sf *SignForm) SigningForm() string {
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	qb422016 := qt422016.AcquireByteBuffer()
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	sf.WriteSigningForm(qb422016)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	qs422016 := string(qb422016.B)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	qt422016.ReleaseByteBuffer(qb422016)
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 	return qs422016
-//line views/templates/forms/signinForm.qtpl:24
+//line signinForm.qtpl:24
 }

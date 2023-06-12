@@ -26,9 +26,7 @@ var (
 		Name: "lang",
 		Desc: "need to get result on non-english",
 		DefValue: apis.DefValueCalcFnc(func(ctx *fasthttp.RequestCtx) any {
-			if cL := ctx.Request.Header.Peek("Content-Language"); len(cL) > 0 {
-				return gotools.BytesToString(cL)
-			} else if cL = ctx.Request.Header.Peek("Accept-Language"); len(cL) > 0 {
+			if cL := ctx.Request.Header.Peek("Accept-Language"); len(cL) > 0 {
 				return gotools.BytesToString(cL)
 			}
 			return "en"

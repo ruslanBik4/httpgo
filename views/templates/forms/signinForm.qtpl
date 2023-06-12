@@ -9,7 +9,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% func (sf *SignForm) SigningForm() %}
 <div class="main-form-wrap">
-    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" >
+    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);">
         <h2 class="form-signing-heading">SignIn</h2>
         <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="{%s sf.Email %}">
         <input type="password" name="key" class="input-block-level" placeholder="{%s sf.Password %}">

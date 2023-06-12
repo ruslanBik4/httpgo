@@ -1,0 +1,3 @@
+{%- func OverClick() -%}
+	{% cat "src/over_click.js" %}
+{% endfunc %}

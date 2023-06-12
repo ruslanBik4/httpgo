@@ -1,0 +1,3 @@
+{%- func SetClicksJS() -%}
+	{% cat "src/set_clicks.js" %}
+{% endfunc %}

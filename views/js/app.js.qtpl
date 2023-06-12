@@ -1,0 +1,6 @@
+{% func App() %}
+{%= SetClicksJS()  %}
+{%= OverClick()  %}
+{%= UserJS()  %}
+	{% cat "src/app.js" %}
+{% endfunc %}
