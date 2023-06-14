@@ -8,14 +8,7 @@
 "use strict";
 
 function saveForm(thisForm, successFunction, errorFunction) {
-    let title = $('figcaption', thisForm).text();
-    if (title === "") {
-        if (thisForm.id > "") {
-            title = thisForm.id;
-        } else {
-            title = $('h2', thisForm).text();
-        }
-    }
+    let title = thisForm.name || $('h2', thisForm).text() || $('figcaption', thisForm).text() || thisForm.id;
     if (!validateFields(thisForm))
         return false;
 

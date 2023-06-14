@@ -57,7 +57,11 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 //line html.qtpl:24
 	qw422016.E().S(f.Title)
 //line html.qtpl:24
-	qw422016.N().S(`" ><figcaption>`)
+	qw422016.N().S(`" ><h2>`)
+//line html.qtpl:25
+	qw422016.N().S(f.Title)
+//line html.qtpl:25
+	qw422016.N().S(`</h2><figcaption>`)
 //line html.qtpl:26
 	qw422016.N().S(f.Description)
 //line html.qtpl:26

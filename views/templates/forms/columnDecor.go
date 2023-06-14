@@ -48,6 +48,7 @@ type ColumnDecor struct {
 	SpecialInputName  string
 	DefaultInputValue string `json:"defaultInputValue,omitempty"`
 	Attachments       []AttachmentList
+	Events            map[string]string
 	SelectOptions     map[string]SelectOption
 	PatternList       dbEngine.Table
 	PatternName       string
@@ -122,6 +123,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 
 func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *ColumnDecor {
 	col := ColumnDecor{
+		Events:      make(map[string]string),
 		PatternList: patternList,
 	}
 
@@ -134,7 +136,7 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 	name, comment, errMsg := "", "", ""
 	isRequired := false
 	obj.Visit(func(key []byte, val *fastjson.Value) {
-		switch gotools.BytesToString(key) {
+		switch key := gotools.BytesToString(key); key {
 		case "max":
 			col.Max = gotools.BytesToString(val.GetStringBytes())
 		case "min":
@@ -177,7 +179,11 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 		case "value":
 			col.Value = gotools.BytesToString(val.GetStringBytes())
 		default:
-			logs.StatusLog("unknown field property '%s'", key)
+			if strings.HasPrefix(key, "on") {
+				col.Events[key] = gotools.BytesToString(val.GetStringBytes())
+			} else {
+				logs.StatusLog("unknown field property '%s'", key)
+			}
 		}
 
 	})

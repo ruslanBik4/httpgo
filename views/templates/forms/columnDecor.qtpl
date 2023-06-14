@@ -159,7 +159,8 @@ name="{%s col.InputName(i) %}"
          {% elseif col.Pattern() > "" %}
                 pattern="{%s= col.Pattern() %}"  onkeyup="return validatePattern(this);"
          {% endif %}
-
+		 {% for key, event := range col.Events %} {%s key %}="{%s= event %}"
+		 {% endfor %}
 {% endfunc %}
 
 {% func (col *ColumnDecor) RenderInputs(data map[string]any)  %}

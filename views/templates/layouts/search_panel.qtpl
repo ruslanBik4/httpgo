@@ -1,6 +1,7 @@
 {% code
     type SearchPanel struct {
         action string
+        counter int
         suggestions string
         showObject string
     }
@@ -8,23 +9,24 @@
 func NewSearchPanel(action,  suggestions,  showObject string) *SearchPanel {
     return &SearchPanel{
                 action,
+                10,
                 suggestions,
                 showObject,
     }
 } 
 %}
 {%- func (s *SearchPanel) Render()  -%}
- <form id="fSearch" action="{%s s.action %}" method="GET" target="#content" novalidate
+ <form id="fSearch" action="{%s s.action %}" method="GET" target="#content"
    onsubmit="$('select.suggestions-constraints').hide(); return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
-         <input type="hidden" name="html" value="true"/>
-         <input type="hidden" name="counter" value="5"/>
+         <input type="hidden" name="html" value=true />
+         <input type="hidden" name="counter" value={%d s.counter %} />
          <input id="inpS" name="name" type="search" placeholder="Smart search" required autocapitalize="none" autocorrect="off" autocomplete="off"
 	{%- if s.suggestions == "" -%} autofocus=true />
 	{%else %}
          src="{%s s.suggestions %}"  data="search-name" onkeyup="return inputSearchKeyUp(this,event);" />
          <div class="suggestions-wrapper">
             <span class="suggestions-addon" data-addon-type="spinner"></span>
-            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
+            <select name="id" size={%d s.counter %} class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
             <div class="suggestions-suggestions"></div>
          </div>
     {%- endif -%}

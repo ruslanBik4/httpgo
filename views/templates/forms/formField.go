@@ -92,7 +92,7 @@ func parseButtons(val *fastjson.Value) (res []Button, err error) {
 				b.Title = gotools.BytesToString(v.GetStringBytes())
 			case "type":
 				b.Type = gotools.BytesToString(v.GetStringBytes())
-			case "OnClick", "on_click":
+			case "OnClick", "onclick", "on_click":
 				b.OnClick = gotools.BytesToString(v.GetStringBytes())
 			}
 		})
