@@ -222,7 +222,6 @@ name="{%s col.InputName(i) %}"
             <span class="suggestions-addon" data-addon-type="spinner"></span>
 	        <select size="10" {%= col.RenderAttr(i) %}
 	            class="suggestions-constraints suggestions-select-hide {%s col.InputName(i) %}-sel"
-	            style="width:98%"
 	            data-placeholder="{%s col.Label %}">
 	        </select>
              <div class="suggestions-suggestions">

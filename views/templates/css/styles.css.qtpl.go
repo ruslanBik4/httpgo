@@ -402,6 +402,7 @@ form .error-field {
     z-index: 100;
     left: -399.109375px;
     top: 50px;
+    width: 98%;
 }
 
 .suggestions-addon {
