@@ -81,16 +81,21 @@ type (
 
 // ApiRoute implement endpoint info & handler on request
 type ApiRoute struct {
-	Desc                                                string                              `json:"descriptor"`
-	DTO                                                 RouteDTO                            `json:"DTO"`
-	Fnc                                                 ApiRouteHandler                     `json:"-"`
-	FncAuth                                             FncAuth                             `json:"-"`
-	FncIsForbidden                                      func(ctx *fasthttp.RequestCtx) bool `json:"-"`
-	TestFncAuth                                         FncAuth                             `json:"-"`
-	Method                                              tMethod                             `json:"method,string"`
-	Multipart, NeedAuth, OnlyAdmin, OnlyLocal, WithCors bool
-	Params                                              []InParam `json:"parameters,omitempty"`
-	Resp                                                any       `json:"response,omitempty"`
+	Desc           string                              `json:"descriptor"`
+	DTO            RouteDTO                            `json:"DTO"`
+	Fnc            ApiRouteHandler                     `json:"-"`
+	FncAuth        FncAuth                             `json:"-"`
+	FncIsForbidden func(ctx *fasthttp.RequestCtx) bool `json:"-"`
+	TestFncAuth    FncAuth                             `json:"-"`
+	Method         tMethod                             `json:"method,string"`
+	Multipart      bool
+	NeedAuth       bool
+	OnlyAdmin      bool
+	OnlyLocal      bool
+	WithCors       bool
+	IsAJAXRequest  bool
+	Params         []InParam `json:"parameters,omitempty"`
+	Resp           any       `json:"response,omitempty"`
 }
 
 // NewAPIRoute create customizing ApiRoute
@@ -157,7 +162,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 	route := &ApiRoute{
 		Desc: desc,
 		Fnc: func(ctx *fasthttp.RequestCtx) (resp any, err error) {
-			DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
+			DB, ok := ctx.UserValue(Database).(*dbEngine.DB)
 			if !ok {
 				return nil, dbEngine.ErrDBNotFound
 			}
