@@ -445,7 +445,7 @@ function addNewRowTableID(thisButton) {
 
 function inputSearchKeyUp(thisElem, event, forceEnter) {
 
-    var x = event.which || event.keyCode;
+    let x = event.which || event.keyCode;
     var thisClass = 'select.suggestions-select-show.' + thisElem.attributes.data.value
     if (x === 13) {
         $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
@@ -453,7 +453,7 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
     }
     // todo handling arrows, nonchanges value ect.
 
-    var elem = $(thisElem)
+    let elem = $(thisElem)
     var thisClassH = 'select.suggestions-select-hide.' + thisElem.attributes.data.value
 
     if (x === 40) {
@@ -501,11 +501,11 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
             }
             $(thisClass).off("keydown");
             $(thisClass).on("keydown", event => {
-                var x = event.which || event.keyCode;
+                let x = event.which || event.keyCode;
                 if ((x === 32) || (x === 13)) {
                     thisElem.value = $(thisClass + ' option:selected').text();
                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-                    if (forceEnter) {
+                    if (forceEnter === true) {
                         elem.focus();
                     }
                     event.stopPropagation();

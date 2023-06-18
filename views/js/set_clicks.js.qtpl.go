@@ -53,7 +53,9 @@ function setClickAll(event) {
         $(this).click(OverClick);
     });
 
-    $('input[autofocus]:last').focus();
+    if (!event || event.target === document.getElementById('content')) {
+        $('input[autofocus]:last').focus();
+    }
     isProcess = false;
 }`)
 //line set_clicks.js.qtpl:2
