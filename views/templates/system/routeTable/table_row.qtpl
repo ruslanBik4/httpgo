@@ -64,7 +64,7 @@
   <progress value='0' max='100' hidden > </progress>
  </form>
 {%- endif -%}
- <a href="{%s t.ApiExport %}" download="{%s t.Name() %}.csv" rel="gen"> Save data to disk </a>
+ <a href="{%s t.ApiExport %}" download="{%s t.Name() %}.csv"> Save data to disk (csv)</a>
 </div>
 <div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">

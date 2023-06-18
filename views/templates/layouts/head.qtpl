@@ -26,9 +26,9 @@ type HeadHTMLPage struct {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="httpgo">
-    {% for i := 0; i< len(head.MetaTags); i++ %}
+    {%- for i := 0; i< len(head.MetaTags); i++ -%}
         {%s= head.MetaTags[i] %}
-    {% endfor %}
+    {%- endfor -%}
     <title>{%s head.Title %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" type="text/css" media="screen">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/css/bootstrap.min.css" integrity="sha512-XWTTruHZEYJsxV3W/lSXG1n3Q39YIWOstqvmFsdNEEQfHoZ6vm6E9GK2OrF6DSJSpIbRbi+Nn0WDPID9O7xB2Q==" crossorigin="anonymous">
@@ -50,9 +50,9 @@ type HeadHTMLPage struct {
 
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
-    {% for i := 0; i< len(head.LinkStyles); i++ %}
+    {%- for i := 0; i< len(head.LinkStyles); i++ -%}
         {%s= head.LinkStyles[i] %}
-    {% endfor %}
+    {%- endfor -%}
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
@@ -69,9 +69,9 @@ type HeadHTMLPage struct {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
-    {% for i := 0; i< len(head.Scripts); i++ %}
+    {%- for i := 0; i< len(head.Scripts); i++ -%}
         {%s= head.Scripts[i] %}
-    {% endfor %}
+    {%- endfor -%}
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" type="text/css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>

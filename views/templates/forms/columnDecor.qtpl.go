@@ -765,7 +765,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:220
 			}
 //line columnDecor.qtpl:220
-			qw422016.N().S(`<div class="suggestions-wrapper" style="width:100%"> <span class="suggestions-addon" data-addon-type="spinner"></span> <select size="10" `)
+			qw422016.N().S(`<div class="suggestions-wrapper"> <span class="suggestions-addon" data-addon-type="spinner"></span> <select size="10" `)
 //line columnDecor.qtpl:223
 			col.StreamRenderAttr(qw422016, i)
 //line columnDecor.qtpl:223

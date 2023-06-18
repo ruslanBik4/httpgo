@@ -133,7 +133,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:67
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:67
-	qw422016.N().S(`.csv" rel="gen"> Save data to disk </a></div><div class="usr-table  table-custom" id="t_`)
+	qw422016.N().S(`.csv"> Save data to disk (csv)</a></div><div class="usr-table  table-custom" id="t_`)
 //line table_row.qtpl:69
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:69

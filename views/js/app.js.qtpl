@@ -1,6 +1,13 @@
 {% func App() %}
+{%= UserJS() %}
 {%= SetClicksJS()  %}
 {%= OverClick()  %}
-{%= UserJS()  %}
 	{% cat "src/app.js" %}
+{% endfunc %}
+
+// add all functioanal for httpgo web apps
+{% func AppMax() %}
+{%= App() %}
+{%= PutFormsJS() %}
+{%= TableJS() %}
 {% endfunc %}

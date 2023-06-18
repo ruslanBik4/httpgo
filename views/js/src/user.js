@@ -4,29 +4,34 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
+"use strict";
+
 var token = '';
 var lang = 'en'
-var userStruct;
+var userStruct = getUser();
 var urlAfterLogin = '';
 
 function getUser() {
     let user = localStorage.getItem("USER");
     if (user > '') {
-        userStruct = JSON.parse(user);
-        saveUser(userStruct);
+        let userData = JSON.parse(user);
+        saveUser(userData);
+        console.log(userData)
+        return userData;
     }
 }
 
 // handling response login form, save users data & render some properties
-function afterLogin(userStruct, thisForm) {
-    if (!userStruct) {
+function afterLogin(userData, thisForm) {
+    if (!userData) {
         alert("Need users data!");
         console.log(thisForm)
         return false;
     }
 
-    localStorage.setItem("USER", JSON.stringify(userStruct));
-    saveUser(userStruct);
+    localStorage.setItem("USER", JSON.stringify(userData));
+    saveUser(userData);
+    userStruct = userData;
     $('input[autofocus]:last').focus();
 
     return true;
@@ -48,23 +53,23 @@ function changeLang(newLang) {
 }
 
 
-function saveUser(userStruct) {
-    var userSuffix = userStruct.lang ? `(${userStruct.lang})` : '';
-    console.log(userStruct);
-    document.getElementById('bLogin').textContent = userStruct.name + userSuffix;
-    token = userStruct.token || userStruct.access_token || userStruct.bearer_token || userStruct.auth_token;
+function saveUser(userData) {
+    var userSuffix = userData.lang ? `(${userData.lang})` : '';
+    console.log(userData);
+    document.getElementById('bLogin').textContent = userData.name + userSuffix;
+    token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
-    $('#bLogin').text(userStruct.name + userSuffix);
+    $('#bLogin').text(userData.name + userSuffix);
     $('.auth').removeClass("auth");
-    changeLang(userStruct.lang);
+    changeLang(userData.lang);
 
     if (ChangeTheme !== undefined) {
-        ChangeTheme(userStruct.theme);
+        ChangeTheme(userData.theme);
     }
 
     if (urlAfterLogin === '') {
-        if (userStruct.formActions !== undefined) {
-            urlAfterLogin = userStruct.formActions[0].url;
+        if (userData.formActions !== undefined) {
+            urlAfterLogin = userData.formActions[0].url;
         } else if (urlAfterLogin.onsubmit !== undefined) {
             urlAfterLogin.onsubmit();
             urlAfterLogin = "";

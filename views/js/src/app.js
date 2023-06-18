@@ -86,8 +86,6 @@ $(function () {
     window.addEventListener("beforeunload", function (evt) {
         var evt = evt || window.event;
 
-//			  evt.returnValue = "Do you want to do it?";
-
         if (evt) {
             var y = evt.pageY || evt.clientY;
             if (y === undefined) {
@@ -113,12 +111,9 @@ $(function () {
         return false
     })
 
-
-    console.log('$(document).ready function events!')
-
     setClickAll();
     if (!userStruct) {
-        getUser();
+        userStruct = getUser();
     }
     $('body').on('DOMSubtreeModified', setClickAll);
 

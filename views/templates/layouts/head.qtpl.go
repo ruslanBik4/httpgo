@@ -58,22 +58,20 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="httpgo">
-    `)
+`)
 //line head.qtpl:29
 	for i := 0; i < len(head.MetaTags); i++ {
 //line head.qtpl:29
-		qw422016.N().S(`
-        `)
+		qw422016.N().S(`        `)
 //line head.qtpl:30
 		qw422016.N().S(head.MetaTags[i])
 //line head.qtpl:30
 		qw422016.N().S(`
-    `)
+`)
 //line head.qtpl:31
 	}
 //line head.qtpl:31
-	qw422016.N().S(`
-    <title>`)
+	qw422016.N().S(`    <title>`)
 //line head.qtpl:32
 	qw422016.E().S(head.Title)
 //line head.qtpl:32
@@ -98,22 +96,20 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
-    `)
+`)
 //line head.qtpl:53
 	for i := 0; i < len(head.LinkStyles); i++ {
 //line head.qtpl:53
-		qw422016.N().S(`
-        `)
+		qw422016.N().S(`        `)
 //line head.qtpl:54
 		qw422016.N().S(head.LinkStyles[i])
 //line head.qtpl:54
 		qw422016.N().S(`
-    `)
+`)
 //line head.qtpl:55
 	}
 //line head.qtpl:55
-	qw422016.N().S(`
-    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
+	qw422016.N().S(`    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.js" async></script>
@@ -129,22 +125,20 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
-    `)
+`)
 //line head.qtpl:72
 	for i := 0; i < len(head.Scripts); i++ {
 //line head.qtpl:72
-		qw422016.N().S(`
-        `)
+		qw422016.N().S(`        `)
 //line head.qtpl:73
 		qw422016.N().S(head.Scripts[i])
 //line head.qtpl:73
 		qw422016.N().S(`
-    `)
+`)
 //line head.qtpl:74
 	}
 //line head.qtpl:74
-	qw422016.N().S(`
-    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
+	qw422016.N().S(`    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" type="text/css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
 

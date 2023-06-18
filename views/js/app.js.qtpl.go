@@ -23,17 +23,17 @@ func StreamApp(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 `)
 //line app.js.qtpl:2
-	StreamSetClicksJS(qw422016)
+	StreamUserJS(qw422016)
 //line app.js.qtpl:2
 	qw422016.N().S(`
 `)
 //line app.js.qtpl:3
-	StreamOverClick(qw422016)
+	StreamSetClicksJS(qw422016)
 //line app.js.qtpl:3
 	qw422016.N().S(`
 `)
 //line app.js.qtpl:4
-	StreamUserJS(qw422016)
+	StreamOverClick(qw422016)
 //line app.js.qtpl:4
 	qw422016.N().S(`
 	`)
@@ -126,8 +126,6 @@ $(function () {
     window.addEventListener("beforeunload", function (evt) {
         var evt = evt || window.event;
 
-//			  evt.returnValue = "Do you want to do it?";
-
         if (evt) {
             var y = evt.pageY || evt.clientY;
             if (y === undefined) {
@@ -169,12 +167,9 @@ $(function () {
         return false
     })
 
-
-    console.log('$(document).ready function events!')
-
     setClickAll();
     if (!userStruct) {
-        getUser();
+        userStruct = getUser();
     }
     $('body').on('DOMSubtreeModified', setClickAll);
 
@@ -300,4 +295,55 @@ func App() string {
 //line app.js.qtpl:6
 	return qs422016
 //line app.js.qtpl:6
+}
+
+// add all functioanal for httpgo web apps
+
+//line app.js.qtpl:9
+func StreamAppMax(qw422016 *qt422016.Writer) {
+//line app.js.qtpl:9
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:10
+	StreamApp(qw422016)
+//line app.js.qtpl:10
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:11
+	StreamPutFormsJS(qw422016)
+//line app.js.qtpl:11
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:12
+	StreamTableJS(qw422016)
+//line app.js.qtpl:12
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:13
+}
+
+//line app.js.qtpl:13
+func WriteAppMax(qq422016 qtio422016.Writer) {
+//line app.js.qtpl:13
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line app.js.qtpl:13
+	StreamAppMax(qw422016)
+//line app.js.qtpl:13
+	qt422016.ReleaseWriter(qw422016)
+//line app.js.qtpl:13
+}
+
+//line app.js.qtpl:13
+func AppMax() string {
+//line app.js.qtpl:13
+	qb422016 := qt422016.AcquireByteBuffer()
+//line app.js.qtpl:13
+	WriteAppMax(qb422016)
+//line app.js.qtpl:13
+	qs422016 := string(qb422016.B)
+//line app.js.qtpl:13
+	qt422016.ReleaseByteBuffer(qb422016)
+//line app.js.qtpl:13
+	return qs422016
+//line app.js.qtpl:13
 }

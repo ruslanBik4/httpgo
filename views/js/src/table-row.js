@@ -4,6 +4,7 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
  */
+"use strict";
 
 function ClickPseudo(event) {
     var elem = event.target;
@@ -66,7 +67,6 @@ function appendTable() {
     $.ajax({
         url: url,
         data: {
-            "lang": lang,
             "html": true
         },
         processData: false,
@@ -142,7 +142,7 @@ function ScrollToElem(selector) {
 
 function SetTableEvents() {
     $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
-    tableCnt = $('.usr-table-content');
+    let tableCnt = $('.usr-table-content');
     tableCnt.on('mousewheel', function (e, delta) {
         if ((delta === -1) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
             var elem = $('.usr-table-content')[0];
@@ -174,10 +174,10 @@ function handleFileCSVSelect(evt) {
 
     reader.onload = (function (theFile) {
         return function (e) {
-            csv = e.target.result.csvToArray({head: true, rSep: "\n"});
-            fText = '';
+            let csv = e.target.result.csvToArray({head: true, rSep: "\n"});
+            let fText = '';
             csv.forEach(function (elem) {
-                row = '';
+                let row = '';
                 elem.forEach(function (cell, i) {
                     row += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
                 });

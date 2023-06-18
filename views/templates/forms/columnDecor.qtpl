@@ -218,7 +218,7 @@ name="{%s col.InputName(i) %}"
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}
-        <div class="suggestions-wrapper" style="width:100%">
+        <div class="suggestions-wrapper">
             <span class="suggestions-addon" data-addon-type="spinner"></span>
 	        <select size="10" {%= col.RenderAttr(i) %}
 	            class="suggestions-constraints suggestions-select-hide {%s col.InputName(i) %}-sel"

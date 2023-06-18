@@ -62,7 +62,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	qw422016.E().S(body.Attr)
 //line index.qtpl:31
 	qw422016.N().S(`>
-    `)
+`)
 //line index.qtpl:32
 	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
 //line index.qtpl:32

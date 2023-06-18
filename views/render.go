@@ -26,8 +26,8 @@ import (
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"author":           "ruslanBik4",
-	"Server":           "%v HTTPGO/%v (CentOS) Go 1.19",
-	"Content-Language": "en, ru",
+	"Server":           "%v HTTPGO/%v (CentOS) Go 1.20",
+	"Content-Language": "en,uk",
 }
 
 // WriteHeaders выдаем стандартные заголовки страницы

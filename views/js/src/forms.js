@@ -45,9 +45,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
             $progress.show();
             $loading.show();
         },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        },
+        beforeSend: getHeaders,
         uploadProgress: function (event, position, total, percentComplete) {
             $out.html('Progress - ' + percentComplete + '%');
             $progress.val(percentComplete);
@@ -74,11 +72,11 @@ function saveForm(thisForm, successFunction, errorFunction) {
                 OverHijack($out, data);
                 return
             }
+            $out.html(status);
             // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
             if (successFunction !== undefined) {
                 successFunction(data, thisForm);
             } else {
-                $out.html(status);
                 afterSaveAnyForm(data, status);
             }
             $.fancybox.close();
@@ -445,19 +443,24 @@ function addNewRowTableID(thisButton) {
     return false;
 }
 
-function inputSearchKeyUp(thisElem, event) {
+function inputSearchKeyUp(thisElem, event, forceEnter) {
 
     var x = event.which || event.keyCode;
-    var elem = $(thisElem)
     var thisClass = 'select.suggestions-select-show.' + thisElem.attributes.data.value
+    if (x === 13) {
+        $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+        return true;
+    }
+    // todo handling arrows, nonchanges value ect.
+
+    var elem = $(thisElem)
     var thisClassH = 'select.suggestions-select-hide.' + thisElem.attributes.data.value
 
     if (x === 40) {
         elem.unbind("blur");
-        $(thisClass).focus();
-        $(thisClass + ' option:first').selected();
+        $(thisClass).focus().children('option:first').selected();
 
-        return;
+        return false;
     }
 
     elem.on("blur", function () {
@@ -476,14 +479,10 @@ function inputSearchKeyUp(thisElem, event) {
     $.ajax({
         url: thisElem.src,
         data: {
-            "lang": lang,
             "value": thisElem.value,
-            "count": 10,
-            "html": true
+            "count": 10
         },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        },
+        beforeSend: getHeaders,
         success: function (data, status) {
             $(thisClassH).removeClass('suggestions-select-hide').addClass('suggestions-select-show');
             if (typeof data === 'string') {
@@ -506,8 +505,11 @@ function inputSearchKeyUp(thisElem, event) {
                 if ((x === 32) || (x === 13)) {
                     thisElem.value = $(thisClass + ' option:selected').text();
                     $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
+                    if (forceEnter) {
+                        elem.focus();
+                    }
                     event.stopPropagation();
-                    return false;
+                    return forceEnter && (x === 13);
                 }
             });
             $(thisClass + ' option').off("mousedown");
@@ -516,6 +518,7 @@ function inputSearchKeyUp(thisElem, event) {
                 thisElem.value = $(this).text();
                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
                 console.log(thisElem.value)
+                elem.focus();
                 event.stopPropagation();
 
                 return false;
@@ -527,6 +530,8 @@ function inputSearchKeyUp(thisElem, event) {
             console.log(error);
         }
     });
+
+    return false;
 }
 
 function ShowBlocks(thisElem) {

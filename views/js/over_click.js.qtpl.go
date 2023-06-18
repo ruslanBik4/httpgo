@@ -55,26 +55,20 @@ function OverClick() {
 
             var disp = xhr.getResponseHeader('Content-Disposition');
             var typeCnt = xhr.getResponseHeader('Content-Type');
-            if (disp && disp.search('attachment') !== -1) {
+            if (disp && disp.startsWith('attachment')) {
 
                 var blob = new Blob([data], {type: typeCnt});
                 var a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
-                a.download = 'file.pdf';
+                a.download = disp.split("=")[1];
+                a.rel = "tmp";
+                console.log(a);
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
 
-                data = `)
-//line over_click.js.qtpl:2
-	qw422016.N().S("`")
-//line over_click.js.qtpl:2
-	qw422016.N().S(`<img src='data:${data}' alt='${url}'/>`)
-//line over_click.js.qtpl:2
-	qw422016.N().S("`")
-//line over_click.js.qtpl:2
-	qw422016.N().S(`;
+                return;
             } else if (typeCnt.startsWith("text/css")) {
                 var id = xhr.getResponseHeader('Section-Name');
                 LoadStyles(id, data)

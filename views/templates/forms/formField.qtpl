@@ -13,10 +13,31 @@ import (
     "github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
     "github.com/ruslanBik4/logs"
+	"github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/views"
 
 	"github.com/valyala/fasthttp"
-	api "{%s repo %}"
+	 "{%s repo %}/api"
+	 "{%s repo %}/db"
 )
+var ShowForm{%s strcase.ToCamel(unitName) %}Route = &apis.ApiRoute{
+            Desc:   "# show form *{%s f.Title %} {%s f.Description %} ",
+            Fnc: HandleShowForms{%s strcase.ToCamel(unitName) %},
+            Method: apis.GET,
+            IsAJAXRequest: true,
+    }
+// HandleShowForms is handle for show form '{%s strcase.ToCamel(unitName) %}'
+func HandleShowForms{%s strcase.ToCamel(unitName) %} (ctx *fasthttp.RequestCtx) (any, error) {
+    DB, ok := ctx.UserValue(apis.Database).(*db.Database)
+    if !ok {
+        logs.ErrorLog(dbEngine.ErrDBNotFound)
+        return nil, dbEngine.ErrDBNotFound
+    }
+    patternList, _ := DB.NewPatternsList(ctx)
+	views.WriteHeadersHTML(ctx)
+	return RenderForm{%s strcase.ToCamel(unitName) %}(ctx, patternList)
+}
+
 func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patternList dbEngine.Table) (any, error) {
 
 	f := forms.FormField {
