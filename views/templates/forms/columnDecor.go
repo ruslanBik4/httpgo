@@ -61,6 +61,7 @@ type ColumnDecor struct {
 	pattern           string
 	patternDesc       string
 	Value             any
+	Accept            string
 	Suggestions       string
 	SuggestionsParams map[string]any
 }
@@ -154,6 +155,8 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			isRequired = b
 		case "readOnly":
 			col.IsReadOnly = true
+		case "accept":
+			col.Accept = gotools.BytesToString(val.GetStringBytes())
 		case "suggestions":
 			col.Suggestions = gotools.BytesToString(val.GetStringBytes())
 		case "data":

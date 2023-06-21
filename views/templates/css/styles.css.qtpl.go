@@ -35,9 +35,23 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
  * Перший приватний програміст.
  */
 
+html {
+    height: 100vh;
+    width: 100vh;
+}
+
+body {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+
 body {
     color: rgb(10, 28, 59);
 }
+
 header {
     position: sticky;
     top: 0;
@@ -108,27 +122,37 @@ li.foot-mnu-item a {
 
 .content-wrap {
     width: 100%;
-    height: calc(100% - 66px);
+    height: calc(100% - 106px);
+}
+
+#container-fluid {
+    height: 99%;
+    display: flex;
+}
+
+.row-fluid1 {
+    width: 100%;
+    height: 99%;
+    display: flex;
+}
+
+.sidebar-section {
+    width: 15%;
+    display: table-cell;
+/ / padding-left: 15 px;
+    padding-top: 3px;
+}
+
+.content-section {
+    width: 85%;
+    display: table-cell;
 }
 
 #content {
     overflow: scroll;
     height: calc(100% - 42px);
 }
-.sidebar-section {
-    width: 15%;
-    display: table-cell;
-//        padding-left: 15px;
-        padding-top: 3px;
-}
-.row-fluid {
-    width: 100%;
-    display: flex;
-}
-.content-section {
-    width: 85%;
-    display: table-cell;
-}
+
 .left-mnu-list {
     margin-left: 5px;
     display:grid;

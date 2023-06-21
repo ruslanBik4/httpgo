@@ -62,7 +62,7 @@ const (
 `
 )
 
-func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer) (any, error) {
+func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.RenderOpts) (any, error) {
 	graph, err := d2compiler.Compile("", buf, &d2compiler.CompileOptions{UTF16: true})
 	if err != nil {
 		logs.ErrorLog(err)
@@ -85,7 +85,8 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	return d2svg.Render(diagram, nil)
+
+	return d2svg.Render(diagram, opts)
 }
 func getStringOfFnc(handler ApiRouteHandler) (string, string, string, int) {
 	fnc := runtime.FuncForPC(reflect.ValueOf(handler).Pointer())
@@ -137,8 +138,16 @@ Params:
 		}
 	}
 	s := buf.String()
-	logs.StatusLog(s)
-	res, err := GetGraphSVG(ctx, buf)
+	res, err := GetGraphSVG(ctx, buf, &d2svg.RenderOpts{
+		Pad:           0,
+		Sketch:        true,
+		Center:        true,
+		ThemeID:       1,
+		DarkThemeID:   nil,
+		Font:          "",
+		SetDimensions: true,
+		MasterID:      "",
+	})
 	if err != nil {
 		errMsg := err.Error()
 		b, _, ok := strings.Cut(errMsg, ":")

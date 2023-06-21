@@ -32,7 +32,6 @@ content of Index page
 {%= layouts.HeaderHTML(body.TopMenu) %}
 <main class="content-wrap">
 	<div id="container-fluid">
-	    <div class="row-fluid">
 	        <div class="sidebar-section">
 	            <div id="catalog_pane"  class="well sidebar-nav">
 	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
@@ -54,7 +53,6 @@ content of Index page
 	            %}
 		        </div>
 	        </div>
-		</div>
 	</div>
 </main>
 {%= layouts.FooterHTML(body.FooterMenu) %}

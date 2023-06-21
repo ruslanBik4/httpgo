@@ -12,7 +12,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
     if (!validateFields(thisForm))
         return false;
 
-    if (thisForm.noValidate && !confirm('Do you sure to send form "' + title + '"?')) {
+    if (thisForm.noValidate && !confirm(`Do you sure to send form "${title}"?`)) {
         return false
     }
     // TODO: create element form for output form result

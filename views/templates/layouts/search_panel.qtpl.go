@@ -27,13 +27,13 @@ type SearchPanel struct {
 	showObject  string
 }
 
-func NewSearchPanel(action, suggestions, showObject, labelButton, placeholder string) *SearchPanel {
+func NewSearchPanel(action, suggestions, showObject, labelButton, placeholder string, counter int) *SearchPanel {
 	if placeholder == "" {
 		placeholder = "Smart search"
 	}
 	return &SearchPanel{
 		action,
-		10,
+		counter,
 		labelButton,
 		placeholder,
 		suggestions,
@@ -100,11 +100,7 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 //line search_panel.qtpl:39
 		qw422016.N().S(`         <div class="suggestions-wrapper">
             <span class="suggestions-addon" data-addon-type="spinner"></span>
-            <select name="id" size=`)
-//line search_panel.qtpl:42
-		qw422016.N().D(s.counter)
-//line search_panel.qtpl:42
-		qw422016.N().S(` class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
+            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
             <div class="suggestions-suggestions"></div>
          </div>
 `)

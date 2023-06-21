@@ -293,6 +293,7 @@ img {
 
 .usr-table-content {
     overflow-y: auto;
+    overflow-x: hidden;
     width: 100%;
     height: calc(99% - 64px);
 }

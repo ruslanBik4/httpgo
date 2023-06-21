@@ -721,7 +721,15 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:211
 			col.StreamRenderAttr(qw422016, i)
 //line columnDecor.qtpl:211
-			qw422016.N().S(` type="file" accept="image"> </span> `)
+			qw422016.N().S(` type="file" accept="`)
+//line columnDecor.qtpl:211
+			qw422016.E().S(col.Accept)
+//line columnDecor.qtpl:211
+			qw422016.N().S(`" data-placeholder="`)
+//line columnDecor.qtpl:211
+			qw422016.E().S(col.Label)
+//line columnDecor.qtpl:211
+			qw422016.N().S(`"> </span> `)
 //line columnDecor.qtpl:213
 		case col.Suggestions > "":
 //line columnDecor.qtpl:213

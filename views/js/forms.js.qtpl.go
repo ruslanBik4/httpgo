@@ -37,7 +37,15 @@ function saveForm(thisForm, successFunction, errorFunction) {
     if (!validateFields(thisForm))
         return false;
 
-    if (thisForm.noValidate && !confirm('Do you sure to send form "' + title + '"?')) {
+    if (thisForm.noValidate && !confirm(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`Do you sure to send form "${title}"?`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`)) {
         return false
     }
     // TODO: create element form for output form result
