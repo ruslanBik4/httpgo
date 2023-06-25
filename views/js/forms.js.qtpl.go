@@ -36,7 +36,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
     let title = thisForm.name || $('h2', thisForm).text() || $('figcaption', thisForm).text() || thisForm.id,
         nav = getFormNav(thisForm);
     // hidden fields of not used blocks
-    $('form figure:hidden:not([validated])').children('.input-label').children('input, select').attr('disabled', true);
+    $('form figure:hidden:not([validated]) .input-label').children('input, select').attr('disabled', true);
 
     if (!validateFields(thisForm))
         return false;
