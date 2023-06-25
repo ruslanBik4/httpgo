@@ -8,7 +8,11 @@
 "use strict";
 
 function saveForm(thisForm, successFunction, errorFunction) {
-    let title = thisForm.name || $('h2', thisForm).text() || $('figcaption', thisForm).text() || thisForm.id;
+    let title = thisForm.name || $('h2', thisForm).text() || $('figcaption', thisForm).text() || thisForm.id,
+        nav = getFormNav(thisForm);
+    // hidden fields of not used blocks
+    $('form figure:hidden:not([validated])').children('.input-label').children('input, select').attr('disabled', true);
+
     if (!validateFields(thisForm))
         return false;
 
@@ -95,7 +99,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
                         if (xhr.responseJSON.formErrors !== undefined) {
                             let formErrors = xhr.responseJSON.formErrors
                             for (let x in formErrors) {
-                                let formsInput = $('input[name=' + x + ']', thisForm)
+                                let formsInput = $(`input[name=${x}]`, thisForm)
                                 if (formsInput.length > 0) {
                                     let errorLabel = formsInput[0].nextElementSibling;
                                     errorLabel.textContent = formErrors[x];
@@ -272,7 +276,7 @@ function correctField(thisElem) {
 }
 
 function validatePattern(thisElem) {
-    var re = thisElem.pattern,
+    let re = thisElem.pattern,
         result = true;
 
     if (re === "") {
@@ -338,10 +342,8 @@ function validatePatternsField(thisForm) {
     return result;
 }
 
-function validateFields(thisForm) {
-    //TODO : что бы подсвечивало все невалидные поля
-
-    return (validateReguiredFields(thisForm) && validateEmailFields(thisForm) && validatePatternsField(thisForm))
+function validateFields(elem) {
+    return (validateReguiredFields(elem) && validateEmailFields(elem) && validatePatternsField(elem))
 }
 
 function validateEmail(email) {
@@ -563,7 +565,7 @@ function Next(elem, id) {
     if (!validateFields(block[0]))
         return false;
 
-    block.hide();
+    block.attr('validated', true).hide();
 
     let newBlock = $(`#block${id}`).show()[0];
     newBlock.scrollIntoView();
@@ -572,11 +574,15 @@ function Next(elem, id) {
         fields[0].focus();
     }
 
-    let nav = $('header#navBlocks', f);
+    let nav = getFormNav(f);
     if (nav.children(`button#go${oldId}`).length === 0) {
         let caption = block.children('figcaption').text();
-        nav.append(`<button id="go${oldId}" onClick="return GotoBlock(this, '${oldId}')">${caption}</button>`);
+        nav.append(`<button class="button" onClick="return GotoBlock(this, '${oldId}')" data-block="${oldId}">${caption}</button>`);
     }
 
     return false;
+}
+
+function getFormNav(thisForm) {
+    return $('header#navBlocks', thisForm);
 }
