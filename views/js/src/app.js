@@ -156,16 +156,39 @@ function loadContent(url) {
 }
 
 function PutContent(data, url) {
-    SetContent(data)
+    SetContent(data);
     SetDocumentHash(url, data);
 }
 
 function SetContent(data) {
-    $('#content').html(data);
+    if (data.startsWith('<!DOCTYPE html>')) {
+        $('html').html(data);
+        return
+    }
+    const a = document.createElement('div');
+
+    a.innerHTML = data;
+
+    // sidebar work only for own page
     $('#catalog_pane .sidebar').remove();
-    $('#content .sidebar').appendTo('#catalog_pane');
+    $('.sidebar', a).appendTo('#catalog_pane');
+    findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section')
+    findAndReplaceElem(a, 'header .topline', 'body > header .topline');
+    findAndReplaceElem(a, 'header .topline-btns', 'body > header .topline-btns');
+    if (!findAndReplaceElem(a, '#content', '#content')) {
+        $('#content').html(a.innerHTML);
+    }
+
 }
 
+function findAndReplaceElem(src, selector, dst) {
+    const elem = $(selector, src);
+    if (elem.length > 0) {
+        $(dst).html(elem.html());
+        return true;
+    }
+    return false;
+}
 
 function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
     $.ajax({

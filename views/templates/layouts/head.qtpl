@@ -17,7 +17,7 @@ type HeadHTMLPage struct {
 }
 %}
 
-{% func (head *HeadHTMLPage) HeadHTML() %}
+{%- func (head *HeadHTMLPage) HeadHTML() -%}
 <!DOCTYPE html>
 <html lang="{%s head.Language %}">
 <head>

@@ -109,12 +109,12 @@ function saveUser(userData) {
     }
 
     if (urlAfterLogin === '') {
-        if (userData.formActions !== undefined) {
-            urlAfterLogin = userData.formActions[0].url;
-        } else if (urlAfterLogin.onsubmit !== undefined) {
+        if (urlAfterLogin.onsubmit !== undefined) {
             urlAfterLogin.onsubmit();
             urlAfterLogin = "";
             return;
+        } else if (userData.formActions !== undefined) {
+            urlAfterLogin = userData.formActions[0].url;
         }
     }
     if (urlAfterLogin > '') {

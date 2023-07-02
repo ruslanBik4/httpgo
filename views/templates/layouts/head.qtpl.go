@@ -41,8 +41,7 @@ type HeadHTMLPage struct {
 //line head.qtpl:20
 func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 //line head.qtpl:20
-	qw422016.N().S(`
-<!DOCTYPE html>
+	qw422016.N().S(`<!DOCTYPE html>
 <html lang="`)
 //line head.qtpl:22
 	qw422016.E().S(head.Language)

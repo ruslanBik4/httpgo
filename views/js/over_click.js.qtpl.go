@@ -56,9 +56,9 @@ function OverClick() {
             var disp = xhr.getResponseHeader('Content-Disposition');
             var typeCnt = xhr.getResponseHeader('Content-Type');
             if (disp && disp.startsWith('attachment')) {
-
-                var blob = new Blob([data], {type: typeCnt});
-                var a = document.createElement('a');
+                // todo: add last modify
+                const blob = new Blob([data], {type: typeCnt});
+                const a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
                 a.download = disp.split("=")[1];
                 a.rel = "tmp";

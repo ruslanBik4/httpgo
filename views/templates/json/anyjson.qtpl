@@ -1,8 +1,6 @@
-All the text outside function templates is treated as comments,
-i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
-выводим массив массивов (основное назначение для таблиц БД)
 {% import (
     "sort"
+	"github.com/ruslanBik4/gotools"
 ) %}
 
 {% stripspace %}
@@ -51,7 +49,7 @@ write string with escaping
 
 write string with escaping
 {% func ByteAsString(b []byte) %}
- {%= String(string(b))  %}
+ {%= String(gotools.BytesToString(b))  %}
 {% endfunc %}
 
 пишем элемент массива в зависемости от типа

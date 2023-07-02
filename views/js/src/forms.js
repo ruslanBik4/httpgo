@@ -516,12 +516,8 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
             });
             $(thisClass + ' option').off("mousedown");
             $(thisClass + ' option').on("mousedown", function (e) {
-                console.log(e);
                 thisElem.value = $(this).text();
                 $(thisClass).removeClass('suggestions-select-show').addClass('suggestions-select-hide');
-                console.log(thisElem.value)
-                elem.focus();
-                event.stopPropagation();
 
                 return false;
             });
