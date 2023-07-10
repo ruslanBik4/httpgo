@@ -608,39 +608,50 @@ func writeResponseForAuth(stream *jsoniter.Stream) {
 }
 
 func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
+	stream.WriteMore()
 	stream.WriteObjectField("responses")
 	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+
+	stream.WriteObjectField("200")
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+	if resp == nil {
+		FirstFieldToJSON(stream, "description", fasthttp.StatusMessage(fasthttp.StatusOK))
+	} else if resp, ok := resp.(string); ok {
+		FirstFieldToJSON(stream, "description", resp)
+	} else {
+		FirstObjectToJSON(stream, "description", resp)
+	}
+
 	if len(params) > 0 {
+		stream.WriteMore()
 		stream.WriteObjectField("400")
 		stream.WriteObjectStart()
+		defer stream.WriteObjectEnd()
 		FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusBadRequest))
 		stream.WriteMore()
 		stream.WriteObjectField("content")
 		stream.WriteObjectStart()
+		defer stream.WriteObjectEnd()
 
 		stream.WriteObjectField("application/json")
 		stream.WriteObjectStart()
+		defer stream.WriteObjectEnd()
 
 		stream.WriteObjectField("schema")
 		stream.WriteObjectStart()
+		defer stream.WriteObjectEnd()
 		FirstObjectToJSON(stream, "type", "object")
 
 		stream.WriteMore()
 		jParam := NewqInParam("body", nil)
 		jParam.WriteSwaggerProperties(stream, params)
-		stream.WriteObjectEnd()
-		stream.WriteObjectEnd()
-		stream.WriteObjectEnd()
-		stream.WriteObjectEnd()
-		stream.WriteMore()
 	}
 
 	if resp, ok := resp.(SwaggerParam); ok {
-		more := false
 		for code, r := range resp {
-			if more {
-				stream.WriteMore()
-			}
+			stream.WriteMore()
 			if s, ok := r.(string); ok {
 				stream.WriteObjectField(code)
 				stream.WriteObjectStart()
@@ -650,22 +661,9 @@ func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
 				props := NewReflectType(r)
 				FirstObjectToJSON(stream, code, props.Props)
 			}
-			more = true
-
 		}
 		return
 	}
-
-	stream.WriteObjectField("200")
-	stream.WriteObjectStart()
-	if resp == nil {
-		FirstFieldToJSON(stream, "description", fasthttp.StatusMessage(fasthttp.StatusOK))
-	} else if resp, ok := resp.(string); ok {
-		FirstFieldToJSON(stream, "description", resp)
-	} else {
-		FirstObjectToJSON(stream, "description", resp)
-	}
-	stream.WriteObjectEnd()
 }
 
 func statusMsg(status int) string {

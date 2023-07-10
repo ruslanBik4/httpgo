@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package apis
 
 import (
@@ -16,11 +23,13 @@ import (
 
 	// "github.com/json-iterator/go"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
 	"github.com/ruslanBik4/dbEngine/typesExt"
-	"github.com/stretchr/testify/assert"
-	"github.com/valyala/fasthttp"
+	"github.com/ruslanBik4/gotools"
 )
 
 type commCase string
@@ -73,33 +82,35 @@ func TestCheckAndRun(t *testing.T) {
 	t.Logf("%+v", dto)
 }
 
-var tests = []struct {
+type testArgs struct {
 	name string
-	src  string
+	src  []byte
 	col  types.BasicKind
 	want string
-}{
+}
+
+var tests = []testArgs{
 	{
 		"string",
-		"simple string",
+		[]byte("simple string"),
 		types.String,
 		`"simple string"`,
 	},
 	{
 		"string",
-		`<html> \d\s`,
+		[]byte(`<html> \d\s`),
 		types.String,
 		`"\u003chtml> \\d\\s"`,
 	},
 	{
 		"string",
-		`{"src": "<html> \d\s", "error": false, "code": 123}`,
+		[]byte(`{"src": "<html> \d\s", "error": false, "code": 123}`),
 		types.String,
 		`"{\"src\": \"\u003chtml> \\d\\s\", \"error\": false, \"code\": 123}"`,
 	},
 	{
-		"json",
-		`{"src": "<html> \d\s", "error": false, "code": 123}`,
+		"object",
+		[]byte(`{"src": "<html> \d\s", "error": false, "code": 123}`),
 		typesExt.TMap,
 		`{"src": "<html> \d\s", "error": false, "code": 123}`,
 	},
@@ -110,28 +121,25 @@ func TestWriteElemValue(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := writeTestValue(tt)
-			assert.Equal(t, tt.want, string(ctx.Response.Body()))
+			body := ctx.Response.Body()
+			assert.Equal(t, tt.want, gotools.BytesToString(body))
 		})
 	}
 }
 
-func writeTestValue(tt struct {
-	name string
-	src  string
-	col  types.BasicKind
-	want string
-}) *fasthttp.RequestCtx {
+func writeTestValue(tt testArgs) *fasthttp.RequestCtx {
 	ctx := &fasthttp.RequestCtx{}
 	var col dbEngine.Column
 	switch tt.col {
 	case types.String:
 		col = dbEngine.NewStringColumn(tt.name, "comment", false, 0)
+	//	todo add other column types
 	case typesExt.TMap:
-		col = psql.NewColumn(nil, tt.name, "json", nil, true,
-			"", "comment", "jsonb", 0,
+		col = psql.NewColumn(nil, tt.name, "inet", nil, true,
+			"", "comment", "inet", 0,
 			false, false)
 	}
-	WriteElemValue(ctx, []byte(tt.src), col)
+	WriteElemValue(ctx, tt.src, col)
 	return ctx
 }
 

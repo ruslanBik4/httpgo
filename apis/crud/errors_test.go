@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -35,7 +35,7 @@ func TestCreateErrResult(t *testing.T) {
 	tests := []struct {
 		name    string
 		err     error
-		want    interface{}
+		want    map[string]string
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -71,7 +71,7 @@ func TestCreateErrResult(t *testing.T) {
 			if tt.wantErr {
 				assert.Equal(t, apis.ErrWrongParamsList, err, tt.name)
 			}
-			assert.Equal(t, tt.want, got)
+			assert.Equal(t, apis.NewErrorResp(tt.want), got)
 		})
 	}
 }

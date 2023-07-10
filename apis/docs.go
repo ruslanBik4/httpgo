@@ -65,24 +65,20 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		sortList = append(sortList, name)
 	}
 	sort.Strings(sortList)
-	isFirst := true
-	for _, path := range sortList {
-		if !isFirst {
-			stream.WriteMore()
-		} else {
-			isFirst = false
-		}
-
+	for i, path := range sortList {
 		stream.WriteObjectField(path)
 		stream.WriteObjectStart()
 
-		for i, route := range paths[path] {
-			if i > 0 {
+		for j, route := range paths[path] {
+			FirstObjectToJSON(stream, strings.ToLower(route.Method.String()), route)
+			if j+1 < len(paths[path]) {
 				stream.WriteMore()
 			}
-			FirstObjectToJSON(stream, strings.ToLower(route.Method.String()), route)
 		}
 		stream.WriteObjectEnd()
+		if i+1 < len(sortList) {
+			stream.WriteMore()
+		}
 	}
 }
 
@@ -185,7 +181,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 	writeSummary(stream, route, summary)
 
-	if len(params) > 0 || valueDTO != nil {
+	if false && (len(params) > 0 || valueDTO != nil) {
 		stream.WriteMore()
 		jParam := NewqInParam(in, valueDTO)
 		jParam.WriteSwaggerParams(stream, params)
@@ -209,14 +205,12 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if len(tags) > 0 {
 		AddObjectToJSON(stream, "tags", tags)
 	}
-	stream.WriteMore()
 	writeResponse(stream, respErrors, route.Resp)
 
 	if route.NeedAuth {
 		writeResponseForAuth(stream)
 	}
 
-	stream.WriteObjectEnd()
 }
 
 func writeSummary(stream *jsoniter.Stream, route *ApiRoute, summary string) {
@@ -565,7 +559,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	}
 	version, hasVersion := apis.Ctx.Value(ServerVersion).(string)
 	if !hasVersion {
-		version = apis.Ctx.Value(ApiVersion).(string)
+		version, _ = apis.Ctx.Value(ApiVersion).(string)
 	}
 	AddFieldToJSON(stream, "version", version)
 	AddFieldToJSON(stream, "title", title)
@@ -584,7 +578,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		if a, ok := apis.fncAuth.(*auth.AuthBearer); ok {
 			WriteBearer(stream, AuthManager, a.String())
 		} else {
-			//todo: impleements others auth
+			//todo: implements others auth
 			WriteBearer(stream, AuthManager, apis.fncAuth.String())
 		}
 	}

@@ -1,14 +1,15 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package forms
 
 import (
-	"os"
+	"bytes"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestFormField_WriteCreate(t *testing.T) {
@@ -153,9 +154,8 @@ func TestFormField_WriteCreate(t *testing.T) {
 				HideBlock:   tt.fields.HideBlock,
 				Blocks:      tt.fields.Blocks,
 			}
-			file, err := os.Create("tests/test.go")
-			require.Nil(t, err)
-			f.WriteCreate(file)
+			buf := bytes.NewBuffer(nil)
+			f.WriteCreate(buf, "httpgo", "forms", "test")
 		})
 	}
 }

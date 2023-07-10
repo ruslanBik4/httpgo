@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package docs
 
@@ -18,7 +21,7 @@ import (
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	sheets "google.golang.org/api/sheets/v4"
+	"google.golang.org/api/sheets/v4"
 
 	"github.com/ruslanBik4/httpgo/models/server"
 	"github.com/ruslanBik4/logs"
@@ -126,9 +129,9 @@ func newClient() (*http.Client, error) {
 
 func (sheet *SheetsGoogleDocs) Init() (err error) {
 
-	sConfig := server.GetServerConfig()
-	cacheFile = filepath.Join(sConfig.SystemPath(), "config/.credentials")
-	userFile = filepath.Join(sConfig.SystemPath(), "config/oauth2.json")
+	sConfig := server.GetMongodConfig()
+	cacheFile = filepath.Join(sConfig.SessionPath, "config/.credentials")
+	userFile = filepath.Join(sConfig.SessionPath, "config/oauth2.json")
 
 	client, err := newClient()
 	if err != nil {

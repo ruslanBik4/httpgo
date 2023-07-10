@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package apis
 
 import (
@@ -26,24 +33,45 @@ func TestNewReflectType(t *testing.T) {
 		{
 			"simple",
 			1,
-			&ReflectType{Type: reflect.TypeOf(1), Props: spec.SchemaProps{Type: []string{"int"}, Default: 1}},
+			&ReflectType{Type: reflect.TypeOf(1), Props: InParam{
+				Name:     "1",
+				Desc:     "int",
+				Type:     &ReflectType{Type: reflect.TypeOf(1)},
+				DefValue: "int",
+			}},
 		},
 		{
 			"struct",
 			testStruct{"1", 2},
-			&ReflectType{Type: reflect.TypeOf(testStruct{}), Props: spec.SchemaProps{Type: []string{"struct"}}},
+			&ReflectType{
+				Type:  reflect.TypeOf(testStruct{}),
+				Props: SwaggerParam{"properties": map[string]any{}, "type": "object"},
+			},
 		},
 		{
 			"array",
 			[]int{1, 2, 3},
-			&ReflectType{Type: reflect.TypeOf([]int{}), Props: spec.SchemaProps{Type: []string{"array"}}},
+			&ReflectType{Type: reflect.TypeOf([]int{}), Props: SwaggerParam{
+				"description": "[1 2 3]",
+				"schema": SwaggerUnit{
+					Properties: []spec.SchemaProps(nil),
+					Items: InParam{
+						Name:     "int",
+						Desc:     "int,  int",
+						Type:     &ReflectType{Type: reflect.TypeOf(1)},
+						DefValue: "int",
+					},
+					Type: "array",
+				}},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rt := NewReflectType(tt.args)
 			require.NotNil(t, rt.Props)
-			assert.Equalf(t, tt.want, rt, "NewReflectType(%v)", tt.args)
+			assert.Equalf(t, tt.want.Type, rt.Type, "NewReflectType(%v)", tt.args)
+			assert.Equalf(t, tt.want.Props, rt.Props, "NewReflectType(%v)", tt.args)
 		})
 	}
 }

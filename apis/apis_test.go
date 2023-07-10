@@ -1,17 +1,27 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package apis
 
 import (
 	"bufio"
+	"bytes"
 	"go/types"
 	"net"
 	"sync"
 	"testing"
 	"time"
 
-	"github.com/json-iterator/go"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
+
+	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/ruslanBik4/logs"
 )
 
 var (
@@ -82,44 +92,40 @@ func TestRenderApis(t *testing.T) {
 
 	ctx.Request.SetRequestURI(testPath)
 	ctx.SetUserValue("json", true)
+	//must return type *Apis
 	resp, err := testApis.renderApis(ctx)
 	assert.Nil(t, err)
-	t.Logf(`%#v`, resp)
 
-	b, err := jsoniter.Marshal(resp)
-	if !assert.Nil(t, err) {
-		t.Fail()
-	}
-	t.Log(string(b))
+	buf := bytes.NewBuffer(nil)
+	json.WriteElement(buf, resp)
+	t.Log(buf.String())
 
-	var v interface{}
-	err = jsoniter.Unmarshal(b, &v)
+	value, err := fastjson.Parse(buf.String())
 	assert.Nil(t, err)
 
-	res, ok := v.(map[string]interface{})
-	assert.True(t, ok, "%T", v)
-
-	for key, val := range res {
+	logs.StatusLog(value)
+	value.GetObject().Visit(func(key []byte, val *fastjson.Value) {
 		t.Logf(`'%s': %#v`, key, val)
-	}
+
+	})
 }
 
-func testValue(ctx *fasthttp.RequestCtx) interface{} {
+func testValue(ctx *fasthttp.RequestCtx) any {
 	return ctx.Method()
 }
 
 type apiDTO struct {
-	i interface{}
+	i any
 }
 
-func (a *apiDTO) GetValue() interface{} {
+func (a *apiDTO) GetValue() any {
 	return a.i
 }
 
-func (a *apiDTO) NewValue() interface{} {
+func (a *apiDTO) NewValue() any {
 	switch v := (a.i).(type) {
 	default:
-		var r interface{}
+		var r any
 		r = v
 		return r
 	}
@@ -132,7 +138,7 @@ func TestNewStructInParam(t *testing.T) {
 	}{1, "test"}
 
 	a := apiDTO{st}
-	var newSt interface{}
+	var newSt any
 	newSt = a.NewValue()
 	tt := newSt.(struct {
 		i int

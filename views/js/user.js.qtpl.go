@@ -97,7 +97,6 @@ function saveUser(userData) {
 //line user.js.qtpl:2
 	qw422016.N().S(` : '';
     console.log(userData);
-    document.getElementById('bLogin').textContent = userData.name + userSuffix;
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
     $('#bLogin').text(userData.name + userSuffix);

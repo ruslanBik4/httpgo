@@ -20,9 +20,7 @@ import (
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 
 	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 	"github.com/ruslanBik4/logs"
 )
@@ -72,7 +70,7 @@ func TableView(preRoute string, table dbEngine.Table, DB *dbEngine.DB) apis.ApiR
 			return nil, errors.Wrap(err, "select")
 		}
 
-		views.RenderHTMLPage(ctx, layouts.WritePutHeadForm)
+		//views.RenderHTMLPage(ctx, layouts.WriteHeaderHTML)
 
 		colDecors := make([]*forms.ColumnDecor, len(table.Columns()))
 		for i, col := range table.Columns() {

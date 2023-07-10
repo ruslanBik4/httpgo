@@ -25,6 +25,10 @@ func NewqInParam(in string, dto any) *qInParam {
     }
 } 
 %}
+
+{% stripspace %}
+{% collapsespace %}
+
 {%- func (q *qInParam) SwaggerParams(params []any) -%}
 {%- if !q.multiPart %}
   {%- if q.dto != nil -%}
@@ -91,11 +95,10 @@ func NewqInParam(in string, dto any) *qInParam {
 {%- func (q *qInParam) SwaggerProperties(params []InParam) -%}
 "properties": {
  {%- for i, param := range params -%}
-	{%- if i > 0 -%}, {%- endif -%}
 	"{%s param.Name %}": {
-		"description": "{%s param.Desc %}",
+		"description": "{%s= param.Desc %}",
 		{%= Schema(param) %}
-	}
+	}{%- if i+1 < len(params) -%}, {%- endif -%}
  {%- endfor -%}
 }
 {%- endfunc -%}
@@ -120,37 +123,30 @@ func NewqInParam(in string, dto any) *qInParam {
 		"allowEmptyValue": false,
 	{%- endif -%}
 		"type": {%- switch  -%}
-				{%- case ok && t.BasicKind == types.Bool-%}
-					"boolean"
-				{%- case ok && t.BasicKind > types.Bool && t.BasicKind < types.Float32 -%}
-					"integer",
-		"format": 	"{%= t.Format() %}"
-				{%- case ok && (t.BasicKind == types.Float32 || t.BasicKind == types.Float64) -%}
-					"number",
-		"format": 	"{%= t.Format() %}"
+				{%- case param.Type == nil -%} nil
+				{%- case ok && t.BasicKind == types.Bool-%} "boolean"
+				{%- case ok && t.BasicKind == types.UnsafePointer -%} "file"
 				{%- case ok && t.BasicKind == types.String -%}
-					{%- if t.IsSlice() -%} "array", "items": {"type": "string"} {%- else -%} "string" {% endif -%},
+					{%- if t.IsSlice() -%} "array", "items": {"type": "string"} {%- else -%} "string" {%- endif -%},
 		"format": 	"string"
-				{%- case ok && t.BasicKind == types.UnsafePointer -%}
-					"file"
-				{%- case ok && t.BasicKind > types.UnsafePointer -%}
-					"untyped",
+				{%- case ok && t.BasicKind > types.Bool && t.BasicKind < types.Float32 -%} "integer",
 		"format": 	"{%= t.Format() %}"
-				{%- case ok && t.BasicKind == typesExt.TStruct -%}
-					"{%= t.RequestType() %}",
+				{%- case ok && (t.BasicKind == types.Float32 || t.BasicKind == types.Float64) -%} "number",
+		"format": 	"{%= t.Format() %}"
+				{%- case ok && t.BasicKind > types.UnsafePointer -%} "untyped",
+		"format": 	"{%= t.Format() %}"
+				{%- case ok && t.BasicKind == typesExt.TStruct -%} "{%= t.RequestType() %}",
 		"format":   "{%= t.Format() %}"
-				{%- case ok -%}
-					"{%= t.Format() %}",
+				{%- case ok -%} "{%= t.Format() %}",
 		"format": 	"{%= t.Format() %}"
-				{% case param.Type == nil %}
-				nil
-				{%- default -%}
-					"{%v param.Type %}",
+				{%- default -%} "{%v param.Type %}",
 		"format": 	"{%v param.Type %}"
-				{%- endswitch -%},
+				{%- endswitch -%}
 {%- endfunc -%}
 {%- func Security(desc string) -%}
 "security": [
   "auth":  "JWT"
 ]
 {%- endfunc -%}
+{% endcollapsespace %}
+{% endstripspace %}

@@ -56,7 +56,6 @@ function changeLang(newLang) {
 function saveUser(userData) {
     var userSuffix = userData.lang ? `(${userData.lang})` : '';
     console.log(userData);
-    document.getElementById('bLogin').textContent = userData.name + userSuffix;
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
     $('#bLogin').text(userData.name + userSuffix);

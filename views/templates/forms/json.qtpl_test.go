@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package forms
 
@@ -8,9 +11,10 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/stretchr/testify/assert"
 	qt422016 "github.com/valyala/quicktemplate"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 )
 
 func TestColumnDecor_ToJSON(t *testing.T) {
@@ -1073,6 +1077,7 @@ func TestFormField_FormJSON(t *testing.T) {
 			f := &FormField{
 				Title:       tt.fields.Title,
 				Action:      tt.fields.Action,
+				Blocks:      tt.fields.blocks,
 				Method:      tt.fields.Method,
 				Description: tt.fields.Description,
 				HideBlock:   tt.fields.HideBlock,
