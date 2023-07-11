@@ -52,6 +52,7 @@ function setClickAll(event) {
 
         $(this).click(OverClick);
     });
+    setTextEdit();
 
     if (!event || event.target === document.getElementById('content')) {
         $('input[autofocus]:last').focus();
