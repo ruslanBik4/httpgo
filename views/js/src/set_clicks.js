@@ -4,6 +4,7 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
+"use strict";
 
 var isProcess = false;
 
@@ -37,7 +38,7 @@ function setClickAll(event) {
 }
 
 function setTextEdit() {
-    textInputs = $('textarea:not([readonly])');
+    let textInputs = $('textarea:not([readonly])');
     if (textInputs.length > 0) {
         let scripts = Array
             .from(document.querySelectorAll('script'))
