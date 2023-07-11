@@ -149,6 +149,7 @@
 
 {% func (col *ColumnDecor) RenderAttr(i int)  %}
 name="{%s col.InputName(i) %}"
+name="id_{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
          {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
@@ -181,7 +182,7 @@ name="{%s col.InputName(i) %}"
         {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
             <select {%= col.RenderAttr(i) %}
                     {% if d, ok := data[ col.InputName(i) ].(map[string]any); ok %}
-                    {% comment %} mest have '' for internal presentation strings with "" {% endcomment %}
+                    {% comment %} must have '' for internal presentation strings with "" {% endcomment %}
                       data-show-blocks='{%= json.Element(d) %}'
                       onchange="ShowBlocks(this);"
                     {% endif %}

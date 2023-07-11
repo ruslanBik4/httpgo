@@ -54,7 +54,7 @@ function setTextEdit() {
                 tinymce.init({
                     target: event.target,
                     menubar: false,
-                    auto_focus: 'element1',
+                    auto_focus: event.target.id,
                     highlight_on_focus: true,
                     plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount    ',
                     toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
@@ -69,7 +69,8 @@ function setTextEdit() {
                         });
 
                         editor.on('focusout', (e) => {
-                            $('textarea[name="' + name + '"]').text(editor.getContent({format: 'text'}));
+                            // {format: 'text'}
+                            $('textarea[name="' + name + '"]').text(editor.getContent());
                         });
                     }
                 });
