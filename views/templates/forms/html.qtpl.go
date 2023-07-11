@@ -210,75 +210,32 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 	qw422016.N().S(` `)
 //line html.qtpl:75
 	qw422016.N().S(`
-<script>
-$(function()   {
-	textInputs = $('textarea');
-	if (textInputs.length > 0) {
-		let scripts = Array
-            .from(document.querySelectorAll('script'))
-            .map(scr => scr.src);
-
-        if (!scripts.includes('tinymce.min')) {
-			LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
-		}
-
-		textInputs.focus(
-			function (event) {
-				let name = event.target.name;
-			    tinymce.init({
-                  target: event.target,
-                  menubar: false,
-                  plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount    ',
-                  toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
-                  mergetags_list: [
-                    { value: "name", title: name },
-                    { value: 'placeholder', title: name },
-                  ],
-                  setup: (editor) => {
-                      editor.on('input', (e) => {
-                       console.log(e);
-                       $('#`)
-//line html.qtpl:103
-	qw422016.E().S(idShake)
-//line html.qtpl:103
-	qw422016.N().S(`_form button.hidden').removeClass('hidden').addClass('main-btn');
-                      });
-
-                      editor.on('focusout', (e) => {
-                       $('textarea[name="' + name +'"]').text( editor.getContent({ format: 'text' }) );
-                      });
-                    }
-                });
-        });
-	}
-});
-</script>
 `)
-//line html.qtpl:115
+//line html.qtpl:76
 }
 
-//line html.qtpl:115
+//line html.qtpl:76
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer) {
-//line html.qtpl:115
+//line html.qtpl:76
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line html.qtpl:115
+//line html.qtpl:76
 	f.StreamFormHTML(qw422016)
-//line html.qtpl:115
+//line html.qtpl:76
 	qt422016.ReleaseWriter(qw422016)
-//line html.qtpl:115
+//line html.qtpl:76
 }
 
-//line html.qtpl:115
+//line html.qtpl:76
 func (f *FormField) FormHTML() string {
-//line html.qtpl:115
+//line html.qtpl:76
 	qb422016 := qt422016.AcquireByteBuffer()
-//line html.qtpl:115
+//line html.qtpl:76
 	f.WriteFormHTML(qb422016)
-//line html.qtpl:115
+//line html.qtpl:76
 	qs422016 := string(qb422016.B)
-//line html.qtpl:115
+//line html.qtpl:76
 	qt422016.ReleaseByteBuffer(qb422016)
-//line html.qtpl:115
+//line html.qtpl:76
 	return qs422016
-//line html.qtpl:115
+//line html.qtpl:76
 }

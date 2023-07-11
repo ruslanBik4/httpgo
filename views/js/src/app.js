@@ -161,7 +161,7 @@ function PutContent(data, url) {
 }
 
 function SetContent(data) {
-    if (data.startsWith('<!DOCTYPE html>')) {
+    if (typeof data == 'string' && data.startsWith('<!DOCTYPE html>')) {
         $('html').html(data);
         return
     }
