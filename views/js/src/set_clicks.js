@@ -69,9 +69,9 @@ function setTextEdit() {
                         editor.on('focusout', (e) => {
                             $('textarea[name="' + name + '"]').text(editor.getContent({format: 'text'}));
                         });
-                        editor.focus();
                     }
                 });
+                tinymce.activeEditor.focus(false);
             });
     }
 }
