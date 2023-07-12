@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -47,15 +47,26 @@ func (d *DateTimeString) NewValue() any {
 	return &DateTimeString{}
 }
 
-func (d *DateTimeString) UnmarshalJSON(src []byte) error {
-	t, err := time.Parse(time.RFC3339, gotools.BytesToString(src))
-	if err != nil {
-		return errors.Wrap(err, "Parse(time.RFC3339")
+func (d *DateTimeString) UnmarshalJSON(src []byte) (err error) {
+	formats := []string{
+		time.RFC3339,
+		time.RFC3339Nano,
+		time.DateTime,
+		time.RFC1123,
+		time.RFC1123Z,
+		time.Stamp,
+	}
+	toString := gotools.BytesToString(src)
+	var t time.Time
+	for _, f := range formats {
+		t, err = time.Parse(f, toString)
+		if err == nil {
+			*d = (DateTimeString)(t)
+			return nil
+		}
 	}
 
-	*d = (DateTimeString)(t)
-
-	return nil
+	return errors.Wrap(err, "Parse(time.RFC3339")
 }
 
 func (d *DateTimeString) MarshalJSON() ([]byte, error) {
@@ -75,7 +86,7 @@ func (d *DateTimeString) Scan(src any) error {
 
 		return nil
 	case json.Number:
-		t, err := time.Parse("2006-01-02", (string)(s))
+		t, err := time.Parse(time.DateOnly, (string)(s))
 		if err != nil {
 			return errors.Wrap(err, "Parse(time.RFC3339")
 		}
@@ -90,6 +101,30 @@ func (d *DateTimeString) Scan(src any) error {
 
 func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
 	return true
+}
+
+type DateString struct {
+	DateTimeString
+}
+
+func (d *DateString) UnmarshalJSON(src []byte) (err error) {
+	formats := []string{
+		time.DateOnly,
+		"2006-02-01",
+		"01-02-2006",
+		"02-01-2006",
+	}
+	toString := gotools.BytesToString(src)
+	var t time.Time
+	for _, f := range formats {
+		t, err = time.Parse(f, toString)
+		if err == nil {
+			d.DateTimeString = (DateTimeString)(t)
+			return nil
+		}
+	}
+
+	return errors.Wrap(err, "Parse(time.RFC3339")
 }
 
 type DtoFileField []*multipart.FileHeader

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -46,7 +46,9 @@ func NewDbApiParams(col dbEngine.Column) *DbApiParams {
 func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	isArray := strings.HasPrefix(col.Type(), "_")
 	switch col.Type() {
-	case "date", "timestamp", "timestamptz", "time":
+	case "date":
+		p.Type = apis.NewStructInParam(&DateString{})
+	case "timestamp", "timestamptz", "time":
 		p.Type = apis.NewStructInParam(&DateTimeString{})
 	case "daterange":
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
