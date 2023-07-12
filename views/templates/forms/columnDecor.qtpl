@@ -2,7 +2,6 @@
     "fmt"
 	"go/types"
 	"sort"
-	"strings"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
@@ -140,8 +139,11 @@
 
 {%- func (col *ColumnDecor) RenderValue(value any)  -%}
     {%- switch vv := value.(type) -%}
-      {%- case string -%}{%s= strings.ReplaceAll( vv, "\r\n", `
-      `) %}
+      {%- case nil -%}
+      {%- case []byte -%}
+	    {% if col.InputType == "textarea" %}{%s= string(vv) %} {% else %} {%= json.Element(value)%} {% endif %}
+      {%- case string -%}
+	    {% if col.InputType == "textarea" %}{%s= vv %} {% else %} {%s vv %} {% endif %}
       {%- default -%}{%= json.Element(value) %}
     {%- endswitch -%}
 {%- endfunc -%}
@@ -149,7 +151,7 @@
 
 {% func (col *ColumnDecor) RenderAttr(i int)  %}
 name="{%s col.InputName(i) %}"
-name="id_{%s col.InputName(i) %}"
+id="id_{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
          {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
@@ -202,7 +204,7 @@ name="id_{%s col.InputName(i) %}"
              {% endfor %}
           </select>
  	{% case col.InputType == "textarea" %}
-          <textarea {%= col.RenderAttr(i) %} >{% if val != nil %}{%= col.RenderValue(val) %}{% endif %}</textarea>
+          <textarea {%= col.RenderAttr(i) %} >{%= col.RenderValue(val) %}</textarea>
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}
