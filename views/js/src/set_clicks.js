@@ -64,13 +64,13 @@ function setTextEdit() {
                     ],
                     setup: (editor) => {
                         editor.on('input', (e) => {
-                            console.log(e);
-                            // $('#{%s idShake %}_form button.hidden').removeClass('hidden').addClass('main-btn');
+                            return FormIsModified(event, $(event.target).parents('form'));
                         });
 
-                        editor.on('focusout', (e) => {
+                        editor.on('blur', (e) => {
                             // {format: 'text'}
-                            $('textarea[name="' + name + '"]').text(editor.getContent());
+                            $(`textarea[name="${name}"]`).text(editor.getContent());
+                            // editor.hide();
                         });
                     }
                 });

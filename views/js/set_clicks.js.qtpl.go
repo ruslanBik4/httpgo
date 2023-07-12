@@ -88,13 +88,21 @@ function setTextEdit() {
                     ],
                     setup: (editor) => {
                         editor.on('input', (e) => {
-                            console.log(e);
-                            // $('#{%s idShake %}_form button.hidden').removeClass('hidden').addClass('main-btn');
+                            return FormIsModified(event, $(event.target).parents('form'));
                         });
 
-                        editor.on('focusout', (e) => {
+                        editor.on('blur', (e) => {
                             // {format: 'text'}
-                            $('textarea[name="' + name + '"]').text(editor.getContent());
+                            $(`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`textarea[name="${name}"]`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`).text(editor.getContent());
+                            // editor.hide();
                         });
                     }
                 });

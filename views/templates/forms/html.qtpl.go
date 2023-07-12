@@ -53,7 +53,7 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 //line html.qtpl:21
 	qw422016.N().S(f.Method)
 //line html.qtpl:21
-	qw422016.N().S(`" enctype="multipart/form-data"oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="`)
+	qw422016.N().S(`" enctype="multipart/form-data"oninput="return FormIsModified(event, this);"onchange="return FormIsModified(event, this);"onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="`)
 //line html.qtpl:24
 	qw422016.E().S(f.Title)
 //line html.qtpl:24

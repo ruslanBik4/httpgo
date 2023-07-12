@@ -33,7 +33,7 @@ func StreamPutFormsJS(qw422016 *qt422016.Writer) {
 "use strict";
 
 function saveForm(thisForm, successFunction, errorFunction) {
-    let title = thisForm.name || $('h2', thisForm).text() || $('figcaption', thisForm).text() || thisForm.id,
+    let title = $('h2', thisForm).text() || $('figcaption', thisForm).text() || $(thisForm).attr('name') || thisForm.id,
         nav = getFormNav(thisForm);
     // hidden fields of not used blocks
     $('form figure:hidden:not([validated]) .input-label').children('input, select').attr('disabled', true);
@@ -277,8 +277,7 @@ function formReset(thisForm) {
 function FormIsModified(event, thisForm) {
     event = event || window.event;
 
-    $('input[type=image], input[type=submit], input[type=button]', thisForm).show();
-    thisForm.State.value = '✎';
+    $('button.hidden', thisForm).show().addClass('main-btn').removeClass('hidden');
 }
 
 function formDelClick(thisButton) {

@@ -64,9 +64,10 @@ func (d *DateTimeString) UnmarshalJSON(src []byte) (err error) {
 			*d = (DateTimeString)(t)
 			return nil
 		}
+		err = errors.Wrap(err, "Parse(time)")
 	}
 
-	return errors.Wrap(err, "Parse(time.RFC3339")
+	return
 }
 
 func (d *DateTimeString) MarshalJSON() ([]byte, error) {
@@ -88,7 +89,7 @@ func (d *DateTimeString) Scan(src any) error {
 	case json.Number:
 		t, err := time.Parse(time.DateOnly, (string)(s))
 		if err != nil {
-			return errors.Wrap(err, "Parse(time.RFC3339")
+			return errors.Wrap(err, "Parse(time.DateOnly")
 		}
 
 		*d = (DateTimeString)(t)
@@ -103,8 +104,26 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 	return true
 }
 
-type DateString struct {
-	DateTimeString
+type DateString time.Time
+
+func (d *DateString) Expect() string {
+	return "date as string format #" + time.DateOnly
+}
+
+func (d *DateString) Format() string {
+	return "date-time"
+}
+
+func (d *DateString) RequestType() string {
+	return "string"
+}
+
+func (d *DateString) GetValue() any {
+	return d
+}
+
+func (d *DateString) NewValue() any {
+	return &DateString{}
 }
 
 func (d *DateString) UnmarshalJSON(src []byte) (err error) {
@@ -116,15 +135,18 @@ func (d *DateString) UnmarshalJSON(src []byte) (err error) {
 	}
 	toString := gotools.BytesToString(src)
 	var t time.Time
+	s := ""
 	for _, f := range formats {
 		t, err = time.Parse(f, toString)
 		if err == nil {
-			d.DateTimeString = (DateTimeString)(t)
+			*d = (DateString)(t)
 			return nil
 		}
+		s += err.Error()
 	}
 
-	return errors.Wrap(err, "Parse(time.RFC3339")
+	logs.StatusLog(toString)
+	return errors.Wrap(err, s)
 }
 
 type DtoFileField []*multipart.FileHeader

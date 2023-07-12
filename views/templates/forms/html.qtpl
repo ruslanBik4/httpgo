@@ -19,8 +19,8 @@
 %}
 <form id="{%s idShake %}_form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
-         oninput="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
-         onchange="d = document.querySelector('button.hidden', this); if (d) {d.className = 'main-btn'};"
+         oninput="return FormIsModified(event, this);"
+         onchange="return FormIsModified(event, this);"
       onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="{%s f.Title %}" >
 	<h2> {%s= f.Title %}</h2>
      <figcaption>{%s= f.Description %}</figcaption>
