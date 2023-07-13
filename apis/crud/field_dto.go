@@ -111,7 +111,7 @@ func (d *DateString) Expect() string {
 }
 
 func (d *DateString) Format() string {
-	return "date-time"
+	return "date"
 }
 
 func (d *DateString) RequestType() string {
@@ -296,7 +296,16 @@ func DecodeDatetimeString(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 	}
 }
 
+func EncodeDateString(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	d := (*DateString)(ptr)
+	stream.WriteString((*time.Time)(d).Format(time.DateOnly))
+}
+func IsEmptyDateString(ptr unsafe.Pointer) bool {
+	d := (*DateString)(ptr)
+	return (*time.Time)(d).IsZero()
+}
 func init() {
 	jsoniter.RegisterTypeDecoderFunc("crud.DateTimeString", DecodeDatetimeString)
 	jsoniter.RegisterTypeDecoderFunc("*crud.DateTimeString", DecodeDatetimeString)
+	jsoniter.RegisterTypeEncoderFunc("crud.DateString", EncodeDateString, IsEmptyDateString)
 }

@@ -179,7 +179,7 @@ id="id_{%s col.InputName(i) %}"
 
 	{% switch %}
    	{% case  col.IsReadOnly %}
-   	     {%s col.Label %}: {%= col.RenderValue(val) %}
+   	     {%s col.Label %}: <i>{%= col.RenderValue(val) %}</i>
    	{% case  col.SelectOptions != nil %}
         {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
             <select {%= col.RenderAttr(i) %}
@@ -233,7 +233,7 @@ id="id_{%s col.InputName(i) %}"
     {% default %}
 
                <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
-                {% if val != nil %} value="{%= col.RenderValue(val) %}" {% endif %}
+                {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
                 {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
                 {% if col.BasicType() == types.Bool %}
 	                onclick="this.value = this.checked;"

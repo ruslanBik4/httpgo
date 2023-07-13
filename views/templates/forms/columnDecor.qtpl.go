@@ -624,11 +624,11 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:182
 			qw422016.E().S(col.Label)
 //line columnDecor.qtpl:182
-			qw422016.N().S(`: `)
+			qw422016.N().S(`: <i>`)
 //line columnDecor.qtpl:182
 			col.StreamRenderValue(qw422016, val)
 //line columnDecor.qtpl:182
-			qw422016.N().S(` `)
+			qw422016.N().S(`</i> `)
 //line columnDecor.qtpl:183
 		case col.SelectOptions != nil:
 //line columnDecor.qtpl:183
@@ -829,11 +829,11 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:236
 			if val != nil {
 //line columnDecor.qtpl:236
-				qw422016.N().S(` value="`)
+				qw422016.N().S(` value=`)
 //line columnDecor.qtpl:236
 				col.StreamRenderValue(qw422016, val)
 //line columnDecor.qtpl:236
-				qw422016.N().S(`" `)
+				qw422016.N().S(` `)
 //line columnDecor.qtpl:236
 			}
 //line columnDecor.qtpl:236
