@@ -306,7 +306,5 @@ func IsEmptyDateString(ptr unsafe.Pointer) bool {
 }
 func init() {
 	jsoniter.RegisterTypeDecoderFunc("crud.DateTimeString", DecodeDatetimeString)
-	jsoniter.RegisterTypeDecoderFunc("*crud.DateTimeString", DecodeDatetimeString)
 	jsoniter.RegisterTypeEncoderFunc("crud.DateString", EncodeDateString, IsEmptyDateString)
-	jsoniter.RegisterTypeEncoderFunc("*crud.DateString", EncodeDateString, IsEmptyDateString)
 }

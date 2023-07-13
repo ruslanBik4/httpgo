@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/jackc/pgtype"
 	"github.com/pkg/errors"
 	"github.com/valyala/fastjson"
 
@@ -415,8 +416,8 @@ func (col *ColumnDecor) GetValues() (values []any) {
 		}
 		col.IsSlice = true
 
-	case nil:
-		values = append(values, nil)
+	case nil, pgtype.Date:
+		values = append(values, val)
 
 	case driver.Valuer:
 		v, err := val.Value()
@@ -434,7 +435,6 @@ func (col *ColumnDecor) GetValues() (values []any) {
 	if len(values) == 0 {
 		values = append(values, nil)
 	}
-
 	return
 }
 

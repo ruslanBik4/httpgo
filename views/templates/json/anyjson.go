@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -13,6 +13,7 @@ import (
 	"math"
 	"math/big"
 	"sort"
+	"time"
 	"unsafe"
 
 	"github.com/jackc/pgtype"
@@ -272,6 +273,21 @@ func init() {
 		},
 		func(pointer unsafe.Pointer) bool {
 			return false
+		})
+
+	jsoniter.RegisterTypeEncoderFunc("*pgtype.Date",
+		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+			val := (*pgtype.Date)(ptr)
+			logs.StatusLog(val)
+			if val.Status == pgtype.Present {
+				stream.WriteString(val.Time.Format(time.DateOnly))
+			} else {
+				stream.WriteNil()
+			}
+		},
+		func(ptr unsafe.Pointer) bool {
+			val := (*pgtype.Date)(ptr)
+			return val.Status != pgtype.Present || val.Time.IsZero()
 		})
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Daterange",
