@@ -229,7 +229,7 @@ div.filt-arrow > input[type=search], div.filt-arrow > input[type=text], div.filt
     position: relative;
 }
 
-img {
+img.cover {
     position: absolute;
     display: block;
     top: 0;
