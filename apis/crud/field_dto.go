@@ -149,6 +149,10 @@ func (d *DateString) UnmarshalJSON(src []byte) (err error) {
 	return errors.Wrap(err, s)
 }
 
+func (d *DateString) MarshalJSON() ([]byte, error) {
+	return gotools.StringToBytes((*time.Time)(d).Format(time.DateOnly)), nil
+}
+
 type DtoFileField []*multipart.FileHeader
 
 func (d *DtoFileField) GetValue() interface{} {

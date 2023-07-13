@@ -398,7 +398,11 @@ func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value any) 
 //line columnDecor.qtpl:144
 		} else {
 //line columnDecor.qtpl:144
+			qw422016.N().S(`"`)
+//line columnDecor.qtpl:144
 			json.StreamElement(qw422016, value)
+//line columnDecor.qtpl:144
+			qw422016.N().S(`"`)
 //line columnDecor.qtpl:144
 		}
 //line columnDecor.qtpl:145
@@ -410,7 +414,11 @@ func (col *ColumnDecor) StreamRenderValue(qw422016 *qt422016.Writer, value any) 
 //line columnDecor.qtpl:146
 		} else {
 //line columnDecor.qtpl:146
+			qw422016.N().S(`"`)
+//line columnDecor.qtpl:146
 			qw422016.E().S(vv)
+//line columnDecor.qtpl:146
+			qw422016.N().S(`"`)
 //line columnDecor.qtpl:146
 		}
 //line columnDecor.qtpl:147
@@ -529,7 +537,7 @@ func (col *ColumnDecor) StreamRenderAttr(qw422016 *qt422016.Writer, i int) {
 //line columnDecor.qtpl:163
 		qw422016.N().S(col.Pattern())
 //line columnDecor.qtpl:163
-		qw422016.N().S(`"  onkeyup="return validatePattern(this);" `)
+		qw422016.N().S(`" onkeyup="return validatePattern(this);" `)
 //line columnDecor.qtpl:164
 	}
 //line columnDecor.qtpl:164
@@ -765,11 +773,11 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:219
 			if val != nil {
 //line columnDecor.qtpl:219
-				qw422016.N().S(` value ="`)
+				qw422016.N().S(` value=`)
 //line columnDecor.qtpl:219
 				col.StreamRenderValue(qw422016, val)
 //line columnDecor.qtpl:219
-				qw422016.N().S(`" `)
+				qw422016.N().S(` `)
 //line columnDecor.qtpl:219
 			}
 //line columnDecor.qtpl:219

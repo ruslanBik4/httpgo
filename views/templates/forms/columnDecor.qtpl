@@ -141,9 +141,9 @@
     {%- switch vv := value.(type) -%}
       {%- case nil -%}
       {%- case []byte -%}
-	    {% if col.InputType == "textarea" %}{%s= string(vv) %} {% else %} {%= json.Element(value)%} {% endif %}
+	    {% if col.InputType == "textarea" %}{%s= string(vv) %} {% else %} "{%= json.Element(value)%}" {% endif %}
       {%- case string -%}
-	    {% if col.InputType == "textarea" %}{%s= vv %} {% else %} {%s vv %} {% endif %}
+	    {% if col.InputType == "textarea" %}{%s= vv %} {% else %} "{%s vv %}" {% endif %}
       {%- default -%}{%= json.Element(value) %}
     {%- endswitch -%}
 {%- endfunc -%}
@@ -160,7 +160,7 @@ id="id_{%s col.InputName(i) %}"
          {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
-                pattern="{%s= col.Pattern() %}"  onkeyup="return validatePattern(this);"
+                pattern="{%s= col.Pattern() %}" onkeyup="return validatePattern(this);"
          {% endif %}
 		 {% for key, event := range col.Events %} {%s key %}="{%s= event %}"
 		 {% endfor %}
@@ -216,7 +216,7 @@ id="id_{%s col.InputName(i) %}"
     {% case col.Suggestions > "" %}
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
-                {% if val != nil %} value ="{%= col.RenderValue(val) %}" {% endif %}
+                {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
                 onkeyup="return inputSearchKeyUp(this,event);" />
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
