@@ -24,6 +24,7 @@ import (
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/views"
@@ -63,7 +64,7 @@ type Apis struct {
 	*sync.RWMutex
 	Ctx CtxApis
 	// authentication method
-	fncAuth FncAuth
+	fncAuth auth.FncAuth
 	// list of endpoints
 	routes    MapRoutes
 	Https     bool
@@ -71,7 +72,7 @@ type Apis struct {
 }
 
 // NewApis create new Apis from list of routes, environment values configuration & authentication method
-func NewApis(ctx CtxApis, routes MapRoutes, fncAuth FncAuth) *Apis {
+func NewApis(ctx CtxApis, routes MapRoutes, fncAuth auth.FncAuth) *Apis {
 	// Apis include all endpoints application
 	apis := &Apis{
 		Ctx:     ctx,
@@ -103,6 +104,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		ctx.SetUserValue(name, val)
 	}
 
+	auth.SetAuthManager(ctx, a.fncAuth)
 	defer func() {
 		errRec := recover()
 		switch errRec := errRec.(type) {

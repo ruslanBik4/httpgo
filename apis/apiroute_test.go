@@ -30,6 +30,7 @@ import (
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
 	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/httpgo/auth"
 )
 
 type commCase string
@@ -205,8 +206,8 @@ func TestApiRoute_CheckAndRun(t *testing.T) {
 		Desc        string
 		DTO         RouteDTO
 		Fnc         ApiRouteHandler
-		FncAuth     FncAuth
-		TestFncAuth FncAuth
+		FncAuth     auth.FncAuth
+		TestFncAuth auth.FncAuth
 		Method      tMethod
 		Multipart   bool
 		NeedAuth    bool
@@ -219,7 +220,7 @@ func TestApiRoute_CheckAndRun(t *testing.T) {
 	}
 	type args struct {
 		ctx     *fasthttp.RequestCtx
-		fncAuth FncAuth
+		fncAuth auth.FncAuth
 	}
 	tests := []struct {
 		name     string
@@ -261,8 +262,8 @@ func TestApiRoute_CheckParams(t *testing.T) {
 		Desc        string
 		DTO         RouteDTO
 		Fnc         ApiRouteHandler
-		FncAuth     FncAuth
-		TestFncAuth FncAuth
+		FncAuth     auth.FncAuth
+		TestFncAuth auth.FncAuth
 		Method      tMethod
 		Multipart   bool
 		NeedAuth    bool
@@ -312,8 +313,8 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 		Desc        string
 		DTO         RouteDTO
 		Fnc         ApiRouteHandler
-		FncAuth     FncAuth
-		TestFncAuth FncAuth
+		FncAuth     auth.FncAuth
+		TestFncAuth auth.FncAuth
 		Method      tMethod
 		Multipart   bool
 		NeedAuth    bool
@@ -369,8 +370,8 @@ func TestApiRoute_isValidMethod(t *testing.T) {
 		Desc        string
 		DTO         RouteDTO
 		Fnc         ApiRouteHandler
-		FncAuth     FncAuth
-		TestFncAuth FncAuth
+		FncAuth     auth.FncAuth
+		TestFncAuth auth.FncAuth
 		Method      tMethod
 		Multipart   bool
 		NeedAuth    bool
@@ -419,8 +420,8 @@ func TestApiRoute_performsJSON(t *testing.T) {
 		Desc        string
 		DTO         RouteDTO
 		Fnc         ApiRouteHandler
-		FncAuth     FncAuth
-		TestFncAuth FncAuth
+		FncAuth     auth.FncAuth
+		TestFncAuth auth.FncAuth
 		Method      tMethod
 		Multipart   bool
 		NeedAuth    bool
@@ -753,7 +754,7 @@ func TestOnlyLocal(t *testing.T) {
 
 func TestRouteAuth(t *testing.T) {
 	type args struct {
-		fncAuth FncAuth
+		fncAuth auth.FncAuth
 	}
 	tests := []struct {
 		name string

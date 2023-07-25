@@ -395,7 +395,7 @@ function validateReguiredFields(thisForm) {
 
     var result = true;
 
-    $('input[required]:visible, select[required]:visible', thisForm).each(
+    $('input[required]:visible, textarea[required]:visible, select[required]:visible', thisForm).each(
         function (index) {
             //TODO: тут поставить проверку чекбоксов на то, что их выставили!!! this.checked
             if (!this.value || ((this.type === "checkbox") && !(this.checked))) {
@@ -416,7 +416,7 @@ function validateReguiredFields(thisForm) {
 function validatePatternsField(thisForm) {
     var result = true;
 
-    $('input[pattern]:visible', thisForm).each(
+    $('input[pattern]:visible, textarea[pattern]:visible', thisForm).each(
         function (index) {
             result = result && validatePattern(this);
             if (!result) {
@@ -481,19 +481,6 @@ function changeLoginForm() {
     $('#fLogin figcaption').toggle();
 
     return false;
-}
-
-// установка пола при регистрации
-function signSuggestion(suggestion) {
-    console.log(suggestion);
-    switch (suggestion.data.gender) {
-        case "MALE":
-            $('#sex').show().val(0);
-            break;
-        case "FEMALE":
-            $('#sex').show().val(1);
-            break;
-    }
 }
 
 // создаем новый элемент из панели набора галочек, меняем название - этот механизм нужно изменить потом

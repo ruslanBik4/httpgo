@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"go/types"
 	"math"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/typesExt"
+	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 )
@@ -32,7 +34,7 @@ import (
 type BuildRouteOptions func(route *ApiRoute)
 
 // RouteAuth set custom auth method on ApiRoute
-func RouteAuth(fncAuth FncAuth) BuildRouteOptions {
+func RouteAuth(fncAuth auth.FncAuth) BuildRouteOptions {
 	return func(route *ApiRoute) {
 		route.FncAuth = fncAuth
 	}
@@ -84,9 +86,9 @@ type ApiRoute struct {
 	Desc           string                              `json:"descriptor"`
 	DTO            RouteDTO                            `json:"DTO"`
 	Fnc            ApiRouteHandler                     `json:"-"`
-	FncAuth        FncAuth                             `json:"-"`
+	FncAuth        auth.FncAuth                        `json:"-"`
 	FncIsForbidden func(ctx *fasthttp.RequestCtx) bool `json:"-"`
-	TestFncAuth    FncAuth                             `json:"-"`
+	TestFncAuth    auth.FncAuth                        `json:"-"`
 	Method         tMethod                             `json:"method,string"`
 	Multipart      bool
 	NeedAuth       bool
@@ -400,7 +402,7 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 }
 
 // CheckAndRun check & run route handler
-func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth FncAuth) (resp any, err error) {
+func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAuth) (resp any, err error) {
 
 	if route.WithCors && !route.Multipart {
 		setCORSHeaders(ctx)
@@ -593,39 +595,49 @@ func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {
 	return route.Method == methodFromName(string(ctx.Method()))
 }
 
+const desc = "description"
+
 func writeResponseForAuth(stream *jsoniter.Stream) {
 	stream.WriteMore()
-	stream.WriteObjectField("401")
-	stream.WriteObjectStart()
-	FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusUnauthorized))
-	stream.WriteObjectEnd()
+	writeResponse(stream, fasthttp.StatusUnauthorized, nil)
 	stream.WriteMore()
-
-	stream.WriteObjectField("403")
-	stream.WriteObjectStart()
-	FirstFieldToJSON(stream, "description", statusMsg(fasthttp.StatusForbidden))
-	stream.WriteObjectEnd()
+	writeResponse(stream, fasthttp.StatusForbidden, nil)
 }
 
-func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
+func writeResponses(stream *jsoniter.Stream, respErrors []InParam, route *ApiRoute) {
 	stream.WriteMore()
 	stream.WriteObjectField("responses")
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 
-	stream.WriteObjectField("200")
-	stream.WriteObjectStart()
-	defer stream.WriteObjectEnd()
-	if resp == nil {
-		FirstFieldToJSON(stream, "description", fasthttp.StatusMessage(fasthttp.StatusOK))
-	} else if resp, ok := resp.(string); ok {
-		FirstFieldToJSON(stream, "description", resp)
-	} else {
-		FirstObjectToJSON(stream, "description", resp)
+	writeResponse(stream, fasthttp.StatusOK, route.Resp)
+
+	writeBadRequest(stream, respErrors, route)
+	if route.NeedAuth {
+		writeResponseForAuth(stream)
 	}
 
-	if len(params) > 0 {
+	if resp, ok := route.Resp.(SwaggerParam); ok {
+		for code, r := range resp {
+			stream.WriteMore()
+			if s, ok := r.(string); ok {
+				stream.WriteObjectField(code)
+				stream.WriteObjectStart()
+				FirstFieldToJSON(stream, "description", s)
+				stream.WriteObjectEnd()
+			} else {
+				props := NewReflectType(r)
+				FirstObjectToJSON(stream, code, props.Props)
+			}
+		}
+		return
+	}
+}
+
+func writeBadRequest(stream *jsoniter.Stream, respErrors []InParam, route *ApiRoute) {
+	if len(respErrors) > 0 {
 		stream.WriteMore()
+		//writeResponse(stream, fasthttp.StatusBadRequest, resp)
 		stream.WriteObjectField("400")
 		stream.WriteObjectStart()
 		defer stream.WriteObjectEnd()
@@ -645,24 +657,22 @@ func writeResponse(stream *jsoniter.Stream, params []InParam, resp any) {
 		FirstObjectToJSON(stream, "type", "object")
 
 		stream.WriteMore()
-		jParam := NewqInParam("body", nil)
-		jParam.WriteSwaggerProperties(stream, params)
+		jParam := NewqInParam("body", nil, route.Multipart, respErrors...)
+		jParam.WriteSwaggerProperties(stream)
 	}
+}
 
-	if resp, ok := resp.(SwaggerParam); ok {
-		for code, r := range resp {
-			stream.WriteMore()
-			if s, ok := r.(string); ok {
-				stream.WriteObjectField(code)
-				stream.WriteObjectStart()
-				FirstFieldToJSON(stream, "description", s)
-				stream.WriteObjectEnd()
-			} else {
-				props := NewReflectType(r)
-				FirstObjectToJSON(stream, code, props.Props)
-			}
-		}
-		return
+func writeResponse(stream *jsoniter.Stream, status int, resp any) {
+	stream.WriteObjectField(strconv.Itoa(status))
+	stream.WriteObjectStart()
+	defer stream.WriteObjectEnd()
+	switch resp := resp.(type) {
+	case nil:
+		FirstFieldToJSON(stream, desc, statusMsg(status))
+	case string:
+		FirstFieldToJSON(stream, desc, resp)
+	default:
+		FirstObjectToJSON(stream, desc, resp)
 	}
 }
 

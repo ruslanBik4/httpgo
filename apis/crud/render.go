@@ -49,8 +49,7 @@ func RenderAcceptedResult(ctx *fasthttp.RequestCtx, colSel []string, buf *bytes.
 	g, ok := ctx.UserValue(ParamsGetFormActions.Name).(bool)
 	if ok && g {
 		urlSuffix := "/browse"
-		lang := ctx.UserValue("lang")
-		if l, ok := lang.(string); ok {
+		if l, ok := ctx.UserValue(ParamsLang.Name).(string); ok {
 			urlSuffix += "?lang=" + l
 		}
 

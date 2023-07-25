@@ -204,7 +204,7 @@ id="id_{%s col.InputName(i) %}"
              {% endfor %}
           </select>
  	{% case col.InputType == "textarea" %}
-          <textarea {%= col.RenderAttr(i) %} >{%= col.RenderValue(val) %}</textarea>
+          <textarea {%= col.RenderAttr(i) %}{% if val != nil %} value={%= col.RenderValue(val) %} {% endif %} >{%= col.RenderValue(val) %}</textarea>
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}
@@ -232,14 +232,14 @@ id="id_{%s col.InputName(i) %}"
          </div>
     {% default %}
 
-               <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
-                {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
-                {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
-                {% if col.BasicType() == types.Bool %}
-	                onclick="this.value = this.checked;"
-	                {% if val == true %}checked{% endif %}
-                {% endif %}
-               >
+           <input type="{%s col.InputType %}" {%= col.RenderAttr(i) %}
+            {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
+            {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
+            {% if col.BasicType() == types.Bool %}
+                onclick="this.value = this.checked;"
+                {% if val == true %}checked{% endif %}
+            {% endif %}
+           >
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}

@@ -43,6 +43,8 @@ func init() {
 	})
 }
 
+const authSecurity = "auth"
+
 func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	mapRoutes := *(*MapRoutes)(ptr)
 	stream.WriteObjectStart()
@@ -121,48 +123,39 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		//todo: create custom security object
 		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
 	}
-	respErrors := make([]InParam, 0)
 	ctx := &fasthttp.RequestCtx{}
 	// print parameters
-	params := make([]any, 0)
-	if len(route.Params) > 0 {
-		for _, param := range route.Params {
-			if param.DefValue == ApisValues(ChildRoutePath) {
-				summary += fmt.Sprintf("{%s} ", param.Name)
-			}
-
-			params = append(params, param)
-			if param.Req {
-				param.DefValue = PARAM_REQUIRED
-			} else {
-				badParams := make(map[string]string)
-				param.Check(ctx, badParams)
-				if len(badParams) > 0 {
-					param.DefValue = badParams
-				} else if param.Type == nil {
-					param.DefValue = "todo"
-				} else if t, ok := param.Type.(TypeInParam); ok && t.DTO != nil {
-					value := t.DTO.NewValue()
-					if d, ok := value.(Docs); ok {
-						param.DefValue = fmt.Sprintf("wrong type, expect: %s", d.Expect())
-					} else {
-						param.DefValue = fmt.Sprintf("wrong type, expect: %T", value)
-					}
-				} else {
-					param.DefValue = fmt.Sprintf("wrong type, expect: %s", param.Type.String())
-				}
-			}
-
-			respErrors = append(respErrors, param)
+	params := make([]InParam, len(route.Params))
+	respErrors := make([]InParam, len(route.Params))
+	for i, param := range route.Params {
+		params[i] = param
+		if param.DefValue == ApisValues(ChildRoutePath) {
+			summary += fmt.Sprintf("{%s} ", param.Name)
 		}
+
+		respErrors[i] = convertParamForErrResp(ctx, param)
 	}
+	if route.IsAJAXRequest {
+		params = append(params, InParam{
+			Name:              "X-Requested-With",
+			Desc:              "header - flag to mark AJAX (Asynchronous JavaScript and XML) requests",
+			Req:               true,
+			PartReq:           nil,
+			Type:              HeaderInParam{NewTypeInParam(types.String)},
+			DefValue:          "XMLHttpRequest",
+			IncompatibleWiths: nil,
+			TestValue:         "",
+		})
+		summary += "(AJAX request)"
+	}
+	writeSummary(stream, route, summary)
 
 	var valueDTO any
 	if dto := route.DTO; dto != nil {
 		value := dto.NewValue()
 		v := reflect.ValueOf(value)
 		if !v.IsZero() {
-			valueDTO = writeRequestBody(stream, v)
+			valueDTO = writeReflect("properties", v, stream)
 		}
 		resp := getRespError(ctx, value)
 		if resp != nil {
@@ -179,12 +172,10 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		}
 	}
 
-	writeSummary(stream, route, summary)
-
-	if false && (len(params) > 0 || valueDTO != nil) {
+	if len(params) > 0 || valueDTO != nil {
 		stream.WriteMore()
-		jParam := NewqInParam(in, valueDTO)
-		jParam.WriteSwaggerParams(stream, params)
+		jParam := NewqInParam(in, valueDTO, route.Multipart, params...)
+		jParam.WriteSwaggerParams(stream)
 	}
 
 	tags := make([]string, 0)
@@ -205,12 +196,33 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if len(tags) > 0 {
 		AddObjectToJSON(stream, "tags", tags)
 	}
-	writeResponse(stream, respErrors, route.Resp)
+	writeResponses(stream, respErrors, route)
+}
 
-	if route.NeedAuth {
-		writeResponseForAuth(stream)
+func convertParamForErrResp(ctx *fasthttp.RequestCtx, param InParam) InParam {
+	if param.Req {
+		param.DefValue = PARAM_REQUIRED
+	} else {
+		badParams := make(map[string]string)
+		param.Check(ctx, badParams)
+		if len(badParams) > 0 {
+			param.DefValue = badParams
+		} else if param.Type == nil {
+			param.DefValue = "todo"
+		} else if t, ok := param.Type.(TypeInParam); ok && t.DTO != nil {
+			value := t.DTO.NewValue()
+			if d, ok := value.(Docs); ok {
+				param.DefValue = fmt.Sprintf("wrong type, expect: %s", d.Expect())
+			} else {
+				param.DefValue = fmt.Sprintf("wrong type, expect: %T", value)
+			}
+		} else {
+			param.DefValue = fmt.Sprintf("wrong type, expect: %s", param.Type.String())
+		}
 	}
+	param.Req = false
 
+	return param
 }
 
 func writeSummary(stream *jsoniter.Stream, route *ApiRoute, summary string) {
@@ -227,12 +239,12 @@ func writeSummary(stream *jsoniter.Stream, route *ApiRoute, summary string) {
 		summary += ", multipart"
 	}
 	if route.NeedAuth {
-		a := "user"
+		a := "JWT"
 		if route.OnlyAdmin {
 			summary += ", only admin access"
-			a = "admin"
+			a = "JWT,only admin"
 		}
-		AddObjectToJSON(stream, "security", []map[string][]string{{AuthManager: []string{a}}})
+		AddObjectToJSON(stream, "security", []map[string][]string{{authSecurity: []string{a}}})
 	}
 	if route.OnlyLocal {
 		summary += ", only local request"
@@ -241,30 +253,7 @@ func writeSummary(stream *jsoniter.Stream, route *ApiRoute, summary string) {
 	AddFieldToJSON(stream, "summary", summary)
 }
 
-func writeRequestBody(stream *jsoniter.Stream, v reflect.Value) any {
-	//stream.WriteMore()
-	//stream.WriteObjectField("requestBody")
-	//stream.WriteObjectStart()
-	//defer stream.WriteObjectEnd()
-	//
-	//stream.WriteObjectField("content")
-	//stream.WriteObjectStart()
-	//defer stream.WriteObjectEnd()
-	//
-	//stream.WriteObjectField("application/json")
-	//stream.WriteObjectStart()
-	//defer stream.WriteObjectEnd()
-
-	p := writeReflect("properties", v, stream)
-
-	//jParam := NewqInParam("body")
-	//jParam.WriteSwaggerProperties(stream, p)
-
-	//FirstObjectToJSON(stream, "schema", p)
-	return p
-}
-
-func getRespError(ctx *fasthttp.RequestCtx, value interface{}) *InParam {
+func getRespError(ctx *fasthttp.RequestCtx, value any) *InParam {
 	r, ok := (value).(Visit)
 	if ok {
 		badParams, err := r.Result()
@@ -282,7 +271,7 @@ func getRespError(ctx *fasthttp.RequestCtx, value interface{}) *InParam {
 			for name, s := range badParams {
 				return &InParam{
 					Name:     name,
-					Desc:     "",
+					Desc:     "JSON",
 					Req:      true,
 					DefValue: s,
 				}
@@ -378,7 +367,7 @@ func WriteReflectKind(kind reflect.Kind, value reflect.Value, stream *jsoniter.S
 			Req:               false,
 			PartReq:           nil,
 			Type:              &ReflectType{Type: value.Type()},
-			DefValue:          kind.String(),
+			DefValue:          value.String(),
 			IncompatibleWiths: nil,
 			TestValue:         "",
 		}
@@ -576,10 +565,10 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if apis.fncAuth != nil {
 		stream.WriteMore()
 		if a, ok := apis.fncAuth.(*auth.AuthBearer); ok {
-			WriteBearer(stream, AuthManager, a.String())
+			WriteBearer(stream, authSecurity, a.String())
 		} else {
 			//todo: implements others auth
-			WriteBearer(stream, AuthManager, apis.fncAuth.String())
+			WriteBearer(stream, authSecurity, apis.fncAuth.String())
 		}
 	}
 

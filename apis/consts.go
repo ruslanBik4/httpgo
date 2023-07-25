@@ -81,13 +81,13 @@ func methodFromName(nameMethod string) tMethod {
 const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
-	ContentHandler  = "pageContent"
 	ChildRoutePath  = "lastSegment"
 	ApiVersion      = "ACC_VERSION"
-	AuthManager     = "auth"
-	ServerName      = "name of server httpgo"
-	ServerVersion   = "version of server httpgo"
-	Database        = "DB"
+	IsWrapHandler   = "HAS_HANDLER"
+
+	ServerName    = "name of server httpgo"
+	ServerVersion = "version of server httpgo"
+	Database      = "DB"
 )
 
 const testRouteSuffix = "_test"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -26,9 +26,9 @@ import (
 
 // TableInsert insert data of params into table
 func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
-	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+	return func(ctx *fasthttp.RequestCtx) (any, error) {
 
-		args := make([]interface{}, 0, len(params))
+		args := make([]any, 0, len(params))
 		colSel := make([]string, 0, len(params))
 		badParams := make(map[string]string, 0)
 		buf := bytes.NewBufferString("")
@@ -61,7 +61,7 @@ func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.Ap
 
 // TableUpdate
 func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []string) apis.ApiRouteHandler {
-	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+	return func(ctx *fasthttp.RequestCtx) (any, error) {
 
 		badParams := make(map[string]string, 0)
 		for _, key := range priColumns {
@@ -70,7 +70,7 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 			}
 		}
 
-		args := make([]interface{}, 0, len(columns))
+		args := make([]any, 0, len(columns))
 		colSel := make([]string, 0, len(columns))
 		buf := bytes.NewBufferString("")
 		for _, name := range columns {
@@ -131,7 +131,7 @@ func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []st
 	}
 }
 
-func AddColumnAndValue(name string, table dbEngine.Table, arg interface{}, buf io.Writer, badParams map[string]string) (string, interface{}) {
+func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer, badParams map[string]string) (string, any) {
 
 	colName := strings.TrimSuffix(name, "[]")
 	col := table.FindColumn(colName)

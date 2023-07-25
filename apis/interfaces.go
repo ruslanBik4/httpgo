@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -11,12 +11,6 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fastjson"
 )
-
-type FncAuth interface {
-	Auth(ctx *fasthttp.RequestCtx) bool
-	AdminAuth(ctx *fasthttp.RequestCtx) bool
-	String() string
-}
 
 // RouteDTO must help create some types into routing handling
 type RouteDTO interface {

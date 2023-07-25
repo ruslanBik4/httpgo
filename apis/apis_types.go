@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -13,8 +13,10 @@ import (
 	"go/types"
 	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/jackc/pgtype"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/quicktemplate"
@@ -383,4 +385,21 @@ func (t TypeInParam) TypeString() string {
 			namePackage,
 			strings.ReplaceAll(res, ".", ""))
 	}
+}
+
+type HeaderInParam struct {
+	TypeInParam
+}
+
+func (h *HeaderInParam) IsEmpty(ptr unsafe.Pointer) bool {
+	return false
+}
+
+func (h *HeaderInParam) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+	stream.WriteObjectField("in")
+	stream.WriteString("header")
+	stream.WriteMore()
+	stream.WriteObjectField("name")
+	stream.WriteString(h.TypeString())
+	//stream.WriteMore()
 }

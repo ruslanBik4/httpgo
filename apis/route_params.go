@@ -23,7 +23,47 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-type DefValueCalcFnc = func(ctx *fasthttp.RequestCtx) any
+type DefValueHeader struct {
+	header, defValue string
+}
+
+func NewDefValueHeader(header, defValue string) DefValueHeader {
+	return DefValueHeader{header: header, defValue: defValue}
+}
+
+func (d DefValueHeader) ConvertValue(ctx *fasthttp.RequestCtx) string {
+	if ctx != nil {
+		if cL := ctx.Request.Header.Peek(d.header); len(cL) > 0 {
+			return gotools.BytesToString(cL)
+		}
+	}
+	return d.defValue
+}
+func (d DefValueHeader) Expect() string {
+	return fmt.Sprintf("string on header '%s'", d.header)
+}
+
+func (d DefValueHeader) Format() string {
+	return "string"
+}
+
+func (d DefValueHeader) RequestType() string {
+	return "string"
+}
+
+type DefValueCalcFnc func(ctx *fasthttp.RequestCtx) any
+
+func (d DefValueCalcFnc) Expect() string {
+	return "function func(ctx *fasthttp.RequestCtx) any"
+}
+
+func (d DefValueCalcFnc) Format() string {
+	return "function func(ctx *fasthttp.RequestCtx) any"
+}
+
+func (d DefValueCalcFnc) RequestType() string {
+	return "object"
+}
 
 // InParam implement params on request
 type InParam struct {
@@ -40,29 +80,29 @@ type InParam struct {
 func (param InParam) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's', 'v':
-		fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %v,`,
+		_, _ = fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %v,`,
 			param.Name,
 			param.Desc,
 			param.Type,
 		)
 		if len(param.PartReq) > 0 {
-			fmt.Fprintf(s, "PartReq: %v,", param.PartReq)
+			_, _ = fmt.Fprintf(s, "PartReq: %v,", param.PartReq)
 		}
 		if len(param.IncompatibleWiths) > 0 {
-			fmt.Fprintf(s, "IncompatibleWiths: %v,", param.IncompatibleWiths)
+			_, _ = fmt.Fprintf(s, "IncompatibleWiths: %v,", param.IncompatibleWiths)
 		}
 		if param.DefValue != nil {
-			fmt.Fprintf(s, "DefValue: %q,", param.DefValue)
+			_, _ = fmt.Fprintf(s, "DefValue: %q,", param.DefValue)
 		}
 		if param.TestValue > "" {
-			fmt.Fprintf(s, "TestValue: %v,", param.TestValue)
+			_, _ = fmt.Fprintf(s, "TestValue: %v,", param.TestValue)
 		}
 		if param.Req {
-			fmt.Fprintf(s, "Req: %v,", param.Req)
+			_, _ = fmt.Fprintf(s, "Req: %v,", param.Req)
 		}
 
 	case 'g':
-		fmt.Fprintf(s,
+		_, _ = fmt.Fprintf(s,
 			`{
 						Name: "%s", 
 						Desc: %q, 
@@ -72,23 +112,23 @@ func (param InParam) Format(s fmt.State, verb rune) {
 			param.Type,
 		)
 		if len(param.PartReq) > 0 {
-			fmt.Fprintf(s, "\r\t\t\t\t\t\tPartReq: %v,", param.PartReq)
+			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tPartReq: %v,", param.PartReq)
 		}
 		if len(param.IncompatibleWiths) > 0 {
-			fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
+			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
 		}
 		if param.DefValue != nil {
-			fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
+			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
 		}
 		if param.TestValue > "" {
-			fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
+			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
 		}
 		if param.Req {
-			fmt.Fprintf(s, "\r\t\t\t\t\t\tReq: %v,", param.Req)
+			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tReq: %v,", param.Req)
 		}
-		fmt.Fprintf(s, "\n\t\t\t\t\t}")
+		_, _ = fmt.Fprintf(s, "\n\t\t\t\t\t}")
 	default:
-		s.Write(gotools.StringToBytes(fmt.Sprintf(`Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
+		_, _ = s.Write(gotools.StringToBytes(fmt.Sprintf(`Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
 			param.Name, param.Desc, param.Type, param.Req, param.DefValue)),
 		)
 	}
@@ -155,6 +195,8 @@ func (param InParam) presentOtherRegParam(ctx *fasthttp.RequestCtx) bool {
 // defaultValueOfParams return value as default for param, it is only for single required param
 func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams map[string]string) any {
 	switch def := param.DefValue.(type) {
+	case DefValueHeader:
+		return def.ConvertValue(ctx)
 	case DefValueCalcFnc:
 		if ctx != nil {
 			return def(ctx)

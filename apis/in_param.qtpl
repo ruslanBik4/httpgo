@@ -1,9 +1,6 @@
 {% import (
 	"go/types"
 
-	jsoniter "github.com/json-iterator/go"
-
-	"github.com/ruslanBik4/logs"
 	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 
@@ -15,90 +12,103 @@ type qInParam struct {
     in string
     dto any
     multiPart bool
+    params []InParam
+    requireds []string
 }
 
-func NewqInParam(in string, dto any) *qInParam {
+func NewqInParam(in string, dto any, multiPart bool, params ...InParam) *qInParam {
     return &qInParam{
         in: in,
         dto: dto,
-        multiPart: in == "body",
+        multiPart: multiPart,
+        params: params,
     }
-} 
+}
 %}
 
 {% stripspace %}
 {% collapsespace %}
 
-{%- func (q *qInParam) SwaggerParams(params []any) -%}
-{%- if !q.multiPart %}
-  {%- if q.dto != nil -%}
+{%- func (q *qInParam) SwaggerParams() -%}
+{%- if q.multiPart || q.dto != nil -%}
 "requestBody": {
   "content": {
-    "application/json": {
-      "schema": {%= json.Wrap(q.dto) %}
-    },
-   },
-  },
-{%- endif -%}
-"parameters":[{%= q.swaggerParams(params) %}]
+    {%= q.writeDTO() %}
+    {%= q.writeMultiPart() %}
+ }
+}
 {%- else -%}
-"requestBody": {
-  "content": {
+"parameters":[{%= q.swaggerParams() %}]
+{%- endif -%}
+{%- endfunc -%}
+
+{%- func (q *qInParam) writeDTO() -%}
   {%- if q.dto != nil -%}
     "application/json": {
       "schema": {%= json.Wrap(q.dto) %}
     },
   {%- endif -%}
+{%- endfunc -%}
+
+{%- func (q *qInParam) writeMultiPart() -%}
+{%- if q.multiPart %}
     "multipart/form-data": {
       "schema": {
         "type": "object",
-        "properties": {{%= q.swaggerParams(params) %}}
+        "properties": {{%= q.swaggerProperties() %}}
+        {%- if len(q.requireds) > 0 -%},"required": {%= json.Wrap(q.requireds) %} {%- endif -%}
       }
-    }
- }
-}
+  }
 {%- endif -%}
 {%- endfunc -%}
 
-{%- func (q *qInParam) swaggerParams(params []any) -%}
- {%- for i, p := range params -%}
-	{%- if i > 0 -%}, {% endif %}
+{%- func (q *qInParam) swaggerParamProps(param InParam) -%}
+	"description": "{%s param.Desc %}",
+	{%- if param.DefValue != nil -%} "example": "{%v param.defaultValueOfParams(nil, nil) %}",{%- endif -%}
+	{%- if param.Req -%}
+		{%- if q.multiPart -%} {%code q.requireds =append(q.requireds, param.Name) %}
+		{%- else -%}
+		"required": true,
+		{%- if param.DefValue == nil -%} "allowEmptyValue": false,{%- endif -%}
+	{%- endif -%}
+	{%- endif -%}
+{%- endfunc -%}
 
-	{%- if param, ok := p.(InParam); ok -%}
-		{%- if t, ok := param.Type.(jsoniter.ValEncoder); ok -%}
-		{%- code
-			s, err := jsoniter.MarshalToString(t)
-			if err != nil {
-				logs.ErrorLog(err)
-			}
-		-%}
-    	{%s s %}
-        {%- else -%}
-		{%- if !q.multiPart %}{"name":"{%s param.Name %}",
-		{%- else -%} "{%s param.Name %}":{
-		{%- endif -%}
-		"description": "{%s param.Desc %}",
-		{%- if !q.multiPart %}
-			"in": "{%s q.in %}",
-			"schema": {
-	    {%- endif -%}
-			{%= Schema(param) %}
-		{%- if !q.multiPart %}}{%- endif -%}
-		}
-        {%- endif -%}
-    {%- else -%}
-        { {%= json.Wrap(p) %} }
+{%- func (q *qInParam) swaggerProperties() -%}
+ {%- for i, param := range q.params -%}
+    "{%s param.Name %}":{
+    {%= q.swaggerParamProps(param) %}
+	{%- if t, ok := param.Type.(HeaderInParam); ok -%}
+		"in": "header",
+		{% code param.Type = t.TypeInParam %}
     {%- endif -%}
+	{%= q.Schema(param) %}
+    }{%- if i+1 < len(q.params) -%}, {%- endif -%}
  {%- endfor -%}
 {%- endfunc -%}
 
-{%- func (q *qInParam) SwaggerProperties(params []InParam) -%}
+{%- func (q *qInParam) swaggerParams() -%}
+ {%- for i, param := range q.params -%}
+	{"name":"{%s param.Name %}",
+    {%= q.swaggerParamProps(param) %}
+	{%- if t, ok := param.Type.(HeaderInParam); ok -%}
+		"in": "header",
+		{% code param.Type = t.TypeInParam %}
+    {%- else -%}
+		"in": "{%s q.in %}",
+	{%- endif -%}
+	"schema":	{{%= q.Schema(param) %}}
+    }{%- if i+1 < len(q.params) -%}, {%- endif -%}
+ {%- endfor -%}
+{%- endfunc -%}
+
+{%- func (q *qInParam) SwaggerProperties() -%}
 "properties": {
- {%- for i, param := range params -%}
+ {%- for i, param := range q.params -%}
 	"{%s param.Name %}": {
-		"description": "{%s= param.Desc %}",
-		{%= Schema(param) %}
-	}{%- if i+1 < len(params) -%}, {%- endif -%}
+        {%= q.swaggerParamProps(param) %}
+		{%= q.Schema(param) %}
+	}{%- if i+1 < len(q.params) -%}, {%- endif -%}
  {%- endfor -%}
 }
 {%- endfunc -%}
@@ -114,14 +124,10 @@ func NewqInParam(in string, dto any) *qInParam {
   }
 }
 {%- endfunc -%}
-{%- func Schema(param InParam) -%}
+{%- func (q *qInParam) Schema(param InParam) -%}
 {%- code
 	t, ok := (param.Type).(TypeInParam)
 -%}
-	{%- if param.Req -%}
-		"required": true,
-		"allowEmptyValue": false,
-	{%- endif -%}
 		"type": {%- switch  -%}
 				{%- case param.Type == nil -%} nil
 				{%- case ok && t.BasicKind == types.Bool-%} "boolean"
@@ -135,18 +141,21 @@ func NewqInParam(in string, dto any) *qInParam {
 		"format": 	"{%= t.Format() %}"
 				{%- case ok && t.BasicKind > types.UnsafePointer -%} "untyped",
 		"format": 	"{%= t.Format() %}"
-				{%- case ok && t.BasicKind == typesExt.TStruct -%} "{%= t.RequestType() %}",
+				{%- case ok && t.BasicKind == typesExt.TStruct -%} "object",
 		"format":   "{%= t.Format() %}"
+				{%- case ok && t.DTO != nil -%} "object",
+		"format": 	"{%v t.DTO %}"
 				{%- case ok -%} "{%= t.Format() %}",
 		"format": 	"{%= t.Format() %}"
-				{%- default -%} "{%v param.Type %}",
+				{%- default -%}
+				{%- if d, ok := (param.Type).(Docs); ok -%} "{%s= d.RequestType() %}",
+        "format": 	"{%s= d.Format() %}"
+				{%- else -%} "{%v param.Type %}",
 		"format": 	"{%v param.Type %}"
+				{%-endif -%}
 				{%- endswitch -%}
 {%- endfunc -%}
-{%- func Security(desc string) -%}
-"security": [
-  "auth":  "JWT"
-]
+{%- func Security(desc string) -%} "security": [ "auth":  "JWT"]
 {%- endfunc -%}
 {% endcollapsespace %}
 {% endstripspace %}

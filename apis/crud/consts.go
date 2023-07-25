@@ -10,9 +10,6 @@ package crud
 import (
 	"go/types"
 
-	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/apis"
 )
 
@@ -23,16 +20,11 @@ var (
 		Type: apis.NewTypeInParam(types.Int32),
 	}
 	ParamsLang = apis.InParam{
-		Name: "lang",
-		Desc: "need to get result on non-english",
-		DefValue: apis.DefValueCalcFnc(func(ctx *fasthttp.RequestCtx) any {
-			if cL := ctx.Request.Header.Peek("Accept-Language"); len(cL) > 0 {
-				return gotools.BytesToString(cL)
-			}
-			return "en"
-		}),
-		Req:  true,
-		Type: apis.NewTypeInParam(types.String),
+		Name:     "lang",
+		Desc:     "language of response (also may use header 'Accept-Language')",
+		DefValue: apis.NewDefValueHeader("Accept-Language", "en"),
+		Req:      true,
+		Type:     apis.NewTypeInParam(types.String),
 	}
 	ParamsGetFormActions = apis.InParam{
 		Name: "is_get_form_actions",

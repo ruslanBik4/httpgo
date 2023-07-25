@@ -707,6 +707,16 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:207
 			col.StreamRenderAttr(qw422016, i)
 //line columnDecor.qtpl:207
+			if val != nil {
+//line columnDecor.qtpl:207
+				qw422016.N().S(` value=`)
+//line columnDecor.qtpl:207
+				col.StreamRenderValue(qw422016, val)
+//line columnDecor.qtpl:207
+				qw422016.N().S(` `)
+//line columnDecor.qtpl:207
+			}
+//line columnDecor.qtpl:207
 			qw422016.N().S(` >`)
 //line columnDecor.qtpl:207
 			col.StreamRenderValue(qw422016, val)

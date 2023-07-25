@@ -55,23 +55,21 @@ function MyPopState(event) {
 function SetDocumentHash(url, data) {
     // let root_page = "/";
     // let default_page = "index.html";
-    document.title = $(data).filter('title').text() || url;
+    document.title = (typeof data == 'string' && data.search('<title') > -1 && $(data).filter('title').text()) || GetShortURL(url);
 
-    // str_path = GetShortURL(str_path)
-    //
     // var origin = document.location.origin + (str_path[0] === '/' ? '' : "/")
     //     + ((str_path !== root_page) && (str_path !== default_page) ? str_path : '');
     console.log(url)
     window.history.pushState({'url': url, 'data': data}, document.title, url);
 }
 
-function GetShortURL(str_path) {
-    if (str_path > "") {
-        console.log(str_path)
-        if (str_path.startsWith(document.location.origin)) {
-            return str_path.slice(document.location.origin.length + 1);
+function GetShortURL(url) {
+    if (url > "") {
+        console.log(url)
+        if (url.startsWith(document.location.origin)) {
+            return url.slice(document.location.origin.length + 1);
         }
-        return str_path
+        return url
     }
 
     return '/';
@@ -84,7 +82,7 @@ $(function () {
     }
 
     window.addEventListener("beforeunload", function (evt) {
-        var evt = evt || window.event;
+        evt = evt || window.event;
 
         if (evt) {
             var y = evt.pageY || evt.clientY;
@@ -111,10 +109,15 @@ $(function () {
         return false
     })
 
-    setClickAll();
     if (!userStruct) {
         userStruct = getUser();
     }
+
+    const rel = $('#content').attr('rel');
+    if (rel > "") {
+        loadContent(rel)
+    }
+    setClickAll();
     $('body').on('DOMSubtreeModified', setClickAll);
 
 

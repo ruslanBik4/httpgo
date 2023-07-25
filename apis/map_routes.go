@@ -17,6 +17,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/typesExt"
+	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
 	"github.com/ruslanBik4/logs"
@@ -237,4 +238,37 @@ func HandlerForPreflightedCORS(ctx *fasthttp.RequestCtx) (any, error) {
 	ctx.Response.Header.SetBytesV("Access-Control-Allow-Origin", origin)
 
 	return nil, nil
+}
+
+func NewMapRoutesWithAjaxWrap(endpoints []ApiRoutes, wrapHandler ApiRouteHandler, chgRoute func(*ApiRoute)) MapRoutes {
+	mapRoutes := NewMapRoutes()
+	for _, r := range endpoints {
+		for _, route := range r {
+			if !route.IsAJAXRequest {
+				continue
+			}
+
+			if route.NeedAuth {
+				route.FncAuth = auth.NewAjaxOnly(route.FncAuth)
+			}
+
+			chgRoute(route)
+
+			route.Fnc = func(handler ApiRouteHandler) ApiRouteHandler {
+				return func(ctx *fasthttp.RequestCtx) (any, error) {
+					if views.IsAJAXRequest(&ctx.Request) {
+						return handler(ctx)
+					}
+					ctx.SetUserValue(IsWrapHandler, struct{}{})
+					return wrapHandler(ctx)
+				}
+			}(route.Fnc)
+		}
+
+		if badRoutings := mapRoutes.AddRoutes(r); len(badRoutings) > 0 {
+			logs.ErrorLog(ErrRouteForbidden, badRoutings)
+		}
+	}
+
+	return mapRoutes
 }

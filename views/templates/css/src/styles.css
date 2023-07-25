@@ -193,7 +193,7 @@ figure {
     display: flex;
     flex-flow: column;
     padding: 5px;
-    max-width: 300px;
+    max-width: 100%;
     margin: auto;
 }
 
@@ -214,7 +214,7 @@ figcaption {
     text-align: center;
 }
 
-input[type=text] {
+input[type=text], input[type=date-range] {
     padding: 8px;
     border: 1px solid #c2c7d1;
     border-radius: 3px;
@@ -223,6 +223,7 @@ input[type=text] {
     width: 80%;
     color: #0a1c3b;
 }
+
 input[type=file] {
     display: inline;
 }
@@ -248,20 +249,25 @@ label > span {
     height: 0;
     top: 0;
     left: 0;
-    pointer-events:none;
+    pointer-events: none;
 }
-label > input:not([value]):focus + span::before, label > textarea:focus + span::before, label > input[value] + span::before  {
-    width:100%
+
+label > input:not([value]):focus + span::before, label > textarea:focus + span::before, label > input[value] + span::before {
+    width: 100%
 }
+
 label > input[type="checkbox"]:focus + span::before {
-	width: 10px;
+    width: 10px;
 }
-label > input:not([value]):focus + span::after, label > textarea:focus + span::after, label > input[value] + span::after {
-    top:-19px
+
+label > input:not([value]):focus + span::after, label > textarea[value] + span::after, label > input[value] + span::after,
+label > div.tox-tinymce + span::after {
+    top: -19px
 }
-label > input:not([value]) + span::after {
-  top: 1px;
-  left:0
+
+label > input:not([value]) + span::after, label > textarea:not([value]) + span::after {
+    top: 1px;
+    left: 0
 }
 
 .input-wrap > label > input:not([value]) + span::before {
@@ -292,21 +298,28 @@ label > input:not([value]) + span::after {
     -webkit-transition: all .4s;
     -o-transition: all .4s;
     -moz-transition: all .4s;
-    transition:all .4s
+    transition: all .4s
 }
+
 label > textarea {
     width: 100%;
     float: inline-end;
 }
+
+label > textarea[value] {
+    height: fit-content;
+}
+
 figure label > select {
     align-content: flex-end;
     text-align: center;
     float: inline-end;
     width: max-content;
 }
+
 figure label > input[type="checkbox"] {
-	position: relative;
-	right: 15px;
+    position: relative;
+    right: 15px;
 }
 figure label > input {
     position: absolute;
@@ -320,15 +333,26 @@ figure label > input {
     text-align: center;
     float: inline-end;
 }
+
 .input-label input {
-	outline: none;
-	border: none;
+    outline: none;
+    border: none;
 }
+
 .input-label ul {
-	outline: none;
-	border: none;
+    outline: none;
+    border: none;
 }
-li.form-field{
+
+ul.form-field {
+    position: relative;
+    overflow: overlay;
+    list-style: none;
+    background-color: transparent;
+    width: fit-content;
+}
+
+li.form-field {
     position: relative;
     margin: 0 10px;
     display: flex;
@@ -337,17 +361,16 @@ li.form-field{
     box-sizing: border-box;
     width: fit-content;
 }
-ul.form-field{
-    position: relative;
-    overflow: overlay;
-    list-style: none;
-    background-color: transparent;
-    width: 98%;
+
+li.form-field select {
+    width: fit-content;
 }
+
 .errorLabel {
     display: none;
-    color:red;
+    color: red;
 }
+
 .removeField {
     position: absolute;
     top: 4px;
