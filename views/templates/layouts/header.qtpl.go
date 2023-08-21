@@ -31,58 +31,61 @@ func StreamHeaderHTML(qw422016 *qt422016.Writer, TopMenu Menu) {
 	qw422016.N().S(`
     </nav>
     <div class="topline-btns">
-    <ul>
-    <a>
-        <svg id="\u0421\u043B\u043E\u0439_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-            height="30"  width="30" xml:space="preserve" class="Icon_icon__9KU0l Header_buttonIconDropdown__pFeM_"><g><path d="M30.1,7.5V6.3c0-3.5-2.9-6.4-6.4-6.4H6.3c-3.5,0-6.4,2.9-6.4,6.4v17.5c0,3.5,2.9,6.4,6.4,6.4h17.5c3.5,0,6.4-2.9,6.4-6.4 v-1.2h-2.5v1.2c0,2.1-1.7,3.9-3.9,3.9H6.3c-2.1,0-3.9-1.7-3.9-3.9V6.3c0-2.1,1.7-3.9,3.9-3.9h17.5c2.1,0,3.9,1.7,3.9,3.9v1.2H30.1z "></path></g><g><path d="M20.9,25.3L9.1,15L20.9,4.8v5.7h11.6v8.6H20.9V25.3z M12.9,15l5.5,4.8v-3.2H30V13H18.4v-2.7L12.9,15z"></path></g></svg>
-    </a><li>
-    <ul class="dropdown">
-    <li class="top-mnu-item">
-        <a href="/user/signout/" id="bLogOut" onclick="return logOut(this);">
-            <span class="glyphicon-log-out"> </span>
-        </a>
-    </li>
-    <li class="top-mnu-item">
-        <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="Open auth form" target="_modal" >
-        <span class="glyphicon-info-sign"> SignIn</span>
-        </a>
-    </li>
-    <li class="top-mnu-item">
-        <a id="bLogin" href="/show/forms/signup" class="navbar-link btn-login" title="Open registration form" target="_modal" >
-        <span class="glyphicon-info-sign"> SignUp</span>
-        </a>
-    </li>
-    </ul>
-    </li> </ul>
+    <ul class="burger-list">
+    <li>
+        <span id="sUser"> </span>
+	    <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="Open auth form" target="_modal" >
+	        <svg id="icon_burger" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	             xml:space="preserve">
+				<g>
+				<path d="M30.1,7.5V6.3c0-3.5-2.9-6.4-6.4-6.4H6.3c-3.5,0-6.4,2.9-6.4,6.4v17.5c0,3.5,2.9,6.4,6.4,6.4h17.5c3.5,0,6.4-2.9,6.4-6.4 v-1.2h-2.5v1.2c0,2.1-1.7,3.9-3.9,3.9H6.3c-2.1,0-3.9-1.7-3.9-3.9V6.3c0-2.1,1.7-3.9,3.9-3.9h17.5c2.1,0,3.9,1.7,3.9,3.9v1.2H30.1z ">
+				</path>
+				</g>
+				<g> <path d="M20.9,25.3L9.1,15L20.9,4.8v5.7h11.6v8.6H20.9V25.3z M12.9,15l5.5,4.8v-3.2H30V13H18.4v-2.7L12.9,15z"></path> </g>
+	        </svg>
+	    </a>
+	    <ul class="dropdown">
+		    <li class="top-mnu-item">
+		        <a id="bSignUp" href="/show/forms/signup" class="navbar-link btn-login" title="Open registration form" target="_modal" >
+		        <span class="glyphicon-info-sign"> SignUp</span>
+		        </a>
+		    </li>
+		    <li class="top-mnu-item">
+		        <a href="#" id="bLogOut" onclick="return logOut(this);">
+		            <span class="glyphicon-log-out"> </span>
+		        </a>
+		    </li>
+	    </ul>
+    </li></ul>
     </div>
 </div>
 </header>
 `)
-//line header.qtpl:34
+//line header.qtpl:37
 }
 
-//line header.qtpl:34
+//line header.qtpl:37
 func WriteHeaderHTML(qq422016 qtio422016.Writer, TopMenu Menu) {
-//line header.qtpl:34
+//line header.qtpl:37
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line header.qtpl:34
+//line header.qtpl:37
 	StreamHeaderHTML(qw422016, TopMenu)
-//line header.qtpl:34
+//line header.qtpl:37
 	qt422016.ReleaseWriter(qw422016)
-//line header.qtpl:34
+//line header.qtpl:37
 }
 
-//line header.qtpl:34
+//line header.qtpl:37
 func HeaderHTML(TopMenu Menu) string {
-//line header.qtpl:34
+//line header.qtpl:37
 	qb422016 := qt422016.AcquireByteBuffer()
-//line header.qtpl:34
+//line header.qtpl:37
 	WriteHeaderHTML(qb422016, TopMenu)
-//line header.qtpl:34
+//line header.qtpl:37
 	qs422016 := string(qb422016.B)
-//line header.qtpl:34
+//line header.qtpl:37
 	qt422016.ReleaseByteBuffer(qb422016)
-//line header.qtpl:34
+//line header.qtpl:37
 	return qs422016
-//line header.qtpl:34
+//line header.qtpl:37
 }

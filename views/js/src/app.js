@@ -34,7 +34,7 @@ function GetPageLines() {
 function LoadStyles(id, styles) {
     let $head = $('head > style#' + id);
     if ($head.length === 0) {
-        $head = $('head').append('<style type="text/css" id="' + id + '">' + styles + '</style>');
+        $head = $('head').append('<style title="themes" id="' + id + '">' + styles + '</style>');
     } else {
         $head.html(styles);
     }
@@ -203,10 +203,27 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         dataType: "script",
         success: successFunc,
         complete: completeFunc,
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            if (errorThrown !== undefined)
-                alert(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`);
-            console.log(errorThrown);
-        }
+        error: errorLoadResource
     });
+}
+
+function LoadCSS(url, cacheS, successFunc) {
+    $.ajax({
+        type: "GET",
+        cache: cacheS,
+        url: url,
+        beforeSend: getHeaders,
+        global: false,
+        dataType: "text",
+        success: successFunc,
+        error: errorLoadResource
+    })
+}
+
+function errorLoadResource(xhr, textStatus, errorThrown) {
+    if (errorThrown !== undefined) {
+        console.error(`%s from '${xhr}'! (${textStatus}). Pls, reload page!`, errorThrown);
+    } else {
+        console.error(`Can't load resource from '${xhr}'! (${textStatus}). Pls, reload page! %s`, textStatus);
+    }
 }

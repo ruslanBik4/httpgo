@@ -53,11 +53,30 @@ header .topline-btns {
     min-width: auto;
     color: white;
 }
+
 header nav {
     display: inline-flex;
     align-items: start;
     height: 100%;
 }
+
+#icon_burger {
+    background-color: white;
+    fill: black;
+    height: 30px;
+    width: 30px;
+}
+
+.burger-list li.svg:before {
+    content: '<svg id="icon_burger" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" xml:space="preserve"></svg>';
+}
+
+.burger-list li {
+    right: 0;
+    align-items: revert;
+    text-align: right;
+}
+
 .top-mnu-list {
     margin-top: 5px;
 }
@@ -70,8 +89,18 @@ li.top-mnu-item a {
     transition: color .3s ease-in-out;
 }
 
+ul.top-mnu-list li.top-mnu-item:nth-child(n+2) {
+    margin-top: 16px;
+}
+
 .foot-mnu-list {
     margin-bottom: 5px;
+}
+
+ul.foot-mnu-list > li > select {
+    margin: 0;
+    padding: 0;
+    width: fit-content;
 }
 
 li.foot-mnu-item a {

@@ -74,7 +74,7 @@ function GetPageLines() {
 function LoadStyles(id, styles) {
     let $head = $('head > style#' + id);
     if ($head.length === 0) {
-        $head = $('head').append('<style type="text/css" id="' + id + '">' + styles + '</style>');
+        $head = $('head').append('<style title="themes" id="' + id + '">' + styles + '</style>');
     } else {
         $head.html(styles);
     }
@@ -275,20 +275,45 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
         dataType: "script",
         success: successFunc,
         complete: completeFunc,
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            if (errorThrown !== undefined)
-                alert(`)
-//line app.js.qtpl:5
-	qw422016.N().S("`")
-//line app.js.qtpl:5
-	qw422016.N().S(`Can't load script '${url}'! (${textStatus}). Pls, reload page!`)
-//line app.js.qtpl:5
-	qw422016.N().S("`")
-//line app.js.qtpl:5
-	qw422016.N().S(`);
-            console.log(errorThrown);
-        }
+        error: errorLoadResource
     });
+}
+
+function LoadCSS(url, cacheS, successFunc) {
+    $.ajax({
+        type: "GET",
+        cache: cacheS,
+        url: url,
+        beforeSend: getHeaders,
+        global: false,
+        dataType: "text",
+        success: successFunc,
+        error: errorLoadResource
+    })
+}
+
+function errorLoadResource(xhr, textStatus, errorThrown) {
+    if (errorThrown !== undefined) {
+        console.error(`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`%s from '${xhr}'! (${textStatus}). Pls, reload page!`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`, errorThrown);
+    } else {
+        console.error(`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`Can't load resource from '${xhr}'! (${textStatus}). Pls, reload page! %s`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`, textStatus);
+    }
 }
 `)
 //line app.js.qtpl:5

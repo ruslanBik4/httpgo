@@ -58,12 +58,18 @@ function saveUser(userData) {
     console.log(userData);
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
-    $('#bLogin').text(userData.name + userSuffix);
+    $('#sUser').text(userData.name + userSuffix);
     $('.auth').removeClass("auth");
     changeLang(userData.lang);
 
-    if (ChangeTheme !== undefined) {
-        ChangeTheme(userData.theme);
+    if (userData.theme) {
+        // call custom theme changer
+        if (typeof CustomChangeTheme !== "undefined") {
+            CustomChangeTheme(userData.theme);
+        } else {
+            // use default
+            ChangeTheme(userData.theme);
+        }
     }
 
     if (urlAfterLogin === '') {
@@ -78,4 +84,27 @@ function saveUser(userData) {
     if (urlAfterLogin > '') {
         loadContent(urlAfterLogin);
     }
+}
+
+function ChangeTheme(id_themes) {
+    LoadCSS(`/themes/?id=${id_themes}`, true, function (data, status, xhr) {
+        switch (xhr.status) {
+            case 201:
+            case 204:
+            case 200: {
+                let theme = xhr.getResponseHeader('Section-Name');
+                LoadStyles(theme, data);
+                $('body').attr('theme', theme);
+                return
+            }
+            default:
+                console.log(status, data)
+        }
+    });
+
+    return false
+}
+
+function logOut() {
+    token = null;
 }
