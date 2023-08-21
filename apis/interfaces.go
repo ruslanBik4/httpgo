@@ -18,22 +18,25 @@ type RouteDTO interface {
 	NewValue() any
 }
 
+// CheckDTO must implement checking parameters of route
 type CheckDTO interface {
 	CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool
 }
 
+// CompoundDTO fills properties of DTO from ctx.UserValue
 type CompoundDTO interface {
 	ReadParams(ctx *fasthttp.RequestCtx)
 }
 
 type FncVisit func([]byte, *fastjson.Value)
 
-// todo add description
+// Visit implement functions for parsing values from JSON body into DTO
 type Visit interface {
 	Each([]byte, *fastjson.Value)
 	Result() (any, error)
 }
 
+// Docs implement functions for writing documentation
 type Docs interface {
 	Expect() string
 	Format() string

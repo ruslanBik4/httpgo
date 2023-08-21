@@ -43,7 +43,7 @@ content of Index page
 			          {%= body.SearchPanel.Render() %}
 			    </div>
 			    {%- endif -%}
-		        <div id="content" rel="{%s body.Route %}" aria-busy="true" aria-describedby="progress-bar">
+		        <div id="content" rel="{%s body.Route %}">
 	            {%code
 	                if body.ContentWrite != nil {
 	                    body.ContentWrite(body.Buff)
@@ -53,7 +53,6 @@ content of Index page
 	            %}
 		        </div>
 	        </div>
-	        <progress id="progress-bar" aria-label="Content loading…"></progress>
 	</div>
 </main>
 {%= layouts.FooterHTML(body.FooterMenu) %}

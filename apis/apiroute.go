@@ -494,8 +494,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	}
 
 	if route.DTO != nil {
-		dto, ok := route.DTO.NewValue().(CompoundDTO)
-		if ok {
+		if dto, ok := route.DTO.NewValue().(CompoundDTO); ok {
 			dto.ReadParams(ctx)
 			ctx.SetUserValue(JSONParams, dto)
 		}

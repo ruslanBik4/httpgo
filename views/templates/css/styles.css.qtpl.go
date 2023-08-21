@@ -113,7 +113,7 @@ li.foot-mnu-item a {
 }
 
 #catalog_pane {
-    height: 97%;
+    height: 100%;
     vertical-align: top;
     padding-left: 1px;
     padding-right: 5%;
@@ -139,7 +139,7 @@ li.foot-mnu-item a {
 .sidebar-section {
     width: 15%;
     display: table-cell;
-/ / padding-left: 15 px;
+    padding-left: 15px;
     padding-top: 3px;
 }
 
@@ -150,7 +150,7 @@ li.foot-mnu-item a {
 
 #content {
     overflow: scroll;
-    height: calc(100% - 42px);
+    height: calc(100% - 50px);
 }
 
 .left-mnu-list {
@@ -251,6 +251,7 @@ input[type=text], input[type=date-range] {
     transition: all .3s ease;
     margin-top: 5px;
     width: 80%;
+    text-overflow: ellipsis;
     color: #0a1c3b;
 }
 

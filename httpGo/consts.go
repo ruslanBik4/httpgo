@@ -7,13 +7,6 @@
 
 package httpGo
 
+// todo auto changing version
 // httpgo version
 const httpgoVersion = "1.2.1"
-
-// todo auto changing version
-// congig params in restMux
-const (
-	CfgParamCoreAPI     = "CoreAPI"
-	CfgParamCoreXPXNode = "XPXNode"
-	CfgParamNetworkType = "networkType"
-)

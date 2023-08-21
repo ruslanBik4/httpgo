@@ -98,7 +98,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 //line index.qtpl:46
 	qw422016.E().S(body.Route)
 //line index.qtpl:46
-	qw422016.N().S(`" aria-busy="true" aria-describedby="progress-bar">
+	qw422016.N().S(`">
 	            `)
 //line index.qtpl:48
 	if body.ContentWrite != nil {
@@ -111,41 +111,40 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 		        </div>
 	        </div>
-	        <progress id="progress-bar" aria-label="Content loading…"></progress>
 	</div>
 </main>
 `)
-//line index.qtpl:59
+//line index.qtpl:58
 	layouts.StreamFooterHTML(qw422016, body.FooterMenu)
-//line index.qtpl:59
+//line index.qtpl:58
 	qw422016.N().S(`
 </body>
 `)
-//line index.qtpl:61
+//line index.qtpl:60
 }
 
-//line index.qtpl:61
+//line index.qtpl:60
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line index.qtpl:61
+//line index.qtpl:60
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line index.qtpl:61
+//line index.qtpl:60
 	body.StreamIndexHTML(qw422016)
-//line index.qtpl:61
+//line index.qtpl:60
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:61
+//line index.qtpl:60
 }
 
-//line index.qtpl:61
+//line index.qtpl:60
 func (body *IndexPageBody) IndexHTML() string {
-//line index.qtpl:61
+//line index.qtpl:60
 	qb422016 := qt422016.AcquireByteBuffer()
-//line index.qtpl:61
+//line index.qtpl:60
 	body.WriteIndexHTML(qb422016)
-//line index.qtpl:61
+//line index.qtpl:60
 	qs422016 := string(qb422016.B)
-//line index.qtpl:61
+//line index.qtpl:60
 	qt422016.ReleaseByteBuffer(qb422016)
-//line index.qtpl:61
+//line index.qtpl:60
 	return qs422016
-//line index.qtpl:61
+//line index.qtpl:60
 }

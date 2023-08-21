@@ -48,7 +48,7 @@ function setClickAll(event) {
         return saveForm(this);
     });
     // add click event instead default - response will show on div.#content
-    $('a[href!="#"]:not([rel]):not(onclick):not([target=_blank])').each(function () {
+    $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])').each(function () {
         this.rel = 'setClickAll';
 
         $(this).click(OverClick);

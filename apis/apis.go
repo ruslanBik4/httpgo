@@ -147,28 +147,27 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// success execution
-	if out, err := WriteResponse(ctx, resp); err != nil {
+	if err := WriteResponse(ctx, resp); err != nil {
 		a.renderError(ctx, err, resp)
-	} else if out > "" {
-		ctx.Response.SetBodyString(out)
 	}
 }
 
-// todo: may  be we gave overhead by mem allocation
-func WriteResponse(ctx *fasthttp.RequestCtx, resp any) (string, error) {
+// WriteResponse to ctx body according to type of resp
+func WriteResponse(ctx *fasthttp.RequestCtx, resp any) error {
 	switch resp := resp.(type) {
 	case nil:
-		return "", nil
+		return nil
 	case []byte:
-		return gotools.BytesToString(resp), nil
+		ctx.Response.SetBodyString(gotools.BytesToString(resp))
+		return nil
 	case string:
-		return resp, nil
+		ctx.Response.SetBodyString(resp)
+		return nil
+	case int, int16, int32, int64, bool, float32, float64:
+		_, err := fmt.Fprintf(ctx, "%v", resp)
+		return err
 	default:
-		err := WriteJSON(ctx, resp)
-		if err != nil {
-			return "", err
-		}
-		return "", nil
+		return WriteJSON(ctx, resp)
 	}
 }
 
