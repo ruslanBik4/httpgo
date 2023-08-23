@@ -105,6 +105,7 @@ header nav {
     right: 0;
     align-items: revert;
     text-align: right;
+    background-color: white;
 }
 
 .top-mnu-list {
@@ -231,10 +232,12 @@ ul li ul.dropdown {
 ul li:hover > ul.dropdown,
 ul li:focus-within > ul.dropdown,
 ul li ul.dropdown:hover {
-  visibility: visible;
-  opacity: 1;
-  margin: 0;
-  display: block;
+    visibility: visible;
+    opacity: 1;
+    margin: 0;
+    display: block;
+    max-height: 50px;
+    overflow: auto;
 }
 
 ul li ul.dropdown li {
