@@ -4,6 +4,8 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
  */
+"use strict";
+
 function OverClick() {
     var $out = $('#content');
     let url = replMacros(this.href);
@@ -46,11 +48,11 @@ function OverClick() {
 
                 return;
             } else if (typeCnt.startsWith("text/css")) {
-                var id = xhr.getResponseHeader('Section-Name');
+                const id = xhr.getResponseHeader('Section-Name');
                 LoadStyles(id, data)
                 return;
             } else if (typeCnt.startsWith("application/json")) {
-                $('#content').html(JSON.stringify(data))
+                showJSON(data);
                 return;
             }
             if (target === "_modal") {
@@ -67,12 +69,61 @@ function OverClick() {
             }
 
             alert(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`);
-            console.log(xhr);
+            console.error(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`, xhr);
         }
     });
     return false;
 }
 
+function showJSON(data) {
+    if (!data) {
+        alert('no results!')
+        return false;
+    }
+
+    let divContent = $('#content').html('');
+
+    function showJsonElem(elem) {
+        let x, y;
+        if (Array.isArray(elem)) {
+            for (x in elem) {
+                showJsonElem(elem[x]);
+            }
+        } else if (elem instanceof Object) {
+            let div = divContent.append('<div>');
+            for (y in elem) {
+                switch (y) {
+                    case "name":
+                    case "full_name": {
+                        div.prepend(`<h3> ${elem[y]}</h3>`);
+                        break;
+                    }
+                    case "id":
+                        div.attr('id', elem[y].id);
+                        break;
+                    default:
+                        if (Array.isArray(elem[y])) {
+                            div.append(`<h4>${y}</h4>`);
+                            for (x in elem[y]) {
+                                showJsonElem(elem[y][x]);
+                                div.append("<br>")
+                            }
+                        } else if (elem[y] instanceof Object) {
+                            div.append(`<h4>${y}</h4>`);
+                            showJsonElem(elem[y]);
+                        } else {
+                            div.append(`<p><i>${y}:</i> <span>${elem[y]}</span></p>`);
+                        }
+                }
+            }
+        } else {
+            divContent.append(`<span>${elem}</span>`);
+        }
+
+    }
+
+    showJsonElem(data);
+}
 //replace special symbols
 function replMacros(url) {
     return url.replace(/{page}/, GetPageLines())
