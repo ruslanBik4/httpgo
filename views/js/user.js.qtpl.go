@@ -27,7 +27,7 @@ func StreamUserJS(qw422016 *qt422016.Writer) {
  * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Перший приватний програміст.
+ * Перший приватний програміст. 
  */
 "use strict";
 
@@ -99,7 +99,9 @@ function saveUser(userData) {
     console.log(userData);
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
-    $('#sUser').text(userData.name + userSuffix);
+    $('#sUser').text(userData.name + userSuffix).removeClass('before-login').addClass('after-login');
+    $('.after-login').show();
+    $('.before-login').hide();
     $('.auth').removeClass("auth");
     changeLang(userData.lang);
 
@@ -154,8 +156,26 @@ function ChangeTheme(id_themes) {
     return false
 }
 
-function logOut() {
+function logOut(elem) {
+    if (!confirm(`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`Do you sure to logout?`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`)) {
+        return false;
+    }
     token = null;
+    $('#sUser').text('').removeClass('after-login').addClass('before-login');
+    $('.before-login').show();
+    $('.after-login').hide();
+    $('.auth').addClass("auth");
+    localStorage.removeItem("USER");
+    loadContent(elem.href);
+    return false;
 }`)
 //line user.js.qtpl:2
 	qw422016.N().S(`
