@@ -33,7 +33,7 @@ func StreamHeaderHTML(qw422016 *qt422016.Writer, TopMenu Menu) {
     <div class="topline-btns">
     <ul class="burger-list">
     <li>
-        <span id="sUser" class="before-login"> </span>
+        <span id="sUser"> </span>
 	    <ul class="dropdown">
 		    <li class="top-mnu-item before-login">
 			    <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="Open auth form" target="_modal" >

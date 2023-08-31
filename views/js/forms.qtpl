@@ -126,8 +126,6 @@ $(function()   {
 	window.addEventListener("beforeunload",  function (evt) {
 			  var evt = evt || window.event;
 
-//			  evt.returnValue = "Do you want to do it?";
-
 			  if (evt) {
 				var y = evt.pageY || evt.clientY;
 				if ( y === undefined) {
@@ -136,7 +134,7 @@ $(function()   {
 				console.log( `beforeunload ${document.location} pageY:${y}`);
 		        evt.preventDefault();
 				if (y < 0) {
-					return evt.returnValue = "Do you want to close this page?"
+					return evt.returnValue = "Are you want to close this page?"
 				}
 
 				if (document.location.pathname > "/") {

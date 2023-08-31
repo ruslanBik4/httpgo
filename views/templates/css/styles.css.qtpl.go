@@ -94,17 +94,6 @@ header .topline-btns {
     color: transparent;
 }
 
-#sUser::after {
-    right: -30px;
-    position: absolute;
-    height: 30px;
-    width: 30px;
-}
-
-#sUser.after-login::after {
-    content: url('data:image/svg+xml,<svg id="icon_burger" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 512 512" xml:space="preserve" class="Icon_icon__9KU0l Header_buttonIconDropdown__pFeM_"><g><g><path d="M437.02,330.98c-27.883-27.882-61.071-48.523-97.281-61.018C378.521,243.251,404,198.548,404,148 C404,66.393,337.607,0,256,0S108,66.393,108,148c0,50.548,25.479,95.251,64.262,121.962 c-36.21,12.495-69.398,33.136-97.281,61.018C26.629,379.333,0,443.62,0,512h40c0-119.103,96.897-216,216-216s216,96.897,216,216 h40C512,443.62,485.371,379.333,437.02,330.98z M256,256c-59.551,0-108-48.448-108-108S196.449,40,256,40 c59.551,0,108,48.448,108,108S315.551,256,256,256z"></path></g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>');
-}
-
 #sUser {
     position: absolute;
     right: 30px;
@@ -112,14 +101,28 @@ header .topline-btns {
     background-position: center;
 }
 
-#sUser.before-login::after {
-    content: url('data:image/svg+xml,<svg id="icon_burger" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" xml:space="preserve"> \
-    <g> \
-    <path d="M30.1,7.5V6.3c0-3.5-2.9-6.4-6.4-6.4H6.3c-3.5,0-6.4,2.9-6.4,6.4v17.5c0,3.5,2.9,6.4,6.4,6.4h17.5c3.5,0,6.4-2.9,6.4-6.4 v-1.2h-2.5v1.2c0,2.1-1.7,3.9-3.9,3.9H6.3c-2.1,0-3.9-1.7-3.9-3.9V6.3c0-2.1,1.7-3.9,3.9-3.9h17.5c2.1,0,3.9,1.7,3.9,3.9v1.2H30.1z "> \
-    </path> \
-    </g> \
-    <g> <path d="M20.9,25.3L9.1,15L20.9,4.8v5.7h11.6v8.6H20.9V25.3z M12.9,15l5.5,4.8v-3.2H30V13H18.4v-2.7L12.9,15z"></path> </g> \
-    </svg>');
+#sUser::after {
+    content: "\f12e";
+    right: -30px;
+    position: absolute;
+    /*height: 30px;*/
+    /*width: 30px;*/
+    display: inline-block;
+    font-family: bootstrap-icons !important;
+    font-style: normal;
+    font-weight: 400 !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    vertical-align: -.125em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    pointer-events: auto;
+    cursor: s-resize;
+}
+
+body[auth] #sUser::after {
+    content: '\F4E1';
 }
 
 #icon_burger {
@@ -136,7 +139,11 @@ header .topline-btns {
     width: 29px;
 }
 
-ul.burger-list.after-login {
+body[auth] .after-login {
+    display: inherit;
+}
+
+body[auth] .before-login, .after-login {
     display: none;
 }
 

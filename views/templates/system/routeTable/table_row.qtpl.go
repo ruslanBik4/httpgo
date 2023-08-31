@@ -153,11 +153,11 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:74
 		if col.Label == "id" && i < len(t.columns)-1 {
 //line table_row.qtpl:74
-			qw422016.N().S(`<ul class="top-mnu-list" style="z-index:100;"><li><a>#</a><ul class="dropdown">go to column...`)
+			qw422016.N().S(`<ul class="left-mnu-list" style="z-index:100;"><li><a>#</a><ul class="dropdown">go to column...`)
 //line table_row.qtpl:77
 			for j, c := range t.columns[i+1:] {
 //line table_row.qtpl:77
-				qw422016.N().S(`<li class="top-mnu-item"><a href='#' onclick="return ScrollToElem('.table-col-`)
+				qw422016.N().S(`<li class="left-mnu-item"><a href='#' onclick="return ScrollToElem('.table-col-`)
 //line table_row.qtpl:79
 				qw422016.N().D(i + j + 1)
 //line table_row.qtpl:79

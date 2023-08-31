@@ -74,7 +74,7 @@ function GetPageLines() {
 function LoadStyles(id, styles) {
     let $head = $('head > style#' + id);
     if ($head.length === 0) {
-        $head = $('head').append('<style title="themes" id="' + id + '">' + styles + '</style>');
+        $('head').append('<style title="themes" id="' + id + '">' + styles + '</style>');
     } else {
         $head.html(styles);
     }
@@ -104,15 +104,14 @@ function SetDocumentHash(url, data) {
 }
 
 function GetShortURL(url) {
-    if (url > "") {
-        console.log(url)
-        if (url.startsWith(document.location.origin)) {
-            return url.slice(document.location.origin.length + 1);
-        }
-        return url
+    if (url === "") {
+        return '/';
     }
 
-    return '/';
+    if (url.startsWith(document.location.origin)) {
+        return url.slice(document.location.origin.length + 1);
+    }
+    return url
 }
 
 
@@ -188,10 +187,7 @@ function loadContent(url) {
             "lang": lang,
             "html": true
         },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Accept-Language', lang);
-            xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        },
+        beforeSend: getHeaders,
         success: function (data, status) {
             PutContent(data, url);
         },

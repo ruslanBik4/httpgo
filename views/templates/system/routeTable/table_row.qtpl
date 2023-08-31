@@ -72,10 +72,10 @@
 	    {% for i, col := range t.columns %}
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
-                    <ul class="top-mnu-list" style="z-index:100;"><li><a>#</a>
+                    <ul class="left-mnu-list" style="z-index:100;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
 				    {% for j, c := range t.columns[i+1:] %}
-				           <li class="top-mnu-item">
+				           <li class="left-mnu-item">
 				                <a href='#' onclick="return ScrollToElem('.table-col-{%d i+j+1 %}');" title='{%s c.Label %}'>
 				                {%s fmt.Sprintf("%.20s", c.Label) %} </a>
 		                   </li>

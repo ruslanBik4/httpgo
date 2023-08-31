@@ -8,24 +8,59 @@
 
 function ClickPseudo(event) {
     var elem = event.target;
-    var offset = event.offsetX || event.originalEvent.offsetX;
-    console.log(`${offset} > ${elem.offsetWidth}`);
-    if (offset > elem.offsetWidth) {
-        loadTableWithOrder(elem.attributes.column.value);
-    } else {
-        elem.color = 'blue';
+    var offset = event.clientX || event.originalEvent.clientX;
+    console.log(event);
+    console.log(`${offset} > ${elem.offsetLeft}, ${elem.getBoundingClientRect().left}`);
+    // clear other sorted
+    if (!event.altKey) {
+        $('.sorted-desc').removeClass('sorted-desc');
+        $('.sorted-asc').removeClass('sorted-asc');
     }
+
+    if (offset > elem.getBoundingClientRect().left + 20) {
+        $(elem).removeClass('sorted-desc').addClass('sorted-asc');
+    } else {
+        $(elem).removeClass('sorted-asc').addClass('sorted-desc');
+    }
+
+    loadTableWithOrder();
+}
+
+const reqOffset = /(order_by=)(\w+(%20desc)?)/;
+
+function getOrderByStatus(url) {
+    return reqOffset.exec(url)
 }
 
 // reorder data & get new table content
-function loadTableWithOrder(order_by) {
-    $.ajaxSetup({
-        'headers': {'Authorization': 'Bearer ' + token}
-    });
-    var url = document.location.href + (document.location.search > "" ? '&' : '?') + 'order_by=' + order_by;
+function loadTableWithOrder() {
+    let orderBy = $('.usr-table__t-head .usr-table-col')
+        .children('span.sorted-asc,span.sorted-desc')
+        .map(function () {
+            return $(this).attr('column') + (this.className === 'sorted-desc' ? '%20desc' : '');
+        }).get().join(",");
 
+    console.log(orderBy)
+
+    var url = document.location.href;
+    const parts = getOrderByStatus(url);
+
+    if (!parts || parts.length <= 0) {
+        url += (document.location.search > "" ? '&' : '?') + `order_by=${orderBy}`
+    } else if (orderBy === parts[2]) {
+        console.log(parts)
+        return false;
+    } else {
+        url = url.replace(reqOffset, `$1${orderBy}`);
+        console.log(url)
+    }
+
+    $.ajaxSetup({
+        beforeSend: getHeaders,
+    });
     // load only table rows content
     $('.usr-table-row-cont').load(url + ' .usr-table-row-cont');
+
     return setHashFromTable(url)
 }
 
@@ -43,7 +78,11 @@ function appendTable() {
     if (url.indexOf('offset') === -1) {
         url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
     } else {
-        url = url.replace(/(offset=)(\d+)/, `$1${lines}`);
+        const reqOffset = /(offset=)(\d+)/.exec(url);
+        if (lines == integer(reqOffset[1])) {
+            return false;
+        }
+        url = url.replace(reqOffset, `$1${lines}`);
     }
     $('div.filt-arrow > input, div.filt-arrow > select').each(
         (i, elem) => {
@@ -73,6 +112,9 @@ function appendTable() {
         contentType: false,
         beforeSend: getHeaders,
         success: function (data, status, xhr) {
+            if (xhr.status === 204) {
+                return false;
+            }
             elem.append($('<div />').html(data).find('.usr-table-row-cont').html());
             setHashFromTable(url);
         },
@@ -111,7 +153,7 @@ function filterTableData(value, className) {
             el.parentElement.style = "display:none";
             return true;
         });
-    // append data if we filter too  least lines
+    // append data if we filter has counter of lines less than page
     if (i < GetPageLines()) {
         appendTable();
     }
@@ -141,27 +183,44 @@ function ScrollToElem(selector) {
 }
 
 function SetTableEvents() {
-    $('.usr-table__t-head .usr-table-col:nth-child(n+2)  span').click(ClickPseudo);
+    var throttleTimer;
+    const throttle = (callback, time) => {
+        if (throttleTimer) return;
+        throttleTimer = true;
+        callback();
+        setTimeout(() => {
+            throttleTimer = false;
+        }, time);
+
+    };
+    $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
     let tableCnt = $('.usr-table-content');
-    tableCnt.on('mousewheel', function (e, delta) {
-        if ((delta === -1) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
-            var elem = $('.usr-table-content')[0];
-            console.log(`${elem.scrollTop} ${elem.scrollHeight}`);
-            throttle(appendTable, 300);
+    tableCnt.off('mousewheel');
+    tableCnt.on('mousewheel', function (event, delta) {
+        var elem = event.target;
+        console.log(event)
+        if (elem.clientHeight < elem.scrollWidth) {
+            console.log(`${elem.clientHeight} < ${elem.scrollWidth}`);
+            return true;
         }
+
+        if ((event.deltaY < 0) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
+            console.log(elem);
+            console.log(`${tableCnt.scrollTop() + tableCnt.height()} ${Math.ceil(tableCnt[0].scrollHeight / 2)}`);
+            throttle(appendTable, 300);
+            return true;
+        }
+        return true;
     })
+
+    const reqOffset = getOrderByStatus(document.location.href);
+    if (reqOffset && reqOffset.length > 1) {
+        const colName = reqOffset[2].split('%20');
+        console.log(colName);
+        $(`.usr-table__t-head .usr-table-col:nth-child(n+2)[column=${colName[1]}]`).addClass('sorted-asc');
+    }
 }
 
-var throttleTimer;
-const throttle = (callback, time) => {
-    if (throttleTimer) return;
-    throttleTimer = true;
-    callback();
-    setTimeout(() => {
-        throttleTimer = false;
-    }, time);
-
-};
 
 function handleFileCSVSelect(evt) {
     var files = evt.files || evt.target.files; // FileList object

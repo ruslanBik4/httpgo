@@ -75,13 +75,17 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 	qw422016.E().S(head.Title)
 //line head.qtpl:32
 	qw422016.N().S(`</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" type="text/css" media="screen">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.css" media="screen">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/css/bootstrap.min.css" integrity="sha512-XWTTruHZEYJsxV3W/lSXG1n3Q39YIWOstqvmFsdNEEQfHoZ6vm6E9GK2OrF6DSJSpIbRbi+Nn0WDPID9O7xB2Q==" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/css/bootstrap-grid.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/css/bootstrap-utilities.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css">
+
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/style/jquery.jscrollpane.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.css">
@@ -90,24 +94,22 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
 
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
 `)
-//line head.qtpl:53
+//line head.qtpl:55
 	for i := 0; i < len(head.LinkStyles); i++ {
-//line head.qtpl:53
+//line head.qtpl:55
 		qw422016.N().S(`        `)
-//line head.qtpl:54
+//line head.qtpl:56
 		qw422016.N().S(head.LinkStyles[i])
-//line head.qtpl:54
+//line head.qtpl:56
 		qw422016.N().S(`
 `)
-//line head.qtpl:55
+//line head.qtpl:57
 	}
-//line head.qtpl:55
+//line head.qtpl:57
 	qw422016.N().S(`    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
@@ -125,57 +127,57 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script  src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
 `)
-//line head.qtpl:72
+//line head.qtpl:74
 	for i := 0; i < len(head.Scripts); i++ {
-//line head.qtpl:72
+//line head.qtpl:74
 		qw422016.N().S(`        `)
-//line head.qtpl:73
+//line head.qtpl:75
 		qw422016.N().S(head.Scripts[i])
-//line head.qtpl:73
+//line head.qtpl:75
 		qw422016.N().S(`
 `)
-//line head.qtpl:74
+//line head.qtpl:76
 	}
-//line head.qtpl:74
-	qw422016.N().S(`    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" type="text/css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" type="text/css" rel="stylesheet" />
+//line head.qtpl:76
+	qw422016.N().S(`    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
 
 </head>
 
 `)
-//line head.qtpl:81
+//line head.qtpl:83
 }
 
-//line head.qtpl:81
+//line head.qtpl:83
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:81
+//line head.qtpl:83
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:81
+//line head.qtpl:83
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:81
+//line head.qtpl:83
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:81
+//line head.qtpl:83
 }
 
-//line head.qtpl:81
+//line head.qtpl:83
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:81
+//line head.qtpl:83
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:81
+//line head.qtpl:83
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:81
+//line head.qtpl:83
 	qs422016 := string(qb422016.B)
-//line head.qtpl:81
+//line head.qtpl:83
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:81
+//line head.qtpl:83
 	return qs422016
-//line head.qtpl:81
+//line head.qtpl:83
 }
 
-//line head.qtpl:86
+//line head.qtpl:88
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:86
+//line head.qtpl:88
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -185,9 +187,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:94
+//line head.qtpl:96
 	qw422016.E().S(title)
-//line head.qtpl:94
+//line head.qtpl:96
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -196,39 +198,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:101
+//line head.qtpl:103
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:101
+//line head.qtpl:103
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:105
+//line head.qtpl:107
 }
 
-//line head.qtpl:105
+//line head.qtpl:107
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:105
+//line head.qtpl:107
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:105
+//line head.qtpl:107
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:105
+//line head.qtpl:107
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:105
+//line head.qtpl:107
 }
 
-//line head.qtpl:105
+//line head.qtpl:107
 func AdminHead(title string) string {
-//line head.qtpl:105
+//line head.qtpl:107
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:105
+//line head.qtpl:107
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:105
+//line head.qtpl:107
 	qs422016 := string(qb422016.B)
-//line head.qtpl:105
+//line head.qtpl:107
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:105
+//line head.qtpl:107
 	return qs422016
-//line head.qtpl:105
+//line head.qtpl:107
 }

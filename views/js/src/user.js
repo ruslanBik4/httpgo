@@ -58,10 +58,8 @@ function saveUser(userData) {
     console.log(userData);
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
-    $('#sUser').text(userData.name + userSuffix).removeClass('before-login').addClass('after-login');
-    $('.after-login').show();
-    $('.before-login').hide();
-    $('.auth').removeClass("auth");
+    $('#sUser').text(userData.name + userSuffix);
+    $('body').attr('auth', true);
     changeLang(userData.lang);
 
     if (userData.theme) {
@@ -89,20 +87,21 @@ function saveUser(userData) {
 }
 
 function ChangeTheme(id_themes) {
-    LoadCSS(`/themes/?id=${id_themes}`, true, function (data, status, xhr) {
-        switch (xhr.status) {
-            case 201:
-            case 204:
-            case 200: {
-                let theme = xhr.getResponseHeader('Section-Name');
-                LoadStyles(theme, data);
-                $('body').attr('theme', theme);
-                return
+    LoadCSS(`/themes/?id=${id_themes}`, true,
+        function (data, status, xhr) {
+            switch (xhr.status) {
+                case 201:
+                case 204:
+                case 200: {
+                    let theme = xhr.getResponseHeader('Section-Name');
+                    LoadStyles(theme, data);
+                    $('body').attr('theme', theme);
+                    return
+                }
+                default:
+                    console.log(status, data)
             }
-            default:
-                console.log(status, data)
-        }
-    });
+        });
 
     return false
 }
@@ -112,11 +111,10 @@ function logOut(elem) {
         return false;
     }
     token = null;
-    $('#sUser').text('').removeClass('after-login').addClass('before-login');
-    $('.before-login').show();
-    $('.after-login').hide();
-    $('.auth').addClass("auth");
+    $('#sUser').text('');
     localStorage.removeItem("USER");
+    $('body').removeAttr('auth');
     loadContent(elem.href);
+
     return false;
 }

@@ -197,8 +197,6 @@ $(function()   {
 	window.addEventListener("beforeunload",  function (evt) {
 			  var evt = evt || window.event;
 
-//			  evt.returnValue = "Do you want to do it?";
-
 			  if (evt) {
 				var y = evt.pageY || evt.clientY;
 				if ( y === undefined) {
@@ -215,7 +213,7 @@ $(function()   {
 	qw422016.N().S(`);
 		        evt.preventDefault();
 				if (y < 0) {
-					return evt.returnValue = "Do you want to close this page?"
+					return evt.returnValue = "Are you want to close this page?"
 				}
 
 				if (document.location.pathname > "/") {
@@ -363,31 +361,31 @@ function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
     });
 }
 `)
-//line forms.qtpl:254
+//line forms.qtpl:252
 }
 
-//line forms.qtpl:254
+//line forms.qtpl:252
 func WriteAppOld(qq422016 qtio422016.Writer, afterAuthURL, changeTheme string) {
-//line forms.qtpl:254
+//line forms.qtpl:252
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line forms.qtpl:254
+//line forms.qtpl:252
 	StreamAppOld(qw422016, afterAuthURL, changeTheme)
-//line forms.qtpl:254
+//line forms.qtpl:252
 	qt422016.ReleaseWriter(qw422016)
-//line forms.qtpl:254
+//line forms.qtpl:252
 }
 
-//line forms.qtpl:254
+//line forms.qtpl:252
 func AppOld(afterAuthURL, changeTheme string) string {
-//line forms.qtpl:254
+//line forms.qtpl:252
 	qb422016 := qt422016.AcquireByteBuffer()
-//line forms.qtpl:254
+//line forms.qtpl:252
 	WriteAppOld(qb422016, afterAuthURL, changeTheme)
-//line forms.qtpl:254
+//line forms.qtpl:252
 	qs422016 := string(qb422016.B)
-//line forms.qtpl:254
+//line forms.qtpl:252
 	qt422016.ReleaseByteBuffer(qb422016)
-//line forms.qtpl:254
+//line forms.qtpl:252
 	return qs422016
-//line forms.qtpl:254
+//line forms.qtpl:252
 }
