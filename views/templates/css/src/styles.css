@@ -80,6 +80,7 @@ header .topline-btns {
     display: inline-block;
     font-family: bootstrap-icons !important;
     font-style: normal;
+    font-size: large;
     font-weight: 400 !important;
     font-variant: normal;
     text-transform: none;

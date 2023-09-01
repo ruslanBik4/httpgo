@@ -26,11 +26,13 @@ function ClickPseudo(event) {
     loadTableWithOrder();
 }
 
-const reqOffset = /(order_by=)(\w+(%20desc)?)/;
+const reqOffset = /(order_by=)([^&]+(%20desc)?,?)+/;
 
 function getOrderByStatus(url) {
     return reqOffset.exec(url)
 }
+
+const selTablesRows = '.usr-table-row-cont';
 
 // reorder data & get new table content
 function loadTableWithOrder() {
@@ -59,7 +61,7 @@ function loadTableWithOrder() {
         beforeSend: getHeaders,
     });
     // load only table rows content
-    $('.usr-table-row-cont').load(url + ' .usr-table-row-cont');
+    $(selTablesRows).load(url + ' .usr-table-row-cont');
 
     return setHashFromTable(url)
 }
@@ -72,17 +74,18 @@ function setHashFromTable(url) {
 
 // append data over limit into table content
 function appendTable() {
-    var elem = $('.usr-table-row-cont');
+    let tableCnt = $('.usr-table-content');
+    var elem = $(selTablesRows);
     var lines = elem.children('div:visible').length;
     let url = document.location.href;
-    if (url.indexOf('offset') === -1) {
+    const reqLimit = /(offset=)(\d+)/;
+    const parts = reqLimit.exec(url);
+    if (!parts || parts.length < 1) {
         url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
+    } else if (lines === integer(parts[1])) {
+        return false;
     } else {
-        const reqOffset = /(offset=)(\d+)/.exec(url);
-        if (lines == integer(reqOffset[1])) {
-            return false;
-        }
-        url = url.replace(reqOffset, `$1${lines}`);
+        url = url.replace(reqLimit, `$1${lines}`);
     }
     $('div.filt-arrow > input, div.filt-arrow > select').each(
         (i, elem) => {
@@ -94,11 +97,11 @@ function appendTable() {
                     }
                     value = true
                 }
-                if (url.indexOf(`${elem.dataset.name}=`) === -1) {
+                var reqDataSet = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
+                if (!reqDataSet.test(url)) {
                     url += `&${elem.dataset.name}=${value}`;
                 } else {
-                    var r = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
-                    url = url.replace(r, `$1${value}`);
+                    url = url.replace(reqDataSet, `$1${value}`);
                 }
             }
         });
@@ -113,9 +116,10 @@ function appendTable() {
         beforeSend: getHeaders,
         success: function (data, status, xhr) {
             if (xhr.status === 204) {
+                tableCnt.off('mousewheel');
                 return false;
             }
-            elem.append($('<div />').html(data).find('.usr-table-row-cont').html());
+            elem.append($('<div />').html(data).find(selTablesRows).html());
             setHashFromTable(url);
         },
         error: function (xhr, status, error) {
@@ -183,6 +187,15 @@ function ScrollToElem(selector) {
 }
 
 function SetTableEvents() {
+    $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
+    setSortedClasses();
+
+    let tableCnt = $('.usr-table-content');
+    tableCnt.off('mousewheel');
+    if ($(selTablesRows + '> div.usr-table-row:visible').length < GetPageLines()) {
+        return
+    }
+
     var throttleTimer;
     const throttle = (callback, time) => {
         if (throttleTimer) return;
@@ -193,31 +206,36 @@ function SetTableEvents() {
         }, time);
 
     };
-    $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
-    let tableCnt = $('.usr-table-content');
-    tableCnt.off('mousewheel');
     tableCnt.on('mousewheel', function (event, delta) {
         var elem = event.target;
         console.log(event)
-        if (elem.clientHeight < elem.scrollWidth) {
-            console.log(`${elem.clientHeight} < ${elem.scrollWidth}`);
+        if (elem !== event.currentTarget && isScrollableY(elem)) {
+            console.log(elem);
+            console.log(`${elem.clientHeight} < ${elem.scrollHeight}`);
             return true;
         }
 
         if ((event.deltaY < 0) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
-            console.log(elem);
-            console.log(`${tableCnt.scrollTop() + tableCnt.height()} ${Math.ceil(tableCnt[0].scrollHeight / 2)}`);
+            console.log(`${tableCnt.scrollTop() + tableCnt.height()} > ${Math.ceil(tableCnt[0].scrollHeight / 2)}`);
             throttle(appendTable, 300);
             return true;
         }
         return true;
     })
+}
 
-    const reqOffset = getOrderByStatus(document.location.href);
-    if (reqOffset && reqOffset.length > 1) {
-        const colName = reqOffset[2].split('%20');
-        console.log(colName);
-        $(`.usr-table__t-head .usr-table-col:nth-child(n+2)[column=${colName[1]}]`).addClass('sorted-asc');
+function setSortedClasses() {
+    const parts = getOrderByStatus(document.location.href);
+    if (parts && parts.length > 1) {
+        for (const part of parts[2].split(',')) {
+            console.log(part);
+            const colName = part.split('%20');
+            let sortedClass = 'sorted-asc';
+            if (colName.length > 1) {
+                sortedClass = 'sorted-desc';
+            }
+            $(`.usr-table__t-head .usr-table-col:nth-child(n+2) span[column=${colName[0]}]`).addClass(sortedClass);
+        }
     }
 }
 
@@ -243,7 +261,7 @@ function handleFileCSVSelect(evt) {
                 console.log(row);
                 fText += `<div  class="usr-table-row">${row}</div>`;
             });
-            $('.usr-table-row-cont').html(fText);
+            $(selTablesRows).html(fText);
         };
     })(f);
 

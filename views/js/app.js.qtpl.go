@@ -311,7 +311,16 @@ function errorLoadResource(xhr, textStatus, errorThrown) {
 	qw422016.N().S(`, textStatus);
     }
 }
-`)
+
+function isScrollableY(node) {
+    const overflowY = window.getComputedStyle(node)['overflow-y'];
+    return (overflowY === 'scroll' || overflowY === 'auto');
+}
+
+function isScrollableX(node) {
+    const overflowX = window.getComputedStyle(node)['overflow-x'];
+    return (overflowX === 'scroll' || overflowX === 'auto');
+}`)
 //line app.js.qtpl:5
 	qw422016.N().S(`
 `)
