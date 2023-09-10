@@ -89,6 +89,16 @@ var (
 		ParamsHTML,
 		ParamsLang,
 	}
+	APIQueriesParams = []apis.InParam{
+		ParamsGetFormActions,
+		ParamsLimit,
+		ParamsOffset,
+		ParamsWhere,
+		ParamsOrderBy,
+		ParamsSelect,
+		ParamsLang,
+		ParamsHTML,
+	}
 )
 
 const PathVersion = "/api/v1"

@@ -161,6 +161,7 @@ func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	for key, value := range jsonHEADERS {
 		ctx.Response.Header.Set(key, value)
 	}
+	WriteHeaders(ctx)
 }
 
 // RenderOutput render for output script execute

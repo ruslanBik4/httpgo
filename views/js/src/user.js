@@ -61,6 +61,9 @@ function saveUser(userData) {
     $('#sUser').text(userData.name + userSuffix);
     $('body').attr('auth', true);
     changeLang(userData.lang);
+    $.ajaxSetup({
+        beforeSend: getHeaders,
+    });
 
     if (userData.theme) {
         // call custom theme changer

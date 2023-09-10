@@ -25,6 +25,9 @@ var (
 )
 
 func CreateErrResult(err error) (any, error) {
+	if err == nil || errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
 	msg := err.Error()
 	e, ok := errors.Cause(err).(*pgconn.PgError)
 	if ok {
@@ -49,9 +52,6 @@ func CreateErrResult(err error) (any, error) {
 		}), apis.ErrWrongParamsList
 	}
 
-	if errors.Is(err, pgx.ErrNoRows) || errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	}
 	logs.ErrorLog(err)
 	return nil, err
 }

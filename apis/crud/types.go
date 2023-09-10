@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -123,5 +123,26 @@ func (i *InetMarshal) Set(src any) error {
 		return i.DecodeText(nil, gotools.StringToBytes(src))
 	default:
 		return i.Scan(src)
+	}
+}
+
+type NumrangeMarshal pgtype.Numrange
+
+func (n *NumrangeMarshal) GetValue() any {
+	return pgtype.Numrange(*n)
+}
+
+func (n *NumrangeMarshal) NewValue() any {
+	v := NumrangeMarshal(pgtype.Numrange{})
+	return &v
+}
+
+func (n *NumrangeMarshal) Set(src any) error {
+	v := pgtype.Numrange(*n)
+	switch src := src.(type) {
+	case string:
+		return v.DecodeText(nil, gotools.StringToBytes(src))
+	default:
+		return v.Scan(src)
 	}
 }

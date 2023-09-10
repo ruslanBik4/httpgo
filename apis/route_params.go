@@ -118,7 +118,15 @@ func (param InParam) Format(s fmt.State, verb rune) {
 			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
 		}
 		if param.DefValue != nil {
-			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
+			switch p := param.Type.(type) {
+			case TypeInParam:
+				if p.BasicKind == types.String {
+					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
+				} else {
+					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %s(%v),", types.Typ[p.BasicKind], param.DefValue)
+
+				}
+			}
 		}
 		if param.TestValue > "" {
 			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
