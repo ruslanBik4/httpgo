@@ -16,10 +16,7 @@ body {
     bottom: 0;
     right: 0;
     left: 0;
-}
-
-body {
-    color: rgb(10, 28, 59);
+    color: rgb(0, 0, 0);
 }
 
 header {
@@ -31,6 +28,7 @@ header {
     box-sizing: border-box;
     z-index: 9;
     align-items: center;
+    background: #0a1c3b;
 }
 
 header nav {
@@ -75,8 +73,6 @@ header .topline-btns {
     content: "\f12e";
     right: -30px;
     position: absolute;
-    /*height: 30px;*/
-    /*width: 30px;*/
     display: inline-block;
     font-family: bootstrap-icons !important;
     font-style: normal;
@@ -125,8 +121,6 @@ ul.burger-list {
 
 .burger-list li {
     right: 0;
-    /*align-items: revert;*/
-    /*text-align: right;*/
     background-color: transparent;
 }
 
@@ -145,12 +139,16 @@ li.top-mnu-item a {
     padding: 4px 8px;
     border-radius: 8px;
     transition: color .3s ease-in-out;
+    color: white;
 }
 
 ul.top-mnu-list li.top-mnu-item:nth-child(n+2) {
     margin-top: 16px;
 }
 
+footer {
+    background: #0a1c3b;
+}
 .foot-mnu-list {
     margin-bottom: 5px;
 }
@@ -228,7 +226,7 @@ ul {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #333333;
+    background-color: transparent;
 }
 
 li {
@@ -259,6 +257,7 @@ ul li ul.dropdown {
   transition: all 0.5s ease;
   margin-top: 1rem;
   display: none;
+    background: #0a1c3b;
 }
 
 ul li:hover > ul.dropdown,
@@ -291,6 +290,11 @@ figure {
     margin: auto;
 }
 
+figure button {
+    color: #fff;
+    border-color: #093b9a;
+    background: #093b9a;
+}
 /* for showing forms on content*/
 #content > form.form-horizontal {
     width: 100%;
@@ -300,8 +304,8 @@ figure {
     max-width: 98%;
 }
 
-figcaption {
-    background-color: #222;
+form figcaption {
+    background-color: #fefefe;
     color: #fff;
     font: italic smaller sans-serif;
     padding: 3px;
