@@ -1,13 +1,3 @@
-All the text outside function templates is treated as comments,
-i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
-
-{% code
-    type Menu []ItemMenu
-    type ItemMenu struct {
-        Content, Link, Label, Name, OnClick, Title, Target string
-        SubMenu Menu
-    }
-%}
 {% func (menu Menu) RenderDropdownMenu() %}
     {%= menu.RenderMenu("dropdown", "") %}
 {% endfunc %}

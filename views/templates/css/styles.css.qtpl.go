@@ -199,6 +199,11 @@ li.foot-mnu-item a {
     transition: color .3s ease-in-out;
 }
 
+ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.foot-mnu-item > ul.dropdown:hover > li {
+    display: inline-flex;
+    flex-grow: initial;
+}
+
 #catalog_pane {
     height: 100%;
     vertical-align: top;
