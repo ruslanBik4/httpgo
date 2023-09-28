@@ -72,7 +72,15 @@ func (menu Menu) StreamRenderMenu(qw422016 *qt422016.Writer, classMenu, classLi 
 //line menu.qtpl:9
 	for _, item := range menu {
 //line menu.qtpl:9
-		qw422016.N().S(`<li class="`)
+		qw422016.N().S(`<li id=`)
+//line menu.qtpl:10
+		qw422016.N().S(item.Name)
+//line menu.qtpl:10
+		qw422016.N().S(`_`)
+//line menu.qtpl:10
+		qw422016.E().S(classLi)
+//line menu.qtpl:10
+		qw422016.N().S(`class="`)
 //line menu.qtpl:10
 		qw422016.E().S(classLi)
 //line menu.qtpl:10
