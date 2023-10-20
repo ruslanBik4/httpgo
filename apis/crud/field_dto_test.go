@@ -19,6 +19,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/views/templates/json"
+	"github.com/ruslanBik4/logs"
 )
 
 func TestDecodeDatetimeString(t *testing.T) {
@@ -537,11 +538,14 @@ func TestEncodeDateString(t *testing.T) {
 			buf := bytes.NewBuffer(nil)
 			stream := jsoniter.NewStream(jsoniter.ConfigDefault, buf, 0)
 			EncodeDateString(unsafe.Pointer(&tt.args), stream)
-			stream.Flush()
+			err := stream.Flush()
+			if err != nil {
+				logs.ErrorLog(err, "during flash")
+			}
 			assert.Equal(t, tt.want, buf.String())
 			buf.Reset()
 			json.WriteElement(buf, tt.args)
-			assert.Equal(t, tt.want+"\n", buf.String())
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }
