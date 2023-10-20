@@ -229,24 +229,25 @@ ul {
     background-color: transparent;
 }
 
-li {
+ul > li {
  display: block;
  transition-duration: 0.5s;
  float: left;
 }
 
-li a {
+ul > li a {
   color: white;
   text-align: center;
   padding: 5px;
   text-decoration: none;
 }
 
-li a:hover {
+/* todo: make cascade from theme*/
+ul > li a:hover {
   background-color: #111111;
 }
 
-li:hover {
+ul > li:hover {
   cursor: pointer;
 }
 
@@ -260,9 +261,9 @@ ul li ul.dropdown {
     background: #0a1c3b;
 }
 
+/*todo: separte dropdown for other menu*/
 ul li:hover > ul.dropdown,
-ul li:focus-within > ul.dropdown,
-ul li ul.dropdown:hover {
+ul li:focus-within > ul.dropdown {
     visibility: visible;
     opacity: 1;
     margin: 0;
@@ -271,7 +272,7 @@ ul li ul.dropdown:hover {
     overflow: auto;
 }
 
-ul li ul.dropdown li {
+ul li > ul.dropdown li {
   clear: both;
   width: 100%;
 }

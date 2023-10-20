@@ -9,7 +9,6 @@ package tables
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/jackc/pgtype"
@@ -109,38 +108,7 @@ func getForeigthValue(DB *dbEngine.DB, col dbEngine.Column, val, lang interface{
 	return nil
 }
 
-func getForeigthVal(DB *dbEngine.DB, colDec *forms.ColumnDecor, id interface{}) {
-	if strings.HasPrefix(colDec.Name(), "id_") {
-		table, ok := DB.Tables[strings.TrimPrefix(colDec.Name(), "id_")]
-		if ok {
-			colDec.SelectOptions = make(map[string]forms.SelectOption)
-			// selectParams := []dbEngine.BuildSqlOptions{
-			//
-			// }
-			// if id != nil {
-			// 	selectParams = append(selectParams, dbEngine.WhereForSelect("id"))
-			// 	selectParams = append(selectParams, dbEngine.)
-			// }
-			err := table.SelectAndRunEach(context.Background(),
-				func(values []interface{}, columns []dbEngine.Column) error {
-					colDec.SelectOptions[values[1].(string)] = forms.SelectOption{Value: strconv.Itoa(int(values[0].(int32)))}
-					if id != nil {
-						colDec.Value = id
-					}
-					return nil
-				},
-				dbEngine.ColumnsForSelect("id", "name"),
-			)
-			if err != nil {
-				logs.ErrorLog(err, "")
-			}
-		}
-	}
-
-}
-
 func convertStrings(values interface{}) interface{} {
-	// todo- move to dbEngine
 	switch v := values.(type) {
 	case pgtype.VarcharArray:
 		str := make([]string, len(v.Elements))

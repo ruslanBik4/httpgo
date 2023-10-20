@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 package json
@@ -25,11 +25,10 @@ func TestStreamWrap(t *testing.T) {
 		value interface{}
 		res   string
 	}{
-		// TODO: Add test cases.
 		{
 			"slice",
 			[]int{1, 2, 3},
-			"[1,2,3]\n",
+			"[1,2,3]",
 		},
 		{
 			"NUllString simple nil",
@@ -37,7 +36,7 @@ func TestStreamWrap(t *testing.T) {
 				String: "test",
 				Valid:  false,
 			},
-			"null\n",
+			"null",
 		},
 		{
 			"struct with NUllString nil",
@@ -49,8 +48,7 @@ func TestStreamWrap(t *testing.T) {
 					Valid:  false,
 				},
 			},
-			`{"name":null}
-`,
+			`{"name":null}`,
 		},
 		{
 			"NUllString nil",
@@ -58,8 +56,7 @@ func TestStreamWrap(t *testing.T) {
 				String: "test",
 				Valid:  true,
 			},
-			`"test"
-`,
+			`"test"`,
 		},
 	}
 	for _, tt := range tests {

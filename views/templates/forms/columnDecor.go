@@ -263,6 +263,7 @@ func (col *ColumnDecor) parseSelect(val *fastjson.Value) error {
 	return nil
 }
 
+// Copy make dublicate of Column without Value
 func (col *ColumnDecor) Copy() *ColumnDecor {
 	return &ColumnDecor{
 		Column:        col.Column,
@@ -279,8 +280,6 @@ func (col *ColumnDecor) Copy() *ColumnDecor {
 		LinkNew:       col.LinkNew,
 		pattern:       col.pattern,
 		patternDesc:   col.patternDesc,
-		// todo must decide later
-		// Value:         col.Value,
 	}
 
 }

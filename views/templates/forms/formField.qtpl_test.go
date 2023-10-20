@@ -18,7 +18,6 @@ func TestFormField_WriteCreate(t *testing.T) {
 		fields       FormField
 		wantQq422016 string
 	}{
-		// TODO: Add test cases.
 		{
 			"simple",
 			FormField{
