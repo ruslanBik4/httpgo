@@ -23,10 +23,10 @@ require (
 	github.com/valyala/fasthttp v1.44.0
 	github.com/valyala/fastjson v1.6.3
 	github.com/valyala/quicktemplate v1.7.0
-	golang.org/x/net v0.8.0
-	golang.org/x/oauth2 v0.4.0
-	golang.org/x/text v0.8.0
-	google.golang.org/api v0.103.0
+	golang.org/x/net v0.9.0
+	golang.org/x/oauth2 v0.7.0
+	golang.org/x/text v0.9.0
+	google.golang.org/api v0.114.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
@@ -36,7 +36,7 @@ require (
 
 require (
 	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
-	cloud.google.com/go/compute v1.15.1 // indirect
+	cloud.google.com/go/compute v1.19.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
@@ -63,10 +63,10 @@ require (
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.2.0 // indirect
-	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
+	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -94,14 +94,14 @@ require (
 	golang.org/x/crypto v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9 // indirect
 	golang.org/x/image v0.5.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gonum.org/v1/plot v0.12.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
-	google.golang.org/grpc v1.53.0 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
+	google.golang.org/grpc v1.56.3 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	oss.terrastruct.com/util-go v0.0.0-20230320053557-dcb5aac7d972 // indirect
 )
