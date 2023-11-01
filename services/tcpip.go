@@ -24,6 +24,7 @@ import (
 func DoRequest(url string, params map[string]string) (*fasthttp.Response, error) {
 	return DoPostRequest(url, params, nil)
 }
+
 func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
 
 	if strings.HasPrefix(url, ":") {
@@ -32,7 +33,7 @@ func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHe
 
 	req := &fasthttp.Request{}
 	if hdr != nil {
-		req.Header.AppendBytes(hdr.Header())
+		hdr.CopyTo(&req.Header)
 	}
 
 	if params != nil {
@@ -48,10 +49,10 @@ func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHe
 		if err := w.Close(); err != nil {
 			return nil, errors.Wrap(err, "w.Close")
 		}
-		req.Header.Set("Content-Type", w.FormDataContentType())
+		req.Header.SetContentType(w.FormDataContentType())
 		req.SetBody(b.Bytes())
 	} else {
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.SetContentType("application/x-www-form-urlencoded")
 	}
 
 	req.Header.SetMethod(fasthttp.MethodPost)
@@ -67,6 +68,8 @@ func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHe
 		resp := &fasthttp.Response{}
 		err := c.DoTimeout(req, resp, time.Minute*3)
 		switch err {
+		case nil:
+			return resp, nil
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
 			logs.DebugLog("timeout %+v", resp)
 			<-time.After(time.Minute * 2)
@@ -75,8 +78,6 @@ func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHe
 			logs.DebugLog("timeout %v", resp)
 			<-time.After(time.Minute * 2)
 			continue
-		case nil:
-			return resp, nil
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
 				logs.DebugLog("%v %v", err, resp)
@@ -92,11 +93,65 @@ func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHe
 	}
 }
 
-func DoGetRequest(url string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response, error) {
+func DoPostJSONRequest(url string, json []byte, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
+
+	if strings.HasPrefix(url, ":") {
+		url = "http://localhost" + url
+	}
+
+	req := &fasthttp.Request{}
+	if hdr != nil {
+		hdr.CopyTo(&req.Header)
+	}
+
+	req.Header.SetContentType("application/json")
+	req.SetBody(json)
+
+	req.Header.SetMethod(fasthttp.MethodPost)
+	req.SetRequestURI(url)
+
+	logs.DebugLog(req.Header.String())
+
+	c := fasthttp.Client{
+		MaxIdleConnDuration: time.Minute * 10,
+		MaxConnDuration:     time.Minute * 10,
+		MaxConnsPerHost:     10000,
+	}
+
+	for {
+		resp := &fasthttp.Response{}
+		err := c.DoTimeout(req, resp, time.Minute*3)
+		switch err {
+		case nil:
+			return resp, nil
+		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
+			logs.DebugLog("timeout %+v", resp)
+			<-time.After(time.Minute * 2)
+			continue
+		case fasthttp.ErrNoFreeConns:
+			logs.DebugLog("timeout %v", resp)
+			<-time.After(time.Minute * 2)
+			continue
+		default:
+			if strings.Contains(err.Error(), "connection reset by peer") {
+				logs.DebugLog("%v %v", err, resp)
+				<-time.After(time.Minute * 2)
+				continue
+			} else if strings.Contains(err.Error(), "socket: too many open files") {
+				<-time.After(time.Second * 10)
+				continue
+			} else {
+				return nil, err
+			}
+		}
+	}
+}
+
+func DoGetRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
 	req := &fasthttp.Request{}
 
 	if hdr != nil {
-		req.Header.AppendBytes(hdr.Header())
+		hdr.CopyTo(&req.Header)
 	}
 
 	req.Header.SetMethod(fasthttp.MethodGet)
@@ -110,6 +165,8 @@ func DoGetRequest(url string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response,
 		resp := &fasthttp.Response{}
 		err := c.DoTimeout(req, resp, time.Minute)
 		switch err {
+		case nil:
+			return resp, nil
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
 			logs.DebugLog("timeout %v", resp)
 			<-time.After(time.Minute * 2)
@@ -118,8 +175,6 @@ func DoGetRequest(url string, hdr *fasthttp.ResponseHeader) (*fasthttp.Response,
 			logs.DebugLog("timeout %v", resp)
 			<-time.After(time.Minute * 2)
 			continue
-		case nil:
-			return resp, nil
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
 				logs.DebugLog("%v %v", err, resp)
@@ -153,10 +208,10 @@ func DoRequestAndKeep(url string, params map[string]string, ch chan<- *fasthttp.
 		if err := w.Close(); err != nil {
 			return errors.Wrap(err, "w.Close")
 		}
-		req.Header.Set("Content-Type", w.FormDataContentType())
+		req.Header.SetContentType(w.FormDataContentType())
 		req.SetBody(b.Bytes())
 	} else {
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.SetContentType("application/x-www-form-urlencoded")
 	}
 
 	req.Header.SetMethod(fasthttp.MethodPost)
@@ -173,16 +228,6 @@ func DoRequestAndKeep(url string, params map[string]string, ch chan<- *fasthttp.
 		resp := &fasthttp.Response{}
 		err := c.DoTimeout(req, resp, time.Second*10)
 		switch err {
-		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
-			logs.DebugLog("timeout %+v", resp)
-			<-time.After(time.Minute * 2)
-			continue
-
-		case fasthttp.ErrNoFreeConns:
-			logs.DebugLog("timeout %v", resp)
-			<-time.After(time.Minute * 2)
-			continue
-
 		case nil:
 			switch sc := resp.StatusCode(); sc {
 			case fasthttp.StatusCreated, fasthttp.StatusNoContent:
@@ -203,6 +248,16 @@ func DoRequestAndKeep(url string, params map[string]string, ch chan<- *fasthttp.
 			}
 
 			ch <- resp
+			continue
+
+		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
+			logs.DebugLog("timeout %+v", resp)
+			<-time.After(time.Minute * 2)
+			continue
+
+		case fasthttp.ErrNoFreeConns:
+			logs.DebugLog("no free conn %v", resp)
+			<-time.After(time.Minute * 2)
 			continue
 
 		case io.EOF, io.ErrUnexpectedEOF:

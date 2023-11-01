@@ -26,7 +26,7 @@ func StreamSetClicksJS(qw422016 *qt422016.Writer) {
  * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Перший приватний програміст.
+ * Перший приватний програміст. 
  */
 "use strict";
 
@@ -54,11 +54,37 @@ function setClickAll(event) {
         $(this).click(OverClick);
     });
     setTextEdit();
+    setSliderBox();
 
     if (!event || event.target === document.getElementById('content')) {
         $('input[autofocus]:last').focus();
     }
     isProcess = false;
+}
+
+function setSliderBox() {
+    $('label.input-label > input.slider').each(function (ind, elem) {
+        let values = elem.value.split("-");
+        $(elem).parent('label').children('div.slider').slider({
+            step: parseFloat(elem.step),
+            range: true,
+            min: parseFloat(elem.min),
+            max: parseFloat(elem.max),
+            values: values,
+            slide: function (event, ui) {
+                elem.value = `)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`[${ui.values[0]} - ${ui.values[1]}]`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`;
+                $(elem).next().attr('data-value', elem.value);
+            }
+        });
+    }).removeClass('slider');
 }
 
 function setTextEdit() {

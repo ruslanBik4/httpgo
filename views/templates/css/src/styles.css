@@ -384,9 +384,22 @@ label > input:not([value]) + span::after, label > textarea:not([value]) + span::
     transition: all .4s;
     background: #db1563;
     background: -webkit-linear-gradient(45deg, #d5007d, #e53935);
-    background: -o-linear-gradient(45deg, #d5007d, #e53935);
+    background: -o-linear-gradient(45deg, o #d5007d, #e53935);
     background: -moz-linear-gradient(45deg, #d5007d, #e53935);
     background:linear-gradient(45deg, #d5007d, #e53935)
+}
+
+.input-wrap > label > span.slider::before {
+    content: attr(data-value);
+    display: block;
+    width: 100%;
+    position: absolute;
+    top: 10px;
+    left: 30%;
+    -webkit-transition: all .4s;
+    -o-transition: all .4s;
+    -moz-transition: all .4s;
+    transition: all .4s
 }
 .input-wrap > label > span::after {
     content: attr(data-placeholder);
