@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package main
 
@@ -185,7 +188,7 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 			}
 		} else {
 			class, err = elem.GetAttribute("class")
-			class = strings.Replace(class, "sln_writer", "", 0)
+			class = strings.Replace(class, "sln_writer", "", -1)
 			if class > "" {
 				result.Selector = tag + "." + class + "::first"
 			} else {

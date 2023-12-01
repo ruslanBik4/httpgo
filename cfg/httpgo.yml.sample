@@ -27,11 +27,16 @@ Server:
   # connections.
   #
   # By default request read timeout is unlimited.
-  readtimeout: 0
+  readtimeout: 0ms
   # Maximum duration for writing the full response (including body).
   #
   # By default response write timeout is unlimited.
-  writetimeout: 0
+  writetimeout: 0ms
+  # IdleTimeout is the maximum amount of time to wait for the
+  # next request when keep-alive is enabled. If IdleTimeout
+  # is zero, the value of ReadTimeout is used.
+  idletimeout: 0ms
+
   # Maximum number of concurrent client connections allowed per IP.
   #
   # By default unlimited number of concurrent connections
@@ -53,13 +58,13 @@ Server:
   # connections.
   #
   # By default keep-alive connection lifetime is unlimited.
-  maxkeepaliveduration: 0
+  maxkeepaliveduration: 0ms
   # Maximum request body size.
   #
   # The server rejects requests with bodies exceeding this limit.
   #
   # Request body size is limited by DefaultMaxRequestBodySize by default.
-  maxrequestbodysize: 100000000
+  maxrequestbodysize: 4194304
   # Aggressively reduces memory usage at the cost of higher CPU usage
   # if set to true.
   #

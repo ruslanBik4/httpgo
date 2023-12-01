@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"go/types"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"strings"
 
@@ -198,7 +197,7 @@ func ReadByteA(fHeaders []*multipart.FileHeader) ([]string, [][]byte, error) {
 			return nil, nil, errors.Wrap(err, fHeader.Filename)
 		}
 
-		b, err := ioutil.ReadAll(f)
+		b, err := io.ReadAll(f)
 		if err != nil {
 			logs.DebugLog(err, fHeader)
 			return nil, nil, errors.Wrap(err, "read "+fHeader.Filename)

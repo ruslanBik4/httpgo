@@ -557,7 +557,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectField("license")
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "name", "Apache 2.0")
-	AddFieldToJSON(stream, "url", "http://www.apache.org/licenses/LICENSE-2.0.html")
+	AddFieldToJSON(stream, "url", "https://www.apache.org/licenses/LICENSE-2.0.html")
 
 	stream.WriteObjectEnd()
 	stream.WriteObjectEnd()

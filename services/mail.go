@@ -1,12 +1,13 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-// Creating 01.06.17
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package services
 
 import (
-	"io/ioutil"
 	netMail "net/mail"
 	"os"
 	"path/filepath"
@@ -14,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"gopkg.in/gomail.v2"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ruslanBik4/logs"
 )
@@ -77,7 +78,7 @@ func (mailServ *mailService) Init(ctx context.Context) error {
 	}
 
 	fileName := filepath.Join(mailServ.getStaticFilePath(), cfg)
-	b, err := ioutil.ReadFile(fileName)
+	b, err := os.ReadFile(fileName)
 	if err != nil {
 		mailServ.status = STATUS_ERROR
 

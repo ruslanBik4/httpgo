@@ -13,6 +13,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/valyala/fasthttp"
 )
 
@@ -292,21 +293,22 @@ func TestNewCfgHttp(t *testing.T) {
 	tests := []struct {
 		name     string
 		filename string
-		wantErr  bool
+		wantErr  error
 	}{
 		// TODO: Add test cases.
 		{
 			"1",
-			"../config/httpgo.yml.sample",
-			false,
+			"../cfg/httpgo.yml.sample",
+			nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotCfgGlobal, err := NewCfgHttp(tt.filename)
-			if !assert.Equal(t, tt.wantErr, err != nil) {
-				t.Error(err)
-				return
+			if tt.wantErr == nil {
+				require.Nil(t, err)
+			} else {
+				require.ErrorAs(t, tt.wantErr, err)
 			}
 
 			t.Log(gotCfgGlobal)
