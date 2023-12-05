@@ -1,6 +1,9 @@
-// Copyright 2012 Junqing Tan <ivan@mysqlab.net> and The Go Authors
-// Use of this source code is governed by a BSD-style
-// Part of source code is from Go fcgi package
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package fcgiclient
 
@@ -128,7 +131,7 @@ type FCGIClient struct {
 	reqId     uint16
 }
 
-// Connects to the fcgi responder at the specified network address.
+// Dial Connects to the fcgi responder at the specified network address.
 // See func net.Dial for a description of the network and address parameters.
 func Dial(network, address string) (fcgi *FCGIClient, err error) {
 	var conn net.Conn
@@ -389,7 +392,7 @@ func (this *FCGIClient) Get(p map[string]string) (resp *http.Response, err error
 	return this.Request(p, nil)
 }
 
-// Get issues a Post request to the fcgi responder. with request body
+// Post Get issues a Post request to the fcgi responder. with request body
 // in the format that bodyType specified
 func (this *FCGIClient) Post(p map[string]string, bodyType string, body io.Reader, l int) (resp *http.Response, err error) {
 

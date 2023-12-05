@@ -54,7 +54,7 @@ const TYPE_PLAIN_TEXT = "text/plain"
 // TYPE_HTML - тип отправляемого сообщения - "HTML"
 const TYPE_HTML = "text/html"
 
-// ExamlpeSendEmail - пример отправки сообщения
+// ExampLeSendEmail  - пример отправки сообщения
 func ExampLeSendEmail() {
 
 	mail := Mail{

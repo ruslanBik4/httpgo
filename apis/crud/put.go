@@ -23,7 +23,7 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-// TableInsert insert data of params into table
+// TableInsert insert data of {params} into {table}
 func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (any, error) {
 
@@ -58,7 +58,7 @@ func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.Ap
 	}
 }
 
-// TableUpdate
+// TableUpdate update data in {table}
 func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (any, error) {
 

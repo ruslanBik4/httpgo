@@ -149,7 +149,7 @@ func main() {
 			}
 			activeElem = newElem
 		}
-
+		count++
 	}
 	log.Print(wd.Status())
 }

@@ -64,7 +64,7 @@ func (mConfig *MongodConfig) Init(fStatic, fWeb, fSession *string) error {
 	return nil
 }
 
-// The Data Source DB has a common format, like e.g. PEAR DB uses it,
+// MongoDBName The Data Source DB has a common format, like e.g. PEAR DB uses it,
 // but without type-prefix (optional parts marked by squared brackets):
 //
 // [username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]

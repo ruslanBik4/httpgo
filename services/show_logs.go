@@ -111,7 +111,7 @@ var systemRoutes = apis.ApiRoutes{
 	// },
 }
 
-// HandleLogServer show status httpgo
+// HandleStatusServer  show status of httpgo
 // @/api/status/
 func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	unitName := ctx.UserValue(paramsSystemctlUnit).(string)
@@ -122,13 +122,13 @@ func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return nil, views.RenderOutput(ctx, stdoutStderr, err)
 }
 
-// HandleLogServer show status services
+// HandleStatusServices  show status of local services
 // @/api/status/services
 func HandleStatusServices(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return Status("all"), nil
 }
 
-// HandleLogServer show status httpgo
+// HandleStatusDB  show current processes of  DB
 // @/api/status/
 func HandleStatusDB(ctx *fasthttp.RequestCtx) (interface{}, error) {
 

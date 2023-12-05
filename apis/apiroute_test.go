@@ -44,11 +44,11 @@ type PRCommandParams struct {
 }
 
 // Implementing RouteDTO interface
-func (prParams *PRCommandParams) GetValue() interface{} {
+func (prParams *PRCommandParams) GetValue() any {
 	return prParams
 }
 
-func (prParams *PRCommandParams) NewValue() interface{} {
+func (prParams *PRCommandParams) NewValue() any {
 
 	newVal := PRCommandParams{}
 
@@ -186,7 +186,7 @@ func TestAddObjectToJSON(t *testing.T) {
 	type args struct {
 		stream *jsoniter.Stream
 		field  string
-		s      interface{}
+		s      any
 	}
 	tests := []struct {
 		name string
@@ -215,8 +215,7 @@ func TestApiRoute_CheckAndRun(t *testing.T) {
 		OnlyLocal   bool
 		WithCors    bool
 		Params      []InParam
-		Resp        interface{}
-		lock        sync.RWMutex
+		Resp        any
 	}
 	type args struct {
 		ctx     *fasthttp.RequestCtx
@@ -226,7 +225,7 @@ func TestApiRoute_CheckAndRun(t *testing.T) {
 		name     string
 		fields   fields
 		args     args
-		wantResp interface{}
+		wantResp any
 		wantErr  assert.ErrorAssertionFunc
 	}{
 		// TODO: Add test cases.
@@ -271,7 +270,7 @@ func TestApiRoute_CheckParams(t *testing.T) {
 		OnlyLocal   bool
 		WithCors    bool
 		Params      []InParam
-		Resp        interface{}
+		Resp        any
 		lock        sync.RWMutex
 	}
 	type args struct {
@@ -322,7 +321,7 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 		OnlyLocal   bool
 		WithCors    bool
 		Params      []InParam
-		Resp        interface{}
+		Resp        any
 		lock        sync.RWMutex
 	}
 	type args struct {
@@ -334,7 +333,7 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    interface{}
+		want    any
 		wantErr assert.ErrorAssertionFunc
 	}{
 		// TODO: Add test cases.
@@ -379,7 +378,7 @@ func TestApiRoute_isValidMethod(t *testing.T) {
 		OnlyLocal   bool
 		WithCors    bool
 		Params      []InParam
-		Resp        interface{}
+		Resp        any
 		lock        sync.RWMutex
 	}
 	type args struct {
@@ -429,7 +428,7 @@ func TestApiRoute_performsJSON(t *testing.T) {
 		OnlyLocal   bool
 		WithCors    bool
 		Params      []InParam
-		Resp        interface{}
+		Resp        any
 		lock        sync.RWMutex
 	}
 	type args struct {
@@ -439,7 +438,7 @@ func TestApiRoute_performsJSON(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    interface{}
+		want    any
 		wantErr assert.ErrorAssertionFunc
 	}{
 		// TODO: Add test cases.
@@ -511,7 +510,7 @@ func TestFirstObjectToJSON(t *testing.T) {
 	type args struct {
 		stream *jsoniter.Stream
 		field  string
-		s      interface{}
+		s      any
 	}
 	tests := []struct {
 		name string
@@ -632,7 +631,7 @@ func TestNewAPIRoute(t *testing.T) {
 		params   []InParam
 		needAuth bool
 		fnc      ApiRouteHandler
-		resp     interface{}
+		resp     any
 		Options  []BuildRouteOptions
 	}
 	tests := []struct {
