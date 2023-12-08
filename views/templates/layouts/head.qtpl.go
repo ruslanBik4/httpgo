@@ -127,12 +127,12 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"/>
 `)
 //line head.qtpl:76
 	for i := 0; i < len(head.Scripts); i++ {
 //line head.qtpl:76
-		qw422016.N().S(`        `)
+		qw422016.N().S(`    `)
 //line head.qtpl:77
 		qw422016.N().S(head.Scripts[i])
 //line head.qtpl:77
