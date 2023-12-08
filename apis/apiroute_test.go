@@ -643,10 +643,11 @@ func TestNewAPIRoute(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			_, funcName, _, _ := getStringOfFnc(tt.args.fnc)
 			assert.Equalf(t, tt.want,
 				NewAPIRoute(tt.args.desc, tt.args.method, tt.args.params, tt.args.needAuth, tt.args.fnc, tt.args.resp, tt.args.Options...),
 				"NewAPIRoute(%v, %v, %v, %v, %v, %v, %+v)",
-				tt.args.desc, tt.args.method, tt.args.params, tt.args.needAuth, tt.args.fnc, tt.args.resp, tt.args.Options)
+				tt.args.desc, tt.args.method, tt.args.params, tt.args.needAuth, funcName, tt.args.resp, tt.args.Options)
 		})
 	}
 }

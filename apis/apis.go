@@ -94,7 +94,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	ctx.ResetUserValues()
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
-		a.renderError(ctx, err, route)
+		a.renderError(ctx, err, route.Method)
 		return
 	}
 
@@ -108,6 +108,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	defer func() {
 		errRec := recover()
 		switch errRec := errRec.(type) {
+		case nil:
 		case error:
 			params := ctx.UserValue(JSONParams)
 			if params == nil && route.Multipart {
@@ -118,10 +119,10 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			a.renderError(ctx, errRec, nil)
 		case string:
 			a.renderError(ctx, errors.New(errRec), nil)
-		case nil:
 		default:
 			logs.StatusLog(errRec)
 		}
+
 		if route.WithCors {
 			ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 			ctx.Response.Header.Set("Access-Control-Allow-Headers",
@@ -211,13 +212,15 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 		statusCode = fasthttp.StatusMethodNotAllowed
 		switch r := resp.(type) {
 		case string:
-			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r)
+			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r)
 		case *ApiRoute:
-			errMsg = fmt.Sprintf(errMsg, string(ctx.Method()), r.Method)
+			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r.Method)
+		case tMethod:
+			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r)
 		default:
-			errMsg = fmt.Sprintf(errMsg+"%+v", string(ctx.Method()), "", resp)
+			errMsg = fmt.Sprintf(errMsg+"%+v", ctx.Method(), "", resp)
 		}
-	// can't send standart error (lost headers & response body
+	// can't send standard error (lost headers & response body)
 	case ErrUnAuthorized:
 		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 		ctx.SetStatusCode(fasthttp.StatusUnauthorized)

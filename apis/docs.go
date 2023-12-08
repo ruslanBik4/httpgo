@@ -50,9 +50,12 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 	defer func() {
-		err, ok := recover().(error)
-		if ok {
+		switch err := recover().(type) {
+		case nil:
+		case error:
 			logs.ErrorLog(err)
+		default:
+			logs.StatusLog("recover: %v", err)
 		}
 	}()
 

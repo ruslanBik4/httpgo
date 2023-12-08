@@ -10,6 +10,7 @@ package httpGo
 import (
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v3"
 
@@ -71,5 +72,6 @@ func loadCfg(filename string) (cfg *CfgHttp, err error) {
 		logs.ErrorLog(err, "decoding error")
 		return nil, err
 	}
-	return nil, nil
+
+	return
 }

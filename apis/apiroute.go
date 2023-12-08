@@ -532,20 +532,17 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
 		default:
 			return nil, errors.Wrap(err, "visit result")
 		}
-	} else {
-		err := jsoniter.Unmarshal(ctx.Request.Body(), &dto)
-		if err != nil {
-			errMsg := err.Error()
-			parts := strings.Split(errMsg, ":")
-			if len(parts) > 1 {
-				param := strings.Split(parts[0], ".")
-				badParams[param[len(param)-1]] = strings.Join(parts[1:], ":")
-			} else {
-				badParams["bad_params"] = "json DTO not parse :" + errMsg
-			}
-
-			return badParams, ErrWrongParamsList
+	} else if err := jsoniter.Unmarshal(ctx.Request.Body(), &dto); err != nil {
+		errMsg := err.Error()
+		parts := strings.Split(errMsg, ":")
+		if len(parts) > 1 {
+			param := strings.Split(parts[0], ".")
+			badParams[param[len(param)-1]] = strings.Join(parts[1:], ":")
+		} else {
+			badParams["bad_params"] = "json DTO not parse :" + errMsg
 		}
+
+		return badParams, ErrWrongParamsList
 	}
 
 	if d, ok := dto.(CheckDTO); (ok && !d.CheckParams(ctx, badParams)) || !route.CheckParams(ctx, badParams) {

@@ -56,21 +56,21 @@ func methodFromName(nameMethod string) tMethod {
 	switch nameMethod {
 	case fasthttp.MethodGet:
 		return GET
-	case "POST":
+	case fasthttp.MethodPost:
 		return POST
-	case "HEAD":
+	case fasthttp.MethodHead:
 		return HEAD
-	case "PUT":
+	case fasthttp.MethodPut:
 		return PUT
-	case "PATCH":
+	case fasthttp.MethodPatch:
 		return PATCH
-	case "DELETE":
+	case fasthttp.MethodDelete:
 		return DELETE
-	case "CONNECT":
+	case fasthttp.MethodConnect:
 		return CONNECT
-	case "OPTIONS":
+	case fasthttp.MethodOptions:
 		return OPTIONS
-	case "TRACE":
+	case fasthttp.MethodTrace:
 		return TRACE
 	default:
 		return UNKNOWN

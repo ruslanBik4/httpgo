@@ -35,11 +35,15 @@ var (
 
 func main() {
 	defer func() {
-		err := recover()
-		if err, ok := err.(error); ok {
-			//wd.SetAlertText(err.Error())
+		switch err := recover().(type) {
+		case nil:
+		case error:
 			logs.ErrorStack(err, "stop my work %#v, %T", err)
 			time.Sleep(time.Millisecond * 5000)
+			//wd.SetAlertText(err.Error())
+
+		default:
+			logs.StatusLog("recover: %v", err)
 		}
 	}()
 

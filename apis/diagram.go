@@ -91,7 +91,9 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.Render
 
 	return d2svg.Render(diagram, opts)
 }
-func getStringOfFnc(handler ApiRouteHandler) (string, string, string, int) {
+
+// getStringOfFnc return package, func, file names & line of func defined
+func getStringOfFnc(handler ApiRouteHandler) (packageName string, funcName string, fileName string, line int) {
 	fnc := runtime.FuncForPC(reflect.ValueOf(handler).Pointer())
 
 	fName, line := fnc.FileLine(0)
@@ -99,9 +101,12 @@ func getStringOfFnc(handler ApiRouteHandler) (string, string, string, int) {
 	shortName := strings.TrimSuffix(path.Base(fncName), "-fm")
 
 	packName, _, _ := strings.Cut(shortName, ".")
-	return fmt.Sprintf("'%s'.%s", path.Dir(fncName), packName), fmt.Sprintf(`'%s(ctx)': (any, error)`,
-		strings.ReplaceAll(strings.ReplaceAll(shortName, ".(*", "#"), ")", ""),
-	), path.Base(fName), line
+
+	paramReplacer := strings.NewReplacer(".(*", "#", ")", "")
+
+	return fmt.Sprintf("'%s'.%s", path.Dir(fncName), packName),
+		fmt.Sprintf(`'%s(ctx)': (any, error)`, paramReplacer.Replace(shortName)),
+		path.Base(fName), line
 }
 
 func (a *Apis) getDiagram(ctx *fasthttp.RequestCtx) (any, error) {
