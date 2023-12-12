@@ -203,11 +203,13 @@ func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 		return route, nil
 	}
 
+	e := m.method
+	//find some pathURL with others method
 	for t := GET; t < UNKNOWN-1; t++ {
 		m.method = t
 		route, ok := r[m]
 		if ok {
-			return route, errMethodNotAllowed
+			return route, &ErrMethodNotAllowed{expected: e, actual: t}
 		}
 	}
 

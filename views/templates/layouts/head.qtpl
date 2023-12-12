@@ -72,7 +72,7 @@ type HeadHTMLPage struct {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-mousewheel/3.1.13/jquery.mousewheel.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/script/jquery.jscrollpane.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 {%- for i := 0; i< len(head.Scripts); i++ -%}
     {%s= head.Scripts[i] %}
 {%- endfor -%}

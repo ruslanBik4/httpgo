@@ -94,7 +94,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	ctx.ResetUserValues()
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
-		a.renderError(ctx, err, route.Method)
+		a.renderError(ctx, err, route)
 		return
 	}
 
@@ -204,78 +204,78 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 	statusCode := fasthttp.StatusInternalServerError
 	errMsg := err.Error()
-	switch errDeep := errors.Cause(err); errDeep {
-	case pgx.ErrNoRows, sql.ErrNoRows:
-		ctx.SetStatusCode(fasthttp.StatusNoContent)
-		return
-	case errMethodNotAllowed:
+
+	switch errDeep := errors.Cause(err); e := errDeep.(type) {
+	case *ErrMethodNotAllowed:
 		statusCode = fasthttp.StatusMethodNotAllowed
-		switch r := resp.(type) {
-		case string:
-			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r)
-		case *ApiRoute:
-			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r.Method)
-		case tMethod:
-			errMsg = fmt.Sprintf(errMsg, ctx.Method(), r)
-		default:
-			errMsg = fmt.Sprintf(errMsg+"%+v", ctx.Method(), "", resp)
-		}
-	// can't send standard error (lost headers & response body)
-	case ErrUnAuthorized:
-		logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
-		ctx.SetStatusCode(fasthttp.StatusUnauthorized)
-		ctx.SetBodyString(errMsg)
-		return
-
-	case ErrRouteForbidden:
-		ctx.SetStatusCode(fasthttp.StatusForbidden)
-		ctx.SetBodyString(errMsg)
-		return
-
-	case errRouteOnlyLocal:
-		statusCode = fasthttp.StatusForbidden
-	case fasthttp.ErrNoMultipartForm:
-		statusCode = fasthttp.StatusBadRequest
-		_, err := ctx.WriteString("must be multipart-form")
-		if err != nil {
-			logs.StatusLog(err)
-		}
-
-	case ErrWrongParamsList:
-		ctx.SetStatusCode(fasthttp.StatusBadRequest)
-
-		if f, ok := resp.(map[string]string); ok {
-			resp = ErrorResp{
-				FormErrors: f,
-			}
-		}
-
-		if err := WriteJSON(ctx, resp); err != nil {
-			logs.ErrorLog(err, resp)
-		}
-
-		errMsg = fmt.Sprintf(errMsg, resp)
-
-		if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
-			logs.DebugLog(ctx.UserValue(MultiPartParams))
-		} else if ctx.IsPost() {
-			logs.DebugLog(ctx.PostArgs().String())
-		} else {
-			logs.DebugLog(ctx.QueryArgs().String())
-		}
-
-		return
-
-	case errNotFoundPage:
-		ctx.NotFound()
-		logs.StatusLog("Not Found Page %+v", ctx.Request.String())
-		return
-
+	case *ErrorResp:
+		a.writeBadRequest(ctx, e.FormErrors)
 	default:
-		logs.ErrorStack(errDeep, resp)
+
+		switch errDeep {
+		case pgx.ErrNoRows, sql.ErrNoRows:
+			ctx.SetStatusCode(fasthttp.StatusNoContent)
+			return
+		// can't send standard error (lost headers & response body)
+		case ErrUnAuthorized:
+			logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
+			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
+			ctx.SetBodyString(errMsg)
+			return
+
+		case ErrRouteForbidden:
+			ctx.SetStatusCode(fasthttp.StatusForbidden)
+			ctx.SetBodyString(errMsg)
+			return
+
+		case errRouteOnlyLocal:
+			statusCode = fasthttp.StatusForbidden
+
+		case fasthttp.ErrNoMultipartForm:
+			statusCode = fasthttp.StatusBadRequest
+			_, err := ctx.WriteString("must be multipart-form")
+			if err != nil {
+				logs.StatusLog(err)
+			}
+
+		case ErrWrongParamsList:
+
+			if f, ok := resp.(map[string]string); ok {
+				resp = ErrorResp{
+					FormErrors: f,
+				}
+			}
+
+			errMsg = fmt.Sprintf(errMsg, resp)
+			a.writeBadRequest(ctx, resp)
+
+			return
+
+		case errNotFoundPage:
+			ctx.NotFound()
+			logs.StatusLog("Not Found Page %+v", ctx.Request.String())
+			return
+
+		default:
+			logs.ErrorStack(errDeep, resp)
+		}
+	}
+	ctx.Error(errMsg, statusCode)
+}
+
+func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
+	ctx.SetStatusCode(fasthttp.StatusBadRequest)
+	if err := WriteJSON(ctx, resp); err != nil {
+		logs.ErrorLog(err, resp)
 	}
 
-	ctx.Error(errMsg, statusCode)
+	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
+		logs.DebugLog(ctx.UserValue(MultiPartParams))
+	} else if ctx.IsPost() {
+		logs.DebugLog(ctx.PostArgs().String())
+	} else {
+		logs.DebugLog(ctx.QueryArgs().String())
+	}
 }
 
 // addRoute with safe on concurrency
