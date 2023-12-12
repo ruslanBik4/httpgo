@@ -41,12 +41,12 @@ func NewErrorResp(formErrors map[string]string) *ErrorResp {
 	return &ErrorResp{FormErrors: formErrors}
 }
 
-func (e *ErrorResp) Error() string {
-	return fmt.Sprintf(ErrWrongParamsList.Error(), e.FormErrors)
-}
-
 func NewErrorRespBadDTO() *ErrorResp {
 	return NewErrorResp(map[string]string{"DTO": "wrong struct"})
+}
+
+func (e *ErrorResp) Error() string {
+	return fmt.Sprintf(ErrWrongParamsList.Error(), e.FormErrors)
 }
 
 func WriteCustomErrorResponse(ctx *fasthttp.RequestCtx, code int, err error, args map[string]string) (any, error) {
