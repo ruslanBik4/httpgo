@@ -15,7 +15,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.1.143
+	github.com/ruslanBik4/dbEngine v1.1.145
 	github.com/ruslanBik4/gotools v0.0.2
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.8.4
