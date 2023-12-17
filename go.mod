@@ -16,7 +16,7 @@ require (
 	github.com/nguyenthenguyen/docx v0.0.0-20230621112118-9c8e795a11db
 	github.com/pkg/errors v0.9.1
 	github.com/ruslanBik4/dbEngine v1.1.143
-	github.com/ruslanBik4/gotools v0.0.1
+	github.com/ruslanBik4/gotools v0.0.2
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.8.4
 	github.com/tebeka/selenium v0.9.9
@@ -97,6 +97,7 @@ require (
 	gonum.org/v1/plot v0.14.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20231127180814-3a041ad873d4 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231127180814-3a041ad873d4 // indirect
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
