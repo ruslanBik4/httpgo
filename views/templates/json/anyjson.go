@@ -5,7 +5,7 @@
  * Перший приватний програміст.
  */
 
-// формирование JSON из разного вида данных и выдача текста в поток
+// Package json формирование JSON из разного вида данных и выдача текста в поток
 package json
 
 import (
@@ -31,10 +31,11 @@ type Number interface {
 
 func StreamWrap(w *quicktemplate.Writer, value any) {
 
-	enc := Json.NewEncoder(w.W())
-	err := enc.Encode(value)
-	if err != nil {
-		_ = enc.Encode(err)
+	stream := jsoniter.NewStream(Json, w.W(), int(unsafe.Sizeof(value)))
+	stream.WriteVal(value)
+
+	if err := stream.Flush(); err != nil {
+		logs.ErrorLog(err, "during stream %v", value)
 	}
 }
 
@@ -278,7 +279,6 @@ func init() {
 	jsoniter.RegisterTypeEncoderFunc("*pgtype.Date",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			val := (*pgtype.Date)(ptr)
-			logs.StatusLog(val)
 			if val.Status == pgtype.Present {
 				stream.WriteString(val.Time.Format(time.DateOnly))
 			} else {

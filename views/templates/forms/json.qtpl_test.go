@@ -57,8 +57,7 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 					},
 				},
 			},
-			`{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]
-}`,
+			`{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]}`,
 		},
 	}
 	for _, tt := range tests {
@@ -1068,8 +1067,7 @@ func TestFormField_FormJSON(t *testing.T) {
 					},
 				},
 			},
-			`{"title" : "","action": "","description": "","method": "","blocks": [{"id": "0","title": "","description": "","fields": [{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]
-}],"actions": [{"groups": []}]}]}`,
+			`{"title" : "","action": "","description": "","method": "","blocks": [{"id": "0","title": "","description": "","fields": [{"name": "id_photos","required":false,"type": "", "title": "", "list":[{"id":1,"url":"https://site.com/photots/"}]}],"actions": [{"groups": []}]}]}`,
 		},
 	}
 	for _, tt := range tests {

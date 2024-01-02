@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package services
 
@@ -12,10 +15,11 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/ruslanBik4/logs"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views"
@@ -107,7 +111,7 @@ var systemRoutes = apis.ApiRoutes{
 	// },
 }
 
-// HandleLogServer show status httpgo
+// HandleStatusServer  show status of httpgo
 // @/api/status/
 func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	unitName := ctx.UserValue(paramsSystemctlUnit).(string)
@@ -118,13 +122,13 @@ func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return nil, views.RenderOutput(ctx, stdoutStderr, err)
 }
 
-// HandleLogServer show status services
+// HandleStatusServices  show status of local services
 // @/api/status/services
 func HandleStatusServices(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	return Status("all"), nil
 }
 
-// HandleLogServer show status httpgo
+// HandleStatusDB  show current processes of  DB
 // @/api/status/
 func HandleStatusDB(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
@@ -236,7 +240,12 @@ func RunGrep(stdout []byte, params ...string) ([]byte, error) {
 	}
 
 	go func() {
-		defer stdin.Close()
+		defer func() {
+			err := stdin.Close()
+			if err != nil {
+				logs.ErrorLog(err)
+			}
+		}()
 		_, err = stdin.Write(stdout)
 	}()
 

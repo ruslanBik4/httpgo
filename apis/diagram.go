@@ -23,6 +23,7 @@ import (
 	"oss.terrastruct.com/d2/d2exporter"
 	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
 	"oss.terrastruct.com/d2/d2renderers/d2svg"
+	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
 	"oss.terrastruct.com/d2/lib/textmeasure"
 
 	"github.com/ruslanBik4/logs"
@@ -63,11 +64,13 @@ const (
 )
 
 func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.RenderOpts) (any, error) {
-	graph, err := d2compiler.Compile("", buf, &d2compiler.CompileOptions{UTF16: true})
+	graph, cfg, err := d2compiler.Compile("", buf, &d2compiler.CompileOptions{UTF16Pos: true})
 	if err != nil {
 		logs.ErrorLog(err)
 		return nil, err
 	}
+
+	logs.StatusLog(cfg)
 	ruler, err := textmeasure.NewRuler()
 	if err != nil {
 		return nil, err
@@ -88,7 +91,9 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.Render
 
 	return d2svg.Render(diagram, opts)
 }
-func getStringOfFnc(handler ApiRouteHandler) (string, string, string, int) {
+
+// getStringOfFnc return package, func, file names & line of func defined
+func getStringOfFnc(handler ApiRouteHandler) (packageName string, funcName string, fileName string, line int) {
 	fnc := runtime.FuncForPC(reflect.ValueOf(handler).Pointer())
 
 	fName, line := fnc.FileLine(0)
@@ -96,9 +101,12 @@ func getStringOfFnc(handler ApiRouteHandler) (string, string, string, int) {
 	shortName := strings.TrimSuffix(path.Base(fncName), "-fm")
 
 	packName, _, _ := strings.Cut(shortName, ".")
-	return fmt.Sprintf("'%s'.%s", path.Dir(fncName), packName), fmt.Sprintf(`'%s(ctx)': (any, error)`,
-		strings.ReplaceAll(strings.ReplaceAll(shortName, ".(*", "#"), ")", ""),
-	), path.Base(fName), line
+
+	paramReplacer := strings.NewReplacer(".(*", "#", ")", "")
+
+	return fmt.Sprintf("'%s'.%s", path.Dir(fncName), packName),
+		fmt.Sprintf(`'%s(ctx)': (any, error)`, paramReplacer.Replace(shortName)),
+		path.Base(fName), line
 }
 
 func (a *Apis) getDiagram(ctx *fasthttp.RequestCtx) (any, error) {
@@ -138,16 +146,17 @@ Params:
 		}
 	}
 	s := buf.String()
-	res, err := GetGraphSVG(ctx, buf, &d2svg.RenderOpts{
-		Pad:           0,
-		Sketch:        true,
-		Center:        true,
-		ThemeID:       1,
-		DarkThemeID:   nil,
-		Font:          "",
-		SetDimensions: true,
-		MasterID:      "",
-	})
+	opts := &d2svg.RenderOpts{
+		//Pad:           &d2svg.DEFAULT_PADDING,
+		//Sketch:        true,
+		//Center:        true,
+		ThemeID:     &d2themescatalog.NeutralGrey.ID,
+		DarkThemeID: nil,
+		Font:        "",
+		//SetDimensions: true,
+		MasterID: "",
+	}
+	res, err := GetGraphSVG(ctx, buf, opts)
 	if err != nil {
 		errMsg := err.Error()
 		b, _, ok := strings.Cut(errMsg, ":")

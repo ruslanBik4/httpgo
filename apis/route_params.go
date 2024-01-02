@@ -77,7 +77,7 @@ type InParam struct {
 	TestValue         string
 }
 
-func (param InParam) Format(s fmt.State, verb rune) {
+func (param *InParam) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's', 'v':
 		_, _ = fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %v,`,

@@ -50,9 +50,12 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	defer stream.WriteObjectEnd()
 	defer func() {
-		err, ok := recover().(error)
-		if ok {
+		switch err := recover().(type) {
+		case nil:
+		case error:
 			logs.ErrorLog(err)
+		default:
+			logs.StatusLog("recover: %v", err)
 		}
 	}()
 
@@ -557,7 +560,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectField("license")
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "name", "Apache 2.0")
-	AddFieldToJSON(stream, "url", "http://www.apache.org/licenses/LICENSE-2.0.html")
+	AddFieldToJSON(stream, "url", "https://www.apache.org/licenses/LICENSE-2.0.html")
 
 	stream.WriteObjectEnd()
 	stream.WriteObjectEnd()

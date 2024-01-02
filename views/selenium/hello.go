@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package main
 
@@ -23,7 +26,7 @@ func Example() {
 	defer wd.Quit()
 
 	// Navigate to the simple playground interface.
-	if err := wd.Get("http://vps-20777.vps-default-host.net/extranet/"); err != nil {
+	if err := wd.Get("https://vps-20777.vps-default-host.net/extranet/"); err != nil {
 		panic(err)
 	}
 

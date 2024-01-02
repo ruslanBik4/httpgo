@@ -303,7 +303,7 @@ func StreamElement(qw422016 *qt422016.Writer, value any) {
 //line anyjson.qtpl:64
 	case float32:
 //line anyjson.qtpl:64
-		qw422016.N().F(float64(vv))
+		qw422016.E().V(vv)
 //line anyjson.qtpl:65
 	case float64:
 //line anyjson.qtpl:65

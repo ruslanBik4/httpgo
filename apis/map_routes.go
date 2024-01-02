@@ -17,6 +17,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/typesExt"
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
@@ -26,6 +27,13 @@ import (
 type mapRoute struct {
 	method tMethod
 	path   string
+}
+
+func newMapRouteFromCtx(ctx *fasthttp.RequestCtx) mapRoute {
+	return mapRoute{
+		methodFromName(gotools.BytesToString(ctx.Method())),
+		gotools.BytesToString(ctx.Path()),
+	}
 }
 
 type MapRoutes map[mapRoute]*ApiRoute
@@ -183,7 +191,7 @@ func (r MapRoutes) GetTestRouteSuffix(route *ApiRoute) string {
 	return testRouteSuffix
 }
 func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
-	m := mapRoute{methodFromName(string(ctx.Method())), string(ctx.Path())}
+	m := newMapRouteFromCtx(ctx)
 	// check exactly
 	if route, ok := r[m]; ok {
 		return route, nil
@@ -195,11 +203,13 @@ func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 		return route, nil
 	}
 
-	for i := GET; i < UNKNOWN-1; i++ {
-		m.method = i
+	e := m.method
+	//find some pathURL with others method
+	for t := GET; t < UNKNOWN-1; t++ {
+		m.method = t
 		route, ok := r[m]
 		if ok {
-			return route, errMethodNotAllowed
+			return route, &ErrMethodNotAllowed{expected: e, actual: t}
 		}
 	}
 

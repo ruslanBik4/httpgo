@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"go/types"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"strings"
 
@@ -24,7 +23,7 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-// TableInsert insert data of params into table
+// TableInsert insert data of {params} into {table}
 func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (any, error) {
 
@@ -59,7 +58,7 @@ func TableInsert(preRoute string, table dbEngine.Table, params []string) apis.Ap
 	}
 }
 
-// TableUpdate
+// TableUpdate update data in {table}
 func TableUpdate(preRoute string, table dbEngine.Table, columns, priColumns []string) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (any, error) {
 
@@ -198,7 +197,7 @@ func ReadByteA(fHeaders []*multipart.FileHeader) ([]string, [][]byte, error) {
 			return nil, nil, errors.Wrap(err, fHeader.Filename)
 		}
 
-		b, err := ioutil.ReadAll(f)
+		b, err := io.ReadAll(f)
 		if err != nil {
 			logs.DebugLog(err, fHeader)
 			return nil, nil, errors.Wrap(err, "read "+fHeader.Filename)

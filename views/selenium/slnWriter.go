@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package main
 
@@ -32,11 +35,15 @@ var (
 
 func main() {
 	defer func() {
-		err := recover()
-		if err, ok := err.(error); ok {
-			//wd.SetAlertText(err.Error())
+		switch err := recover().(type) {
+		case nil:
+		case error:
 			logs.ErrorStack(err, "stop my work %#v, %T", err)
 			time.Sleep(time.Millisecond * 5000)
+			//wd.SetAlertText(err.Error())
+
+		default:
+			logs.StatusLog("recover: %v", err)
 		}
 	}()
 
@@ -146,7 +153,7 @@ func main() {
 			}
 			activeElem = newElem
 		}
-
+		count++
 	}
 	log.Print(wd.Status())
 }
@@ -185,7 +192,7 @@ func saveNewElement(elem selenium.WebElement, url string) (result currentElem, e
 			}
 		} else {
 			class, err = elem.GetAttribute("class")
-			class = strings.Replace(class, "sln_writer", "", 0)
+			class = strings.Replace(class, "sln_writer", "", -1)
 			if class > "" {
 				result.Selector = tag + "." + class + "::first"
 			} else {

@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 // Package services для подключения сервисов и устроения взаимодействия сервисов с главным потоком
 package services
@@ -30,14 +33,14 @@ type IChildService interface {
 	IsReadyToStart() bool
 }
 
-type rootServices struct {
+type RootServices struct {
 	services map[string]IService
 }
 
-var sServices = &rootServices{services: make(map[string]IService, 0)}
+var sServices = &RootServices{services: make(map[string]IService, 0)}
 
 // InitServices started all services from sServices.services in some goroutins
-func InitServices(ctx context.Context, list ...string) *rootServices {
+func InitServices(ctx context.Context, list ...string) *RootServices {
 	if len(list) > 0 {
 		for _, name := range list {
 			if service, ok := sServices.services[name]; ok {
@@ -55,7 +58,7 @@ func InitServices(ctx context.Context, list ...string) *rootServices {
 	return sServices
 }
 
-//получение сервиса по имени
+// получение сервиса по имени
 func getService(name string) (pServ IService) {
 	pServ, ok := sServices.services[name]
 	if !ok {

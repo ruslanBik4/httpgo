@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
- * Першій пріватний програміст.
+ * Перший приватний програміст.
  */
 
 // Package mongod Реализует работу с базой данных mongodb
@@ -27,7 +27,7 @@ type mdService struct {
 	status  string
 }
 
-// Запускает связь с mongodb на дефолтный порт. (localhost:27017)
+// Init Запускает связь с mongodb на дефолтный порт. (localhost:27017)
 // TODO: перенести порт для связи в config для его настройки
 func (mongod *mdService) Init(ctx context.Context) error {
 
@@ -67,7 +67,7 @@ func (mongod *mdService) Close(out chan<- interface{}) error {
 	return nil
 }
 
-// получаем текущий статус сервиса
+// Status получаем текущий статус сервиса
 func (mongod *mdService) Status() string {
 	return mongod.status
 }

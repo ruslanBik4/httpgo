@@ -82,7 +82,7 @@ function appendTable() {
     const parts = reqLimit.exec(url);
     if (!parts || parts.length < 1) {
         url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
-    } else if (lines === integer(parts[1])) {
+    } else if (lines === parseInt(parts[1])) {
         return false;
     } else {
         url = url.replace(reqLimit, `$1${lines}`);

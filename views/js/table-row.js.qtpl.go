@@ -139,7 +139,7 @@ function appendTable() {
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
 	qw422016.N().S(`
-    } else if (lines === integer(parts[1])) {
+    } else if (lines === parseInt(parts[1])) {
         return false;
     } else {
         url = url.replace(reqLimit, `)

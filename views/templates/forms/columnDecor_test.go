@@ -1,6 +1,9 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package forms
 
@@ -8,8 +11,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ruslanBik4/dbEngine/dbEngine"
 )
 
 const (
@@ -46,21 +50,36 @@ func TestColumnDecor_GetValues(t *testing.T) {
 		Label         string
 		pattern       string
 		patternDesc   string
-		Value         interface{}
+		Value         any
 	}
 	tests := []struct {
 		name       string
 		fields     fields
-		wantValues []interface{}
+		wantValues []any
 	}{
-		// TODO: Add test cases.
 		{
-			"1",
+			"single",
+			fields{
+				Column: dbEngine.NewStringColumn("name", "name", true),
+				Value:  "single",
+			},
+			[]any{"single"},
+		},
+		{
+			"1,2,3",
 			fields{
 				Column: dbEngine.NewStringColumn("name", "name", true),
 				Value:  []string{"1", "2", "3"},
 			},
-			[]interface{}{"1", "2", "3"},
+			[]any{"1", "2", "3"},
+		},
+		{
+			"Digit",
+			fields{
+				Column: dbEngine.NewStringColumn("name", "name", true),
+				Value:  1,
+			},
+			[]any{1},
 		},
 	}
 	for _, tt := range tests {

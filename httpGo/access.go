@@ -1,15 +1,16 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package httpGo
 
 import (
-	"io/ioutil"
 	"strings"
 
 	"github.com/valyala/fasthttp"
-	"gopkg.in/yaml.v2"
 )
 
 type Access interface {
@@ -85,22 +86,4 @@ func (cfg *AccessConf) isDenyIP(addr string) bool {
 
 func (cfg *AccessConf) IsAccess() bool {
 	return cfg != nil && (len(cfg.AllowIP) > 0 || len(cfg.DenyIP) > 0)
-}
-
-func (cfg *CfgHttp) Reload() (interface{}, error) {
-
-	buf, err := ioutil.ReadFile(cfg.fileCfg)
-	if err != nil {
-		return nil, err
-	}
-
-	var cfgGlobal CfgHttp
-	err = yaml.Unmarshal(buf, &cfgGlobal)
-	if err != nil {
-		return nil, err
-	}
-
-	cfg.AccessConf = cfgGlobal.AccessConf
-
-	return cfg, nil
 }

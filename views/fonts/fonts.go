@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 // Package fonts сервер отдачи шрифтов (пока реализовано только разделение браузеров на два виде,
 // позже планируется учитывать другие параметры пользователя
@@ -8,7 +11,6 @@ package fonts
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -55,11 +57,11 @@ func HandleGetFont(ctx *fasthttp.RequestCtx) (interface{}, error) {
 	if pos := bytes.Index(filename, []byte(".")); pos > 0 {
 		filename = filename[:pos-1]
 	}
-	data, err := ioutil.ReadFile(path.Join(pathWeb, string(filename)+ext))
+	data, err := os.ReadFile(path.Join(pathWeb, string(filename)+ext))
 
 	if err != nil {
 		if os.IsNotExist(err) && (ext == ".woff") {
-			data, err = ioutil.ReadFile(path.Join(pathWeb, string(filename)+".ttf"))
+			data, err = os.ReadFile(path.Join(pathWeb, string(filename)+".ttf"))
 		}
 		if err != nil {
 			return nil, err

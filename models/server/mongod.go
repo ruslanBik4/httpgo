@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Yurii Kravchuk. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 // Package server назначение модуля - читать и отдавать конфигурационные настройки
 package server
@@ -9,12 +12,12 @@ import (
 	"os"
 	"path/filepath"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ruslanBik4/logs"
 )
 
-type mongodConfig struct {
+type MongodConfig struct {
 	systemPath  string
 	wwwPath     string
 	SessionPath string
@@ -23,20 +26,20 @@ type mongodConfig struct {
 	}
 }
 
-var mConfig *mongodConfig
+var mConfig *MongodConfig
 
-//GetMongodConfig функция для получения конфигураций для mongod
-func GetMongodConfig() *mongodConfig {
+// GetMongodConfig функция для получения конфигураций для mongod
+func GetMongodConfig() *MongodConfig {
 
 	if mConfig != nil {
 		return mConfig
 	}
 
-	mConfig = &mongodConfig{}
+	mConfig = &MongodConfig{}
 
 	return mConfig
 }
-func (mConfig *mongodConfig) Init(fStatic, fWeb, fSession *string) error {
+func (mConfig *MongodConfig) Init(fStatic, fWeb, fSession *string) error {
 
 	mConfig.systemPath = *fStatic
 	mConfig.wwwPath = *fWeb
@@ -61,10 +64,10 @@ func (mConfig *mongodConfig) Init(fStatic, fWeb, fSession *string) error {
 	return nil
 }
 
-//The Data Source DB has a common format, like e.g. PEAR DB uses it,
+// MongoDBName The Data Source DB has a common format, like e.g. PEAR DB uses it,
 // but without type-prefix (optional parts marked by squared brackets):
 //
-//[username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
-func (mConfig *mongodConfig) MongoDBName() string {
+// [username[:password]@][protocol[(address)]]/dbname[?param1=value1&...&paramN=valueN]
+func (mConfig *MongodConfig) MongoDBName() string {
 	return mConfig.dbParams.DB
 }

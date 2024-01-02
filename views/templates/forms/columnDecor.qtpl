@@ -3,6 +3,7 @@
 	"go/types"
 	"sort"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 )
 %}
@@ -141,7 +142,7 @@
     {%- switch vv := value.(type) -%}
       {%- case nil -%}
       {%- case []byte -%}
-	    {% if col.InputType == "textarea" %}{%s= string(vv) %} {% else %} "{%= json.Element(value)%}" {% endif %}
+	    {% if col.InputType == "textarea" %}{%s= gotools.BytesToString(vv) %} {% else %} "{%= json.Element(value)%}" {% endif %}
       {%- case string -%}
 	    {% if col.InputType == "textarea" %}{%s= vv %} {% else %} "{%s vv %}" {% endif %}
       {%- default -%}{%= json.Element(value) %}
@@ -155,8 +156,9 @@ id="id_{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
          {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
-         {% if col.Max > "" %}max="{%s col.Max %}"{%- endif -%}
-         {% if col.Min > "" %}min="{%s col.Min %}"{%- endif -%}
+         {% if col.Max != nil %} max={%v col.Max %} {% space %} {%- endif -%}
+         {% if col.Min != nil %} min={%v col.Min %} {% space %} {%- endif -%}
+         {% if col.Step != nil %}step={%v col.Step %} {% space %} {%- endif -%}
          {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
@@ -203,6 +205,13 @@ id="id_{%s col.InputName(i) %}"
                 >{%s title %}</option>
              {% endfor %}
           </select>
+ 	{% case col.InputType == "slider" %}
+	     <input class="slider" type="hidden" {%= col.RenderAttr(i) %}
+            {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
+	     >
+         <span class="label-text slider" data-placeholder="{%s col.Label %}" data-value="{%v col.Value %}"></span>
+         <div class="slider"></div>
+
  	{% case col.InputType == "textarea" %}
           <textarea {%= col.RenderAttr(i) %}{% if val != nil %} value={%= col.RenderValue(val) %} {% endif %} >{%= col.RenderValue(val) %}</textarea>
         {%- if !col.IsSlice -%}
