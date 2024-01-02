@@ -5,6 +5,7 @@
 {% func (menu Menu) RenderMenu(classMenu, classLi string) %}
 {% collapsespace %}
 {% stripspace %}
+{%- if len(menu) > 0 -%}
 <ul class={%s classMenu %}>
     {% for _, item := range menu %}
         <li id="{%s= item.Name %}_{%s classLi %}" class="{%s classLi %}">
@@ -19,6 +20,7 @@
         </li>
     {% endfor %}
 </ul>
+{%- endif -%}
 {% endstripspace %}
 {% endcollapsespace %}
 {% endfunc %}

@@ -103,12 +103,6 @@ var (
 
 const PathVersion = "/api/v1"
 
-const (
-	UserPrivelegiesGrant = "grant"
-	UsersPrivilegiesEdit = "edit"
-	ActionsPropertyName  = "actions"
-)
-
 type DbRouteType int
 
 const (

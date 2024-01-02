@@ -56,8 +56,8 @@ type ColumnDecor struct {
 	PlaceHolder       string
 	LinkNew           string
 	Label             string
-	Max               string
-	Min               string
+	Max               any
+	Min               any
 	multiple          bool
 	pattern           string
 	patternDesc       string
@@ -65,6 +65,7 @@ type ColumnDecor struct {
 	Accept            string
 	Suggestions       string
 	SuggestionsParams map[string]any
+	Step              any
 }
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
@@ -140,9 +141,11 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 	obj.Visit(func(key []byte, val *fastjson.Value) {
 		switch key := gotools.BytesToString(key); key {
 		case "max":
-			col.Max = gotools.BytesToString(val.GetStringBytes())
+			col.Max = getValue(val)
 		case "min":
-			col.Min = gotools.BytesToString(val.GetStringBytes())
+			col.Min = getValue(val)
+		case "step":
+			col.Step = getValue(val)
 		case "name":
 			name = gotools.BytesToString(val.GetStringBytes())
 		case "title":
@@ -181,7 +184,7 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 		case "defaultInputValue":
 			col.DefaultInputValue = gotools.BytesToString(val.GetStringBytes())
 		case "value":
-			col.Value = gotools.BytesToString(val.GetStringBytes())
+			col.Value = getValue(val)
 		default:
 			if strings.HasPrefix(key, "on") {
 				col.Events[key] = gotools.BytesToString(val.GetStringBytes())
@@ -198,6 +201,27 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 	col.Column = dbEngine.NewStringColumn(name, comment, isRequired)
 
 	return &col
+}
+
+func getValue(val *fastjson.Value) any {
+	switch val.Type() {
+	case fastjson.TypeTrue:
+		return true
+	case fastjson.TypeFalse:
+		return false
+	case fastjson.TypeNull:
+		return nil
+	case fastjson.TypeNumber:
+		f, err := val.Float64()
+		if err != nil {
+			logs.ErrorLog(err, "parse %v", val)
+		}
+		return f
+	case fastjson.TypeString:
+		return gotools.BytesToString(val.GetStringBytes())
+	default:
+		return val.String()
+	}
 }
 
 func (col *ColumnDecor) Each(key []byte, val *fastjson.Value) {
@@ -280,6 +304,9 @@ func (col *ColumnDecor) Copy() *ColumnDecor {
 		LinkNew:       col.LinkNew,
 		pattern:       col.pattern,
 		patternDesc:   col.patternDesc,
+		Min:  col.Min,
+		Max:  col.Max,
+		Step: col.Step,
 	}
 
 }

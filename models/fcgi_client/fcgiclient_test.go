@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package fcgiclient
 
 import (
@@ -51,14 +58,13 @@ func (s FastCGIServer) ServeHTTP(resp http.ResponseWriter, req *http.Request) {
 		for k0, v0 := range req.Form {
 			h := md5.New()
 			io.WriteString(h, v0[0])
-			md5 := fmt.Sprintf("%x", h.Sum(nil))
 
 			length += len(k0)
 			length += len(v0[0])
 
 			// echo error when key != md5(val)
-			if md5 != k0 {
-				fmt.Fprintln(resp, "server:err ", md5, k0)
+			if m := fmt.Sprintf("%x", h.Sum(nil)); m != k0 {
+				fmt.Fprintln(resp, "server:err ", m, k0)
 				stat = "FAILED"
 			}
 		}

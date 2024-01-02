@@ -58,7 +58,7 @@ func IsAJAXRequest(r *fasthttp.Request) bool {
 	return len(r.Header.Peek("X-Requested-With")) > 0
 }
 
-// RenderOutput render for output script execute
+// RenderHTMLPage render for output script execute
 func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
 
 	WriteHeadersHTML(ctx)

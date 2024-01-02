@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
 package docs
 
 import (
@@ -5,7 +12,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strings"
 )
@@ -29,7 +35,7 @@ func readText(files []*zip.File) (text string, err error) {
 
 // wordDocToString converts a word document to string
 func wordDocToString(reader io.Reader) (string, error) {
-	b, err := ioutil.ReadAll(reader)
+	b, err := io.ReadAll(reader)
 	if err != nil {
 		return "", err
 	}

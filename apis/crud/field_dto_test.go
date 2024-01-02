@@ -517,10 +517,6 @@ func TestDtoFileField_RequestType(t *testing.T) {
 }
 
 func TestEncodeDateString(t *testing.T) {
-	type args struct {
-		ptr    unsafe.Pointer
-		stream *jsoniter.Stream
-	}
 	tests := []struct {
 		name string
 		args DateString
