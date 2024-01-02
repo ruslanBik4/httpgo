@@ -103,5 +103,4 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	oss.terrastruct.com/util-go v0.0.0-20231101220827-55b3812542c2 // indirect
-
 )
