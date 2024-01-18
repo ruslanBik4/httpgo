@@ -29,7 +29,7 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
 	`)
 //line styles.css.qtpl:6
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -422,7 +422,7 @@ label > input:not([value]) + span::after, label > textarea:not([value]) + span::
     transition: all .4s;
     background: #db1563;
     background: -webkit-linear-gradient(45deg, #d5007d, #e53935);
-    background: -o-linear-gradient(45deg, o #d5007d, #e53935);
+    background: -o-linear-gradient(45deg, #d5007d, #e53935);
     background: -moz-linear-gradient(45deg, #d5007d, #e53935);
     background:linear-gradient(45deg, #d5007d, #e53935)
 }
@@ -631,7 +631,11 @@ form .error-field {
     left: 0;
     position: relative;
 }
-`)
+
+/* tineMCE dialog */
+.tox.tox-tinymce-aux {
+    z-index: 100000;
+}`)
 //line styles.css.qtpl:6
 	qw422016.N().S(`
 `)

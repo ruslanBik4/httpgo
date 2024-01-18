@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -59,11 +59,9 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		}
 	}()
 
-	paths := make(map[string][]*ApiRoute, 0)
+	paths := make(map[string][]*ApiRoute, len(mapRoutes)%2)
 	for m, route := range mapRoutes {
-		a := paths[m.path]
-		a = append(a, route)
-		paths[m.path] = a
+		paths[m.path] = append(paths[m.path], route)
 	}
 	sortList := make([]string, 0, len(paths))
 	for name := range paths {
