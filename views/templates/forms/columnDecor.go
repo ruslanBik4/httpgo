@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -304,9 +304,9 @@ func (col *ColumnDecor) Copy() *ColumnDecor {
 		LinkNew:       col.LinkNew,
 		pattern:       col.pattern,
 		patternDesc:   col.patternDesc,
-		Min:  col.Min,
-		Max:  col.Max,
-		Step: col.Step,
+		Min:           col.Min,
+		Max:           col.Max,
+		Step:          col.Step,
 	}
 
 }
@@ -388,13 +388,13 @@ func (col *ColumnDecor) getPattern(name string) {
 
 const (
 	email = "email"
-	tel   = "phone"
+	phone = "phone"
 )
 
 func (col *ColumnDecor) Type() string {
 	if strings.HasPrefix(col.Name(), email) {
 		return email
-	} else if strings.HasPrefix(col.Name(), tel) {
+	} else if strings.HasPrefix(col.Name(), phone) {
 		return "tel"
 	}
 
@@ -496,7 +496,7 @@ func (col *ColumnDecor) inputType() string {
 		return "date"
 	case "datetime", "datetimetz", "timestamp", "timestamptz", "time", "_timestamp", "_timestamptz", "_time":
 		return "datetime"
-	case email, tel, "tel", "password", "url":
+	case email, phone, "tel", "password", "url":
 		return col.Type()
 	case "text", "_text", "json", "jsonb":
 		return "textarea"

@@ -10,6 +10,9 @@
 package {%s packageName %}
 
 import (
+    "go/types"
+
+	"github.com/ruslanBik4/httpgo/apis/crud"
     "github.com/ruslanBik4/httpgo/views/templates/forms"
 	"github.com/ruslanBik4/dbEngine/dbEngine"
     "github.com/ruslanBik4/logs"
@@ -20,33 +23,58 @@ import (
 	 "{%s repo %}/api"
 	 "{%s repo %}/db"
 )
+
+// {%s strcase.ToCamel(unitName) %} params on routes for CRUD table '
+var (
+	{%s strcase.ToCamel(unitName) %}GetParams = append(crud.APIQueriesParams,
+    {%- for _, block := range f.Blocks -%}
+            {%- for _, col := range block.Columns -%}
+                apis.InParam{
+                {%- if col.Column != nil -%}
+                    Name: "{%s= col.Name() %}",
+                    {%- if col.Value != nil && col.Value != "nil" -%}
+                    DefValue: `{%v col.Value %}`,
+                    {%- endif -%}
+                    Type: apis.NewTypeInParam({%- if col.InputType == "number" -%}types.Int32{% else %}types.String{% endif %}),
+                {%- endif -%}
+                },
+            {%- endfor -%}
+    {%- endfor -%}
+   )
+)
+
 var ShowForm{%s strcase.ToCamel(unitName) %}Route = &apis.ApiRoute{
             Desc:   "# show form *{%s f.Title %} {%s f.Description %} ",
             Fnc: HandleShowForms{%s strcase.ToCamel(unitName) %},
             Method: apis.GET,
             IsAJAXRequest: true,
+			Params: {%s strcase.ToCamel(unitName) %}GetParams,
     }
 // HandleShowForms is handle for show form '{%s strcase.ToCamel(unitName) %}'
-func HandleShowForms{%s strcase.ToCamel(unitName) %} (ctx *fasthttp.RequestCtx) (any, error) {
+func HandleShowForms{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx) (any, error) {
     DB, ok := ctx.UserValue(apis.Database).(*db.Database)
     if !ok {
         logs.ErrorLog(dbEngine.ErrDBNotFound)
         return nil, dbEngine.ErrDBNotFound
     }
+
     patternList, _ := DB.NewPatternsList(ctx)
 	views.WriteHeadersHTML(ctx)
+
 	return RenderForm{%s strcase.ToCamel(unitName) %}(ctx, patternList)
 }
 
 func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patternList dbEngine.Table) (any, error) {
 
 	f := forms.FormField {
-        	Title: api.Translate(ctx, "{%s= f.Title %}"),
         	Action: "{%s f.Action %}",
         	Method: "{%s f.Method %}",
         	Description: api.Translate(ctx, "{%s= f.Description %}"),
         	{%- if f.HideBlock != nil -%}
         	HideBlock: {%s= fmt.Sprintf("%#v", f.HideBlock)  %},
+        	{%- endif -%}
+            {%- if f.Title > "" -%}
+        	Title: api.Translate(ctx, "{%s= f.Title %}"),
         	{%- endif -%}
         	Blocks: []forms.BlockColumns{
                 {%- for _, block := range f.Blocks -%}
@@ -54,13 +82,16 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                    Id: {%d block.Id %},
                    Title: api.Translate(ctx, "{%s= block.Title %}"),
                    Description: api.Translate(ctx, "{%s= block.Description %}"),
-                   Multiple: {%v block.Multiple %},
+                   {%- if block.Multiple -%}
+                   Multiple: true,
+                   {%- endif -%}
                    {%- if len(block.Columns) > 0 -%}
                    Columns: []*forms.ColumnDecor{
                         {%- for _, col := range block.Columns -%}
                         {
                             {%- if col.Column != nil -%}
                             Column: dbEngine.NewStringColumn("{%s= col.Name() %}", api.Translate(ctx, "{%s= col.Comment() %}"), {%v col.Required() %}),
+                            Value: ctx.UserValue("{%s= col.Name() %}"),
                             {%- endif -%}
                             {%- if len(col.Events) > 0 -%}
                             Events:  map[string]string{
@@ -91,11 +122,16 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                             ExtProperties: {%s= fmt.Sprintf("%+#v", col.ExtProperties) %},
                             {%- endif -%}
                             InputType: "{%s= col.InputType %}",
+                            {%- if col.SpecialInputName > "" -%}
                             SpecialInputName: "{%s= col.SpecialInputName %}",
+                            {%- endif -%}
+                            {%- if col.DefaultInputValue > "" -%}
                             DefaultInputValue: "{%s= col.DefaultInputValue %}",
+                            {%- endif -%}
                             {%- if len(col.Attachments) > 0 -%}
                             Attachments: {%s= fmt.Sprintf("%+#v", col.Attachments) %},
                             {%- endif -%}
+                            PatternList: patternList,
                             {%- if col.SelectOptions != nil && len(col.SelectOptions) > 0 -%}
                             SelectOptions: {%s= fmt.Sprintf("%+#v", col.SelectOptions) %},
                             {%- endif -%}
@@ -109,9 +145,6 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                             LinkNew: "{%s= col.LinkNew %}",
                             {%- endif -%}
                             Label: api.Translate(ctx, "{%s= col.Label %}"),
-                            {%- if col.Value != nil && col.Value != "nil" -%}
-                            Value: `{%v col.Value %}`,
-                            {%- endif -%}
                             {%- if col.Suggestions > "" -%}
                             Suggestions: `{%v col.Suggestions %}`,
                             {%- endif -%}
@@ -126,10 +159,18 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                     Buttons:[]forms.Button{
                         {%- for _, btn := range block.Buttons -%}
                             forms.Button{
+                                {%- if btn.Title > "" -%}
 	                            Title:      api.Translate(ctx, `{%s= btn.Title %}`),
-	                            Position:   {%v btn.Position %},
+	                            {%- endif -%}
+                                {%- if btn.Position -%}
+	                            Position: true,
+	                            {%- endif -%}
+                                {%- if btn.Type > "" -%}
 	                            Type:       "{%s= btn.Type %}",
+	                            {%- endif -%}
+                                {%- if btn.OnClick > "" -%}
 	                            OnClick:    `{%s= btn.OnClick %}`,
+	                            {%- endif -%}
                             },
                         {%- endfor -%}
                     },
@@ -139,16 +180,6 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
             },
         }
 
-    if patternList != nil {
-        for _, block := range f.Blocks {
-            for _, col := range block.Columns {
-                col.PatternList = patternList
-                if p := col.Pattern(); p > "" {
-                    logs.DebugLog("set pattern:", p)
-                }
-            }
-        }
-    }
 	f.WriteRenderForm( ctx.Response.BodyWriter(), true)
 
     return nil, nil
