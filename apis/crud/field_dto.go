@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -22,6 +22,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -145,7 +146,6 @@ func (d *DateString) UnmarshalJSON(src []byte) (err error) {
 		s += err.Error()
 	}
 
-	logs.StatusLog(toString)
 	return errors.Wrap(err, s)
 }
 
@@ -155,11 +155,11 @@ func (d *DateString) MarshalJSON() ([]byte, error) {
 
 type DtoFileField []*multipart.FileHeader
 
-func (d *DtoFileField) GetValue() interface{} {
+func (d *DtoFileField) GetValue() any {
 	return d
 }
 
-func (d *DtoFileField) NewValue() interface{} {
+func (d *DtoFileField) NewValue() any {
 	return new(DtoFileField)
 }
 
@@ -173,6 +173,15 @@ func (d *DtoFileField) Format() string {
 
 func (d *DtoFileField) RequestType() string {
 	return "file"
+}
+
+// NewFileParam create new InParam for handling
+func NewFileParam(name, desc string) apis.InParam {
+	return apis.InParam{
+		Name: name,
+		Desc: desc,
+		Type: apis.NewStructInParam(&DtoFileField{}),
+	}
 }
 
 // CheckParams implement CheckDTO interface, put each params into user value on context
@@ -270,23 +279,10 @@ func DecodeDatetimeString(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 		}
 		iter.Error = nil
 	case jsoniter.ObjectValue:
-		err := ((*time.Time)(val)).UnmarshalText([]byte(iter.ReadObject()))
+		err := ((*time.Time)(val)).UnmarshalText(gotools.StringToBytes(iter.ReadObject()))
 		if err != nil {
 			logs.ErrorLog(err, val)
 		}
-		// val.Valid = iter.ReadMapCB(func(iterator *jsoniter.Iterator, key string) bool {
-		// 	switch strings.ToLower(key) {
-		// 	case "string":
-		// 		val.String = iter.ReadString()
-		// 		return true
-		// 	case "valid":
-		// 		val.Valid = iter.ReadBool()
-		// 		return val.Valid
-		// 	default:
-		// 		logs.ErrorLog(errors.New("unknown key of NUllString"), key)
-		// 		return false
-		// 	}
-		// })
 	default:
 		logs.ErrorLog(errors.New("unknown type"), t)
 		err := val.Scan(iter.Read())
