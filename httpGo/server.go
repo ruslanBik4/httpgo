@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -10,6 +10,7 @@ package httpGo
 import (
 	"fmt"
 	"go/types"
+	"mime/multipart"
 	"net"
 	"os"
 	"os/signal"
@@ -21,7 +22,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
+	"github.com/ruslanBik4/gotools"
 	. "github.com/ruslanBik4/httpgo/apis"
+	"github.com/ruslanBik4/httpgo/apis/crud"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -32,6 +35,7 @@ type HttpGo struct {
 	broadcast  chan string
 	apis       *Apis
 	cfg        *CfgHttp
+	store      *Store
 }
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
@@ -119,18 +123,18 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		handler := cfg.Server.Handler
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
-			addr := string(ipClient)
+			addr := gotools.BytesToString(ipClient)
 			if len(ipClient) == 0 {
 				ipClient = ctx.Request.Header.Peek("Forwarded")
 				ips := regIp.FindSubmatch(ipClient)
 
 				if len(ips) == 0 {
-					addr = string(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
+					addr = gotools.BytesToString(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
 					if len(addr) == 0 {
 						addr = ctx.Conn().RemoteAddr().String()
 					}
 				} else {
-					addr = string(ips[0])
+					addr = gotools.BytesToString(ips[0])
 				}
 			}
 
@@ -144,6 +148,8 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		}
 	}
 
+	store := NewStore()
+	apis.Ctx.AddValue(AppStore, store)
 	// add cfg refresh routers, ignore errors
 	apisRoute := createAdminRoutes(cfg)
 
@@ -155,12 +161,13 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		broadcast:  make(chan string),
 		apis:       apis,
 		cfg:        cfg,
+		store:      store,
 	}
 	return h
 }
 
 func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
-	params := []InParam{
+	allowedParams := []InParam{
 		{
 			Name: "allow_ip",
 			Type: NewSliceTypeInParam(types.String),
@@ -210,7 +217,7 @@ add IP addresses into config of httpGo`,
 			Multipart: true,
 			Method:    POST,
 			OnlyAdmin: true,
-			Params:    params,
+			Params:    allowedParams,
 		},
 		"/httpgo/cfg/rm_ip": {
 			Desc: `# HttpGo managements
@@ -229,7 +236,33 @@ remove IP addresses show config of httpGo`,
 			Multipart: true,
 			Method:    POST,
 			OnlyAdmin: true,
-			Params:    params,
+			Params:    allowedParams,
+		},
+		"/httpgo/store/": {
+			Desc: " # store",
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
+				id := ctx.UserValue(crud.ParamsID.Name).(int32)
+				name := ctx.UserValue(crud.ParamsName.Name).(string)
+				return ctx.UserValue(AppStore).(*Store).Get(uint64(id), name), nil
+			},
+			Params: []InParam{
+				crud.ParamsID,
+				crud.ParamsName,
+			},
+		},
+		"/httpgo/store/put": {
+			Desc: " # store",
+			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
+				val := ctx.UserValue("blob").([]*multipart.FileHeader)
+				name := ctx.UserValue(crud.ParamsName.Name).(string)
+				return ctx.UserValue(AppStore).(*Store).Set(ctx, name, val), nil
+			},
+			Method:    POST,
+			Multipart: true,
+			Params: []InParam{
+				crud.ParamsName,
+				crud.NewFileParam("blob", "file to saving in store"),
+			},
 		},
 	}
 }

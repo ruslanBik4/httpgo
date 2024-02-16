@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -9,8 +9,6 @@ package auth
 
 import (
 	"github.com/valyala/fasthttp"
-
-	"github.com/ruslanBik4/httpgo/views"
 )
 
 // AjaxOnly wrap auth manager for ajax endpoint on case full refresh web-page
@@ -23,12 +21,12 @@ func NewAjaxOnly(auth FncAuth) *AjaxOnly {
 }
 
 func (r *AjaxOnly) Auth(ctx *fasthttp.RequestCtx) bool {
-	return !views.IsAJAXRequest(&ctx.Request) || (r.auth != nil && r.auth.Auth(ctx)) ||
+	return !IsAJAXRequest(&ctx.Request) || (r.auth != nil && r.auth.Auth(ctx)) ||
 		r.GetAuthManager(ctx, false)
 }
 
 func (r *AjaxOnly) AdminAuth(ctx *fasthttp.RequestCtx) bool {
-	return !views.IsAJAXRequest(&ctx.Request) || (r.auth != nil && r.auth.AdminAuth(ctx)) ||
+	return !IsAJAXRequest(&ctx.Request) || (r.auth != nil && r.auth.AdminAuth(ctx)) ||
 		r.GetAuthManager(ctx, true)
 }
 
@@ -43,4 +41,9 @@ func (r *AjaxOnly) String() string {
 		return r.auth.String()
 	}
 	return `ajax wrap for auth`
+}
+
+// IsAJAXRequest - is this AJAX-request
+func IsAJAXRequest(r *fasthttp.Request) bool {
+	return len(r.Header.Peek("X-Requested-With")) > 0
 }

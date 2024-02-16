@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -23,13 +23,11 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
-	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/logs"
 
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
-	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
 
@@ -148,56 +146,10 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	}
 
 	// success execution
-	if err := WriteResponse(ctx, resp); err != nil {
+	if err := views.WriteResponse(ctx, resp); err != nil {
 		a.renderError(ctx, err, resp)
 	}
 }
-
-// WriteResponse to ctx body according to type of resp
-func WriteResponse(ctx *fasthttp.RequestCtx, resp any) error {
-	switch resp := resp.(type) {
-	case nil:
-		return nil
-	case []byte:
-		ctx.Response.SetBodyString(gotools.BytesToString(resp))
-		return nil
-	case string:
-		ctx.Response.SetBodyString(resp)
-		return nil
-	case int, int16, int32, int64, bool, float32, float64:
-		_, err := fmt.Fprintf(ctx, "%v", resp)
-		return err
-	default:
-		return WriteJSON(ctx, resp)
-	}
-}
-
-// WriteJSON write JSON to response
-func WriteJSON(ctx *fasthttp.RequestCtx, r any) (err error) {
-
-	defer func() {
-		if err == nil {
-			errR := recover()
-			if errR != nil {
-				logs.ErrorStack(err, "WriteJSON")
-				err = errors.Wrap(errR.(error), "marshal json")
-			}
-		}
-	}()
-
-	json.WriteElement(ctx, r)
-	WriteJSONHeaders(ctx)
-
-	return nil
-}
-
-// WriteJSONHeaders return standard headers for JSON
-func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
-}
-
-// render JSON from any data type
-const jsonHEADERSContentType = "application/json; charset=utf-8"
 
 // renderError send error message into response
 func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
@@ -265,7 +217,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 	ctx.SetStatusCode(fasthttp.StatusBadRequest)
-	if err := WriteJSON(ctx, resp); err != nil {
+	if err := views.WriteJSON(ctx, resp); err != nil {
 		logs.ErrorLog(err, resp)
 	}
 

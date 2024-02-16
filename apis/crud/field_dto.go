@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go/types"
 	"io"
 	"mime/multipart"
 	"strings"
@@ -180,7 +181,8 @@ func NewFileParam(name, desc string) apis.InParam {
 	return apis.InParam{
 		Name: name,
 		Desc: desc,
-		Type: apis.NewStructInParam(&DtoFileField{}),
+		Type: apis.NewTypeInParam(types.UnsafePointer),
+		//Type: apis.NewStructInParam(&DtoFileField{}),
 	}
 }
 

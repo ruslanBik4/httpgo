@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -25,7 +25,9 @@ import (
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/typesExt"
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/auth"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 )
@@ -177,7 +179,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				}
 			}
 
-			WriteJSONHeaders(ctx)
+			views.WriteJSONHeaders(ctx)
 			if strings.Index(sqlOrName, " ") < 0 {
 				table, ok := DB.Tables[sqlOrName]
 				if ok {
@@ -479,7 +481,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		args.VisitAll(func(k, v []byte) {
 
 			key := string(k)
-			val, err := route.checkTypeAndConvertParam(ctx, key, []string{string(v)})
+			val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
 			if err != nil {
 				badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
 			} else {

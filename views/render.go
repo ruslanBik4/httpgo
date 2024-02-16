@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -12,6 +12,10 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"mime"
+	"mime/multipart"
+	"net/http"
+	"path"
 	"time"
 
 	"github.com/pkg/errors"
@@ -19,14 +23,16 @@ import (
 
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
+	"github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"
+	"github.com/ruslanBik4/logs"
 )
 
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"author":           "ruslanBik4",
-	"Server":           "%v HTTPGO/%v (CentOS) Go 1.20",
+	"Server":           "%v HTTPGO/%v (CentOS) Go 1.21",
 	"Content-Language": "en,uk",
 }
 
@@ -56,6 +62,32 @@ func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *fasthttp.Request) bool {
 	return len(r.Header.Peek("X-Requested-With")) > 0
+}
+
+func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileName string, length int) {
+	ctx.Response.Header.Set("Content-Description", "File Transfer")
+	ctx.Response.Header.Set("Content-Transfer-Encoding", "binary")
+	ctx.Response.Header.Set("Cache-Control", "must-revalidate")
+	ctx.Response.Header.SetLastModified(lastModify)
+	if length > 0 {
+		ctx.Response.Header.SetContentLength(length)
+	}
+
+	if ext := path.Ext(fileName); ext > "" {
+		ctx.Response.Header.SetContentType(mime.TypeByExtension(ext))
+	} else {
+		ct := http.DetectContentType(ctx.Response.Body())
+		if ext, err := mime.ExtensionsByType(ct); err != nil {
+			logs.ErrorLog(err)
+		} else if len(ext) > 0 {
+			fileName += ext[0]
+		}
+
+		ctx.Response.Header.SetContentType(ct)
+	}
+
+	ctx.Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
+	ctx.SetStatusCode(fasthttp.StatusOK)
 }
 
 // RenderHTMLPage render for output script execute
@@ -155,12 +187,12 @@ var jsonHEADERS = map[string]string{
 	"Content-Type": "application/json; charset=utf-8",
 }
 
+// render JSON from any data type
+const jsonHEADERSContentType = "application/json; charset=utf-8"
+
 // WriteJSONHeaders return standart headers for JSON
 func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
-	// выдаем стандартные заголовки страницы
-	for key, value := range jsonHEADERS {
-		ctx.Response.Header.Set(key, value)
-	}
+	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
 	WriteHeaders(ctx)
 }
 
@@ -199,3 +231,64 @@ func ReplaceWrapLines(out []byte) []byte {
 }
 
 const AgeOfServer = "AGE"
+
+// WriteResponse to ctx body according to type of resp
+func WriteResponse(ctx *fasthttp.RequestCtx, resp any) error {
+	switch resp := resp.(type) {
+	case nil:
+	case []byte:
+		ctx.Response.SetBodyString(gotools.BytesToString(resp))
+	case string:
+		ctx.Response.SetBodyString(resp)
+	case int, int16, int32, int64, bool, float32, float64:
+		_, err := fmt.Fprintf(ctx, "%v", resp)
+		return err
+	//case crud.DtoFileField:
+	//	for _, header := range resp {
+	//		return Download(ctx, header)
+	//	}
+	case *multipart.FileHeader:
+		return Download(ctx, resp)
+	case []*multipart.FileHeader:
+		for _, header := range resp {
+			return Download(ctx, header)
+		}
+	default:
+		return WriteJSON(ctx, resp)
+	}
+
+	return nil
+}
+
+// WriteJSON write JSON to response
+func WriteJSON(ctx *fasthttp.RequestCtx, r any) (err error) {
+
+	defer func() {
+		if err == nil {
+			errR := recover()
+			if errR != nil {
+				logs.ErrorStack(err, "WriteJSON")
+				err = errors.Wrap(errR.(error), "marshal json")
+			}
+		}
+	}()
+
+	json.WriteElement(ctx, r)
+	WriteJSONHeaders(ctx)
+
+	return nil
+}
+
+func Download(ctx *fasthttp.RequestCtx, fHeader *multipart.FileHeader) error {
+	f, err := fHeader.Open()
+	if err != nil {
+		logs.DebugLog(err, fHeader)
+		return errors.Wrap(err, fHeader.Filename)
+	}
+
+	size := int(fHeader.Size)
+	ctx.Response.SetBodyStream(f, size)
+	WriteDownloadHeaders(ctx, time.Now(), fHeader.Filename, size)
+
+	return nil
+}
