@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -145,7 +145,7 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer) {
 //line json.qtpl:41
 		qw422016.N().S(`],"actions": [{"groups": [`)
 //line json.qtpl:46
-		for i, button := range block.Buttons {
+		for i, btn := range block.Buttons {
 //line json.qtpl:47
 			if i > 0 {
 //line json.qtpl:47
@@ -155,50 +155,62 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer) {
 //line json.qtpl:49
 			qw422016.N().S(`{"buttonType":  "`)
 //line json.qtpl:51
-			qw422016.N().S(button.Type)
+			qw422016.N().S(btn.Type)
 //line json.qtpl:51
-			qw422016.N().S(`","title": "`)
+			qw422016.N().S(`","classes": "`)
 //line json.qtpl:52
-			qw422016.N().S(button.Title)
+			qw422016.N().S(btn.Classes)
 //line json.qtpl:52
+			qw422016.N().S(`",`)
+//line json.qtpl:53
+			if btn.Hidden {
+//line json.qtpl:53
+				qw422016.N().S(`"hidden": true,`)
+//line json.qtpl:53
+			}
+//line json.qtpl:53
+			qw422016.N().S(`"title": "`)
+//line json.qtpl:54
+			qw422016.N().S(btn.Title)
+//line json.qtpl:54
 			qw422016.N().S(`","type": "`)
-//line json.qtpl:53
-			qw422016.N().S(button.Type)
-//line json.qtpl:53
+//line json.qtpl:55
+			qw422016.N().S(btn.Type)
+//line json.qtpl:55
 			qw422016.N().S(`"}`)
-//line json.qtpl:55
+//line json.qtpl:57
 		}
-//line json.qtpl:55
+//line json.qtpl:57
 		qw422016.N().S(`]}]}`)
-//line json.qtpl:60
+//line json.qtpl:62
 	}
-//line json.qtpl:60
+//line json.qtpl:62
 	qw422016.N().S(`]}`)
-//line json.qtpl:63
+//line json.qtpl:65
 }
 
-//line json.qtpl:63
+//line json.qtpl:65
 func (f *FormField) WriteFormJSON(qq422016 qtio422016.Writer) {
-//line json.qtpl:63
+//line json.qtpl:65
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:63
+//line json.qtpl:65
 	f.StreamFormJSON(qw422016)
-//line json.qtpl:63
+//line json.qtpl:65
 	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:63
+//line json.qtpl:65
 }
 
-//line json.qtpl:63
+//line json.qtpl:65
 func (f *FormField) FormJSON() string {
-//line json.qtpl:63
+//line json.qtpl:65
 	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:63
+//line json.qtpl:65
 	f.WriteFormJSON(qb422016)
-//line json.qtpl:63
+//line json.qtpl:65
 	qs422016 := string(qb422016.B)
-//line json.qtpl:63
+//line json.qtpl:65
 	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:63
+//line json.qtpl:65
 	return qs422016
-//line json.qtpl:63
+//line json.qtpl:65
 }

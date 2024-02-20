@@ -17,7 +17,7 @@
     data = h["data"].(map[string]any)
   }
 %}
-<form id="{%s idShake %}_form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
+<form id=" {%s idShake %}_form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="return FormIsModified(event, this);"
          onchange="return FormIsModified(event, this);"
@@ -54,13 +54,13 @@
               </div>
             {% endfor %}
   {%- if block.Multiple -%}
-         <button class="main-btn" type="button"
+         <button class="main-btn btn" type="button"
          onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>
   {%- endif -%}
   {%- if len(block.Buttons) > 0 -%}  <div class="form-actions">
       {%- for _, btn := range block.Buttons -%}
-        <button class="{% if btn.Position %} hidden {% else %} button {% endif %}" type="{%s= btn.Type %}"
-        {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick %}"{%- endif -%}>
+        <button class="{% if btn.Position %}hidden{% else %}button btn {% endif %} {% space %} {%s btn.Classes %}"
+			type="{%s= btn.Type %}" {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick %}"{%- endif -%} {%- if btn.Hidden -%}hidden{%- endif -%} >
         {%s btn.Title %}
         </button>
       {%- endfor -%}

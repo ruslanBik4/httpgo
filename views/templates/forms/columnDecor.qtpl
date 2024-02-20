@@ -159,6 +159,7 @@ id="id_{%s col.InputName(i) %}"
          {% if col.Max != nil %} max={%v col.Max %} {% space %} {%- endif -%}
          {% if col.Min != nil %} min={%v col.Min %} {% space %} {%- endif -%}
          {% if col.Step != nil %}step={%v col.Step %} {% space %} {%- endif -%}
+         {% if col.Classes > "" %} class="{%s col.Classes %}" {% endif %}
          {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
@@ -212,7 +213,7 @@ id="id_{%s col.InputName(i) %}"
          <span class="label-text slider" data-placeholder="{%s col.Label %}" data-value="{%v col.Value %}"></span>
          <div class="slider"></div>
 
- 	{% case col.InputType == "textarea" %}
+ 	{% case col.InputType == "textarea" || col.InputType == "markdown" %}
           <textarea {%= col.RenderAttr(i) %}{% if val != nil %} value={%= col.RenderValue(val) %} {% endif %} >{%= col.RenderValue(val) %}</textarea>
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>

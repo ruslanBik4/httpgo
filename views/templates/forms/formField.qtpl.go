@@ -556,13 +556,13 @@ func RenderForm`)
 				qw422016.N().S(`                            forms.Button{
 `)
 //line formField.qtpl:162
-				if btn.Title > "" {
+				if btn.Classes > "" {
 //line formField.qtpl:162
-					qw422016.N().S(`	                            Title:      api.Translate(ctx, `)
+					qw422016.N().S(`	                            Classes:      api.Translate(ctx, `)
 //line formField.qtpl:162
 					qw422016.N().S("`")
 //line formField.qtpl:163
-					qw422016.N().S(btn.Title)
+					qw422016.N().S(btn.Classes)
 //line formField.qtpl:163
 					qw422016.N().S(``)
 //line formField.qtpl:163
@@ -573,56 +573,80 @@ func RenderForm`)
 //line formField.qtpl:164
 				}
 //line formField.qtpl:165
-				if btn.Position {
+				if btn.Hidden {
 //line formField.qtpl:165
-					qw422016.N().S(`	                            Position: true,
+					qw422016.N().S(`	                            Hidden: true,
 `)
 //line formField.qtpl:167
 				}
 //line formField.qtpl:168
-				if btn.Type > "" {
+				if btn.Position {
 //line formField.qtpl:168
-					qw422016.N().S(`	                            Type:       "`)
-//line formField.qtpl:169
-					qw422016.N().S(btn.Type)
-//line formField.qtpl:169
-					qw422016.N().S(`",
+					qw422016.N().S(`	                            Position: true,
 `)
 //line formField.qtpl:170
 				}
 //line formField.qtpl:171
-				if btn.OnClick > "" {
+				if btn.Title > "" {
 //line formField.qtpl:171
-					qw422016.N().S(`	                            OnClick:    `)
+					qw422016.N().S(`	                            Title:      api.Translate(ctx, `)
 //line formField.qtpl:171
 					qw422016.N().S("`")
 //line formField.qtpl:172
-					qw422016.N().S(btn.OnClick)
+					qw422016.N().S(btn.Title)
 //line formField.qtpl:172
 					qw422016.N().S(``)
 //line formField.qtpl:172
 					qw422016.N().S("`")
 //line formField.qtpl:172
-					qw422016.N().S(`,
+					qw422016.N().S(`),
 `)
 //line formField.qtpl:173
 				}
-//line formField.qtpl:173
+//line formField.qtpl:174
+				if btn.Type > "" {
+//line formField.qtpl:174
+					qw422016.N().S(`	                            Type:       "`)
+//line formField.qtpl:175
+					qw422016.N().S(btn.Type)
+//line formField.qtpl:175
+					qw422016.N().S(`",
+`)
+//line formField.qtpl:176
+				}
+//line formField.qtpl:177
+				if btn.OnClick > "" {
+//line formField.qtpl:177
+					qw422016.N().S(`	                            OnClick:    `)
+//line formField.qtpl:177
+					qw422016.N().S("`")
+//line formField.qtpl:178
+					qw422016.N().S(btn.OnClick)
+//line formField.qtpl:178
+					qw422016.N().S(``)
+//line formField.qtpl:178
+					qw422016.N().S("`")
+//line formField.qtpl:178
+					qw422016.N().S(`,
+`)
+//line formField.qtpl:179
+				}
+//line formField.qtpl:179
 				qw422016.N().S(`                            },
 `)
-//line formField.qtpl:175
+//line formField.qtpl:181
 			}
-//line formField.qtpl:175
+//line formField.qtpl:181
 			qw422016.N().S(`                    },
 `)
-//line formField.qtpl:177
+//line formField.qtpl:183
 		}
-//line formField.qtpl:177
+//line formField.qtpl:183
 		qw422016.N().S(`                },
 `)
-//line formField.qtpl:179
+//line formField.qtpl:185
 	}
-//line formField.qtpl:179
+//line formField.qtpl:185
 	qw422016.N().S(`            },
         }
 
@@ -631,31 +655,31 @@ func RenderForm`)
     return nil, nil
 }
 `)
-//line formField.qtpl:187
+//line formField.qtpl:193
 }
 
-//line formField.qtpl:187
+//line formField.qtpl:193
 func (f *FormField) WriteCreate(qq422016 qtio422016.Writer, repo, packageName, unitName string) {
-//line formField.qtpl:187
+//line formField.qtpl:193
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line formField.qtpl:187
+//line formField.qtpl:193
 	f.StreamCreate(qw422016, repo, packageName, unitName)
-//line formField.qtpl:187
+//line formField.qtpl:193
 	qt422016.ReleaseWriter(qw422016)
-//line formField.qtpl:187
+//line formField.qtpl:193
 }
 
-//line formField.qtpl:187
+//line formField.qtpl:193
 func (f *FormField) Create(repo, packageName, unitName string) string {
-//line formField.qtpl:187
+//line formField.qtpl:193
 	qb422016 := qt422016.AcquireByteBuffer()
-//line formField.qtpl:187
+//line formField.qtpl:193
 	f.WriteCreate(qb422016, repo, packageName, unitName)
-//line formField.qtpl:187
+//line formField.qtpl:193
 	qs422016 := string(qb422016.B)
-//line formField.qtpl:187
+//line formField.qtpl:193
 	qt422016.ReleaseByteBuffer(qb422016)
-//line formField.qtpl:187
+//line formField.qtpl:193
 	return qs422016
-//line formField.qtpl:187
+//line formField.qtpl:193
 }

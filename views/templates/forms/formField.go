@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -16,8 +16,10 @@ import (
 )
 
 type Button struct {
-	Title    string
+	Classes  string
+	Hidden   bool
 	Position bool
+	Title    string
 	Type     string
 	OnClick  string
 }
@@ -88,11 +90,15 @@ func parseButtons(val *fastjson.Value) (res []Button, err error) {
 		obj := val.GetObject()
 		obj.Visit(func(key []byte, v *fastjson.Value) {
 			switch gotools.BytesToString(key) {
+			case "class", "classes":
+				b.Classes = gotools.BytesToString(v.GetStringBytes())
+			case "hidden":
+				b.Hidden = true
 			case "title":
 				b.Title = gotools.BytesToString(v.GetStringBytes())
 			case "type":
 				b.Type = gotools.BytesToString(v.GetStringBytes())
-			case "OnClick", "onclick", "on_click":
+			case "OnClick", "onClick", "onclick", "on_click":
 				b.OnClick = gotools.BytesToString(v.GetStringBytes())
 			}
 		})

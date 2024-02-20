@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -94,6 +94,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap-responsive.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/toopay/bootstrap-markdown/master/css/bootstrap-markdown.min.css" >
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jScrollPane/2.0.23/style/jquery.jscrollpane.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.css">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
@@ -106,16 +107,16 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
 `)
-//line head.qtpl:56
+//line head.qtpl:57
 	for i := 0; i < len(head.LinkStyles); i++ {
-//line head.qtpl:56
+//line head.qtpl:57
 		qw422016.N().S(head.LinkStyles[i])
-//line head.qtpl:56
+//line head.qtpl:57
 		qw422016.N().S(`
 `)
-//line head.qtpl:57
+//line head.qtpl:58
 	}
-//line head.qtpl:57
+//line head.qtpl:58
 	qw422016.N().S(`    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
@@ -124,6 +125,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.js" ></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js" async></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.min.js" defer></script>
+    <script src="https://cdn.rawgit.com/toopay/bootstrap-markdown/master/js/bootstrap-markdown.js" defer></script>
     <!--[if lt IE 10]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.1/jquery.xdomainrequest.min.js" defer></script>
     <![endif]-->
@@ -134,16 +136,16 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 `)
-//line head.qtpl:75
+//line head.qtpl:77
 	for i := 0; i < len(head.Scripts); i++ {
-//line head.qtpl:75
+//line head.qtpl:77
 		qw422016.N().S(head.Scripts[i])
-//line head.qtpl:75
+//line head.qtpl:77
 		qw422016.N().S(`
 `)
-//line head.qtpl:76
+//line head.qtpl:78
 	}
-//line head.qtpl:76
+//line head.qtpl:78
 	qw422016.N().S(`    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
@@ -151,38 +153,38 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 </head>
 
 `)
-//line head.qtpl:83
+//line head.qtpl:85
 }
 
-//line head.qtpl:83
+//line head.qtpl:85
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:83
+//line head.qtpl:85
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:83
+//line head.qtpl:85
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:83
+//line head.qtpl:85
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:83
+//line head.qtpl:85
 }
 
-//line head.qtpl:83
+//line head.qtpl:85
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:83
+//line head.qtpl:85
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:83
+//line head.qtpl:85
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:83
+//line head.qtpl:85
 	qs422016 := string(qb422016.B)
-//line head.qtpl:83
+//line head.qtpl:85
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:83
+//line head.qtpl:85
 	return qs422016
-//line head.qtpl:83
+//line head.qtpl:85
 }
 
-//line head.qtpl:88
+//line head.qtpl:90
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:88
+//line head.qtpl:90
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -192,9 +194,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:96
+//line head.qtpl:98
 	qw422016.E().S(title)
-//line head.qtpl:96
+//line head.qtpl:98
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -203,39 +205,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:103
+//line head.qtpl:105
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:103
+//line head.qtpl:105
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:107
+//line head.qtpl:109
 }
 
-//line head.qtpl:107
+//line head.qtpl:109
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:107
+//line head.qtpl:109
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:107
+//line head.qtpl:109
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:107
+//line head.qtpl:109
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:107
+//line head.qtpl:109
 }
 
-//line head.qtpl:107
+//line head.qtpl:109
 func AdminHead(title string) string {
-//line head.qtpl:107
+//line head.qtpl:109
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:107
+//line head.qtpl:109
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:107
+//line head.qtpl:109
 	qs422016 := string(qb422016.B)
-//line head.qtpl:107
+//line head.qtpl:109
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:107
+//line head.qtpl:109
 	return qs422016
-//line head.qtpl:107
+//line head.qtpl:109
 }

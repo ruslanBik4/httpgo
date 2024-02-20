@@ -285,9 +285,20 @@ ul li > ul.dropdown li {
   width: 100%;
 }
 
+/* for showing forms on content*/
+#content > form.form-horizontal {
+    width: 100%;
+}
+
+#content > form.form-horizontal > figure {
+    max-width: 98%;
+}
+
+
 form.form-horizontal {
     width: max-content;
     min-width: 300px;
+    align-self: center;
 }
 
 figure {
@@ -304,15 +315,6 @@ figure button {
     border-color: #093b9a;
     background: #093b9a;
 }
-/* for showing forms on content*/
-#content > form.form-horizontal {
-    width: 100%;
-}
-
-#content > form.form-horizontal > figure {
-    max-width: 98%;
-}
-
 form figcaption {
     background-color: #fefefe;
     color: #fff;
@@ -322,14 +324,19 @@ form figcaption {
 }
 
 input[type=text], input[type=date-range] {
-    padding: 8px;
+    /*padding: 8px;*/
     border: 1px solid #c2c7d1;
     border-radius: 3px;
-    transition: all .3s ease;
-    margin-top: 5px;
-    width: 80%;
+    /*transition: all .3s ease;*/
+    /*margin-top: 5px;*/
+    /*width: 80%;*/
     text-overflow: ellipsis;
     color: #0a1c3b;
+    width: clamp(120px, 50vw, 420px);
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    margin: 0.625rem auto;
+    transition: all 250ms;
 }
 
 input[type=file] {

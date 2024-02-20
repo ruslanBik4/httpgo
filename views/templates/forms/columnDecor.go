@@ -42,6 +42,7 @@ type SelectOption struct {
 
 type ColumnDecor struct {
 	dbEngine.Column
+	Classes string
 	IsHidden, IsDisabled, IsReadOnly, IsSlice, IsNewPrimary,
 	SelectWithNew bool
 	ExtProperties     *fastjson.Value
@@ -185,6 +186,8 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.DefaultInputValue = gotools.BytesToString(val.GetStringBytes())
 		case "value":
 			col.Value = getValue(val)
+		case "class", "classes":
+			col.Classes = gotools.BytesToString(val.GetStringBytes())
 		default:
 			if strings.HasPrefix(key, "on") {
 				col.Events[key] = gotools.BytesToString(val.GetStringBytes())

@@ -159,11 +159,17 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                     Buttons:[]forms.Button{
                         {%- for _, btn := range block.Buttons -%}
                             forms.Button{
-                                {%- if btn.Title > "" -%}
-	                            Title:      api.Translate(ctx, `{%s= btn.Title %}`),
+                                {%- if btn.Classes > "" -%}
+	                            Classes:      api.Translate(ctx, `{%s= btn.Classes %}`),
+	                            {%- endif -%}
+                                {%- if btn.Hidden -%}
+	                            Hidden: true,
 	                            {%- endif -%}
                                 {%- if btn.Position -%}
 	                            Position: true,
+	                            {%- endif -%}
+                                {%- if btn.Title > "" -%}
+	                            Title:      api.Translate(ctx, `{%s= btn.Title %}`),
 	                            {%- endif -%}
                                 {%- if btn.Type > "" -%}
 	                            Type:       "{%s= btn.Type %}",
