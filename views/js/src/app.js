@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -38,6 +38,14 @@ function LoadStyles(id, styles) {
     } else {
         $head.html(styles);
     }
+}
+
+function AddStyles(name, css) {
+    $('head').append(`<style title="${name}">${css}</style>`);
+}
+
+function AddScript(name, js) {
+    $('head').append(`<script title="${name}">${js}</script>`);
 }
 
 var go_history = 1;

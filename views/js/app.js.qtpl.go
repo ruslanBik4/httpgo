@@ -39,7 +39,7 @@ func StreamApp(qw422016 *qt422016.Writer) {
 	`)
 //line app.js.qtpl:5
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -78,6 +78,30 @@ function LoadStyles(id, styles) {
     } else {
         $head.html(styles);
     }
+}
+
+function AddStyles(name, css) {
+    $('head').append(`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`<style title="${name}">${css}</style>`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`);
+}
+
+function AddScript(name, js) {
+    $('head').append(`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`<script title="${name}">${js}</script>`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`);
 }
 
 var go_history = 1;

@@ -23,7 +23,7 @@ func StreamOverClick(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`	`)
 //line over_click.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -34,6 +34,19 @@ function OverClick() {
     var $out = $('#content');
     let url = replMacros(this.href);
     let target = this.target;
+    if (target === "_iframe") {
+        PutContent(`)
+//line over_click.js.qtpl:2
+	qw422016.N().S("`")
+//line over_click.js.qtpl:2
+	qw422016.N().S(`<iframe src='${url}?embedded=true' allowtransparency seamless></iframe>`)
+//line over_click.js.qtpl:2
+	qw422016.N().S("`")
+//line over_click.js.qtpl:2
+	qw422016.N().S(`, 'iframe');
+        return false;
+    }
+
     $.ajax({
         url: url,
         data: {

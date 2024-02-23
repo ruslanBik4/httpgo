@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -10,6 +10,11 @@ function OverClick() {
     var $out = $('#content');
     let url = replMacros(this.href);
     let target = this.target;
+    if (target === "_iframe") {
+        PutContent(`<iframe src='${url}?embedded=true' allowtransparency seamless></iframe>`, 'iframe');
+        return false;
+    }
+
     $.ajax({
         url: url,
         data: {

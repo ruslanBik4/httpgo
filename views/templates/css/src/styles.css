@@ -221,6 +221,16 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     height: calc(100% - 50px);
 }
 
+#content > iframe {
+    border: 0;
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    frameborder: 0;
+    marginheight: 0;
+    marginwidth: 0;
+    /*height: max-content;*/
+}
+
 .left-mnu-list {
     margin-left: 5px;
     display:grid;
