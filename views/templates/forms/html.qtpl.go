@@ -184,75 +184,87 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 //line html.qtpl:62
 				qw422016.E().S(btn.Classes)
 //line html.qtpl:62
-				qw422016.N().S(`"type="`)
-//line html.qtpl:63
-				qw422016.N().S(btn.Type)
-//line html.qtpl:63
 				qw422016.N().S(`"`)
 //line html.qtpl:63
-				if btn.OnClick > "" {
+				if btn.Id > "" {
 //line html.qtpl:63
-					qw422016.N().S(`onClick="`)
+					qw422016.N().S(`id="`)
 //line html.qtpl:63
-					qw422016.E().S(btn.OnClick)
+					qw422016.E().S(btn.Id)
 //line html.qtpl:63
 					qw422016.N().S(`"`)
 //line html.qtpl:63
 				}
 //line html.qtpl:63
-				if btn.Hidden {
-//line html.qtpl:63
-					qw422016.N().S(`hidden`)
-//line html.qtpl:63
+				qw422016.N().S(`type="`)
+//line html.qtpl:64
+				qw422016.N().S(btn.Type)
+//line html.qtpl:64
+				qw422016.N().S(`"`)
+//line html.qtpl:64
+				if btn.OnClick > "" {
+//line html.qtpl:64
+					qw422016.N().S(`onClick="`)
+//line html.qtpl:64
+					qw422016.E().S(btn.OnClick)
+//line html.qtpl:64
+					qw422016.N().S(`"`)
+//line html.qtpl:64
 				}
-//line html.qtpl:63
+//line html.qtpl:64
+				if btn.Hidden {
+//line html.qtpl:64
+					qw422016.N().S(`hidden`)
+//line html.qtpl:64
+				}
+//line html.qtpl:64
 				qw422016.N().S(`>`)
-//line html.qtpl:64
+//line html.qtpl:65
 				qw422016.E().S(btn.Title)
-//line html.qtpl:64
+//line html.qtpl:65
 				qw422016.N().S(`</button>`)
-//line html.qtpl:66
+//line html.qtpl:67
 			}
-//line html.qtpl:66
+//line html.qtpl:67
 			qw422016.N().S(`</div>`)
-//line html.qtpl:68
+//line html.qtpl:69
 		}
-//line html.qtpl:68
+//line html.qtpl:69
 		qw422016.N().S(`</figure>`)
-//line html.qtpl:70
+//line html.qtpl:71
 	}
-//line html.qtpl:70
+//line html.qtpl:71
 	qw422016.N().S(`<output></output><progress value='0' max='100' hidden > </progress></form>`)
-//line html.qtpl:74
-	qw422016.N().S(` `)
 //line html.qtpl:75
+	qw422016.N().S(` `)
+//line html.qtpl:76
 	qw422016.N().S(`
 `)
-//line html.qtpl:76
+//line html.qtpl:77
 }
 
-//line html.qtpl:76
+//line html.qtpl:77
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer) {
-//line html.qtpl:76
+//line html.qtpl:77
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line html.qtpl:76
+//line html.qtpl:77
 	f.StreamFormHTML(qw422016)
-//line html.qtpl:76
+//line html.qtpl:77
 	qt422016.ReleaseWriter(qw422016)
-//line html.qtpl:76
+//line html.qtpl:77
 }
 
-//line html.qtpl:76
+//line html.qtpl:77
 func (f *FormField) FormHTML() string {
-//line html.qtpl:76
+//line html.qtpl:77
 	qb422016 := qt422016.AcquireByteBuffer()
-//line html.qtpl:76
+//line html.qtpl:77
 	f.WriteFormHTML(qb422016)
-//line html.qtpl:76
+//line html.qtpl:77
 	qs422016 := string(qb422016.B)
-//line html.qtpl:76
+//line html.qtpl:77
 	qt422016.ReleaseByteBuffer(qb422016)
-//line html.qtpl:76
+//line html.qtpl:77
 	return qs422016
-//line html.qtpl:76
+//line html.qtpl:77
 }

@@ -157,60 +157,64 @@ func (f *FormField) StreamFormJSON(qw422016 *qt422016.Writer) {
 //line json.qtpl:51
 			qw422016.N().S(btn.Type)
 //line json.qtpl:51
+			qw422016.N().S(`","id": "`)
+//line json.qtpl:52
+			qw422016.N().S(btn.Id)
+//line json.qtpl:52
 			qw422016.N().S(`","classes": "`)
-//line json.qtpl:52
+//line json.qtpl:53
 			qw422016.N().S(btn.Classes)
-//line json.qtpl:52
+//line json.qtpl:53
 			qw422016.N().S(`",`)
-//line json.qtpl:53
+//line json.qtpl:54
 			if btn.Hidden {
-//line json.qtpl:53
+//line json.qtpl:54
 				qw422016.N().S(`"hidden": true,`)
-//line json.qtpl:53
+//line json.qtpl:54
 			}
-//line json.qtpl:53
+//line json.qtpl:54
 			qw422016.N().S(`"title": "`)
-//line json.qtpl:54
+//line json.qtpl:55
 			qw422016.N().S(btn.Title)
-//line json.qtpl:54
+//line json.qtpl:55
 			qw422016.N().S(`","type": "`)
-//line json.qtpl:55
+//line json.qtpl:56
 			qw422016.N().S(btn.Type)
-//line json.qtpl:55
+//line json.qtpl:56
 			qw422016.N().S(`"}`)
-//line json.qtpl:57
+//line json.qtpl:58
 		}
-//line json.qtpl:57
+//line json.qtpl:58
 		qw422016.N().S(`]}]}`)
-//line json.qtpl:62
+//line json.qtpl:63
 	}
-//line json.qtpl:62
+//line json.qtpl:63
 	qw422016.N().S(`]}`)
-//line json.qtpl:65
+//line json.qtpl:66
 }
 
-//line json.qtpl:65
+//line json.qtpl:66
 func (f *FormField) WriteFormJSON(qq422016 qtio422016.Writer) {
-//line json.qtpl:65
+//line json.qtpl:66
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line json.qtpl:65
+//line json.qtpl:66
 	f.StreamFormJSON(qw422016)
-//line json.qtpl:65
+//line json.qtpl:66
 	qt422016.ReleaseWriter(qw422016)
-//line json.qtpl:65
+//line json.qtpl:66
 }
 
-//line json.qtpl:65
+//line json.qtpl:66
 func (f *FormField) FormJSON() string {
-//line json.qtpl:65
+//line json.qtpl:66
 	qb422016 := qt422016.AcquireByteBuffer()
-//line json.qtpl:65
+//line json.qtpl:66
 	f.WriteFormJSON(qb422016)
-//line json.qtpl:65
+//line json.qtpl:66
 	qs422016 := string(qb422016.B)
-//line json.qtpl:65
+//line json.qtpl:66
 	qt422016.ReleaseByteBuffer(qb422016)
-//line json.qtpl:65
+//line json.qtpl:66
 	return qs422016
-//line json.qtpl:65
+//line json.qtpl:66
 }

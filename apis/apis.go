@@ -134,8 +134,9 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
 	if err != nil {
-		logs.DebugLog("'%s' failure - %v, %s, %s, %s",
-			string(ctx.Path()),
+		logs.DebugLog("'%s' failure - %v (%v), %s, %s, %s",
+			ctx.Path(),
+			err,
 			resp,
 			ctx.Request.Header.ContentType(),
 			ctx.Request.Header.Referer(),

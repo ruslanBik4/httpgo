@@ -108,7 +108,7 @@ $(function () {
 //					loadContent(url.toString());
 //					url.pathname = "/";
                 console.log(`reload ${url}`)
-                evt.target.URL = url.origin;
+                // evt.target.URL = url.origin;
                 evt.srcElement.URL = evt.target.URL;
                 console.log(evt)
             }

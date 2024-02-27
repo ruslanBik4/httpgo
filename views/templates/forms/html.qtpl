@@ -60,6 +60,7 @@
   {%- if len(block.Buttons) > 0 -%}  <div class="form-actions">
       {%- for _, btn := range block.Buttons -%}
         <button class="{% if btn.Position %}hidden{% else %}button btn {% endif %} {% space %} {%s btn.Classes %}"
+            {%- if btn.Id > "" -%}id="{%s btn.Id %}"{%- endif -%}
 			type="{%s= btn.Type %}" {%- if btn.OnClick > "" -%}onClick="{%s btn.OnClick %}"{%- endif -%} {%- if btn.Hidden -%}hidden{%- endif -%} >
         {%s btn.Title %}
         </button>

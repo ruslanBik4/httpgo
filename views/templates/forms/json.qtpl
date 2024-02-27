@@ -49,6 +49,7 @@ json for front forms https://storybook.pm-db.net/?path=/story/form-types--page
                             {% endif %}
                          {
                              "buttonType":  "{%s= btn.Type %}",
+                             "id": "{%s= btn.Id %}",
                              "classes": "{%s= btn.Classes %}",
                              {%- if btn.Hidden -%} "hidden": true,{%- endif -%}
                              "title": "{%s= btn.Title %}",

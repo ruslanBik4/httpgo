@@ -16,6 +16,7 @@ import (
 )
 
 type Button struct {
+	Id       string
 	Classes  string
 	Hidden   bool
 	Position bool
@@ -90,6 +91,8 @@ func parseButtons(val *fastjson.Value) (res []Button, err error) {
 		obj := val.GetObject()
 		obj.Visit(func(key []byte, v *fastjson.Value) {
 			switch gotools.BytesToString(key) {
+			case "Id", "id":
+				b.Id = gotools.BytesToString(v.GetStringBytes())
 			case "class", "classes":
 				b.Classes = gotools.BytesToString(v.GetStringBytes())
 			case "hidden":
