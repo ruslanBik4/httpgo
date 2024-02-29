@@ -41,7 +41,6 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
-
 html {
     height: 100vh;
     width: 100vh;
