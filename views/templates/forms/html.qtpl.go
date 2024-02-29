@@ -52,7 +52,19 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 //line html.qtpl:20
 	qw422016.E().S(f.Title)
 //line html.qtpl:20
-	qw422016.N().S(`" role='form' class="form-horizontal" target="content"action="`)
+	qw422016.N().S(`" role='form' class="`)
+//line html.qtpl:20
+	if f.Classes > "" {
+//line html.qtpl:20
+		qw422016.E().S(f.Classes)
+//line html.qtpl:20
+	} else {
+//line html.qtpl:20
+		qw422016.N().S(`form-horizontal`)
+//line html.qtpl:20
+	}
+//line html.qtpl:20
+	qw422016.N().S(`" target="content"action="`)
 //line html.qtpl:21
 	qw422016.E().S(f.Action)
 //line html.qtpl:21
@@ -91,7 +103,7 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 		}
 
 //line html.qtpl:39
-		qw422016.N().S(`<figure id = "block`)
+		qw422016.N().S(`<figure id="block`)
 //line html.qtpl:40
 		qw422016.N().D(block.Id)
 //line html.qtpl:40
@@ -100,6 +112,16 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 		if isHide {
 //line html.qtpl:40
 			qw422016.N().S(`style="display:none"`)
+//line html.qtpl:40
+		}
+//line html.qtpl:40
+		if block.Classes > "" {
+//line html.qtpl:40
+			qw422016.N().S(`class="`)
+//line html.qtpl:40
+			qw422016.E().S(block.Classes)
+//line html.qtpl:40
+			qw422016.N().S(`"`)
 //line html.qtpl:40
 		}
 //line html.qtpl:40

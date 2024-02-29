@@ -4,7 +4,6 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
-
 package forms
 
 import (
@@ -27,6 +26,7 @@ type Button struct {
 
 type BlockColumns struct {
 	Id                 int
+	Classes            string
 	Buttons            []Button
 	Columns            []*ColumnDecor
 	Multiple           bool
@@ -34,9 +34,9 @@ type BlockColumns struct {
 }
 
 type FormField struct {
-	Title, Action, Method, Description string
-	HideBlock                          any
-	Blocks                             []BlockColumns
+	Action, Classes, Method, Description, Title string
+	HideBlock                                   any
+	Blocks                                      []BlockColumns
 }
 
 func NewBlockColumnsFromJSON(val *fastjson.Value, patternList dbEngine.Table) *BlockColumns {
@@ -51,12 +51,14 @@ func NewBlockColumnsFromJSON(val *fastjson.Value, patternList dbEngine.Table) *B
 		switch gotools.BytesToString(key) {
 		case "id":
 			b.Id, err = v.Int()
-		case "title":
-			b.Title = gotools.BytesToString(v.GetStringBytes())
+		case "class", "classes":
+			b.Classes = gotools.BytesToString(v.GetStringBytes())
 		case "description":
 			b.Description = gotools.BytesToString(v.GetStringBytes())
 		case "multiple":
 			b.Multiple, err = v.Bool()
+		case "title":
+			b.Title = gotools.BytesToString(v.GetStringBytes())
 		case "columns":
 			b.Columns, err = parseField(v, patternList)
 		case "buttons":

@@ -4,7 +4,6 @@
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
  */
-
 html {
     height: 100vh;
     width: 100vh;
@@ -327,7 +326,7 @@ figure button {
 }
 form figcaption {
     background-color: #fefefe;
-    color: #fff;
+    /*color: #fff;*/
     font: italic smaller sans-serif;
     padding: 3px;
     text-align: center;
@@ -339,10 +338,10 @@ input[type=text], input[type=date-range] {
     border-radius: 3px;
     /*transition: all .3s ease;*/
     /*margin-top: 5px;*/
-    /*width: 80%;*/
+    width: 80%;
     text-overflow: ellipsis;
     color: #0a1c3b;
-    width: clamp(120px, 50vw, 420px);
+    /*width: clamp(120px, 50vw, 420px);*/
     height: 2.5rem;
     padding: 0 1.25rem;
     margin: 0.625rem auto;
@@ -357,8 +356,8 @@ input[type=file] {
     position: relative;
     min-height:45px;
 	min-width: fit-content;
-//    border-bottom: 2px solid #adadad;
-//    margin-bottom:37px;
+    /*//    border-bottom: 2px solid #adadad;*/
+    /*//    margin-bottom:37px;*/
 }
 .input-wrap > label.input-label {
     position: relative;

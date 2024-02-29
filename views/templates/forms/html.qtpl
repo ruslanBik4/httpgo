@@ -17,7 +17,7 @@
     data = h["data"].(map[string]any)
   }
 %}
-<form id=" {%s idShake %}_form" name="{%s f.Title %}" role='form' class="form-horizontal" target="content"
+<form id="{%s idShake %}_form" name="{%s f.Title %}" role='form' class="{% if f.Classes > "" %}{%s f.Classes %}{% else %}form-horizontal{% endif %}" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="return FormIsModified(event, this);"
          onchange="return FormIsModified(event, this);"
@@ -37,7 +37,7 @@
                   }
             }
        %}
-        <figure id = "block{%d block.Id %}" {% if isHide %} style="display:none"{% endif %} >
+        <figure id="block{%d block.Id %}" {% if isHide %} style="display:none"{% endif %} {% if block.Classes > "" %}class="{%s block.Classes %}"{% endif %}>
         {% if block.Title > "" %} <figcaption>{%s block.Title %}</figcaption>{% endif %}
         {% if block.Description > "" %} <p>{%s block.Description %} </p> {% endif %}
             {% for i, col := range block.Columns %}

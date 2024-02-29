@@ -68,6 +68,7 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
 
 	f := forms.FormField {
         	Action: "{%s f.Action %}",
+        	Classes: "{%s f.Classes %}",
         	Method: "{%s f.Method %}",
         	Description: api.Translate(ctx, "{%s= f.Description %}"),
         	{%- if f.HideBlock != nil -%}
@@ -82,6 +83,9 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                    Id: {%d block.Id %},
                    Title: api.Translate(ctx, "{%s= block.Title %}"),
                    Description: api.Translate(ctx, "{%s= block.Description %}"),
+                   {%- if block.Classes > "" -%}
+                   Classes: {%- block.Classes -%},
+                   {%- endif -%}
                    {%- if block.Multiple -%}
                    Multiple: true,
                    {%- endif -%}
