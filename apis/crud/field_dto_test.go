@@ -14,6 +14,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/jackc/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
@@ -560,6 +561,53 @@ func TestIsEmptyDateString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, IsEmptyDateString(tt.args.ptr), "IsEmptyDateString(%v)", tt.args.ptr)
+		})
+	}
+}
+
+func TestDTO_NewValue(t *testing.T) {
+	type fields struct {
+		any pgtype.Point
+	}
+	test1 := pgtype.Point{
+		P:      pgtype.Vec2{1, 2},
+		Status: pgtype.Present,
+	}
+	test2 := pgtype.Point{
+		P:      pgtype.Vec2{2, 2},
+		Status: pgtype.Present,
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   any
+	}{
+		{
+			name:   "point",
+			fields: fields{test1},
+			want:   test1,
+		},
+		{
+			name:   "point",
+			fields: fields{test2},
+			want:   test2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			d := NewDTO[pgtype.Point](tt.fields.any)
+
+			// chg first value
+			tt.fields.any.P.X = 0
+			value := d.NewValue()
+			assert.Equalf(t, tt.want, value, "NewValue() first value")
+			t.Log(value, tt.want, tt.fields.any)
+
+			// cng yearly value
+			value = tt.fields.any
+			value1 := d.NewValue()
+			assert.Equalf(t, tt.want, value1, "NewValue() cng value")
+			t.Log(value, value1, tt.want, tt.fields.any)
 		})
 	}
 }

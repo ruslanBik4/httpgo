@@ -27,6 +27,22 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+type DTO[T any] struct {
+	val T
+}
+
+func NewDTO[T any](val T) *DTO[T] {
+	return &DTO[T]{val: val}
+}
+
+func (d *DTO[T]) GetValue() any {
+	return d
+}
+
+func (d *DTO[T]) NewValue() any {
+	return d.val
+}
+
 type DateTimeString time.Time
 
 func (d *DateTimeString) Expect() string {
