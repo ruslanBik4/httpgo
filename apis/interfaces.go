@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -39,6 +39,6 @@ type Visit interface {
 // Docs implement functions for writing documentation
 type Docs interface {
 	Expect() string
-	Format() string
+	FormatDoc() string
 	RequestType() string
 }

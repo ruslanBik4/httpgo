@@ -971,42 +971,70 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:260
 		qw422016.N().S(` `)
 //line columnDecor.qtpl:262
-	}
+		if col.special == InputMap {
 //line columnDecor.qtpl:262
-	qw422016.N().S(` `)
-//line columnDecor.qtpl:263
-	if col.IsSlice {
-//line columnDecor.qtpl:263
-		qw422016.N().S(` </ul> <button class="main-btn" type="button" onclick="l = this.parentNode.firstElementChild.lastElementChild; l.parentNode.insertBefore(l.cloneNode(true), l); return false;"> Add new one </button> `)
-//line columnDecor.qtpl:269
+			qw422016.N().S(` <div id="map" class="map_showing"></div> <script> var elem = $("input[name=`)
+//line columnDecor.qtpl:265
+			qw422016.E().S(col.InputName(i))
+//line columnDecor.qtpl:265
+			qw422016.N().S(`]"); var val = elem.val(); var map = L.map('map'); var marker; map.on('load', function onMapClick(e) { marker = L.marker(map.getCenter(), {draggable:true}).addTo(map); marker.bindPopup("<b>Hello world!</b><br>I am her.").openPopup(). on('move' , function () { marker.savePoint(); FormIsModified(event, elem.parents('form')); }); marker.savePoint = function() { marker.bindPopup("It;s my new place.").openPopup(); let geo = marker.getLatLng(); elem.val(`)
+//line columnDecor.qtpl:265
+			qw422016.N().S("`")
+//line columnDecor.qtpl:265
+			qw422016.N().S(`(${geo.lat},${geo.lng})`)
+//line columnDecor.qtpl:265
+			qw422016.N().S("`")
+//line columnDecor.qtpl:265
+			qw422016.N().S(`); }; }); if (val > "") { let arr = val.match(/\((\d*\.\d*)\s*,\s*(\d*\.\d*)\)/); map.setView([arr[1], arr[2]], 13); } else { map.locate({setView: true, maxZoom: 16}); } L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map); map.on('click', function onMapClick(e) { if (confirm(`)
+//line columnDecor.qtpl:265
+			qw422016.N().S("`")
+//line columnDecor.qtpl:265
+			qw422016.N().S(`Do you want to set new position at ${e.latlng}?`)
+//line columnDecor.qtpl:265
+			qw422016.N().S("`")
+//line columnDecor.qtpl:265
+			qw422016.N().S(`)) { marker.setLatLng(e.latlng); marker.savePoint(); } }); </script> `)
+//line columnDecor.qtpl:304
+		}
+//line columnDecor.qtpl:304
+		qw422016.N().S(` `)
+//line columnDecor.qtpl:306
 	}
-//line columnDecor.qtpl:269
+//line columnDecor.qtpl:306
 	qw422016.N().S(` `)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:307
+	if col.IsSlice {
+//line columnDecor.qtpl:307
+		qw422016.N().S(` </ul> <button class="main-btn" type="button" onclick="l = this.parentNode.firstElementChild.lastElementChild; l.parentNode.insertBefore(l.cloneNode(true), l); return false;"> Add new one </button> `)
+//line columnDecor.qtpl:313
+	}
+//line columnDecor.qtpl:313
+	qw422016.N().S(` `)
+//line columnDecor.qtpl:314
 }
 
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]any) {
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	col.StreamRenderInputs(qw422016, data)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 }
 
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 func (col *ColumnDecor) RenderInputs(data map[string]any) string {
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	col.WriteRenderInputs(qb422016, data)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 	return qs422016
-//line columnDecor.qtpl:270
+//line columnDecor.qtpl:314
 }

@@ -142,7 +142,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			Desc:              "header - flag to mark AJAX (Asynchronous JavaScript and XML) requests",
 			Req:               true,
 			PartReq:           nil,
-			Type:              HeaderInParam{NewTypeInParam(types.String)},
+			Type:              HeaderInParam{TypeInParam: NewTypeInParam(types.String)},
 			DefValue:          "XMLHttpRequest",
 			IncompatibleWiths: nil,
 			TestValue:         "",
@@ -286,7 +286,7 @@ func getRespError(ctx *fasthttp.RequestCtx, value any) *InParam {
 func writeReflect(title string, value reflect.Value, stream *jsoniter.Stream) any {
 	i := value.Interface()
 	// Handle pointers specially.
-	kind, val := indirect(value.Kind(), value)
+	kind, val := Indirect(value.Kind(), value)
 	defer func() {
 		e := recover()
 		err, ok := e.(error)
@@ -480,7 +480,7 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 
 		if tField.Anonymous {
 			kind := val.Kind()
-			kind, val = indirect(kind, val)
+			kind, val = Indirect(kind, val)
 			writeFields(val, stream, val.Type(), props, titles)
 		} else {
 			props[tag] = writeReflect(tag, val, stream)
@@ -488,8 +488,9 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 	}
 }
 
-func indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
+func Indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
 	for kind == reflect.Pointer || kind == reflect.UnsafePointer || kind == reflect.Interface {
+		logs.DebugLog(kind.String(), value.String())
 		if value.IsZero() {
 			value = reflect.New(value.Type().Elem())
 		} else {

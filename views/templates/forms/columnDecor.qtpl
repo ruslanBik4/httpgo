@@ -259,6 +259,50 @@ id="id_{%s col.InputName(i) %}"
     </li>
  {% endif %}
 
+ {% if col.special == InputMap %}
+     <div id="map" class="map_showing"></div>
+     <script>
+     var elem = $("input[name={%s col.InputName(i) %}]");
+     var val = elem.val();
+     var map = L.map('map');
+	 var marker;
+     map.on('load', function onMapClick(e) {
+	     marker = L.marker(map.getCenter(), {draggable:true}).addTo(map);
+	     marker.bindPopup("<b>Hello world!</b><br>I am her.").openPopup().
+		     on('move' , function () {
+		        marker.savePoint();
+		        FormIsModified(event, elem.parents('form'));
+		     });
+
+		 marker.savePoint = function() {
+	             marker.bindPopup("It;s my new place.").openPopup();
+	             let geo = marker.getLatLng();
+	             elem.val(`(${geo.lat},${geo.lng})`);
+		 };
+     });
+
+
+     if (val > "") {
+        let arr = val.match(/\((\d*\.\d*)\s*,\s*(\d*\.\d*)\)/);
+        map.setView([arr[1], arr[2]], 13);
+     } else {
+        map.locate({setView: true, maxZoom: 16});
+     }
+
+     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+         maxZoom: 19,
+         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+     }).addTo(map);
+
+     map.on('click', function onMapClick(e) {
+             if (confirm(`Do you want to set new position at ${e.latlng}?`)) {
+                marker.setLatLng(e.latlng);
+	            marker.savePoint();
+	        }
+     });
+     </script>
+ {% endif %}
+
  {% endfor %}
  {% if col.IsSlice %}
        </ul>

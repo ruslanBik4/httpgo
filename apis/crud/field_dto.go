@@ -31,16 +31,37 @@ type DTO[T any] struct {
 	val T
 }
 
+func (d *DTO[T]) String() string {
+	return fmt.Sprintf("&crud.DTO[%T]{}", d.val)
+}
+
+func (d *DTO[T]) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "*crud.DTO[%T]", d.val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g', 's':
+		_, err := fmt.Fprintf(s, "&crud.DTO[%T]{}", d.val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
+}
+
 func NewDTO[T any](val T) *DTO[T] {
+	logs.DebugLog("%T", val)
 	return &DTO[T]{val: val}
 }
 
 func (d *DTO[T]) GetValue() any {
-	return d
+	return d.val
 }
 
 func (d *DTO[T]) NewValue() any {
-	return d.val
+	return new(T)
 }
 
 type DateTimeString time.Time
@@ -49,7 +70,29 @@ func (d *DateTimeString) Expect() string {
 	return "date as string format #" + time.RFC3339
 }
 
-func (d *DateTimeString) Format() string {
+// Format implement Formatter interface
+func (d *DateTimeString) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, (time.Time)(*d).String())
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
+}
+
+func (d *DateTimeString) FormatDoc() string {
 	return "date-time"
 }
 
@@ -128,7 +171,29 @@ func (d *DateString) Expect() string {
 	return "date as string format #" + time.DateOnly
 }
 
-func (d *DateString) Format() string {
+// Format implement Formatter interface
+func (d *DateString) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, (time.Time)(*d).String())
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
+}
+
+func (d *DateString) FormatDoc() string {
 	return "date"
 }
 
@@ -184,12 +249,34 @@ func (d *DtoFileField) Expect() string {
 	return "multipart file"
 }
 
-func (d *DtoFileField) Format() string {
+func (d *DtoFileField) FormatDoc() string {
 	return "file"
 }
 
 func (d *DtoFileField) RequestType() string {
 	return "file"
+}
+
+// Format implement Formatter interface
+func (d *DtoFileField) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, "[]*multipart.FileHeader")
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
 }
 
 // NewFileParam create new InParam for handling
@@ -222,12 +309,34 @@ func (d *DtoField) Expect() string {
 	return "JSON object {'key':'value'...}"
 }
 
-func (d *DtoField) Format() string {
+func (d *DtoField) FormatDoc() string {
 	return "json"
 }
 
 func (d *DtoField) RequestType() string {
 	return "string"
+}
+
+// Format implement Formatter interface
+func (d *DtoField) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, "map[string]any")
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
 }
 
 // CheckParams implement CheckDTO interface, put each params into user value on context

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -136,7 +136,7 @@ func (r *ReflectType) convertValue(title string, value reflect.Value) any {
 
 	kind := value.Kind()
 	// Handle pointers specially.
-	kind, value = indirect(kind, value)
+	kind, value = Indirect(kind, value)
 	defer func() {
 		e := recover()
 		err, ok := e.(error)
@@ -192,7 +192,7 @@ func (r *ReflectType) WriteReflectKind(kind reflect.Kind, value reflect.Value, s
 		//	Description:          "",
 		//	Type:                 spec.StringOrArray{sType, value.Type().String()},
 		//	Nullable:             true,
-		//	Format:               "",
+		//	FormatDoc:               "",
 		//	Title:                title,
 		//	Default:              kind.String(),
 		//	Maximum:              nil,
@@ -297,7 +297,7 @@ func (r *ReflectType) WriteStruct(value reflect.Value, title string) any {
 
 		val := value.Field(i)
 		kind := val.Kind()
-		kind, val = indirect(kind, val)
+		kind, val = Indirect(kind, val)
 
 		tag := v.Tag.Get("json")
 		title := tag // fmt.Sprintf("%s: %s", v.Name, v.Type) + writeTag(v.Tag)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -9,11 +9,13 @@ package crud
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"strings"
 
 	"github.com/jackc/pgtype"
 
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/logs"
 )
 
 type DateRangeMarshal struct {
@@ -30,6 +32,28 @@ func (d *DateRangeMarshal) NewValue() any {
 
 func (d *DateRangeMarshal) Value() (driver.Value, error) {
 	return d.Daterange, nil
+}
+
+// Format implement Formatter interface
+func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
 }
 
 func (d *DateRangeMarshal) Set(src any) error {
@@ -102,6 +126,28 @@ func (i *IntervalMarshal) Set(src any) error {
 		return i.Interval.DecodeText(nil, gotools.StringToBytes(src))
 	default:
 		return i.Interval.Scan(src)
+	}
+}
+
+// Format implement Formatter interface
+func (d *IntervalMarshal) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprintf(s, "%d month %d day %d", d.Months, d.Days, d.Microseconds)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
 	}
 }
 

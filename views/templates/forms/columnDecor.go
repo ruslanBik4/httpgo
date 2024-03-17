@@ -21,8 +21,15 @@ import (
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/gotools"
 
-	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/logs"
+)
+
+type SpecialInput uint8
+
+const (
+	InputNone SpecialInput = iota
+	InputMap
 )
 
 type AttachmentList struct {
@@ -67,6 +74,7 @@ type ColumnDecor struct {
 	Suggestions       string
 	SuggestionsParams map[string]any
 	Step              any
+	special           SpecialInput
 }
 
 var regPattern = regexp.MustCompile(`{(\s*['"][^"']+['"]:\s*(("[^"]+")|('[^']+')|([^"'{},]+)|({[^}]+})),?)+}`)
@@ -90,12 +98,15 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 		colDec.SuggestionsParams[item.Key] = item.Value
 	}
 
-	if m := regPattern.FindAllSubmatch([]byte(comment), -1); len(m) > 0 {
+	if m := regPattern.FindAllSubmatch(gotools.StringToBytes(comment), -1); len(m) > 0 {
 		parse, err := fastjson.ParseBytes(m[0][0])
 		if err != nil {
 			logs.ErrorLog(err, string(m[0][0]))
 		} else {
 			colDec.ExtProperties = parse
+			if parse.Exists("special") {
+				colDec.special = SpecialInput(parse.GetUint("special"))
+			}
 			p := parse.GetStringBytes("pattern")
 			colDec.getPattern(gotools.BytesToString(p))
 			p = parse.GetStringBytes("suggestions")
@@ -488,7 +499,7 @@ func (col *ColumnDecor) inputType() string {
 		return "select"
 	}
 
-	if col.IsHidden {
+	if col.IsHidden || col.special == InputMap {
 		return "hidden"
 	}
 

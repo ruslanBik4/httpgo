@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -67,7 +67,7 @@ func TestDateString_Format(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, tt.d.Format(), "Format()")
+			assert.Equalf(t, tt.want, tt.d.FormatDoc(), "FormatDoc()")
 		})
 	}
 }
@@ -201,7 +201,7 @@ func TestDateTimeString_Format(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, tt.d.Format(), "Format()")
+			assert.Equalf(t, tt.want, tt.d.FormatDoc(), "FormatDoc()")
 		})
 	}
 }
@@ -372,7 +372,7 @@ func TestDtoField_Format(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, tt.d.Format(), "Format()")
+			assert.Equalf(t, tt.want, tt.d.FormatDoc(), "FormatDoc()")
 		})
 	}
 }
@@ -467,7 +467,7 @@ func TestDtoFileField_Format(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equalf(t, tt.want, tt.d.Format(), "Format()")
+			assert.Equalf(t, tt.want, tt.d.FormatDoc(), "FormatDoc()")
 		})
 	}
 }
@@ -569,6 +569,7 @@ func TestDTO_NewValue(t *testing.T) {
 	type fields struct {
 		any pgtype.Point
 	}
+	nilPoint := &pgtype.Point{}
 	test1 := pgtype.Point{
 		P:      pgtype.Vec2{1, 2},
 		Status: pgtype.Present,
@@ -585,17 +586,17 @@ func TestDTO_NewValue(t *testing.T) {
 		{
 			name:   "point",
 			fields: fields{test1},
-			want:   test1,
+			want:   nilPoint,
 		},
 		{
 			name:   "point",
 			fields: fields{test2},
-			want:   test2,
+			want:   nilPoint,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d := NewDTO[pgtype.Point](tt.fields.any)
+			d := NewDTO(tt.fields.any)
 
 			// chg first value
 			tt.fields.any.P.X = 0
@@ -603,6 +604,7 @@ func TestDTO_NewValue(t *testing.T) {
 			assert.Equalf(t, tt.want, value, "NewValue() first value")
 			t.Log(value, tt.want, tt.fields.any)
 
+			value.(*pgtype.Point).P.X = 1
 			// cng yearly value
 			value = tt.fields.any
 			value1 := d.NewValue()

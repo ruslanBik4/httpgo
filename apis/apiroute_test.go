@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -28,8 +28,8 @@ import (
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
-	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/auth"
 )
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -8,6 +8,7 @@
 package apis
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"go/types"
@@ -27,7 +28,7 @@ import (
 	. "github.com/ruslanBik4/httpgo/views/templates/json"
 	"github.com/ruslanBik4/logs"
 
-	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/gotools/typesExt"
 )
 
 type ApisValues string
@@ -167,11 +168,11 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, 
 		return t.ReadValue(value, res)
 
 	case typesExt.TStruct:
-		if t.DTO == nil {
-			return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) need DTO", t.String())
+		if t.DTO != nil {
+			return t.ReadValue(value, t.DTO.NewValue())
 		}
-		v := t.DTO.NewValue()
-		return t.ReadValue(value, v)
+
+		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) need DTO", t.String())
 
 	default:
 		return nil, errors.Wrapf(ErrWrongParamsList, "convert this type (%s) not implement", t.String())
@@ -331,7 +332,7 @@ func (t TypeInParam) StreamRequestType(w *quicktemplate.Writer) {
 
 func (t TypeInParam) StreamFormat(w *quicktemplate.Writer) {
 	if d, ok := t.DTO.(Docs); ok {
-		w.N().S(d.Format())
+		w.N().S(d.FormatDoc())
 		return
 	}
 
@@ -345,29 +346,40 @@ func (t TypeInParam) StreamFormat(w *quicktemplate.Writer) {
 
 func (t TypeInParam) Format(s fmt.State, verb rune) {
 	switch verb {
-	case 's', 'v':
-		_, err := fmt.Fprintf(s, t.TypeString())
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-	case 'g':
-		_, err := fmt.Fprintf(s, t.TypeString())
+	case 's', 'v', 'g':
+		_, err := t.TypeString(s, verb)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	default:
-		_, err := s.Write(gotools.StringToBytes(t.TypeString()))
+		_, err := t.TypeString(s, verb)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	}
 }
 
-func (t TypeInParam) StreamTypeString(w *quicktemplate.Writer) {
-	w.N().S(t.TypeString())
+type streamState struct {
+	*quicktemplate.QWriter
 }
 
-func (t TypeInParam) TypeString() string {
+func (s *streamState) Width() (wid int, ok bool) {
+	return -1, false
+}
+
+func (s *streamState) Precision() (prec int, ok bool) {
+	return 0, false
+}
+
+func (s *streamState) Flag(c int) bool {
+	return true
+}
+
+func (t TypeInParam) StreamTypeString(w *quicktemplate.Writer) {
+	t.TypeString(&streamState{w.N()}, 's')
+}
+
+func (t TypeInParam) TypeString(s fmt.State, verb rune) (int, error) {
 	res, namePackage := cases.Title(language.English, cases.NoLower).String(typesExt.StringTypeKinds(t.BasicKind)), ""
 	if t.BasicKind < 0 {
 		res = "T" + res
@@ -375,20 +387,59 @@ func (t TypeInParam) TypeString() string {
 	}
 	switch {
 	case t.isSlice:
-		return fmt.Sprintf("apis.NewSliceTypeInParam(types%s.%s)",
+		if _, err := s.Write(gotools.StringToBytes(fmt.Sprintf("apis.NewSliceTypeInParam(types%s.%s)",
 			namePackage,
-			strings.ReplaceAll(res, ".", ""))
+			strings.ReplaceAll(res, ".", "")),
+		)); err != nil {
+			return -1, err
+		}
 	case t.DTO != nil:
-		return strings.Replace(fmt.Sprintf("apis.NewStructInParam(%T{})", t.DTO), "*", "&", 1)
+		if _, err := s.Write([]byte("apis.NewStructInParam(")); err != nil {
+			return -1, err
+		}
+		if f, ok := t.DTO.(fmt.Formatter); ok {
+			f.Format(s, verb)
+			//return strings.Replace(fmt.Sprintf(%s)", s.String()), "*", "&", 1)
+		} else {
+			if _, err := s.Write(gotools.StringToBytes(strings.Replace(fmt.Sprintf("%T{}", t.DTO), "*", "&", 1))); err != nil {
+				return -1, err
+			}
+		}
+		if _, err := s.Write([]byte(")")); err != nil {
+			return -1, err
+		}
+		//return fmt.Sprintf("apis.NewStructInParam(%T{})", t.DTO)
 	default:
-		return fmt.Sprintf("apis.NewTypeInParam(types%s.%s)",
+		if _, err := s.Write(gotools.StringToBytes(fmt.Sprintf("apis.NewTypeInParam(types%s.%s)",
 			namePackage,
-			strings.ReplaceAll(res, ".", ""))
+			strings.ReplaceAll(res, ".", "")))); err != nil {
+			return -1, err
+
+		}
 	}
+
+	return 0, nil
 }
 
 type HeaderInParam struct {
 	TypeInParam
+	b bytes.Buffer
+}
+
+func (h *HeaderInParam) Write(b []byte) (n int, err error) {
+	return h.b.Write(b)
+}
+
+func (h *HeaderInParam) Width() (wid int, ok bool) {
+	return -1, false
+}
+
+func (h *HeaderInParam) Precision() (prec int, ok bool) {
+	return 0, false
+}
+
+func (h *HeaderInParam) Flag(c int) bool {
+	return true
 }
 
 func (h *HeaderInParam) IsEmpty(ptr unsafe.Pointer) bool {
@@ -400,6 +451,7 @@ func (h *HeaderInParam) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteString("header")
 	stream.WriteMore()
 	stream.WriteObjectField("name")
-	stream.WriteString(h.TypeString())
-	//stream.WriteMore()
+	h.TypeString(h, 's')
+	stream.WriteString(h.b.String())
+	stream.WriteMore()
 }

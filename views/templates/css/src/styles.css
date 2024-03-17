@@ -342,7 +342,7 @@ input[type=text], input[type=date-range] {
     text-overflow: ellipsis;
     color: #0a1c3b;
     /*width: clamp(120px, 50vw, 420px);*/
-    height: 2.5rem;
+    /*height: 2.5rem;*/
     padding: 0 1.25rem;
     margin: 0.625rem auto;
     transition: all 250ms;
@@ -385,8 +385,8 @@ label > input[type="checkbox"]:focus + span::before {
 }
 
 label > input:not([value]):focus + span::after, label > textarea[value] + span::after, label > input[value] + span::after,
-label > div.tox-tinymce + span::after {
-    top: -19px
+label > div.tox-tinymce + span::after, label > div#map + span::after {
+    top: -21px
 }
 
 label > input:not([value]) + span::after, label > textarea:not([value]) + span::after {
@@ -534,6 +534,13 @@ form  span.hiddenInput:hover{
     max-height: 75%;
 }
 
+/* special inputs */
+form div#map, .map_showing {
+    height: 250px;
+    width: 800px;
+    border-color: #1b70b7;
+    border-style: double;
+}
 form#fSearch {
     width: 100%;
     margin: 0;

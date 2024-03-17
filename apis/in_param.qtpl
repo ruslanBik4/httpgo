@@ -1,7 +1,7 @@
 {% import (
 	"go/types"
 
-	"github.com/ruslanBik4/httpgo/typesExt"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
 
 )
@@ -149,7 +149,7 @@ func NewqInParam(in string, dto any, multiPart bool, params ...InParam) *qInPara
 		"format": 	"{%= t.Format() %}"
 				{%- default -%}
 				{%- if d, ok := (param.Type).(Docs); ok -%} "{%s= d.RequestType() %}",
-        "format": 	"{%s= d.Format() %}"
+        "format": 	"{%s= d.FormatDoc() %}"
 				{%- else -%} "{%v param.Type %}",
 		"format": 	"{%v param.Type %}"
 				{%-endif -%}

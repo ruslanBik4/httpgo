@@ -16,8 +16,8 @@ import (
 	"github.com/json-iterator/go"
 	"github.com/valyala/fasthttp"
 
-	"github.com/ruslanBik4/dbEngine/typesExt"
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/httpgo/views/templates/pages"

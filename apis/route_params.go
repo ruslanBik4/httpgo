@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -19,7 +19,6 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/gotools"
-	"github.com/ruslanBik4/httpgo/typesExt"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -43,7 +42,7 @@ func (d DefValueHeader) Expect() string {
 	return fmt.Sprintf("string on header '%s'", d.header)
 }
 
-func (d DefValueHeader) Format() string {
+func (d DefValueHeader) FormatDoc() string {
 	return "string"
 }
 
@@ -57,7 +56,7 @@ func (d DefValueCalcFnc) Expect() string {
 	return "function func(ctx *fasthttp.RequestCtx) any"
 }
 
-func (d DefValueCalcFnc) Format() string {
+func (d DefValueCalcFnc) FormatDoc() string {
 	return "function func(ctx *fasthttp.RequestCtx) any"
 }
 
@@ -265,8 +264,8 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 					AddFieldToJSON(stream, "type", "string")
 				case t.BasicKind > types.UnsafePointer:
 					AddFieldToJSON(stream, "type", "untyped")
-				case t.BasicKind == typesExt.TStruct:
-					AddFieldToJSON(stream, "type", t.TypeString())
+				//case t.BasicKind == typesExt.TStruct:
+				//	AddFieldToJSON(stream, "type", t.TypeString(nil, 0))
 				default:
 					AddFieldToJSON(stream, "type", s)
 				}

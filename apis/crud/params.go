@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -14,6 +14,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/views/templates/forms"
 )
@@ -67,11 +68,14 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	case "interval":
 		p.Type = apis.NewStructInParam(&IntervalMarshal{})
 	default:
+		basicType := col.BasicType()
 		if isArray {
-			p.Type = apis.NewSliceTypeInParam(col.BasicType())
+			p.Type = apis.NewSliceTypeInParam(basicType)
 			p.Name += "[]"
+		} else if basicType == typesExt.TStruct {
+			p.Type = apis.NewStructInParam(nil)
 		} else {
-			p.Type = apis.NewTypeInParam(col.BasicType())
+			p.Type = apis.NewTypeInParam(basicType)
 		}
 	}
 }

@@ -150,41 +150,48 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+      <!-- Make sure you put this AFTER Leaflet's CSS -->
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
 </head>
 
 `)
-//line head.qtpl:85
+//line head.qtpl:92
 }
 
-//line head.qtpl:85
+//line head.qtpl:92
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:85
+//line head.qtpl:92
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:85
+//line head.qtpl:92
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:85
+//line head.qtpl:92
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:85
+//line head.qtpl:92
 }
 
-//line head.qtpl:85
+//line head.qtpl:92
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:85
+//line head.qtpl:92
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:85
+//line head.qtpl:92
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:85
+//line head.qtpl:92
 	qs422016 := string(qb422016.B)
-//line head.qtpl:85
+//line head.qtpl:92
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:85
+//line head.qtpl:92
 	return qs422016
-//line head.qtpl:85
+//line head.qtpl:92
 }
 
-//line head.qtpl:90
+//line head.qtpl:97
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:90
+//line head.qtpl:97
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -194,9 +201,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:98
+//line head.qtpl:105
 	qw422016.E().S(title)
-//line head.qtpl:98
+//line head.qtpl:105
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -205,39 +212,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:105
+//line head.qtpl:112
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:105
+//line head.qtpl:112
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:109
+//line head.qtpl:116
 }
 
-//line head.qtpl:109
+//line head.qtpl:116
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:109
+//line head.qtpl:116
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:109
+//line head.qtpl:116
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:109
+//line head.qtpl:116
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:109
+//line head.qtpl:116
 }
 
-//line head.qtpl:109
+//line head.qtpl:116
 func AdminHead(title string) string {
-//line head.qtpl:109
+//line head.qtpl:116
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:109
+//line head.qtpl:116
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:109
+//line head.qtpl:116
 	qs422016 := string(qb422016.B)
-//line head.qtpl:109
+//line head.qtpl:116
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:109
+//line head.qtpl:116
 	return qs422016
-//line head.qtpl:109
+//line head.qtpl:116
 }

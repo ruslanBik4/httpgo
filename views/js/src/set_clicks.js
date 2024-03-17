@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -94,4 +94,38 @@ function setTextEdit() {
                 });
             });
     }
+}
+
+function showMap(val) {
+    fancyOpen('<div id="map" class="map_showing"></div>');
+    var map = L.map('map');
+    var marker;
+    map.on('load', function onMapClick(e) {
+        marker = L.marker(map.getCenter(), {draggable: true}).addTo(map);
+        marker.bindPopup("<b>Hello world!</b><br>I am her.").openPopup();
+        // on('move' , function () {
+        //     marker.savePoint();
+        //     FormIsModified(event, elem.parents('form'));
+        // });
+
+        // marker.savePoint = function() {
+        //     marker.bindPopup("It;s my new place.").openPopup();
+        //     let geo = marker.getLatLng();
+        //     elem.val(`(${geo.lat},${geo.lng})`);
+        // };
+    });
+
+
+    if (val > "") {
+        let arr = val.match(/\((\d*\.\d*)\s*,\s*(\d*\.\d*)\)/);
+        map.setView([arr[1], arr[2]], 13);
+    } else {
+        map.locate({setView: true, maxZoom: 16});
+    }
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
 }
