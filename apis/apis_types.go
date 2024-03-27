@@ -346,7 +346,7 @@ func (t TypeInParam) StreamFormat(w *quicktemplate.Writer) {
 
 func (t TypeInParam) Format(s fmt.State, verb rune) {
 	switch verb {
-	case 's', 'v', 'g':
+	case 's', 'v', 'g', 't':
 		_, err := t.TypeString(s, verb)
 		if err != nil {
 			logs.ErrorLog(err)

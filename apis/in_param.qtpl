@@ -130,7 +130,7 @@ func NewqInParam(in string, dto any, multiPart bool, params ...InParam) *qInPara
 -%}
 		"type": {%- switch  -%}
 				{%- case param.Type == nil -%} nil
-				{%- case ok && t.BasicKind == types.Bool-%} "boolean"
+				{%- case ok && t.BasicKind == types.Bool -%} "boolean"
 				{%- case ok && t.BasicKind == types.UnsafePointer -%} "file"
 				{%- case ok && t.BasicKind == types.String -%}
 					{%- if t.IsSlice() -%} "array", "items": {"type": "string"} {%- else -%} "string" {%- endif -%},

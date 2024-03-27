@@ -103,15 +103,17 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 	case 'g':
 		_, _ = fmt.Fprintf(s,
 			`{
-						Name: "%s", 
-						Desc: %q, 
-						Type: %g,`,
+				Name: "%s",
+				Desc: %q,
+				Type: %g,`,
 			param.Name,
 			param.Desc,
 			param.Type,
 		)
 		if len(param.PartReq) > 0 {
-			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tPartReq: %v,", param.PartReq)
+			_, _ = fmt.Fprintf(s, `
+				PartReq: %v,`,
+				param.PartReq)
 		}
 		if len(param.IncompatibleWiths) > 0 {
 			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
@@ -131,9 +133,10 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
 		}
 		if param.Req {
-			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tReq: %v,", param.Req)
+			_, _ = fmt.Fprintf(s, `
+				Req:   %v,`, param.Req)
 		}
-		_, _ = fmt.Fprintf(s, "\n\t\t\t\t\t}")
+		_, _ = fmt.Fprintf(s, "\n\t\t\t}")
 	default:
 		_, _ = s.Write(gotools.StringToBytes(fmt.Sprintf(`Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
 			param.Name, param.Desc, param.Type, param.Req, param.DefValue)),

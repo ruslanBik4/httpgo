@@ -581,99 +581,104 @@ func RenderForm`)
 			for _, btn := range block.Buttons {
 //line formField.qtpl:167
 				qw422016.N().S(`                            forms.Button{
+                                Id: "`)
+//line formField.qtpl:169
+				qw422016.E().S(btn.Id)
+//line formField.qtpl:169
+				qw422016.N().S(`",
 `)
-//line formField.qtpl:169
+//line formField.qtpl:170
 				if btn.Classes > "" {
-//line formField.qtpl:169
+//line formField.qtpl:170
 					qw422016.N().S(`	                            Classes:      api.Translate(ctx, `)
-//line formField.qtpl:169
-					qw422016.N().S("`")
 //line formField.qtpl:170
+					qw422016.N().S("`")
+//line formField.qtpl:171
 					qw422016.N().S(btn.Classes)
-//line formField.qtpl:170
+//line formField.qtpl:171
 					qw422016.N().S(``)
-//line formField.qtpl:170
+//line formField.qtpl:171
 					qw422016.N().S("`")
-//line formField.qtpl:170
+//line formField.qtpl:171
 					qw422016.N().S(`),
 `)
-//line formField.qtpl:171
+//line formField.qtpl:172
 				}
-//line formField.qtpl:172
+//line formField.qtpl:173
 				if btn.Hidden {
-//line formField.qtpl:172
+//line formField.qtpl:173
 					qw422016.N().S(`	                            Hidden: true,
 `)
-//line formField.qtpl:174
+//line formField.qtpl:175
 				}
-//line formField.qtpl:175
+//line formField.qtpl:176
 				if btn.Position {
-//line formField.qtpl:175
+//line formField.qtpl:176
 					qw422016.N().S(`	                            Position: true,
 `)
-//line formField.qtpl:177
+//line formField.qtpl:178
 				}
-//line formField.qtpl:178
+//line formField.qtpl:179
 				if btn.Title > "" {
-//line formField.qtpl:178
+//line formField.qtpl:179
 					qw422016.N().S(`	                            Title:      api.Translate(ctx, `)
-//line formField.qtpl:178
-					qw422016.N().S("`")
 //line formField.qtpl:179
+					qw422016.N().S("`")
+//line formField.qtpl:180
 					qw422016.N().S(btn.Title)
-//line formField.qtpl:179
+//line formField.qtpl:180
 					qw422016.N().S(``)
-//line formField.qtpl:179
+//line formField.qtpl:180
 					qw422016.N().S("`")
-//line formField.qtpl:179
+//line formField.qtpl:180
 					qw422016.N().S(`),
 `)
-//line formField.qtpl:180
+//line formField.qtpl:181
 				}
-//line formField.qtpl:181
+//line formField.qtpl:182
 				if btn.Type > "" {
-//line formField.qtpl:181
+//line formField.qtpl:182
 					qw422016.N().S(`	                            Type:       "`)
-//line formField.qtpl:182
+//line formField.qtpl:183
 					qw422016.N().S(btn.Type)
-//line formField.qtpl:182
+//line formField.qtpl:183
 					qw422016.N().S(`",
 `)
-//line formField.qtpl:183
+//line formField.qtpl:184
 				}
-//line formField.qtpl:184
+//line formField.qtpl:185
 				if btn.OnClick > "" {
-//line formField.qtpl:184
+//line formField.qtpl:185
 					qw422016.N().S(`	                            OnClick:    `)
-//line formField.qtpl:184
-					qw422016.N().S("`")
 //line formField.qtpl:185
+					qw422016.N().S("`")
+//line formField.qtpl:186
 					qw422016.N().S(btn.OnClick)
-//line formField.qtpl:185
+//line formField.qtpl:186
 					qw422016.N().S(``)
-//line formField.qtpl:185
+//line formField.qtpl:186
 					qw422016.N().S("`")
-//line formField.qtpl:185
+//line formField.qtpl:186
 					qw422016.N().S(`,
 `)
-//line formField.qtpl:186
+//line formField.qtpl:187
 				}
-//line formField.qtpl:186
+//line formField.qtpl:187
 				qw422016.N().S(`                            },
 `)
-//line formField.qtpl:188
+//line formField.qtpl:189
 			}
-//line formField.qtpl:188
+//line formField.qtpl:189
 			qw422016.N().S(`                    },
 `)
-//line formField.qtpl:190
+//line formField.qtpl:191
 		}
-//line formField.qtpl:190
+//line formField.qtpl:191
 		qw422016.N().S(`                },
 `)
-//line formField.qtpl:192
+//line formField.qtpl:193
 	}
-//line formField.qtpl:192
+//line formField.qtpl:193
 	qw422016.N().S(`            },
         }
 
@@ -682,31 +687,31 @@ func RenderForm`)
     return nil, nil
 }
 `)
-//line formField.qtpl:200
+//line formField.qtpl:201
 }
 
-//line formField.qtpl:200
+//line formField.qtpl:201
 func (f *FormField) WriteCreate(qq422016 qtio422016.Writer, repo, packageName, unitName string) {
-//line formField.qtpl:200
+//line formField.qtpl:201
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line formField.qtpl:200
+//line formField.qtpl:201
 	f.StreamCreate(qw422016, repo, packageName, unitName)
-//line formField.qtpl:200
+//line formField.qtpl:201
 	qt422016.ReleaseWriter(qw422016)
-//line formField.qtpl:200
+//line formField.qtpl:201
 }
 
-//line formField.qtpl:200
+//line formField.qtpl:201
 func (f *FormField) Create(repo, packageName, unitName string) string {
-//line formField.qtpl:200
+//line formField.qtpl:201
 	qb422016 := qt422016.AcquireByteBuffer()
-//line formField.qtpl:200
+//line formField.qtpl:201
 	f.WriteCreate(qb422016, repo, packageName, unitName)
-//line formField.qtpl:200
+//line formField.qtpl:201
 	qs422016 := string(qb422016.B)
-//line formField.qtpl:200
+//line formField.qtpl:201
 	qt422016.ReleaseByteBuffer(qb422016)
-//line formField.qtpl:200
+//line formField.qtpl:201
 	return qs422016
-//line formField.qtpl:200
+//line formField.qtpl:201
 }

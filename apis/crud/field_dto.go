@@ -18,6 +18,7 @@ import (
 	"time"
 	"unsafe"
 
+	"github.com/jackc/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -61,7 +62,41 @@ func (d *DTO[T]) GetValue() any {
 }
 
 func (d *DTO[T]) NewValue() any {
-	return new(T)
+	var a T
+	return a
+}
+
+type DTOtype struct {
+	Val string
+}
+
+func (D *DTOtype) GetValue() any {
+	return D.Val
+}
+
+func (D *DTOtype) NewValue() any {
+	return &DTOtype{Val: D.Val}
+}
+func (d *DTOtype) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%s", d.Val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "crud.NewDTO(%s{})", d.Val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	case 's':
+		_, err := fmt.Fprintf(s, "%s{}", d.Val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
 }
 
 type DateTimeString time.Time
@@ -165,6 +200,13 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 	return true
 }
 
+func (d *DateTimeString) GetPgxType() pgtype.Timestamp {
+	return pgtype.Timestamp{
+		Time:   (time.Time)(*d),
+		Status: pgtype.Present,
+	}
+}
+
 type DateString time.Time
 
 func (d *DateString) Expect() string {
@@ -207,6 +249,13 @@ func (d *DateString) GetValue() any {
 
 func (d *DateString) NewValue() any {
 	return &DateString{}
+}
+
+func (d *DateString) GetPgxType() pgtype.Date {
+	return pgtype.Date{
+		Time:   (time.Time)(*d),
+		Status: pgtype.Present,
+	}
 }
 
 func (d *DateString) UnmarshalJSON(src []byte) (err error) {
