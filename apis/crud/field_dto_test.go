@@ -569,7 +569,7 @@ func TestDTO_NewValue(t *testing.T) {
 	type fields struct {
 		any pgtype.Point
 	}
-	nilPoint := &pgtype.Point{}
+	nilPoint := pgtype.Point{}
 	test1 := pgtype.Point{
 		P:      pgtype.Vec2{1, 2},
 		Status: pgtype.Present,
@@ -600,12 +600,12 @@ func TestDTO_NewValue(t *testing.T) {
 
 			// chg first value
 			tt.fields.any.P.X = 0
-			value := d.NewValue()
+			value := d.NewValue().(pgtype.Point)
 			assert.Equalf(t, tt.want, value, "NewValue() first value")
 			t.Log(value, tt.want, tt.fields.any)
 
-			value.(*pgtype.Point).P.X = 1
-			// cng yearly value
+			value.P.X = 1
+			// chg yearly value
 			value = tt.fields.any
 			value1 := d.NewValue()
 			assert.Equalf(t, tt.want, value1, "NewValue() cng value")

@@ -490,7 +490,7 @@ func writeFields(value reflect.Value, stream *jsoniter.Stream, vType reflect.Typ
 
 func Indirect(kind reflect.Kind, value reflect.Value) (reflect.Kind, reflect.Value) {
 	for kind == reflect.Pointer || kind == reflect.UnsafePointer || kind == reflect.Interface {
-		logs.DebugLog(kind.String(), value.String())
+		//logs.DebugLog(kind.String(), value.String())
 		if value.IsZero() {
 			value = reflect.New(value.Type().Elem())
 		} else {

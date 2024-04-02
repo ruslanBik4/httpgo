@@ -53,7 +53,6 @@ func (d *DTO[T]) Format(s fmt.State, verb rune) {
 }
 
 func NewDTO[T any](val T) *DTO[T] {
-	logs.DebugLog("%T", val)
 	return &DTO[T]{val: val}
 }
 
