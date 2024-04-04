@@ -192,3 +192,24 @@ func (n *NumrangeMarshal) Set(src any) error {
 		return v.Scan(src)
 	}
 }
+
+// Format implement Formatter interface
+func (d *NumrangeMarshal) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	}
+}
