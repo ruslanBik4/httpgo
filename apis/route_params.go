@@ -123,7 +123,7 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 			case TypeInParam:
 				if p.BasicKind == types.String {
 					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
-				} else {
+				} else if d, ok := param.DefValue.(string); !ok || !strings.HasPrefix(d, "NULL") {
 					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %s(%v),", types.Typ[p.BasicKind], param.DefValue)
 
 				}

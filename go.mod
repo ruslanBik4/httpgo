@@ -1,6 +1,8 @@
 module github.com/ruslanBik4/httpgo
 
-go 1.21
+go 1.22
+
+toolchain go1.22.2
 
 replace github.com/ruslanBik4/dbEngine => ../dbEngine
 
@@ -10,7 +12,7 @@ require (
 	github.com/go-openapi/spec v0.21.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/jackc/pgconn v1.14.3
-	github.com/jackc/pgtype v1.14.2
+	github.com/jackc/pgtype v1.14.3
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
@@ -22,7 +24,7 @@ require (
 	github.com/valyala/fasthttp v1.52.0
 	github.com/valyala/fastjson v1.6.4
 	github.com/valyala/quicktemplate v1.7.0
-	golang.org/x/net v0.22.0
+	golang.org/x/net v0.24.0
 	golang.org/x/oauth2 v0.18.0
 	golang.org/x/text v0.14.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
@@ -82,12 +84,12 @@ require (
 	github.com/yuin/goldmark v1.7.0 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a // indirect
 	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gonum.org/v1/plot v0.14.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect

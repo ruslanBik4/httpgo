@@ -237,7 +237,7 @@ func WriteResponse(ctx *fasthttp.RequestCtx, resp any) error {
 	switch resp := resp.(type) {
 	case nil:
 	case []byte:
-		ctx.Response.SetBodyString(gotools.BytesToString(resp))
+		ctx.Response.SetBodyRaw(resp)
 	case string:
 		ctx.Response.SetBodyString(resp)
 	case int, int16, int32, int64, bool, float32, float64:
