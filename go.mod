@@ -4,7 +4,7 @@ go 1.22
 
 toolchain go1.22.2
 
-replace github.com/ruslanBik4/dbEngine => ../dbEngine
+//replace github.com/ruslanBik4/dbEngine => ../dbEngine
 
 require (
 	github.com/go-openapi/loads v0.22.0
@@ -16,7 +16,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
-	github.com/ruslanBik4/dbEngine v1.1.149
+	github.com/ruslanBik4/dbEngine v1.1.159
 	github.com/ruslanBik4/gotools v0.0.3
 	github.com/ruslanBik4/logs v0.0.131
 	github.com/stretchr/testify v1.9.0

@@ -298,6 +298,8 @@ github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUz
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
 github.com/rs/zerolog v1.13.0/go.mod h1:YbFCdg8HfsridGWAh22vktObvhZbQsZXe4/zB0OKkWU=
 github.com/rs/zerolog v1.15.0/go.mod h1:xYTKnLHcpfU2225ny5qZjxnj9NvkumZYjJHlAThCjNc=
+github.com/ruslanBik4/dbEngine v1.1.159 h1:TDjlom6jL+sZANSlAciTtejN11onzhl5/3tt4eXt6Zg=
+github.com/ruslanBik4/dbEngine v1.1.159/go.mod h1:idK5OZNOUj9MdkuS8SnRntyBeUlw49TsnxIf2Q9hntU=
 github.com/ruslanBik4/gotools v0.0.3 h1:toMbUEq8/BxAjgPxf5HnJyA1CAZXaIJQS2xVoFcrGGQ=
 github.com/ruslanBik4/gotools v0.0.3/go.mod h1:kTrcDyzNa84tQnr0nbDHSJoDRvf6/+E5Tl0XlhEf0Is=
 github.com/ruslanBik4/logs v0.0.131 h1:p1XgTY4HDLb23GXG2N2ZA69PLtbL9DH8D+KEWcg+AhU=
