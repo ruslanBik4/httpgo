@@ -174,6 +174,18 @@ func (i *InetMarshal) Set(src any) error {
 
 type NumrangeMarshal pgtype.Numrange
 
+func (n *NumrangeMarshal) Expect() string {
+	return "float"
+}
+
+func (n *NumrangeMarshal) FormatDoc() string {
+	return "num_range"
+}
+
+func (n *NumrangeMarshal) RequestType() string {
+	return "float"
+}
+
 func (n *NumrangeMarshal) GetValue() any {
 	return pgtype.Numrange(*n)
 }
@@ -194,22 +206,26 @@ func (n *NumrangeMarshal) Set(src any) error {
 }
 
 // Format implement Formatter interface
-func (d *NumrangeMarshal) Format(s fmt.State, verb rune) {
+func (n *NumrangeMarshal) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
+		_, err := fmt.Fprintf(s, "%T", n)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		_, err := fmt.Fprintf(s, "&%T{}", *n)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	case 's':
-		_, err := fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+		_, err := fmt.Fprintf(s, "%v %v %v %v", n.LowerType, n.Lower, n.UpperType, n.UpperType)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
 	}
+}
+
+func (d *NumrangeMarshal) GetPgxType() pgtype.Numrange {
+	return pgtype.Numrange(*d)
 }
