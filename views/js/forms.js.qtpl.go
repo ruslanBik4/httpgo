@@ -24,7 +24,7 @@ func StreamPutFormsJS(qw422016 *qt422016.Writer) {
  `)
 //line forms.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -164,21 +164,15 @@ function saveForm(thisForm, successFunction, errorFunction) {
                         if (xhr.responseJSON.formErrors !== undefined) {
                             let formErrors = xhr.responseJSON.formErrors
                             for (let x in formErrors) {
-                                let formsInput = $(`)
+                                $(`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
-	qw422016.N().S(`input[name=${x}]`)
+	qw422016.N().S(`[name=${x}]`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
-	qw422016.N().S(`, thisForm)
-                                if (formsInput.length > 0) {
-                                    let errorLabel = formsInput[0].nextElementSibling;
-                                    errorLabel.textContent = formErrors[x];
-                                    $(errorLabel).show();
-                                    break;
-                                }
+	qw422016.N().S(`, thisForm).nextAll('.errorLabel').text(formErrors[x]).show();
                             }
                         }
                         return
@@ -331,7 +325,7 @@ function showFormModal(data) {
 function alertField(thisElem) {
     let elem = $(thisElem);
     var nameField = elem.next('span').data("placeholder") || elem.next('span').text() ||
-        elem.parent('label').text();
+        elem.parents('label').text();
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || elem.data("placeholder")
     }
@@ -376,11 +370,11 @@ function validatePattern(thisElem) {
         re = new RegExp(re);
         result = re.test(thisElem.value);
         if (result) {
-            thisElem.style.borderColor = 'green';
-            $(thisElem).next('.errorLabel').hide();
+            $(thisElem).addClass('validated-field').removeClass('error-field');
+            $(thisElem).nextAll('.errorLabel').hide();
         } else {
-            thisElem.style.borderColor = 'red';
-            $(thisElem).next('.errorLabel').show();
+            $(thisElem).addClass('error-field').removeClass('validated-field');
+            $(thisElem).nextAll('.errorLabel').show();
         }
 
     } catch (e) {

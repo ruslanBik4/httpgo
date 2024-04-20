@@ -2,6 +2,7 @@
     "fmt"
 	"go/types"
 	"sort"
+	"strings"
 
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/views/templates/json"
@@ -156,6 +157,7 @@ id="id_{%s col.InputName(i) %}"
          {% if col.Required() %} required="true" {% endif %}
          {% if col.IsReadOnly %} readonly disabled {% endif %}
          {%- if col.CharacterMaximumLength() > 0 -%}maxlength="{%d col.CharacterMaximumLength() %}"{%- endif -%}
+         {% if strings.HasPrefix(col.Type(), "json") %} raw="json" {% space %} {%- endif -%}
          {% if col.Max != nil %} max={%v col.Max %} {% space %} {%- endif -%}
          {% if col.Min != nil %} min={%v col.Min %} {% space %} {%- endif -%}
          {% if col.Step != nil %}step={%v col.Step %} {% space %} {%- endif -%}

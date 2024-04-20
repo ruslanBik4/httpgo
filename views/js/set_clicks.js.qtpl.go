@@ -95,7 +95,7 @@ function setSliderBox() {
 }
 
 function setTextEdit() {
-    let textInputs = $('textarea:not([readonly])');
+    let textInputs = $('textarea:not([readonly]):not([raw])');
     if (textInputs.length > 0) {
         let scripts = Array
             .from(document.querySelectorAll('script'))
@@ -108,12 +108,14 @@ function setTextEdit() {
         textInputs.focus(
             function (event) {
                 let name = event.target.name;
+                let isNotRaw = !event.target.attributes['raw'];
+                let plugins = isNotRaw ? 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount' : '';
                 tinymce.init({
                     target: event.target,
                     menubar: false,
                     auto_focus: event.target.id,
                     highlight_on_focus: true,
-                    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount    ',
+                    plugins: plugins,
                     toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
                     mergetags_list: [
                         {value: "name", title: name},
@@ -125,8 +127,8 @@ function setTextEdit() {
                         });
 
                         editor.on('blur', (e) => {
-                            // {format: 'text'}
-                            $(`)
+                            if (isNotRaw) {
+                                $(`)
 //line set_clicks.js.qtpl:2
 	qw422016.N().S("`")
 //line set_clicks.js.qtpl:2
@@ -135,7 +137,21 @@ function setTextEdit() {
 	qw422016.N().S("`")
 //line set_clicks.js.qtpl:2
 	qw422016.N().S(`).text(editor.getContent());
-                            // editor.hide();
+                            } else {
+                                let content = editor.getContent({format: 'text'});
+                                $(`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`textarea[name="${name}"]`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`).text(content);
+                                console.log(content);
+                                editor.setContent(content);
+                            }
+                            editor.hide();
                         });
                     }
                 });

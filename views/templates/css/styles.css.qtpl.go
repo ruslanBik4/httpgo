@@ -618,6 +618,10 @@ form .error-field {
     border: 1px red solid;
 }
 
+form .validated-field {
+    border: 1px green solid;
+}
+
 .input-label .suggestions-wrapper {
     width: 100%;
 }

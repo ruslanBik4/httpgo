@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -168,6 +168,12 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 				}
 				return colName, bytea
 			}
+
+		case *DtoField:
+			_, err := fmt.Fprintf(buf, " %v", arg)
+			logs.ErrorLog(err)
+			return colName, val
+
 		default:
 			badParams[colName] = fmt.Sprintf("unknown type of value: %T", val)
 		}

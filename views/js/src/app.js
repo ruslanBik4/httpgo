@@ -102,16 +102,6 @@ $(function () {
                 return evt.returnValue = "Do you want to close this page?"
             }
 
-            if (document.location.pathname > "/") {
-                let url = document.location
-                document.location.href = document.location.origin;
-//					loadContent(url.toString());
-//					url.pathname = "/";
-                console.log(`reload ${url}`)
-                // evt.target.URL = url.origin;
-                evt.srcElement.URL = evt.target.URL;
-                console.log(evt)
-            }
         }
         return false
     })
