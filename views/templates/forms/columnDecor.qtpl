@@ -222,7 +222,7 @@ id="id_{%s col.InputName(i) %}"
         {%- endif -%}
   	{% case col.InputType == "file" %}
         {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
-        <span class="hiddenInput" style="background-image: url('{%v val %}');">
+        <span class="hiddenInput">
             <input {%= col.RenderAttr(i) %} type="file" accept="{%s col.Accept %}" data-placeholder="{%s col.Label %}">
         </span>
     {% case col.Suggestions > "" %}

@@ -824,11 +824,7 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:224
 			}
 //line columnDecor.qtpl:224
-			qw422016.N().S(`<span class="hiddenInput" style="background-image: url('`)
-//line columnDecor.qtpl:225
-			qw422016.E().V(val)
-//line columnDecor.qtpl:225
-			qw422016.N().S(`');"> <input `)
+			qw422016.N().S(`<span class="hiddenInput"> <input `)
 //line columnDecor.qtpl:226
 			col.StreamRenderAttr(qw422016, i)
 //line columnDecor.qtpl:226

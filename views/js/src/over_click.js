@@ -21,9 +21,46 @@ function OverClick() {
             "lang": lang,
             "html": true
         },
+        converters: {
+            "* text": window.String,
+            "text html": true,
+            "text json": jQuery.parseJSON,
+            "text xml": jQuery.parseXML,
+            'arraybuffer': jQuery.arraybuffer,
+            'binary blob': function (data, tyype) {
+                console.log(tyype);
+                console.log(typeof data);
+                return data;
+            },
+            'blob binary': function (data, tyype) {
+                console.log(tyype);
+                console.log(typeof data);
+                return data;
+            },
+            'text binary': function (data, tyype) {
+                console.log(tyype);
+                console.log(typeof data);
+                return data;
+            },
+        },
         processData: false,
         contentType: false,
         beforeSend: getHeaders,
+        xhr: function () {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 2) {
+                    if (xhr.status === 200) {
+                        var disp = xhr.getResponseHeader('Content-Disposition');
+                        if (disp && disp.startsWith('attachment')) {
+                            xhr.responseType = "blob";
+                        }
+                    }
+                }
+            };
+            return xhr;
+        },
+        // responseType: 'binary, blob, text, html, xml, json',
         success: function (data, status, xhr) {
             switch (xhr.status) {
                 case 204: {
@@ -40,16 +77,24 @@ function OverClick() {
             var typeCnt = xhr.getResponseHeader('Content-Type');
             if (disp && disp.startsWith('attachment')) {
                 // todo: add last modify
-                const blob = new Blob([data], {type: typeCnt});
+                console.log(typeCnt);
+                const fileName = disp.split("=")[1];
+                const blob = new File([data], fileName, {
+                    type: typeCnt,
+                    lastModified: xhr.getResponseHeader('Last-Modified')
+                });
+                console.log(blob);
                 const a = document.createElement('a');
                 a.href = window.URL.createObjectURL(blob);
-                a.download = disp.split("=")[1];
+                a.download = fileName;
                 a.rel = "tmp";
-                console.log(a);
                 document.body.appendChild(a);
+                // blob.lastModified;
                 a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 100);
 
                 return;
             } else if (typeCnt.startsWith("text/css")) {
