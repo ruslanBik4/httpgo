@@ -101,11 +101,19 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 //line index.qtpl:45
 	}
 //line index.qtpl:45
-	qw422016.N().S(`		        <div id="content" hx-get="`)
+	qw422016.N().S(`		        <div id="content" `)
 //line index.qtpl:46
-	qw422016.E().S(body.Route)
+	if body.Route > "" {
 //line index.qtpl:46
-	qw422016.N().S(`" hx-trigger="load">
+		qw422016.N().S(`hx-get="`)
+//line index.qtpl:46
+		qw422016.E().S(body.Route)
+//line index.qtpl:46
+		qw422016.N().S(`" hx-trigger="load"`)
+//line index.qtpl:46
+	}
+//line index.qtpl:46
+	qw422016.N().S(`>
 	            `)
 //line index.qtpl:48
 	if body.ContentWrite != nil {
