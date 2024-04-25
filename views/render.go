@@ -73,19 +73,23 @@ func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileNa
 		ctx.Response.Header.SetContentLength(length)
 	}
 
+	ct := ""
 	if ext := path.Ext(fileName); ext > "" {
-		ctx.Response.Header.SetContentType(mime.TypeByExtension(ext))
-	} else {
-		ct := http.DetectContentType(ctx.Response.Body())
+		ct = mime.TypeByExtension(ext)
+	}
+
+	// empty extention or not found MIME type
+	if ct == "" {
+		ct = http.DetectContentType(ctx.Response.Body())
 		if ext, err := mime.ExtensionsByType(ct); err != nil {
 			logs.ErrorLog(err)
 		} else if len(ext) > 0 {
 			fileName += ext[0]
 		}
 
-		ctx.Response.Header.SetContentType(ct)
 	}
 
+	ctx.Response.Header.SetContentType(ct)
 	ctx.Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }

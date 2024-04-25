@@ -99,7 +99,9 @@ function saveForm(thisForm, successFunction, errorFunction) {
                         if (xhr.responseJSON.formErrors !== undefined) {
                             let formErrors = xhr.responseJSON.formErrors
                             for (let x in formErrors) {
-                                $(`[name=${x}]`, thisForm).nextAll('.errorLabel').text(formErrors[x]).show();
+                                let elem = $(`[name=${x}]`, thisForm);
+                                elem.nextAll('.errorLabel').text(formErrors[x]).show();
+                                elem.addClass('error-field').focus();
                             }
                         }
                         return

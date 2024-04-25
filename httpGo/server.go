@@ -91,21 +91,20 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		logs.DebugLog("Subdomains is %+v", cfg.Domains)
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			for subD, ip := range cfg.Domains {
-				const delim = ":"
-				host := string(ctx.Host())
+				host := gotools.BytesToString(ctx.Host())
 				if host != ip && strings.HasPrefix(host, subD) {
+					if !isLocalRedirect(ip) {
+						ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
+						return
+					}
 
-					if ip[:1] == delim && !strings.HasSuffix(listener.Addr().String(), ip) {
+					if !strings.HasSuffix(listener.Addr().String(), ip) {
 						url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
 						logs.DebugLog("redirect:", url)
 						ctx.Redirect(url, fasthttp.StatusMovedPermanently)
 						return
 					}
 
-					if ip[:1] != delim {
-						ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
-						return
-					}
 				}
 			}
 
@@ -164,6 +163,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		store:      store,
 	}
 	return h
+}
+
+func isLocalRedirect(ip string) bool {
+	const delim = ":"
+	const separator = "/"
+	return strings.HasPrefix(ip, delim) || strings.HasPrefix(ip, separator)
 }
 
 func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
