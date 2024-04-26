@@ -564,3 +564,33 @@ function Next(elem, id) {
 function getFormNav(thisForm) {
     return $('header#navBlocks', thisForm);
 }
+
+// show files preview on form
+function handleFileOnForm(evt) {
+    var files = evt.files || evt.target.files; // FileList object
+    if (files.length < 1)
+        return false;
+
+    let $progress = $('#progress', $(evt).parents('form')).show(),
+        img = $(evt).parent(),
+        // reader = new FileReader(),
+        f = files[0];
+
+    // reader.onload = (function (theFile) {
+    //     return function (e) {
+    if (f.type.match('(image.*)|(application/pdf)')) {
+        img.css({
+            'background-image': `url(${window.URL.createObjectURL(f)})`,
+            'background-size': 'cover',
+        });
+    } else {
+        console.log(f);
+        alert(f.type)
+    }
+    img.attr('data-placeholder', f.name);
+    //     };
+    // })(f);
+
+    // Read in the image file as a data URL.
+    // reader.readAsText(f);
+}

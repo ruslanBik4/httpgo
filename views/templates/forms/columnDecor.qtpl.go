@@ -836,210 +836,210 @@ func (col *ColumnDecor) StreamRenderInputs(qw422016 *qt422016.Writer, data map[s
 //line columnDecor.qtpl:226
 			qw422016.E().S(col.Label)
 //line columnDecor.qtpl:226
-			qw422016.N().S(`"> </span> `)
-//line columnDecor.qtpl:228
+			qw422016.N().S(`" onchange="handleFileOnForm(this);" > </span> `)
+//line columnDecor.qtpl:229
 		case col.Suggestions > "":
-//line columnDecor.qtpl:228
+//line columnDecor.qtpl:229
 			qw422016.N().S(` <input type="text" src="`)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:230
 			qw422016.N().J(col.Suggestions)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:230
 			qw422016.N().S(`" data="`)
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:230
 			qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:229
+//line columnDecor.qtpl:230
 			qw422016.N().S(`-sel" autocapitalize="none" autocorrect="off" autocomplete="off" `)
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 			if val != nil {
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 				qw422016.N().S(` value=`)
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 				col.StreamRenderValue(qw422016, val)
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 				qw422016.N().S(` `)
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 			}
-//line columnDecor.qtpl:231
+//line columnDecor.qtpl:232
 			qw422016.N().S(` onkeyup="return inputSearchKeyUp(this,event);" /> `)
-//line columnDecor.qtpl:233
+//line columnDecor.qtpl:234
 			if !col.IsSlice {
-//line columnDecor.qtpl:233
+//line columnDecor.qtpl:234
 				qw422016.N().S(`<span `)
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 				if val != nil || col.PlaceHolder > "" {
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 					qw422016.N().S(`class="label-text"`)
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 				}
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 				qw422016.N().S(` data-placeholder="`)
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 				qw422016.E().S(col.Label)
-//line columnDecor.qtpl:234
+//line columnDecor.qtpl:235
 				qw422016.N().S(`"></span> `)
-//line columnDecor.qtpl:235
+//line columnDecor.qtpl:236
 			}
-//line columnDecor.qtpl:235
+//line columnDecor.qtpl:236
 			qw422016.N().S(`<div class="suggestions-wrapper"> <span class="suggestions-addon" data-addon-type="spinner"></span> <select size="10" `)
-//line columnDecor.qtpl:238
+//line columnDecor.qtpl:239
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:238
+//line columnDecor.qtpl:239
 			qw422016.N().S(` class="suggestions-constraints suggestions-select-hide `)
-//line columnDecor.qtpl:239
+//line columnDecor.qtpl:240
 			qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:239
+//line columnDecor.qtpl:240
 			qw422016.N().S(`-sel" data-placeholder="`)
-//line columnDecor.qtpl:240
+//line columnDecor.qtpl:241
 			qw422016.E().S(col.Label)
-//line columnDecor.qtpl:240
+//line columnDecor.qtpl:241
 			qw422016.N().S(`"> </select> <div class="suggestions-suggestions"> </div> </div> `)
-//line columnDecor.qtpl:245
+//line columnDecor.qtpl:246
 		default:
-//line columnDecor.qtpl:245
+//line columnDecor.qtpl:246
 			qw422016.N().S(` <input type="`)
-//line columnDecor.qtpl:247
+//line columnDecor.qtpl:248
 			qw422016.E().S(col.InputType)
-//line columnDecor.qtpl:247
+//line columnDecor.qtpl:248
 			qw422016.N().S(`" `)
-//line columnDecor.qtpl:247
+//line columnDecor.qtpl:248
 			col.StreamRenderAttr(qw422016, i)
-//line columnDecor.qtpl:247
-			qw422016.N().S(` `)
 //line columnDecor.qtpl:248
+			qw422016.N().S(` `)
+//line columnDecor.qtpl:249
 			if val != nil {
-//line columnDecor.qtpl:248
+//line columnDecor.qtpl:249
 				qw422016.N().S(` value=`)
-//line columnDecor.qtpl:248
+//line columnDecor.qtpl:249
 				col.StreamRenderValue(qw422016, val)
-//line columnDecor.qtpl:248
-				qw422016.N().S(` `)
-//line columnDecor.qtpl:248
-			}
-//line columnDecor.qtpl:248
-			qw422016.N().S(` `)
 //line columnDecor.qtpl:249
+				qw422016.N().S(` `)
+//line columnDecor.qtpl:249
+			}
+//line columnDecor.qtpl:249
+			qw422016.N().S(` `)
+//line columnDecor.qtpl:250
 			if col.PlaceHolder > "" {
-//line columnDecor.qtpl:249
+//line columnDecor.qtpl:250
 				qw422016.N().S(` placeholder="`)
-//line columnDecor.qtpl:249
+//line columnDecor.qtpl:250
 				qw422016.E().S(col.PlaceHolder)
-//line columnDecor.qtpl:249
+//line columnDecor.qtpl:250
 				qw422016.N().S(`" `)
-//line columnDecor.qtpl:249
+//line columnDecor.qtpl:250
 			}
-//line columnDecor.qtpl:249
+//line columnDecor.qtpl:250
 			qw422016.N().S(` `)
-//line columnDecor.qtpl:250
+//line columnDecor.qtpl:251
 			if col.BasicType() == types.Bool {
-//line columnDecor.qtpl:250
+//line columnDecor.qtpl:251
 				qw422016.N().S(` onclick="this.value = this.checked;" `)
-//line columnDecor.qtpl:252
+//line columnDecor.qtpl:253
 				if val == true {
-//line columnDecor.qtpl:252
+//line columnDecor.qtpl:253
 					qw422016.N().S(`checked`)
-//line columnDecor.qtpl:252
+//line columnDecor.qtpl:253
 				}
-//line columnDecor.qtpl:252
+//line columnDecor.qtpl:253
 				qw422016.N().S(` `)
-//line columnDecor.qtpl:253
+//line columnDecor.qtpl:254
 			}
-//line columnDecor.qtpl:253
+//line columnDecor.qtpl:254
 			qw422016.N().S(` > `)
-//line columnDecor.qtpl:255
+//line columnDecor.qtpl:256
 			if !col.IsSlice {
-//line columnDecor.qtpl:255
+//line columnDecor.qtpl:256
 				qw422016.N().S(`<span `)
-//line columnDecor.qtpl:256
-				if val != nil || col.PlaceHolder > "" {
-//line columnDecor.qtpl:256
-					qw422016.N().S(`class="label-text"`)
-//line columnDecor.qtpl:256
-				}
-//line columnDecor.qtpl:256
-				qw422016.N().S(` data-placeholder="`)
-//line columnDecor.qtpl:256
-				qw422016.E().S(col.Label)
-//line columnDecor.qtpl:256
-				qw422016.N().S(`"></span> `)
 //line columnDecor.qtpl:257
+				if val != nil || col.PlaceHolder > "" {
+//line columnDecor.qtpl:257
+					qw422016.N().S(`class="label-text"`)
+//line columnDecor.qtpl:257
+				}
+//line columnDecor.qtpl:257
+				qw422016.N().S(` data-placeholder="`)
+//line columnDecor.qtpl:257
+				qw422016.E().S(col.Label)
+//line columnDecor.qtpl:257
+				qw422016.N().S(`"></span> `)
+//line columnDecor.qtpl:258
 			}
-//line columnDecor.qtpl:258
-		}
-//line columnDecor.qtpl:258
-		qw422016.N().S(` `)
 //line columnDecor.qtpl:259
+		}
+//line columnDecor.qtpl:259
+		qw422016.N().S(` `)
+//line columnDecor.qtpl:260
 		if col.IsSlice {
-//line columnDecor.qtpl:259
+//line columnDecor.qtpl:260
 			qw422016.N().S(` <button class="removeField" type="button" onclick="this.parentNode.remove(); return false;">-</button> </li> `)
-//line columnDecor.qtpl:262
+//line columnDecor.qtpl:263
 		}
-//line columnDecor.qtpl:262
+//line columnDecor.qtpl:263
 		qw422016.N().S(` `)
-//line columnDecor.qtpl:264
+//line columnDecor.qtpl:265
 		if col.special == InputMap {
-//line columnDecor.qtpl:264
+//line columnDecor.qtpl:265
 			qw422016.N().S(` <div id="map" class="map_showing"></div> <script> var elem = $("input[name=`)
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.E().S(col.InputName(i))
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S(`]"); var val = elem.val(); var map = L.map('map'); var marker; map.on('load', function onMapClick(e) { marker = L.marker(map.getCenter(), {draggable:true}).addTo(map); marker.bindPopup("<b>Hello world!</b><br>I am her.").openPopup(). on('move' , function () { marker.savePoint(); FormIsModified(event, elem.parents('form')); }); marker.savePoint = function() { marker.bindPopup("It;s my new place.").openPopup(); let geo = marker.getLatLng(); elem.val(`)
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S("`")
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S(`(${geo.lat},${geo.lng})`)
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S("`")
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S(`); }; }); if (val > "") { let arr = val.match(/\((\d*\.\d*)\s*,\s*(\d*\.\d*)\)/); map.setView([arr[1], arr[2]], 13); } else { map.locate({setView: true, maxZoom: 16}); } L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map); map.on('click', function onMapClick(e) { if (confirm(`)
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S("`")
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S(`Do you want to set new position at ${e.latlng}?`)
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S("`")
-//line columnDecor.qtpl:267
+//line columnDecor.qtpl:268
 			qw422016.N().S(`)) { marker.setLatLng(e.latlng); marker.savePoint(); } }); </script> `)
-//line columnDecor.qtpl:306
+//line columnDecor.qtpl:307
 		}
-//line columnDecor.qtpl:306
+//line columnDecor.qtpl:307
 		qw422016.N().S(` `)
-//line columnDecor.qtpl:308
-	}
-//line columnDecor.qtpl:308
-	qw422016.N().S(` `)
 //line columnDecor.qtpl:309
+	}
+//line columnDecor.qtpl:309
+	qw422016.N().S(` `)
+//line columnDecor.qtpl:310
 	if col.IsSlice {
-//line columnDecor.qtpl:309
+//line columnDecor.qtpl:310
 		qw422016.N().S(` </ul> <button class="main-btn" type="button" onclick="l = this.parentNode.firstElementChild.lastElementChild; l.parentNode.insertBefore(l.cloneNode(true), l); return false;"> Add new one </button> `)
-//line columnDecor.qtpl:315
+//line columnDecor.qtpl:316
 	}
-//line columnDecor.qtpl:315
+//line columnDecor.qtpl:316
 	qw422016.N().S(` `)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 }
 
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 func (col *ColumnDecor) WriteRenderInputs(qq422016 qtio422016.Writer, data map[string]any) {
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	col.StreamRenderInputs(qw422016, data)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	qt422016.ReleaseWriter(qw422016)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 }
 
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 func (col *ColumnDecor) RenderInputs(data map[string]any) string {
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	qb422016 := qt422016.AcquireByteBuffer()
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	col.WriteRenderInputs(qb422016, data)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	qs422016 := string(qb422016.B)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	qt422016.ReleaseByteBuffer(qb422016)
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 	return qs422016
-//line columnDecor.qtpl:316
+//line columnDecor.qtpl:317
 }

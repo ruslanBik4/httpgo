@@ -188,7 +188,29 @@ $(function () {
     setClickAll();
     $('body').on('DOMSubtreeModified', setClickAll);
 
+    document.body.addEventListener('htmx:onLoadError', function (evt) {
+        if (evt.detail.xhr.status === 401) {
+            urlAfterLogin = evt.detail.xhr.url;
+            $('#bLogin').trigger("click");
+            return;
+        }
 
+    });
+
+    document.body.addEventListener('htmx:configRequest', function (evt) {
+        evt.detail.headers['Authorization'] = 'Bearer ' + token;
+        evt.detail.headers['Accept-Language'] = lang;
+        evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
+        console.log(`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`htmx request ${evt}`)
+//line app.js.qtpl:5
+	qw422016.N().S("`")
+//line app.js.qtpl:5
+	qw422016.N().S(`);
+    });
 }) // $(document).ready
 
 // run request & show content
@@ -262,7 +284,6 @@ function SetContent(data) {
     if (!findAndReplaceElem(a, '#content', '#content')) {
         $('#content').html(a.innerHTML);
     }
-
 }
 
 function findAndReplaceElem(src, selector, dst) {

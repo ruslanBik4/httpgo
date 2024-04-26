@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/gotools"
 	. "github.com/ruslanBik4/httpgo/apis"
@@ -307,23 +308,24 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 }
 
 // listenOnShutdown implement correct shutdown server
-func (a *HttpGo) listenOnShutdown() {
+func (h *HttpGo) listenOnShutdown() {
 	ch := make(chan os.Signal)
-	KillSignal := syscall.Signal(a.cfg.KillSignal)
+	KillSignal := syscall.Signal(h.cfg.KillSignal)
 	// syscall.SIGTTIN
 	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
 	logs.StatusLog("Shutdown service starting %v on signal '%v'", time.Now(), KillSignal)
 	signShut := <-ch
+
 	logs.StatusLog("Shutdown service get signal: " + signShut.String())
+	close(h.broadcast)
 
-	close(a.broadcast)
-
-	err := a.mainServer.Shutdown()
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	err := h.mainServer.ShutdownWithContext(ctx)
 	if err != nil {
 		logs.ErrorLog(err)
 	}
 
-	err = a.listener.Close()
+	err = h.listener.Close()
 	if err != nil {
 		logs.ErrorLog(err)
 	}
