@@ -117,7 +117,7 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 //line head.qtpl:58
 	}
 //line head.qtpl:58
-	qw422016.N().S(`    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" ></script>
+	qw422016.N().S(`    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.js" async></script>
@@ -154,41 +154,48 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="crossorigin=""/>
       <!-- Make sure you put this AFTER Leaflet's CSS -->
       <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- script type="module">
+	import jqueryDateRangePicker from 'https://cdn.jsdelivr.net/npm/jquery-date-range-picker@1.0.4/+esm'
+	export dateRangePicker
+</script -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-date-range-picker@1.0.4/dist/jquery.daterangepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-date-range-picker@1.0.4/dist/daterangepicker.min.css">
 </head>
-
 `)
-//line head.qtpl:89
+//line head.qtpl:96
 }
 
-//line head.qtpl:89
+//line head.qtpl:96
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:89
+//line head.qtpl:96
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:89
+//line head.qtpl:96
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:89
+//line head.qtpl:96
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:89
+//line head.qtpl:96
 }
 
-//line head.qtpl:89
+//line head.qtpl:96
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:89
+//line head.qtpl:96
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:89
+//line head.qtpl:96
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:89
+//line head.qtpl:96
 	qs422016 := string(qb422016.B)
-//line head.qtpl:89
+//line head.qtpl:96
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:89
+//line head.qtpl:96
 	return qs422016
-//line head.qtpl:89
+//line head.qtpl:96
 }
 
-//line head.qtpl:92
+//line head.qtpl:99
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:92
+//line head.qtpl:99
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -198,9 +205,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:100
+//line head.qtpl:107
 	qw422016.E().S(title)
-//line head.qtpl:100
+//line head.qtpl:107
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -209,39 +216,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:107
+//line head.qtpl:114
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:107
+//line head.qtpl:114
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:111
+//line head.qtpl:118
 }
 
-//line head.qtpl:111
+//line head.qtpl:118
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:111
+//line head.qtpl:118
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:111
+//line head.qtpl:118
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:111
+//line head.qtpl:118
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:111
+//line head.qtpl:118
 }
 
-//line head.qtpl:111
+//line head.qtpl:118
 func AdminHead(title string) string {
-//line head.qtpl:111
+//line head.qtpl:118
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:111
+//line head.qtpl:118
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:111
+//line head.qtpl:118
 	qs422016 := string(qb422016.B)
-//line head.qtpl:111
+//line head.qtpl:118
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:111
+//line head.qtpl:118
 	return qs422016
-//line head.qtpl:111
+//line head.qtpl:118
 }

@@ -33,8 +33,7 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
- */
-html {
+ */html {
     height: 100vh;
     width: 100vh;
 }
@@ -373,7 +372,7 @@ input[type=text], input[type=date-range] {
     color: #0a1c3b;
     /*width: clamp(120px, 50vw, 420px);*/
     /*height: 2.5rem;*/
-    padding: 0 1.25rem;
+    /*padding: 0 1.25rem;*/
     margin: 0.625rem auto;
     transition: all 250ms;
 }
@@ -492,7 +491,7 @@ figure label > input {
     position: absolute;
     display: block;
     width: 100%;
-    height: 100%;
+    height: 20px;
     top: 0;
     left: 0;
 //    pointer-events:none;
@@ -550,7 +549,12 @@ li.form-field select {
     transition: all .3s ease-in-out;
 }
 
-form  .hiddenInput > input[type=file] {
+form .hiddenInput > input[type=file][value] {
+    opacity: 10%;
+
+}
+
+form .hiddenInput > input[type=file] {
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -660,7 +664,7 @@ form .validated-field {
 }
 
 /* tineMCE dialog */
-.tox.tox-tinymce-aux {
+.tox.tox-tinymce-aux, .xdsoft_datetimepicker .xdsoft_datepicker, .date-picker-wrapper div {
     z-index: 100000;
 }`)
 //line styles.css.qtpl:6

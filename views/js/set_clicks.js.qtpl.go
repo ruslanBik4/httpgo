@@ -50,10 +50,62 @@ function setClickAll(event) {
     isProcess = true;
 
     console.log(event);
+    let cfgDate = {
+        format: 'Y-m-d',
+        timepicker: false,
+        lang: lang
+    };
+    let cfgDateTime = {
+        format: 'Y-m-d H:i:s',
+        lang: lang
+    };
+    let cfgDateRange = {
+        setValue: function (s) {
+            $(this).val(`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`[${s}]`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`);
+            // if (value > '') {
+            //     $input.val(value + ',]')
+            // } else {
+            //     $input.val('['+value)
+            // }
+            console.log(s);
+            return false;
+        },
+        separator: ',',
+        autoClose: true,
+        format: 'YYYY-MM-DD',
+        ...cfgDate
+    };
     // add onSubmit event instead default behaviourism of form
     $('form:not([onsubmit])').on("submit", function () {
+        $('input[type=datetime]:not([rel])', this).datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
+        $('input[type=date]:not([rel])', this).datetimepicker(cfgDate).attr('rel', 'datetimepicker');
+        // $('input[type=date-range]:not([rel])', this).dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
         return saveForm(this);
     });
+
+    $('form input[type=datetime]:not([rel])').datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
+    $('form input[type=date]:not([rel])').datetimepicker(cfgDate).attr('rel', 'datetimepicker');
+    // $('form input[type=date-range]:not([rel])').dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+
+    $('.filt-arrow input[type=datetime]:not([rel])').datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
+    $('.filt-arrow input[type=date]:not([rel])').datetimepicker(cfgDate).attr('rel', 'datetimepicker');
+    let dates = $('.filt-arrow input[type=date-range]:not([rel])');
+    if (dates.length > 0) {
+        dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+    }
+    dates = $('form input[type=date-range]:not([rel])');
+    if (dates.length > 0) {
+        dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+    }
+
     // add click event instead default - response will show on div.#content
     $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])').each(function () {
         this.rel = 'setClickAll';
