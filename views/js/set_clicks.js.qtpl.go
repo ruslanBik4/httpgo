@@ -51,7 +51,7 @@ function setClickAll(event) {
 
     console.log(event);
     let cfgDate = {
-        format: 'Y-m-d',
+        format: 'YYYY-MM-DD',
         timepicker: false,
         lang: lang
     };
@@ -80,7 +80,6 @@ function setClickAll(event) {
         },
         separator: ',',
         autoClose: true,
-        format: 'YYYY-MM-DD',
         ...cfgDate
     };
     // add onSubmit event instead default behaviourism of form

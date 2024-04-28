@@ -116,6 +116,8 @@
 	                onkeyup="inputSearchKeyUp(this,event);" onchange="filterTableData(this.value, 'table-col-{%d i%}');" />
 		        <select {%= col.RenderAttr(i) %} size=10 class="suggestions-select-hide {%s col.InputName(i) %}-sel" style="left: -399.109375px; top: 50px;">
 		        </select>
+			{% case col.InputType == "date" || col.InputType == "datetime" %}
+				<input type="date-range" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 			{% default %}
 				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 			{% endswitch %}

@@ -177,13 +177,17 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 		default:
 			badParams[colName] = fmt.Sprintf("unknown type of value: %T", val)
 		}
+		return "", nil
 
 	default:
+		switch col.Type() {
+		case "timestamp", "timestamptz", "date":
+			colName = "&" + colName
+		}
 		_, err := fmt.Fprintf(buf, " %v", arg)
 		logs.ErrorLog(err)
 		return colName, arg
 	}
-	return "", nil
 }
 
 type insertResult struct {

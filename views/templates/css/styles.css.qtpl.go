@@ -664,7 +664,7 @@ form .validated-field {
 }
 
 /* tineMCE dialog */
-.tox.tox-tinymce-aux, .xdsoft_datetimepicker .xdsoft_datepicker, .date-picker-wrapper div {
+.tox.tox-tinymce-aux, .xdsoft_datetimepicker .xdsoft_datepicker, body.fancybox-active .date-picker-wrapper {
     z-index: 100000;
 }`)
 //line styles.css.qtpl:6
