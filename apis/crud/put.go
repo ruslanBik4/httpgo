@@ -180,10 +180,6 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 		return "", nil
 
 	default:
-		switch col.Type() {
-		case "timestamp", "timestamptz", "date":
-			colName = "&" + colName
-		}
 		_, err := fmt.Fprintf(buf, " %v", arg)
 		logs.ErrorLog(err)
 		return colName, arg
