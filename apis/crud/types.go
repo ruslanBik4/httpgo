@@ -23,7 +23,7 @@ type DateRangeMarshal struct {
 }
 
 func (d *DateRangeMarshal) GetValue() any {
-	return d
+	return d.Daterange
 }
 
 func (d *DateRangeMarshal) NewValue() any {
@@ -56,6 +56,10 @@ func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
 	}
 }
 
+func (d *DateRangeMarshal) Get() any {
+	return d.GetValue()
+}
+
 func (d *DateRangeMarshal) Set(src any) error {
 	if d.Daterange == nil {
 		d.Daterange = &pgtype.Daterange{Status: pgtype.Null}
@@ -75,37 +79,55 @@ func (d *DateRangeMarshal) Set(src any) error {
 
 		parts := strings.Split(src, ",")
 
-		err := d.Lower.Scan(strings.TrimSpace(parts[0]))
+		lower := strings.TrimSpace(parts[0])
+		// inclusive border as default
+		d.LowerType = pgtype.Inclusive
+		if l, ok := strings.CutPrefix(lower, "["); ok {
+			lower = l
+		} else if l, ok := strings.CutPrefix(lower, "("); ok {
+			d.LowerType = pgtype.Exclusive
+			lower = l
+		}
+
+		err := d.Lower.Scan(lower)
 		if err == nil {
-			err = d.Upper.Scan(strings.TrimSpace(parts[1]))
+			upper := strings.TrimSpace(parts[1])
+			d.UpperType = pgtype.Inclusive
+			if l, ok := strings.CutSuffix(lower, "]"); ok {
+				lower = l
+			} else if l, ok := strings.CutSuffix(lower, ")"); ok {
+				d.UpperType = pgtype.Exclusive
+				lower = l
+			}
+			err = d.Upper.Scan(upper)
 		}
 		if err != nil {
 			return d.Daterange.Set(src)
 		}
 
 		d.Status = pgtype.Present
+
+	case *pgtype.Daterange:
+		d.Lower = src.Lower
+		d.Upper = src.Upper
+		d.LowerType = src.LowerType
+		d.UpperType = src.UpperType
+		d.Status = src.Status
 		d.LowerType = pgtype.Inclusive
 		d.UpperType = pgtype.Inclusive
 
 	case pgtype.Daterange:
-		d.Lower = src.Lower
-		d.Upper = src.Upper
-		// 	LowerType: src.LowerType,
-		// 	UpperType: src.UpperType,
-		// 	Status:    src.Status,
-		// }
-		d.Status = pgtype.Present
-		d.LowerType = pgtype.Inclusive
-		d.UpperType = pgtype.Inclusive
-
-	case *pgtype.Daterange:
-		return d.Set(*src)
+		return d.Set(&src)
 
 	default:
 		return d.Daterange.Set(src)
 	}
 
 	return nil
+}
+
+func (d *DateRangeMarshal) GetPgxType() *pgtype.Daterange {
+	return d.Daterange
 }
 
 type IntervalMarshal struct {

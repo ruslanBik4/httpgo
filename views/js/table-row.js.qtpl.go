@@ -24,7 +24,7 @@ func StreamTableJS(qw422016 *qt422016.Writer) {
  `)
 //line table-row.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -226,43 +226,43 @@ function appendTable() {
 }
 
 function filterTableData(value, className) {
-    if (value.trim() === "") {
+    let val = value.trim();
+    if (val === "") {
         $('.usr-table-row-cont .usr-table-row').show();
         return true;
     }
 
+    let dateRanges = val.match(/\[(\d+-\d+-\d+),(\d+-\d+-\d+)\]/);
+    console.log(dateRanges);
     let i = 0;
     var items = document.getElementsByClassName(className);
     // filter rows according to input text/value
     Array.prototype.slice.call(items).forEach(
         (el, ind, arr) => {
-            if (el.textContent.includes(value.trim())
+            let textContent = el.textContent;
+            if (textContent.includes(val)
+                || (dateRanges && (dateRanges.length > 1) && textContent >= dateRanges[1] && textContent <= dateRanges[2])
                 || el.parentElement.className.includes("usr-table__t-head")
                 || el.parentElement.className.includes("usr-table__filter")) {
-                el.parentElement.style = "";
+                $(el).removeClass('unfilter');
                 i++
                 return true;
             }
-            el.parentElement.style = "display:none";
+            $(el).addClass('unfilter');
             return true;
         });
+
+    $('.usr-table-row').each(function (ind, elem) {
+        if ($(elem).children('.usr-table-col.unfilter').length > 0) {
+            $(elem).hide();
+        } else {
+            $(elem).show();
+        }
+    })
     // append data if we filter has counter of lines less than page
     if (i < GetPageLines()) {
         appendTable();
     }
-
-//  if (elem.length > 0) {
-////todo- chg on each
-//    elem[0].scrollIntoView({block: "center", behavior: "smooth"});
-//    elem[0].focus();
-//    elem[0].animate([
-//      {color: 'blue'},
-//      {color: 'red'}
-//    ], {
-//        duration: 3000,
-//        iterations: 100
-//    });
-//  }
 }
 
 function ScrollToElem(selector) {

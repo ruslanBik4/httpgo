@@ -186,6 +186,7 @@ func (t TypeInParam) ReadValue(s string, v any) (any, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "Set s")
 		}
+		return v.Get(), nil
 
 	case json.Unmarshaler:
 		err := v.UnmarshalJSON(gotools.StringToBytes(s))

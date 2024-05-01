@@ -44,7 +44,10 @@ function setClickAll(event) {
         return;
     }
 
-    if (event && event.target === '<script>') {
+    let target = event && event.target;
+    if (target && (target === '<script>' || target.localName && (target.localName === 'script' || target.localName === 'tbody')
+        || (typeof target === 'string' && (target.includes('fancybox') || target.startsWith('<th')))
+        || target.localName.startsWith('th'))) {
         return
     }
     isProcess = true;
@@ -57,11 +60,13 @@ function setClickAll(event) {
     };
     let cfgDateTime = {
         format: 'Y-m-d H:i:s',
+        singleDate: true,
         lang: lang
     };
     let cfgDateRange = {
         setValue: function (s) {
-            $(this).val(`)
+            let elem = $(this);
+            elem.val(`)
 //line set_clicks.js.qtpl:2
 	qw422016.N().S("`")
 //line set_clicks.js.qtpl:2
@@ -70,39 +75,47 @@ function setClickAll(event) {
 	qw422016.N().S("`")
 //line set_clicks.js.qtpl:2
 	qw422016.N().S(`);
-            // if (value > '') {
-            //     $input.val(value + ',]')
-            // } else {
-            //     $input.val('['+value)
-            // }
-            console.log(s);
+            setTimeout(function () {
+                return elem.on('change');
+            }, 1000);
             return false;
         },
         separator: ',',
         autoClose: true,
+        startOfWeek: 'sunday',
+        singleDate: false,
+        shortcuts:
+            {
+                'prev-days': [1, 3, 5, 7],
+                'next-days': [3, 5, 7],
+                'prev': ['week', 'month', 'year'],
+                'next': ['week', 'month', 'year']
+            },
         ...cfgDate
     };
     // add onSubmit event instead default behaviourism of form
     $('form:not([onsubmit])').on("submit", function () {
-        $('input[type=datetime]:not([rel])', this).datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
-        $('input[type=date]:not([rel])', this).datetimepicker(cfgDate).attr('rel', 'datetimepicker');
-        // $('input[type=date-range]:not([rel])', this).dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
         return saveForm(this);
     });
 
-    $('form input[type=datetime]:not([rel])').datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
-    $('form input[type=date]:not([rel])').datetimepicker(cfgDate).attr('rel', 'datetimepicker');
-    // $('form input[type=date-range]:not([rel])').dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+    let forms = $('form, .filt-arrow');
 
-    $('.filt-arrow input[type=datetime]:not([rel])').datetimepicker(cfgDateTime).attr('rel', 'datetimepicker');
-    $('.filt-arrow input[type=date]:not([rel])').datetimepicker(cfgDate).attr('rel', 'datetimepicker');
-    let dates = $('.filt-arrow input[type=date-range]:not([rel])');
-    if (dates.length > 0) {
-        dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
-    }
-    dates = $('form input[type=date-range]:not([rel])');
-    if (dates.length > 0) {
-        dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+    if (forms.length > 0) {
+        let dates = forms.children('input[type=datetime]:not([rel])');
+        if (dates.length > 0) {
+            dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
+        }
+        dates = forms.children('input[type=date]:not([rel])');
+        if (dates.length > 0) {
+            dates.dateRangePicker({
+                singleDate: true,
+                ...cfgDate
+            }).attr('rel', 'datetimepicker');
+        }
+        dates = forms.children('input[type=date-range]:not([rel])');
+        if (dates.length > 0) {
+            dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
+        }
     }
 
     // add click event instead default - response will show on div.#content
