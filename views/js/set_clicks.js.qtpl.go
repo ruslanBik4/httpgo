@@ -52,7 +52,7 @@ function setClickAll(event) {
     }
     isProcess = true;
 
-    console.log(event);
+    console.log(event || window.event);
     let cfgDate = {
         format: 'YYYY-MM-DD',
         timepicker: false,
@@ -98,25 +98,24 @@ function setClickAll(event) {
         return saveForm(this);
     });
 
-    let forms = $('form, .filt-arrow');
-
-    if (forms.length > 0) {
-        let dates = forms.children('input[type=datetime]:not([rel])');
+    $('form:not([rel]), .filt-arrow:not([rel])', target).each(
+        function (ind, elem) {
+            let dates = $('input[type=datetime]:not([rel])', elem);
         if (dates.length > 0) {
             dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
         }
-        dates = forms.children('input[type=date]:not([rel])');
+            dates = $('input[type=date]:not([rel])', elem);
         if (dates.length > 0) {
             dates.dateRangePicker({
                 singleDate: true,
                 ...cfgDate
             }).attr('rel', 'datetimepicker');
         }
-        dates = forms.children('input[type=date-range]:not([rel])');
+            dates = $('input[type=date-range]:not([rel])', elem);
         if (dates.length > 0) {
             dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
         }
-    }
+        }).attr('rel', 'datetimepicker');
 
     // add click event instead default - response will show on div.#content
     $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])').each(function () {

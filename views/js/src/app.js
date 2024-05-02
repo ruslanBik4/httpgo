@@ -110,10 +110,6 @@ $(function () {
         userStruct = getUser();
     }
 
-    const rel = $('#content').attr('rel');
-    if (rel > "") {
-        loadContent(rel)
-    }
     setClickAll();
     $('body').on('DOMSubtreeModified', setClickAll);
 

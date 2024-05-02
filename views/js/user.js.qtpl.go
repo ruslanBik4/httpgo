@@ -24,7 +24,7 @@ func StreamUserJS(qw422016 *qt422016.Writer) {
 	`)
 //line user.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -41,7 +41,6 @@ function getUser() {
     if (user > '') {
         let userData = JSON.parse(user);
         saveUser(userData);
-        console.log(userData)
         return userData;
     }
 }
@@ -96,7 +95,6 @@ function saveUser(userData) {
 	qw422016.N().S("`")
 //line user.js.qtpl:2
 	qw422016.N().S(` : '';
-    console.log(userData);
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
 
     $('#sUser').text(userData.name + userSuffix);
@@ -151,7 +149,15 @@ function ChangeTheme(id_themes) {
                     return
                 }
                 default:
-                    console.log(status, data)
+                    console.log(`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`themes load fail: ${status}, ${data}`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`)
             }
         });
 
