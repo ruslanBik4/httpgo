@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -122,58 +122,70 @@ func (menu Menu) StreamRenderMenu(qw422016 *qt422016.Writer, classMenu, classLi 
 				qw422016.N().S(`"`)
 //line menu.qtpl:14
 			}
-//line menu.qtpl:14
-			qw422016.N().S(`>`)
 //line menu.qtpl:15
-			qw422016.N().S(item.Label)
-//line menu.qtpl:15
-			qw422016.N().S(`</a>`)
+			for name, val := range item.Attr {
 //line menu.qtpl:16
-			qw422016.N().S(item.Content)
+				qw422016.E().S(name)
+//line menu.qtpl:16
+				qw422016.N().S(`="`)
+//line menu.qtpl:16
+				qw422016.N().S(val)
+//line menu.qtpl:16
+				qw422016.N().S(`"`)
 //line menu.qtpl:17
-			if len(item.SubMenu) > 0 {
-//line menu.qtpl:18
-				item.SubMenu.StreamRenderDropdownMenu(qw422016)
-//line menu.qtpl:19
 			}
+//line menu.qtpl:17
+			qw422016.N().S(`>`)
+//line menu.qtpl:18
+			qw422016.N().S(item.Label)
+//line menu.qtpl:18
+			qw422016.N().S(`</a>`)
 //line menu.qtpl:19
+			qw422016.N().S(item.Content)
+//line menu.qtpl:20
+			if len(item.SubMenu) > 0 {
+//line menu.qtpl:21
+				item.SubMenu.StreamRenderDropdownMenu(qw422016)
+//line menu.qtpl:22
+			}
+//line menu.qtpl:22
 			qw422016.N().S(`</li>`)
-//line menu.qtpl:21
-		}
-//line menu.qtpl:21
-		qw422016.N().S(`</ul>`)
-//line menu.qtpl:23
-	}
 //line menu.qtpl:24
+		}
+//line menu.qtpl:24
+		qw422016.N().S(`</ul>`)
+//line menu.qtpl:26
+	}
+//line menu.qtpl:27
 	qw422016.N().S(` `)
-//line menu.qtpl:25
+//line menu.qtpl:28
 	qw422016.N().S(`
 `)
-//line menu.qtpl:26
+//line menu.qtpl:29
 }
 
-//line menu.qtpl:26
+//line menu.qtpl:29
 func (menu Menu) WriteRenderMenu(qq422016 qtio422016.Writer, classMenu, classLi string) {
-//line menu.qtpl:26
+//line menu.qtpl:29
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line menu.qtpl:26
+//line menu.qtpl:29
 	menu.StreamRenderMenu(qw422016, classMenu, classLi)
-//line menu.qtpl:26
+//line menu.qtpl:29
 	qt422016.ReleaseWriter(qw422016)
-//line menu.qtpl:26
+//line menu.qtpl:29
 }
 
-//line menu.qtpl:26
+//line menu.qtpl:29
 func (menu Menu) RenderMenu(classMenu, classLi string) string {
-//line menu.qtpl:26
+//line menu.qtpl:29
 	qb422016 := qt422016.AcquireByteBuffer()
-//line menu.qtpl:26
+//line menu.qtpl:29
 	menu.WriteRenderMenu(qb422016, classMenu, classLi)
-//line menu.qtpl:26
+//line menu.qtpl:29
 	qs422016 := string(qb422016.B)
-//line menu.qtpl:26
+//line menu.qtpl:29
 	qt422016.ReleaseByteBuffer(qb422016)
-//line menu.qtpl:26
+//line menu.qtpl:29
 	return qs422016
-//line menu.qtpl:26
+//line menu.qtpl:29
 }

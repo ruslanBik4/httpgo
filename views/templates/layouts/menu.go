@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -30,6 +30,7 @@ func (m Menu) FindItem(name string) (*ItemMenu, int) {
 type ItemMenu struct {
 	Content, Link, Label, Name, OnClick, Title, Target string
 	SubMenu                                            Menu
+	Attr                                               map[string]string
 }
 
 func (m *ItemMenu) AddSubItem(item *ItemMenu) error {

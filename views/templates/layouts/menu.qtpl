@@ -12,6 +12,9 @@
             <a href="{%s= item.Link %}" title="{%s= item.Title %}"
              {%- if item.OnClick > "" -%} onclick="{%s= item.OnClick %}"{%- endif -%}
              {%- if item.Target > "" -%} target="{%s= item.Target %}"{%- endif -%}
+			{%- for name, val := range item.Attr -%}
+			{%s name %}="{%s= val %}"
+			{%- endfor -%}
              >{%s= item.Label %}</a>
              {%s= item.Content %}
              {% if len(item.SubMenu) > 0 %}
