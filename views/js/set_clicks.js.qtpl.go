@@ -44,6 +44,7 @@ function setClickAll(event) {
         return;
     }
 
+    event = event || window.event;
     let target = event && event.target;
     if (target && (target === '<script>' || target.localName && (target.localName === 'script' || target.localName === 'tbody')
         || (typeof target === 'string' && (target.includes('fancybox') || target.startsWith('<th')))
@@ -52,7 +53,7 @@ function setClickAll(event) {
     }
     isProcess = true;
 
-    console.log(event || window.event);
+    console.log(event);
     let cfgDate = {
         format: 'YYYY-MM-DD',
         timepicker: false,
@@ -126,9 +127,12 @@ function setClickAll(event) {
     setTextEdit();
     setSliderBox();
 
-    if (!event || event.target === document.getElementById('content')) {
+    target = target || document.getElementsByTagName("body")[0];
+    if (target === document.getElementById('content')) {
         $('input[autofocus]:last').focus();
     }
+
+    htmx.process(target);
     isProcess = false;
 }
 

@@ -124,11 +124,11 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:43
 		qw422016.E().S(t.Comment())
 //line table_row.qtpl:43
-		qw422016.N().S(`'</h2><div id="divFieldImport" class="input-wrap"><label class="table-files__label" style="height:30px;"><span class="hiddenInput"><input type="file"id="csv"name="csv"accept=".csv"onchange="handleFileCSVSelect(this);"/></span></label></div><div  class="input-wrap"><label> Truncate table before import <input type="checkbox" name="truncate_data" /></label></div><div class="form-actions"><button type="submit">Put in table '`)
+		qw422016.N().S(`'</h2><div id="divFieldImport" class="input-wrap"><label class="table-files__label" style="height:30px;"><span class="hiddenInput"><input type="file"id="csv"name="csv"accept=".csv"onchange="handleFileCSVSelect(this);"/></span></label></div><div class="input-wrap"><label> Truncate table before import <input type="checkbox" name="truncate_data" /></label></div><div class="form-actions"><button class="btn-success mx-0" type="submit">Put in table '`)
 //line table_row.qtpl:60
 		qw422016.E().S(t.Name())
 //line table_row.qtpl:60
-		qw422016.N().S(`'</button><button type="reset">Reset form</button></div><output></output><progress value='0' max='100' hidden > </progress></form>`)
+		qw422016.N().S(`'</button><button class="btn-danger mx-1" type="reset">Reset form</button></div><output></output><progress value='0' max='100' hidden > </progress></form>`)
 //line table_row.qtpl:66
 	}
 //line table_row.qtpl:66
@@ -136,11 +136,11 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:67
 	qw422016.E().S(t.ApiExport)
 //line table_row.qtpl:67
-	qw422016.N().S(`" download="`)
+	qw422016.N().S(`" download='`)
 //line table_row.qtpl:67
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:67
-	qw422016.N().S(`.csv"> Save data to disk (csv)</a></div><div class="usr-table  table-custom" id="t_`)
+	qw422016.N().S(`.csv' >Save data to disk (csv)</a></div><div class="usr-table  table-custom" id="t_`)
 //line table_row.qtpl:69
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:69
@@ -160,7 +160,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:74
 		if col.Label == "id" && i < len(t.columns)-1 {
 //line table_row.qtpl:74
-			qw422016.N().S(`<ul class="left-mnu-list" style="z-index:100;"><li><a>#</a><ul class="dropdown">go to column...`)
+			qw422016.N().S(`<ul class="left-mnu-list" style="z-index:4;"><li><a>#</a><ul class="dropdown">go to column...`)
 //line table_row.qtpl:77
 			for j, c := range t.columns[i+1:] {
 //line table_row.qtpl:77

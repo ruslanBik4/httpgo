@@ -126,7 +126,8 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        console.log(`htmx request ${evt}`);
+        console.log(`HTMX request `);
+        console.log(evt);
     });
 }) // $(document).ready
 

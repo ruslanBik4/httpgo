@@ -21,7 +21,7 @@ var (
 func StreamTableCSS(qw422016 *qt422016.Writer) {
 //line table-row.css.qtpl:4
 	qw422016.N().S(`/*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -160,8 +160,11 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 }
 
 .usr-table .usr-table-col:nth-child(1) {
-    text-align: left;
-    justify-content: flex-start;
+    text-align: center;
+    justify-content: center;
+    position: sticky;
+    left: 0;
+    z-index: 1;
 }
 
 .usr-table__filter {

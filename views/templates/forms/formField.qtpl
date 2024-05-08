@@ -1,5 +1,7 @@
 {% import (
 	"fmt"
+	"slices"
+
 	"github.com/iancoleman/strcase"
 )
 %}
@@ -24,21 +26,29 @@ import (
 	 "{%s repo %}/db"
 )
 
+{%- code
+	blocks := f.Blocks[0].Columns
+	for _, block := range f.Blocks[1:] {
+		for _, col := range block.Columns {
+			if !slices.Contains(blocks, col) {
+				blocks = append(blocks, col)
+			}
+		}
+	}
+-%}
 // {%s strcase.ToCamel(unitName) %} params on routes for CRUD table '
 var (
 	{%s strcase.ToCamel(unitName) %}GetParams = append(crud.APIQueriesParams,
-    {%- for _, block := range f.Blocks -%}
-            {%- for _, col := range block.Columns -%}
-                apis.InParam{
-                {%- if col.Column != nil -%}
-                    Name: "{%s= col.Name() %}",
-                    {%- if col.Value != nil && col.Value != "nil" -%}
-                    DefValue: `{%v col.Value %}`,
-                    {%- endif -%}
-                    Type: apis.NewTypeInParam({%- if col.InputType == "number" -%}types.Int32{% else %}types.String{% endif %}),
-                {%- endif -%}
-                },
-            {%- endfor -%}
+    {%- for _, col := range blocks -%}
+        apis.InParam{
+        {%- if col.Column != nil -%}
+            Name: "{%s= col.Name() %}",
+            {%- if col.Value != nil && col.Value != "nil" -%}
+            DefValue: `{%v col.Value %}`,
+            {%- endif -%}
+            Type: apis.NewTypeInParam({%- if col.InputType == "number" -%}types.Int32{% else %}types.String{% endif %}),
+        {%- endif -%}
+        },
     {%- endfor -%}
    )
 )

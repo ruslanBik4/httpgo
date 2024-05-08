@@ -43,28 +43,28 @@
 <h2> Import to '{%s t.Comment() %}'</h2>
 <div id="divFieldImport" class="input-wrap">
 <label class="table-files__label" style="height:30px;">
-                <span class="hiddenInput">
-						<input type="file"
-						              id="csv"
-						              name="csv"
-						              accept=".csv"
-						              onchange="handleFileCSVSelect(this);"
-						/>
-                    </span>
+    <span class="hiddenInput">
+			<input type="file"
+			              id="csv"
+			              name="csv"
+			              accept=".csv"
+			              onchange="handleFileCSVSelect(this);"
+			/>
+        </span>
  </label>
  </div>
- <div  class="input-wrap">
+ <div class="input-wrap">
  <label> Truncate table before import <input type="checkbox" name="truncate_data" /></label>
  </div>
  <div class="form-actions">
-        <button type="submit">Put in table '{%s t.Name() %}'</button>
-        <button type="reset">Reset form</button>
+        <button class="btn-success mx-0" type="submit">Put in table '{%s t.Name() %}'</button>
+        <button class="btn-danger mx-1" type="reset">Reset form</button>
 </div>
   <output></output>
   <progress value='0' max='100' hidden > </progress>
  </form>
 {%- endif -%}
- <a href="{%s t.ApiExport %}" download="{%s t.Name() %}.csv"> Save data to disk (csv)</a>
+ <a href="{%s t.ApiExport %}" download='{%s t.Name() %}.csv' >Save data to disk (csv)</a>
 </div>
 <div class="usr-table  table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
@@ -72,7 +72,7 @@
 	    {% for i, col := range t.columns %}
 	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
-                    <ul class="left-mnu-list" style="z-index:100;"><li><a>#</a>
+                    <ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
 				    {% for j, c := range t.columns[i+1:] %}
 				           <li class="left-mnu-item">

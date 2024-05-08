@@ -201,11 +201,12 @@ $(function () {
 //line app.js.qtpl:5
 	qw422016.N().S("`")
 //line app.js.qtpl:5
-	qw422016.N().S(`htmx request ${evt}`)
+	qw422016.N().S(`HTMX request `)
 //line app.js.qtpl:5
 	qw422016.N().S("`")
 //line app.js.qtpl:5
 	qw422016.N().S(`);
+        console.log(evt);
     });
 }) // $(document).ready
 
