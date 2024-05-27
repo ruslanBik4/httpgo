@@ -32,9 +32,11 @@ import (
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{
 	"author":           "ruslanBik4",
-	"Server":           "%v HTTPGO/%v (CentOS) Go 1.21",
+	"Server":           ServerName,
 	"Content-Language": "en,uk",
 }
+
+const ServerName = "name of server httpgo"
 
 // WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
@@ -46,8 +48,9 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetLastModified(time.Now().Add(-(time.Second * time.Duration(age))))
 	for key, value := range HEADERS {
 		if key == "Server" {
-			value = fmt.Sprintf(value, ctx.UserValue("name of server httpgo"), ctx.UserValue("ACC_VERSION"))
+			value = ctx.UserValue(ServerName).(string)
 		}
+		// set header ONLY if it not presents
 		if len(ctx.Response.Header.Peek(key)) == 0 {
 			ctx.Response.Header.Set(key, value)
 		}
@@ -61,7 +64,8 @@ func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *fasthttp.Request) bool {
-	return len(r.Header.Peek("X-Requested-With")) > 0
+	return len(r.Header.Peek("X-Requested-With")) > 0 ||
+		len(r.Header.Peek("HX-Request")) > 0
 }
 
 func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileName string, length int) {

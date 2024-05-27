@@ -150,14 +150,31 @@ function OverClick() {
                 PutContent(data, url);
             }
         },
-        error: function (xhr, status, error) {
-            if (xhr.status === 401) {
-                urlAfterLogin = url;
-                $('#bLogin').trigger("click");
-                return;
-            }
+        error: handleError,
+    });
+    return false;
+}
 
+function handleError(xhr, status, error) {
+    switch (xhr.status) {
+        case 401:
+            urlAfterLogin = xhr.url;
+            $('#bLogin').trigger("click");
+            return;
+        case 404:
             alert(`)
+//line over_click.js.qtpl:2
+	qw422016.N().S("`")
+//line over_click.js.qtpl:2
+	qw422016.N().S(`Request page not found: ${xhr.url}`)
+//line over_click.js.qtpl:2
+	qw422016.N().S("`")
+//line over_click.js.qtpl:2
+	qw422016.N().S(`);
+            return;
+    }
+
+    alert(`)
 //line over_click.js.qtpl:2
 	qw422016.N().S("`")
 //line over_click.js.qtpl:2
@@ -166,7 +183,7 @@ function OverClick() {
 	qw422016.N().S("`")
 //line over_click.js.qtpl:2
 	qw422016.N().S(`);
-            console.error(`)
+    console.error(`)
 //line over_click.js.qtpl:2
 	qw422016.N().S("`")
 //line over_click.js.qtpl:2
@@ -175,9 +192,6 @@ function OverClick() {
 	qw422016.N().S("`")
 //line over_click.js.qtpl:2
 	qw422016.N().S(`, xhr);
-        }
-    });
-    return false;
 }
 
 function showJSON(data) {

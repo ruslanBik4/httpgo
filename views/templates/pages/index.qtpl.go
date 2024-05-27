@@ -107,14 +107,14 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 //line index.qtpl:46
 		qw422016.N().S(`hx-get="`)
 //line index.qtpl:46
-		qw422016.E().S(body.Route)
+		qw422016.N().S(body.Route)
 //line index.qtpl:46
 		qw422016.N().S(`" hx-trigger="load"`)
 //line index.qtpl:46
 	}
 //line index.qtpl:46
 	qw422016.N().S(`>
-	            `)
+`)
 //line index.qtpl:48
 	if body.ContentWrite != nil {
 		body.ContentWrite(body.Buff)
@@ -123,43 +123,42 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	}
 
 //line index.qtpl:53
-	qw422016.N().S(`
-		        </div>
+	qw422016.N().S(`</div>
 	        </div>
 	</div>
 </main>
 `)
-//line index.qtpl:58
+//line index.qtpl:57
 	layouts.StreamFooterHTML(qw422016, body.FooterMenu)
-//line index.qtpl:58
+//line index.qtpl:57
 	qw422016.N().S(`
 </body>
 `)
-//line index.qtpl:60
+//line index.qtpl:59
 }
 
-//line index.qtpl:60
+//line index.qtpl:59
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line index.qtpl:60
+//line index.qtpl:59
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line index.qtpl:60
+//line index.qtpl:59
 	body.StreamIndexHTML(qw422016)
-//line index.qtpl:60
+//line index.qtpl:59
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:60
+//line index.qtpl:59
 }
 
-//line index.qtpl:60
+//line index.qtpl:59
 func (body *IndexPageBody) IndexHTML() string {
-//line index.qtpl:60
+//line index.qtpl:59
 	qb422016 := qt422016.AcquireByteBuffer()
-//line index.qtpl:60
+//line index.qtpl:59
 	body.WriteIndexHTML(qb422016)
-//line index.qtpl:60
+//line index.qtpl:59
 	qs422016 := string(qb422016.B)
-//line index.qtpl:60
+//line index.qtpl:59
 	qt422016.ReleaseByteBuffer(qb422016)
-//line index.qtpl:60
+//line index.qtpl:59
 	return qs422016
-//line index.qtpl:60
+//line index.qtpl:59
 }

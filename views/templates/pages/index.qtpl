@@ -43,15 +43,14 @@ content of Index page
 			          {%= body.SearchPanel.Render() %}
 			    </div>
 			    {%- endif -%}
-		        <div id="content" {% if body.Route > "" %}hx-get="{%s body.Route %}" hx-trigger="load"{%- endif -%}>
-	            {%code
+		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load"{%- endif -%}>
+	            {%- code
 	                if body.ContentWrite != nil {
 	                    body.ContentWrite(body.Buff)
 	                } else {
 	                    body.Buff.Write(body.Content)
 	                }
-	            %}
-		        </div>
+	            -%}</div>
 	        </div>
 	</div>
 </main>

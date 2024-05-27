@@ -41,6 +41,8 @@ type HttpGo struct {
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 
+var GoVersion string
+
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
@@ -51,7 +53,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	apis.Ctx[ApiVersion] = httpgoVersion
 	if cfg != nil && cfg.Server != nil {
-		apis.Ctx[ServerName] = cfg.Server.Name
+		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (CentOS) backend by Go %v", cfg.Server.Name, httpgoVersion, GoVersion)
 	}
 
 	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {

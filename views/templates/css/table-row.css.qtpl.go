@@ -27,7 +27,14 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
  * Перший приватний програміст.
  */
 
-.usr-table-content a.usr-table-row:hover {
+.usr-table-content {
+    overflow-y: auto;
+    /*overflow-x: hidden;*/
+    /*width: 100%;*/
+    /*height: calc(99% - 64px);*/
+}
+
+.usr-table-content .usr-table-row:hover {
     background-color: rgba(120, 147, 182, 0.1);
 }
 
@@ -76,7 +83,7 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 }
 
 .usr-table__t-head .usr-table-col:nth-child(n+2) span:hover {
-    cursor: n-resize;
+    cursor: row-resize;
 }
 
 .usr-table__t-head .usr-table-col:nth-child(n+2):hover span {
@@ -96,6 +103,7 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 
 .usr-table__t-head .usr-table-col:nth-child(n+2):hover span::after, span.sorted-asc::after {
     content: "\f57b";
+    cursor: n-resize;
 }
 
 .usr-table-row {
@@ -165,6 +173,7 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
     position: sticky;
     left: 0;
     z-index: 1;
+    background-color: #f3f3f3;
 }
 
 .usr-table__filter {
@@ -321,13 +330,6 @@ img.cover {
 
 .c-orange {
     color: #f1951c;
-}
-
-.usr-table-content {
-    overflow-y: auto;
-    overflow-x: hidden;
-    width: 100%;
-    height: calc(99% - 64px);
 }
 
 .usr-table-content-scroll {

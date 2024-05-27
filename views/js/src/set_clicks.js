@@ -15,9 +15,13 @@ function setClickAll(event) {
 
     event = event || window.event;
     let target = event && event.target;
-    if (target && (target === '<script>' || target.localName && (target.localName === 'script' || target.localName === 'tbody')
-        || (typeof target === 'string' && (target.includes('fancybox') || target.startsWith('<th')))
-        || target.localName.startsWith('th'))) {
+    if (target && (target === '<script>'
+        || target.localName && (target.localName === 'script' || target.localName === 'tbody'
+            || target.localName.startsWith('svg') || target.localName.startsWith('th'))
+        || (typeof target === 'string' && (target.includes('fancybox') || target.startsWith('<th')
+            || target.startsWith('<svg')))
+        || (typeof target === 'object' && $(target).parents('svg').length > 0)
+    )) {
         return
     }
     isProcess = true;
@@ -93,7 +97,7 @@ function setClickAll(event) {
         $('input[autofocus]:last').focus();
     }
 
-    htmx.process(target);
+    // htmx.process(target);
     isProcess = false;
 }
 

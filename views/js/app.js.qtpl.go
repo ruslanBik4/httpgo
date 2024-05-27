@@ -130,7 +130,7 @@ function SetDocumentHash(url, data) {
 
     // var origin = document.location.origin + (str_path[0] === '/' ? '' : "/")
     //     + ((str_path !== root_page) && (str_path !== default_page) ? str_path : '');
-    console.log(url)
+    console.log(url);
     window.history.pushState({'url': url, 'data': data}, document.title, url);
 }
 
@@ -157,7 +157,7 @@ $(function () {
         if (evt) {
             var y = evt.pageY || evt.clientY;
             if (y === undefined) {
-                console.log(evt)
+                console.log(evt);
             }
             console.log(`)
 //line app.js.qtpl:5
@@ -170,11 +170,11 @@ $(function () {
 	qw422016.N().S(`);
             evt.preventDefault();
             if (y < 0) {
-                return evt.returnValue = "Do you want to close this page?"
+                return evt.returnValue = "Do you want to close this page?";
             }
 
         }
-        return false
+        return false;
     })
 
     if (!userStruct) {
@@ -185,12 +185,8 @@ $(function () {
     $('body').on('DOMSubtreeModified', setClickAll);
 
     document.body.addEventListener('htmx:onLoadError', function (evt) {
-        if (evt.detail.xhr.status === 401) {
-            urlAfterLogin = evt.detail.xhr.url;
-            $('#bLogin').trigger("click");
-            return;
-        }
-
+        console.log(evt);
+        handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
     });
 
     document.body.addEventListener('htmx:configRequest', function (evt) {
@@ -208,6 +204,7 @@ $(function () {
 	qw422016.N().S(`);
         console.log(evt);
     });
+
 }) // $(document).ready
 
 // run request & show content

@@ -111,18 +111,24 @@ function OverClick() {
                 PutContent(data, url);
             }
         },
-        error: function (xhr, status, error) {
-            if (xhr.status === 401) {
-                urlAfterLogin = url;
-                $('#bLogin').trigger("click");
-                return;
-            }
-
-            alert(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`);
-            console.error(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`, xhr);
-        }
+        error: handleError,
     });
     return false;
+}
+
+function handleError(xhr, status, error) {
+    switch (xhr.status) {
+        case 401:
+            urlAfterLogin = xhr.url;
+            $('#bLogin').trigger("click");
+            return;
+        case 404:
+            alert(`Request page not found: ${xhr.url}`);
+            return;
+    }
+
+    alert(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`);
+    console.error(`Code : "${xhr.status}", "${error}": "${xhr.responseText}"`, xhr);
 }
 
 function showJSON(data) {
