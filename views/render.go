@@ -195,11 +195,6 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 }
 
 // render JSON from any data type
-var jsonHEADERS = map[string]string{
-	"Content-Type": "application/json; charset=utf-8",
-}
-
-// render JSON from any data type
 const jsonHEADERSContentType = "application/json; charset=utf-8"
 
 // WriteJSONHeaders return standart headers for JSON
