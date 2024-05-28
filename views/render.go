@@ -115,13 +115,13 @@ func RenderHTMLPage(ctx *fasthttp.RequestCtx, fncWrite func(w io.Writer)) {
 
 // RenderAnyPage (deprecate)
 // TODO: replace string output by streaming
-func RenderAnyPage(ctx *fasthttp.RequestCtx, strContent string) error {
-	content := gotools.StringToBytes(strContent)
+func RenderAnyPage(ctx *fasthttp.RequestCtx, content string) error {
 	if IsAJAXRequest(&ctx.Request) {
-		_, err := ctx.Write(content)
+		_, err := ctx.Write(gotools.StringToBytes(content))
 		return err
 	}
-	p := &pages.IndexPageBody{Content: content, Route: string(ctx.Path()), Buff: ctx}
+
+	p := &pages.IndexPageBody{Content: content, Route: gotools.BytesToString(ctx.Path())}
 
 	return RenderTemplate(ctx, "index", p)
 }
@@ -163,14 +163,11 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 	case "index":
 		var p *pages.IndexPageBody = Content.(*pages.IndexPageBody)
 
-		if len(p.Content) == 0 {
+		if len(p.Content) == 0 && p.ContentWrite == nil {
 
 			//p.Title   = "Авторизация"
 			headPage.Title = "Страничка управления миром - бета-версия"
 			p.Route = "/"
-		}
-		if p.Buff == nil {
-			p.Buff = ctx
 		}
 
 		if p.HeadHTML == nil {

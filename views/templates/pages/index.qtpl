@@ -1,6 +1,7 @@
 All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 {% import (
+	"github.com/valyala/quicktemplate"
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"io"
 )
@@ -10,9 +11,8 @@ content of Index page
     type IndexPageBody struct {
         Name         []byte
         Pass         []byte
-        Content      []byte
+        Content      string
         ContentWrite func(w io.Writer)
-        Buff         io.Writer
         Catalog      layouts.Menu
         TopMenu      layouts.Menu
         FooterMenu   layouts.Menu
@@ -25,6 +25,11 @@ content of Index page
         ChangeTheme string
         SearchPanel   *layouts.SearchPanel
     }
+
+func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
+	body.ContentWrite(w.W())
+}
+
 -%}
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
@@ -44,13 +49,9 @@ content of Index page
 			    </div>
 			    {%- endif -%}
 		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load"{%- endif -%}>
-	            {%- code
-	                if body.ContentWrite != nil {
-	                    body.ContentWrite(body.Buff)
-	                } else {
-	                    body.Buff.Write(body.Content)
-	                }
-	            -%}</div>
+	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}
+	            {%- else -%} {%s body.Content %}
+	            {%- endif -%}</div>
 	        </div>
 	</div>
 </main>

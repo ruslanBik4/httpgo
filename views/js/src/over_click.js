@@ -45,6 +45,10 @@ function OverClick() {
         },
         processData: false,
         contentType: false,
+        dataFilter: function (data, type) {
+            console.log(type);
+            return data
+        },
         beforeSend: getHeaders,
         xhr: function () {
             var xhr = new XMLHttpRequest();
