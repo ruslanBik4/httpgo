@@ -5,7 +5,7 @@
 	{% cat "src/app.js" %}
 {% endfunc %}
 
-// add all functioanal for httpgo web apps
+// add all functional for httpgo web apps
 {% func AppMax() %}
 {%= App() %}
 {%= PutFormsJS() %}

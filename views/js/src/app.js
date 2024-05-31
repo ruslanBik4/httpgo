@@ -110,9 +110,6 @@ $(function () {
         userStruct = getUser();
     }
 
-    setClickAll();
-    $('body').on('DOMSubtreeModified', setClickAll);
-
     document.body.addEventListener('htmx:onLoadError', function (evt) {
         console.log(evt);
         handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
@@ -125,6 +122,9 @@ $(function () {
         console.log(`HTMX request `);
         console.log(evt);
     });
+
+    setClickAll();
+    $('body').on('DOMSubtreeModified', setClickAll);
 
 }) // $(document).ready
 
@@ -161,8 +161,12 @@ function loadContent(url) {
 }
 
 function PutContent(data, url) {
-    SetContent(data);
+    const title = SetContent(data);
     SetDocumentHash(url, data);
+    if (title > "") {
+        $('ol.breadcrumb form').before(`<li class="breadcrumb-item">${title}</li>`);
+        document.title = title;
+    }
 }
 
 function SetContent(data) {
@@ -183,6 +187,7 @@ function SetContent(data) {
     if (!findAndReplaceElem(a, '#content', '#content')) {
         $('#content').html(a.innerHTML);
     }
+    return $('title', a).text()
 }
 
 function findAndReplaceElem(src, selector, dst) {

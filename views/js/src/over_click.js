@@ -115,7 +115,10 @@ function OverClick() {
                 PutContent(data, url);
             }
         },
-        error: handleError,
+        error: function (xhr, status, error) {
+            xhr.url = url;
+            return handleError(xhr, status, error);
+        },
     });
     return false;
 }
@@ -124,6 +127,7 @@ function handleError(xhr, status, error) {
     switch (xhr.status) {
         case 401:
             urlAfterLogin = xhr.url;
+            console.log(xhr.url);
             $('#bLogin').trigger("click");
             return;
         case 404:

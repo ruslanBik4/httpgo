@@ -6,7 +6,7 @@
  */
 
 .usr-table-content {
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     /*overflow-x: hidden;*/
     /*width: 100%;*/
     /*height: calc(99% - 64px);*/
@@ -19,6 +19,7 @@
 .usr-table-header {
     background-color: rgba(120, 147, 182, 0.1);
     position: sticky;
+    top: 0;
 }
 
 .usr-table__t-head .usr-table-col {

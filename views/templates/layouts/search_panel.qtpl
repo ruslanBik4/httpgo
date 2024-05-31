@@ -43,6 +43,5 @@ func NewSearchPanel(action,  suggestions,  showObject, labelButton, placeholder 
             <div class="suggestions-suggestions"></div>
          </div>
     {%- endif -%}
-        <progress value='0' max='100' hidden > </progress>
     </form>
 {% endfunc %}

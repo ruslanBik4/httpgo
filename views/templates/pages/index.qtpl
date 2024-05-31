@@ -35,6 +35,12 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 {%= body.HeadHTML.HeadHTML() %}
 <body {%s body.Attr %}>
 {%= layouts.HeaderHTML(body.TopMenu) %}
+<breadcrumbs separator="›" aria-label="breadcrumb" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+{%- if body.SearchPanel != nil -%}{%= body.SearchPanel.Render() %}{%- endif -%}
+  </ol>
+</breadcrumbs>
 <main class="content-wrap">
 	<div id="container-fluid">
 	        <div class="sidebar-section">
@@ -43,11 +49,6 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	            </div>
 	        </div>
 	        <div class="content-section">
-			    {%- if body.SearchPanel != nil -%}
-			    <div class="row-fluid">
-			          {%= body.SearchPanel.Render() %}
-			    </div>
-			    {%- endif -%}
 		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load"{%- endif -%}>
 	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}
 	            {%- else -%} {%s body.Content %}

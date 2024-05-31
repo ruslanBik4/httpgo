@@ -6,28 +6,28 @@
 //
 // standard styles .
 
-//line styles.css.qtpl:5
+//line ../styles.css.qtpl:5
 package css
 
-//line styles.css.qtpl:5
+//line ../styles.css.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line styles.css.qtpl:5
+//line ../styles.css.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line styles.css.qtpl:5
+//line ../styles.css.qtpl:5
 func StreamPutStyles(qw422016 *qt422016.Writer) {
-//line styles.css.qtpl:5
+//line ../styles.css.qtpl:5
 	qw422016.N().S(`
 	`)
-//line styles.css.qtpl:6
+//line ../styles.css.qtpl:6
 	qw422016.N().S(`/*
  * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
@@ -71,10 +71,13 @@ header .topline {
     -webkit-justify-content: space-between;
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
     height: 100%;
     width: 100%;
-    display: table;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
 }
 header .topline-btns {
     display: inline-block;
@@ -159,6 +162,8 @@ ul.burger-list > li:hover > ul.dropdown {
 
 .top-mnu-list {
     margin-top: 5px;
+    display: flex;
+    justify-content: space-evenly;
 }
 
 li.top-mnu-item a {
@@ -512,7 +517,7 @@ figure label > input {
 
 ul.form-field {
     position: relative;
-    overflow: overlay;
+    overflow: visible;
     list-style: none;
     background-color: transparent;
     width: fit-content;
@@ -614,18 +619,33 @@ form div#map, .map_showing {
     border-color: #1b70b7;
     border-style: double;
 }
+breadcrumbs {
+    --bs-breadcrumb-divider: '>';
+    width: 99%;
+}
+ol.breadcrumb {
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 5px;
+}
+/* Form for search*/
 form#fSearch {
-    width: 100%;
+    height: 40px;
+    width: fit-content;
     margin: 0;
     align-items: center;
     vertical-align: middle;
-    position: relative;
+}
+
+form#fSearch > output {
+    height: fit-content;
+    width: fit-content;
 }
 
 form#fSearch input[type=search] {
     align-items: center;
     vertical-align: middle;
-    width: 80%;
+    width: 90%;
     border: 1px solid #555;
     padding: 9px 4px 9px 40px;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 13px center;
@@ -635,10 +655,11 @@ form#fSearch input[type="search"]:focus {
     box-shadow: 0 0 3px 0 #1183d6;
     border-color: #1183d6;
     outline: none;
+    width: -webkit-fill-available;
 }
 
 form#fSearch > .suggestions-wrapper {
-    width: 70%;
+    width: fit-content;
     display: flex;
 }
 
@@ -656,7 +677,7 @@ form .validated-field {
 
 .suggestions-constraints {
     z-index: 100;
-    left: -399.109375px;
+    left: -399px;
     top: 50px;
     width: 98%;
 }
@@ -691,34 +712,34 @@ form .validated-field {
 .tox.tox-tinymce-aux, .xdsoft_datetimepicker .xdsoft_datepicker, body.fancybox-active .date-picker-wrapper {
     z-index: 100000;
 }`)
-//line styles.css.qtpl:6
+//line ../styles.css.qtpl:6
 	qw422016.N().S(`
 `)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 }
 
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	StreamPutStyles(qw422016)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	qt422016.ReleaseWriter(qw422016)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 }
 
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 func PutStyles() string {
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	qb422016 := qt422016.AcquireByteBuffer()
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	WritePutStyles(qb422016)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	qs422016 := string(qb422016.B)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	qt422016.ReleaseByteBuffer(qb422016)
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 	return qs422016
-//line styles.css.qtpl:7
+//line ../styles.css.qtpl:7
 }

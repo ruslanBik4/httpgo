@@ -107,34 +107,33 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 //line search_panel.qtpl:45
 	}
 //line search_panel.qtpl:45
-	qw422016.N().S(`        <progress value='0' max='100' hidden > </progress>
-    </form>
+	qw422016.N().S(`    </form>
 `)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 }
 
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 func (s *SearchPanel) WriteRender(qq422016 qtio422016.Writer) {
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	s.StreamRender(qw422016)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 }
 
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 func (s *SearchPanel) Render() string {
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	s.WriteRender(qb422016)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 	return qs422016
-//line search_panel.qtpl:48
+//line search_panel.qtpl:47
 }
