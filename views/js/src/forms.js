@@ -129,12 +129,19 @@ function saveForm(thisForm, successFunction, errorFunction) {
 }
 
 function OverHijack($out, resp) {
-    var evtSource = new EventSource(resp.url, {WithCredentials: true})
+    var evtSource = new EventSource(resp.url)
     console.log(evtSource.withCredentials);
     console.log(evtSource.readyState);
     console.log(evtSource.url);
+    evtSource.onopen = (event) => {
+        console.log(JSON.stringify(event));
+        console.log("source open");
+    };
     evtSource.onmessage = (event) => {
         $out.append(`<pre>${event.data}</pre>`);
+        if (event.data === "closed") {
+            evtSource.close();
+        }
     }
     evtSource.onerror = (err) => {
         var msg = JSON.stringify(err)
