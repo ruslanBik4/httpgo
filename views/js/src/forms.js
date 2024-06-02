@@ -129,6 +129,18 @@ function saveForm(thisForm, successFunction, errorFunction) {
 }
 
 function OverHijack($out, resp) {
+    var evtSource = new EventSource(resp.url, {WithCredentials: true})
+    console.log(evtSource.withCredentials);
+    console.log(evtSource.readyState);
+    console.log(evtSource.url);
+    evtSource.onmessage = (event) => {
+        $out.append(`<pre>${event.data}</pre>`);
+    }
+    evtSource.onerror = (err) => {
+        var msg = JSON.stringify(err)
+        $out.append(`<pre>${msg}</pre>`);
+    }
+    return
     $out.append(`<pre>${resp.message}</pre>`);
     var method = (resp.method !== undefined ? resp.method : "GET");
 

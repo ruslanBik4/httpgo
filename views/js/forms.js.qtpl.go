@@ -209,6 +209,34 @@ function saveForm(thisForm, successFunction, errorFunction) {
 }
 
 function OverHijack($out, resp) {
+    var evtSource = new EventSource(resp.url, {WithCredentials: true})
+    console.log(evtSource.withCredentials);
+    console.log(evtSource.readyState);
+    console.log(evtSource.url);
+    evtSource.onmessage = (event) => {
+        $out.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<pre>${event.data}</pre>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+    }
+    evtSource.onerror = (err) => {
+        var msg = JSON.stringify(err)
+        $out.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<pre>${msg}</pre>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+    }
+    return
     $out.append(`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
