@@ -218,6 +218,7 @@ function OverHijack($out, resp) {
         console.log("source open");
     };
     evtSource.onmessage = (event) => {
+        console.log(event.data);
         $out.append(`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
@@ -237,12 +238,19 @@ function OverHijack($out, resp) {
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
-	qw422016.N().S(`<pre>${msg}</pre>`)
+	qw422016.N().S(`<pre>Error:${msg}</pre>`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
 	qw422016.N().S(`);
     }
+    evtSource.addEventListener("closed", function (event) {
+        evtSource.close();
+        console.log(event);
+    })
+    evtSource.addEventListener("ping", function (event) {
+        console.log(event);
+    })
     return
     $out.append(`)
 //line forms.js.qtpl:2

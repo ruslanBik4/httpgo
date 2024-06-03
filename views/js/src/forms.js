@@ -138,6 +138,7 @@ function OverHijack($out, resp) {
         console.log("source open");
     };
     evtSource.onmessage = (event) => {
+        console.log(event.data);
         $out.append(`<pre>${event.data}</pre>`);
         if (event.data === "closed") {
             evtSource.close();
@@ -145,8 +146,15 @@ function OverHijack($out, resp) {
     }
     evtSource.onerror = (err) => {
         var msg = JSON.stringify(err)
-        $out.append(`<pre>${msg}</pre>`);
+        $out.append(`<pre>Error:${msg}</pre>`);
     }
+    evtSource.addEventListener("closed", function (event) {
+        evtSource.close();
+        console.log(event);
+    })
+    evtSource.addEventListener("ping", function (event) {
+        console.log(event);
+    })
     return
     $out.append(`<pre>${resp.message}</pre>`);
     var method = (resp.method !== undefined ? resp.method : "GET");

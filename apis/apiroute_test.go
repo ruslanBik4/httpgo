@@ -31,6 +31,7 @@ import (
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/auth"
+	"github.com/ruslanBik4/httpgo/views"
 )
 
 type commCase string
@@ -883,7 +884,7 @@ func Test_setCORSHeaders(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			setCORSHeaders(tt.args.ctx)
+			views.WriteCORSHeaders(tt.args.ctx)
 		})
 	}
 }

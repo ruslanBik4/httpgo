@@ -12,10 +12,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"mime"
 	"mime/multipart"
-	"net/http"
-	"path"
 	"time"
 
 	"github.com/pkg/errors"
@@ -29,80 +26,12 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-// HEADERS - list standard header for html page - noinspection GoInvalidConstType
-var HEADERS = map[string]string{
-	"author":           "ruslanBik4",
-	"Server":           ServerName,
-	"Content-Language": "en,uk",
-}
-
 const ServerName = "name of server httpgo"
-
-// WriteHeaders выдаем стандартные заголовки страницы
-func WriteHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetContentEncoding("utf-8")
-	age, ok := ctx.UserValue(AgeOfServer).(float64)
-	if ok {
-		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
-	}
-	ctx.Response.Header.SetLastModified(time.Now().Add(-(time.Second * time.Duration(age))))
-	for key, value := range HEADERS {
-		if key == "Server" {
-			value = ctx.UserValue(ServerName).(string)
-		}
-		// set header ONLY if it not presents
-		if len(ctx.Response.Header.Peek(key)) == 0 {
-			ctx.Response.Header.Set(key, value)
-		}
-	}
-}
-
-func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
-	WriteHeaders(ctx)
-	ctx.Response.Header.SetContentType("text/html; charset=utf-8")
-}
 
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *fasthttp.Request) bool {
 	return len(r.Header.Peek("X-Requested-With")) > 0 ||
 		len(r.Header.Peek("HX-Request")) > 0
-}
-
-func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileName string, length int) {
-	ctx.Response.Header.Set("Content-Description", "File Transfer")
-	ctx.Response.Header.Set("Content-Transfer-Encoding", "binary")
-	ctx.Response.Header.Set("Cache-Control", "must-revalidate")
-	ctx.Response.Header.SetLastModified(lastModify)
-	if length > 0 {
-		ctx.Response.Header.SetContentLength(length)
-	}
-
-	ct := ""
-	if ext := path.Ext(fileName); ext > "" {
-		ct = mime.TypeByExtension(ext)
-	}
-
-	// empty extention or not found MIME type
-	if ct == "" {
-		ct = http.DetectContentType(ctx.Response.Body())
-		if ext, err := mime.ExtensionsByType(ct); err != nil {
-			logs.ErrorLog(err)
-		} else if len(ext) > 0 {
-			fileName += ext[0]
-		}
-
-	}
-
-	ctx.Response.Header.SetContentType(ct)
-	ctx.Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
-	if bytes.Contains(ctx.Request.Header.Peek("Cache-Control"), []byte("max-age=0, no-cache, no-store")) {
-		ctx.Response.Header.Set("Cache-Control", "max-age=0, no-cache, no-store")
-		ctx.Response.Header.Set("Pragma", "no-cache")
-		ctx.Response.Header.Set("Expires", "Wed, 11 Jan 1984 05:00:00 GMT")
-	} else {
-		ctx.Response.Header.Set("Cache-Control", "must-revalidate")
-	}
-	ctx.SetStatusCode(fasthttp.StatusOK)
 }
 
 // RenderHTMLPage render for output script execute
@@ -192,15 +121,6 @@ func RenderTemplate(ctx *fasthttp.RequestCtx, tmplName string, Content interface
 		}
 	}
 	return nil
-}
-
-// render JSON from any data type
-const jsonHEADERSContentType = "application/json; charset=utf-8"
-
-// WriteJSONHeaders return standart headers for JSON
-func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
-	WriteHeaders(ctx)
 }
 
 // RenderOutput render for output script execute

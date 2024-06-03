@@ -107,6 +107,8 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		errRec := recover()
 		switch errRec := errRec.(type) {
 		case nil:
+			return
+
 		case error:
 			params := ctx.UserValue(JSONParams)
 			if params == nil && route.Multipart {
@@ -122,13 +124,10 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		}
 
 		if route.WithCors {
-			ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
-			ctx.Response.Header.Set("Access-Control-Allow-Headers",
-				"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With, X-Requested-By")
-			ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-			ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
-			ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
+			views.WriteCORSHeaders(ctx)
 		}
+
+		logs.StatusLog(ctx.Path(), err, errRec)
 
 	}()
 

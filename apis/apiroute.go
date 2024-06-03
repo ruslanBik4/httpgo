@@ -98,6 +98,7 @@ type ApiRoute struct {
 	OnlyLocal      bool
 	WithCors       bool
 	IsAJAXRequest  bool
+	IsServerEvents bool
 	Params         []InParam `json:"parameters,omitempty"`
 	Resp           any       `json:"response,omitempty"`
 }
@@ -407,9 +408,12 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAuth) (resp any, err error) {
 
 	if route.WithCors && !route.Multipart {
-		setCORSHeaders(ctx)
+		views.WriteCORSHeaders(ctx)
 	}
 
+	if route.IsServerEvents {
+		views.WriteServerEventsHeaders(ctx)
+	}
 	// check auth is needed
 	// owl func for auth
 	if (route.FncAuth != nil) && !route.FncAuth.Auth(ctx) ||
@@ -429,7 +433,8 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		return nil, errRouteOnlyLocal
 	}
 
-	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeJSON)) && (route.DTO != nil) {
+	contentType := ctx.Request.Header.ContentType()
+	if bytes.HasPrefix(contentType, []byte(ContentTypeJSON)) && (route.DTO != nil) {
 		return route.performsJSON(ctx)
 	}
 
@@ -437,7 +442,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 
 	if route.Multipart {
 		// check multipart params¬
-		if !bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
+		if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
 
@@ -503,15 +508,6 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	}
 
 	return route.Fnc(ctx)
-}
-
-func setCORSHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
-	ctx.Response.Header.Set("Access-Control-Allow-Headers",
-		"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, X-Auth-Token, Origin, Authorization, X-Requested-With, X-Requested-By")
-	ctx.Response.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	ctx.Response.Header.Set("Access-Control-Allow-Credentials", "true")
-	ctx.Response.Header.Set("Access-Control-Max-Age", "86400")
 }
 
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
