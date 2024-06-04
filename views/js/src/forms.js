@@ -63,16 +63,6 @@ function saveForm(thisForm, successFunction, errorFunction) {
         },
         success: function (data, status, xhr) {
             if (xhr.status === 206) {
-//                $out.html(`<pre>${data.message}</pre>`);
-//                let socket = new WebSocket(`wss://${location.host}${data.url}`);
-//                socket.onmessage = function(event) {
-//                  $out.append(`<pre>${event.message}</pre>`);
-//                };
-//                socket.onerror = function(error) {
-//                  console.log(error)
-//                  $out.append(`<pre>${error}</pre>`);
-//                };
-//                    console.log(xhr);
                 OverHijack($out, data);
                 return
             }

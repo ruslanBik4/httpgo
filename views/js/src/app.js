@@ -187,7 +187,7 @@ function SetContent(data) {
     if (!findAndReplaceElem(a, '#content', '#content')) {
         $('#content').html(a.innerHTML);
     }
-    return $('title', a).text()
+    return $('title, h2', a).text()
 }
 
 function findAndReplaceElem(src, selector, dst) {
