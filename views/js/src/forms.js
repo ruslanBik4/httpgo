@@ -63,7 +63,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
         },
         success: function (data, status, xhr) {
             if (xhr.status === 206) {
-                OverHijack($out, data);
+                readEvents($out, data);
                 return
             }
             $out.html(status);
@@ -118,27 +118,27 @@ function saveForm(thisForm, successFunction, errorFunction) {
     return false;
 }
 
-function OverHijack($out, resp) {
+function readEvents($out, resp) {
     var evtSource = new EventSource(resp.url)
     console.log(evtSource.withCredentials);
     console.log(evtSource.readyState);
     console.log(evtSource.url);
     evtSource.onopen = (event) => {
         console.log(JSON.stringify(event));
-        console.log("source open");
+        $out.html(`${resp.message}`);
     };
     evtSource.onmessage = (event) => {
-        console.log(event.data);
-        $out.append(`<pre>${event.data}</pre>`);
+        $out.prepend(`<pre>${event.data}</pre>`);
         if (event.data === "closed") {
             evtSource.close();
         }
     }
     evtSource.onerror = (err) => {
         var msg = JSON.stringify(err)
-        $out.append(`<pre>Error:${msg}</pre>`);
+        $out.append(`<pre>Error: ${msg}</pre>`);
     }
     evtSource.addEventListener("closed", function (event) {
+        $out.prepend(`<pre>Finish: ${event.data}</pre>`);
         evtSource.close();
         console.log(event);
     })
@@ -172,7 +172,7 @@ function OverHijack($out, resp) {
                         resp.message = data
                     }
                     console.log(data);
-                    OverHijack($out, resp);
+                    readEvents($out, resp);
                     return;
                 case 202: {
                     $out.html(data);

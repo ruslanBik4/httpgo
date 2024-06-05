@@ -72,7 +72,7 @@ function OverClick() {
                     return
                 }
                 case 206: {
-                    OverHijack($out, data);
+                    readEvents($out, data);
                     return
                 }
             }

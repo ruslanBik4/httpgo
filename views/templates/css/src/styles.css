@@ -14,7 +14,7 @@ body {
     bottom: 0;
     right: 0;
     left: 0;
-    color: hsl(32deg, 32%, 50%, 0.6); rgb(0, 0, 0);
+    color: rgb(0, 0, 0);
 }
 
 header {
