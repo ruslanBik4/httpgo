@@ -83,6 +83,11 @@ type (
 	ApiRouteFuncAuth func(ctx *fasthttp.RequestCtx) error
 )
 
+type PreCache interface {
+	Equal(ctx *fasthttp.RequestCtx) (any, bool)
+	Save(*fasthttp.RequestCtx, any)
+}
+
 // ApiRoute implement endpoint info & handler on request
 type ApiRoute struct {
 	Desc           string                              `json:"descriptor"`
@@ -100,6 +105,7 @@ type ApiRoute struct {
 	IsAJAXRequest  bool
 	IsServerEvents bool
 	Params         []InParam `json:"parameters,omitempty"`
+	PreCache       PreCache  `json:"-"`
 	Resp           any       `json:"response,omitempty"`
 }
 
@@ -474,26 +480,21 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		for key, files := range mf.File {
 			ctx.SetUserValue(key, files)
 		}
-
 	} else {
-		var args *fasthttp.Args
-		if ctx.IsPost() {
-			args = ctx.PostArgs()
-		} else {
-			args = ctx.QueryArgs()
-		}
-
-		args.VisitAll(func(k, v []byte) {
-
-			key := string(k)
+		fncStoreArgs := func(k, v []byte) {
+			key := gotools.BytesToString(k)
 			val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
 			if err != nil {
 				badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
 			} else {
 				ctx.SetUserValue(key, val)
 			}
-		})
-
+		}
+		if ctx.IsPost() {
+			ctx.PostArgs().VisitAll(fncStoreArgs)
+		} else {
+			ctx.QueryArgs().VisitAll(fncStoreArgs)
+		}
 	}
 
 	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {
@@ -507,6 +508,17 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		}
 	}
 
+	if p := route.PreCache; p != nil {
+		// we have result on cache
+		if res, ok := p.Equal(ctx); ok {
+			return res, nil
+		}
+		defer func() {
+			if err == nil && resp != nil {
+				p.Save(ctx, resp)
+			}
+		}()
+	}
 	return route.Fnc(ctx)
 }
 

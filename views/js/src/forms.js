@@ -145,54 +145,9 @@ function readEvents($out, resp) {
     evtSource.addEventListener("ping", function (event) {
         console.log(event);
     })
+
     return
-    $out.append(`<pre>${resp.message}</pre>`);
-    var method = (resp.method !== undefined ? resp.method : "GET");
 
-    $.ajax({
-        url: resp.url,
-        async: true,
-        cache: false,
-        contentType: false,
-        type: method,
-        data: {
-            "lang": lang,
-            "html": true
-        },
-        beforeSend: getHeaders,
-        success: function (data, status, xhr) {
-            switch (xhr.status) {
-                case 206:
-                    if (data.url !== undefined) {
-                        resp.url = data.url
-                    }
-                    if (data.message !== undefined) {
-                        resp.message = data.message;
-                    } else {
-                        resp.message = data
-                    }
-                    console.log(data);
-                    readEvents($out, resp);
-                    return;
-                case 202: {
-                    $out.html(data);
-                    return
-                }
-                default:
-                    $out.html(data);
-            }
-        },
-        error: function (xhr, status, error) {
-            if (xhr.status === 401) {
-                urlAfterLogin = url;
-                $('#bLogin').trigger("click");
-                return;
-            }
-
-            fancyOpen("Code : " + xhr.status + ", " + error + ": " + xhr.responseText);
-            console.log(xhr);
-        }
-    });
 }
 
 // ОБщие события для форм - стандарт
