@@ -489,12 +489,12 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 			} else {
 				ctx.SetUserValue(key, val)
 			}
+			logs.StatusLog(key, val)
 		}
 		if ctx.IsPost() {
 			ctx.PostArgs().VisitAll(fncStoreArgs)
-		} else {
-			ctx.QueryArgs().VisitAll(fncStoreArgs)
 		}
+		ctx.QueryArgs().VisitAll(fncStoreArgs)
 	}
 
 	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {

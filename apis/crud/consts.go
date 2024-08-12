@@ -26,6 +26,13 @@ var (
 		Req:      true,
 		Type:     apis.NewTypeInParam(types.String),
 	}
+	ParamsHTML = apis.InParam{
+		Name:     "html",
+		Desc:     "need for get result in html instead JSON",
+		DefValue: apis.NewDefValueHeader("HX-Request", "false"),
+		Req:      false,
+		Type:     apis.NewTypeInParam(types.Bool),
+	}
 	ParamsGetFormActions = apis.InParam{
 		Name: "is_get_form_actions",
 		Desc: "need to get form actions in response",
@@ -44,12 +51,6 @@ var (
 		Desc: "offset of queries results",
 		Req:  false,
 		Type: apis.NewTypeInParam(types.Int),
-	}
-	ParamsHTML = apis.InParam{
-		Name: "html",
-		Desc: "need for get result in html instead JSON",
-		Req:  false,
-		Type: apis.NewTypeInParam(types.Bool),
 	}
 	ParamsEmail = apis.InParam{
 		Name: "email",

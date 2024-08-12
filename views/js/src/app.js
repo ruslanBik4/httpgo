@@ -115,6 +115,21 @@ $(function () {
         handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
     });
 
+    document.body.addEventListener('htmx:afterRequest', function (evt) {
+        let responseText = evt.detail.xhr.responseText;
+        console.log(evt.detail.elt);
+        switch (evt.detail.elt.target) {
+            case "_modal":
+                FancyOpen(responseText);
+                return false;
+            case "_blank":
+                var uri = "data:text/html," + encodeURIComponent(responseText);
+                var newWindow = window.open(uri, "Preview");
+                newWindow.document.write(responseText);
+                return false;
+        }
+    });
+
     document.body.addEventListener('htmx:configRequest', function (evt) {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;

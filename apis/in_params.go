@@ -23,10 +23,11 @@ import (
 )
 
 type DefValueHeader struct {
-	header, defValue string
+	header   string
+	defValue string
 }
 
-func NewDefValueHeader(header, defValue string) DefValueHeader {
+func NewDefValueHeader(header string, defValue string) DefValueHeader {
 	return DefValueHeader{header: header, defValue: defValue}
 }
 
@@ -206,7 +207,12 @@ func (param InParam) presentOtherRegParam(ctx *fasthttp.RequestCtx) bool {
 func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams map[string]string) any {
 	switch def := param.DefValue.(type) {
 	case DefValueHeader:
-		return def.ConvertValue(ctx)
+		value, err := param.Type.ConvertValue(ctx, def.ConvertValue(ctx))
+		if err != nil {
+			return nil
+		}
+		return value
+
 	case DefValueCalcFnc:
 		if ctx != nil {
 			return def(ctx)
@@ -218,16 +224,17 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams m
 
 	case ApisValues:
 		if ctx != nil {
-			value, ok := ctx.UserValue(string(def)).(string)
+			key := string(def)
+			value, ok := ctx.UserValue(key).(string)
 			if !ok {
-				return ctx.UserValue(string(def))
+				return ctx.UserValue(key)
 			}
 
 			val, err := param.Type.ConvertValue(ctx, value)
 			if err != nil {
 				badParams[param.Name] = "wrong type, expected " + param.Type.String() + err.Error()
 				logs.ErrorLog(err, "ConvertValue")
-				return ctx.UserValue(string(def))
+				return ctx.UserValue(key)
 			}
 
 			return val

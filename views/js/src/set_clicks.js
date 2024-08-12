@@ -17,9 +17,10 @@ function setClickAll(event) {
     let target = event && event.target;
     if (target && (target === '<script>'
         || target.localName && (target.localName === 'script' || target.localName === 'tbody'
-            || target.localName.startsWith('svg') || target.localName.startsWith('th')
+            || target.localName.startsWith('svg') || target.localName.startsWith('svg') || target.localName.startsWith('th')
             || target.localName.startsWith('output'))
-        || (typeof target === 'string' && (target.includes('fancybox') || target.startsWith('<th')
+        || (typeof target === 'string' && (target.includes('htmx-') || target.includes('fancybox')
+            || target.startsWith('<th')
             || target.startsWith('<svg')|| target.startsWith('<output')))
         || (typeof target === 'object' && $(target).parents('svg').length > 0)
     )) {
