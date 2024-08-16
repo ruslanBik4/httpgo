@@ -627,7 +627,7 @@ breadcrumbs {
     width: 99%;
 }
 ol.breadcrumb {
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     margin-bottom: 5px;
 }

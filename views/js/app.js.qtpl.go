@@ -274,9 +274,12 @@ function loadContent(url) {
 
 function PutContent(data, url) {
     const title = SetContent(data);
+    const isChild = url.startsWith(document.location.href);
+
     SetDocumentHash(url, data);
     if (title > "") {
-        $('ol.breadcrumb form').before(`)
+        if (isChild) {
+            $('ol.breadcrumb form').before(`)
 //line app.js.qtpl:5
 	qw422016.N().S("`")
 //line app.js.qtpl:5
@@ -285,6 +288,9 @@ function PutContent(data, url) {
 	qw422016.N().S("`")
 //line app.js.qtpl:5
 	qw422016.N().S(`);
+        } else {
+            $('ol.breadcrumb li:last').text(title);
+        }
         document.title = title;
     }
 }
