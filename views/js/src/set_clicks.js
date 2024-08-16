@@ -8,6 +8,12 @@
 
 var isProcess = false;
 
+function isIgnoreTarget(target) {
+    return $(target).attr('rel') > "" || $(target).hasClass('htmx-request') || $(target).hasClass('htmx-added') || $(target).hasClass('htmx-indicator')
+        || $(target).hasClass('htmx-settling') || $(target).hasClass('htmx-swapping') || $(target).hasClass('htmx-fancybox-container')
+        || ($(target).parents('svg, .fancybox-container, .htmx-request').length > 0)
+}
+
 function setClickAll(event) {
     if (isProcess) {
         return;
@@ -19,10 +25,10 @@ function setClickAll(event) {
         || target.localName && (target.localName === 'script' || target.localName === 'tbody'
             || target.localName.startsWith('svg') || target.localName.startsWith('svg') || target.localName.startsWith('th')
             || target.localName.startsWith('output'))
-        || (typeof target === 'string' && (target.includes('htmx-') || target.includes('fancybox')
+        || (typeof target === 'string' && (target.includes('htmx-') || target.includes('fancybox') || target.includes('flowchart')
             || target.startsWith('<th')
-            || target.startsWith('<svg')|| target.startsWith('<output')))
-        || (typeof target === 'object' && $(target).parents('svg').length > 0)
+            || target.startsWith('<svg') || target.startsWith('<output')))
+        || (typeof target === 'object' && isIgnoreTarget(target))
     )) {
         return
     }
@@ -61,8 +67,10 @@ function setClickAll(event) {
             },
         ...cfgDate
     };
+
+    target = target || document.getElementsByTagName("body")[0];
     // add onSubmit event instead default behaviourism of form
-    $('form:not([onsubmit])').on("submit", function () {
+    $('form:not([onsubmit])', target).on("submit", function () {
         return saveForm(this);
     });
 
@@ -85,26 +93,29 @@ function setClickAll(event) {
         }
         }).attr('rel', 'datetimepicker');
 
+    $('[hx-get], [hx-post], [hx-target]', target).each(function () {
+        this.rel = 'htmx';
+        console.log(this);
+        htmx.process(this);
+    });
     // add click event instead default - response will show on div.#content
-    $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])').each(function () {
+    $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
         this.rel = 'setClickAll';
 
         $(this).click(OverClick);
     });
-    setTextEdit();
-    setSliderBox();
+    setTextEdit(target);
+    setSliderBox(target);
 
-    target = target || document.getElementsByTagName("body")[0];
     if (target === document.getElementById('content')) {
         $('input[autofocus]:last').focus();
     }
 
-    // htmx.process(target);
     isProcess = false;
 }
 
-function setSliderBox() {
-    $('label.input-label > input.slider').each(function (ind, elem) {
+function setSliderBox(target) {
+    $('label.input-label > input.slider', target).each(function (ind, elem) {
         let values = elem.value.split("-");
         $(elem).parent('label').children('div.slider').slider({
             step: parseFloat(elem.step),
@@ -120,8 +131,8 @@ function setSliderBox() {
     }).removeClass('slider');
 }
 
-function setTextEdit() {
-    let textInputs = $('textarea:not([readonly]):not([raw])');
+function setTextEdit(target) {
+    let textInputs = $('textarea:not([readonly]):not([raw])', target);
     if (textInputs.length > 0) {
         let scripts = Array
             .from(document.querySelectorAll('script'))

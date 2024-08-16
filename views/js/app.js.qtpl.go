@@ -192,11 +192,13 @@ $(function () {
         switch (evt.detail.elt.target) {
             case "_modal":
                 FancyOpen(responseText);
+                evt.preventDefault();
                 return false;
             case "_blank":
                 var uri = "data:text/html," + encodeURIComponent(responseText);
-                var newWindow = window.open(uri, "Preview");
+                var newWindow = window.open('localhost', "Preview");
                 newWindow.document.write(responseText);
+                evt.preventDefault();
                 return false;
         }
     });

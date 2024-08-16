@@ -34,7 +34,6 @@ header nav {
     align-items: start;
     height: 100%;
 }
-
 header .topline {
     -webkit-flex-direction: row;
     -webkit-align-items: center;
@@ -47,7 +46,6 @@ header .topline {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-
 }
 header .topline-btns {
     display: inline-block;
@@ -63,14 +61,14 @@ header .topline-btns {
     color: transparent;
 }
 
-#sUser {
+header #sUser {
     position: absolute;
     right: 30px;
     color: black;
     background-position: center;
 }
 
-#sUser::after {
+header #sUser::after {
     content: "\f12e";
     right: -30px;
     position: absolute;
@@ -89,29 +87,29 @@ header .topline-btns {
     cursor: s-resize;
 }
 
-body[auth] #sUser::after {
+body[auth] header #sUser::after {
     content: '\F4E1';
 }
 
-#icon_burger {
+header #icon_burger {
     background-color: transparent;
     fill: black;
     height: 30px;
     width: 30px;
 }
 
-#icon_burger:hover {
+header #icon_burger:hover {
     background-color: transparent;
     fill: #233351 !important;
     height: 29px;
     width: 29px;
 }
 
-body[auth] .after-login {
+body[auth] header .after-login {
     display: inherit;
 }
 
-body[auth] .before-login, .after-login {
+body[auth] header .before-login, body[auth] header .after-login {
     display: none;
 }
 
@@ -143,6 +141,11 @@ li.top-mnu-item a {
     border-radius: 8px;
     transition: color .3s ease-in-out;
     color: white;
+}
+
+li.top-mnu-item a img {
+    max-height: 99%;
+    max-width: 99%;
 }
 
 ul.top-mnu-list li.top-mnu-item:nth-child(n+2) {

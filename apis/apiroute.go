@@ -489,8 +489,8 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 			} else {
 				ctx.SetUserValue(key, val)
 			}
-			logs.StatusLog(key, val)
 		}
+
 		if ctx.IsPost() {
 			ctx.PostArgs().VisitAll(fncStoreArgs)
 		}
