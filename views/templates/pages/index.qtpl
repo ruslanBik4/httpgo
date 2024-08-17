@@ -38,8 +38,8 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 <breadcrumbs separator="›" aria-label="breadcrumb" aria-label="breadcrumb">
   <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">Home</a></li>
-{%- if body.SearchPanel != nil -%}{%= body.SearchPanel.Render() %}{%- endif -%}
   </ol>
+{%- if body.SearchPanel != nil -%}{%= body.SearchPanel.Render() %}{%- endif -%}
 </breadcrumbs>
 <main class="content-wrap">
 	<div id="container-fluid">

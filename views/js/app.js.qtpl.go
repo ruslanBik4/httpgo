@@ -279,7 +279,7 @@ function PutContent(data, url) {
     SetDocumentHash(url, data);
     if (title > "") {
         if (isChild) {
-            $('ol.breadcrumb form').before(`)
+            $('ol.breadcrumb').append(`)
 //line app.js.qtpl:5
 	qw422016.N().S("`")
 //line app.js.qtpl:5

@@ -184,7 +184,7 @@ function PutContent(data, url) {
     SetDocumentHash(url, data);
     if (title > "") {
         if (isChild) {
-            $('ol.breadcrumb form').before(`<li class="breadcrumb-item">${title}</li>`);
+            $('ol.breadcrumb').append(`<li class="breadcrumb-item">${title}</li>`);
         } else {
             $('ol.breadcrumb li:last').text(title);
         }

@@ -94,7 +94,7 @@ header .topline-btns {
 header #sUser {
     position: absolute;
     right: 30px;
-    color: black;
+    color: white;
     background-position: center;
 }
 
@@ -167,7 +167,7 @@ ul.burger-list > li:hover > ul.dropdown {
 li.top-mnu-item a {
     margin: 0 10px;
     height: 100%;
-    padding: 4px 8px;
+    padding: 1px 4px;
     border-radius: 8px;
     transition: color .3s ease-in-out;
     color: white;
@@ -179,7 +179,7 @@ li.top-mnu-item a img {
 }
 
 ul.top-mnu-list li.top-mnu-item:nth-child(n+2) {
-    margin-top: 16px;
+    margin-top: 1px;
 }
 
 footer {
@@ -624,16 +624,21 @@ form div#map, .map_showing {
 }
 breadcrumbs {
     --bs-breadcrumb-divider: '>';
-    width: 99%;
+    /*width: 99%;*/
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    display: flex;
 }
 ol.breadcrumb {
-    justify-content: center;
     align-items: center;
+    justify-content: space-evenly;
     margin-bottom: 5px;
+    flex-grow: 4;
 }
 /* Form for search*/
 form#fSearch {
     height: 40px;
+    flex-grow: 1;
     width: fit-content;
     margin: 0;
     align-items: center;
