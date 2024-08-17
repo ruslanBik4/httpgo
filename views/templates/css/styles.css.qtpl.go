@@ -524,6 +524,8 @@ ul.form-field {
     list-style: none;
     background-color: transparent;
     width: fit-content;
+    display: flex;
+    flex-direction: column;
 }
 
 li.form-field {

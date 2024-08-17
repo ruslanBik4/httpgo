@@ -127,6 +127,7 @@ $(function () {
                 var uri = "data:text/html," + encodeURIComponent(responseText);
                 var newWindow = window.open('localhost', "Preview");
                 newWindow.document.write(responseText);
+                newWindow.opener.notify();
                 evt.preventDefault();
                 return false;
         }
