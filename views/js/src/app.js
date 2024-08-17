@@ -128,6 +128,7 @@ $(function () {
                 var newWindow = window.open('localhost', "Preview");
                 newWindow.document.write(responseText);
                 newWindow.opener.notify();
+                newWindow.focus();
                 evt.preventDefault();
                 return false;
         }
