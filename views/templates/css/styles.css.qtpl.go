@@ -639,7 +639,7 @@ ol.breadcrumb {
 }
 /* Form for search*/
 form#fSearch {
-    height: 40px;
+    height: 32px;
     flex-grow: 1;
     width: fit-content;
     margin: 0;
@@ -655,17 +655,20 @@ form#fSearch > output {
 form#fSearch input[type=search] {
     align-items: center;
     vertical-align: middle;
-    width: 90%;
+    width: fit-content;
     border: 1px solid #555;
-    padding: 9px 4px 9px 40px;
+    border-radius: 100px;
+    padding: 9px 4px 9px 32px;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 13px center;
+    color: #0a1c3b;
+    caret-color: #1b70b7;
 }
 
 form#fSearch input[type="search"]:focus {
     box-shadow: 0 0 3px 0 #1183d6;
     border-color: #1183d6;
-    outline: none;
     width: -webkit-fill-available;
+    outline: none;
 }
 
 form#fSearch > .suggestions-wrapper {

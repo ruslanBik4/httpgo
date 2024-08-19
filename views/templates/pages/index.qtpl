@@ -43,11 +43,11 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 </breadcrumbs>
 <main class="content-wrap">
 	<div id="container-fluid">
-	        <div class="sidebar-section">
+	        <aside class="sidebar-section">
 	            <div id="catalog_pane"  class="well sidebar-nav">
 	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
 	            </div>
-	        </div>
+	        </aside>
 	        <div class="content-section">
 		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load"{%- endif -%}>
 	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}
