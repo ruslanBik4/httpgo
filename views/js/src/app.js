@@ -127,6 +127,11 @@ $(function () {
                 var uri = "data:text/html," + encodeURIComponent(responseText);
                 var newWindow = window.open('localhost', "Preview");
                 newWindow.document.write(responseText);
+                newWindow.focus();
+                setTimeout(function () {
+                    newWindow.setClickAll();
+                }, 1000);
+
                 evt.preventDefault();
                 return false;
         }
@@ -179,9 +184,15 @@ function loadContent(url) {
 
 function PutContent(data, url) {
     const title = SetContent(data);
+    const isChild = url.startsWith(document.location.href);
+
     SetDocumentHash(url, data);
     if (title > "") {
-        $('ol.breadcrumb form').before(`<li class="breadcrumb-item">${title}</li>`);
+        if (isChild) {
+            $('ol.breadcrumb').append(`<li class="breadcrumb-item">${title}</li>`);
+        } else {
+            $('ol.breadcrumb li:last').text(title);
+        }
         document.title = title;
     }
 }

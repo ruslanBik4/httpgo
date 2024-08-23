@@ -22,13 +22,25 @@ func NewSearchPanel(action,  suggestions,  showObject, labelButton, placeholder 
     }
 } 
 %}
+<div class="header-search">
+<form action="/en-US/search" class="search-form search-widget" id="top-nav-search-form">
+<label id="top-nav-search-label" for="top-nav-search-input" class="visually-hidden">Search MDN</label>
+<input aria-activedescendant="top-nav-search-item-0" aria-autocomplete="list" aria-controls="top-nav-search-menu" aria-expanded="true"
+aria-labelledby="top-nav-search-label" autocomplete="off" id="top-nav-search-input" role="combobox" type="search" class="has-search-results search-input-field"
+name="q" placeholder="   " required="" value="">
+<button type="button" class="button action has-icon clear-search-button"><span class="button-wrap">
+<span class="icon icon-cancel "></span><span class="visually-hidden">Clear search input</span></span></button>
+<button type="submit" class="button action has-icon search-button"><span class="button-wrap"><span class="icon icon-search "></span>
+<span class="visually-hidden">Search</span></span></button>
+<div id="top-nav-search-menu" role="listbox" aria-labelledby="top-nav-search-label"></div></form></div>
 {%- func (s *SearchPanel) Render()  -%}
- <form id="fSearch" action="{%s s.action %}" method="GET" target="#content"
+ <form id="fSearch" action="{%s s.action %}" method="GET" target="#content" role="search"
    onsubmit="return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
+
          <input type="hidden" name="html" value=true />
          <input type="hidden" name="counter" value={%d s.counter %} />
          <input id="inpS" name="name" type="search" placeholder="{%s= s.placeholder %}" required
-         autocapitalize="none" autocorrect="off" autocomplete="off" autofocus=true
+                autocapitalize="none" autocorrect="off" autocomplete="off" autofocus=true
 	{%- if s.suggestions > "" -%}
          src="{%s s.suggestions %}"  data="search-name" onkeyup="return inputSearchKeyUp(this,event,true);"
     {%- endif -%}/>
