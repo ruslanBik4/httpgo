@@ -7,7 +7,7 @@
 "use strict";
 
 var token = '';
-var lang = 'en'
+var lang = document.documentElement.lang || 'en';
 var userStruct = getUser();
 var urlAfterLogin = '';
 
@@ -37,7 +37,7 @@ function afterLogin(userData, thisForm) {
 }
 
 function changeLang(newLang) {
-    if (lang === newLang) {
+    if (lang.includes(newLang)) {
         return false
     }
 

@@ -8,7 +8,7 @@
 {%- if len(menu) > 0 -%}
 <ul class={%s classMenu %}>
     {% for _, item := range menu %}
-        <li id="{%s= item.Name %}_{%s classLi %}" class="{%s classLi %}">
+        <li id="{%s= item.Name %}_{%s classLi %}" class="{%s classLi %} {%s item.Class %}">
             <a href="{%s= item.Link %}" title="{%s= item.Title %}"
              {%- if item.OnClick > "" -%} onclick="{%s= item.OnClick %}"{%- endif -%}
              {%- if item.Target > "" -%} target="{%s= item.Target %}"{%- endif -%}

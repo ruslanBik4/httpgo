@@ -28,9 +28,9 @@ func (m Menu) FindItem(name string) (*ItemMenu, int) {
 }
 
 type ItemMenu struct {
-	Content, Link, Label, Name, OnClick, Title, Target string
-	SubMenu                                            Menu
-	Attr                                               map[string]string
+	Content, Class, Link, Label, Name, OnClick, Title, Target string
+	SubMenu                                                   Menu
+	Attr                                                      map[string]string
 }
 
 func (m *ItemMenu) AddSubItem(item *ItemMenu) error {

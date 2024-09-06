@@ -583,7 +583,9 @@ func (route *ApiRoute) checkTypeAndConvertParam(ctx *fasthttp.RequestCtx, name s
 			}
 
 			if param.Type.IsSlice() {
-				return param.Type.ConvertSlice(ctx, values)
+				slice, err := param.Type.ConvertSlice(ctx, values)
+				logs.StatusLog(slice)
+				return slice, err
 			}
 
 			return param.Type.ConvertValue(ctx, values[0])

@@ -312,7 +312,8 @@ function SetContent(data) {
     // sidebar work only for own page
     $('#catalog_pane .sidebar').remove();
     $('.sidebar', a).appendTo('#catalog_pane');
-    findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section')
+    findAndReplaceElem(a, 'breadcrumbs', 'breadcrumbs');
+    findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section');
     findAndReplaceElem(a, 'header .topline', 'body > header .topline');
     findAndReplaceElem(a, 'header .topline-btns', 'body > header .topline-btns');
     if (!findAndReplaceElem(a, '#content', '#content')) {

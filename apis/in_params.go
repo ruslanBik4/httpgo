@@ -39,6 +39,7 @@ func (d DefValueHeader) ConvertValue(ctx *fasthttp.RequestCtx) string {
 	}
 	return d.defValue
 }
+
 func (d DefValueHeader) Expect() string {
 	return fmt.Sprintf("string on header '%s'", d.header)
 }
