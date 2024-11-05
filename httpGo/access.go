@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -18,12 +18,13 @@ type Access interface {
 }
 
 type AccessConf struct {
-	ChkConn    bool     `yaml:"ChkConn"`
-	AllowIP    []string `yaml:"Allow"`
-	DenyIP     []string `yaml:"Deny"`
-	Mess       string   `yaml:"Mess"`
-	AllowRoute []string `yaml:"AllowRoute"`
-	DenyRoute  []string `yaml:"DenyRoute"`
+	ChkConn       bool              `yaml:"ChkConn"`
+	AllowIP       []string          `yaml:"Allow"`
+	DenyIP        []string          `yaml:"Deny"`
+	Mess          string            `yaml:"Mess"`
+	AllowRoute    []string          `yaml:"AllowRoute"`
+	DenyRoute     []string          `yaml:"DenyRoute"`
+	QuickResponse map[string]string `yaml:"QuickResponse"`
 }
 
 func (cfg *AccessConf) isAllowRoute(ctx *fasthttp.RequestCtx) bool {
