@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -10,6 +10,7 @@ package httpGo
 import (
 	"os"
 
+	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v3"
@@ -19,11 +20,13 @@ import (
 
 // CfgHttp has some options for Acceptor work
 type CfgHttp struct {
-	*AccessConf `yaml:"Access" json:"access,omitempty"`
-	fileCfg     string
-	Domains     map[string]string `yaml:"Domains,omitempty" json:"Domains,omitempty"`
-	KillSignal  int               `yaml:"KillSignal" json:"KillSignal,omitempty"`
-	Server      *fasthttp.Server  `yaml:"Server,omitempty" json:"-"`
+	*AccessConf  `yaml:"Access" json:"access,omitempty"`
+	fileCfg      string
+	Domains      map[string]string   `yaml:"Domains,omitempty" json:"Domains,omitempty"`
+	HTTP2        *http2.ServerConfig `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
+	KillSignal   int                 `yaml:"KillSignal" json:"KillSignal,omitempty"`
+	Server       *fasthttp.Server    `yaml:"Server,omitempty" json:"-"`
+	PortRedirect string              `yaml:"PortRedirect" json:"PortRedirect,omitempty"`
 }
 
 // NewCfgHttp create CfgHttp from config file

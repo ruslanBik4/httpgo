@@ -72,6 +72,21 @@ func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileNa
 		ctx.Response.Header.SetContentLength(length)
 	}
 
+	ct, fileName := GetContentType(ctx, fileName)
+
+	ctx.Response.Header.SetContentType(ct)
+	ctx.Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
+	if bytes.Contains(ctx.Request.Header.Peek("Cache-Control"), []byte("max-age=0, no-cache, no-store")) {
+		ctx.Response.Header.Set("Cache-Control", "max-age=0, no-cache, no-store")
+		ctx.Response.Header.Set("Pragma", "no-cache")
+		ctx.Response.Header.Set("Expires", "Wed, 11 Jan 1984 05:00:00 GMT")
+	} else {
+		ctx.Response.Header.Set("Cache-Control", "must-revalidate")
+	}
+	ctx.SetStatusCode(fasthttp.StatusOK)
+}
+
+func GetContentType(ctx *fasthttp.RequestCtx, fileName string) (string, string) {
 	ct := ""
 	if ext := path.Ext(fileName); ext > "" {
 		ct = mime.TypeByExtension(ext)
@@ -87,17 +102,7 @@ func WriteDownloadHeaders(ctx *fasthttp.RequestCtx, lastModify time.Time, fileNa
 		}
 
 	}
-
-	ctx.Response.Header.SetContentType(ct)
-	ctx.Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
-	if bytes.Contains(ctx.Request.Header.Peek("Cache-Control"), []byte("max-age=0, no-cache, no-store")) {
-		ctx.Response.Header.Set("Cache-Control", "max-age=0, no-cache, no-store")
-		ctx.Response.Header.Set("Pragma", "no-cache")
-		ctx.Response.Header.Set("Expires", "Wed, 11 Jan 1984 05:00:00 GMT")
-	} else {
-		ctx.Response.Header.Set("Cache-Control", "must-revalidate")
-	}
-	ctx.SetStatusCode(fasthttp.StatusOK)
+	return ct, fileName
 }
 
 func WriteCORSHeaders(ctx *fasthttp.RequestCtx) {

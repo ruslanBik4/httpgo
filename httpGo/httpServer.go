@@ -14,11 +14,13 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path"
 	"regexp"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
@@ -26,6 +28,7 @@ import (
 	"github.com/ruslanBik4/gotools"
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/apis/crud"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -46,6 +49,15 @@ var GoVersion string
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
+
+	if cfg.HTTP2 != nil {
+		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
+		logs.StatusLog("set HTTP2 server configuration")
+	}
+
+	if cfg.PortRedirect > "" {
+		RunRedirectNoSecure(cfg.PortRedirect)
+	}
 
 	if apis.Ctx == nil {
 		apis.Ctx = make(map[string]any, 0)
@@ -96,8 +108,26 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 			for subD, ip := range cfg.Domains {
 				host := gotools.BytesToString(ctx.Host())
 				if host != ip && strings.HasPrefix(host, subD) {
+					if isLocalDirectory(ip) {
+						p := gotools.BytesToString(ctx.URI().Path())
+						if p == "" || p == "/" {
+							p = "index.html"
+						}
+						logs.StatusLog(ip, p)
+						fileName := path.Join(".", ip, p)
+						err := ctx.Response.SendFile(fileName)
+						if err != nil {
+							logs.ErrorLog(err, ctx.String())
+							return
+						}
+						ct, fileName := views.GetContentType(ctx, fileName)
+						ctx.Response.Header.SetContentType(ct)
+						return
+					}
+
 					if !isLocalRedirect(ip) {
 						ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
+						logs.DebugLog("redirect", ip)
 						return
 					}
 
@@ -168,10 +198,15 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	return h
 }
 
+const separator = "/"
+
 func isLocalRedirect(ip string) bool {
 	const delim = ":"
-	const separator = "/"
 	return strings.HasPrefix(ip, delim) || strings.HasPrefix(ip, separator)
+}
+
+func isLocalDirectory(ip string) bool {
+	return strings.HasPrefix(ip, separator) || strings.HasSuffix(ip, separator)
 }
 
 func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
