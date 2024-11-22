@@ -20,6 +20,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
@@ -48,6 +49,15 @@ var GoVersion string
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
+
+	if cfg.HTTP2 != nil {
+		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
+		logs.StatusLog("set HTTP2 server configuration")
+	}
+
+	if cfg.PortRedirect > "" {
+		RunRedirectNoSecure(cfg.PortRedirect)
+	}
 
 	if apis.Ctx == nil {
 		apis.Ctx = make(map[string]any, 0)

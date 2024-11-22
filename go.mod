@@ -5,6 +5,7 @@ go 1.23
 //replace github.com/ruslanBik4/dbEngine => ../dbEngine
 
 require (
+	github.com/domsolutions/http2 v0.4.0
 	github.com/go-openapi/loads v0.22.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/go-openapi/spec v0.21.0
@@ -79,6 +80,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fastrand v1.1.0 // indirect
 	github.com/yuin/goldmark v1.7.1 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
