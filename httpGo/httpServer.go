@@ -64,7 +64,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	}
 
 	apis.Ctx[ApiVersion] = httpgoVersion
-	if cfg != nil && cfg.Server != nil {
+	if cfg.Server != nil {
 		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (CentOS) backend by Go %v", cfg.Server.Name, httpgoVersion, GoVersion)
 	}
 
