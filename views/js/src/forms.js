@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -137,6 +137,7 @@ function readEvents($out, resp) {
         var msg = JSON.stringify(err)
         $out.append(`<pre>Error: ${msg}</pre>`);
     }
+
     evtSource.addEventListener("closed", function (event) {
         $out.prepend(`<pre>Finish: ${event.data}</pre>`);
         evtSource.close();

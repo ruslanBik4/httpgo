@@ -230,7 +230,7 @@ id="id_{%s col.InputName(i) %}"
         <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel"
                 autocapitalize="none" autocorrect="off" autocomplete="off"
                 {% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
-                onkeyup="return inputSearchKeyUp(this,event);" />
+                onkeyup="return inputSearchKeyUp(this,event);" placeholder="..." />
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}

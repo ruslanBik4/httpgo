@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -30,7 +30,7 @@ func StreamOverClick(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`	`)
 //line over_click.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -299,6 +299,10 @@ function replMacros(url) {
 function getHeaders(xhr) {
     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
     xhr.setRequestHeader('Accept-Language', lang);
+    xhr.setRequestHeader('Content-Encoding', 'gzip, deflate');
+    // todo: chk later
+    // xhr.setRequestHeader('Expect', '100-continue');
+    // xhr.setRequestHeader('Connection', 'keep-alive');
 }`)
 //line over_click.js.qtpl:2
 	qw422016.N().S(`

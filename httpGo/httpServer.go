@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -86,6 +86,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// })
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
+		if err == fasthttp.ErrBodyTooLarge {
+			ctx.SetStatusCode(fasthttp.StatusRequestEntityTooLarge)
+		}
 		// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
 		// 	uri := ctx.Request.URI()
 		// 	uri.SetScheme("http")
