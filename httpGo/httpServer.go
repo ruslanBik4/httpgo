@@ -86,14 +86,20 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// })
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
-		if err == fasthttp.ErrBodyTooLarge {
+		switch err {
+		case fasthttp.ErrBodyTooLarge:
 			ctx.SetStatusCode(fasthttp.StatusRequestEntityTooLarge)
+		case fasthttp.ErrNoMultipartForm, fasthttp.ErrNoArgValue:
+			ctx.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.Response.SetBodyString(err.Error())
+		default:
+			// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
+			// 	uri := ctx.Request.URI()
+			// 	uri.SetScheme("http")
+			// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
+			// }
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		}
-		// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
-		// 	uri := ctx.Request.URI()
-		// 	uri.SetScheme("http")
-		// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
-		// }
 	}
 	cfg.Server.Logger = &fastHTTPLogger{}
 	cfg.Server.KeepHijackedConns = true

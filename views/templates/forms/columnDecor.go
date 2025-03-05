@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -349,13 +349,13 @@ func (col *ColumnDecor) Pattern() string {
 		col.getPattern(name)
 	} else if col.BasicTypeInfo() == types.IsInteger && len(col.Attachments) == 0 {
 		col.pattern = `^-?\d+$`
-		col.patternDesc = "only digital"
+		col.patternDesc = "❌ only digital"
 	} else if col.BasicTypeInfo() == types.IsFloat {
 		col.pattern = `^-?\d+(\.\d{1,2})?$`
-		col.patternDesc = "float value"
+		col.patternDesc = "❌ float value"
 	} else if col.BasicTypeInfo() == types.IsComplex {
 		col.pattern = `^[+±-]?\d+(\.\d{1,2})?$`
-		col.patternDesc = "complex value"
+		col.patternDesc = "❌ complex value"
 	}
 
 	return col.pattern

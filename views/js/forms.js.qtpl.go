@@ -184,6 +184,18 @@ function readEvents($out, resp) {
 	qw422016.N().S(`);
     };
     evtSource.onmessage = (event) => {
+        if (event.event === "closed") {
+            $out.prepend(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<pre>Finish: ${event.data}</pre>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+            return false;
+        }
         $out.prepend(`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
@@ -198,6 +210,10 @@ function readEvents($out, resp) {
         }
     }
     evtSource.onerror = (err) => {
+        if (evtSource.readyState === EventSource.CLOSED) {
+            console.log("SSE connection closed.");
+            evtSource.close();
+        }
         var msg = JSON.stringify(err)
         $out.append(`)
 //line forms.js.qtpl:2
@@ -300,13 +316,14 @@ function alertField(thisElem) {
     let elem = $(thisElem);
     var nameField = elem.next('span').data("placeholder") || elem.next('span').text() ||
         elem.parents('label').text();
+
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || elem.data("placeholder")
     }
     let errLabel = elem.parent('label').children('.errorLabel');
-    let msg = 'need correct data!';
+    let msg = '❌ need correct data!';
     if (thisElem.required) {
-        msg = ' is required. Please, fill it';
+        msg = '⚠️ is required. Please, fill it';
     } else if (errLabel && errLabel.text() > "") {
         msg = errLabel.text();
     }
@@ -335,14 +352,15 @@ function validatePattern(thisElem) {
     let re = thisElem.pattern,
         result = true;
 
-    if (re === "") {
+    let value = thisElem.value;
+    if (re === "" || (!thisElem.required && !thisElem.validity.badInput)) {
         return true;
     }
 
     try {
 
         re = new RegExp(re);
-        result = re.test(thisElem.value);
+        result = re.test(value);
         if (result) {
             $(thisElem).addClass('validated-field').removeClass('error-field');
             $(thisElem).nextAll('.errorLabel').hide();

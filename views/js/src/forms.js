@@ -128,12 +128,20 @@ function readEvents($out, resp) {
         $out.html(`${resp.message}`);
     };
     evtSource.onmessage = (event) => {
+        if (event.event === "closed") {
+            $out.prepend(`<pre>Finish: ${event.data}</pre>`);
+            return false;
+        }
         $out.prepend(`<pre>${event.data}</pre>`);
         if (event.data === "closed") {
             evtSource.close();
         }
     }
     evtSource.onerror = (err) => {
+        if (evtSource.readyState === EventSource.CLOSED) {
+            console.log("SSE connection closed.");
+            evtSource.close();
+        }
         var msg = JSON.stringify(err)
         $out.append(`<pre>Error: ${msg}</pre>`);
     }
@@ -220,13 +228,14 @@ function alertField(thisElem) {
     let elem = $(thisElem);
     var nameField = elem.next('span').data("placeholder") || elem.next('span').text() ||
         elem.parents('label').text();
+
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || elem.data("placeholder")
     }
     let errLabel = elem.parent('label').children('.errorLabel');
-    let msg = 'need correct data!';
+    let msg = '❌ need correct data!';
     if (thisElem.required) {
-        msg = ' is required. Please, fill it';
+        msg = '⚠️ is required. Please, fill it';
     } else if (errLabel && errLabel.text() > "") {
         msg = errLabel.text();
     }
@@ -247,14 +256,15 @@ function validatePattern(thisElem) {
     let re = thisElem.pattern,
         result = true;
 
-    if (re === "") {
+    let value = thisElem.value;
+    if (re === "" || (!thisElem.required && !thisElem.validity.badInput)) {
         return true;
     }
 
     try {
 
         re = new RegExp(re);
-        result = re.test(thisElem.value);
+        result = re.test(value);
         if (result) {
             $(thisElem).addClass('validated-field').removeClass('error-field');
             $(thisElem).nextAll('.errorLabel').hide();

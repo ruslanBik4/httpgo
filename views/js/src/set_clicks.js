@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -34,7 +34,6 @@ function setClickAll(event) {
     }
     isProcess = true;
 
-    console.log(event);
     let cfgDate = {
         format: 'YYYY-MM-DD',
         timepicker: false,

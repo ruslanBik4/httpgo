@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -88,7 +88,7 @@ $(function () {
         window.onpopstate = MyPopState;
     }
 
-    window.addEventListener("beforeunload", function (evt) {
+    window.addEventListener("beforeunload", evt => {
         evt = evt || window.event;
 
         if (evt) {
@@ -141,7 +141,6 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        console.log(`HTMX request `);
         console.log(evt);
     });
 

@@ -1,6 +1,9 @@
-// Copyright 2021 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2024-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package httpGo
 
@@ -16,22 +19,25 @@ type blockListener struct {
 	*AccessConf
 }
 
-func (m *blockListener) Addr() net.Addr {
-	return m.Listener.Addr()
+func (b *blockListener) Addr() net.Addr {
+	return b.Listener.Addr()
 }
 
-func (m *blockListener) Accept() (net.Conn, error) {
+func (b *blockListener) Accept() (net.Conn, error) {
 	for {
-		c, err := m.Listener.Accept()
+		c, err := b.Listener.Accept()
 		if err != nil {
 			return nil, err
 		}
 
 		addr := c.RemoteAddr().String()
-		if m.isAllowIP(addr) || (len(m.AllowIP) == 0 && !m.isDenyIP(addr)) || len(m.AllowRoute) > 0 {
+		if b.isAllowIP(addr) || (len(b.AllowIP) == 0 && !b.isDenyIP(addr)) || len(b.AllowRoute) > 0 {
 			return c, nil
 		}
 
+		//for path, msg := range b.QuickResponse {
+		//
+		//}
 		logs.ErrorLog(fmt.Errorf("deny connect from addr %s", addr))
 		err = c.Close()
 		if err != nil {

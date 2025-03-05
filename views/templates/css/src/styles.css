@@ -383,7 +383,7 @@ label > span {
 }
 
 label > input:placeholder-shown:focus + span::before, label > textarea:focus + span::before, label > input[value] + span::before {
-    width: 100%
+    width: 100%;
 }
 
 label > input[type="checkbox"]:focus + span::before {
@@ -392,7 +392,7 @@ label > input[type="checkbox"]:focus + span::before {
 
 label > input:placeholder-shown:focus + span::after, label > textarea[value] + span::after, label > input[value] + span::after,
 label > div.tox-tinymce + span::after, label > div#map + span::after {
-    top: -21px
+    top: -21px;
 }
 
 label > input:placeholder-shown + span::after, label > textarea:placeholder-shown + span::after {
