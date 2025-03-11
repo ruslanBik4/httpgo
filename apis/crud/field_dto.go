@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -43,8 +43,14 @@ func (d *DTO[T]) Format(s fmt.State, verb rune) {
 		if err != nil {
 			logs.ErrorLog(err)
 		}
-	case 'g', 's':
+	case 'g':
 		_, err := fmt.Fprintf(s, "&crud.DTO[%T]{}", d.val)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	case 's':
+		_, err := fmt.Fprintf(s, "&crud.DTO[%T]", d.val)
 		if err != nil {
 			logs.ErrorLog(err)
 		}
@@ -56,6 +62,9 @@ func NewDTO[T any](val T) *DTO[T] {
 	return &DTO[T]{val: val}
 }
 
+func (d *DTO[T]) GetPgxType() T {
+	return d.val
+}
 func (d *DTO[T]) GetValue() any {
 	return d.val
 }
@@ -63,6 +72,15 @@ func (d *DTO[T]) GetValue() any {
 func (d *DTO[T]) NewValue() any {
 	var a T
 	return a
+}
+func (d *DTO[T]) Expect() string {
+	return fmt.Sprintf("%T", d.val)
+}
+func (d *DTO[T]) FormatDoc() string {
+	return fmt.Sprintf("%T", d.val)
+}
+func (d *DTO[T]) RequestType() string {
+	return fmt.Sprintf("%T", d.val)
 }
 
 type DTOtype struct {
@@ -78,7 +96,7 @@ func (D *DTOtype) NewValue() any {
 }
 func (d *DTOtype) Format(s fmt.State, verb rune) {
 	switch verb {
-	case 't':
+	case 't', 'P':
 		_, err := fmt.Fprintf(s, "%s", d.Val)
 		if err != nil {
 			logs.ErrorLog(err)
@@ -203,6 +221,39 @@ func (d *DateTimeString) GetPgxType() pgtype.Timestamp {
 	return pgtype.Timestamp{
 		Time:   (time.Time)(*d),
 		Status: pgtype.Present,
+	}
+}
+
+type DateTimeTZString struct {
+	*DateTimeString
+}
+
+func (d *DateTimeTZString) GetPgxType() pgtype.Timestamptz {
+	return pgtype.Timestamptz{
+		Time:   (time.Time)(*d.DateTimeString),
+		Status: pgtype.Present,
+	}
+}
+
+// Format implement Formatter interface
+func (d *DateTimeTZString) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
 	}
 }
 
