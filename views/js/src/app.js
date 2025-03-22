@@ -145,8 +145,30 @@ $(function () {
     });
 
     setClickAll();
-    $('body').on('DOMSubtreeModified', setClickAll);
+    // $('body').on('DOMSubtreeModified', setClickAll);
+// Create a MutationObserver instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+                setClickAll(mutation);
+            } else if (mutation.type === "attributes" && mutation.attributeName !== "rel") {
+                console.log("Attributes changed:", mutation);
+            } else if (mutation.type === "characterData") {
+                console.log("Text content changed:", mutation);
+            }
+        }
 
+    });
+
+// Configure observer options
+    const config = {
+        childList: true,      // Detect when children are added/removed
+        attributes: true,     // Detect attribute changes
+        subtree: true,        // Observe all descendants
+        characterData: true   // Detect text content changes
+    };
+
+    observer.observe($('body')[0], config);
 }) // $(document).ready
 
 // run request & show content

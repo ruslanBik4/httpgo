@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -84,6 +85,11 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// 	logs.StatusLog(n)
 	// 	return nil
 	// })
+	cfg.Server.ContinueHandler = func(header *fasthttp.RequestHeader) bool {
+
+		logs.StatusLog("has Continue !", header)
+		return true
+	}
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
 		switch err {
@@ -105,7 +111,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
 
-	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
 	var h *HttpGo
 	if len(cfg.Domains) == 0 {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
@@ -204,6 +209,8 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		cfg:        cfg,
 		store:      store,
 	}
+	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
+
 	return h
 }
 
@@ -385,8 +392,13 @@ type fastHTTPLogger struct {
 func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 
 	if strings.Contains(mess, "error") {
-		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(append([]any{mess}, args...)...)
+		if slices.ContainsFunc(args, func(a any) bool {
+			s, ok := a.(error)
+			return ok && strings.Contains(s.Error(), "tls: unknown certificate")
+		}) {
+			//	nothing to tell :-)
+		} else if strings.Contains(mess, "serving connection") {
+			logs.StatusLog(fmt.Sprintf(mess, args...))
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}

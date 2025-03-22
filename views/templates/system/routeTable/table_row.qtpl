@@ -40,15 +40,13 @@
 <div class="sidebar">
 {%- if !t.OnlyView -%}
 <h2> Import </h2>
-<form action="{%s t.ApiImport %}" method="post" enctype="multipart/form-data" onsubmit="return saveForm(this);">
+<!-- method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" -->
+<form action="{%s t.ApiImport %}" hx-encoding="multipart/form-data" hx-post="{%s t.ApiImport %}"
+          _="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100">
 <div id="divFieldImport" class="input-wrap">
 <label class="table-files__label" style="height:30px;" title="Choice csv-file for import to table'{%s t.Comment() %}'">
     <span class="hiddenInput">
-			<input type="file"
-			              id="csv"
-			              name="csv"
-			              accept=".csv"
-			              onchange="handleFileCSVSelect(this);"
+			<input type="file" required multiple id="csv" name="csv" accept=".csv" onchange="uploadGzippedFile(this, '{%s t.ApiImport %}');"
 			/>
         </span>
  </label>

@@ -89,19 +89,23 @@ function saveForm(thisForm, successFunction, errorFunction) {
             $progress.show();
             $loading.show();
         },
-        beforeSend: getHeaders,
-        uploadProgress: function (event, position, total, percentComplete) {
+        beforeSend: (xhr) => {
+            getHeaders(xhr);
+            // xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        },
+        uploadProgress: (event, position, total, percentComplete) => {
+            console.log(event, position, total, percentComplete);
             $out.html('Progress - ' + percentComplete + '%');
             $progress.val(percentComplete);
         },
         statusCode: {
-            206: function (data, status, xhr) {
+            206: (data, status, xhr) => {
                 console.log(status);
                 console.log(data);
                 console.log(xhr);
             }
         },
-        success: function (data, status, xhr) {
+        success: (data, status, xhr) => {
             if (xhr.status === 206) {
                 readEvents($out, data);
                 return
@@ -736,6 +740,35 @@ function handleFileOnForm(evt) {
 
     // Read in the image file as a data URL.
     // reader.readAsText(f);
+}
+
+async function uploadGzippedFile(evt, url) {
+    var files = evt.files || evt.target.files; // FileList object
+    if (files.length < 1)
+        return false;
+
+    let file = files[0];
+    // Compress the file using CompressionStream
+    const compressedStream = file.stream().pipeThrough(new CompressionStream("gzip"));
+    const compressedBlob = await new Response(compressedStream).blob();
+
+    let $output = $('output', $(evt).parents('form'));
+    $output.text("Start uploading zip file...");
+    // Send using fetch with Content-Encoding: gzip
+    let response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Encoding": "gzip", // Tells the server the data is gzipped
+            "Content-Type": "application/octet-stream", // Raw binary data
+            "X-Original-Filename": file.name // Send the original filename
+        },
+        body: compressedBlob // Send compressed file
+    });
+
+    let result = await response.text();
+    console.log(response);
+    console.log("Upload complete!");
+    $output.text(result);
 }`)
 //line forms.js.qtpl:2
 	qw422016.N().S(`

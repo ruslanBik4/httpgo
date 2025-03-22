@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -252,16 +252,23 @@ function handleFileCSVSelect(evt) {
     reader.onload = (function (theFile) {
         return function (e) {
             let csv = e.target.result.csvToArray({head: true, rSep: "\n"});
-            let fText = '';
-            csv.forEach(function (elem) {
-                let row = '';
+            let fText = [];
+            for (let elem of csv) {
+                let row = '<div  class="usr-table-col  table-col-0">$</div>';
+                if (elem.length === 1) {
+                    elem = elem[0].split(';');
+                }
                 elem.forEach(function (cell, i) {
                     row += `<div  class="usr-table-col  table-col-${i}">${cell}</div>`;
                 });
-                console.log(row);
-                fText += `<div  class="usr-table-row">${row}</div>`;
-            });
-            $(selTablesRows).html(fText);
+                fText.push(`<div  class="usr-table-row">${row}</div>`);
+                if (fText.length >= GetPageLines()) {
+                    console.log(row);
+                    break;
+                }
+            }
+
+            $(selTablesRows).html(fText.join('\n'));
         };
     })(f);
 

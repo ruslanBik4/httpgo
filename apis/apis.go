@@ -138,6 +138,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		if err := views.WriteResponse(ctx, resp); err != nil {
 			a.renderError(ctx, err, resp)
 		}
+
 	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, errNotFoundPage:
 		a.renderError(ctx, err, resp)
 
