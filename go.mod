@@ -3,7 +3,7 @@ module github.com/ruslanBik4/httpgo
 go 1.24
 
 //replace github.com/ruslanBik4/dbEngine => ../dbEngine
-replace github.com/valyala/fasthttp => /Users/ruslan_bik/go/pkg/mod/github.com/valyala/fasthttp@v1.59.0
+//replace github.com/valyala/fasthttp => /Users/ruslan_bik/go/pkg/mod/github.com/valyala/fasthttp@v1.59.0
 
 require (
 	github.com/domsolutions/http2 v0.4.0
