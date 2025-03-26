@@ -167,6 +167,8 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 		statusCode = fasthttp.StatusMethodNotAllowed
 	case *ErrorResp:
 		a.writeBadRequest(ctx, e.FormErrors)
+		return
+
 	default:
 
 		switch errDeep {
@@ -228,10 +230,12 @@ func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 
 	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
 		logs.DebugLog(ctx.UserValue(MultiPartParams))
-	} else if ctx.IsPost() {
+	} else if ctx.IsPost() && ctx.PostArgs().Len() > 0 {
 		logs.DebugLog(ctx.PostArgs().String())
-	} else {
+	} else if ctx.QueryArgs().Len() > 0 {
 		logs.DebugLog(ctx.QueryArgs().String())
+	} else {
+		logs.DebugLog(resp)
 	}
 }
 

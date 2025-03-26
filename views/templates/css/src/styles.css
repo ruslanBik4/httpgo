@@ -179,7 +179,7 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
 
 .content-wrap {
     width: 100%;
-    height: calc(100% - 106px);
+    height: calc(100% - 126px);
 }
 
 #container-fluid > div {
@@ -204,6 +204,9 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     width: fit-content;
     padding-left: 1px;
     padding-top: 3px;
+    position: sticky;
+    height: 99%;
+    overflow: auto;
 }
 
 .content-section {
@@ -223,7 +226,7 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     /*display: flex;*/
     overflow: scroll;
     width: 99%;
-    height: calc(100% - 50px);
+    height: 99%;
 }
 
 #content > iframe {

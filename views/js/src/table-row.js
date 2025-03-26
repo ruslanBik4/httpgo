@@ -75,8 +75,8 @@ function setHashFromTable(url) {
 // append data over limit into table content
 function appendTable() {
     let tableCnt = $('.usr-table-content');
-    var elem = $(selTablesRows);
-    var lines = elem.children('div:visible').length;
+    var tableRows = $(selTablesRows);
+    var lines = tableRows.children('div:visible').length;
     let url = document.location.href;
     const reqLimit = /(offset=)(\d+)/;
     const parts = reqLimit.exec(url);
@@ -117,9 +117,10 @@ function appendTable() {
         success: function (data, status, xhr) {
             if (xhr.status === 204) {
                 tableCnt.off('mousewheel');
+                tableRows.html(data);
                 return false;
             }
-            elem.append($('<div />').html(data).find(selTablesRows).html());
+            tableRows.append($('<div />').html(data).find(selTablesRows).html());
             setHashFromTable(url);
         },
         error: function (xhr, status, error) {

@@ -742,33 +742,165 @@ function handleFileOnForm(evt) {
     // reader.readAsText(f);
 }
 
+// Function to generate SHA-256 checksum
+function generateChecksum(blob) {
+    const buffer = blob.arrayBuffer();
+    const hashBuffer = crypto.subtle.digest("SHA-256", buffer);
+    return "sha256=" + [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function sendFile(blob, url, file, $output, $progress) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Content-Encoding", "gzip, deflate");
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+    xhr.setRequestHeader("X-Original-Filename", file.name);
+    // let value =  generateChecksum(blob);
+    // xhr.setRequestHeader("X-Upload-Checksum", value) // Verify integrity);
+
+    $progress.show().val(0);
+// Progress Event
+    xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+            let percentComplete1 = event.loaded * 100 / event.total;
+            $progress.val(percentComplete1);
+        }
+    };
+
+// Response Handler
+    xhr.onload = () => {
+        console.log("Upload completed:", file.name);
+        let result = JSON.parse(xhr.responseText);
+        switch (xhr.status) {
+            case 206:
+                readEvents($output, result);
+                return;
+
+            case 400:
+                if (result.formErrors !== undefined) {
+                    let formErrors = result.formErrors
+                    for (let x in formErrors) {
+                        $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<h4>${x}</h4>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+                        $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<span>${formErrors[x]}</span>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+                    }
+                    return
+                }
+            default:
+                $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<p>${result}</p>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+        }
+    };
+
+    xhr.onerror = (err) => {
+        console.log(err);
+    }
+
+// Send Compressed File
+    xhr.send(blob);
+}
 async function uploadGzippedFile(evt, url) {
     var files = evt.files || evt.target.files; // FileList object
     if (files.length < 1)
         return false;
 
-    let file = files[0];
-    // Compress the file using CompressionStream
-    const compressedStream = file.stream().pipeThrough(new CompressionStream("gzip"));
-    const compressedBlob = await new Response(compressedStream).blob();
+    let $progress = $('#progress', $(evt).parents('form')).show(), $output = $('output', $(evt).parents('form'));
+    for (let i in files) {
+        let file = files[i];
+        // Compress the file using CompressionStream
+        const compressedStream = file.stream().pipeThrough(new CompressionStream("gzip"));
+        const compressedBlob = await new Response(compressedStream).blob();
 
-    let $output = $('output', $(evt).parents('form'));
-    $output.text("Start uploading zip file...");
-    // Send using fetch with Content-Encoding: gzip
-    let response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Encoding": "gzip", // Tells the server the data is gzipped
-            "Content-Type": "application/octet-stream", // Raw binary data
-            "X-Original-Filename": file.name // Send the original filename
-        },
-        body: compressedBlob // Send compressed file
-    });
+        $output.text(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`Start uploading zip ${file.name}...`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+        // Send using fetch with Content-Encoding: gzip
+        // let response = await fetch(url, {
+        //     method: "POST",
+        //     headers: {
+        //         "Accept": "application/json",
+        //         'Connection': 'keep-alive',
+        //         'Expect': '100-continue',
+        //         "Content-Encoding": "gzip, deflate", // Tells the server the data is gzipped
+        //         "Content-Type": "application/octet-stream", // Raw binary data
+        //         "X-Original-Filename": file.name // Send the original filename
+        //     },
+        //     body: compressedBlob // Send compressed file
+        // });
 
-    let result = await response.text();
-    console.log(response);
-    console.log("Upload complete!");
-    $output.text(result);
+        sendFile(compressedBlob, url, file, $output, $progress);
+    }
+    $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<h2>Upload complete!</h2>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+    // let result = await response.json();
+    // switch (response.status) {
+    //     case 206:
+    //         readEvents($output, result);
+    //     case 400:
+    //         if (result.formErrors !== undefined) {
+    //             let formErrors = result.formErrors
+    //             for (let x in formErrors) {
+    //                 $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<h4>${x}</h4>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+    //                 $output.append(`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`<span>${formErrors[x]}</span>`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`);
+    //             }
+    //             return
+    //         }
+    // }
+    // console.log(response);
+    // console.log("Upload complete!");
+    // $output.text(result);
 }`)
 //line forms.js.qtpl:2
 	qw422016.N().S(`

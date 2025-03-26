@@ -323,6 +323,15 @@ remove IP addresses show config of httpGo`,
 				crud.NewFileParam("blob", "file to saving in store"),
 			},
 		},
+		"/httpgo/store/sse": {
+			Desc:           " # store",
+			Fnc:            HandleNoticeSSE,
+			IsServerEvents: true,
+			WithCors:       true,
+			Params: []InParam{
+				crud.ParamsIDReq,
+			},
+		},
 	}
 }
 
