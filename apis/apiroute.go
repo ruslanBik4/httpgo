@@ -451,10 +451,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
-		logs.StatusLog("start multipart")
 		mf, err := ctx.Request.MultipartForm()
 		if err != nil {
-			if strings.Contains(err.Error(), "form size must be greater than 0") {
+			if strings.Contains(err.Error(), "form size must be greater than 0") ||
+				strings.Contains(err.Error(), "cannot read multipart/form-data body") {
 				return ctx.Request.String(), ErrWrongParamsList
 			}
 			return nil, err

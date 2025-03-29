@@ -144,14 +144,14 @@ $(function () {
         console.log(evt);
     });
 
-    setClickAll();
+    setClickAll(document.body);
     // $('body').on('DOMSubtreeModified', setClickAll);
 // Create a MutationObserver instance
     const observer = new MutationObserver((mutationsList, observer) => {
         for (const mutation of mutationsList) {
             if (mutation.type === "childList") {
-                setClickAll(mutation);
-            } else if (mutation.type === "attributes" && mutation.attributeName !== "rel") {
+                setClickAll(mutation.addedNodes);
+            } else if (mutation.type === "attributes" && !(mutation.attributeName === "class" || mutation.attributeName === "rel")) {
                 console.log("Attributes changed:", mutation);
             } else if (mutation.type === "characterData") {
                 console.log("Text content changed:", mutation);

@@ -127,7 +127,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			views.WriteCORSHeaders(ctx)
 		}
 
-		logs.StatusLog(ctx.Path(), err, errRec)
+		logs.StatusLog("%s, %s %v", ctx.Path(), err, errRec)
 
 	}()
 
