@@ -11,7 +11,7 @@ var isProcess = false;
 function isIgnoreTarget(target) {
     return $(target).attr('rel') > "" || $(target).hasClass('htmx-request') || $(target).hasClass('htmx-added') || $(target).hasClass('htmx-indicator')
         || $(target).hasClass('htmx-settling') || $(target).hasClass('htmx-swapping') || $(target).hasClass('htmx-fancybox-container')
-        || ($(target).parents('svg, .fancybox-container, .htmx-request').length > 0)
+        || ($(target).parents('svg, .fancybox-container, .htmx-request, .flatpickr-calendar').length > 0)
 }
 
 function setClickAll(target) {
@@ -19,9 +19,6 @@ function setClickAll(target) {
         return;
     }
 
-    console.log(target);
-    // event = event || window.event;
-    // let target = event && event.target;
     if (target && (target === '<script>'
         || target.localName && (target.localName === 'script' || target.localName === 'tbody'
             || target.localName.startsWith('svg') || target.localName.startsWith('svg') || target.localName.startsWith('th')
@@ -34,6 +31,7 @@ function setClickAll(target) {
         return
     }
     isProcess = true;
+    console.log(target);
 
     let cfgDate = {
         format: 'YYYY-MM-DD',
@@ -80,17 +78,18 @@ function setClickAll(target) {
             dates.flatpickr({
                 mode: "range",
                 dateFormat: "Y-m-d",
-                allowInput: false, // Prevent manual input
-                onClose: function (selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 2) {
+                allowInput: true, // Prevent manual input
+                onClose: function (dates, dateStr, instance) {
+                    if (dates.length === 2) {
                         // Format value as [YYYY-MM-DD,YYYY-MM-DD]
-                        const formattedValue = `[${selectedDates[0].toISOString().split('T')[0]},${selectedDates[1].toISOString().split('T')[0]}]`;
+                        const formattedValue = `[${dates[0].toISOString().split('T')[0]},${dates[1].toISOString().split('T')[0]}]`;
                         instance.input.value = formattedValue;
+                        filterTableData(formattedValue, instance.input.dataset.class);
 
                         // Delay event to ensure DOM updates first
-                        setTimeout(() => {
-                            instance.input.dispatchEvent(new Event('change', {bubbles: true}));
-                        }, 0);
+                        // setTimeout(() => {
+                        //     instance.input.dispatchEvent(new Event('change', {bubbles: true}));
+                        // }, 0);
                     } else {
                         // If only one date is selected, clear the input
                         instance.input.value = "";
@@ -100,31 +99,29 @@ function setClickAll(target) {
             dates.attr('rel', 'datetimepicker');
 
             dates = $('input[type=datetime]:not([rel])', elem);
-        if (dates.length > 0) {
-            dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
-        }
+            if (dates.length > 0) {
+                dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
+            }
             dates = $('input[type=date]:not([rel])', elem);
-        if (dates.length > 0) {
-            dates.flatpickr({
-                mode: "range",
-                dateFormat: "Y-m-d",
-                onClose: function (selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 2) {
-                        const formattedValue = `[${selectedDates[0].toISOString().split('T')[0]},${selectedDates[1].toISOString().split('T')[0]}]`;
-                        instance.input.value = formattedValue;
-                        instance.input.dispatchEvent(new Event('change', {bubbles: true})); // Trigger onchange
+            if (dates.length > 0) {
+                dates.flatpickr({
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    allowInput: true,
+                    onClose: function (dates, dateStr, instance) {
+                        if (dates.length === 2) {
+                            const formattedValue = `[${dates[0].toISOString().split('T')[0]},${dates[1].toISOString().split('T')[0]}]`;
+                            instance.input.value = formattedValue;
+                            // instance.input.dispatchEvent(new Event('change', {bubbles: true})); // Trigger onchange
+                        }
                     }
-                }
-                // dateRangePicker({
-                //     singleDate: true,
-                //     ...cfgDate
-            }).attr('rel', 'datetimepicker');
-        }
-            dates = $('input[type=date-range]:not([rel])', elem);
-        if (dates.length > 0) {
-            dates.dateRangePicker(cfgDateRange).attr('rel', 'datetimepicker');
-        }
-        }).attr('rel', 'datetimepicker');
+                    // dateRangePicker({
+                    //     singleDate: true,
+                    //     ...cfgDate
+                });
+                dates.attr('rel', 'datetimepicker');
+            }
+        })
 
     $('[hx-get], [hx-post], [hx-target]', target).each(function () {
         this.rel = 'htmx';

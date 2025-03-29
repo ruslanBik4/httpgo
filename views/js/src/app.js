@@ -115,7 +115,7 @@ $(function () {
         handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
     });
 
-    document.body.addEventListener('htmx:afterRequest', function (evt) {
+    document.body.addEventListener('htmx:afterRequest', evt => {
         let responseText = evt.detail.xhr.responseText;
         console.log(evt.detail.elt);
         switch (evt.detail.elt.target) {
@@ -123,6 +123,7 @@ $(function () {
                 FancyOpen(responseText);
                 evt.preventDefault();
                 return false;
+
             case "_blank":
                 var uri = "data:text/html," + encodeURIComponent(responseText);
                 var newWindow = window.open('localhost', "Preview");
@@ -134,6 +135,9 @@ $(function () {
 
                 evt.preventDefault();
                 return false;
+
+            default:
+                SetContent(responseText);
         }
     });
 

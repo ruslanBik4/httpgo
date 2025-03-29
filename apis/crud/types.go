@@ -18,6 +18,18 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+type NumRangeMarshal struct {
+	*pgtype.Numrange
+}
+
+func (n *NumRangeMarshal) GetValue() any {
+	return n.Numrange
+}
+
+func (n *NumRangeMarshal) NewValue() any {
+	return &NumRangeMarshal{&pgtype.Numrange{}}
+}
+
 type DateRangeMarshal struct {
 	*pgtype.Daterange
 }
@@ -80,28 +92,16 @@ func (d *DateRangeMarshal) Set(src any) error {
 		parts := strings.Split(src, ",")
 
 		lower := strings.TrimSpace(parts[0])
-		// inclusive border as default
-		d.LowerType = pgtype.Inclusive
-		if l, ok := strings.CutPrefix(lower, "["); ok {
-			lower = l
-		} else if l, ok := strings.CutPrefix(lower, "("); ok {
-			d.LowerType = pgtype.Exclusive
-			lower = l
-		}
+		d.LowerType = lowerBoundType(lower)
 
 		err := d.Lower.Scan(lower)
 		if err == nil {
 			upper := strings.TrimSpace(parts[1])
-			d.UpperType = pgtype.Inclusive
-			if l, ok := strings.CutSuffix(lower, "]"); ok {
-				lower = l
-			} else if l, ok := strings.CutSuffix(lower, ")"); ok {
-				d.UpperType = pgtype.Exclusive
-				lower = l
-			}
-			err = d.Upper.Scan(upper)
+			d.UpperType = upperBoundType(upper)
+			d.Upper.Scan(upper)
 		}
 		if err != nil {
+			logs.ErrorLog(err)
 			return d.Daterange.Set(src)
 		}
 
@@ -124,6 +124,28 @@ func (d *DateRangeMarshal) Set(src any) error {
 	}
 
 	return nil
+}
+
+func lowerBoundType(lower string) pgtype.BoundType {
+	if strings.HasPrefix(lower, "[") {
+		return pgtype.Inclusive
+	} else if strings.HasPrefix(lower, "(") {
+		return pgtype.Exclusive
+	}
+
+	// inclusive border as default
+	return pgtype.Inclusive
+}
+
+func upperBoundType(upper string) pgtype.BoundType {
+	if strings.HasSuffix(upper, "]") {
+		return pgtype.Inclusive
+	} else if strings.HasSuffix(upper, ")") {
+		return pgtype.Exclusive
+	}
+
+	// inclusive border as default
+	return pgtype.Inclusive
 }
 
 func (d *DateRangeMarshal) GetPgxType() *pgtype.Daterange {

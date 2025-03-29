@@ -379,7 +379,7 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 			if col.Type() != "date" {
 				layout += " 15:04:05.999999999"
 			}
-			t, err := time.Parse(layout, string(src))
+			t, err := time.Parse(layout, gotools.BytesToString(src))
 			if err != nil {
 				microsecSinceY2K := int64(binary.BigEndian.Uint64(src))
 
