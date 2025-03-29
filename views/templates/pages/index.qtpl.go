@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -11,10 +11,10 @@
 // All the text outside function templates is treated as comments,
 // i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
-//line index.qtpl:3
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:3
 package pages
 
-//line index.qtpl:3
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:3
 import (
 	"github.com/ruslanBik4/httpgo/views/templates/layouts"
 	"github.com/valyala/quicktemplate"
@@ -23,20 +23,20 @@ import (
 
 // content of Index page
 
-//line index.qtpl:10
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:10
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line index.qtpl:10
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:10
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line index.qtpl:11
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:11
 type IndexPageBody struct {
 	Name         []byte
 	Pass         []byte
@@ -59,117 +59,117 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	body.ContentWrite(w.W())
 }
 
-//line index.qtpl:34
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:34
 func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
-//line index.qtpl:34
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:34
 	qw422016.N().S(`
 `)
-//line index.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:35
 	body.HeadHTML.StreamHeadHTML(qw422016)
-//line index.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:35
 	qw422016.N().S(`
 <body `)
-//line index.qtpl:36
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:36
 	qw422016.E().S(body.Attr)
-//line index.qtpl:36
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:36
 	qw422016.N().S(`>
 `)
-//line index.qtpl:37
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:37
 	layouts.StreamHeaderHTML(qw422016, body.TopMenu)
-//line index.qtpl:37
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:37
 	qw422016.N().S(`
 <breadcrumbs separator="›" aria-label="breadcrumb" aria-label="breadcrumb">
   <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="/">Home</a></li>
   </ol>
 `)
-//line index.qtpl:42
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:42
 	if body.SearchPanel != nil {
-//line index.qtpl:42
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:42
 		body.SearchPanel.StreamRender(qw422016)
-//line index.qtpl:42
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:42
 	}
-//line index.qtpl:42
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:42
 	qw422016.N().S(`</breadcrumbs>
 <main class="content-wrap">
 	<div id="container-fluid">
 	        <aside class="sidebar-section">
 	            <div id="catalog_pane"  class="well sidebar-nav">
 	                `)
-//line index.qtpl:48
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:48
 	body.Catalog.StreamRenderMenu(qw422016, "left-mnu-list", "left-mnu-item")
-//line index.qtpl:48
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:48
 	qw422016.N().S(`
 	            </div>
 	        </aside>
 	        <div class="content-section">
 		        <div id="content" `)
-//line index.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
 	if body.Route > "" {
-//line index.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
 		qw422016.N().S(`hx-get="`)
-//line index.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
 		qw422016.N().S(body.Route)
-//line index.qtpl:52
-		qw422016.N().S(`" hx-trigger="load"`)
-//line index.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
+		qw422016.N().S(`" hx-trigger="load once" rel='htmx'`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
 	}
-//line index.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:52
 	qw422016.N().S(`>
 `)
-//line index.qtpl:53
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:53
 	if body.ContentWrite != nil {
-//line index.qtpl:53
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:53
 		body.StreamContentWrite(qw422016)
-//line index.qtpl:53
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:53
 		qw422016.N().S(`
 `)
-//line index.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:54
 	} else {
-//line index.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:54
 		qw422016.E().S(body.Content)
-//line index.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:54
 		qw422016.N().S(`
 `)
-//line index.qtpl:55
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:55
 	}
-//line index.qtpl:55
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:55
 	qw422016.N().S(`</div>
 	        </div>
 	</div>
 </main>
 `)
-//line index.qtpl:59
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:59
 	layouts.StreamFooterHTML(qw422016, body.FooterMenu)
-//line index.qtpl:59
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:59
 	qw422016.N().S(`
 </body>
 `)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 }
 
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	body.StreamIndexHTML(qw422016)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 }
 
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 func (body *IndexPageBody) IndexHTML() string {
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	qb422016 := qt422016.AcquireByteBuffer()
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	body.WriteIndexHTML(qb422016)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	qs422016 := string(qb422016.B)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	qt422016.ReleaseByteBuffer(qb422016)
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 	return qs422016
-//line index.qtpl:61
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/pages/index.qtpl:61
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -17,6 +17,11 @@ var (
 	ParamsID = apis.InParam{
 		Name: "id",
 		Req:  false,
+		Type: apis.NewTypeInParam(types.Int32),
+	}
+	ParamsIDReq = apis.InParam{
+		Name: "id",
+		Req:  true,
 		Type: apis.NewTypeInParam(types.Int32),
 	}
 	ParamsLang = apis.InParam{

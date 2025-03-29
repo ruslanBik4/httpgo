@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -127,28 +127,33 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			views.WriteCORSHeaders(ctx)
 		}
 
-		logs.StatusLog(ctx.Path(), err, errRec)
+		logs.StatusLog("%s, %s %v", ctx.Path(), err, errRec)
 
 	}()
 
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
-	if err != nil {
-		logs.DebugLog("'%s' failure - %v (%v), %s, %s, %s",
+	switch err {
+	case nil:
+		// success execution
+		if err := views.WriteResponse(ctx, resp); err != nil {
+			a.renderError(ctx, err, resp)
+		}
+
+	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, errNotFoundPage:
+		a.renderError(ctx, err, resp)
+
+	default:
+
+		logs.ErrorLog(err,
+			"'%s' failure (%v), %s, %s, %s",
 			ctx.Path(),
-			err,
 			resp,
 			ctx.Request.Header.ContentType(),
 			ctx.Request.Header.Referer(),
 			ctx.Request.Header.UserAgent())
 		a.renderError(ctx, err, resp)
-
-		return
 	}
 
-	// success execution
-	if err := views.WriteResponse(ctx, resp); err != nil {
-		a.renderError(ctx, err, resp)
-	}
 }
 
 // renderError send error message into response
@@ -162,6 +167,8 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 		statusCode = fasthttp.StatusMethodNotAllowed
 	case *ErrorResp:
 		a.writeBadRequest(ctx, e.FormErrors)
+		return
+
 	default:
 
 		switch errDeep {
@@ -223,10 +230,12 @@ func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 
 	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
 		logs.DebugLog(ctx.UserValue(MultiPartParams))
-	} else if ctx.IsPost() {
+	} else if ctx.IsPost() && ctx.PostArgs().Len() > 0 {
 		logs.DebugLog(ctx.PostArgs().String())
-	} else {
+	} else if ctx.QueryArgs().Len() > 0 {
 		logs.DebugLog(ctx.QueryArgs().String())
+	} else {
+		logs.DebugLog(resp)
 	}
 }
 

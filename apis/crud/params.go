@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -53,8 +53,10 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	switch col.Type() {
 	case "date":
 		p.Type = apis.NewStructInParam(&DateString{})
-	case "timestamp", "timestamptz", "time":
+	case "timestamp", "time":
 		p.Type = apis.NewStructInParam(&DateTimeString{})
+	case "timestamptz":
+		p.Type = apis.NewStructInParam(&DateTimeTZString{&DateTimeString{}})
 	case "daterange":
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
 	case "numrange":

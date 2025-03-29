@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"path"
 	"regexp"
+	"slices"
 	"strings"
 	"syscall"
 	"time"
@@ -64,7 +65,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	}
 
 	apis.Ctx[ApiVersion] = httpgoVersion
-	if cfg != nil && cfg.Server != nil {
+	if cfg.Server != nil {
 		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (CentOS) backend by Go %v", cfg.Server.Name, httpgoVersion, GoVersion)
 	}
 
@@ -84,19 +85,32 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// 	logs.StatusLog(n)
 	// 	return nil
 	// })
+	cfg.Server.ContinueHandler = func(header *fasthttp.RequestHeader) bool {
+
+		logs.StatusLog("has Continue !", header)
+		return true
+	}
 	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
 		logs.ErrorLog(err, ctx.String())
-		// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
-		// 	uri := ctx.Request.URI()
-		// 	uri.SetScheme("http")
-		// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
-		// }
+		switch err {
+		case fasthttp.ErrBodyTooLarge:
+			ctx.SetStatusCode(fasthttp.StatusRequestEntityTooLarge)
+		case fasthttp.ErrNoMultipartForm, fasthttp.ErrNoArgValue:
+			ctx.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.Response.SetBodyString(err.Error())
+		default:
+			// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
+			// 	uri := ctx.Request.URI()
+			// 	uri.SetScheme("http")
+			// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
+			// }
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+		}
 	}
 	cfg.Server.Logger = &fastHTTPLogger{}
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
 
-	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
 	var h *HttpGo
 	if len(cfg.Domains) == 0 {
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
@@ -195,6 +209,8 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		cfg:        cfg,
 		store:      store,
 	}
+	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
+
 	return h
 }
 
@@ -307,6 +323,15 @@ remove IP addresses show config of httpGo`,
 				crud.NewFileParam("blob", "file to saving in store"),
 			},
 		},
+		"/httpgo/store/sse": {
+			Desc:           " # store",
+			Fnc:            HandleNoticeSSE,
+			IsServerEvents: true,
+			WithCors:       true,
+			Params: []InParam{
+				crud.ParamsIDReq,
+			},
+		},
 	}
 }
 
@@ -376,8 +401,13 @@ type fastHTTPLogger struct {
 func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 
 	if strings.Contains(mess, "error") {
-		if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(append([]any{mess}, args...)...)
+		if slices.ContainsFunc(args, func(a any) bool {
+			s, ok := a.(error)
+			return ok && strings.Contains(s.Error(), "tls: unknown certificate")
+		}) {
+			//	nothing to tell :-)
+		} else if strings.Contains(mess, "serving connection") {
+			logs.StatusLog(fmt.Sprintf(mess, args...))
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}

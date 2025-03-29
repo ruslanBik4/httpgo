@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -14,13 +14,14 @@ function isIgnoreTarget(target) {
         || ($(target).parents('svg, .fancybox-container, .htmx-request').length > 0)
 }
 
-function setClickAll(event) {
+function setClickAll(target) {
     if (isProcess) {
         return;
     }
 
-    event = event || window.event;
-    let target = event && event.target;
+    console.log(target);
+    // event = event || window.event;
+    // let target = event && event.target;
     if (target && (target === '<script>'
         || target.localName && (target.localName === 'script' || target.localName === 'tbody'
             || target.localName.startsWith('svg') || target.localName.startsWith('svg') || target.localName.startsWith('th')
@@ -34,7 +35,6 @@ function setClickAll(event) {
     }
     isProcess = true;
 
-    console.log(event);
     let cfgDate = {
         format: 'YYYY-MM-DD',
         timepicker: false,
@@ -68,23 +68,56 @@ function setClickAll(event) {
         ...cfgDate
     };
 
-    target = target || document.getElementsByTagName("body")[0];
+    // target = target || document.getElementsByTagName("body")[0];
     // add onSubmit event instead default behaviourism of form
     $('form:not([onsubmit])', target).on("submit", function () {
         return saveForm(this);
     });
 
     $('form:not([rel]), .filt-arrow:not([rel])', target).each(
-        function (ind, elem) {
-            let dates = $('input[type=datetime]:not([rel])', elem);
+        (ind, elem) => {
+            let dates = $('input[type=date-range]:not([rel])', elem);
+            dates.flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+                allowInput: false, // Prevent manual input
+                onClose: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        // Format value as [YYYY-MM-DD,YYYY-MM-DD]
+                        const formattedValue = `[${selectedDates[0].toISOString().split('T')[0]},${selectedDates[1].toISOString().split('T')[0]}]`;
+                        instance.input.value = formattedValue;
+
+                        // Delay event to ensure DOM updates first
+                        setTimeout(() => {
+                            instance.input.dispatchEvent(new Event('change', {bubbles: true}));
+                        }, 0);
+                    } else {
+                        // If only one date is selected, clear the input
+                        instance.input.value = "";
+                    }
+                }
+            });
+            dates.attr('rel', 'datetimepicker');
+
+            dates = $('input[type=datetime]:not([rel])', elem);
         if (dates.length > 0) {
             dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
         }
             dates = $('input[type=date]:not([rel])', elem);
         if (dates.length > 0) {
-            dates.dateRangePicker({
-                singleDate: true,
-                ...cfgDate
+            dates.flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+                onClose: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        const formattedValue = `[${selectedDates[0].toISOString().split('T')[0]},${selectedDates[1].toISOString().split('T')[0]}]`;
+                        instance.input.value = formattedValue;
+                        instance.input.dispatchEvent(new Event('change', {bubbles: true})); // Trigger onchange
+                    }
+                }
+                // dateRangePicker({
+                //     singleDate: true,
+                //     ...cfgDate
             }).attr('rel', 'datetimepicker');
         }
             dates = $('input[type=date-range]:not([rel])', elem);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -88,7 +88,7 @@ $(function () {
         window.onpopstate = MyPopState;
     }
 
-    window.addEventListener("beforeunload", function (evt) {
+    window.addEventListener("beforeunload", evt => {
         evt = evt || window.event;
 
         if (evt) {
@@ -141,13 +141,34 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        console.log(`HTMX request `);
         console.log(evt);
     });
 
-    setClickAll();
-    $('body').on('DOMSubtreeModified', setClickAll);
+    setClickAll(document.body);
+    // $('body').on('DOMSubtreeModified', setClickAll);
+// Create a MutationObserver instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+                setClickAll(mutation.addedNodes);
+            } else if (mutation.type === "attributes" && !(mutation.attributeName === "class" || mutation.attributeName === "rel")) {
+                console.log("Attributes changed:", mutation);
+            } else if (mutation.type === "characterData") {
+                console.log("Text content changed:", mutation);
+            }
+        }
 
+    });
+
+// Configure observer options
+    const config = {
+        childList: true,      // Detect when children are added/removed
+        attributes: true,     // Detect attribute changes
+        subtree: true,        // Observe all descendants
+        characterData: true   // Detect text content changes
+    };
+
+    observer.observe($('body')[0], config);
 }) // $(document).ready
 
 // run request & show content

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -451,10 +451,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
 			return nil, fasthttp.ErrNoMultipartForm
 		}
-
 		mf, err := ctx.Request.MultipartForm()
 		if err != nil {
-			if strings.Contains(err.Error(), "form size must be greater than 0") {
+			if strings.Contains(err.Error(), "form size must be greater than 0") ||
+				strings.Contains(err.Error(), "cannot read multipart/form-data body") {
 				return ctx.Request.String(), ErrWrongParamsList
 			}
 			return nil, err

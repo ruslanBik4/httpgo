@@ -29,7 +29,7 @@ func StreamPutStyles(qw422016 *qt422016.Writer) {
 	`)
 //line ../styles.css.qtpl:6
 	qw422016.N().S(`/*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -75,7 +75,6 @@ header .topline {
     width: 100%;
     display: flex;
     justify-content: space-evenly;
-    align-items: center;
 }
 header .topline-btns {
     display: inline-block;
@@ -210,7 +209,7 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
 
 .content-wrap {
     width: 100%;
-    height: calc(100% - 106px);
+    height: calc(100% - 126px);
 }
 
 #container-fluid > div {
@@ -235,6 +234,9 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     width: fit-content;
     padding-left: 1px;
     padding-top: 3px;
+    position: sticky;
+    height: 99%;
+    overflow: auto;
 }
 
 .content-section {
@@ -254,7 +256,7 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     /*display: flex;*/
     overflow: scroll;
     width: 99%;
-    height: calc(100% - 50px);
+    height: 99%;
 }
 
 #content > iframe {
@@ -413,26 +415,26 @@ label > span {
     pointer-events: none;
 }
 
-label > input:not([value]):focus + span::before, label > textarea:focus + span::before, label > input[value] + span::before {
-    width: 100%
+label > input:placeholder-shown:focus + span::before, label > textarea:focus + span::before, label > input[value] + span::before {
+    width: 100%;
 }
 
 label > input[type="checkbox"]:focus + span::before {
     width: 10px;
 }
 
-label > input:not([value]):focus + span::after, label > textarea[value] + span::after, label > input[value] + span::after,
+label > input:placeholder-shown:focus + span::after, label > textarea[value] + span::after, label > input[value] + span::after,
 label > div.tox-tinymce + span::after, label > div#map + span::after {
-    top: -21px
+    top: -21px;
 }
 
-label > input:not([value]) + span::after, label > textarea:not([value]) + span::after {
+label > input:placeholder-shown + span::after, label > textarea:placeholder-shown + span::after {
     top: 1px;
     left: 0
 }
 
-.input-wrap > label > input:not([value]) + span::before {
-    content: "";
+.input-wrap > label > input:placeholder-shown:focus + span::before {
+    content: attr(data-placeholder);
     display: block;
     position: absolute;
     bottom: -2px;

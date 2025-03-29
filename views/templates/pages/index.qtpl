@@ -49,7 +49,7 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	            </div>
 	        </aside>
 	        <div class="content-section">
-		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load"{%- endif -%}>
+		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load once" rel='htmx'{%- endif -%}>
 	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}
 	            {%- else -%} {%s body.Content %}
 	            {%- endif -%}</div>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -49,19 +49,23 @@ function saveForm(thisForm, successFunction, errorFunction) {
             $progress.show();
             $loading.show();
         },
-        beforeSend: getHeaders,
-        uploadProgress: function (event, position, total, percentComplete) {
+        beforeSend: (xhr) => {
+            getHeaders(xhr);
+            // xhr.setRequestHeader("Content-Type", "application/octet-stream");
+        },
+        uploadProgress: (event, position, total, percentComplete) => {
+            console.log(event, position, total, percentComplete);
             $out.html('Progress - ' + percentComplete + '%');
             $progress.val(percentComplete);
         },
         statusCode: {
-            206: function (data, status, xhr) {
+            206: (data, status, xhr) => {
                 console.log(status);
                 console.log(data);
                 console.log(xhr);
             }
         },
-        success: function (data, status, xhr) {
+        success: (data, status, xhr) => {
             if (xhr.status === 206) {
                 readEvents($out, data);
                 return
@@ -128,15 +132,24 @@ function readEvents($out, resp) {
         $out.html(`${resp.message}`);
     };
     evtSource.onmessage = (event) => {
+        if (event.event === "closed") {
+            $out.prepend(`<pre>Finish: ${event.data}</pre>`);
+            return false;
+        }
         $out.prepend(`<pre>${event.data}</pre>`);
         if (event.data === "closed") {
             evtSource.close();
         }
     }
     evtSource.onerror = (err) => {
+        if (evtSource.readyState === EventSource.CLOSED) {
+            console.log("SSE connection closed.");
+            evtSource.close();
+        }
         var msg = JSON.stringify(err)
         $out.append(`<pre>Error: ${msg}</pre>`);
     }
+
     evtSource.addEventListener("closed", function (event) {
         $out.prepend(`<pre>Finish: ${event.data}</pre>`);
         evtSource.close();
@@ -219,13 +232,14 @@ function alertField(thisElem) {
     let elem = $(thisElem);
     var nameField = elem.next('span').data("placeholder") || elem.next('span').text() ||
         elem.parents('label').text();
+
     if (nameField === "" || nameField === undefined) {
         nameField = thisElem.placeholder || elem.data("placeholder")
     }
     let errLabel = elem.parent('label').children('.errorLabel');
-    let msg = 'need correct data!';
+    let msg = '❌ need correct data!';
     if (thisElem.required) {
-        msg = ' is required. Please, fill it';
+        msg = '⚠️ is required. Please, fill it';
     } else if (errLabel && errLabel.text() > "") {
         msg = errLabel.text();
     }
@@ -246,14 +260,15 @@ function validatePattern(thisElem) {
     let re = thisElem.pattern,
         result = true;
 
-    if (re === "") {
+    let value = thisElem.value;
+    if (re === "" || (!thisElem.required && !thisElem.validity.badInput)) {
         return true;
     }
 
     try {
 
         re = new RegExp(re);
-        result = re.test(thisElem.value);
+        result = re.test(value);
         if (result) {
             $(thisElem).addClass('validated-field').removeClass('error-field');
             $(thisElem).nextAll('.errorLabel').hide();
@@ -565,4 +580,109 @@ function handleFileOnForm(evt) {
 
     // Read in the image file as a data URL.
     // reader.readAsText(f);
+}
+
+// Function to generate SHA-256 checksum
+function generateChecksum(blob) {
+    const buffer = blob.arrayBuffer();
+    const hashBuffer = crypto.subtle.digest("SHA-256", buffer);
+    return "sha256=" + [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function sendFile(blob, url, file, $output, $progress) {
+    let xhr = new XMLHttpRequest();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("Content-Encoding", "gzip, deflate");
+    xhr.setRequestHeader("Content-Type", "application/octet-stream");
+    xhr.setRequestHeader("X-Original-Filename", file.name);
+    // let value =  generateChecksum(blob);
+    // xhr.setRequestHeader("X-Upload-Checksum", value) // Verify integrity);
+
+    $progress.show().val(0);
+// Progress Event
+    xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+            let percentComplete1 = event.loaded * 100 / event.total;
+            $progress.val(percentComplete1);
+        }
+    };
+
+// Response Handler
+    xhr.onload = () => {
+        console.log("Upload completed:", file.name);
+        let result = JSON.parse(xhr.responseText);
+        switch (xhr.status) {
+            case 206:
+                readEvents($output, result);
+                return;
+
+            case 400:
+                if (result.formErrors !== undefined) {
+                    let formErrors = result.formErrors
+                    for (let x in formErrors) {
+                        $output.append(`<h4>${x}</h4>`);
+                        $output.append(`<span>${formErrors[x]}</span>`);
+                    }
+                    return
+                }
+            default:
+                $output.append(`<p>${result}</p>`);
+        }
+    };
+
+    xhr.onerror = (err) => {
+        console.log(err);
+    }
+
+// Send Compressed File
+    xhr.send(blob);
+}
+async function uploadGzippedFile(evt, url) {
+    var files = evt.files || evt.target.files; // FileList object
+    if (files.length < 1)
+        return false;
+
+    let $progress = $('#progress', $(evt).parents('form')).show(), $output = $('output', $(evt).parents('form'));
+    for (let i in files) {
+        let file = files[i];
+        // Compress the file using CompressionStream
+        const compressedStream = file.stream().pipeThrough(new CompressionStream("gzip"));
+        const compressedBlob = await new Response(compressedStream).blob();
+
+        $output.text(`Start uploading zip ${file.name}...`);
+        // Send using fetch with Content-Encoding: gzip
+        // let response = await fetch(url, {
+        //     method: "POST",
+        //     headers: {
+        //         "Accept": "application/json",
+        //         'Connection': 'keep-alive',
+        //         'Expect': '100-continue',
+        //         "Content-Encoding": "gzip, deflate", // Tells the server the data is gzipped
+        //         "Content-Type": "application/octet-stream", // Raw binary data
+        //         "X-Original-Filename": file.name // Send the original filename
+        //     },
+        //     body: compressedBlob // Send compressed file
+        // });
+
+        sendFile(compressedBlob, url, file, $output, $progress);
+    }
+    $output.append(`<h2>Upload complete!</h2>`);
+    // let result = await response.json();
+    // switch (response.status) {
+    //     case 206:
+    //         readEvents($output, result);
+    //     case 400:
+    //         if (result.formErrors !== undefined) {
+    //             let formErrors = result.formErrors
+    //             for (let x in formErrors) {
+    //                 $output.append(`<h4>${x}</h4>`);
+    //                 $output.append(`<span>${formErrors[x]}</span>`);
+    //             }
+    //             return
+    //         }
+    // }
+    // console.log(response);
+    // console.log("Upload complete!");
+    // $output.text(result);
 }
