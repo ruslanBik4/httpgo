@@ -77,12 +77,16 @@ function setClickAll(target) {
             let dates = $('input[type=date-range]:not([rel])', elem);
             dates.flatpickr({
                 mode: "range",
-                dateFormat: "Y-m-d",
-                allowInput: true, // Prevent manual input
+                altInput: true, // Allows a different display format
+                altFormat: "Y-m-d", // ✅ Shows as a range format
+                dateFormat: "[Y-m-d,Y-m-d]", // Flatpickr saves this format
+                allowInput: true, // ✅ Allows manual entry
+                showMonths: 2,
+                // clickOpens: true, // ✅ Ensure calendar still opens
                 onClose: function (dates, dateStr, instance) {
                     if (dates.length === 2) {
                         // Format value as [YYYY-MM-DD,YYYY-MM-DD]
-                        const formattedValue = `[${dates[0].toISOString().split('T')[0]},${dates[1].toISOString().split('T')[0]}]`;
+                        const formattedValue = `[${instance.formatDate(dates[0], "Y-m-d")},${instance.formatDate(dates[1], "Y-m-d")}]`;
                         instance.input.value = formattedValue;
                         filterTableData(formattedValue, instance.input.dataset.class);
 

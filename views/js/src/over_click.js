@@ -188,10 +188,11 @@ function showJSON(data) {
 
     showJsonElem(data);
 }
-//replace special symbols
-function replMacros(url) {
-    return url.replace(/{page}/, GetPageLines())
-}
+
+// //replace special symbols
+// function replMacros(url) {
+//     return url.replace(/{page}/, GetPageLines())
+// }
 
 function getHeaders(xhr) {
     xhr.setRequestHeader('Authorization', 'Bearer ' + token);

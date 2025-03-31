@@ -6,28 +6,28 @@
 //
 // standard styles .
 
-//line ../styles.css.qtpl:5
+//line styles.css.qtpl:5
 package css
 
-//line ../styles.css.qtpl:5
+//line styles.css.qtpl:5
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line ../styles.css.qtpl:5
+//line styles.css.qtpl:5
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line ../styles.css.qtpl:5
+//line styles.css.qtpl:5
 func StreamPutStyles(qw422016 *qt422016.Writer) {
-//line ../styles.css.qtpl:5
+//line styles.css.qtpl:5
 	qw422016.N().S(`
 	`)
-//line ../styles.css.qtpl:6
+//line styles.css.qtpl:6
 	qw422016.N().S(`/*
  * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
@@ -63,6 +63,10 @@ header nav {
     display: inline-flex;
     align-items: start;
     height: 100%;
+}
+
+header .topline-navbar {
+    margin-bottom: 2px;
 }
 header .topline {
     -webkit-flex-direction: row;
@@ -727,34 +731,34 @@ form .validated-field {
 .tox.tox-tinymce-aux, .xdsoft_datetimepicker .xdsoft_datepicker, body.fancybox-active .date-picker-wrapper {
     z-index: 100000;
 }`)
-//line ../styles.css.qtpl:6
+//line styles.css.qtpl:6
 	qw422016.N().S(`
 `)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 }
 
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 func WritePutStyles(qq422016 qtio422016.Writer) {
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	StreamPutStyles(qw422016)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	qt422016.ReleaseWriter(qw422016)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 }
 
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 func PutStyles() string {
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	qb422016 := qt422016.AcquireByteBuffer()
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	WritePutStyles(qb422016)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	qs422016 := string(qb422016.B)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	qt422016.ReleaseByteBuffer(qb422016)
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 	return qs422016
-//line ../styles.css.qtpl:7
+//line styles.css.qtpl:7
 }

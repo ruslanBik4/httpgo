@@ -115,6 +115,14 @@ $(function () {
         handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
     });
 
+    document.body.addEventListener('htmx:configRequest', function (evt) {
+        evt.detail.headers['Authorization'] = 'Bearer ' + token;
+        evt.detail.headers['Accept-Language'] = lang;
+        evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
+        evt.detail.url = replMacros(evt.detail.url);
+        console.log(evt);
+    });
+
     document.body.addEventListener('htmx:afterRequest', evt => {
         let responseText = evt.detail.xhr.responseText;
         console.log(evt.detail.elt);
@@ -141,21 +149,17 @@ $(function () {
         }
     });
 
-    document.body.addEventListener('htmx:configRequest', function (evt) {
-        evt.detail.headers['Authorization'] = 'Bearer ' + token;
-        evt.detail.headers['Accept-Language'] = lang;
-        evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        console.log(evt);
-    });
-
     setClickAll(document.body);
-    // $('body').on('DOMSubtreeModified', setClickAll);
 // Create a MutationObserver instance
     const observer = new MutationObserver((mutationsList, observer) => {
         for (const mutation of mutationsList) {
             if (mutation.type === "childList") {
                 setClickAll(mutation.addedNodes);
-            } else if (mutation.type === "attributes" && !(mutation.attributeName === "class" || mutation.attributeName === "rel")) {
+            } else if (mutation.type === "attributes") {
+                let ignores = ["style", "class", "rel"];
+                if (ignores.indexOf(mutation.attributeName) > -1) {
+                    return
+                }
                 console.log("Attributes changed:", mutation);
             } else if (mutation.type === "characterData") {
                 console.log("Text content changed:", mutation);
@@ -172,7 +176,7 @@ $(function () {
         characterData: true   // Detect text content changes
     };
 
-    observer.observe($('body')[0], config);
+    observer.observe(document.body, config);
 }) // $(document).ready
 
 // run request & show content

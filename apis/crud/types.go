@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -92,13 +92,19 @@ func (d *DateRangeMarshal) Set(src any) error {
 		parts := strings.Split(src, ",")
 
 		lower := strings.TrimSpace(parts[0])
-		d.LowerType = lowerBoundType(lower)
+		d.LowerType, lower = lowerBoundType(lower)
 
 		err := d.Lower.Scan(lower)
 		if err == nil {
-			upper := strings.TrimSpace(parts[1])
-			d.UpperType = upperBoundType(upper)
-			d.Upper.Scan(upper)
+			// if get one value set range to one date
+			if len(parts) == 1 {
+				d.Upper = d.Lower
+				d.UpperType = pgtype.Inclusive
+			} else {
+				upper := strings.TrimSpace(parts[1])
+				d.UpperType, upper = upperBoundType(upper)
+				err = d.Upper.Scan(upper)
+			}
 		}
 		if err != nil {
 			logs.ErrorLog(err)
@@ -126,26 +132,26 @@ func (d *DateRangeMarshal) Set(src any) error {
 	return nil
 }
 
-func lowerBoundType(lower string) pgtype.BoundType {
-	if strings.HasPrefix(lower, "[") {
-		return pgtype.Inclusive
-	} else if strings.HasPrefix(lower, "(") {
-		return pgtype.Exclusive
+func lowerBoundType(lower string) (pgtype.BoundType, string) {
+	if a, ok := strings.CutPrefix(lower, "["); ok {
+		return pgtype.Inclusive, a
+	} else if a, ok := strings.CutPrefix(lower, "("); ok {
+		return pgtype.Exclusive, a
 	}
 
 	// inclusive border as default
-	return pgtype.Inclusive
+	return pgtype.Inclusive, lower
 }
 
-func upperBoundType(upper string) pgtype.BoundType {
-	if strings.HasSuffix(upper, "]") {
-		return pgtype.Inclusive
-	} else if strings.HasSuffix(upper, ")") {
-		return pgtype.Exclusive
+func upperBoundType(upper string) (pgtype.BoundType, string) {
+	if b, ok := strings.CutSuffix(upper, "]"); ok {
+		return pgtype.Inclusive, b
+	} else if b, ok := strings.CutSuffix(upper, ")"); ok {
+		return pgtype.Exclusive, b
 	}
 
 	// inclusive border as default
-	return pgtype.Inclusive
+	return pgtype.Inclusive, upper
 }
 
 func (d *DateRangeMarshal) GetPgxType() *pgtype.Daterange {

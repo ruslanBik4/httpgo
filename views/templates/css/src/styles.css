@@ -34,6 +34,10 @@ header nav {
     align-items: start;
     height: 100%;
 }
+
+header .topline-navbar {
+    margin-bottom: 2px;
+}
 header .topline {
     -webkit-flex-direction: row;
     -webkit-align-items: center;

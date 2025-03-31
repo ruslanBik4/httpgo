@@ -77,16 +77,19 @@ function appendTable() {
     let tableCnt = $('.usr-table-content');
     var tableRows = $(selTablesRows);
     var lines = tableRows.children('div:visible').length;
-    let url = document.location.href;
-    const reqLimit = /(offset=)(\d+)/;
-    const parts = reqLimit.exec(url);
-    if (!parts || parts.length < 1) {
-        url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
-    } else if (lines === parseInt(parts[1])) {
-        return false;
-    } else {
-        url = url.replace(reqLimit, `$1${lines}`);
-    }
+    let url = new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+
+    params.set("offset", `${lines}`);
+    // const reqLimit = /(offset=)(\d+)/;
+    // const parts = reqLimit.exec(url);
+    // if (!parts || parts.length < 1) {
+    //     url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
+    // } else if (lines === parseInt(parts[1])) {
+    //     return false;
+    // } else {
+    //     url = url.replace(reqLimit, `$1${lines}`);
+    // }
     $('div.filt-arrow > input, div.filt-arrow > select').each(
         (i, elem) => {
             if (elem.value) {
@@ -97,17 +100,19 @@ function appendTable() {
                     }
                     value = true
                 }
-                var reqDataSet = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
-                if (!reqDataSet.test(url)) {
-                    url += `&${elem.dataset.name}=${value}`;
-                } else {
-                    url = url.replace(reqDataSet, `$1${value}`);
-                }
+                params.set(elem.dataset.name, value);
+                // var reqDataSet = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
+                // if (!reqDataSet.test(url)) {
+                //     url += `&${elem.dataset.name}=${value}`;
+                // } else {
+                //     url = url.replace(reqDataSet, `$1${value}`);
+                // }
             }
         });
-    console.log(url);
+
+    let newURL = url.origin + url.pathname + "?" + params.toString();
     $.ajax({
-        url: url,
+        url: newURL,
         data: {
             "html": true
         },
@@ -121,11 +126,11 @@ function appendTable() {
                 return false;
             }
             tableRows.append($('<div />').html(data).find(selTablesRows).html());
-            setHashFromTable(url);
+            setHashFromTable(newURL);
         },
         error: function (xhr, status, error) {
             if (xhr.status === 401) {
-                urlAfterLogin = url;
+                urlAfterLogin = newURL;
                 $('#bLogin').trigger("click");
                 return;
             }
@@ -145,7 +150,13 @@ function filterTableData(value, className) {
     }
 
     let dateRanges = val.match(/\[(\d+-\d+-\d+),(\d+-\d+-\d+)\]/);
-    console.log(dateRanges);
+    if (!dateRanges) {
+        var numberRanges = val.match(/[[)](\d+.?\d*),(\d+.?\d*)[\])]/);
+    }
+    if (!dateRanges && !numberRanges) {
+        var strSlices = val.match(/(\w),(\w+)/);
+        console.log(strSlices);
+    }
     let i = 0;
     var items = document.getElementsByClassName(className);
     // filter rows according to input text/value
@@ -154,6 +165,8 @@ function filterTableData(value, className) {
             let textContent = el.textContent;
             if (textContent.includes(val)
                 || (dateRanges && (dateRanges.length > 1) && textContent >= dateRanges[1] && textContent <= dateRanges[2])
+                || (numberRanges && (numberRanges.length > 1) && textContent >= numberRanges[1] && textContent <= numberRanges[2])
+                || (strSlices && (strSlices.length > 1) && textContent >= strSlices[1] && textContent <= strSlices[2])
                 || el.parentElement.className.includes("usr-table__t-head")
                 || el.parentElement.className.includes("usr-table__filter")) {
                 $(el).removeClass('unfilter');
@@ -164,7 +177,7 @@ function filterTableData(value, className) {
             return true;
         });
 
-    $('.usr-table-row').each(function (ind, elem) {
+    $('.usr-table-row').each((ind, elem) => {
         if ($(elem).children('.usr-table-col.unfilter').length > 0) {
             $(elem).hide();
         } else {

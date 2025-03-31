@@ -1,7 +1,7 @@
 {% func HeaderHTML(TopMenu Menu) %}
 <header class="main-header">
 <div class="topline">
-    <nav class="navbar topline-navbar">
+    <nav class="topline-navbar">
         {%= TopMenu.RenderMenu("top-mnu-list navbar-nav", "top-mnu-item") %}
     </nav>
     <div class="topline-btns">

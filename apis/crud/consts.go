@@ -47,7 +47,7 @@ var (
 	ParamsLimit = apis.InParam{
 		Name:     "limit",
 		Desc:     "max count of queries results",
-		DefValue: 1000,
+		DefValue: 100,
 		Req:      true,
 		Type:     apis.NewTypeInParam(types.Int),
 	}
