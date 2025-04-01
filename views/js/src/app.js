@@ -83,6 +83,36 @@ function GetShortURL(url) {
 }
 
 
+function createObserver() {
+// Create a MutationObserver instance
+    const observer = new MutationObserver((mutationsList, observer) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === "childList") {
+                setClickAll(mutation.addedNodes);
+            } else if (mutation.type === "attributes") {
+                let ignores = ["style", "class", "rel"];
+                if (ignores.indexOf(mutation.attributeName) > -1) {
+                    return
+                }
+                console.log("Attributes changed:", mutation);
+            } else if (mutation.type === "characterData") {
+                console.log("Text content changed:", mutation);
+            }
+        }
+
+    });
+
+// Configure observer options
+    const config = {
+        childList: true,      // Detect when children are added/removed
+        attributes: true,     // Detect attribute changes
+        subtree: true,        // Observe all descendants
+        characterData: true   // Detect text content changes
+    };
+
+    observer.observe(document.body, config);
+}
+
 $(function () {
     if (!window.onpopstate) {
         window.onpopstate = MyPopState;
@@ -149,34 +179,8 @@ $(function () {
         }
     });
 
+    createObserver();
     setClickAll(document.body);
-// Create a MutationObserver instance
-    const observer = new MutationObserver((mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === "childList") {
-                setClickAll(mutation.addedNodes);
-            } else if (mutation.type === "attributes") {
-                let ignores = ["style", "class", "rel"];
-                if (ignores.indexOf(mutation.attributeName) > -1) {
-                    return
-                }
-                console.log("Attributes changed:", mutation);
-            } else if (mutation.type === "characterData") {
-                console.log("Text content changed:", mutation);
-            }
-        }
-
-    });
-
-// Configure observer options
-    const config = {
-        childList: true,      // Detect when children are added/removed
-        attributes: true,     // Detect attribute changes
-        subtree: true,        // Observe all descendants
-        characterData: true   // Detect text content changes
-    };
-
-    observer.observe(document.body, config);
 }) // $(document).ready
 
 // run request & show content
@@ -242,8 +246,10 @@ function SetContent(data) {
     findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section');
     findAndReplaceElem(a, 'header .topline', 'body > header .topline');
     findAndReplaceElem(a, 'header .topline-btns', 'body > header .topline-btns');
+    const $content = $('#content');
     if (!findAndReplaceElem(a, '#content', '#content')) {
-        $('#content').html(a.innerHTML);
+        $content.html(a.innerHTML).removeAttr('rel');
+        setClickAll($content[0]);
     }
     return $('title, h2', a).text()
 }
@@ -251,7 +257,8 @@ function SetContent(data) {
 function findAndReplaceElem(src, selector, dst) {
     const elem = $(selector, src);
     if (elem.length > 0) {
-        $(dst).html(elem.html());
+        $(dst).html(elem.html()).removeAttr('rel');
+        setClickAll($(dst)[0]);
         return true;
     }
     return false;

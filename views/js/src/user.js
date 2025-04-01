@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -7,7 +7,7 @@
 "use strict";
 
 var token = '';
-var lang = document.documentElement.lang || 'en';
+var lang = document.documentElement.lang.split(",")[0] || 'en';
 var userStruct = getUser();
 var urlAfterLogin = '';
 

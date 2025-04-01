@@ -41,7 +41,8 @@ var isProcess = false;
 
 function isIgnoreTarget(target) {
     return $(target).attr('rel') > "" || $(target).hasClass('htmx-request') || $(target).hasClass('htmx-added') || $(target).hasClass('htmx-indicator')
-        || $(target).hasClass('htmx-settling') || $(target).hasClass('htmx-swapping') || $(target).hasClass('htmx-fancybox-container')
+        // || $(target).hasClass('htmx-settling')
+        || $(target).hasClass('htmx-swapping') || $(target).hasClass('htmx-fancybox-container')
         || ($(target).parents('svg, .fancybox-container, .htmx-request, .flatpickr-calendar').length > 0)
 }
 
@@ -182,7 +183,7 @@ function setClickAll(target) {
             }
         })
 
-    $('[hx-get], [hx-post], [hx-target]', target).each(function () {
+    $('[hx-get], [hx-post], [hx-target], [hx-trigger]', target).each(function () {
         this.rel = 'htmx';
         console.log(this);
         htmx.process(this);
