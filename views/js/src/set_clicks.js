@@ -110,7 +110,7 @@ function setClickAll(target) {
             dates = $('input[type=date]:not([rel])', elem);
             if (dates.length > 0) {
                 dates.flatpickr({
-                    mode: "range",
+                    // mode: "range",
                     dateFormat: "Y-m-d",
                     allowInput: true,
                     onClose: function (dates, dateStr, instance) {

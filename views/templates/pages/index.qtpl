@@ -48,6 +48,8 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
 	            </div>
 	        </aside>
+	        <div role="slider" aria-label="Draggable pane splitter" aria-valuemin="256" aria-valuemax="372" aria-valuenow="256" aria-valuetext="Pane width 256 pixels" tabindex="0">
+	        </div>
 	        <div class="content-section">
 		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load once" rel='htmx'{%- endif -%}>
 	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}

@@ -175,7 +175,7 @@ $(function () {
                 return false;
 
             default:
-                SetContent(responseText);
+                PutContent(responseText, evt.detail.url);
         }
     });
 

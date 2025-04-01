@@ -204,7 +204,7 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
 }
 
 .sidebar-section {
-    max-width: 15%;
+    max-width: 14%;
     width: fit-content;
     padding-left: 1px;
     padding-top: 3px;
@@ -212,7 +212,18 @@ ul.foot-mnu-list > li.foot-mnu-item:hover > ul.dropdown, ul.foot-mnu-list > li.f
     height: 99%;
     overflow: auto;
 }
-
+div[role="slider"] {
+    position: absolute;
+    top: 0px;
+    right: -2px;
+    cursor: col-resize;
+    background-color: transparent;
+    transition-delay: 0.1s;
+    width: 1%;
+}
+div[role="slider"]:hover {
+    background-color: rgba(175,184,193,0.2);
+}
 .content-section {
     width: 85%;
     flex-grow: 1;

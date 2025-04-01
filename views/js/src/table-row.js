@@ -81,15 +81,6 @@ function appendTable() {
     let params = new URLSearchParams(url.search);
 
     params.set("offset", `${lines}`);
-    // const reqLimit = /(offset=)(\d+)/;
-    // const parts = reqLimit.exec(url);
-    // if (!parts || parts.length < 1) {
-    //     url += (document.location.search > "" ? '&' : '?') + `offset=${lines}`
-    // } else if (lines === parseInt(parts[1])) {
-    //     return false;
-    // } else {
-    //     url = url.replace(reqLimit, `$1${lines}`);
-    // }
     $('div.filt-arrow > input, div.filt-arrow > select').each(
         (i, elem) => {
             if (elem.value) {
@@ -101,12 +92,6 @@ function appendTable() {
                     value = true
                 }
                 params.set(elem.dataset.name, value);
-                // var reqDataSet = new RegExp(`(${elem.dataset.name}=)(\[^&]+)`);
-                // if (!reqDataSet.test(url)) {
-                //     url += `&${elem.dataset.name}=${value}`;
-                // } else {
-                //     url = url.replace(reqDataSet, `$1${value}`);
-                // }
             }
         });
 
@@ -240,15 +225,18 @@ function SetTableEvents() {
 
 function setSortedClasses() {
     const parts = getOrderByStatus(document.location.href);
-    if (parts && parts.length > 1) {
-        for (const part of parts[2].split(',')) {
-            console.log(part);
-            const colName = part.split('%20');
+    let url = new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
+
+    if (params["order_by"]) {
+        for (let name of params["order_by"].split(',')) {
+            console.log(name);
             let sortedClass = 'sorted-asc';
-            if (colName.length > 1) {
+            if (name.toString().endsWith('desc')) {
                 sortedClass = 'sorted-desc';
+                name = name.toString().slice(0,-5)
             }
-            $(`.usr-table__t-head .usr-table-col:nth-child(n+2) span[column=${colName[0]}]`).addClass(sortedClass);
+            $(`.usr-table__t-head .usr-table-col:nth-child(n+2) span[column="${name}"]`).addClass(sortedClass);
         }
     }
 }

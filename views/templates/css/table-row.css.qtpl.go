@@ -216,7 +216,9 @@ div.filt-arrow > input[type=search], div.filt-arrow > input[type=text], div.filt
     padding: 2px;
     margin: 1px 1px 10px 1px;
 }
-
+div.filt-arrow > input[type=checkbox] {
+    width: fit-content;
+}
 .filt-arrow__link.active::before {
     border-color: #229be6;
 }
