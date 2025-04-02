@@ -61,7 +61,18 @@
  </div>
    <progress value='0' max='100' hidden > </progress>
  <output></output>
- </form>
+    <figure>
+    <figurecaption> Check column to hide </figurecaption>
+    {% for i, col := range t.columns[1:] %}
+    <div class="input-wrap">
+    <label class="input-label">    {%s col.Label %}
+    <input type="checkbox" data-name="{%s col.InputName(i) %}" name="{%s col.Name() %}" onchange="HideColumn({%d i+1 %})"/>
+    <h6 class="errorLabel">Column is hidden</h6>
+    </label>
+    </div>
+    {% endfor %}
+    </figure>
+</form>
 </div>
 <div class="usr-table table-custom" id="t_{%s t.Name() %}">
 	<div class="usr-table-header">
@@ -117,6 +128,7 @@
 				<input type="date-range" data-name="{%s col.InputName(i) %}" data-class='table-col-{%d i%}'/>
 			{% case col.InputType == "number" %}
 				<input type="number-range" data-name="{%s col.InputName(i) %}" pattern="^[[<>(]?(\d+(\.\d{1,2})?,?)[\])]?$" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
+				<span class="tooltiptext">Input range on format '[numberFrom, numberTo]' or '(numberFrom, numberTo)'</span>
 			{% default %}
 				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 			{% endswitch %}

@@ -118,6 +118,7 @@ $(function () {
         window.onpopstate = MyPopState;
     }
 
+    console.log("v1.2.194");
     window.addEventListener("beforeunload", evt => {
         evt = evt || window.event;
 
@@ -155,7 +156,8 @@ $(function () {
 
     document.body.addEventListener('htmx:afterRequest', evt => {
         let responseText = evt.detail.xhr.responseText;
-        console.log(evt.detail.elt);
+        console.log(evt.detail);
+        console.log(evt.detail.pathInfo.responsePath);
         switch (evt.detail.elt.target) {
             case "_modal":
                 FancyOpen(responseText);
@@ -175,7 +177,7 @@ $(function () {
                 return false;
 
             default:
-                PutContent(responseText, evt.detail.url);
+                PutContent(responseText, evt.detail.pathInfo.responsePath);
         }
     });
 
@@ -217,7 +219,7 @@ function loadContent(url) {
 
 function PutContent(data, url) {
     const title = SetContent(data);
-    const isChild = url.startsWith(document.location.href);
+    const isChild = url && url.startsWith(document.location.href);
 
     SetDocumentHash(url, data);
     if (title > "") {

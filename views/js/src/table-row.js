@@ -26,12 +26,6 @@ function ClickPseudo(event) {
     loadTableWithOrder();
 }
 
-const reqOffset = /(order_by=)([^&]+(%20desc)?,?)+/;
-
-function getOrderByStatus(url) {
-    return reqOffset.exec(url)
-}
-
 const selTablesRows = '.usr-table-row-cont';
 
 // reorder data & get new table content
@@ -39,31 +33,26 @@ function loadTableWithOrder() {
     let orderBy = $('.usr-table__t-head .usr-table-col')
         .children('span.sorted-asc,span.sorted-desc')
         .map(function () {
-            return $(this).attr('column') + (this.className === 'sorted-desc' ? '%20desc' : '');
+            return $(this).attr('column') + (this.className === 'sorted-desc' ? ' desc' : '');
         }).get().join(",");
 
-    console.log(orderBy)
+    let url = new URL(window.location.href);
+    let params = new URLSearchParams(url.search);
 
-    var url = document.location.href;
-    const parts = getOrderByStatus(url);
-
-    if (!parts || parts.length <= 0) {
-        url += (document.location.search > "" ? '&' : '?') + `order_by=${orderBy}`
-    } else if (orderBy === parts[2]) {
-        console.log(parts)
+    if (orderBy === params.get("order_by")) {
         return false;
-    } else {
-        url = url.replace(reqOffset, `$1${orderBy}`);
-        console.log(url)
     }
+
+    params.set("order_by", orderBy);
 
     $.ajaxSetup({
         beforeSend: getHeaders,
     });
+    let newURL = url.origin + url.pathname + "?" + params.toString();
     // load only table rows content
-    $(selTablesRows).load(url + ' .usr-table-row-cont');
+    $(selTablesRows).load(newURL + ' .usr-table-row-cont');
 
-    return setHashFromTable(url)
+    return setHashFromTable(newURL)
 }
 
 // set hash with all data of table
@@ -224,12 +213,12 @@ function SetTableEvents() {
 }
 
 function setSortedClasses() {
-    const parts = getOrderByStatus(document.location.href);
     let url = new URL(window.location.href);
-    let params = new URLSearchParams(url.search);
+    let params = new URLSearchParams(url.search).get("order_by");
 
-    if (params["order_by"]) {
-        for (let name of params["order_by"].split(',')) {
+    console.log(params);
+    if (params) {
+        for (let name of params.split(',')) {
             console.log(name);
             let sortedClass = 'sorted-asc';
             if (name.toString().endsWith('desc')) {
@@ -241,6 +230,9 @@ function setSortedClasses() {
     }
 }
 
+function HideColumn(num) {
+    $(`.table-col-${num}`).hide();
+}
 
 function handleFileCSVSelect(evt) {
     var files = evt.files || evt.target.files; // FileList object
