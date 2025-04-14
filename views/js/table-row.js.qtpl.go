@@ -75,7 +75,7 @@ function loadTableWithOrder() {
         .map(function () {
             return $(this).attr('column') + (this.className === 'sorted-desc' ? ' desc' : '');
         }).get().join(",");
-    
+
     let url = new URL(window.location.href);
     let params = new URLSearchParams(url.search);
 
@@ -302,8 +302,19 @@ function setSortedClasses() {
     }
 }
 
-function HideColumn(num) {
-    $(`)
+function HideColumn(num, chk) {
+    if (chk) {
+        $(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.table-col-${num}`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`).show();
+    } else {
+        $(`)
 //line table-row.js.qtpl:2
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
@@ -312,6 +323,13 @@ function HideColumn(num) {
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
 	qw422016.N().S(`).hide();
+    }
+    console.log(chk);
+}
+
+function HideAllColumn(elem) {
+    const chkColumns = 'input[type="checkbox"][data-role="chk_column"]';
+    $(chkColumns).click(); //elem.checked);
 }
 
 function handleFileCSVSelect(evt) {

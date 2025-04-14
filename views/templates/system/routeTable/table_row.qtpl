@@ -37,12 +37,12 @@
 {% collapsespace %}
 {% stripspace %}
 <title>{%s t.Name() %}: {%s t.Comment() %}</title>
-<div class="sidebar">
+<div class="sidebar" id="t_{%s t.Name() %}_sidebar" hx-swap-oob="outerHTML:.sidebar">
 <form action="{%s t.ApiImport %}" hx-encoding="multipart/form-data" hx-post="{%s t.ApiImport %}"
           _="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100">
 <!-- method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" -->
 <h3>{%s t.Name() %}</h3>
-<div>
+<div class="only_auth">
 {%- if !t.OnlyView -%}
 <span class="hiddenInput" style="height:30px;width:50%" title="Choice csv-file for import to table '{%s t.Name() %}: {%s t.Comment() %}'">
 	<input type="file" required multiple id="csv" name="csv" accept=".csv" onchange="uploadGzippedFile(this, '{%s t.ApiImport %}');"/>
@@ -61,12 +61,18 @@
  </div>
    <progress value='0' max='100' hidden > </progress>
  <output></output>
-    <figure>
-    <figurecaption> Check column to hide </figurecaption>
+    <figure hx-swap-oob='innerHTML:[data-name="Check column"]'>
+    <figurecaption> Show columns </figurecaption>
+    <div class="input-wrap">
+    <label class="input-label"> Toggle all
+    <input type="checkbox" checked name="all_columns" hx-on:click="HideAllColumn(this)"/>
+    <h6 class="errorLabel">Column is hidden</h6>
+    </label>
+    </div>
     {% for i, col := range t.columns[1:] %}
     <div class="input-wrap">
     <label class="input-label">    {%s col.Label %}
-    <input type="checkbox" data-name="{%s col.InputName(i) %}" name="{%s col.Name() %}" onchange="HideColumn({%d i+1 %})"/>
+    <input type="checkbox" checked data-name="{%s col.InputName(i) %}" data-role="chk_column" name="{%s col.Name() %}" hx-on:change="HideColumn({%d i+1 %}, this.checked)"/>
     <h6 class="errorLabel">Column is hidden</h6>
     </label>
     </div>
@@ -74,11 +80,11 @@
     </figure>
 </form>
 </div>
-<div class="usr-table table-custom" id="t_{%s t.Name() %}">
+<div class="usr-table table-custom" id="t_{%s t.Name() %}" >
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range t.columns %}
-	        <div class="usr-table-col  table-col-{%d i%}" a={%d i %}>
+	        <div class="usr-table-col table-col-{%d i%}" a={%d i %}>
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
                     <ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
@@ -95,7 +101,7 @@
 	    {% endfor %}
 	    </div>
 
-	    <div class="usr-table__filter  usr-table-row">
+	    <div class="usr-table__filter usr-table-row">
 		{% for i, col := range t.columns %}
 		<div class="usr-table-col table-col-{%d i%}">
 		<div class="filt-arrow">
@@ -162,7 +168,7 @@
 
   %}
     .table-col-{%d i%}{
-        min-width: {%d cLen %}px;
+        width: {%d cLen %}px;
     }
 //    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
 //       text-align: {% switch t.columns[i].InputType %}

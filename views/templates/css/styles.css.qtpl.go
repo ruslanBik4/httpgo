@@ -120,6 +120,13 @@ header #sUser::after {
     cursor: s-resize;
 }
 
+.only_auth {
+    visibility: hidden;
+}
+
+body[auth] .only_auth {
+    visibility: visible;
+}
 body[auth] header #sUser::after {
     content: '\F4E1';
 }
@@ -532,6 +539,7 @@ figure label > select {
 figure label > input[type="checkbox"] {
     position: relative;
     right: 15px;
+    width: auto;
 }
 figure label > input {
     position: absolute;

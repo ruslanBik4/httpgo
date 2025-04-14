@@ -198,7 +198,4 @@ function getHeaders(xhr) {
     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
     xhr.setRequestHeader('Accept-Language', lang);
     xhr.setRequestHeader('Content-Encoding', 'gzip, deflate');
-    // todo: chk later
-    // xhr.setRequestHeader('Expect', '100-continue');
-    // xhr.setRequestHeader('Connection', 'keep-alive');
 }

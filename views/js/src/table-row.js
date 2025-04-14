@@ -230,8 +230,18 @@ function setSortedClasses() {
     }
 }
 
-function HideColumn(num) {
-    $(`.table-col-${num}`).hide();
+function HideColumn(num, chk) {
+    if (chk) {
+        $(`.table-col-${num}`).show();
+    } else {
+        $(`.table-col-${num}`).hide();
+    }
+    console.log(chk);
+}
+
+function HideAllColumn(elem) {
+    const chkColumns = 'input[type="checkbox"][data-role="chk_column"]';
+    $(chkColumns).click(); //elem.checked);
 }
 
 function handleFileCSVSelect(evt) {
