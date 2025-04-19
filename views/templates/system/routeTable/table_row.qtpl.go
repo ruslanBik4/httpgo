@@ -46,393 +46,394 @@ type TableRender struct {
 	rows      [][]any
 	ApiImport string
 	ApiExport string
+	ApiURL    string
 	OnlyView  bool
 }
 
-func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, apiImport string, onlyView bool) *TableRender {
-	return &TableRender{Table: table, columns: columns, rows: rows, ApiImport: apiImport + "import", ApiExport: apiImport + "export", OnlyView: onlyView}
+func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, ApiURL string, onlyView bool) *TableRender {
+	return &TableRender{Table: table, columns: columns, rows: rows, ApiURL: ApiURL, ApiImport: ApiURL + "import", ApiExport: ApiURL + "export", OnlyView: onlyView}
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:28
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:29
 func StreamTableRow(qw422016 *qt422016.Writer, columns []*forms.ColumnDecor, rows [][]any) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:28
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:29
 	qw422016.N().S(`
 `)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:30
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:31
 	t := &TableRender{columns: columns, rows: rows}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:31
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:32
 	qw422016.N().S(`
 <link rel="stylesheet" href="/css/tables.css" media="screen">
 <script src="/js/tables.js" async></script>
 	`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:34
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
 	t.StreamAllTable(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:34
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
 	qw422016.N().S(`
 `)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 func WriteTableRow(qq422016 qtio422016.Writer, columns []*forms.ColumnDecor, rows [][]any) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	StreamTableRow(qw422016, columns, rows)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 func TableRow(columns []*forms.ColumnDecor, rows [][]any) string {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	WriteTableRow(qb422016, columns, rows)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 	return qs422016
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:35
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:38
 func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:36
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:38
 	qw422016.N().S(`
 `)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:37
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:39
 	qw422016.N().S(` `)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:38
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:40
 	qw422016.N().S(`<title>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:39
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
 	qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:39
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
 	qw422016.N().S(`:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:39
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
 	qw422016.E().S(t.Comment())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:39
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
 	qw422016.N().S(`</title><div class="sidebar" id="t_`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:40
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:42
 	qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:40
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:42
 	qw422016.N().S(`_sidebar" hx-swap-oob="outerHTML:.sidebar"><form action="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:43
 	qw422016.E().S(t.ApiImport)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:43
 	qw422016.N().S(`" hx-encoding="multipart/form-data" hx-post="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:43
 	qw422016.E().S(t.ApiImport)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:41
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:43
 	qw422016.N().S(`"_="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100"><!-- method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" --><h3>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:44
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:46
 	qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:44
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:46
 	qw422016.N().S(`</h3><div class="only_auth">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:46
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:48
 	if !t.OnlyView {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:46
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:48
 		qw422016.N().S(`<span class="hiddenInput" style="height:30px;width:50%" title="Choice csv-file for import to table '`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:47
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:49
 		qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:47
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:49
 		qw422016.N().S(`:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:47
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:49
 		qw422016.E().S(t.Comment())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:47
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:49
 		qw422016.N().S(`'"><input type="file" required multiple id="csv" name="csv" accept=".csv" onchange="uploadGzippedFile(this, '`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:48
-		qw422016.E().S(t.ApiImport)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:48
-		qw422016.N().S(`');"/></span>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:50
+		qw422016.E().S(t.ApiImport)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:50
+		qw422016.N().S(`');"/></span>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:52
 	} else {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:52
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
 	qw422016.N().S(`<a href="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.E().S(t.ApiExport)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.N().S(`" download='.csv' title="Save data from '`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.N().S(`:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.E().S(t.Comment())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:54
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:56
 	qw422016.N().S(`' to disk (csv)"><svg xmlns="http://www.w3.org/2000/svg" width="50%" height="80px" fill="currentColor" class="bi bi-file-arrow-down" viewBox="0 0 30 30"><path d="M8 5a.5.5 0 0 1 .5.5v3.793l1.146-1.147a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 1 1 .708-.708L7.5 9.293V5.5A.5.5 0 0 1 8 5"/><path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1"/></svg></a></div><progress value='0' max='100' hidden > </progress><output></output><figure hx-swap-oob='innerHTML:[data-name="Check column"]'><figurecaption> Show columns </figurecaption><div class="input-wrap"><label class="input-label"> Toggle all<input type="checkbox" checked name="all_columns" hx-on:click="HideAllColumn(this)"/><h6 class="errorLabel">Column is hidden</h6></label></div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:72
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:74
 	for i, col := range t.columns[1:] {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:72
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:74
 		qw422016.N().S(`<div class="input-wrap"><label class="input-label">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:74
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:76
 		qw422016.E().S(col.Label)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:74
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:76
 		qw422016.N().S(`<input type="checkbox" checked data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.N().S(`" data-role="chk_column" name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.E().S(col.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.N().S(`" hx-on:change="HideColumn(`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.N().D(i + 1)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:75
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:77
 		qw422016.N().S(`, this.checked)"/><h6 class="errorLabel">Column is hidden</h6></label></div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:79
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:79
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:81
 	qw422016.N().S(`</figure></form></div><div class="usr-table table-custom" id="t_`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:83
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:85
 	qw422016.E().S(t.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:83
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:85
 	qw422016.N().S(`" ><div class="usr-table-header"><div class="usr-table__t-head  usr-table-row">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:86
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:88
 	for i, col := range t.columns {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:86
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:88
 		qw422016.N().S(`<div class="usr-table-col table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:89
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:89
 		qw422016.N().S(`" a=`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:89
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:87
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:89
 		qw422016.N().S(`>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:88
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:90
 		if col.Label == "id" && i < len(t.columns)-1 {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:88
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:90
 			qw422016.N().S(`<ul class="left-mnu-list" style="z-index:4;"><li><a>#</a><ul class="dropdown">go to column...`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:91
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
 			for j, c := range t.columns[i+1:] {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:91
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
 				qw422016.N().S(`<li class="left-mnu-item"><a href='#' onclick="return ScrollToElem('.table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:95
 				qw422016.N().D(i + j + 1)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:95
 				qw422016.N().S(`');" title='`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:95
 				qw422016.E().S(c.Label)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:93
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:95
 				qw422016.N().S(`'>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:94
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:96
 				qw422016.E().S(fmt.Sprintf("%.20s", c.Label))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:94
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:96
 				qw422016.N().S(`</a></li>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:96
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
 			}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:96
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
 			qw422016.N().S(`</ul></li></ul>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
 		} else {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
 			qw422016.N().S(`<span column="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
 			qw422016.E().S(col.Name())
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
-			qw422016.N().S(`">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
+			qw422016.N().S(`" onClick="ClickPseudo()">`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
 			qw422016.E().S(col.Label)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:98
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:100
 			qw422016.N().S(`</span>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:99
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:101
 		}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:99
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:101
 		qw422016.N().S(`</div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:101
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:103
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:101
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:103
 	qw422016.N().S(`</div><div class="usr-table__filter usr-table-row">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:105
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:107
 	for i, col := range t.columns {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:105
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:107
 		qw422016.N().S(`<div class="usr-table-col table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:106
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:108
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:106
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:108
 		qw422016.N().S(`"><div class="filt-arrow">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:108
-		if col.LinkNew > "" {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:108
-			qw422016.N().S(col.LinkNew)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:109
-		} else {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:110
+		if col.LinkNew > "" {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:110
+			qw422016.N().S(col.LinkNew)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:111
+		} else {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
 			switch {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:111
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:113
 			case col.SelectOptions != nil:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:111
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:113
 				qw422016.N().S(`<select`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				qw422016.N().S(`data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				qw422016.N().S(`" onchange="filterTableData(this.selectedOptions[0].text, 'table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:112
-				qw422016.N().S(`');">`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				col.StreamRenderAttr(qw422016, i)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				qw422016.N().S(`data-name="`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				qw422016.E().S(col.InputName(i))
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				qw422016.N().S(`" onchange="filterTableData(this.selectedOptions[0].text, 'table-col-`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				qw422016.N().D(i)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:114
+				qw422016.N().S(`');">`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:116
 				sortList := make([]string, 0, len(col.SelectOptions))
 				for title := range col.SelectOptions {
 					sortList = append(sortList, title)
 				}
 				sort.Strings(sortList)
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:119
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:121
 				qw422016.N().S(`<option value="" >All</option>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:121
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:123
 				for _, title := range sortList {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:121
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:123
 					qw422016.N().S(`<option value="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:122
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:124
 					qw422016.E().S(col.SelectOptions[title].Value)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:122
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:124
 					qw422016.N().S(`" >`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:122
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:124
 					qw422016.E().S(title)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:122
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:124
 					qw422016.N().S(`</option>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:123
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:125
 				}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:123
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:125
 				qw422016.N().S(`</select>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:125
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:127
 			case col.InputType == "file":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:125
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:127
 				qw422016.N().S(`<span class="hiddenInput" style="background-image: url('%v val %');"> </span>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:127
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:129
 			case col.Suggestions > "":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:127
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:129
 				qw422016.N().S(`<input type="text" src="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.N().J(col.Suggestions)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.N().S(`" data="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.N().S(`-sel" data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:128
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
 				qw422016.N().S(`"autocapitalize="none" autocorrect="off" autocomplete="off"onkeyup="inputSearchKeyUp(this,event);" onchange="filterTableData(this.value, 'table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:132
 				qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:130
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:132
 				qw422016.N().S(`');" /><select`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:131
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
 				col.StreamRenderAttr(qw422016, i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:131
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
 				qw422016.N().S(`size=10 class="suggestions-select-hide`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:131
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
 				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:131
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
 				qw422016.N().S(`-sel" style="left: -399.109375px; top: 50px;"></select>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:135
 			case col.InputType == "date" || col.InputType == "datetime":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:133
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:135
 				qw422016.N().S(`<input type="date-range" data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:134
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:134
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 				qw422016.N().S(`" data-class='table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:134
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 				qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:134
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
 				qw422016.N().S(`'/>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:135
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:137
 			case col.InputType == "number":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:135
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:137
 				qw422016.N().S(`<input type="number-range" data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
 				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
 				qw422016.N().S(`" pattern="^[[<>(]?(\d+(\.\d{1,2})?,?)[\])]?$" onchange="filterTableData(this.value, 'table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
 				qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:136
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
 				qw422016.N().S(`');"/><span class="tooltiptext">Input range on format '[numberFrom, numberTo]' or '(numberFrom, numberTo)'</span>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
-			default:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:138
-				qw422016.N().S(`<input type="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.E().S(col.InputType)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.N().S(`" data-name="`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.E().S(col.InputName(i))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.N().S(`" onchange="filterTableData(this.value, 'table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:139
-				qw422016.N().S(`');"/>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140
+			default:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140
+				qw422016.N().S(`<input type="`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.E().S(col.InputType)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.N().S(`" data-name="`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.E().S(col.InputName(i))
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.N().S(`" onchange="filterTableData(this.value, 'table-col-`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.N().D(i)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+				qw422016.N().S(`');"/>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:142
 			}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:143
 		}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:141
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:143
 		qw422016.N().S(`</div></div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:144
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:146
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:144
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:146
 	qw422016.N().S(`</div></div><div class="usr-table-content"><div class="usr-table-content-scroll">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:150
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:152
 	t.StreamRenderRows(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:150
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:152
 	qw422016.N().S(`</div></div></div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 func (t *TableRender) WriteAllTable(qq422016 qtio422016.Writer) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	t.StreamAllTable(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 func (t *TableRender) AllTable() string {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	t.WriteAllTable(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 	return qs422016
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:154
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:156
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:155
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:157
 func (t *TableRender) StreamRenderRowsStyles(qw422016 *qt422016.Writer, lSymb int, colLen, colDeep []int) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:155
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:157
 	qw422016.N().S(`<style>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:158
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:160
 	allWidth := 0
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:160
-	for i, cLen := range colLen {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:162
+	for i, cLen := range colLen {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:164
 		if t.columns[i].BasicType() == types.UnsafePointer && (cLen < 10*lSymb) {
 			cLen = 10 * lSymb
 		} else if (cLen > 50*lSymb) && (colDeep[i] == 1) {
@@ -440,139 +441,139 @@ func (t *TableRender) StreamRenderRowsStyles(qw422016 *qt422016.Writer, lSymb in
 		}
 		allWidth += cLen
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:169
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:171
 		qw422016.N().S(`.table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:170
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:172
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:170
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:172
 		qw422016.N().S(`{width:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:171
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:173
 		qw422016.N().D(cLen)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:171
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:173
 		qw422016.N().S(`px;}//    .usr-table-row-cont > .usr-table-row > .table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:173
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:175
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:173
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:175
 		qw422016.N().S(`{//       text-align:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:174
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:176
 		switch t.columns[i].InputType {
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:175
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:177
 		case "number":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:175
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:177
 			qw422016.N().S(`center//`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:176
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:178
 		case "date", "datetime":
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:176
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:178
 			qw422016.N().S(`right//`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:177
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:179
 		default:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:177
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:179
 			qw422016.N().S(`left//`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:178
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:180
 		}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:178
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:180
 		qw422016.N().S(`;//    }`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:180
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:182
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:180
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:182
 	qw422016.N().S(`.table-custom, .usr-table-content {width:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:182
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:184
 	qw422016.N().D(allWidth)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:182
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:184
 	qw422016.N().S(`px;}</style>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-}
-
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-func (t *TableRender) WriteRenderRowsStyles(qq422016 qtio422016.Writer, lSymb int, colLen, colDeep []int) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	t.StreamRenderRowsStyles(qw422016, lSymb, colLen, colDeep)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-}
-
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-func (t *TableRender) RenderRowsStyles(lSymb int, colLen, colDeep []int) string {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	t.WriteRenderRowsStyles(qb422016, lSymb, colLen, colDeep)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	qs422016 := string(qb422016.B)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-	return qs422016
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:185
-}
-
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:186
-func StreamRenderTime(qw422016 *qt422016.Writer, i int, val time.Time) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+}
+
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+func (t *TableRender) WriteRenderRowsStyles(qq422016 qtio422016.Writer, lSymb int, colLen, colDeep []int) {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	t.StreamRenderRowsStyles(qw422016, lSymb, colLen, colDeep)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	qt422016.ReleaseWriter(qw422016)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+}
+
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+func (t *TableRender) RenderRowsStyles(lSymb int, colLen, colDeep []int) string {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	qb422016 := qt422016.AcquireByteBuffer()
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	t.WriteRenderRowsStyles(qb422016, lSymb, colLen, colDeep)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	qs422016 := string(qb422016.B)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	qt422016.ReleaseByteBuffer(qb422016)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+	return qs422016
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:187
+}
+
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:188
+func StreamRenderTime(qw422016 *qt422016.Writer, i int, val time.Time) {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:189
 	hour, min, sec := val.Clock()
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:188
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:190
 	if hour > 0 || min > 0 || sec > 0 {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:188
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:190
 		qw422016.N().S(`<style> .usr-table-row-cont > .usr-table-row > .table-col-`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:189
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:191
 		qw422016.N().D(i)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:189
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:191
 		qw422016.N().S(`{word-break: break-word;}</style>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:193
-		if val.Location() == time.UTC {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:194
-			qw422016.N().S(val.Format("2006-01-02 15:04:05"))
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:195
-		} else {
+		if val.Location() == time.UTC {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:196
-			qw422016.N().S(val.Format("2006-01-02 15:04:05 Z-0700"))
+			qw422016.N().S(val.Format("2006-01-02 15:04:05"))
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:197
-		}
+		} else {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:198
-	} else {
+			qw422016.N().S(val.Format("2006-01-02 15:04:05 Z-0700"))
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:199
-		qw422016.E().S(val.Format("2006-01-02"))
+		}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:200
+	} else {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+		qw422016.E().S(val.Format("2006-01-02"))
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:202
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 func WriteRenderTime(qq422016 qtio422016.Writer, i int, val time.Time) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	StreamRenderTime(qw422016, i, val)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 func RenderTime(i int, val time.Time) string {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	WriteRenderTime(qb422016, i, val)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 	return qs422016
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:201
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
 }
 
 // func render Table rows{
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:203
-func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:205
+func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:207
 	colLen := make([]int, len(t.columns))
 	colDeep := make([]int, len(t.columns))
 	lSymb := 11
@@ -581,31 +582,43 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 		colDeep[i] = 1
 	}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:212
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:214
 	qw422016.N().S(`<div class="usr-table-row-cont">`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:214
-	for _, row := range t.rows {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:214
-		qw422016.N().S(`<div  class="usr-table-row">`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:216
-		for i, column := range t.columns {
+	for i, row := range t.rows {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:216
-			qw422016.N().S(`<div class="usr-table-col  table-col-`)
+		qw422016.N().S(`<div  class="usr-table-row"`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:217
-			qw422016.N().D(i)
+		if i == (2 + len(t.rows)/2) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:217
-			qw422016.N().S(`">`)
+			qw422016.N().S(`hx-swap="afterend" hx-select=".usr-table-row-cont" hx-trigger='intersect once throttle:.5s' hx-get='`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:218
-			switch val := row[i].(type) {
+			qw422016.E().S(t.ApiURL)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:218
+			qw422016.N().S(`browse' hx-vals='js:{...reqParams()}'`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:219
-			case time.Time:
+		}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:219
-				qw422016.N().S(RenderTime(i, val))
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:220
-			case string:
+		qw422016.N().S(`>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:221
-				qw422016.N().S(val)
+		for i, column := range t.columns {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:221
+			qw422016.N().S(`<div class="usr-table-col  table-col-`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:222
+			qw422016.N().D(i)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:222
+			qw422016.N().S(`">`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:223
+			switch val := row[i].(type) {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:224
+			case time.Time:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:224
+				qw422016.N().S(RenderTime(i, val))
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:225
+			case string:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:226
+				qw422016.N().S(val)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:228
 				lenVal := lSymb
 				s := regHTML.FindString(val)
 				if len(s) > 0 {
@@ -618,69 +631,57 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 					colLen[i] = lenVal
 				}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:235
-			case bool:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:236
-				if val {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:236
-					qw422016.N().S(`<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:238
-				}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:239
-			case int, int32, int64:
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:240
+			case bool:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:241
+				if val {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:241
+					qw422016.N().S(`<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="m10.6 16.6 7.05-7.05-1.4-1.4-5.65 5.65-2.85-2.85-1.4 1.4ZM12 22q-2.075 0-3.9-.788-1.825-.787-3.175-2.137-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175 1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138 1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175-1.35 1.35-3.175 2.137Q14.075 22 12 22Zm0-2q3.35 0 5.675-2.325Q20 15.35 20 12q0-3.35-2.325-5.675Q15.35 4 12 4 8.65 4 6.325 6.325 4 8.65 4 12q0 3.35 2.325 5.675Q8.65 20 12 20Zm0-8Z"/></svg>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:243
+				}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:244
+			case int, int32, int64:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:245
 				s := fmt.Sprintf("%v", val)
 				if lenVal := (len(s) + 2) * lSymb; lenVal > colLen[i] {
 					colLen[i] = lenVal
 				}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:245
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:250
 				qw422016.E().S(s)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:246
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:251
 			case float32:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:246
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:251
 				qw422016.N().V(val)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:247
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:252
 			case float64:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:247
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:252
 				qw422016.N().FPrec(val, 2)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:248
-			case []string:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:250
-				for _, str := range val {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:250
-					qw422016.N().S(`<p>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:251
-					qw422016.N().S(str)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:251
-					qw422016.N().S(`</p>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:253
+			case []string:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:255
+				for _, str := range val {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:255
+					qw422016.N().S(`<p>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:256
+					qw422016.N().S(str)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:256
+					qw422016.N().S(`</p>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:258
 					lenVal := lSymb * (len(str) + 2)
 					if lenVal > colLen[i] {
 						colLen[i] = lenVal
 					}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:258
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:263
 				}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:260
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:265
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:265
-			case []int32:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:266
-				for _, val := range val {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:266
-					qw422016.N().S(`<p>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:267
-					qw422016.N().V(val)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:267
-					qw422016.N().S(`</p>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:268
-				}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:270
-			case []int64:
+			case []int32:
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:271
 				for _, val := range val {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:271
@@ -692,7 +693,7 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:273
 				}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:275
-			case []float32:
+			case []int64:
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:276
 				for _, val := range val {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:276
@@ -704,7 +705,7 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:278
 				}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:280
-			case []float64:
+			case []float32:
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:281
 				for _, val := range val {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:281
@@ -716,10 +717,22 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:283
 				}
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:285
+			case []float64:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:286
+				for _, val := range val {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:286
+					qw422016.N().S(`<p>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:287
+					qw422016.N().V(val)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:287
+					qw422016.N().S(`</p>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:288
+				}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:290
 			case map[string]string:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:285
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:290
 				qw422016.N().S(`<table>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:289
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:294
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -730,31 +743,31 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 				}
 				sort.Strings(sortList)
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:299
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:304
 				for _, key := range sortList {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:299
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:304
 					qw422016.N().S(`<tr><td><b>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:300
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:305
 					qw422016.N().S(key)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:300
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:305
 					qw422016.N().S(`</b></td><td>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:300
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:305
 					qw422016.N().S(val[key])
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:300
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:305
 					qw422016.N().S(`</td></tr>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:302
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:307
 					lenVal := (lSymb+2)*len(key) + lSymb*len(val[key]) + 2
 					if lenVal > colLen[i] {
 						colLen[i] = lenVal
 					}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:307
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:312
 				}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:307
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:312
 				qw422016.N().S(`</table>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:310
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:315
 			case map[string]any:
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:313
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:318
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
@@ -765,104 +778,104 @@ func (t *TableRender) StreamRenderRows(qw422016 *qt422016.Writer) {
 				}
 				sort.Strings(sortList)
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:323
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:328
 				for _, key := range sortList {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:323
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:328
 					qw422016.N().S(`<b>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:324
-					qw422016.N().S(key)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:324
-					qw422016.N().S(`</b>:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:324
-					json.StreamElement(qw422016, val[key])
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:324
-					qw422016.N().S(`<br>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:325
-				}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:327
-			case []any:
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:329
+					qw422016.N().S(key)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:329
+					qw422016.N().S(`</b>:`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:329
+					json.StreamElement(qw422016, val[key])
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:329
+					qw422016.N().S(`<br>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:330
+				}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:332
+			case []any:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:334
 				if colDeep[i] < len(val) {
 					colDeep[i] = len(val)
 				}
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:333
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:338
 				for _, value := range val {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:335
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:340
 					if m, ok := value.(map[string]any); ok {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:335
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:340
 						qw422016.N().S(`<p>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:337
-						for key, value := range m {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:337
-							qw422016.N().S(`<b>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:338
-							qw422016.E().S(key)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:338
-							qw422016.N().S(`</b>:`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:338
-							json.StreamElement(qw422016, value)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:338
-							qw422016.N().S(`<br>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:339
-						}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:339
-						qw422016.N().S(`</p>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:341
-					} else {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:342
-						json.StreamElement(qw422016, value)
+						for key, value := range m {
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:342
+							qw422016.N().S(`<b>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:343
-					}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:345
-				}
+							qw422016.E().S(key)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:343
+							qw422016.N().S(`</b>:`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:343
+							json.StreamElement(qw422016, value)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:343
+							qw422016.N().S(`<br>`)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:344
+						}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:344
+						qw422016.N().S(`</p>`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:346
-			default:
+					} else {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:347
+						json.StreamElement(qw422016, value)
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:348
+					}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:350
+				}
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:351
+			default:
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:352
 				json.StreamElement(qw422016, row[i])
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:348
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:353
 			}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:348
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:353
 			qw422016.N().S(`</div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:350
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:355
 		}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:350
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:355
 		qw422016.N().S(`</div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:353
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:358
 	}
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:353
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:358
 	qw422016.N().S(`</div>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:355
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:360
 	t.StreamRenderRowsStyles(qw422016, lSymb, colLen, colDeep)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:355
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:360
 	qw422016.N().S(`<script>SetTableEvents()</script>`)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 func (t *TableRender) WriteRenderRows(qq422016 qtio422016.Writer) {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	t.StreamRenderRows(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	qt422016.ReleaseWriter(qw422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 }
 
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 func (t *TableRender) RenderRows() string {
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	qb422016 := qt422016.AcquireByteBuffer()
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	t.WriteRenderRows(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	qs422016 := string(qb422016.B)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	qt422016.ReleaseByteBuffer(qb422016)
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 	return qs422016
-//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:359
+//line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:364
 }
 
 // }

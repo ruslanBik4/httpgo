@@ -101,12 +101,15 @@ function setHashFromTable(url) {
     return true;
 }
 
-// append data over limit into table content
-function appendTable() {
-    let tableCnt = $('.usr-table-content');
-    var tableRows = $(selTablesRows);
-    var lines = tableRows.children('div:visible').length;
-    let url = new URL(window.location.href);
+function reqParams() {
+    let url = new URL(document.location.href);
+    let params = setParams(url);
+    params.set('limit', GetPageLines() * 2);
+    return Object.fromEntries(params.entries());
+}
+
+function setParams(url) {
+    var lines = $(selTablesRows).children('div:visible').length;
     let params = new URLSearchParams(url.search);
 
     params.set("offset", `)
@@ -132,7 +135,21 @@ function appendTable() {
             }
         });
 
-    let newURL = url.origin + url.pathname + "?" + params.toString();
+    return params;
+}
+
+function chkConditions(href) {
+    let url = new URL(href);
+    let params = setParams(url);
+
+    return url.origin + url.pathname + "?" + params.toString();
+}
+
+// append data over limit into table content
+function appendTable() {
+    let tableCnt = $('.usr-table-content');
+    var tableRows = $(selTablesRows);
+    let newURL = chkConditions(window.location.href);
     $.ajax({
         url: newURL,
         data: {
@@ -223,31 +240,30 @@ function ScrollToElem(selector) {
 }
 
 function SetTableEvents() {
-    $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
+    // $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
     setSortedClasses();
 
-    let tableCnt = $('.usr-table-content');
-    tableCnt.off('mousewheel');
-    if ($(selTablesRows + '> div.usr-table-row:visible').length < GetPageLines()) {
-        return
-    }
+    // let tableCnt = $('.usr-table-content');
+    // if ($(selTablesRows + '> div.usr-table-row:not(visible)').length > 0) {
+    //     addScrollEvent();
+    // }
 
-    var throttleTimer;
-    const throttle = (callback, time) => {
-        if (throttleTimer) return;
-        throttleTimer = true;
-        callback();
-        setTimeout(() => {
-            throttleTimer = false;
-        }, time);
-
-    };
-    tableCnt.on('mousewheel', function (event, delta) {
-        var elem = event.target;
-        console.log(event)
-        if (elem !== event.currentTarget && isScrollableY(elem)) {
-            console.log(elem);
-            console.log(`)
+    // var throttleTimer;
+    // const throttle = (callback, time) => {
+    //     if (throttleTimer) return;
+    //     throttleTimer = true;
+    //     callback();
+    //     setTimeout(() => {
+    //         throttleTimer = false;
+    //     }, time);
+    //
+    // };
+    // tableCnt.on('mousewheel', function (event, delta) {
+    //     var elem = event.target;
+    //     console.log(event)
+    //     if (elem !== event.currentTarget && isScrollableY(elem)) {
+    //         console.log(elem);
+    //         console.log(`)
 //line table-row.js.qtpl:2
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
@@ -256,11 +272,11 @@ function SetTableEvents() {
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
 	qw422016.N().S(`);
-            return true;
-        }
-
-        if ((event.deltaY < 0) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
-            console.log(`)
+    //         return true;
+    //     }
+    //
+    //     if ((event.deltaY < 0) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
+    //         console.log(`)
 //line table-row.js.qtpl:2
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
@@ -269,11 +285,11 @@ function SetTableEvents() {
 	qw422016.N().S("`")
 //line table-row.js.qtpl:2
 	qw422016.N().S(`);
-            throttle(appendTable, 300);
-            return true;
-        }
-        return true;
-    })
+    //         throttle(appendTable, 300);
+    //         return true;
+    //     }
+    //     return true;
+    // })
 }
 
 function setSortedClasses() {
@@ -324,7 +340,6 @@ function HideColumn(num, chk) {
 //line table-row.js.qtpl:2
 	qw422016.N().S(`).hide();
     }
-    console.log(chk);
 }
 
 function HideAllColumn(elem) {

@@ -183,11 +183,11 @@ function setClickAll(target) {
             }
         })
 
-    $('[hx-get], [hx-post], [hx-target], [hx-trigger]', target).each(function () {
-        this.rel = 'htmx';
-        console.log(this);
-        htmx.process(this);
-    });
+    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger]', target);
+    if (hxEvents.length > 0) {
+        hxEvents.attr("rel", 'htmx');
+        htmx.process(target);
+    }
     // add click event instead default - response will show on div.#content
     $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
         this.rel = 'setClickAll';

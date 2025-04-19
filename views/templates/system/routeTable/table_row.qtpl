@@ -18,11 +18,12 @@
 	    rows [][] any
 	    ApiImport string
 	    ApiExport string
+	    ApiURL string
         OnlyView bool
 	}
 
-	func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, apiImport string, onlyView bool) *TableRender {
-    	return &TableRender{Table: table, columns: columns, rows: rows, ApiImport: apiImport+"import", ApiExport: apiImport+"export", OnlyView: onlyView}
+	func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, ApiURL string, onlyView bool) *TableRender {
+    	return &TableRender{Table: table, columns: columns, rows: rows, ApiURL: ApiURL, ApiImport: ApiURL+"import", ApiExport: ApiURL+"export", OnlyView: onlyView}
     }
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
@@ -33,6 +34,7 @@
 <script src="/js/tables.js" async></script>
 	{%= t.AllTable() %}
 {% endfunc %}
+
 {% func (t *TableRender) AllTable() %}
 {% collapsespace %}
 {% stripspace %}
@@ -95,7 +97,7 @@
 		                   </li>
 				    {% endfor %}
 				    </ul></li></ul>
-	            {% else %} <span column="{%s col.Name() %}">{%s col.Label %}</span>
+	            {% else %} <span column="{%s col.Name() %}" onClick="ClickPseudo()">{%s col.Label %}</span>
 	            {% endif %}
 	        </div>
 	    {% endfor %}
@@ -211,8 +213,11 @@ func render Table rows{
 	   }
 	%}
 <div class="usr-table-row-cont">
-   {% for _, row  := range t.rows %}
-        <div  class="usr-table-row">
+   {% for i, row  := range t.rows %}
+        <div  class="usr-table-row" {% if i ==(2 + len(t.rows) / 2) %}
+            hx-swap="afterend" hx-select=".usr-table-row-cont" hx-trigger='intersect once throttle:.5s' hx-get='{%s t.ApiURL %}browse' hx-vals='js:{...reqParams()}'
+            {%endif %}
+        >
         {% for i, column := range t.columns %}
             <div class="usr-table-col  table-col-{%d i%}">
                 {% switch val := row[i].(type) %}

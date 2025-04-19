@@ -70,7 +70,7 @@ function fancyOpen(data) {
 
 //replace special symbols
 function replMacros(url) {
-    return url.replace(/{page}/, GetPageLines())
+    return url.replace(/{page}/, GetPageLines() * 2)
 }
 
 // get lines for table according to windows height
@@ -181,7 +181,7 @@ $(function () {
         window.onpopstate = MyPopState;
     }
 
-    console.log("v1.2.194");
+    console.log("v1.2.199");
     window.addEventListener("beforeunload", evt => {
         evt = evt || window.event;
 
@@ -221,8 +221,8 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        evt.detail.url = replMacros(evt.detail.url);
-        console.log(evt);
+        evt.detail.pathInfo.responsePath = replMacros(evt.detail.pathInfo.responsePath);
+        console.log(evt.detail);
     });
 
     document.body.addEventListener('htmx:afterRequest', evt => {
