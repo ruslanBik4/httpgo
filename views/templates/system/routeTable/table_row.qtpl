@@ -86,9 +86,9 @@
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range t.columns %}
-	        <div class="usr-table-col table-col-{%d i%}" a={%d i %}>
+	        <div class="usr-table-col table-col-{%d i%}
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
-                    <ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
+                    " ><ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
 				    {% for j, c := range t.columns[i+1:] %}
 				           <li class="left-mnu-item">
@@ -97,7 +97,8 @@
 		                   </li>
 				    {% endfor %}
 				    </ul></li></ul>
-	            {% else %} <span column="{%s col.Name() %}" onClick="ClickPseudo()">{%s col.Label %}</span>
+	            {% else %}{% space %}  sortable" ><span column="{%s col.Name() %}" hx-target=".usr-table-row-cont" hx-select=".usr-table-row-cont" hx-get='{%s t.ApiURL %}browse' hx-vals='js:{...reqParams(0)}'
+	            onClick='ClickPseudo(this);'>{%s col.Label %}</span>
 	            {% endif %}
 	        </div>
 	    {% endfor %}
@@ -134,9 +135,10 @@
 		        </select>
 			{% case col.InputType == "date" || col.InputType == "datetime" %}
 				<input type="date-range" data-name="{%s col.InputName(i) %}" data-class='table-col-{%d i%}'/>
+				<span class="tooltiptext">Click to show calendar</span>
 			{% case col.InputType == "number" %}
 				<input type="number-range" data-name="{%s col.InputName(i) %}" pattern="^[[<>(]?(\d+(\.\d{1,2})?,?)[\])]?$" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
-				<span class="tooltiptext">Input range on format '[numberFrom, numberTo]' or '(numberFrom, numberTo)'</span>
+				<span class="tooltiptext">Range format: '[numberFrom, numberTo]' or '(numberFrom, numberTo)'</span>
 			{% default %}
 				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 			{% endswitch %}
@@ -146,7 +148,6 @@
 		{% endfor %}
 		</div>
     </div>
-
     <div class="usr-table-content">
         <div class="usr-table-content-scroll">
                 {%= t.RenderRows() %}
@@ -172,13 +173,6 @@
     .table-col-{%d i%}{
         width: {%d cLen %}px;
     }
-//    .usr-table-row-cont > .usr-table-row > .table-col-{%d i%}{
-//       text-align: {% switch t.columns[i].InputType %}
-//                    {% case "number" %}center
-//                    {% case "date", "datetime" %} right
-//                    {% default %} left
-//                    {% endswitch %};
-//    }
 {% endfor %}
 .table-custom, .usr-table-content {
     width: {%d allWidth %}px;
@@ -214,9 +208,10 @@ func render Table rows{
 	%}
 <div class="usr-table-row-cont">
    {% for i, row  := range t.rows %}
-        <div  class="usr-table-row" {% if i ==(2 + len(t.rows) / 2) %}
-            hx-swap="afterend" hx-select=".usr-table-row-cont" hx-trigger='intersect once throttle:.5s' hx-get='{%s t.ApiURL %}browse' hx-vals='js:{...reqParams()}'
-            {%endif %}
+        <div class="usr-table-row"
+        {% if i ==(2 + len(t.rows) / 2) %}
+            hx-swap="afterend" hx-select=".usr-table-row-cont" hx-trigger='intersect once' hx-get='{%s t.ApiURL %}browse' hx-vals='js:{...reqParams()}'
+        {%endif %}
         >
         {% for i, column := range t.columns %}
             <div class="usr-table-col  table-col-{%d i%}">

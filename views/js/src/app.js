@@ -150,14 +150,18 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        evt.detail.pathInfo.responsePath = replMacros(evt.detail.pathInfo.responsePath);
-        console.log(evt.detail);
+        const pathInfo = evt.detail.pathInfo;
+        if (pathInfo) {
+            console.log(pathInfo);
+            pathInfo.responsePath = replMacros(pathInfo.finalRequestPath);
+        } else {
+            console.log(evt);
+        }
     });
 
     document.body.addEventListener('htmx:afterRequest', evt => {
         let responseText = evt.detail.xhr.responseText;
         console.log(evt.detail);
-        console.log(evt.detail.pathInfo.responsePath);
         switch (evt.detail.elt.target) {
             case "_modal":
                 FancyOpen(responseText);
@@ -177,7 +181,7 @@ $(function () {
                 return false;
 
             default:
-                PutContent(responseText, evt.detail.pathInfo.responsePath);
+                SetDocumentHash(evt.detail.pathInfo.responsePath,responseText);
         }
     });
 

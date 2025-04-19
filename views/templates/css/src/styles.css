@@ -92,10 +92,12 @@ header #sUser::after {
 
 .only_auth {
     visibility: hidden;
+    height: 0;
 }
 
 body[auth] .only_auth {
     visibility: visible;
+    height: auto;
 }
 body[auth] header #sUser::after {
     content: '\F4E1';
@@ -318,6 +320,7 @@ ul li:focus-within > ul.dropdown {
     display: block;
     max-height: 150px;
     overflow: auto;
+    z-index: 1000;
 }
 
 ul li > ul.dropdown li {

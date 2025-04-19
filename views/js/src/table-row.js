@@ -6,7 +6,7 @@
  */
 "use strict";
 
-function ClickPseudo(event) {
+function ClickPseudo(elem) {
     var elem = event.target;
     var offset = event.clientX || event.originalEvent.clientX;
     console.log(event);
@@ -23,12 +23,11 @@ function ClickPseudo(event) {
         $(elem).removeClass('sorted-asc').addClass('sorted-desc');
     }
 
-    loadTableWithOrder();
 }
 
 const selTablesRows = '.usr-table-row-cont';
 
-// reorder data & get new table content
+// reorder data and get new table content
 function loadTableWithOrder() {
     let orderBy = $('.usr-table__t-head .usr-table-col')
         .children('span.sorted-asc,span.sorted-desc')
@@ -65,11 +64,12 @@ function reqParams() {
     let url = new URL(document.location.href);
     let params = setParams(url);
     params.set('limit', GetPageLines() * 2);
+    console.log(params.toString());
     return Object.fromEntries(params.entries());
 }
 
 function setParams(url) {
-    var lines = $(selTablesRows).children('div:visible').length;
+    var lines = $(selTablesRows).children('div:not(.'+unfiltered+')').length;
     let params = new URLSearchParams(url.search);
 
     params.set("offset", `${lines}`);
@@ -86,6 +86,18 @@ function setParams(url) {
                 params.set(elem.dataset.name, value);
             }
         });
+
+    let orderBy = $('.usr-table__t-head .usr-table-col')
+        .children('span.sorted-asc,span.sorted-desc')
+        .map(function () {
+            return $(this).attr('column') + (this.className === 'sorted-desc' ? ' desc' : '');
+        }).get().join(",");
+
+    // when order_by changed request first data
+    if (params.get("order_by") !== orderBy) {
+        params.set("order_by", orderBy);
+        params.set("offset", 0);
+    }
 
     return params;
 }
@@ -132,6 +144,7 @@ function appendTable() {
     });
     return true;
 }
+const unfiltered = 'unfiltered';
 
 function filterTableData(value, className) {
     let val = value.trim();
@@ -160,16 +173,16 @@ function filterTableData(value, className) {
                 || (strSlices && (strSlices.length > 1) && textContent >= strSlices[1] && textContent <= strSlices[2])
                 || el.parentElement.className.includes("usr-table__t-head")
                 || el.parentElement.className.includes("usr-table__filter")) {
-                $(el).removeClass('unfilter');
+                $(el).removeClass(unfiltered);
                 i++
                 return true;
             }
-            $(el).addClass('unfilter');
+            $(el).addClass(unfiltered);
             return true;
         });
 
     $('.usr-table-row').each((ind, elem) => {
-        if ($(elem).children('.usr-table-col.unfilter').length > 0) {
+        if ($(elem).children('.usr-table-col.'+unfiltered).length > 0) {
             $(elem).hide();
         } else {
             $(elem).show();
@@ -195,37 +208,6 @@ function SetTableEvents() {
     // $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
     setSortedClasses();
 
-    // let tableCnt = $('.usr-table-content');
-    // if ($(selTablesRows + '> div.usr-table-row:not(visible)').length > 0) {
-    //     addScrollEvent();
-    // }
-
-    // var throttleTimer;
-    // const throttle = (callback, time) => {
-    //     if (throttleTimer) return;
-    //     throttleTimer = true;
-    //     callback();
-    //     setTimeout(() => {
-    //         throttleTimer = false;
-    //     }, time);
-    //
-    // };
-    // tableCnt.on('mousewheel', function (event, delta) {
-    //     var elem = event.target;
-    //     console.log(event)
-    //     if (elem !== event.currentTarget && isScrollableY(elem)) {
-    //         console.log(elem);
-    //         console.log(`${elem.clientHeight} < ${elem.scrollHeight}`);
-    //         return true;
-    //     }
-    //
-    //     if ((event.deltaY < 0) && tableCnt.scrollTop() + tableCnt.height() > Math.ceil(tableCnt[0].scrollHeight / 2)) {
-    //         console.log(`${tableCnt.scrollTop() + tableCnt.height()} > ${Math.ceil(tableCnt[0].scrollHeight / 2)}`);
-    //         throttle(appendTable, 300);
-    //         return true;
-    //     }
-    //     return true;
-    // })
 }
 
 function setSortedClasses() {
@@ -241,7 +223,7 @@ function setSortedClasses() {
                 sortedClass = 'sorted-desc';
                 name = name.toString().slice(0,-5)
             }
-            $(`.usr-table__t-head .usr-table-col:nth-child(n+2) span[column="${name}"]`).addClass(sortedClass);
+            $(`.usr-table__t-head .usr-table-col span[column="${name}"]`).addClass(sortedClass);
         }
     }
 }

@@ -1517,7 +1517,7 @@ function FindCSSinSheets( selector ) {
             if (document.styleSheets[i].cssRules)
                 for (var j = 0; j < document.styleSheets[i].cssRules.length; j++) {
                     var css = document.styleSheets[i].cssRules[j];
-                    if (css.selectorText == selector) {
+                    if (css.selectorText === selector) {
                         return GetStylesFromCSSRules(css);
                     }
                 }

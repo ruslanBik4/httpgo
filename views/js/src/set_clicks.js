@@ -90,11 +90,6 @@ function setClickAll(target) {
                         const formattedValue = `[${instance.formatDate(dates[0], "Y-m-d")},${instance.formatDate(dates[1], "Y-m-d")}]`;
                         instance.input.value = formattedValue;
                         filterTableData(formattedValue, instance.input.dataset.class);
-
-                        // Delay event to ensure DOM updates first
-                        // setTimeout(() => {
-                        //     instance.input.dispatchEvent(new Event('change', {bubbles: true}));
-                        // }, 0);
                     } else {
                         // If only one date is selected, clear the input
                         instance.input.value = "";
@@ -128,7 +123,7 @@ function setClickAll(target) {
             }
         })
 
-    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger]', target);
+    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on]', target).not('[rel]');
     if (hxEvents.length > 0) {
         hxEvents.attr("rel", 'htmx');
         htmx.process(target);
