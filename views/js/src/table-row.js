@@ -212,19 +212,33 @@ function SetTableEvents() {
 
 function setSortedClasses() {
     let url = new URL(window.location.href);
-    let params = new URLSearchParams(url.search).get("order_by");
+    let params = new URLSearchParams(url.search);
 
-    console.log(params);
     if (params) {
-        for (let name of params.split(',')) {
-            console.log(name);
-            let sortedClass = 'sorted-asc';
-            if (name.toString().endsWith('desc')) {
-                sortedClass = 'sorted-desc';
-                name = name.toString().slice(0,-5)
+        let orders = params.get("");
+        params.forEach((value, key) => {
+            switch (key) {
+                case "order_by":
+                    if (value.length > 0) {
+                        for (let name of value.split(',')) {
+                            console.log(name);
+                            let sortedClass = 'sorted-asc';
+                            if (name.toString().endsWith('desc')) {
+                                sortedClass = 'sorted-desc';
+                                name = name.toString().slice(0, -5)
+                            }
+                            $(`.usr-table__t-head .usr-table-col span[column="${name}"]`).addClass(sortedClass);
+                        }
+                    }
+                    break;
+
+                case "offset":
+                case "limit":
+                    break;
+                default:
+                    $(`.filt-arrow input[data-name="${key}"]`).val(value);
             }
-            $(`.usr-table__t-head .usr-table-col span[column="${name}"]`).addClass(sortedClass);
-        }
+        });
     }
 }
 
