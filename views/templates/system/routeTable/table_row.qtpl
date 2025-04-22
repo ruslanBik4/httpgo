@@ -137,7 +137,7 @@
 				<input type="date-range" data-name="{%s col.InputName(i) %}" data-class='table-col-{%d i%}'/>
 				<span class="tooltiptext">Click to show calendar</span>
 			{% case col.InputType == "number" %}
-				<input type="number-range" data-name="{%s col.InputName(i) %}" pattern="^[[<>(]?(\d+(\.\d{1,2})?,?)[\])]?$" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
+				<input type="number-range" data-name="{%s col.InputName(i) %}" mask="^/[[(](\d+.?\d*)?,(\d+.?\d*)?[\])]/$" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>
 				<span class="tooltiptext">Range format: '[numberFrom, numberTo]' or '(numberFrom, numberTo)'</span>
 			{% default %}
 				<input type="{%s col.InputType %}" data-name="{%s col.InputName(i) %}" onchange="filterTableData(this.value, 'table-col-{%d i%}');"/>

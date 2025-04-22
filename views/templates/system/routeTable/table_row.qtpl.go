@@ -360,7 +360,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140
 				qw422016.E().S(col.InputName(i))
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140
-				qw422016.N().S(`" pattern="^[[<>(]?(\d+(\.\d{1,2})?,?)[\])]?$" onchange="filterTableData(this.value, 'table-col-`)
+				qw422016.N().S(`" mask="^/[[(](\d+.?\d*)?,(\d+.?\d*)?[\])]/$" onchange="filterTableData(this.value, 'table-col-`)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140
 				qw422016.N().D(i)
 //line /Users/ruslan_bik/GolandProjects/httpgo/views/templates/system/routeTable/table_row.qtpl:140

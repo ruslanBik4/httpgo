@@ -68,7 +68,7 @@ function reqParams() {
 }
 
 function setParams(url) {
-    var lines = $(selTablesRows).children('div:not(.'+unfiltered+')').length;
+    var lines = $(selTablesRows).children('div:visible:not(.' + unfiltered + ')').length;
     let params = new URLSearchParams(url.search);
 
     params.set("offset", `${lines}`);
@@ -123,8 +123,7 @@ function appendTable() {
         beforeSend: getHeaders,
         success: function (data, status, xhr) {
             if (xhr.status === 204) {
-                tableCnt.off('mousewheel');
-                tableRows.html(data);
+                // tableRows.html(data);
                 return false;
             }
             tableRows.append($('<div />').html(data).find(selTablesRows).html());
@@ -154,10 +153,10 @@ function filterTableData(value, className) {
 
     let dateRanges = val.match(/\[(\d+-\d+-\d+),(\d+-\d+-\d+)]/);
     if (!dateRanges) {
-        var numberRanges = val.match(/[[)](\d+.?\d*),(\d+.?\d*)[\])]/);
+        var numberRanges = val.match(/[[(](\d+.?\d*)?,(\d+.?\d*)?[\])]/);
     }
     if (!dateRanges && !numberRanges) {
-        var strSlices = val.match(/(\w),(\w+)/);
+        var strSlices = val.match(/(\w+),(\w+)/);
         console.log(strSlices);
     }
     let i = 0;
@@ -166,10 +165,14 @@ function filterTableData(value, className) {
     Array.prototype.slice.call(items).forEach(
         (el, ind, arr) => {
             let textContent = el.textContent;
+            let num = parseFloat(textContent);
+
             if (textContent.includes(val)
                 || (dateRanges && (dateRanges.length > 1) && textContent >= dateRanges[1] && textContent <= dateRanges[2])
-                || (numberRanges && (numberRanges.length > 1) && textContent >= numberRanges[1] && textContent <= numberRanges[2])
-                || (strSlices && (strSlices.length > 1) && textContent >= strSlices[1] && textContent <= strSlices[2])
+                || (numberRanges && (numberRanges.length > 1) && !isNaN(num) &&
+                    (val.startsWith("(") && num > numberRanges[1] || num >= numberRanges[1]) &&
+                    (val.endsWith(")") && num < numberRanges[2] || num <= numberRanges[2]))
+                || (strSlices && (strSlices.length > 1) && textContent === strSlices[1] && textContent === strSlices[2])
                 || el.parentElement.className.includes("usr-table__t-head")
                 || el.parentElement.className.includes("usr-table__filter")) {
                 $(el).removeClass(unfiltered);
@@ -204,9 +207,7 @@ function ScrollToElem(selector) {
 }
 
 function SetTableEvents() {
-    // $('.usr-table__t-head .usr-table-col span').click(ClickPseudo);
     setSortedClasses();
-
 }
 
 function setSortedClasses() {
