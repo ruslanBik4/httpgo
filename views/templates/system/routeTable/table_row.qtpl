@@ -67,7 +67,7 @@
     <figurecaption> Show columns </figurecaption>
     <div class="input-wrap">
     <label class="input-label"> Toggle all
-    <input type="checkbox" checked name="all_columns" hx-on:click="HideAllColumn(this)"/>
+    <input type="checkbox" checked name="all_columns" hx-on:click="HideAllColumn();"/>
     <h6 class="errorLabel">Column is hidden</h6>
     </label>
     </div>

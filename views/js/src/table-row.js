@@ -7,7 +7,6 @@
 "use strict";
 
 function ClickPseudo(elem) {
-    var elem = event.target;
     var offset = event.clientX || event.originalEvent.clientX;
     console.log(event);
     console.log(`${offset} > ${elem.offsetLeft}, ${elem.getBoundingClientRect().left}`);
@@ -153,7 +152,7 @@ function filterTableData(value, className) {
         return true;
     }
 
-    let dateRanges = val.match(/\[(\d+-\d+-\d+),(\d+-\d+-\d+)\]/);
+    let dateRanges = val.match(/\[(\d+-\d+-\d+),(\d+-\d+-\d+)]/);
     if (!dateRanges) {
         var numberRanges = val.match(/[[)](\d+.?\d*),(\d+.?\d*)[\])]/);
     }
@@ -215,7 +214,6 @@ function setSortedClasses() {
     let params = new URLSearchParams(url.search);
 
     if (params) {
-        let orders = params.get("");
         params.forEach((value, key) => {
             switch (key) {
                 case "order_by":
@@ -250,7 +248,7 @@ function HideColumn(num, chk) {
     }
 }
 
-function HideAllColumn(elem) {
+function HideAllColumn() {
     const chkColumns = 'input[type="checkbox"][data-role="chk_column"]';
     $(chkColumns).click(); //elem.checked);
 }
