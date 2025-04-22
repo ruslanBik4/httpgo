@@ -94,7 +94,7 @@ function setParams(url) {
         }).get().join(",");
 
     // when order_by changed request first data
-    if (params.get("order_by") !== orderBy) {
+    if (orderBy > "" && params.get("order_by") !== orderBy) {
         params.set("order_by", orderBy);
         params.set("offset", 0);
     }

@@ -159,8 +159,6 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
     border: solid 1px rgba(229, 229, 229, 0.1);
     border-top: none;
     margin: 0 1px;
-    /*height: 99%;*/
-    /*max-height: calc(100vh - 70px);*/
     display: flex;
     flex-direction: column;
     border-bottom-color: #f3f3f3;
