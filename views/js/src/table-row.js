@@ -110,7 +110,6 @@ function chkConditions(href) {
 
 // append data over limit into table content
 function appendTable() {
-    let tableCnt = $('.usr-table-content');
     var tableRows = $(selTablesRows);
     let newURL = chkConditions(window.location.href);
     $.ajax({
