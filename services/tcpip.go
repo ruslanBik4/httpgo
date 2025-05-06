@@ -21,10 +21,6 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func DoRequest(url string, params map[string]string) (*fasthttp.Response, error) {
-	return DoPostRequest(url, params, nil)
-}
-
 func DoPostRequest(url string, params map[string]string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
 
 	if strings.HasPrefix(url, ":") {
@@ -148,17 +144,29 @@ func DoPostJSONRequest(url string, json []byte, hdr *fasthttp.RequestHeader) (*f
 }
 
 func DoGetRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
+	return doRequuest(url, hdr, fasthttp.MethodGet)
+}
+
+func DoHEADRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
+	return doRequuest(url, hdr, fasthttp.MethodHead)
+}
+
+func DoRequest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthttp.Response, error) {
+	return doRequuest(url, hdr, method)
+}
+
+func doRequuest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthttp.Response, error) {
 	req := &fasthttp.Request{}
 
 	if hdr != nil {
 		hdr.CopyTo(&req.Header)
 	}
 
-	req.Header.SetMethod(fasthttp.MethodGet)
+	req.Header.SetMethod(method)
 	req.SetRequestURI(url)
 
 	c := fasthttp.Client{}
-	//avoid error when server has not trust certificate
+	//avoid error when server has not trusted certificate
 	c.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	for {
 
@@ -167,14 +175,17 @@ func DoGetRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, 
 		switch err {
 		case nil:
 			return resp, nil
+
 		case fasthttp.ErrTimeout, fasthttp.ErrDialTimeout:
 			logs.DebugLog("timeout %v", resp)
 			<-time.After(time.Minute * 2)
 			continue
+
 		case fasthttp.ErrNoFreeConns:
 			logs.DebugLog("timeout %v", resp)
 			<-time.After(time.Minute * 2)
 			continue
+
 		default:
 			if strings.Contains(err.Error(), "connection reset by peer") {
 				logs.DebugLog("%v %v", err, resp)
