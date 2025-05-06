@@ -45,8 +45,6 @@ type HttpGo struct {
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 
-var GoVersion string
-
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
@@ -64,9 +62,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		apis.Ctx = make(map[string]any, 0)
 	}
 
-	apis.Ctx[ApiVersion] = httpgoVersion
+	apis.Ctx[ApiVersion] = HTTPGOVer
 	if cfg.Server != nil {
-		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (CentOS) backend by Go %v", cfg.Server.Name, httpgoVersion, GoVersion)
+		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (%s) backend by Golang %v", cfg.Server.Name, HTTPGOVer, OSVersion, GoVersion)
 	}
 
 	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
@@ -242,6 +240,15 @@ func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
 	}
 
 	return ApiRoutes{
+		ShowVersion: {
+			Fnc:
+			// HandleLogServer show status httpgo
+			// @/api/version/
+			func(*fasthttp.RequestCtx) (any, error) {
+				return GetAppTitle(cfg.Server.Name), nil
+			},
+			Desc: "view version server",
+		},
 		"/httpgo/cfg/reload": {
 			Desc: `# HttpGo managements
 reload cfg of httpgo from starting config file`,
@@ -407,7 +414,7 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 		}) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
-			logs.StatusLog(fmt.Sprintf(mess, args...))
+			logs.DebugLog(fmt.Sprintf(mess, args...))
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}

@@ -241,10 +241,45 @@ function setSortedClasses() {
 }
 
 function HideColumn(num, chk) {
-    if (chk) {
-        $(`.table-col-${num}`).show();
-    } else {
-        $(`.table-col-${num}`).hide();
+    toggleColumn(num);
+    // if (chk) {
+    //     $(`.table-col-${num}`).show();
+    // } else {
+    //     $(`.table-col-${num}`).hide();
+    // }
+}
+
+function toggleColumn(num) {
+    const className = `.table-col-${num}`;
+    const styleSheets = document.styleSheets;
+
+    // Loop through all stylesheets in the document
+    for (let sheet of styleSheets) {
+        try {
+            const rules = sheet.cssRules || sheet.rules;
+
+            for (let i = 0; i < rules.length; i++) {
+                const rule = rules[i];
+
+                if (rule.selectorText === className) {
+                    // Toggle between visible and hidden
+                    if (rule.style.display === 'none') {
+                        rule.style.display = '';
+                    } else {
+                        rule.style.display = 'none';
+                    }
+                    return;
+                }
+            }
+
+            // If rule not found, add it
+            sheet.insertRule(`${className} { display: none; }`, sheet.cssRules.length);
+            return;
+
+        } catch (e) {
+            // Some stylesheets (e.g., from other domains) may not be accessible
+            continue;
+        }
     }
 }
 
