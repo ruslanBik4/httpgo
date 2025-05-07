@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"path"
 	"regexp"
+	"runtime"
 	"slices"
 	"strings"
 	"syscall"
@@ -64,7 +65,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	apis.Ctx[ApiVersion] = HTTPGOVer
 	if cfg.Server != nil {
-		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (%s) backend by Golang %v", cfg.Server.Name, HTTPGOVer, OSVersion, GoVersion)
+		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (%s) backend by Golang %v builded on %s", cfg.Server.Name, HTTPGOVer, runtime.GOOS, GoVersion, OSVersion)
 	}
 
 	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {

@@ -26,8 +26,6 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
-const ServerName = "name of server httpgo"
-
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *fasthttp.Request) bool {
 	return len(r.Header.Peek("X-Requested-With")) > 0 ||
