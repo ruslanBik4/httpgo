@@ -76,7 +76,7 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.Render
 		return nil, err
 	}
 	ruler.LineHeightFactor = .5
-	err = graph.SetDimensions(nil, ruler, nil)
+	err = graph.SetDimensions(nil, ruler, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func GetGraphSVG(ctx *fasthttp.RequestCtx, buf *bytes.Buffer, opts *d2svg.Render
 	if err != nil {
 		return nil, err
 	}
-	diagram, err := d2exporter.Export(ctx, graph, nil)
+	diagram, err := d2exporter.Export(ctx, graph, nil, nil)
 	if err != nil {
 		return nil, err
 	}
