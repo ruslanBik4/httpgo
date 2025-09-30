@@ -221,7 +221,7 @@ $(function () {
         evt.detail.headers['Authorization'] = 'Bearer ' + token;
         evt.detail.headers['Accept-Language'] = lang;
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        const pathInfo = evt.detail.pathInfo;
+        const pathInfo = evt.detail.path;
         if (pathInfo) {
             console.log(pathInfo);
             pathInfo.responsePath = replMacros(pathInfo.finalRequestPath);

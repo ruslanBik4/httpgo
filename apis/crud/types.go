@@ -34,6 +34,18 @@ type DateRangeMarshal struct {
 	*pgtype.Daterange
 }
 
+func (d *DateRangeMarshal) Expect() string {
+	return "string"
+}
+
+func (d *DateRangeMarshal) FormatDoc() string {
+	return "date-range"
+}
+
+func (d *DateRangeMarshal) RequestType() string {
+	return "string"
+}
+
 func (d *DateRangeMarshal) GetValue() any {
 	return d.Daterange
 }
@@ -154,8 +166,8 @@ func upperBoundType(upper string) (pgtype.BoundType, string) {
 	return pgtype.Inclusive, upper
 }
 
-func (d *DateRangeMarshal) GetPgxType() *pgtype.Daterange {
-	return d.Daterange
+func (d *DateRangeMarshal) GetPgxType() pgtype.Daterange {
+	return *d.Daterange
 }
 
 type IntervalMarshal struct {

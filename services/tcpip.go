@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -144,18 +144,18 @@ func DoPostJSONRequest(url string, json []byte, hdr *fasthttp.RequestHeader) (*f
 }
 
 func DoGetRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
-	return doRequuest(url, hdr, fasthttp.MethodGet)
+	return doRequest(url, hdr, fasthttp.MethodGet)
 }
 
 func DoHEADRequest(url string, hdr *fasthttp.RequestHeader) (*fasthttp.Response, error) {
-	return doRequuest(url, hdr, fasthttp.MethodHead)
+	return doRequest(url, hdr, fasthttp.MethodHead)
 }
 
 func DoRequest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthttp.Response, error) {
-	return doRequuest(url, hdr, method)
+	return doRequest(url, hdr, method)
 }
 
-func doRequuest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthttp.Response, error) {
+func doRequest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthttp.Response, error) {
 	req := &fasthttp.Request{}
 
 	if hdr != nil {

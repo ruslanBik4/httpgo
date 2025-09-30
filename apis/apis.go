@@ -177,7 +177,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 			return
 		// can't send standard error (lost headers & response body)
 		case ErrUnAuthorized:
-			logs.StatusLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
+			logs.DebugLog("attempt unauthorized access %s", ctx.Request.Header.Referer())
 			ctx.SetStatusCode(fasthttp.StatusUnauthorized)
 			ctx.SetBodyString(errMsg)
 			return
