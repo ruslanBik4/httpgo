@@ -20,7 +20,7 @@ function saveForm(thisForm, successFunction, errorFunction) {
         return false
     }
     // TODO: create element form for output form result
-    var $out = $('output', thisForm),
+    const $out = $('output', thisForm),
         $loading = $('.loading', thisForm),
         $progress = $('progress', thisForm);
 

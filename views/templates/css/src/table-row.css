@@ -20,7 +20,7 @@
     background-color: rgba(120, 147, 182, 0.1);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 2;
 }
 
 .usr-table__t-head {
@@ -117,10 +117,6 @@
     padding: 0;
 }
 
-.usr-table-col:nth-child(1) {
-    padding-left: 3px;
-}
-
 .usr-table-col:hover {
     overflow-y: visible;
 }
@@ -145,13 +141,15 @@
 .usr-table .usr-table-col {
     text-align: center;
     justify-content: center;
+    box-shadow: 0 2px 2px 0 rgba(36, 53, 65, 0.1), 0 0 2px 0 rgba(36, 53, 65, 0.1);
 }
 
-.usr-table .usr-table-col:nth-child(1) {
+.usr-table .usr-table-row .usr-table-col:nth-child(1) {
     text-align: center;
     justify-content: center;
     position: sticky;
     left: 0;
+    padding-left: 3px;
     z-index: 1;
     background-color: #f3f3f3;
 }

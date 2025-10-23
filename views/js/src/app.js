@@ -164,7 +164,7 @@ $(function () {
         console.log(evt.detail);
         switch (evt.detail.elt.target) {
             case "_modal":
-                FancyOpen(responseText);
+                fancyOpen(responseText);
                 evt.preventDefault();
                 return false;
 
