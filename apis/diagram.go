@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -134,7 +134,7 @@ func (a *Apis) getDiagram(ctx *fasthttp.RequestCtx) (any, error) {
 		} else {
 			entry += "()"
 		}
-		_, _ = fmt.Fprintf(buf, fnc)
+		_, _ = buf.WriteString(fnc)
 		_, _ = fmt.Fprintf(buf, tplEndpointEnd, strings.TrimPrefix(packName, "."), fileName, name, line)
 		if len(params) > 0 {
 			_, _ = fmt.Fprintf(buf, tplComment, name, route.Desc, `

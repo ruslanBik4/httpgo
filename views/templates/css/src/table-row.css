@@ -144,13 +144,15 @@
     box-shadow: 0 2px 2px 0 rgba(36, 53, 65, 0.1), 0 0 2px 0 rgba(36, 53, 65, 0.1);
 }
 
-.usr-table .usr-table-row .usr-table-col:nth-child(1) {
-    text-align: center;
-    justify-content: center;
+.usr-table .usr-table-col:nth-child(1) {
     position: sticky;
     left: 0;
     padding-left: 3px;
     z-index: 1;
+}
+.usr-table .usr-table-row .usr-table-col:nth-child(1) {
+    text-align: center;
+    justify-content: center;
     background-color: #f3f3f3;
 }
 
