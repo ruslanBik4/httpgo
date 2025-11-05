@@ -22,9 +22,10 @@ import (
 
 func TestCreateErrResult(t *testing.T) {
 	const (
-		testMobileMsg = `duplicate key value violates unique constraint "candidates_mobile_uindex"`
-		testMobileKey = `Key (phone)=(+380) already exists.`
-		testLinkedin  = `Key (linkedin)=(https://www.linkedin.com/in/vladislav-yena/) already exists.`
+		testMobileMsg     = `duplicate key value violates unique constraint "candidates_mobile_uindex"`
+		testMobileKey     = `Key (phone)=(+380) already exists.`
+		testLinkedin      = `Key (linkedin)=(https://www.linkedin.com/in/vladislav-yena/) already exists.`
+		testInvalidSyntax = `invalid input syntax for type numeric: "ee"`
 	)
 
 	testMobileRes := map[string]string{"candidates_mobile_uindex": "duplicate key value violates unique constraint"}
@@ -61,6 +62,14 @@ func TestCreateErrResult(t *testing.T) {
 			"pgError linkedin ",
 			errors.Wrap(&pgconn.PgError{Detail: testLinkedin}, "wrap"),
 			testLinedinRes,
+			true,
+		},
+		{
+			"invalid syntax ",
+			errors.Wrap(&pgconn.PgError{Detail: testInvalidSyntax}, "wrap"),
+			map[string]string{
+				"numeric": "invalid input syntax for type numeric: \"ee\"",
+			},
 			true,
 		},
 	}

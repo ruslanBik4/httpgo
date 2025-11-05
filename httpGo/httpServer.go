@@ -89,23 +89,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		logs.StatusLog("has Continue !", header)
 		return true
 	}
-	cfg.Server.ErrorHandler = func(ctx *fasthttp.RequestCtx, err error) {
-		logs.ErrorLog(err, ctx.String())
-		switch err {
-		case fasthttp.ErrBodyTooLarge:
-			ctx.SetStatusCode(fasthttp.StatusRequestEntityTooLarge)
-		case fasthttp.ErrNoMultipartForm, fasthttp.ErrNoArgValue:
-			ctx.SetStatusCode(fasthttp.StatusBadRequest)
-			ctx.Response.SetBodyString(err.Error())
-		default:
-			// if  !bytes.Equal(ctx.Request.URI().Scheme(), []byte("http")) {
-			// 	uri := ctx.Request.URI()
-			// 	uri.SetScheme("http")
-			// 	ctx.RedirectBytes(uri.FullURI(), fasthttp.StatusFound)
-			// }
-			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
-		}
-	}
+	cfg.Server.ErrorHandler = renderError
 	cfg.Server.Logger = &fastHTTPLogger{}
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
@@ -410,8 +394,8 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 
 	if strings.Contains(mess, "error") {
 		if slices.ContainsFunc(args, func(a any) bool {
-			s, ok := a.(error)
-			return ok && strings.Contains(s.Error(), "tls: unknown certificate")
+			err, ok := a.(error)
+			return ok && isTLSError(err)
 		}) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
@@ -421,5 +405,25 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 		}
 	} else {
 		logs.DebugLog(append([]any{mess}, args...)...)
+	}
+}
+
+func isTLSError(err error) bool {
+	return strings.HasPrefix(err.Error(), "tls: ")
+}
+func renderError(ctx *fasthttp.RequestCtx, err error) {
+	switch err {
+	case fasthttp.ErrBodyTooLarge:
+		ctx.SetStatusCode(fasthttp.StatusRequestEntityTooLarge)
+	case fasthttp.ErrNoMultipartForm, fasthttp.ErrNoArgValue:
+		ctx.SetStatusCode(fasthttp.StatusBadRequest)
+		ctx.Response.SetBodyString(err.Error())
+	default:
+		if isTLSError(err) {
+			ctx.SetStatusCode(fasthttp.StatusConflict)
+			return
+		}
+		logs.ErrorLog(err, ctx.String())
+		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 	}
 }
