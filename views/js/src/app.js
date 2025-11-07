@@ -99,7 +99,6 @@ function createObserver() {
                 console.log("Text content changed:", mutation);
             }
         }
-
     });
 
 // Configure observer options

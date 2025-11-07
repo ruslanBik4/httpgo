@@ -408,9 +408,6 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 	}
 }
 
-func isTLSError(err error) bool {
-	return strings.HasPrefix(err.Error(), "tls: ")
-}
 func renderError(ctx *fasthttp.RequestCtx, err error) {
 	switch err {
 	case fasthttp.ErrBodyTooLarge:
@@ -419,11 +416,34 @@ func renderError(ctx *fasthttp.RequestCtx, err error) {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.Response.SetBodyString(err.Error())
 	default:
+		if isReadError(err) {
+			logs.DebugLog(err)
+			ctx.SetStatusCode(fasthttp.StatusExpectationFailed)
+			return
+		}
 		if isTLSError(err) {
+			logs.DebugLog(err)
 			ctx.SetStatusCode(fasthttp.StatusConflict)
+			return
+		}
+		if isHeaderError(err) {
+			logs.DebugLog(err)
+			ctx.SetStatusCode(fasthttp.StatusRequestHeaderFieldsTooLarge)
 			return
 		}
 		logs.ErrorLog(err, ctx.String())
 		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 	}
+}
+
+func isTLSError(err error) bool {
+	return strings.HasPrefix(err.Error(), "tls: ")
+}
+
+func isReadError(err error) bool {
+	return strings.HasPrefix(err.Error(), "read: ")
+}
+
+func isHeaderError(err error) bool {
+	return strings.Contains(err.Error(), "error when reading request headers:")
 }
