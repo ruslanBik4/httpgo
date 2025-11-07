@@ -441,7 +441,7 @@ func isTLSError(err error) bool {
 }
 
 func isReadError(err error) bool {
-	return strings.HasPrefix(err.Error(), "read: ")
+	return strings.Contains(err.Error(), "read: ") || strings.Contains(err.Error(), "unexpected EOF")
 }
 
 func isHeaderError(err error) bool {
