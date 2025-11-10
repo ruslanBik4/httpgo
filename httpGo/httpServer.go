@@ -85,7 +85,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// 	return nil
 	// })
 	cfg.Server.ContinueHandler = func(header *fasthttp.RequestHeader) bool {
-
 		logs.StatusLog("has Continue !", header)
 		return true
 	}
@@ -437,7 +436,7 @@ func renderError(ctx *fasthttp.RequestCtx, err error) {
 }
 
 func isTLSError(err error) bool {
-	return strings.HasPrefix(err.Error(), "tls: ")
+	return strings.Contains(err.Error(), "tls: ")
 }
 
 func isReadError(err error) bool {
