@@ -481,7 +481,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 			ctx.SetUserValue(key, files)
 		}
 	} else {
-		fncStoreArgs := func(k, v []byte) {
+		fncStoreArgs := func(k, v []byte) bool {
 			key := gotools.BytesToString(k)
 			val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
 			if err != nil {
@@ -489,12 +489,13 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 			} else {
 				ctx.SetUserValue(key, val)
 			}
+			return true
 		}
 
 		if ctx.IsPost() {
-			ctx.PostArgs().VisitAll(fncStoreArgs)
+			ctx.PostArgs().All()(fncStoreArgs)
 		}
-		ctx.QueryArgs().VisitAll(fncStoreArgs)
+		ctx.QueryArgs().All()(fncStoreArgs)
 	}
 
 	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {

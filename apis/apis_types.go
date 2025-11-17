@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -20,6 +20,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
 	"github.com/valyala/quicktemplate"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -179,29 +180,37 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, 
 	}
 }
 
-func (t TypeInParam) ReadValue(s string, v any) (any, error) {
-	switch v := v.(type) {
+func (t TypeInParam) ReadValue(s string, res any) (any, error) {
+	switch res := res.(type) {
 	case pgtype.Value:
-		err := v.Set(s)
+		err := res.Set(s)
 		if err != nil {
 			return nil, errors.Wrap(err, "Set s")
 		}
-		return v.Get(), nil
+		return res.Get(), nil
 
 	case json.Unmarshaler:
-		err := v.UnmarshalJSON(gotools.StringToBytes(s))
+		err := res.UnmarshalJSON(gotools.StringToBytes(s))
 		if err != nil {
 			return nil, errors.Wrap(err, "Unmarshal ")
 		}
+		return res, nil
+
+	case Visit:
+		val, err := fastjson.Parse(s)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Parse '%s'", s)
+		}
+		val.GetObject().Visit(res.Each)
+		return res.Result()
 
 	default:
-		err := Json.UnmarshalFromString(s, &v)
+		err := Json.UnmarshalFromString(s, &res)
 		if err != nil {
 			return nil, errors.Wrap(err, "UnmarshalFromString")
 		}
+		return res, nil
 	}
-
-	return v, nil
 }
 
 func (t TypeInParam) ConvertSlice(ctx *fasthttp.RequestCtx, values []string) (any, error) {
