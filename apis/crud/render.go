@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -16,6 +16,40 @@ import (
 
 	"github.com/ruslanBik4/httpgo/views"
 )
+
+func isNilOrEmpty[T any](v T) bool {
+	// fast nil test
+	var i interface{} = v
+	// check by type
+	switch x := i.(type) {
+	case nil:
+		return true
+
+	case string:
+		return x == ""
+
+	case []byte:
+		return len(x) == 0
+
+	case []string:
+		return len(x) == 0
+
+	case map[string]any:
+		return len(x) == 0
+
+	case map[int]any:
+		return len(x) == 0
+
+	case map[string]string:
+		return len(x) == 0
+
+	case map[int]string:
+		return len(x) == 0
+
+	default:
+		return false
+	}
+}
 
 func RenderArrayResult[T any](ctx *fasthttp.RequestCtx, res []T, err error) (any, error) {
 
@@ -35,6 +69,11 @@ func RenderAny[T any](ctx *fasthttp.RequestCtx, res T, err error) (any, error) {
 
 	if err != nil {
 		return CreateErrResult(err)
+	}
+
+	if isNilOrEmpty(res) {
+		ctx.SetStatusCode(fasthttp.StatusNoContent)
+		return nil, nil
 	}
 
 	views.WriteJSONHeaders(ctx)

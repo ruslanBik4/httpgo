@@ -212,7 +212,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 		case errNotFoundPage:
 			ctx.NotFound()
-			logs.StatusLog("Not Found Page %+v", ctx.Request.String())
+			logs.DebugLog("Not Found Page %+v", ctx.Request.String())
 			return
 
 		default:

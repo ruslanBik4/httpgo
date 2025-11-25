@@ -518,6 +518,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		if res, ok := p.Equal(ctx); ok {
 			return res, nil
 		}
+		// we have't result on cache defer must save response to cache
 		defer func() {
 			if err == nil && resp != nil {
 				p.Save(ctx, resp)
