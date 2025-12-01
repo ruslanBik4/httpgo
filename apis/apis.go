@@ -103,33 +103,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 	}
 
 	auth.SetAuthManager(ctx, a.fncAuth)
-	defer func() {
-		errRec := recover()
-		switch errRec := errRec.(type) {
-		case nil:
-			return
-
-		case error:
-			params := ctx.UserValue(JSONParams)
-			if params == nil && route.Multipart {
-				params = ctx.UserValue(MultiPartParams)
-			}
-
-			logs.DebugLog("during performs handler '%s', params %+v", route.Desc, params)
-			a.renderError(ctx, errRec, nil)
-		case string:
-			a.renderError(ctx, errors.New(errRec), nil)
-		default:
-			logs.StatusLog(errRec)
-		}
-
-		if route.WithCors {
-			views.WriteCORSHeaders(ctx)
-		}
-
-		logs.StatusLog("%s, %s %v", ctx.Path(), err, errRec)
-
-	}()
+	defer a.handleRecover(ctx, route)
 
 	resp, err := route.CheckAndRun(ctx, a.fncAuth)
 	switch err {
@@ -154,6 +128,31 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 		a.renderError(ctx, err, resp)
 	}
 
+}
+
+func (a *Apis) handleRecover(ctx *fasthttp.RequestCtx, route *ApiRoute) {
+	err := recover()
+	switch errRec := err.(type) {
+	case nil:
+		return
+
+	case error:
+		params := ctx.UserValue(JSONParams)
+		if params == nil && route.Multipart {
+			params = ctx.UserValue(MultiPartParams)
+		}
+
+		logs.DebugLog("during performs handler '%s', params %+v", route.Desc, params)
+		a.renderError(ctx, errRec, nil)
+	case string:
+		a.renderError(ctx, errors.New(errRec), nil)
+	default:
+		logs.StatusLog(errRec)
+	}
+
+	if route.WithCors {
+		views.WriteCORSHeaders(ctx)
+	}
 }
 
 // renderError send error message into response
