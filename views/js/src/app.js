@@ -40,6 +40,15 @@ function LoadStyles(id, styles) {
     }
 }
 
+function loadCSSOnce(url) {
+    if (document.querySelector(`link[href="${url}"]`)) return;
+
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = url;
+    document.head.appendChild(link);
+}
+
 function AddStyles(name, css) {
     $('head').append(`<style title="${name}">${css}</style>`);
 }

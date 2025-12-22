@@ -72,6 +72,11 @@ func NewSliceTypeInParam(bk types.BasicKind) TypeInParam {
 	return TypeInParam{bk, true, nil}
 }
 
+// NewSliceTypeInParam create TypeInParam for slice
+func NewSliceDTOInParam(dto RouteDTO) TypeInParam {
+	return TypeInParam{typesExt.TStruct, true, dto}
+}
+
 // CheckType check of value computable with the TypeInParam
 func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 	switch t.BasicKind {
