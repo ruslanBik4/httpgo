@@ -78,6 +78,9 @@ type InParam struct {
 	TestValue         string
 }
 
+func GetValue[T any](ctx *fasthttp.RequestCtx, param *InParam) T {
+	return ctx.UserValue(param.Name).(T)
+}
 func (param *InParam) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 's', 'v':

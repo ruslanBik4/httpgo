@@ -22,7 +22,7 @@ import (
 
 var (
 	regDuplicated    = regexp.MustCompile(`duplicate key value violates unique constraint "(\w*)"`)
-	regSyntaxWrong   = regexp.MustCompile(`invalid\sinput\ssyntax\sfor\stype\s+([\w\s)(]+)\:\s+"([^"]*)"`)
+	regSyntaxWrong   = regexp.MustCompile(`invalid\sinput\ssyntax\sfor\stype\s+([\w\s)(]+):\s+"([^"]*)"`)
 	regCheckViolates = regexp.MustCompile(`new row for relation "(\w+)(?:,[^=]+)?" violates check constraint "(\w*)"`)
 	regKeyWrong      = regexp.MustCompile(`[Kk]ey\s+(?:[(\w\s]+)?\((\w+)(?:,[^=]+)?\)+=\(([^)]+)\)([^.]+)`)
 	regKeyTypeWrong  = regexp.MustCompile(`column\s+"(\w+)(?:,[^=]+)?"\s+is\s+of\s+type\s+([(\w\s)]+) but expression is of type ([(\w\s)]+)$`)
