@@ -122,16 +122,16 @@
 }
 
 .usr-table {
+    background-color: #ffffff;
+    box-shadow: 0 2px 2px 0 rgba(36, 53, 65, 0.1), 0 0 2px 0 rgba(36, 53, 65, 0.1);
+    border: solid 1px rgba(229, 229, 229, 0.1);
+    border-top: none;
     font-size: 15px;
     font-weight: 600;
     line-height: 1.8;
     letter-spacing: 0.2px;
     text-align: left;
     color: #232b2f;
-    background-color: #ffffff;
-    box-shadow: 0 2px 2px 0 rgba(36, 53, 65, 0.1), 0 0 2px 0 rgba(36, 53, 65, 0.1);
-    border: solid 1px rgba(229, 229, 229, 0.1);
-    border-top: none;
     margin: 0 1px;
     display: flex;
     flex-direction: column;
@@ -139,9 +139,10 @@
 }
 
 .usr-table .usr-table-col {
-    text-align: center;
-    justify-content: center;
+    align-self: center;
     box-shadow: 0 2px 2px 0 rgba(36, 53, 65, 0.1), 0 0 2px 0 rgba(36, 53, 65, 0.1);
+    justify-content: center;
+    text-align: center;
 }
 
 .usr-table .usr-table-row .usr-table-col:nth-child(1), .usr-table .usr-table__t-head > .usr-table-col:nth-child(1) {
