@@ -590,7 +590,6 @@ func (route *ApiRoute) checkTypeAndConvertParam(ctx *fasthttp.RequestCtx, name s
 
 			if param.Type.IsSlice() {
 				slice, err := param.Type.ConvertSlice(ctx, values)
-				logs.DebugLog(slice)
 				return slice, err
 			}
 
