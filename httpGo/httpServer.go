@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -196,6 +196,45 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	return h
 }
 
+// Run starting http or https server according to secure
+// certFile and keyFile are paths to TLS certificate and key files for https server
+func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
+
+	h.apis.Https = secure
+	h.apis.StartTime = time.Now()
+	//todo change parameters type on
+	go h.listenOnShutdown()
+	if secure {
+		return h.mainServer.ServeTLS(h.listener, certFile, keyFile)
+	}
+
+	return h.mainServer.Serve(h.listener)
+}
+
+// listenOnShutdown implement correct shutdown server
+func (h *HttpGo) listenOnShutdown() {
+	ch := make(chan os.Signal)
+	KillSignal := syscall.Signal(h.cfg.KillSignal)
+	// syscall.SIGTTIN
+	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
+	logs.StatusLog("Shutdown service starting %v on signal '%v'", time.Now(), KillSignal)
+	signShut := <-ch
+
+	logs.StatusLog("Shutdown service get signal: " + signShut.String())
+	close(h.broadcast)
+
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	err := h.mainServer.ShutdownWithContext(ctx)
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+
+	err = h.listener.Close()
+	if err != nil {
+		logs.ErrorLog(err)
+	}
+}
+
 const separator = "/"
 
 func isLocalRedirect(ip string) bool {
@@ -345,45 +384,6 @@ func filterIPs(curIPs []string, ips []string) []string {
 	return tmpIps
 }
 
-// Run starting http or https server according to secure
-// certFile and keyFile are paths to TLS certificate and key files for https server
-func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
-
-	h.apis.Https = secure
-	h.apis.StartTime = time.Now()
-	//todo change parameters type on
-	go h.listenOnShutdown()
-	if secure {
-		return h.mainServer.ServeTLS(h.listener, certFile, keyFile)
-	}
-
-	return h.mainServer.Serve(h.listener)
-}
-
-// listenOnShutdown implement correct shutdown server
-func (h *HttpGo) listenOnShutdown() {
-	ch := make(chan os.Signal)
-	KillSignal := syscall.Signal(h.cfg.KillSignal)
-	// syscall.SIGTTIN
-	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
-	logs.StatusLog("Shutdown service starting %v on signal '%v'", time.Now(), KillSignal)
-	signShut := <-ch
-
-	logs.StatusLog("Shutdown service get signal: " + signShut.String())
-	close(h.broadcast)
-
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
-	err := h.mainServer.ShutdownWithContext(ctx)
-	if err != nil {
-		logs.ErrorLog(err)
-	}
-
-	err = h.listener.Close()
-	if err != nil {
-		logs.ErrorLog(err)
-	}
-}
-
 // fastHTTPLogger wrap logging server
 type fastHTTPLogger struct {
 	logs.LogsType
@@ -399,6 +399,10 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
 			logs.DebugLog(fmt.Sprintf(mess, args...))
+			for i, arg := range args {
+				logs.DebugLog("%d. %T", i, arg)
+			}
+
 		} else {
 			logs.ErrorLog(errors.New(mess), args...)
 		}
@@ -421,12 +425,12 @@ func renderError(ctx *fasthttp.RequestCtx, err error) {
 			return
 		}
 		if isTLSError(err) {
-			logs.DebugLog(err)
+			logs.DebugLog("%v", err)
 			ctx.SetStatusCode(fasthttp.StatusConflict)
 			return
 		}
 		if isHeaderError(err) {
-			logs.DebugLog(err)
+			logs.DebugLog("%v", err)
 			ctx.SetStatusCode(fasthttp.StatusRequestHeaderFieldsTooLarge)
 			return
 		}
