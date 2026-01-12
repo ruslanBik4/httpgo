@@ -399,8 +399,8 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
 			logs.DebugLog(fmt.Sprintf(mess, args...))
-			for i, arg := range args {
-				logs.DebugLog("%d. %T", i, arg)
+			if len(args) > 2 {
+				logs.DebugLog("%#v", args[2])
 			}
 
 		} else {
@@ -434,6 +434,11 @@ func renderError(ctx *fasthttp.RequestCtx, err error) {
 			ctx.SetStatusCode(fasthttp.StatusRequestHeaderFieldsTooLarge)
 			return
 		}
+		if isMPFBodyError(err) || isUnsopportContent(err) {
+			logs.DebugLog("%v", err)
+			ctx.SetStatusCode(fasthttp.StatusNotAcceptable)
+			return
+		}
 		logs.ErrorLog(err, ctx.String())
 		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 	}
@@ -449,4 +454,10 @@ func isReadError(err error) bool {
 
 func isHeaderError(err error) bool {
 	return strings.Contains(err.Error(), "error when reading request headers:")
+}
+func isMPFBodyError(err error) bool {
+	return strings.Contains(err.Error(), "cannot read multipart/form-data body:")
+}
+func isUnsopportContent(err error) bool {
+	return strings.Contains(err.Error(), "unsupported Content-Encoding:")
 }
