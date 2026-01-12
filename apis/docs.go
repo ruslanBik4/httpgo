@@ -19,6 +19,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/auth"
+	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -545,7 +546,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteObjectStart()
 	FirstFieldToJSON(stream, "description", "API Specification, include endpoints description, ect")
 	title := "httpgo"
-	if n, ok := apis.Ctx[ServerName].(string); ok && n > "" {
+	if n, ok := apis.Ctx[views.ServerName].(string); ok && n > "" {
 		title = n
 	}
 	version, hasVersion := apis.Ctx.Value(ServerVersion).(string)

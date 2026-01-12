@@ -65,7 +65,15 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	apis.Ctx[ApiVersion] = HTTPGOVer
 	if cfg.Server != nil {
-		apis.Ctx[ServerName] = fmt.Sprintf("%v HTTPGO/%v (%s) backend by Golang %v builded on %s", cfg.Server.Name, HTTPGOVer, runtime.GOOS, GoVersion, OSVersion)
+		apis.Ctx[views.ServerName] = fmt.Sprintf(
+			"%v HTTPGO/%v (%s) backend by Golang %v(%s) builded on %s",
+			cfg.Server.Name,
+			HTTPGOVer,
+			runtime.GOOS,
+			runtime.Version(),
+			runtime.Compiler,
+			OSVersion,
+		)
 	}
 
 	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {

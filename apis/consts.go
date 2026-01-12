@@ -85,7 +85,6 @@ const (
 	ApiVersion      = "ACC_VERSION"
 	IsWrapHandler   = "HAS_HANDLER"
 
-	ServerName    = "name of server httpgo"
 	ServerVersion = "version of server httpgo"
 	Database      = "DB"
 	AppStore      = "store"

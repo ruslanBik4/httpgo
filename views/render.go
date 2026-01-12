@@ -155,10 +155,9 @@ func ReplaceWrapLines(out []byte) []byte {
 	return bytes.ReplaceAll(out, []byte("\n"), wrapLine)
 }
 
-const AgeOfServer = "AGE"
-
 // WriteResponse to ctx body according to type of resp
 func WriteResponse(ctx *fasthttp.RequestCtx, resp any) error {
+	WriteHeaders(ctx)
 	switch resp := resp.(type) {
 	case nil:
 	case []byte:

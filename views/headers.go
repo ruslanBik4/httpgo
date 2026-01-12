@@ -27,6 +27,7 @@ const (
 )
 
 const ServerName = "name of server httpgo"
+const AgeOfServer = "AGE"
 
 // HEADERS - list standard header for html page - noinspection GoInvalidConstType
 var HEADERS = map[string]string{

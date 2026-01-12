@@ -15,7 +15,6 @@ const ShowVersion = "/api/version()"
 var (
 	Version   string
 	HTTPGOVer string
-	GoVersion string
 	OSVersion string
 	Build     string
 	Branch    string
