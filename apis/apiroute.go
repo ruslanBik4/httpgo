@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -518,13 +518,14 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		if res, ok := p.Equal(ctx); ok {
 			return res, nil
 		}
-		// we have't result on cache defer must save response to cache
+		// we haven't result on cache defer must save response to cache
 		defer func() {
 			if err == nil && resp != nil {
 				p.Save(ctx, resp)
 			}
 		}()
 	}
+
 	return route.Fnc(ctx)
 }
 

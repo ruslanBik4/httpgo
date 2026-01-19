@@ -185,7 +185,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	}
 
 	store := NewStore()
-	apis.Ctx.AddValue(AppStore, store)
+	apis.Ctx.AddValue(string(AppStore), store)
 	// add cfg refresh routers, ignore errors
 	apisRoute := createAdminRoutes(cfg)
 
