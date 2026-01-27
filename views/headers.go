@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2024-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -38,7 +38,6 @@ var HEADERS = map[string]string{
 
 // WriteHeaders выдаем стандартные заголовки страницы
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
-	ctx.Response.Header.SetContentEncoding("utf-8")
 	age, ok := ctx.UserValue(AgeOfServer).(float64)
 	if ok {
 		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
