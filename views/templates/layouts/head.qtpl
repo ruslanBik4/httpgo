@@ -3,6 +3,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
 	"github.com/ruslanBik4/httpgo/views/templates/css"
+	"github.com/ruslanBik4/httpgo/views/js"
 )
 %}
 head for index page.
@@ -59,7 +60,10 @@ type HeadHTMLPage struct {
     {%- endfor -%}
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script>
     <!-- forms rendering & validation -->
-    <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
+    <script>
+      <!-- src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async -->
+      {%= js.JQueryMin() %}
+      </script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.js" async></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/additional-methods.min.js" async></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.js" ></script>

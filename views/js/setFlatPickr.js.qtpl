@@ -1,0 +1,3 @@
+{% func SetFlatPickr() %}
+	{% cat "src/setFlatPickr.js" %}
+{% endfunc %}
