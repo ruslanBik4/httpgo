@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -32,6 +32,10 @@ func (n *NumRangeMarshal) NewValue() any {
 
 type DateRangeMarshal struct {
 	*pgtype.Daterange
+}
+
+func NewDateRangeMarshal() *DateRangeMarshal {
+	return &DateRangeMarshal{&pgtype.Daterange{}}
 }
 
 func (d *DateRangeMarshal) Expect() string {
@@ -174,6 +178,10 @@ type IntervalMarshal struct {
 	*pgtype.Interval
 }
 
+func NewIntervalMarshal() *IntervalMarshal {
+	return &IntervalMarshal{&pgtype.Interval{}}
+}
+
 func (i *IntervalMarshal) GetValue() any {
 	return i
 }
@@ -215,6 +223,10 @@ func (d *IntervalMarshal) Format(s fmt.State, verb rune) {
 
 type InetMarshal struct {
 	*pgtype.Inet
+}
+
+func NewInetMarshal() *InetMarshal {
+	return &InetMarshal{&pgtype.Inet{}}
 }
 
 func (i *InetMarshal) GetValue() any {

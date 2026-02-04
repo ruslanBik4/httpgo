@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -60,7 +60,7 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	case "timestamptz":
 		p.Type = apis.NewStructInParam(NewTzString())
 	case "daterange":
-		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
+		p.Type = apis.NewStructInParam(NewDateRangeMarshal())
 	case "numrange":
 		p.Type = apis.NewStructInParam(&NumrangeMarshal{})
 	case "bytea":
@@ -68,9 +68,9 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	case "json", "jsonb":
 		p.Type = apis.NewStructInParam(&DtoField{})
 	case "inet":
-		p.Type = apis.NewStructInParam(&InetMarshal{})
+		p.Type = apis.NewStructInParam(NewInetMarshal())
 	case "interval":
-		p.Type = apis.NewStructInParam(&IntervalMarshal{})
+		p.Type = apis.NewStructInParam(NewIntervalMarshal())
 	default:
 		basicType := col.BasicType()
 		if isArray {
