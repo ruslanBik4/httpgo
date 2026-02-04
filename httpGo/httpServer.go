@@ -38,7 +38,7 @@ import (
 type HttpGo struct {
 	mainServer *fasthttp.Server
 	listener   net.Listener
-	broadcast  chan string
+	broadcast  chan *string
 	apis       *Apis
 	cfg        *CfgHttp
 	store      *Store
@@ -194,7 +194,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	h = &HttpGo{
 		mainServer: cfg.Server,
 		listener:   listener,
-		broadcast:  make(chan string),
+		broadcast:  make(chan *string),
 		apis:       apis,
 		cfg:        cfg,
 		store:      store,

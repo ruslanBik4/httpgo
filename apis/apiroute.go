@@ -510,10 +510,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	}
 
 	if p := route.PreCache; p != nil {
-		//if gotools.BytesToString(ctx.Request.Header.Peek("Cache-Control")) == "no-cache" {
-		//	logs.StatusLog("no cache detected!")
-		//	return nil, false
-		//}
+		if gotools.BytesToString(ctx.Request.Header.Peek("Cache-Control")) == "no-cache" {
+			logs.StatusLog("no cache detected!")
+			//return nil, false
+		}
 		// we have result on cache
 		if res, ok := p.Equal(ctx); ok {
 			return res, nil

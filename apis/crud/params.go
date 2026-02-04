@@ -53,10 +53,12 @@ func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
 	switch col.Type() {
 	case "date":
 		p.Type = apis.NewStructInParam(&DateString{})
-	case "timestamp", "time":
+	case "time":
 		p.Type = apis.NewStructInParam(&DateTimeString{})
+	case "timestamp":
+		p.Type = apis.NewStructInParam(NewTimestampString())
 	case "timestamptz":
-		p.Type = apis.NewStructInParam(&DateTimeTZString{&DateTimeString{}})
+		p.Type = apis.NewStructInParam(NewTzString())
 	case "daterange":
 		p.Type = apis.NewStructInParam(&DateRangeMarshal{})
 	case "numrange":

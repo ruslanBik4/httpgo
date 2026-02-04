@@ -217,18 +217,22 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 	return true
 }
 
-func (d *DateTimeString) GetPgxType() pgtype.Timestamp {
-	return pgtype.Timestamp{
-		Time:   (time.Time)(*d),
-		Status: pgtype.Present,
+func (d *DateTimeString) GetPgxType() pgtype.Time {
+	return pgtype.Time{
+		Microseconds: (time.Time)(*d).UnixMicro(),
+		Status:       pgtype.Present,
 	}
 }
 
-type DateTimeTZString struct {
+type TzString struct {
 	*DateTimeString
 }
 
-func (d *DateTimeTZString) GetPgxType() pgtype.Timestamptz {
+func NewTzString() *TzString {
+	return &TzString{&DateTimeString{}}
+}
+
+func (d *TzString) GetPgxType() pgtype.Timestamptz {
 	return pgtype.Timestamptz{
 		Time:   (time.Time)(*d.DateTimeString),
 		Status: pgtype.Present,
@@ -236,7 +240,44 @@ func (d *DateTimeTZString) GetPgxType() pgtype.Timestamptz {
 }
 
 // Format implement Formatter interface
-func (d *DateTimeTZString) Format(s fmt.State, verb rune) {
+func (d *TzString) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		_, err := fmt.Fprintf(s, "%T", d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 'g':
+		_, err := fmt.Fprintf(s, "&%T{}", *d)
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+	case 's':
+		_, err := fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		if err != nil {
+			logs.ErrorLog(err)
+		}
+
+	}
+}
+
+type TimestampString struct {
+	*DateTimeString
+}
+
+func NewTimestampString() *TimestampString {
+	return &TimestampString{&DateTimeString{}}
+}
+
+func (d *TimestampString) GetPgxType() pgtype.Timestamp {
+	return pgtype.Timestamp{
+		Time:   (time.Time)(*d.DateTimeString),
+		Status: pgtype.Present,
+	}
+}
+
+// Format implement Formatter interface
+func (d *TimestampString) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 't':
 		_, err := fmt.Fprintf(s, "%T", d)
