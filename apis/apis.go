@@ -31,13 +31,13 @@ import (
 	"github.com/ruslanBik4/httpgo/views/templates/system/routeTable"
 )
 
-type CtxApis map[string]any
+type CtxApis map[any]any
 
 func NewCtxApis(cap int) CtxApis {
 	ctx := make(CtxApis, cap)
 	return ctx
 }
-func (c CtxApis) AddValue(key string, val any) {
+func (c CtxApis) AddValue(key, val any) {
 	c[key] = val
 }
 func (c CtxApis) Deadline() (deadline time.Time, ok bool) {
