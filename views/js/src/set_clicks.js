@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -123,7 +123,7 @@ function setClickAll(target) {
             }
         })
 
-    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on]', target).not('[rel]');
+    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on], [hx-boost]', target).not('[rel]');
     if (hxEvents.length > 0) {
         hxEvents.attr("rel", 'htmx');
         htmx.process(target);

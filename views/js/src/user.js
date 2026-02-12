@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -51,7 +51,10 @@ function changeLang(newLang) {
     return false
 }
 
-
+function SaveUser(event) {
+    let userData = JSON.parse(event.detail.xhr.responseText);
+    return saveUser(userData)
+}
 function saveUser(userData) {
     var userSuffix = userData.lang ? `(${userData.lang})` : '';
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
@@ -85,6 +88,8 @@ function saveUser(userData) {
     if (urlAfterLogin > '') {
         loadContent(urlAfterLogin);
     }
+
+    return false
 }
 
 function ChangeTheme(id_themes) {
