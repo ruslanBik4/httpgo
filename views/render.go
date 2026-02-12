@@ -57,7 +57,7 @@ func RenderAnyPage(ctx *fasthttp.RequestCtx, content string) error {
 func RenderSignForm(ctx *fasthttp.RequestCtx, email string) {
 
 	signForm := &forms.SignForm{Email: email, Password: "Enter password that was sending on email"}
-	RenderHTMLPage(ctx, signForm.WriteSigningForm)
+	RenderHTMLPage(ctx, signForm.WriteSignForm)
 }
 
 // RenderSignUpForm show form registration user

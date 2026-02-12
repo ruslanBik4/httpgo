@@ -9,7 +9,7 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 %}
 {% func (sf *SignForm) SigningForm() %}
 <div class="main-form-wrap">
-    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);">
+    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" enctype="multipart/form-data">
         <h2 class="form-signing-heading">SignIn</h2>
         <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="{%s sf.Email %}">
         <input type="password" name="key" class="input-block-level" placeholder="{%s sf.Password %}">
@@ -20,5 +20,23 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         <output></output>
         <progress value='0' max='100' hidden > </progress>
     </form>
+</div>
+{% endfunc %}
+hx-post="/get/token/"
+{% func (sf *SignForm) SignForm() %}
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+	<div class="modal-underlay" _="on click trigger closeModal"></div>
+	<div class="modal-content" >
+		<form target="content" action="/user/signin/" enctype="multipart/form-data" method="post" hx-boost="true"  class="form-signing" hx-on::after-request='return SaveUser(event);'>
+			<h2 class="form-signing-heading">SignIn</h2>
+			<input type="email" name="email" class="input-block-level" placeholder="Registration email">
+			<input type="password" name="key" class="input-block-level">
+			<label class="checkbox">
+				<input type="checkbox" name="remember" value="remember-me"> Save me on site
+			</label>
+			<button class="main-btn" type="submit">Login</button>
+			<output></output>
+			<progress value='0' max='100' hidden > </progress>
+		</form>	</div>
 </div>
 {% endfunc %}

@@ -58,7 +58,7 @@ type HeadHTMLPage struct {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
     {%- for i := 0; i< len(head.LinkStyles); i++ -%} {%s= head.LinkStyles[i] %}
     {%- endfor -%}
-    <~-- script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script -->
+    <!-- script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script -->
     <!-- forms rendering & validation -->
     <script>
       {%= js.JQueryMin() %}

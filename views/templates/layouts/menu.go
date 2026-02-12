@@ -7,24 +7,30 @@
 
 package layouts
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"slices"
+)
 
 var ErrSubMennuNotFound = errors.New("item has't subMenu")
 
 type Menu []*ItemMenu
 
-func (m Menu) Add(item *ItemMenu) Menu {
-	return append(m, item)
+func (m *Menu) Add(item *ItemMenu) *Menu {
+	*m = append(*m, item)
+
+	return m
 }
 
 func (m Menu) FindItem(name string) (*ItemMenu, int) {
-	for i, item := range m {
-		if item.Name == name {
-			return item, i
-		}
+	i := slices.IndexFunc(m, func(item *ItemMenu) bool {
+		return item.Name == name
+	})
+	if i < 0 {
+		return nil, -1
 	}
 
-	return nil, -1
+	return m[i], i
 }
 
 type ItemMenu struct {
@@ -38,6 +44,7 @@ func (m *ItemMenu) AddSubItem(item *ItemMenu) error {
 		return ErrSubMennuNotFound
 	}
 
-	m.SubMenu = m.SubMenu.Add(item)
+	m.SubMenu.Add(item)
+
 	return nil
 }
