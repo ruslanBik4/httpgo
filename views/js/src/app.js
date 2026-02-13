@@ -18,7 +18,10 @@ function fancyOpen(data) {
         'autoDimensions': true,
         'centerOnScroll': true,
         'content': data
-    })
+    });
+    setTimeout(function () {
+        htmx.process('.fancybox-inner');
+    }, 1000);
 }
 
 //replace special symbols

@@ -447,39 +447,12 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	badParams := make(map[string]string, 0)
 
 	if route.Multipart {
-		// check multipart params¬
-		if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
-			return nil, fasthttp.ErrNoMultipartForm
-		}
-		mf, err := ctx.Request.MultipartForm()
-		if err != nil {
-			if strings.Contains(err.Error(), "form size must be greater than 0") ||
-				strings.Contains(err.Error(), "cannot read multipart/form-data body") {
-				return ctx.Request.String(), ErrWrongParamsList
-			}
-			return nil, err
-		}
 
+		if a, err := route.chkMultiPart(ctx, contentType, badParams); err != nil {
+			return a, err
+		}
 		defer ctx.Request.RemoveMultipartFormFiles()
 
-		ctx.SetUserValue(MultiPartParams, mf.Value)
-
-		for key, value := range mf.Value {
-			val, err := route.checkTypeAndConvertParam(ctx, key, value)
-			if err != nil {
-				if val != nil {
-					logs.DebugLog(val)
-				}
-
-				badParams[key] = "wrong type " + strings.Join(value, ",") + err.Error()
-			} else {
-				ctx.SetUserValue(key, val)
-			}
-		}
-
-		for key, files := range mf.File {
-			ctx.SetUserValue(key, files)
-		}
 	} else {
 		fncStoreArgs := func(k, v []byte) bool {
 			key := gotools.BytesToString(k)
@@ -527,6 +500,42 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	}
 
 	return route.Fnc(ctx)
+}
+
+func (route *ApiRoute) chkMultiPart(ctx *fasthttp.RequestCtx, contentType []byte, badParams map[string]string) (any, error) {
+	// check multipart params¬
+	if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
+		return nil, fasthttp.ErrNoMultipartForm
+	}
+	mf, err := ctx.Request.MultipartForm()
+	if err != nil {
+		if strings.Contains(err.Error(), "form size must be greater than 0") ||
+			strings.Contains(err.Error(), "cannot read multipart/form-data body") {
+			return ctx.Request.String(), ErrWrongParamsList
+		}
+		return nil, err
+	}
+
+	ctx.SetUserValue(MultiPartParams, mf.Value)
+
+	for key, value := range mf.Value {
+		val, err := route.checkTypeAndConvertParam(ctx, key, value)
+		if err != nil {
+			if val != nil {
+				logs.DebugLog(val)
+			}
+
+			badParams[key] = "wrong type " + strings.Join(value, ",") + err.Error()
+		} else {
+			ctx.SetUserValue(key, val)
+		}
+	}
+
+	for key, files := range mf.File {
+		ctx.SetUserValue(key, files)
+	}
+
+	return nil, nil
 }
 
 func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
