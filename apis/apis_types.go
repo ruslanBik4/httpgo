@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -100,8 +100,7 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		return err == nil
 
 	case typesExt.TStruct:
-		v := t.DTO.NewValue()
-		err := Json.UnmarshalFromString(value, &v)
+		err := Json.UnmarshalFromString(value, new(t.DTO.NewValue()))
 		if err != nil {
 			logs.ErrorLog(err)
 		}

@@ -265,8 +265,7 @@ func (n *NumrangeMarshal) GetValue() any {
 }
 
 func (n *NumrangeMarshal) NewValue() any {
-	v := NumrangeMarshal(pgtype.Numrange{})
-	return &v
+	return new(NumrangeMarshal(pgtype.Numrange{}))
 }
 
 func (n *NumrangeMarshal) Set(src any) error {
