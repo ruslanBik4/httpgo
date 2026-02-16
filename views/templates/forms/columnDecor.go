@@ -101,7 +101,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 	if m := regPattern.FindAllSubmatch(gotools.StringToBytes(comment), -1); len(m) > 0 {
 		parse, err := fastjson.ParseBytes(m[0][0])
 		if err != nil {
-			logs.ErrorLog(err, string(m[0][0]))
+			logs.ErrorLog(err, gotools.BytesToString(m[0][0]))
 		} else {
 			colDec.ExtProperties = parse
 			if parse.Exists("special") {

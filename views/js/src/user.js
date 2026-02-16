@@ -6,12 +6,15 @@
  */
 "use strict";
 
-var token = '';
+var token = localStorage.getItem("TOKEN");
 var lang = document.documentElement.lang.split(",")[0] || 'en';
 var userStruct = getUser();
 var urlAfterLogin = '';
 
 function getUser() {
+    if (token)
+        return;
+
     let user = localStorage.getItem("USER");
     if (user > '') {
         let userData = JSON.parse(user);
@@ -58,6 +61,8 @@ function SaveUser(event) {
 function saveUser(userData) {
     var userSuffix = userData.lang ? `(${userData.lang})` : '';
     token = userData.token || userData.access_token || userData.bearer_token || userData.auth_token;
+    localStorage.setItem("TOKEN", token);
+    localStorage.setItem("USER", userData);
 
     $('#sUser').text(userData.name + userSuffix);
     $('body').attr('auth', true);

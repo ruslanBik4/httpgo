@@ -26,6 +26,8 @@ function setDatePopUp(typ, parent) {
     });
 }
 
+const datesConstraints = 'CONSTRAINTS_DATE';
+
 function applyFlatpickr(dates, typ) {
     const isSingle = typ === 'date';
     let selDates = JSON.parse(localStorage.getItem(datesConstraints)) || {minDate: 1433141722, maxDate: new Date()};
@@ -41,7 +43,7 @@ function applyFlatpickr(dates, typ) {
                 // document.documentElement.lang.split(",")[0] || 'en',
             },
             mode: isSingle || isMonth ? 'single' : 'range',
-            minDate: UnixTimetoDate(selDates['minDate']),
+            // minDate: UnixTimetoDate(selDates['minDate']),
             maxDate: elem.max || selDates['maxDate'],
             // defaultDate: val,
             // showMonths: 3,

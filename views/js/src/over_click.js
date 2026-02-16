@@ -197,5 +197,5 @@ function showJSON(data) {
 function getHeaders(xhr) {
     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
     xhr.setRequestHeader('Accept-Language', lang);
-    xhr.setRequestHeader('Content-Encoding', 'gzip, deflate');
+    // xhr.setRequestHeader('Content-Encoding', 'gzip, deflate');
 }

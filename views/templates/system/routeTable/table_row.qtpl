@@ -40,9 +40,9 @@
 {% stripspace %}
 <title>{%s t.Name() %}: {%s t.Comment() %}</title>
 <div class="sidebar" id="t_{%s t.Name() %}_sidebar" hx-swap-oob="outerHTML:.sidebar">
-<form action="{%s t.ApiImport %}" hx-encoding="multipart/form-data" hx-post="{%s t.ApiImport %}"
-          _="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100">
-<!-- method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" -->
+<form action="{%s t.ApiImport %}" hx-boost="true" hx-encoding="multipart/form-data" action="{%s t.ApiImport %}"
+          _="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100"
+ method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" >
 <h3>{%s t.Name() %}</h3>
 <div class="only_auth">
 {%- if !t.OnlyView -%}
@@ -82,13 +82,13 @@
     </figure>
 </form>
 </div>
-<div class="usr-table table-custom" id="t_{%s t.Name() %}" >
+<div class="usr-table table-custom" id="t_{%s t.Name() %}" hx-boost="true">
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range t.columns %}
-	        <div class="usr-table-col table-col-{%d i%}
+	        <div class='usr-table-col table-col-{%d i%}
 	            {% if col.Label == "id" && i < len(t.columns)-1 %}
-                    " ><ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
+                    ' ><ul class="left-mnu-list" style="z-index:4;"><li><a>#</a>
 	                <ul class="dropdown">go to column...
 				    {% for j, c := range t.columns[i+1:] %}
 				           <li class="left-mnu-item">

@@ -24,7 +24,30 @@ type HeadHTMLPage struct {
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta charset="{%s head.Charset %}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!--
+  * 204 No Content by default does nothing, but is not an error
+  * 2xx, 3xx and 422 responses are non-errors and are swapped
+  * 4xx & 5xx responses are not swapped and are errors
+  * all other responses are swapped using "..." as a catch-all
+-->
+	<meta name="date" content="2026-01-27 11:48:03.790466 +0200 EET m=+3.775887876">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta
+			name="htmx-config"
+			content='{
+	        "responseHandling":[
+	            {"code":"204, 201", "swap": false},
+	            {"code":"[23]..", "swap": true},
+	            {"code":"400", "swap": false, "error": true, "target": "body"},
+	            {"code":"401", "swap": false, "error":true, "target": "body"},
+	            {"code":"422, 404", "swap": true, "error":false},
+	            {"code":"[45]..", "swap": false, "error":true},
+	            {"code":"...", "swap": true}
+	        ],
+			"indicatorClass":"progress",
+			"includeIndicatorStyles": false
+    }'
+	/>
     <meta name="description" content="">
     <meta name="author" content="httpgo">
     {%- for i := 0; i< len(head.MetaTags); i++ -%}
@@ -58,11 +81,10 @@ type HeadHTMLPage struct {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
     {%- for i := 0; i< len(head.LinkStyles); i++ -%} {%s= head.LinkStyles[i] %}
     {%- endfor -%}
-    <!-- script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" ></script -->
-    <!-- forms rendering & validation -->
     <script>
       {%= js.JQueryMin() %}
       </script>
+    <!-- forms rendering & validation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" async></script>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.js" async>
     <script  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/additional-methods.min.js" async></script>
@@ -84,7 +106,7 @@ type HeadHTMLPage struct {
     <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
-    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"  crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.8" defer crossorigin="anonymous"></script>
 
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="crossorigin=""/>
@@ -97,7 +119,7 @@ type HeadHTMLPage struct {
 <!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-date-range-picker@1.0.4/dist/daterangepicker.min.css" -->
 <!-- Include Flatpickr CSS and JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- script src="https://cdn.jsdelivr.net/npm/flatpickr"></script -->
 </head>
 {% endfunc %}
 

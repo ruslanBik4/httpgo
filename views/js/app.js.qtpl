@@ -2,6 +2,7 @@
 {%= UserJS() %}
 {%= SetClicksJS()  %}
 {%= OverClick()  %}
+{%= Observer()  %}
 	{% cat "src/app.js" %}
 {% endfunc %}
 
@@ -10,4 +11,5 @@
 {%= App() %}
 {%= PutFormsJS() %}
 {%= TableJS() %}
+{%= SetFlatPickr() %}
 {% endfunc %}

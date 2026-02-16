@@ -118,11 +118,11 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:43
 	qw422016.E().S(t.ApiImport)
 //line table_row.qtpl:43
-	qw422016.N().S(`" hx-encoding="multipart/form-data" hx-post="`)
+	qw422016.N().S(`" hx-boost="true" hx-encoding="multipart/form-data" action="`)
 //line table_row.qtpl:43
 	qw422016.E().S(t.ApiImport)
 //line table_row.qtpl:43
-	qw422016.N().S(`"_="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100"><!-- method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" --><h3>`)
+	qw422016.N().S(`"_="on htmx:xhr:progress(loaded, total) set #progress.value to (loaded/total)*100"method="POST" enctype="multipart/form-data" onsubmit="return saveForm(this);" ><h3>`)
 //line table_row.qtpl:46
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:46
@@ -188,17 +188,17 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:85
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:85
-	qw422016.N().S(`" ><div class="usr-table-header"><div class="usr-table__t-head  usr-table-row">`)
+	qw422016.N().S(`" hx-boost="true"><div class="usr-table-header"><div class="usr-table__t-head  usr-table-row">`)
 //line table_row.qtpl:88
 	for i, col := range t.columns {
 //line table_row.qtpl:88
-		qw422016.N().S(`<div class="usr-table-col table-col-`)
+		qw422016.N().S(`<div class='usr-table-col table-col-`)
 //line table_row.qtpl:89
 		qw422016.N().D(i)
 //line table_row.qtpl:90
 		if col.Label == "id" && i < len(t.columns)-1 {
 //line table_row.qtpl:90
-			qw422016.N().S(`" ><ul class="left-mnu-list" style="z-index:4;"><li><a>#</a><ul class="dropdown">go to column...`)
+			qw422016.N().S(`' ><ul class="left-mnu-list" style="z-index:4;"><li><a>#</a><ul class="dropdown">go to column...`)
 //line table_row.qtpl:93
 			for j, c := range t.columns[i+1:] {
 //line table_row.qtpl:93

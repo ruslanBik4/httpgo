@@ -45,5 +45,5 @@ func (r *AjaxOnly) String() string {
 
 // IsAJAXRequest - is this AJAX-request
 func IsAJAXRequest(r *fasthttp.Request) bool {
-	return len(r.Header.Peek("X-Requested-With")) > 0
+	return len(r.Header.Peek("X-Requested-With")) > 0 //todo: chk "HX-Request"
 }

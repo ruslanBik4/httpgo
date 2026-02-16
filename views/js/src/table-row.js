@@ -205,9 +205,6 @@ function ScrollToElem(selector) {
     return true;
 }
 
-function SetTableEvents() {
-    setSortedClasses();
-}
 
 function setSortedClasses() {
     let url = new URL(window.location.href);

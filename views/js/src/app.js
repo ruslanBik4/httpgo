@@ -7,6 +7,9 @@
 
 "use strict";
 
+// impotent set BEFORE load all srcipt
+cfgHTMX();
+
 function fancyOpen(data) {
     $.fancybox.open({
         'autoScale': true,
@@ -20,7 +23,7 @@ function fancyOpen(data) {
         'content': data
     });
     setTimeout(function () {
-        htmx.process('.fancybox-inner');
+        processAll('.fancybox-inner');
     }, 1000);
 }
 
@@ -95,35 +98,6 @@ function GetShortURL(url) {
 }
 
 
-function createObserver() {
-// Create a MutationObserver instance
-    const observer = new MutationObserver((mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === "childList") {
-                setClickAll(mutation.addedNodes);
-            } else if (mutation.type === "attributes") {
-                let ignores = ["style", "class", "rel"];
-                if (ignores.indexOf(mutation.attributeName) > -1) {
-                    return
-                }
-                console.log("Attributes changed:", mutation);
-            } else if (mutation.type === "characterData") {
-                console.log("Text content changed:", mutation);
-            }
-        }
-    });
-
-// Configure observer options
-    const config = {
-        childList: true,      // Detect when children are added/removed
-        attributes: true,     // Detect attribute changes
-        subtree: true,        // Observe all descendants
-        characterData: true   // Detect text content changes
-    };
-
-    observer.observe(document.body, config);
-}
-
 $(function () {
     if (!window.onpopstate) {
         window.onpopstate = MyPopState;
@@ -152,53 +126,14 @@ $(function () {
         userStruct = getUser();
     }
 
-    document.body.addEventListener('htmx:onLoadError', function (evt) {
-        console.log(evt);
-        handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
-    });
-
-    document.body.addEventListener('htmx:configRequest', function (evt) {
-        evt.detail.headers['Authorization'] = 'Bearer ' + token;
-        evt.detail.headers['Accept-Language'] = lang;
-        evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        const pathInfo = evt.detail.path;
-        if (pathInfo) {
-            console.log(pathInfo);
-            pathInfo.responsePath = replMacros(pathInfo.finalRequestPath);
-        } else {
-            console.log(evt);
-        }
-    });
-
-    document.body.addEventListener('htmx:afterRequest', evt => {
-        let responseText = evt.detail.xhr.responseText;
-        console.log(evt.detail);
-        switch (evt.detail.elt.target) {
-            case "_modal":
-                fancyOpen(responseText);
-                evt.preventDefault();
-                return false;
-
-            case "_blank":
-                var uri = "data:text/html," + encodeURIComponent(responseText);
-                var newWindow = window.open('localhost', "Preview");
-                newWindow.document.write(responseText);
-                newWindow.focus();
-                setTimeout(function () {
-                    newWindow.setClickAll();
-                }, 1000);
-
-                evt.preventDefault();
-                return false;
-
-            default:
-                SetDocumentHash(evt.detail.pathInfo.responsePath,responseText);
-        }
-    });
-
+    processAll(document.body);
     createObserver();
-    setClickAll(document.body);
 }) // $(document).ready
+
+function relogin(url) {
+    urlAfterLogin = url;
+    $('#bLogin').trigger("click");
+}
 
 // run request & show content
 function loadContent(url) {
@@ -216,9 +151,8 @@ function loadContent(url) {
         error: function (xhr, status, error) {
             switch (xhr.status) {
                 case 401:
-                    urlAfterLogin = url;
-                    $('#bLogin').trigger("click");
-                    return;
+                    return relogin(url);
+
                 case 404:
                     alert(`address '${url}' not found!`)
                     return;
@@ -324,4 +258,11 @@ function isScrollableY(node) {
 function isScrollableX(node) {
     const overflowX = window.getComputedStyle(node)['overflow-x'];
     return (overflowX === 'scroll' || overflowX === 'auto');
+}
+
+
+function SetTableEvents() {
+    if (window.setSortedClasses === undefined) {
+        LoadJScript("/js/table.js", false, true, setSortedClasses);
+    }
 }

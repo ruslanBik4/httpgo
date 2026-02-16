@@ -36,8 +36,13 @@ func StreamApp(qw422016 *qt422016.Writer) {
 	StreamOverClick(qw422016)
 //line app.js.qtpl:4
 	qw422016.N().S(`
-	`)
+`)
 //line app.js.qtpl:5
+	StreamObserver(qw422016)
+//line app.js.qtpl:5
+	qw422016.N().S(`
+	`)
+//line app.js.qtpl:6
 	qw422016.N().S(`/*
  * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
@@ -46,6 +51,9 @@ func StreamApp(qw422016 *qt422016.Writer) {
  */
 
 "use strict";
+
+// impotent set BEFORE load all srcipt
+cfgHTMX();
 
 function fancyOpen(data) {
     $.fancybox.open({
@@ -60,7 +68,7 @@ function fancyOpen(data) {
         'content': data
     });
     setTimeout(function () {
-        htmx.process('.fancybox-inner');
+        processAll('.fancybox-inner');
     }, 1000);
 }
 
@@ -85,13 +93,13 @@ function LoadStyles(id, styles) {
 
 function loadCSSOnce(url) {
     if (document.querySelector(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`link[href="${url}"]`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`)) return;
 
     const link = document.createElement("link");
@@ -102,25 +110,25 @@ function loadCSSOnce(url) {
 
 function AddStyles(name, css) {
     $('head').append(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`<style title="${name}">${css}</style>`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`);
 }
 
 function AddScript(name, js) {
     $('head').append(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`<script title="${name}">${js}</script>`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`);
 }
 
@@ -159,35 +167,6 @@ function GetShortURL(url) {
 }
 
 
-function createObserver() {
-// Create a MutationObserver instance
-    const observer = new MutationObserver((mutationsList, observer) => {
-        for (const mutation of mutationsList) {
-            if (mutation.type === "childList") {
-                setClickAll(mutation.addedNodes);
-            } else if (mutation.type === "attributes") {
-                let ignores = ["style", "class", "rel"];
-                if (ignores.indexOf(mutation.attributeName) > -1) {
-                    return
-                }
-                console.log("Attributes changed:", mutation);
-            } else if (mutation.type === "characterData") {
-                console.log("Text content changed:", mutation);
-            }
-        }
-    });
-
-// Configure observer options
-    const config = {
-        childList: true,      // Detect when children are added/removed
-        attributes: true,     // Detect attribute changes
-        subtree: true,        // Observe all descendants
-        characterData: true   // Detect text content changes
-    };
-
-    observer.observe(document.body, config);
-}
-
 $(function () {
     if (!window.onpopstate) {
         window.onpopstate = MyPopState;
@@ -203,13 +182,13 @@ $(function () {
                 console.log(evt);
             }
             console.log(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`beforeunload ${document.location} pageY:${y}`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`);
             evt.preventDefault();
             if (y < 0) {
@@ -224,53 +203,14 @@ $(function () {
         userStruct = getUser();
     }
 
-    document.body.addEventListener('htmx:onLoadError', function (evt) {
-        console.log(evt);
-        handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
-    });
-
-    document.body.addEventListener('htmx:configRequest', function (evt) {
-        evt.detail.headers['Authorization'] = 'Bearer ' + token;
-        evt.detail.headers['Accept-Language'] = lang;
-        evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
-        const pathInfo = evt.detail.path;
-        if (pathInfo) {
-            console.log(pathInfo);
-            pathInfo.responsePath = replMacros(pathInfo.finalRequestPath);
-        } else {
-            console.log(evt);
-        }
-    });
-
-    document.body.addEventListener('htmx:afterRequest', evt => {
-        let responseText = evt.detail.xhr.responseText;
-        console.log(evt.detail);
-        switch (evt.detail.elt.target) {
-            case "_modal":
-                fancyOpen(responseText);
-                evt.preventDefault();
-                return false;
-
-            case "_blank":
-                var uri = "data:text/html," + encodeURIComponent(responseText);
-                var newWindow = window.open('localhost', "Preview");
-                newWindow.document.write(responseText);
-                newWindow.focus();
-                setTimeout(function () {
-                    newWindow.setClickAll();
-                }, 1000);
-
-                evt.preventDefault();
-                return false;
-
-            default:
-                SetDocumentHash(evt.detail.pathInfo.responsePath,responseText);
-        }
-    });
-
+    processAll(document.body);
     createObserver();
-    setClickAll(document.body);
 }) // $(document).ready
+
+function relogin(url) {
+    urlAfterLogin = url;
+    $('#bLogin').trigger("click");
+}
 
 // run request & show content
 function loadContent(url) {
@@ -288,18 +228,17 @@ function loadContent(url) {
         error: function (xhr, status, error) {
             switch (xhr.status) {
                 case 401:
-                    urlAfterLogin = url;
-                    $('#bLogin').trigger("click");
-                    return;
+                    return relogin(url);
+
                 case 404:
                     alert(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`address '${url}' not found!`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`)
                     return;
                 case 0:
@@ -308,13 +247,13 @@ function loadContent(url) {
 
             alert("Code : " + xhr.status + " error :" + error);
             console.log(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`${url} ${status} ${error}`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`);
         }
     });
@@ -328,13 +267,13 @@ function PutContent(data, url) {
     if (title > "") {
         if (isChild) {
             $('ol.breadcrumb').append(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`<li class="breadcrumb-item">${title}</li>`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`);
         } else {
             $('ol.breadcrumb li:last').text(title);
@@ -407,23 +346,23 @@ function LoadCSS(url, cacheS, successFunc) {
 function errorLoadResource(xhr, textStatus, errorThrown) {
     if (errorThrown !== undefined) {
         console.error(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`%s from '${xhr}'! (${textStatus}). Pls, reload page!`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`, errorThrown);
     } else {
         console.error(`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`Can't load resource from '${xhr}'! (${textStatus}). Pls, reload page! %s`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S("`")
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`, textStatus);
     }
 }
@@ -436,86 +375,98 @@ function isScrollableY(node) {
 function isScrollableX(node) {
     const overflowX = window.getComputedStyle(node)['overflow-x'];
     return (overflowX === 'scroll' || overflowX === 'auto');
+}
+
+
+function SetTableEvents() {
+    if (window.setSortedClasses === undefined) {
+        LoadJScript("/js/table.js", false, true, setSortedClasses);
+    }
 }`)
-//line app.js.qtpl:5
+//line app.js.qtpl:6
 	qw422016.N().S(`
 `)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 }
 
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 func WriteApp(qq422016 qtio422016.Writer) {
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	StreamApp(qw422016)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	qt422016.ReleaseWriter(qw422016)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 }
 
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 func App() string {
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	qb422016 := qt422016.AcquireByteBuffer()
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	WriteApp(qb422016)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	qs422016 := string(qb422016.B)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	qt422016.ReleaseByteBuffer(qb422016)
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 	return qs422016
-//line app.js.qtpl:6
+//line app.js.qtpl:7
 }
 
 // add all functional for httpgo web apps
 
-//line app.js.qtpl:9
+//line app.js.qtpl:10
 func StreamAppMax(qw422016 *qt422016.Writer) {
-//line app.js.qtpl:9
+//line app.js.qtpl:10
 	qw422016.N().S(`
 `)
-//line app.js.qtpl:10
+//line app.js.qtpl:11
 	StreamApp(qw422016)
-//line app.js.qtpl:10
+//line app.js.qtpl:11
 	qw422016.N().S(`
 `)
-//line app.js.qtpl:11
+//line app.js.qtpl:12
 	StreamPutFormsJS(qw422016)
-//line app.js.qtpl:11
+//line app.js.qtpl:12
 	qw422016.N().S(`
 `)
-//line app.js.qtpl:12
+//line app.js.qtpl:13
 	StreamTableJS(qw422016)
-//line app.js.qtpl:12
+//line app.js.qtpl:13
 	qw422016.N().S(`
 `)
-//line app.js.qtpl:13
+//line app.js.qtpl:14
+	StreamSetFlatPickr(qw422016)
+//line app.js.qtpl:14
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:15
 }
 
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 func WriteAppMax(qq422016 qtio422016.Writer) {
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	StreamAppMax(qw422016)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	qt422016.ReleaseWriter(qw422016)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 }
 
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 func AppMax() string {
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	qb422016 := qt422016.AcquireByteBuffer()
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	WriteAppMax(qb422016)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	qs422016 := string(qb422016.B)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	qt422016.ReleaseByteBuffer(qb422016)
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 	return qs422016
-//line app.js.qtpl:13
+//line app.js.qtpl:15
 }

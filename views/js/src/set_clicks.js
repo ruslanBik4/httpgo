@@ -15,6 +15,18 @@ function isIgnoreTarget(target) {
         || ($(target).parents('svg, .fancybox-container, .htmx-request, .flatpickr-calendar').length > 0)
 }
 
+function SetDatesInputs(target) {
+    if ($('input[type=date],[type=date-range]', target).length > 0) {
+        if (window.setFlatPickr === undefined) {
+            LoadJScript("/js/setFlatPickr.js", true, true, () => {
+                setFlatPickr(target)
+            });
+        } else {
+            setFlatPickr(target);
+        }
+    }
+}
+
 function setClickAll(target) {
     if (isProcess) {
         return;
@@ -67,67 +79,27 @@ function setClickAll(target) {
         ...cfgDate
     };
 
-    // target = target || document.getElementsByTagName("body")[0];
-    // add onSubmit event instead default behaviourism of form
-    $('form:not([onsubmit])', target).on("submit", function () {
-        return saveForm(this);
-    });
-
-    $('form:not([rel]), .filt-arrow:not([rel])', target).each(
-        (ind, elem) => {
-            let dates = $('input[type=date-range]:not([rel])', elem);
-            dates.flatpickr({
-                mode: "range",
-                altInput: true, // Allows a different display format
-                altFormat: "Y-m-d", // ✅ Shows as a range format
-                dateFormat: "[Y-m-d,Y-m-d]", // Flatpickr saves this format
-                allowInput: true, // ✅ Allows manual entry
-                showMonths: 2,
-                // clickOpens: true, // ✅ Ensure calendar still opens
-                onClose: function (dates, dateStr, instance) {
-                    if (dates.length === 2) {
-                        // Format value as [YYYY-MM-DD,YYYY-MM-DD]
-                        const formattedValue = `[${instance.formatDate(dates[0], "Y-m-d")},${instance.formatDate(dates[1], "Y-m-d")}]`;
-                        instance.input.value = formattedValue;
-                        filterTableData(formattedValue, instance.input.dataset.class);
-                    } else {
-                        // If only one date is selected, clear the input
-                        instance.input.value = "";
-                    }
-                }
-            });
-            dates.attr('rel', 'datetimepicker');
-
-            dates = $('input[type=datetime]:not([rel])', elem);
-            if (dates.length > 0) {
-                dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
-            }
-            dates = $('input[type=date]:not([rel])', elem);
-            if (dates.length > 0) {
-                dates.flatpickr({
-                    // mode: "range",
-                    dateFormat: "Y-m-d",
-                    allowInput: true,
-                    onClose: function (dates, dateStr, instance) {
-                        if (dates.length === 2) {
-                            const formattedValue = `[${dates[0].toISOString().split('T')[0]},${dates[1].toISOString().split('T')[0]}]`;
-                            instance.input.value = formattedValue;
-                            // instance.input.dispatchEvent(new Event('change', {bubbles: true})); // Trigger onchange
-                        }
-                    }
-                    // dateRangePicker({
-                    //     singleDate: true,
-                    //     ...cfgDate
-                });
-                dates.attr('rel', 'datetimepicker');
-            }
-        })
-
-    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on], [hx-boost]', target).not('[rel]');
+    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on], [hx-boost], [hx-vals]', target).not('[rel]');
     if (hxEvents.length > 0) {
         hxEvents.attr("rel", 'htmx');
         htmx.process(target);
     }
+    $('form:not([rel]), .filt-arrow:not([rel])', target).each(
+        (ind, elem) => {
+            SetDatesInputs(target);
+
+            let dates = $('input[type=datetime]:not([rel])', elem);
+            if (dates.length > 0) {
+                dates.dateRangePicker(cfgDateTime).attr('rel', 'datetimepicker');
+            }
+        })
+
+    // target = target || document.getElementsByTagName("body")[0];
+    // add onSubmit event instead default behaviourism of form
+    $('form:not([onsubmit]:not([rel]))', target).on("submit", function () {
+        return saveForm(this);
+    });
+
     // add click event instead default - response will show on div.#content
     $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
         this.rel = 'setClickAll';

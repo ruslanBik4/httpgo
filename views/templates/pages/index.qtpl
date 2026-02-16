@@ -33,7 +33,7 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 -%}
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
-<body {%s body.Attr %}>
+<body {%s body.Attr %} hx-boost="true" hx-target='#content'>
 {%= layouts.HeaderHTML(body.TopMenu) %}
 <breadcrumbs separator="›" aria-label="breadcrumb" aria-label="breadcrumb">
   <ol class="breadcrumb">
