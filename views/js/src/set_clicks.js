@@ -101,11 +101,11 @@ function setClickAll(target) {
     });
 
     // add click event instead default - response will show on div.#content
-    $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
-        this.rel = 'setClickAll';
-
-        $(this).click(OverClick);
-    });
+    // $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
+    //     this.rel = 'setClickAll';
+    //
+    //     $(this).click(OverClick);
+    // });
     setTextEdit(target);
     setSliderBox(target);
 
