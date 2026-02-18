@@ -12,4 +12,5 @@
 {%= PutFormsJS() %}
 {%= TableJS() %}
 {%= SetFlatPickr() %}
+{%= HtmxJson() %}
 {% endfunc %}

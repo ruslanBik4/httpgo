@@ -1,0 +1,3 @@
+{% func HtmxJson() %}
+	{% cat "src/htmx-json.js" %}
+{% endfunc %}

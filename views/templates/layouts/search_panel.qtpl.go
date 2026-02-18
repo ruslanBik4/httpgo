@@ -46,12 +46,12 @@ func NewSearchPanel(action, suggestions, showObject, labelButton, placeholder st
 // <label id="top-nav-search-label" for="top-nav-search-input" class="visually-hidden">Search MDN</label>
 // <input aria-activedescendant="top-nav-search-item-0" aria-autocomplete="list" aria-controls="top-nav-search-menu" aria-expanded="true"
 // aria-labelledby="top-nav-search-label" autocomplete="off" id="top-nav-search-input" role="combobox" type="search" class="has-search-results search-input-field"
-// name="q" placeholder="   " required="" value="">
+// name="q" placeholder="" required="" value="">
 // <button type="button" class="button action has-icon clear-search-button"><span class="button-wrap">
 // <span class="icon icon-cancel "></span><span class="visually-hidden">Clear search input</span></span></button>
 // <button type="submit" class="button action has-icon search-button"><span class="button-wrap"><span class="icon icon-search "></span>
 // <span class="visually-hidden">Search</span></span></button>
-// <div id="top-nav-search-menu" role="listbox" aria-labelledby="top-nav-search-label"></div></form></div>
+// <div id="top-nav-search-menu" role="listbox" aria-labelledby="top-nav-search-label"></div></form></div> onkeyup="return inputSearchKeyUp(this,event,true);"
 
 //line search_panel.qtpl:36
 func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
@@ -67,86 +67,116 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 //line search_panel.qtpl:38
 	qw422016.N().S(`, function(error, status) { $('#content').html(error.responseText); } );">
 
-         <input type="hidden" name="html" value=true />
-         <input type="hidden" name="counter" value=`)
+     <input type="hidden" name="html" value=true />
+     <input type="hidden" name="counter" value=`)
 //line search_panel.qtpl:41
 	qw422016.N().D(s.counter)
 //line search_panel.qtpl:41
 	qw422016.N().S(` />
-         <input id="inpS" name="name" type="search" placeholder="`)
+     <input id="inpS" name="name" type="search" placeholder="`)
 //line search_panel.qtpl:42
 	qw422016.N().S(s.placeholder)
 //line search_panel.qtpl:42
-	qw422016.N().S(`" required
-                autocapitalize="none" autocorrect="off" autocomplete="off" autofocus=true
+	qw422016.N().S(`" required class="form-control"
+            autocapitalize="none" autocorrect="off" autocomplete="off" autofocus=true
 `)
 //line search_panel.qtpl:44
 	if s.suggestions > "" {
 //line search_panel.qtpl:44
-		qw422016.N().S(`         src="`)
+		qw422016.N().S(`         hx-get="`)
 //line search_panel.qtpl:45
 		qw422016.E().S(s.suggestions)
 //line search_panel.qtpl:45
-		qw422016.N().S(`"  data="search-name" onkeyup="return inputSearchKeyUp(this,event,true);"
+		qw422016.N().S(`?html=true" data="search-name"
+         hx-trigger="input changed delay:500ms, keyup[key=='Enter']" hx-target="#search-results" hx-ext="json-swap" hx-swap="json"
 `)
-//line search_panel.qtpl:46
+//line search_panel.qtpl:47
 	}
-//line search_panel.qtpl:46
+//line search_panel.qtpl:47
 	qw422016.N().S(`/>
 `)
-//line search_panel.qtpl:47
+//line search_panel.qtpl:48
 	if s.labelButton > "" {
-//line search_panel.qtpl:47
-		qw422016.N().S(`         <button type="submit"><i class="fa fa-search">`)
 //line search_panel.qtpl:48
+		qw422016.N().S(`     <button type="submit"><i class="fa fa-search">`)
+//line search_panel.qtpl:49
 		qw422016.N().S(s.labelButton)
-//line search_panel.qtpl:48
+//line search_panel.qtpl:49
 		qw422016.N().S(`</i></button>
 `)
-//line search_panel.qtpl:49
+//line search_panel.qtpl:50
 	}
-//line search_panel.qtpl:49
-	qw422016.N().S(`        <output></output>
+//line search_panel.qtpl:50
+	qw422016.N().S(`    <output></output>
 `)
-//line search_panel.qtpl:51
+//line search_panel.qtpl:52
 	if s.suggestions > "" {
-//line search_panel.qtpl:51
-		qw422016.N().S(`         <div class="suggestions-wrapper">
-            <span class="suggestions-addon" data-addon-type="spinner"></span>
-            <select name="id" size=10 class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name"></select>
-            <div class="suggestions-suggestions"></div>
-         </div>
+//line search_panel.qtpl:52
+		qw422016.N().S(`     <div class="suggestions-wrapper" hx-ext="json-swap" hx-swap="json">
+        <span class="suggestions-addon" data-addon-type="spinner"></span>
+        <select id="search-results" name="id" size=10 hx-ext="json-swap" hx-swap="json"
+        class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name">
+        <template   class="tpl_list" json-each="$this">
+        <option @id = '`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`${$this.id}`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`' @value='`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`${$this.id}`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`' @title='`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`${$this.fullname}`)
+//line search_panel.qtpl:52
+		qw422016.N().S("`")
+//line search_panel.qtpl:52
+		qw422016.N().S(`'>${$this.namefake}</option>
+        </template>
+        </select>
+        <div class="suggestions-suggestions"></div>
+     </div>
 `)
-//line search_panel.qtpl:57
+//line search_panel.qtpl:63
 	}
-//line search_panel.qtpl:57
-	qw422016.N().S(`    </form>
+//line search_panel.qtpl:63
+	qw422016.N().S(`</form>
 `)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 }
 
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 func (s *SearchPanel) WriteRender(qq422016 qtio422016.Writer) {
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	s.StreamRender(qw422016)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 }
 
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 func (s *SearchPanel) Render() string {
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	s.WriteRender(qb422016)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 	return qs422016
-//line search_panel.qtpl:59
+//line search_panel.qtpl:65
 }

@@ -443,30 +443,35 @@ func StreamAppMax(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`
 `)
 //line app.js.qtpl:15
+	StreamHtmxJson(qw422016)
+//line app.js.qtpl:15
+	qw422016.N().S(`
+`)
+//line app.js.qtpl:16
 }
 
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 func WriteAppMax(qq422016 qtio422016.Writer) {
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	StreamAppMax(qw422016)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	qt422016.ReleaseWriter(qw422016)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 }
 
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 func AppMax() string {
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	qb422016 := qt422016.AcquireByteBuffer()
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	WriteAppMax(qb422016)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	qs422016 := string(qb422016.B)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	qt422016.ReleaseByteBuffer(qb422016)
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 	return qs422016
-//line app.js.qtpl:15
+//line app.js.qtpl:16
 }
