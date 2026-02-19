@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -128,7 +128,7 @@ function handleError(xhr, status, error) {
         case 401:
             urlAfterLogin = xhr.url;
             console.log(xhr.url);
-            $('#bLogin').trigger("click");
+            relogin(urlAfterLogin);
             return;
         case 404:
             alert(`Request page not found: ${xhr.url}`);

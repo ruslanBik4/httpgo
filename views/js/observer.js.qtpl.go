@@ -22,7 +22,14 @@ func StreamObserver(qw422016 *qt422016.Writer) {
 //line observer.js.qtpl:1
 	qw422016.N().S(`	`)
 //line observer.js.qtpl:2
-	qw422016.N().S(`function createObserver() {
+	qw422016.N().S(`/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
+
+function createObserver() {
 // Create a MutationObserver instance
     const observer = new MutationObserver((mutationsList, observer) => {
         console.debug("Attributes changed:", mutationsList);
@@ -74,8 +81,12 @@ function cfgHTMX() {
     });
 
     document.body.addEventListener('htmx:configRequest', function (evt) {
-        evt.detail.headers['Authorization'] = 'Bearer ' + token;
-        evt.detail.headers['Accept-Language'] = lang;
+        if (token) {
+            evt.detail.headers['Authorization'] = 'Bearer ' + token;
+        }
+        if (lang) {
+            evt.detail.headers['Accept-Language'] = lang;
+        }
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
         evt.detail.headers['HX-Request'] = 'html';
         const pathInfo = evt.detail.path;
@@ -117,12 +128,21 @@ function cfgHTMX() {
     });
 
     document.body.addEventListener('htmx:afterRequest', evt => {
+        var $out = $('#content');
+        if (evt.target.localName === 'form') {
+            $.fancybox.close();
+        }
         const xhr = evt.detail.xhr;
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
                 alert('empty response!');
                 return false;
+
+            case 206:
+                readEvents($out, data);
+                return false;
+
             case 201:
                 alert(`)
 //line observer.js.qtpl:2
