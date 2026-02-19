@@ -36,7 +36,7 @@ func StreamHeaderHTML(qw422016 *qt422016.Writer, TopMenu Menu) {
         <span id="sUser"> </span>
 	    <ul class="dropdown">
 		    <li class="top-mnu-item before-login">
-			    <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="Open auth form" target="_modal" >
+			    <a id="bLogin" href="/show/forms/signin" class="navbar-link btn-login" title="Open auth form" hx-swap="none"  data-fancybox >
 			       <span class="glyphicon-info-sign">SignIn</span>
 			    </a>
 		    </li>

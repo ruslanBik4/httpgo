@@ -132,7 +132,7 @@ $(function () {
 
 function relogin(url) {
     urlAfterLogin = url;
-    $('#bLogin').trigger("click");
+    htmx.trigger('#bLogin',"click");
 }
 
 // run request & show content

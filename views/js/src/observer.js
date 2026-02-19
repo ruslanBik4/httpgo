@@ -102,6 +102,10 @@ function cfgHTMX() {
             case 201:
                 alert(`Successful add record #${xhr.responseText}`);
             case 200:
+                if (evt.target.matches("[data-fancybox]")) {
+                    fancyOpen(evt.detail.xhr.response);
+                    return;
+                }
                 htmx.trigger(evt.detail.target, 'on_change');
                 processAll(evt.detail.target);
         }

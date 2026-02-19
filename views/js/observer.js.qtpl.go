@@ -134,6 +134,10 @@ function cfgHTMX() {
 //line observer.js.qtpl:2
 	qw422016.N().S(`);
             case 200:
+                if (evt.target.matches("[data-fancybox]")) {
+                    fancyOpen(evt.detail.xhr.response);
+                    return;
+                }
                 htmx.trigger(evt.detail.target, 'on_change');
                 processAll(evt.detail.target);
         }
