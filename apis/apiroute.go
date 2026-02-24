@@ -441,44 +441,48 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 
 	contentType := ctx.Request.Header.ContentType()
 	if bytes.HasPrefix(contentType, []byte(ContentTypeJSON)) && (route.DTO != nil) {
-		return route.performsJSON(ctx)
-	}
-
-	badParams := make(map[string]string, 0)
-
-	if route.Multipart {
-
-		if a, err := route.chkMultiPart(ctx, contentType, badParams); err != nil {
-			return a, err
+		b, err := route.performsJSON(ctx)
+		if err != nil {
+			return b, err
 		}
-		defer ctx.Request.RemoveMultipartFormFiles()
-
 	} else {
-		fncStoreArgs := func(k, v []byte) bool {
-			key := gotools.BytesToString(k)
-			val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
-			if err != nil {
-				badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
-			} else {
-				ctx.SetUserValue(key, val)
+
+		badParams := make(map[string]string, 0)
+
+		if route.Multipart {
+
+			if a, err := route.chkMultiPart(ctx, contentType, badParams); err != nil {
+				return a, err
 			}
-			return true
+			defer ctx.Request.RemoveMultipartFormFiles()
+
+		} else {
+			fncStoreArgs := func(k, v []byte) bool {
+				key := gotools.BytesToString(k)
+				val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
+				if err != nil {
+					badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
+				} else {
+					ctx.SetUserValue(key, val)
+				}
+				return true
+			}
+
+			if ctx.IsPost() {
+				ctx.PostArgs().All()(fncStoreArgs)
+			}
+			ctx.QueryArgs().All()(fncStoreArgs)
 		}
 
-		if ctx.IsPost() {
-			ctx.PostArgs().All()(fncStoreArgs)
+		if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {
+			return badParams, ErrWrongParamsList
 		}
-		ctx.QueryArgs().All()(fncStoreArgs)
-	}
 
-	if (len(badParams) > 0) || !route.CheckParams(ctx, badParams) {
-		return badParams, ErrWrongParamsList
-	}
-
-	if route.DTO != nil {
-		if dto, ok := route.DTO.NewValue().(CompoundDTO); ok {
-			dto.ReadParams(ctx)
-			ctx.SetUserValue(JSONParams, dto)
+		if route.DTO != nil {
+			if dto, ok := route.DTO.NewValue().(CompoundDTO); ok {
+				dto.ReadParams(ctx)
+				ctx.SetUserValue(JSONParams, dto)
+			}
 		}
 	}
 
