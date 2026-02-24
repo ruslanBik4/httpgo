@@ -52,7 +52,7 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	        <div role="slider" aria-label="Draggable pane splitter" aria-valuemin="256" aria-valuemax="372" aria-valuenow="256" aria-valuetext="Pane width 256 pixels" tabindex="0">
 	        </div>
 	        <div class="content-section">
-		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load once" rel='htmx'{%- endif -%}>
+		        <div id="content" {% if body.Route > "" %}hx-get="{%s= body.Route %}" hx-trigger="load once"{%- endif -%}>
 	            {%- if body.ContentWrite != nil -%} {%= body.ContentWrite() %}
 	            {%- else -%} {%s body.Content %}
 	            {%- endif -%}</div>

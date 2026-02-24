@@ -402,7 +402,7 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 	if strings.Contains(mess, "error") {
 		if slices.ContainsFunc(args, func(a any) bool {
 			err, ok := a.(error)
-			return ok && isTLSError(err)
+			return ok && (isTLSError(err) || isReadError(err) || isHeaderError(err) || isMPFBodyError(err) || isUnsopportContent(err))
 		}) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
@@ -461,11 +461,11 @@ func isReadError(err error) bool {
 }
 
 func isHeaderError(err error) bool {
-	return strings.Contains(err.Error(), "error when reading request headers:")
+	return strings.Contains(err.Error(), "error when reading request headers")
 }
 func isMPFBodyError(err error) bool {
-	return strings.Contains(err.Error(), "cannot read multipart/form-data body:")
+	return strings.Contains(err.Error(), "cannot read multipart/form-data body")
 }
 func isUnsopportContent(err error) bool {
-	return strings.Contains(err.Error(), "unsupported Content-Encoding:")
+	return strings.Contains(err.Error(), "unsupported Content-Encoding")
 }

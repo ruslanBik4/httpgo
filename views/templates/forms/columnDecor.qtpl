@@ -216,7 +216,8 @@ id="id_{%s col.InputName(i) %}"
          <div class="slider"></div>
 
  	{% case col.InputType == "textarea" || col.InputType == "markdown" %}
-          <textarea {%= col.RenderAttr(i) %}{% if val != nil %} value={%= col.RenderValue(val) %} {% endif %} >{%= col.RenderValue(val) %}</textarea>
+          <textarea {%= col.RenderAttr(i) %}{% if val != nil %} value={%= col.RenderValue(val) %} {% endif %}
+           oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">{%= col.RenderValue(val) %}</textarea>
         {%- if !col.IsSlice -%}
             <span {% if val != nil || col.PlaceHolder > "" %}class="label-text"{% endif %} data-placeholder="{%s col.Label %}"></span>
         {%- endif -%}
