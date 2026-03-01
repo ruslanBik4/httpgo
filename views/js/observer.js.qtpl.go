@@ -133,7 +133,7 @@ function cfgHTMX() {
             $.fancybox.close();
         }
         const xhr = evt.detail.xhr;
-        const data = xhr.responseText;
+        const data = xhr.response;
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
