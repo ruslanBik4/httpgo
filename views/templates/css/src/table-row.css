@@ -53,7 +53,7 @@
 
 .usr-table__t-head .usr-table-col.sortable span::before, .usr-table__t-head .usr-table-col.sortable span::after {
     display: inline-block;
-    font-family: bootstrap-icons !important;
+    font-family: bootstrap-icons !important, times;
     font-style: normal;
     font-weight: 400 !important;
     font-variant: normal;
