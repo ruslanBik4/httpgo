@@ -109,6 +109,7 @@ function cfgHTMX() {
             $.fancybox.close();
         }
         const xhr = evt.detail.xhr;
+        const data = xhr.responseText;
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
@@ -120,7 +121,8 @@ function cfgHTMX() {
                 return false;
 
             case 201:
-                alert(`Successful add record #${xhr.responseText}`);
+                alert(`Successful add record #${data}`);
+                
             case 200:
                 if (evt.target.matches("[data-fancybox]")) {
                     fancyOpen(evt.detail.xhr.response);
