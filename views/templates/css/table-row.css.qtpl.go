@@ -113,9 +113,14 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 
 .usr-table-row {
     display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 2px;
     transition: .3s;
     text-decoration: none !important;
     color: #232b2f;
+    box-sizing: content-box;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .usr-table-row:nth-child(2n) {
@@ -123,11 +128,12 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 }
 
 .usr-table-col {
-    padding: 1px;
+    padding: 2px;
     align-content: center;
     max-height: 100px;
     overflow: hidden;
     word-break: break-all;
+    box-sizing: content-box;
 }
 
 .usr-table-col input {
@@ -281,10 +287,6 @@ img.cover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-.usr-table-row {
-    border-bottom: 1px solid #e5e5e5;
 }
 
 .show-more__link {
