@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -271,7 +271,8 @@ div[role="slider"]:hover {
 li.left-mnu-item a {
     color: black;
 }
-ul {
+
+ul, ol {
   list-style-type: none;
   margin: 0;
   padding: 0;

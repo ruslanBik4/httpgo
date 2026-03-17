@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -14,6 +14,8 @@ import (
 	"go/types"
 	"io"
 	"mime/multipart"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"unsafe"
@@ -160,27 +162,23 @@ func (d *DateTimeString) NewValue() any {
 	return &DateTimeString{}
 }
 
-func (d *DateTimeString) UnmarshalJSON(src []byte) (err error) {
-	formats := []string{
+func (d *DateTimeString) UnmarshalJSON(src []byte) error {
+	t, err := bytesToTime(
+		src,
 		time.RFC3339,
 		time.RFC3339Nano,
 		time.DateTime,
 		time.RFC1123,
 		time.RFC1123Z,
 		time.Stamp,
-	}
-	toString := gotools.BytesToString(src)
-	var t time.Time
-	for _, f := range formats {
-		t, err = time.Parse(f, toString)
-		if err == nil {
-			*d = (DateTimeString)(t)
-			return nil
-		}
-		err = errors.Wrap(err, "Parse(time)")
+	)
+
+	if err != nil {
+		return err
 	}
 
-	return
+	*d = (DateTimeString)(t)
+	return nil
 }
 
 func (d *DateTimeString) MarshalJSON() ([]byte, error) {
@@ -349,26 +347,47 @@ func (d *DateString) GetPgxType() pgtype.Date {
 	}
 }
 
-func (d *DateString) UnmarshalJSON(src []byte) (err error) {
-	formats := []string{
+func ConvertUnixTime(t *time.Time, src string) error {
+
+	fTime, err := strconv.ParseInt(src, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	*t = time.Unix(fTime, 0)
+	return nil
+}
+
+func (d *DateString) UnmarshalJSON(src []byte) error {
+	t, err := bytesToTime(
+		src,
 		time.DateOnly,
 		"2006-02-01",
 		"01-02-2006",
 		"02-01-2006",
-	}
-	toString := gotools.BytesToString(src)
-	var t time.Time
-	s := ""
-	for _, f := range formats {
-		t, err = time.Parse(f, toString)
-		if err == nil {
-			*d = (DateString)(t)
-			return nil
-		}
-		s += err.Error()
+	)
+	if err != nil {
+		return err
 	}
 
-	return errors.Wrap(err, s)
+	*d = (DateString)(t)
+	return nil
+}
+
+func bytesToTime(src []byte, formats ...string) (t time.Time, err error) {
+	str := gotools.BytesToString(src)
+	if i := slices.IndexFunc(formats, func(f string) bool {
+		t, err = time.Parse(f, str)
+		return err == nil
+	}); i < 0 {
+		err = ConvertUnixTime(&t, str)
+	}
+
+	if err != nil {
+		return t, fmt.Errorf("'%s' must be one of formats: %s or UnixTime", str, formats)
+	}
+
+	return
 }
 
 func (d *DateString) MarshalJSON() ([]byte, error) {
