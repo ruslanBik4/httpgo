@@ -386,7 +386,8 @@ input[type=text], input[type=date-range] {
 /* Tooltip text */
 input + .tooltiptext {
     visibility: hidden;
-    width: 500px !important;
+    width: fit-content !important;
+    height: fit-content;
     background-color: black;
     color: #fff;
     text-align: center;
@@ -648,17 +649,18 @@ breadcrumbs {
     --bs-breadcrumb-divider: '>';
     /*width: 99%;*/
     justify-content: space-evenly;
-    flex-wrap: wrap;
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 ol.breadcrumb {
     align-items: center;
     justify-content: space-evenly;
     margin-bottom: 5px;
-    flex-grow: 4;
+    flex-grow: 1;
 }
 /* Form for search*/
-form#fSearch {
+#fSearch {
     height: 32px;
     flex-grow: 1;
     width: fit-content;
@@ -667,12 +669,12 @@ form#fSearch {
     vertical-align: middle;
 }
 
-form#fSearch > output {
+#fSearch > output {
     height: fit-content;
     width: fit-content;
 }
 
-form#fSearch input[type=search] {
+#fSearch input[type=search] {
     align-items: center;
     vertical-align: middle;
     width: fit-content;
@@ -684,16 +686,39 @@ form#fSearch input[type=search] {
     caret-color: #1b70b7;
 }
 
-form#fSearch input[type="search"]:focus {
+#fSearch input[type="search"]:focus {
     box-shadow: 0 0 3px 0 #1183d6;
     border-color: #1183d6;
     width: -webkit-fill-available;
     outline: none;
 }
 
-form#fSearch > .suggestions-wrapper {
+#fSearch > .suggestions-wrapper {
     width: fit-content;
     display: flex;
+}
+
+div > #search-results {
+    /*border: 1px solid orange;*/
+    visibility: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-flow: wrap;
+}
+
+div:focus-within > #search-results, div:hover > #search-results, #search-results:hover {
+    border: 1px solid orange;
+    visibility: visible;
+}
+
+ul#search-results li {
+    display: inline-flex;
+    flex-grow: 1;
+}
+
+ul#search-results li:focus {
+    background-color: #d0e6ff;
+    outline: 1px solid #4a90e2;
 }
 
 form .error-field {

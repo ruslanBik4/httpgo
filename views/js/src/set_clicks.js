@@ -96,7 +96,7 @@ function setClickAll(target) {
 
     // target = target || document.getElementsByTagName("body")[0];
     // add onSubmit event instead default behaviourism of form
-    $('form:not([onsubmit]:not([rel]))', target).on("submit", function () {
+    $('form:not([onsubmit]):not([rel])', target).on("submit", function () {
         return saveForm(this);
     });
 

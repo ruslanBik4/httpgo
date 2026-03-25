@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -234,7 +234,7 @@ func (param *InParam) defaultValueOfParams(ctx *fasthttp.RequestCtx, badParams m
 
 	case ApisValues:
 		if ctx != nil {
-			key := string(def)
+			key := (def)
 			value, ok := ctx.UserValue(key).(string)
 			if !ok {
 				return ctx.UserValue(key)

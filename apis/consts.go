@@ -81,7 +81,7 @@ func methodFromName(nameMethod string) tMethod {
 const (
 	JSONParams      = "JSONparams"
 	MultiPartParams = "MultiPartParams"
-	ChildRoutePath  = "lastSegment"
+	ChildRoutePath  = ApisValues("lastSegment")
 	ApiVersion      = "ACC_VERSION"
 	IsWrapHandler   = "HAS_HANDLER"
 

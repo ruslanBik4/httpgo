@@ -39,7 +39,7 @@ type HeadHTMLPage struct {
 	            {"code":"204, 201", "swap": false},
 	            {"code":"[23]..", "swap": true},
 	            {"code":"400", "swap": false, "error": true, "target": "body"},
-	            {"code":"401", "swap": false, "error":true, "target": "body"},
+	            {"code":"401", "swap": false, "error": true, "target": "body"},
 	            {"code":"422, 404", "swap": true, "error":false},
 	            {"code":"[45]..", "swap": false, "error":true},
 	            {"code":"...", "swap": true}

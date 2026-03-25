@@ -215,6 +215,14 @@ function showErrors(formErrors, thisForm) {
         }
     }
 }
+
+function isSelfRequest(ctx, event) {
+    const trigger = event.detail?.requestConfig?.elt;
+    return trigger === ctx;
+}
+
+
+
 `)
 //line observer.js.qtpl:2
 	qw422016.N().S(`

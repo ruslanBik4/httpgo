@@ -12,5 +12,9 @@
 {%= PutFormsJS() %}
 {%= TableJS() %}
 {%= SetFlatPickr() %}
-{%= HtmxJson() %}
+$(function () {
+    if (document.body.querySelector('[hx-ext="json-swap"]')  !== null) {
+        {%= HtmxJson() %}
+    }
+});
 {% endfunc %}

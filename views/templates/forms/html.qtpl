@@ -21,7 +21,7 @@
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
          oninput="return FormIsModified(event, this);"
          onchange="return FormIsModified(event, this);"
-      onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="{%s f.Title %}" >
+      novalidate=true caption="{%s f.Title %}" >
 	<h2> {%s= f.Title %}</h2>
      <figcaption>{%s= f.Description %}</figcaption>
      {% if len(defBlocks) > 0 %}

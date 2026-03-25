@@ -233,6 +233,8 @@ func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 		logs.DebugLog(ctx.PostArgs().String())
 	} else if ctx.QueryArgs().Len() > 0 {
 		logs.DebugLog(ctx.QueryArgs().String())
+	} else if r, ok := resp.(ErrorResp); ok {
+		logs.DebugLog("%s: %v", ctx.Request.RequestURI(), r.FormErrors)
 	} else {
 		logs.DebugLog(resp)
 	}

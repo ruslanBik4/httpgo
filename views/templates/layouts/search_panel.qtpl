@@ -4,11 +4,11 @@
         counter int
         labelButton string
         placeholder string
-        suggestions string
+        liveSearchURL string
         showObject string
     }
 
-func NewSearchPanel(action,  suggestions,  showObject, labelButton, placeholder string, counter int) *SearchPanel {
+func NewSearchPanel(action,  liveSearchURL,  showObject, labelButton, placeholder string, counter int) *SearchPanel {
 	if placeholder == "" {
 		placeholder = "Smart search"
 	}
@@ -17,7 +17,7 @@ func NewSearchPanel(action,  suggestions,  showObject, labelButton, placeholder 
                 counter,
                 labelButton,
                 placeholder,
-                suggestions,
+                liveSearchURL,
                 showObject,
     }
 } 
@@ -33,33 +33,46 @@ name="q" placeholder="" required="" value="">
 <button type="submit" class="button action has-icon search-button"><span class="button-wrap"><span class="icon icon-search "></span>
 <span class="visually-hidden">Search</span></span></button>
 <div id="top-nav-search-menu" role="listbox" aria-labelledby="top-nav-search-label"></div></form></div> onkeyup="return inputSearchKeyUp(this,event,true);"
+ <form id="fSearch" action="%s s.action %" method="GET" hx-target="#content"
 {%- func (s *SearchPanel) Render()  -%}
- <form id="fSearch" action="{%s s.action %}" method="GET" target="#content" role="search"
-   onsubmit="return saveForm(this, {%s s.showObject %}, function(error, status) { $('#content').html(error.responseText); } );">
+<!-- wrapper handles full search on Enter -->
+<div id="fSearch"
+     hx-include="this"
+     hx-trigger="click from:.results-input, keyup[key=='Enter']" hx-get="{%s s.action %}"
+     hx-target="#content"
+	{%- if s.showObject > "" -%}
+   hx-on::after-request="if (isSelfRequest(this, event)) return {%s s.showObject %}();"
+   hx-swap="none"
+    {%- else -%}
+     hx-ext="json-swap" hx-swap="json"
+    {%- endif -%}
+      role="search">
 
-     <input type="hidden" name="html" value=true />
-     <input type="hidden" name="counter" value={%d s.counter %} />
-     <input id="inpS" name="name" type="search" placeholder="{%s= s.placeholder %}" required class="form-control"
+     <!-- hidden params for full search -->
+      <input type="hidden" name="counter" value={%d s.counter %} />
+     <!-- main search input -->
+     <input id="inpS" name="value" type="search" placeholder="{%s= s.placeholder %}" required class="form-control"
             autocapitalize="none" autocorrect="off" autocomplete="off" autofocus=true
-	{%- if s.suggestions > "" -%}
-         hx-get="{%s s.suggestions %}?html=true" data="search-name"
-         hx-trigger="input changed delay:500ms, keyup[key=='Enter']" hx-target="#search-results" hx-ext="json-swap" hx-swap="json"
+	{%- if s.liveSearchURL > "" -%}
+          data="search-name"
+          hx-target="#search-results" hx-trigger="input changed delay:500ms"
+          hx-get="{%s s.liveSearchURL %}" hx-ext="json-swap" hx-swap="json"
+          hx-on::after-request="event.preventDefault();"
     {%- endif -%}/>
 	{%- if s.labelButton > "" -%}
      <button type="submit"><i class="fa fa-search">{%s= s.labelButton %}</i></button>
     {%- endif -%}
     <output></output>
-	{%- if s.suggestions > "" -%}
-     <div class="suggestions-wrapper" hx-ext="json-swap" hx-swap="json">
-        <span class="suggestions-addon" data-addon-type="spinner"></span>
-        <select id="search-results" name="id" size=10 hx-ext="json-swap" hx-swap="json"
-        class="suggestions-constraints suggestions-select-hide search-name" data-placeholder="search-name">
-        <template   class="tpl_list" json-each="$this">
-        <option @id = '`${$this.id}`' @value='`${$this.id}`' @title='`${$this.fullname}`'>${$this.namefake}</option>
+	{%- if s.liveSearchURL > "" -%}
+	<!-- live liveSearchURL -->
+    <ul id="search-results" hx-ext="json-swap" hx-swap="json">
+        <template json-each="$this">
+	        <li>
+	            <span @title='`${$this.full_name}`' class='results-input' tabIndex=0>${$this.name}</span>
+	           <input type="hidden" .value='`${$this.id}`'>
+	       </li>
         </template>
-        </select>
-        <div class="suggestions-suggestions"></div>
-     </div>
+     </ul>
     {%- endif -%}
-</form>
+</div>
 {% endfunc %}
