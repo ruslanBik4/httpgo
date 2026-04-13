@@ -401,32 +401,41 @@ func (t TypeInParam) TypeString(s fmt.State, verb rune) (int, error) {
 	}
 	switch {
 	case t.isSlice:
-		if _, err := s.Write(gotools.StringToBytes(fmt.Sprintf("apis.NewSliceTypeInParam(types%s.%s)",
+		if verb == 't' {
+			_, _ = fmt.Fprintf(s, "[]%s", typesExt.StringTypeKinds(t.BasicKind))
+		} else if _, err := fmt.Fprintf(s, "apis.NewSliceTypeInParam(types%s.%s)",
 			namePackage,
-			strings.ReplaceAll(res, ".", "")),
-		)); err != nil {
+			strings.ReplaceAll(res, ".", ""),
+		); err != nil {
 			return -1, err
 		}
 	case t.DTO != nil:
-		if _, err := s.Write([]byte("apis.NewStructInParam(")); err != nil {
-			return -1, err
+		if verb != 't' {
+			if _, err := s.Write([]byte("apis.NewStructInParam(")); err != nil {
+				return -1, err
+			}
 		}
+
 		if f, ok := t.DTO.(fmt.Formatter); ok {
 			f.Format(s, verb)
-			//return strings.Replace(fmt.Sprintf(%s)", s.String()), "*", "&", 1)
 		} else {
 			if _, err := s.Write(gotools.StringToBytes(strings.Replace(fmt.Sprintf("%T{}", t.DTO), "*", "&", 1))); err != nil {
 				return -1, err
 			}
 		}
-		if _, err := s.Write([]byte(")")); err != nil {
-			return -1, err
+
+		if verb != 't' {
+			if _, err := s.Write([]byte(")")); err != nil {
+				return -1, err
+			}
 		}
-		//return fmt.Sprintf("apis.NewStructInParam(%T{})", t.DTO)
+
 	default:
-		if _, err := s.Write(gotools.StringToBytes(fmt.Sprintf("apis.NewTypeInParam(types%s.%s)",
+		if verb == 't' {
+			_, _ = fmt.Fprintf(s, "*%s", typesExt.StringTypeKinds(t.BasicKind))
+		} else if _, err := fmt.Fprintf(s, "apis.NewTypeInParam(types%s.%s)",
 			namePackage,
-			strings.ReplaceAll(res, ".", "")))); err != nil {
+			strings.ReplaceAll(res, ".", "")); err != nil {
 			return -1, err
 
 		}

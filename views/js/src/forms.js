@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -123,10 +123,15 @@ function saveForm(thisForm, successFunction, errorFunction) {
 }
 
 function readEvents($out, resp) {
-    var evtSource = new EventSource(resp.url)
-    console.log(evtSource.withCredentials);
-    console.log(evtSource.readyState);
-    console.log(evtSource.url);
+    console.log(resp);
+    if (!resp || !resp.url) {
+        console.log('empty resp');
+        console.dir(resp);
+        return;
+    }
+
+    var evtSource = new EventSource(resp.url);
+    console.log(evtSource);
     evtSource.onopen = (event) => {
         console.log(JSON.stringify(event));
         $out.html(`${resp.message}`);
@@ -141,7 +146,12 @@ function readEvents($out, resp) {
             evtSource.close();
         }
     }
+
     evtSource.onerror = (err) => {
+        if (evtSource.readyState === EventSource.CONNECTING) {
+            console.log("Temporary issue, reconnecting...");
+        }
+
         if (evtSource.readyState === EventSource.CLOSED) {
             console.log("SSE connection closed.");
             evtSource.close();
@@ -150,16 +160,39 @@ function readEvents($out, resp) {
         $out.append(`<pre>Error: ${msg}</pre>`);
     }
 
+    let lastPing = Date.now();
+    let isAlive = true;
+
+    evtSource.addEventListener("ping", () => {
+        lastPing = Date.now();
+        if (!isAlive) {
+            console.log("Connection restored");
+            isAlive = true;
+        }
+    });
+
+    let intervalId = setInterval(() => {
+        const diff = Date.now() - lastPing;
+
+        if (diff > 10000) { // 10s timeout
+            if (isAlive) {
+                console.log("Connection lost (no ping)");
+                isAlive = false;
+            }
+
+            $out.prepend(`<pre>Server close connection</pre>`);
+            // optional hard stop
+            evtSource.close();
+            clearInterval(intervalId); // ✅ STOP interva
+        }
+    }, 3000);
+
     evtSource.addEventListener("closed", function (event) {
         $out.prepend(`<pre>Finish: ${event.data}</pre>`);
         evtSource.close();
+        clearInterval(intervalId); // ✅ STOP interva
         console.log(event);
     })
-    evtSource.addEventListener("ping", function (event) {
-        console.log(event);
-    })
-
-    return
 
 }
 

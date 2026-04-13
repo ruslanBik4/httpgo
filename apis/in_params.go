@@ -19,6 +19,7 @@ import (
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/gotools"
+	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -112,11 +113,10 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 		}
 
 	case 'g':
+		const caret = "\r\t\t\t\t\t\t"
 		_, _ = fmt.Fprintf(s,
-			`{
-				Name: "%s",
-				Desc: %q,
-				Type: %g,`,
+			`{%sName: "%s",%[1]sDesc: %[3]q,%[1]sType: %[4]g,`,
+			caret,
 			param.Name,
 			param.Desc,
 			param.Type,
@@ -127,30 +127,35 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 				param.PartReq)
 		}
 		if len(param.IncompatibleWiths) > 0 {
-			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tIncompatibleWiths: %v,", param.IncompatibleWiths)
+			_, _ = fmt.Fprintf(s, "%sIncompatibleWiths: %v,", caret, param.IncompatibleWiths)
 		}
 		if param.DefValue != nil {
+			_, _ = fmt.Fprintf(s, "%sDefValue: ", caret)
 			switch p := param.Type.(type) {
 			case TypeInParam:
 				if p.BasicKind == types.String {
-					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %q,", param.DefValue)
-				} else if d, ok := param.DefValue.(string); !ok || !strings.HasPrefix(d, "NULL") {
-					_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tDefValue: %s(%v),", types.Typ[p.BasicKind], param.DefValue)
-
+					_, _ = fmt.Fprintf(s, "%q,", param.DefValue)
+				} else if d, ok := param.DefValue.(string); ok {
+					if strings.Contains(d, "NULL") {
+						_, _ = fmt.Fprintf(s, "(%t)(nil),", param.Type)
+					} else {
+						_, _ = fmt.Fprintf(s, "%s(%s),", typesExt.StringTypeKinds(p.BasicKind), d)
+					}
+				} else {
+					_, _ = fmt.Fprintf(s, "%s(%v),", typesExt.StringTypeKinds(p.BasicKind), param.DefValue)
 				}
 			}
 		}
 		if param.TestValue > "" {
-			_, _ = fmt.Fprintf(s, "\r\t\t\t\t\t\tTestValue: %v,", param.TestValue)
+			_, _ = fmt.Fprintf(s, "%sTestValue: %v,", caret, param.TestValue)
 		}
 		if param.Req {
-			_, _ = fmt.Fprintf(s, `
-				Req:   %v,`, param.Req)
+			_, _ = fmt.Fprintf(s, `%sReq: %v,`, caret, param.Req)
 		}
 		_, _ = fmt.Fprintf(s, "\n\t\t\t}")
 	default:
-		_, _ = s.Write(gotools.StringToBytes(fmt.Sprintf(`Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
-			param.Name, param.Desc, param.Type, param.Req, param.DefValue)),
+		_, _ = fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
+			param.Name, param.Desc, param.Type, param.Req, param.DefValue,
 		)
 	}
 }

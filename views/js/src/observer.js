@@ -109,7 +109,7 @@ function cfgHTMX() {
             $.fancybox.close();
         }
         const xhr = evt.detail.xhr;
-        const data = xhr.response;
+        const target = evt.detail.target;
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
@@ -117,19 +117,19 @@ function cfgHTMX() {
                 return false;
 
             case 206:
-                readEvents($out, data);
+                readEvents($out, JSON.parse(xhr.response));
                 return false;
 
             case 201:
-                alert(`Successful add record #${data}`);
+                alert(`Successful add record #${xhr.response}`);
                 
             case 200:
                 if (evt.target.matches("[data-fancybox]")) {
-                    fancyOpen(evt.detail.xhr.response);
+                    fancyOpen(xhr.response);
                     return;
                 }
-                htmx.trigger(evt.detail.target, 'on_change');
-                processAll(evt.detail.target);
+                htmx.trigger(target, 'on_change');
+                processAll(target);
         }
     });
 

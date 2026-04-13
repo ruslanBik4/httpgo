@@ -133,7 +133,7 @@ function cfgHTMX() {
             $.fancybox.close();
         }
         const xhr = evt.detail.xhr;
-        const data = xhr.response;
+        const target = evt.detail.target;
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
@@ -141,7 +141,7 @@ function cfgHTMX() {
                 return false;
 
             case 206:
-                readEvents($out, data);
+                readEvents($out, JSON.parse(xhr.response));
                 return false;
 
             case 201:
@@ -149,7 +149,7 @@ function cfgHTMX() {
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`Successful add record #${data}`)
+	qw422016.N().S(`Successful add record #${xhr.response}`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
@@ -157,11 +157,11 @@ function cfgHTMX() {
                 
             case 200:
                 if (evt.target.matches("[data-fancybox]")) {
-                    fancyOpen(evt.detail.xhr.response);
+                    fancyOpen(xhr.response);
                     return;
                 }
-                htmx.trigger(evt.detail.target, 'on_change');
-                processAll(evt.detail.target);
+                htmx.trigger(target, 'on_change');
+                processAll(target);
         }
     });
 
