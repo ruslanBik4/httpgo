@@ -1,14 +1,18 @@
-// Copyright 2020 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package crud
 
 import (
 	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
+
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/httpgo/apis"
-	"github.com/valyala/fasthttp"
 )
 
 func TableSelect(table dbEngine.Table, params []string) apis.ApiRouteHandler {

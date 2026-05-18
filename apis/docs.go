@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -11,7 +11,9 @@ import (
 	"fmt"
 	"go/types"
 	"reflect"
+	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"unsafe"
 
@@ -68,12 +70,14 @@ func mapRoutesToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	for name := range paths {
 		sortList = append(sortList, name)
 	}
-	sort.Strings(sortList)
+	slices.Sort(sortList)
 	for i, path := range sortList {
 		stream.WriteObjectField(path)
 		stream.WriteObjectStart()
 
 		for j, route := range paths[path] {
+			route.codeSamples = GenerateFrontendExamples(route, path)
+			route.path = path
 			FirstObjectToJSON(stream, strings.ToLower(route.Method.String()), route)
 			if j+1 < len(paths[path]) {
 				stream.WriteMore()
@@ -119,17 +123,24 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	defer stream.WriteObjectEnd()
 
 	FirstFieldToJSON(stream, "description", route.Desc)
-	summary := ""
+
+	AddObjectToJSON(stream, "x-codeSamples", route.codeSamples)
+	summary := route.path
 
 	if route.FncAuth != nil {
 		//todo: create custom security object
-		AddFieldToJSON(stream, "AuthCustom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
+		AddFieldToJSON(stream, "x-auth-custom", "use custom method '"+route.FncAuth.String()+"' for checking authorization")
 	}
 	ctx := &fasthttp.RequestCtx{}
 	// print parameters
 	params := make([]InParam, len(route.Params))
 	respErrors := make([]InParam, len(route.Params))
 	for i, param := range route.Params {
+		if slices.ContainsFunc(params, func(p InParam) bool {
+			return p.Name == param.Name
+		}) {
+			param.Name += strconv.Itoa(i)
+		}
 		params[i] = param
 		if param.DefValue == ApisValues(ChildRoutePath) {
 			summary += fmt.Sprintf("{%s} ", param.Name)
@@ -137,6 +148,7 @@ func apiRouteToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 
 		respErrors[i] = convertParamForErrResp(ctx, param)
 	}
+
 	if route.IsAJAXRequest {
 		params = append(params, InParam{
 			Name:              "X-Requested-With",
@@ -539,7 +551,7 @@ func apisToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 		}
 	}()
 
-	FirstFieldToJSON(stream, "openapi", "3.0.3")
+	FirstFieldToJSON(stream, "openapi", "3.1.0")
 	stream.WriteMore()
 
 	stream.WriteObjectField("info")

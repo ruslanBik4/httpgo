@@ -287,10 +287,9 @@ func (a *Apis) renderApis(ctx *fasthttp.RequestCtx) (any, error) {
 	i := 0
 	sortList := make(map[tMethod][]string, 0)
 	for m := range a.routes {
-		a := sortList[m.method]
-		a = append(a, m.path)
-		sortList[m.method] = a
+		sortList[m.method] = append(sortList[m.method], m.path)
 	}
+
 	for method, list := range sortList {
 		sort.Strings(list)
 

@@ -107,6 +107,8 @@ type ApiRoute struct {
 	Params         []InParam `json:"parameters,omitempty"`
 	PreCache       PreCache  `json:"-"`
 	Resp           any       `json:"response,omitempty"`
+	codeSamples    []CodeSample
+	path           string
 }
 
 // NewAPIRoute create customizing ApiRoute

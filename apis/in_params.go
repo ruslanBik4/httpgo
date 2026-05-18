@@ -79,6 +79,7 @@ type InParam struct {
 	TestValue         string
 }
 
+// GetValue for getting server value as its type
 func GetValue[T any](ctx *fasthttp.RequestCtx, param *InParam) T {
 	v, ok := ctx.UserValue(param.Name).(T)
 	if ok {
