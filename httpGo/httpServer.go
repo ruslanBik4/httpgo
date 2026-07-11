@@ -42,6 +42,7 @@ type HttpGo struct {
 	apis       *Apis
 	cfg        *CfgHttp
 	store      *Store
+	rdServer   *fasthttp.Server
 }
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
@@ -53,10 +54,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	if cfg.HTTP2 != nil {
 		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
 		logs.StatusLog("set HTTP2 server configuration")
-	}
-
-	if cfg.PortRedirect > "" {
-		RunRedirectNoSecure(cfg.PortRedirect)
 	}
 
 	if apis.Ctx == nil {
@@ -200,6 +197,9 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		store:      store,
 	}
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
+	if cfg.PortRedirect > "" {
+		h.rdServer = RunRedirectNoSecure(cfg)
+	}
 
 	return h
 }
@@ -232,15 +232,23 @@ func (h *HttpGo) listenOnShutdown() {
 	close(h.broadcast)
 
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
-	err := h.mainServer.ShutdownWithContext(ctx)
-	if err != nil {
+
+	if err := h.rdServerShutdownWithContext(ctx); err != nil {
 		logs.ErrorLog(err)
 	}
 
-	err = h.listener.Close()
-	if err != nil {
+	if err := h.mainServer.ShutdownWithContext(ctx); err != nil {
 		logs.ErrorLog(err)
 	}
+
+}
+
+func (h *HttpGo) rdServerShutdownWithContext(ctx context.Context) error {
+	if h.rdServer == nil {
+		return nil
+	}
+
+	return h.rdServer.ShutdownWithContext(ctx)
 }
 
 const separator = "/"
@@ -402,7 +410,7 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 	if strings.Contains(mess, "error") {
 		if slices.ContainsFunc(args, func(a any) bool {
 			err, ok := a.(error)
-			return ok && (isTLSError(err) || isReadError(err) || isHeaderError(err) || isMPFBodyError(err) || isUnsopportContent(err))
+			return ok && (isTLSError(err) || isReadError(err) || isHeaderError(err) || isMPFBodyError(err) || isUnsupportedContent(err))
 		}) {
 			//	nothing to tell :-)
 		} else if strings.Contains(mess, "serving connection") {
@@ -427,28 +435,27 @@ func renderError(ctx *fasthttp.RequestCtx, err error) {
 		ctx.SetStatusCode(fasthttp.StatusBadRequest)
 		ctx.Response.SetBodyString(err.Error())
 	default:
-		if isReadError(err) {
+		switch {
+		case isReadError(err):
 			logs.DebugLog(err)
 			ctx.SetStatusCode(fasthttp.StatusExpectationFailed)
-			return
-		}
-		if isTLSError(err) {
+
+		case isTLSError(err):
 			logs.DebugLog("%v", err)
 			ctx.SetStatusCode(fasthttp.StatusConflict)
-			return
-		}
-		if isHeaderError(err) {
+
+		case isHeaderError(err):
 			logs.DebugLog("%v", err)
 			ctx.SetStatusCode(fasthttp.StatusRequestHeaderFieldsTooLarge)
-			return
-		}
-		if isMPFBodyError(err) || isUnsopportContent(err) {
+
+		case isMPFBodyError(err) || isUnsupportedContent(err):
 			logs.DebugLog("%v", err)
 			ctx.SetStatusCode(fasthttp.StatusNotAcceptable)
-			return
+
+		default:
+			logs.ErrorLog(err, ctx.String())
+			ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 		}
-		logs.ErrorLog(err, ctx.String())
-		ctx.SetStatusCode(fasthttp.StatusInternalServerError)
 	}
 }
 
@@ -466,6 +473,6 @@ func isHeaderError(err error) bool {
 func isMPFBodyError(err error) bool {
 	return strings.Contains(err.Error(), "cannot read multipart/form-data body")
 }
-func isUnsopportContent(err error) bool {
+func isUnsupportedContent(err error) bool {
 	return strings.Contains(err.Error(), "unsupported Content-Encoding")
 }
