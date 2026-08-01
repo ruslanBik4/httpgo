@@ -227,7 +227,7 @@ func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 		logs.ErrorLog(err, resp)
 	}
 
-	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
+	if bytes.HasPrefix(ctx.Request.Header.ContentType(), ContentTypeMultiPart) {
 		logs.DebugLog(ctx.UserValue(MultiPartParams))
 	} else if ctx.IsPost() && ctx.PostArgs().Len() > 0 {
 		logs.DebugLog(ctx.PostArgs().String())

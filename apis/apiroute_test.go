@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -331,11 +331,10 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 		values []string
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    any
-		wantErr assert.ErrorAssertionFunc
+		name   string
+		fields fields
+		args   args
+		want   any
 	}{
 		// TODO: Add test cases.
 	}
@@ -356,10 +355,9 @@ func TestApiRoute_checkTypeParam(t *testing.T) {
 				Params:      tt.fields.Params,
 				Resp:        tt.fields.Resp,
 			}
-			got, err := route.checkTypeAndConvertParam(tt.args.ctx, tt.args.name, tt.args.values)
-			if !tt.wantErr(t, err, fmt.Sprintf("checkTypeAndConvertParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)) {
-				return
-			}
+
+			got := make(map[string]string)
+			route.checkTypeAndConvertParam(tt.args.ctx, tt.args.name, tt.args.values, got)
 			assert.Equalf(t, tt.want, got, "checkTypeAndConvertParam(%v, %v, %v)", tt.args.ctx, tt.args.name, tt.args.values)
 		})
 	}
