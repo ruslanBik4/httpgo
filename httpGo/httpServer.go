@@ -8,8 +8,10 @@
 package httpGo
 
 import (
+	"crypto/tls"
 	"fmt"
 	"go/types"
+	"log"
 	"mime/multipart"
 	"net"
 	"os"
@@ -55,6 +57,34 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
 		logs.StatusLog("set HTTP2 server configuration")
 	}
+	if cfg.HTTP3 {
+		var tlsCfg *tls.Config
+		fPort := ":443"
+		if ln, ok := listener.(LnMultiCerts); ok {
+			tlsCfg = ln.tlsCfg.Clone()
+			fPort = ln.fPort
+		} else {
+			certMaps := newCertMaps()
+			if err := certMaps.loadCertificates(); err != nil {
+				logs.ErrorLog(err)
+			}
+			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
+		}
+		tlsCfg.NextProtos = []string{"h3"}
+		// UDP: HTTP/3 proxy.
+		// Point this at a private fasthttp listener.
+		upstream := fmt.Sprintf(`https://%s`, listener.Addr().String())
+		h3, err := NewHTTP3Proxy(
+			tlsCfg,
+			fmt.Sprintf("https://localhost%s", fPort),
+			upstream,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		go h3.ListenAndServe()
+		logs.StatusLog("[*] HTTP3 multi-site proxy running on %s, %v", fPort, h3.Addr)
+	}
 
 	if apis.Ctx == nil {
 		apis.Ctx = NewCtxApis(8)
@@ -73,7 +103,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		)
 	}
 
-	// cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
+	//todo cfg.Server.HeaderReceived = func(header *fasthttp.RequestHeader) fasthttp.RequestConfig {
 	// 	uri := header.RequestURI()
 	// 	if bytes.HasPrefix(uri, []byte("https")) {
 	//
@@ -81,14 +111,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// 	logs.StatusLog(string(uri))
 	// 	return fasthttp.RequestConfig{}
 	// }
-	// cfg.Server.NextProto("https", func(c net.Conn) error {
-	// 	n := c.LocalAddr().Network()
-	// 	if strings.HasPrefix(n, "https") {
-	//
-	// 	}
-	// 	logs.StatusLog(n)
-	// 	return nil
-	// })
 	cfg.Server.ContinueHandler = func(header *fasthttp.RequestHeader) bool {
 		logs.StatusLog("has Continue !", header)
 		return true
@@ -98,13 +120,13 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
 
-	var h *HttpGo
-	if len(cfg.Domains) == 0 {
-		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			apis.Handler(ctx)
-		}
-	} else {
+	cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
+		ctx.Response.Header.Set("Alt-Svc", `h3=":443"; ma=86400`)
+		apis.Handler(ctx)
+	}
+	if len(cfg.Domains) > 0 {
 		logs.DebugLog("Subdomains is %+v", cfg.Domains)
+		handler := cfg.Server.Handler
 		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
 			for subD, ip := range cfg.Domains {
 				host := gotools.BytesToString(ctx.Host())
@@ -142,7 +164,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 				}
 			}
 
-			apis.Handler(ctx)
+			handler(ctx)
 		}
 	}
 
@@ -188,7 +210,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	_ = apis.AddRoutes(apisRoute)
 
-	h = &HttpGo{
+	h := &HttpGo{
 		mainServer: cfg.Server,
 		listener:   listener,
 		broadcast:  make(chan *string),

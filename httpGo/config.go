@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -24,6 +24,7 @@ type CfgHttp struct {
 	fileCfg      string
 	Domains      map[string]string   `yaml:"Domains,omitempty" json:"Domains,omitempty"`
 	HTTP2        *http2.ServerConfig `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
+	HTTP3        bool                `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
 	KillSignal   int                 `yaml:"KillSignal" json:"KillSignal,omitempty"`
 	Server       *fasthttp.Server    `yaml:"Server,omitempty" json:"-"`
 	PortRedirect string              `yaml:"PortRedirect" json:"PortRedirect,omitempty"`

@@ -113,7 +113,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			a.renderError(ctx, err, resp)
 		}
 
-	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, errNotFoundPage:
+	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, ErrNotFoundPage:
 		a.renderError(ctx, err, resp)
 
 	default:
@@ -209,7 +209,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 			return
 
-		case errNotFoundPage:
+		case ErrNotFoundPage:
 			ctx.NotFound()
 			logs.DebugLog("Not Found Page %+v", ctx.Request.String())
 			return

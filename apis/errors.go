@@ -16,7 +16,7 @@ import (
 
 // errors declaration
 var (
-	errNotFoundPage       = errors.New("path not found")
+	ErrNotFoundPage       = errors.New("path not found")
 	ErrUnAuthorized       = errors.New("user is UnAuthorized")
 	ErrRouteForbidden     = errors.New("not allow permission")
 	errRouteOnlyLocal     = errors.New("not allow permission for remote domain")
