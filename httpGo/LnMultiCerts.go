@@ -157,6 +157,7 @@ func GetTSLListener(secure bool, fPort string) net.Listener {
 		tlsListener.tlsCfg = &tls.Config{
 			GetCertificate: tlsListener.certMaps.getCertificate,
 			NextProtos:     []string{"h2", "http/1.1"},
+			MinVersion:     tls.VersionTLS12,
 		}
 
 		tlsListener.Listener = tls.NewListener(ln, tlsListener.tlsCfg)

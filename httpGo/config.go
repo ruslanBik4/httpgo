@@ -20,14 +20,15 @@ import (
 
 // CfgHttp has some options for Acceptor work
 type CfgHttp struct {
-	*AccessConf  `yaml:"Access" json:"access,omitempty"`
-	fileCfg      string
-	Domains      map[string]string   `yaml:"Domains,omitempty" json:"Domains,omitempty"`
-	HTTP2        *http2.ServerConfig `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
-	HTTP3        bool                `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
-	KillSignal   int                 `yaml:"KillSignal" json:"KillSignal,omitempty"`
-	Server       *fasthttp.Server    `yaml:"Server,omitempty" json:"-"`
-	PortRedirect string              `yaml:"PortRedirect" json:"PortRedirect,omitempty"`
+	*AccessConf       `yaml:"Access" json:"access,omitempty"`
+	fileCfg           string
+	Domains           map[string]string   `yaml:"Domains,omitempty" json:"Domains,omitempty"`
+	HTTP2             *http2.ServerConfig `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
+	HTTP3             bool                `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
+	HTTP3UpstreamAddr string              `yaml:"HTTP3UpstreamAddr" json:"HTTP3UpstreamAddr,omitempty"`
+	KillSignal        int                 `yaml:"KillSignal" json:"KillSignal,omitempty"`
+	Server            *fasthttp.Server    `yaml:"Server,omitempty" json:"-"`
+	PortRedirect      string              `yaml:"PortRedirect" json:"PortRedirect,omitempty"`
 }
 
 // NewCfgHttp create CfgHttp from config file

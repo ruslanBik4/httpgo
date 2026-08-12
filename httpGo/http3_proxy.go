@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/quic-go/quic-go/http3"
 
@@ -36,6 +38,10 @@ func NewHTTP3Proxy(
 		return nil, fmt.Errorf("tls config is required")
 	}
 
+	if strings.HasPrefix(upstream, ":") {
+		upstream = "http://127.0.0.1" + upstream
+	}
+
 	target, err := url.Parse(upstream)
 	if err != nil {
 		return nil, fmt.Errorf("invalid upstream URL: %w", err)
@@ -46,10 +52,18 @@ func NewHTTP3Proxy(
 		// Keep the local fasthttp upstream on HTTP/1.1.
 		// It is private and avoids requiring net/http HTTP/2 support here.
 		ForceAttemptHTTP2: false,
+		// A non-nil map disables Go's automatic HTTP/2 support.
+		TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
+
+		DisableKeepAlives:     false,
+		MaxIdleConns:          100,
+		MaxIdleConnsPerHost:   100,
+		IdleConnTimeout:       90 * time.Second,
+		ResponseHeaderTimeout: 30 * time.Second,
 	}
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		logs.ErrorLog(err)
-		http.Error(w, "fasthttp upstream unavailable", http.StatusBadGateway)
+		http.Error(w, "fasthttp upstream unavailable:"+err.Error(), http.StatusBadGateway)
 	}
 
 	h3TLS.MinVersion = tls.VersionTLS13 // HTTP/3 requirement
@@ -58,7 +72,6 @@ func NewHTTP3Proxy(
 		Addr:      publicUDPAddr,
 		TLSConfig: http3.ConfigureTLSConfig(h3TLS),
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logs.StatusLog(w)
 			r.Header.Set("X-Forwarded-Proto", "https")
 			r.Header.Set("X-Forwarded-HTTP-Version", "3")
 			proxy.ServeHTTP(w, r)

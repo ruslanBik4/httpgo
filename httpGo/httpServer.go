@@ -26,7 +26,9 @@ import (
 
 	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
+	"github.com/quic-go/quic-go/http3"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/reuseport"
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/gotools"
@@ -45,6 +47,7 @@ type HttpGo struct {
 	cfg        *CfgHttp
 	store      *Store
 	rdServer   *fasthttp.Server
+	h3Server   *http3.Server
 }
 
 var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
@@ -53,37 +56,10 @@ var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
+	cfg.Server.Handler = apis.Handler
 	if cfg.HTTP2 != nil {
 		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
 		logs.StatusLog("set HTTP2 server configuration")
-	}
-	if cfg.HTTP3 {
-		var tlsCfg *tls.Config
-		fPort := ":443"
-		if ln, ok := listener.(LnMultiCerts); ok {
-			tlsCfg = ln.tlsCfg.Clone()
-			fPort = ln.fPort
-		} else {
-			certMaps := newCertMaps()
-			if err := certMaps.loadCertificates(); err != nil {
-				logs.ErrorLog(err)
-			}
-			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
-		}
-		tlsCfg.NextProtos = []string{"h3"}
-		// UDP: HTTP/3 proxy.
-		// Point this at a private fasthttp listener.
-		upstream := fmt.Sprintf(`https://%s`, listener.Addr().String())
-		h3, err := NewHTTP3Proxy(
-			tlsCfg,
-			fmt.Sprintf("https://localhost%s", fPort),
-			upstream,
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
-		go h3.ListenAndServe()
-		logs.StatusLog("[*] HTTP3 multi-site proxy running on %s, %v", fPort, h3.Addr)
 	}
 
 	if apis.Ctx == nil {
@@ -120,10 +96,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
 
-	cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-		ctx.Response.Header.Set("Alt-Svc", `h3=":443"; ma=86400`)
-		apis.Handler(ctx)
-	}
 	if len(cfg.Domains) > 0 {
 		logs.DebugLog("Subdomains is %+v", cfg.Domains)
 		handler := cfg.Server.Handler
@@ -168,41 +140,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		}
 	}
 
-	if cfg.IsAccess() {
-		if cfg.ChkConn {
-			listener = &blockListener{
-				listener,
-				cfg.AccessConf,
-			}
-		}
-		handler := cfg.Server.Handler
-		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
-			addr := gotools.BytesToString(ipClient)
-			if len(ipClient) == 0 {
-				ipClient = ctx.Request.Header.Peek("Forwarded")
-				ips := regIp.FindSubmatch(ipClient)
-
-				if len(ips) == 0 {
-					addr = gotools.BytesToString(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
-					if len(addr) == 0 {
-						addr = ctx.Conn().RemoteAddr().String()
-					}
-				} else {
-					addr = gotools.BytesToString(ips[0])
-				}
-			}
-
-			if cfg.Allow(ctx, addr) || !cfg.Deny(ctx, addr) {
-				handler(ctx)
-				return
-			}
-
-			logs.DebugLog(addr, ctx.Request.Header.String(), cfg)
-			ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
-		}
-	}
-
 	store := NewStore()
 	apis.Ctx.AddValue(AppStore, store)
 	// add cfg refresh routers, ignore errors
@@ -218,6 +155,20 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		cfg:        cfg,
 		store:      store,
 	}
+
+	h.setHTTP3()
+
+	if cfg.IsAccess() {
+		if cfg.ChkConn {
+			listener = &blockListener{
+				listener,
+				cfg.AccessConf,
+			}
+		}
+
+		cfg.Server.Handler = blockingHandler(cfg, cfg.Server.Handler)
+	}
+
 	logs.DebugLog("Server get files under %d size", cfg.Server.MaxRequestBodySize)
 	if cfg.PortRedirect > "" {
 		h.rdServer = RunRedirectNoSecure(cfg)
@@ -226,12 +177,99 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	return h
 }
 
+func (h *HttpGo) setHTTP3() {
+	if h.cfg.HTTP3 {
+		var tlsCfg *tls.Config
+		fPort := ":443"
+		if ln, ok := h.listener.(LnMultiCerts); ok {
+			tlsCfg = ln.tlsCfg.Clone()
+			fPort = ln.fPort
+		} else {
+			certMaps := newCertMaps()
+			if err := certMaps.loadCertificates(); err != nil {
+				logs.ErrorLog(err)
+			}
+			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
+		}
+		tlsCfg.NextProtos = []string{"h3"}
+		// UDP: HTTP/3 proxy.
+		// Point this at a private fasthttp listener.
+		upstream := h.cfg.HTTP3UpstreamAddr
+		if upstream == "" {
+			upstream = "http://127.0.0.1:8080"
+			h.cfg.HTTP3UpstreamAddr = ":8080"
+		}
+
+		if h3, err := NewHTTP3Proxy(
+			tlsCfg,
+			fPort,
+			upstream,
+		); err != nil {
+			log.Fatal(err)
+		} else {
+			h.h3Server = h3
+		}
+
+		logs.StatusLog("[*] HTTP3 multi-site proxy running on %s, %v", fPort, h.h3Server.Addr)
+		h3AltSvc := fmt.Sprintf(`h3="%s"; ma=86400`, fPort)
+		handler := h.cfg.Server.Handler
+		h.cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
+			ctx.Response.Header.Set("Alt-Svc", h3AltSvc)
+			handler(ctx)
+		}
+	}
+}
+
+func blockingHandler(cfg *CfgHttp, handler fasthttp.RequestHandler) func(ctx *fasthttp.RequestCtx) {
+	return func(ctx *fasthttp.RequestCtx) {
+		ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
+		addr := gotools.BytesToString(ipClient)
+		if len(ipClient) == 0 {
+			ipClient = ctx.Request.Header.Peek("Forwarded")
+			ips := regIp.FindSubmatch(ipClient)
+
+			if len(ips) == 0 {
+				addr = gotools.BytesToString(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
+				if len(addr) == 0 {
+					addr = ctx.Conn().RemoteAddr().String()
+				}
+			} else {
+				addr = gotools.BytesToString(ips[0])
+			}
+		}
+
+		if cfg.Allow(ctx, addr) || !cfg.Deny(ctx, addr) {
+			handler(ctx)
+			return
+		}
+
+		logs.DebugLog(addr, ctx.Request.Header.String(), cfg)
+		ctx.Error(cfg.Mess, fasthttp.StatusForbidden)
+	}
+}
+
 // Run starting http or https server according to secure
 // certFile and keyFile are paths to TLS certificate and key files for https server
 func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 
 	h.apis.Https = secure
 	h.apis.StartTime = time.Now()
+	if h.h3Server != nil {
+		go func() {
+			if err := h.h3Server.ListenAndServe(); err != nil {
+				logs.ErrorLog(err, "HTTP/3 server stopped: %v")
+			}
+		}()
+		//start upstream
+		go func() {
+			listener, err := reuseport.Listen("tcp4", h.cfg.HTTP3UpstreamAddr)
+			if err != nil {
+				logs.Fatal(err)
+			}
+			h.cfg.Server.Serve(listener)
+		}()
+	}
+
 	//todo change parameters type on
 	go h.listenOnShutdown()
 	if secure {
@@ -259,6 +297,10 @@ func (h *HttpGo) listenOnShutdown() {
 		logs.ErrorLog(err)
 	}
 
+	if err := h.h3ServerShutdownWithContext(ctx); err != nil {
+		logs.ErrorLog(err)
+	}
+
 	if err := h.mainServer.ShutdownWithContext(ctx); err != nil {
 		logs.ErrorLog(err)
 	}
@@ -271,6 +313,13 @@ func (h *HttpGo) rdServerShutdownWithContext(ctx context.Context) error {
 	}
 
 	return h.rdServer.ShutdownWithContext(ctx)
+}
+
+func (h *HttpGo) h3ServerShutdownWithContext(ctx context.Context) error {
+	if h.h3Server != nil {
+		return h.h3Server.Shutdown(ctx)
+	}
+	return nil
 }
 
 const separator = "/"
