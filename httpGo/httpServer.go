@@ -60,6 +60,11 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	if cfg.HTTP2 != nil {
 		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
 		logs.StatusLog("set HTTP2 server configuration")
+		//reset user values for HTTP/2
+		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
+			ctx.ResetUserValues()
+			apis.Handler(ctx)
+		}
 	}
 
 	if apis.Ctx == nil {
@@ -98,46 +103,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	if len(cfg.Domains) > 0 {
 		logs.DebugLog("Subdomains is %+v", cfg.Domains)
-		handler := cfg.Server.Handler
-		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			for subD, ip := range cfg.Domains {
-				host := gotools.BytesToString(ctx.Host())
-				if host != ip && strings.HasPrefix(host, subD) {
-					if isLocalDirectory(ip) {
-						p := gotools.BytesToString(ctx.URI().Path())
-						if p == "" || p == "/" {
-							p = "index.html"
-						}
-						logs.StatusLog(ip, p)
-						fileName := path.Join(".", ip, p)
-						err := ctx.Response.SendFile(fileName)
-						if err != nil {
-							logs.ErrorLog(err, ctx.String())
-							return
-						}
-						ct, fileName := views.GetContentType(ctx, fileName)
-						ctx.Response.Header.SetContentType(ct)
-						return
-					}
-
-					if !isLocalRedirect(ip) {
-						ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
-						logs.DebugLog("redirect", ip)
-						return
-					}
-
-					if !strings.HasSuffix(listener.Addr().String(), ip) {
-						url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
-						logs.DebugLog("redirect:", url)
-						ctx.Redirect(url, fasthttp.StatusMovedPermanently)
-						return
-					}
-
-				}
-			}
-
-			handler(ctx)
-		}
+		cfg.Server.Handler = spliDomainsHandler(cfg, listener, cfg.Server.Handler)
 	}
 
 	store := NewStore()
@@ -177,6 +143,48 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	return h
 }
 
+func spliDomainsHandler(cfg *CfgHttp, listener net.Listener, handler fasthttp.RequestHandler) func(ctx *fasthttp.RequestCtx) {
+	return func(ctx *fasthttp.RequestCtx) {
+		for subD, ip := range cfg.Domains {
+			host := gotools.BytesToString(ctx.Host())
+			if host != ip && strings.HasPrefix(host, subD) {
+				if isLocalDirectory(ip) {
+					p := gotools.BytesToString(ctx.URI().Path())
+					if p == "" || p == "/" {
+						p = "index.html"
+					}
+					logs.StatusLog(ip, p)
+					fileName := path.Join(".", ip, p)
+					err := ctx.Response.SendFile(fileName)
+					if err != nil {
+						logs.ErrorLog(err, ctx.String())
+						return
+					}
+					ct, fileName := views.GetContentType(ctx, fileName)
+					ctx.Response.Header.SetContentType(ct)
+					return
+				}
+
+				if !isLocalRedirect(ip) {
+					ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
+					logs.DebugLog("redirect", ip)
+					return
+				}
+
+				if !strings.HasSuffix(listener.Addr().String(), ip) {
+					url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
+					logs.DebugLog("redirect:", url)
+					ctx.Redirect(url, fasthttp.StatusMovedPermanently)
+					return
+				}
+
+			}
+		}
+
+		handler(ctx)
+	}
+}
+
 func (h *HttpGo) setHTTP3() {
 	if h.cfg.HTTP3 {
 		var tlsCfg *tls.Config
@@ -192,18 +200,14 @@ func (h *HttpGo) setHTTP3() {
 			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
 		}
 		tlsCfg.NextProtos = []string{"h3"}
-		// UDP: HTTP/3 proxy.
-		// Point this at a private fasthttp listener.
-		upstream := h.cfg.HTTP3UpstreamAddr
-		if upstream == "" {
-			upstream = "http://127.0.0.1:8080"
-			h.cfg.HTTP3UpstreamAddr = ":8080"
+		if h.cfg.HTTP3Proxy == nil {
+			h.cfg.HTTP3Proxy = &HTTP3ProxyConfig{}
 		}
 
 		if h3, err := NewHTTP3Proxy(
 			tlsCfg,
 			fPort,
-			upstream,
+			h.cfg.HTTP3Proxy,
 		); err != nil {
 			log.Fatal(err)
 		} else {
@@ -257,16 +261,18 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 	if h.h3Server != nil {
 		go func() {
 			if err := h.h3Server.ListenAndServe(); err != nil {
-				logs.ErrorLog(err, "HTTP/3 server stopped: %v")
+				logs.ErrorLog(err, "HTTP/3 server stopped")
 			}
 		}()
 		//start upstream
 		go func() {
-			listener, err := reuseport.Listen("tcp4", h.cfg.HTTP3UpstreamAddr)
+			listener, err := reuseport.Listen("tcp4", h.cfg.HTTP3Proxy.UpstreamAddr)
 			if err != nil {
 				logs.Fatal(err)
 			}
-			h.cfg.Server.Serve(listener)
+			if err := h.cfg.Server.Serve(listener); err != nil {
+				logs.ErrorLog(err, "HTTP/3 upstream stopped")
+			}
 		}()
 	}
 
@@ -308,11 +314,11 @@ func (h *HttpGo) listenOnShutdown() {
 }
 
 func (h *HttpGo) rdServerShutdownWithContext(ctx context.Context) error {
-	if h.rdServer == nil {
-		return nil
+	if h.rdServer != nil {
+		return h.rdServer.ShutdownWithContext(ctx)
 	}
 
-	return h.rdServer.ShutdownWithContext(ctx)
+	return nil
 }
 
 func (h *HttpGo) h3ServerShutdownWithContext(ctx context.Context) error {

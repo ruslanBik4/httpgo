@@ -88,8 +88,6 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth auth.FncAuth) *Apis {
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
-	//reset user values for HTTP/2
-	ctx.ResetUserValues()
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
 		a.renderError(ctx, err, route)
