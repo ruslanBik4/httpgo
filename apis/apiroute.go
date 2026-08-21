@@ -13,10 +13,12 @@ import (
 	"fmt"
 	"go/types"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/iancoleman/strcase"
 	"github.com/jackc/pgtype"
 	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
@@ -442,11 +444,12 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 	}
 
 	contentType := ctx.Request.Header.ContentType()
-	if bytes.HasPrefix(contentType, []byte(ContentTypeJSON)) && (route.DTO != nil) {
+	if bytes.HasPrefix(contentType, ContentTypeJSON) && (route.DTO != nil) {
 		b, err := route.performsJSON(ctx)
 		if err != nil {
 			return b, err
 		}
+
 	} else {
 
 		badParams := make(map[string]string, 0)
@@ -461,12 +464,7 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 		} else {
 			fncStoreArgs := func(k, v []byte) bool {
 				key := gotools.BytesToString(k)
-				val, err := route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)})
-				if err != nil {
-					badParams[key] = fmt.Sprintf("has wrong type %v (%s)", val, err)
-				} else {
-					ctx.SetUserValue(key, val)
-				}
+				route.checkTypeAndConvertParam(ctx, key, []string{gotools.BytesToString(v)}, badParams)
 				return true
 			}
 
@@ -510,9 +508,10 @@ func (route *ApiRoute) CheckAndRun(ctx *fasthttp.RequestCtx, fncAuth auth.FncAut
 
 func (route *ApiRoute) chkMultiPart(ctx *fasthttp.RequestCtx, contentType []byte, badParams map[string]string) (any, error) {
 	// check multipart params¬
-	if !bytes.HasPrefix(contentType, []byte(ContentTypeMultiPart)) {
+	if !bytes.HasPrefix(contentType, ContentTypeMultiPart) {
 		return nil, fasthttp.ErrNoMultipartForm
 	}
+
 	mf, err := ctx.Request.MultipartForm()
 	if err != nil {
 		if strings.Contains(err.Error(), "form size must be greater than 0") ||
@@ -525,16 +524,7 @@ func (route *ApiRoute) chkMultiPart(ctx *fasthttp.RequestCtx, contentType []byte
 	ctx.SetUserValue(MultiPartParams, mf.Value)
 
 	for key, value := range mf.Value {
-		val, err := route.checkTypeAndConvertParam(ctx, key, value)
-		if err != nil {
-			if val != nil {
-				logs.DebugLog(val)
-			}
-
-			badParams[key] = "wrong type " + strings.Join(value, ",") + err.Error()
-		} else {
-			ctx.SetUserValue(key, val)
-		}
+		route.checkTypeAndConvertParam(ctx, key, value, badParams)
 	}
 
 	for key, files := range mf.File {
@@ -564,6 +554,7 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
 		default:
 			return nil, errors.Wrap(err, "visit result")
 		}
+
 	} else if err := jsoniter.Unmarshal(ctx.Request.Body(), &dto); err != nil {
 		errMsg := err.Error()
 		parts := strings.Split(errMsg, ":")
@@ -571,7 +562,7 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
 			param := strings.Split(parts[0], ".")
 			badParams[param[len(param)-1]] = strings.Join(parts[1:], ":")
 		} else {
-			badParams["bad_params"] = "json DTO not parse :" + errMsg
+			badParams["bad_json"] = "json DTO not parse :" + errMsg
 		}
 
 		return badParams, ErrWrongParamsList
@@ -595,29 +586,42 @@ func (route *ApiRoute) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 	return len(badParams) == 0
 }
 
-func (route *ApiRoute) checkTypeAndConvertParam(ctx *fasthttp.RequestCtx, name string, values []string) (any, error) {
-	// find param in InParams list & convert according to Type
-	for _, param := range route.Params {
-		if param.Name == name {
+func (route *ApiRoute) checkTypeAndConvertParam(ctx *fasthttp.RequestCtx, name string, values []string, badParams map[string]string) {
+	// find param in InParams list & convert according to param.Type
+	i := slices.IndexFunc(route.Params, func(param InParam) bool {
+		return param.Name == name
+	})
 
-			if param.Type == nil {
-				return values, nil
-			}
+	if i < 0 {
+		name = strcase.ToSnake(name)
+		// when not found as is search match as rebab string
+		i = slices.IndexFunc(route.Params, func(param InParam) bool {
+			return strcase.ToSnake(param.Name) == name
+		})
+	}
 
-			if param.Type.IsSlice() {
-				slice, err := param.Type.ConvertSlice(ctx, values)
-				return slice, err
-			}
+	if i >= 0 {
 
-			return param.Type.ConvertValue(ctx, values[0])
+		var err error
+		var val any
+		if param := route.Params[i]; param.Type == nil {
+			val = values
+		} else if param.Type.IsSlice() {
+			val, err = param.Type.ConvertSlice(ctx, values)
+		} else {
+			val, err = param.Type.ConvertValue(ctx, values[0])
 		}
-	}
+		if err != nil {
+			badParams[name] = fmt.Sprintf("has wrong type %v (%s)", val, err)
+		} else {
+			ctx.SetUserValue(name, val)
+		}
 
-	if len(values) == 1 {
-		return values[0], nil
+	} else if len(values) == 1 {
+		ctx.SetUserValue(name, values[0])
+	} else {
+		ctx.SetUserValue(name, values)
 	}
-
-	return values, nil
 }
 
 func (route *ApiRoute) isValidMethod(ctx *fasthttp.RequestCtx) bool {

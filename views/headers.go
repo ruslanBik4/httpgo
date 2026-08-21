@@ -22,6 +22,7 @@ import (
 
 const (
 	// render JSON from any data type
+	cssHEADERSContentType  = "text/css; charset=utf-8"
 	jsonHEADERSContentType = "application/json; charset=utf-8"
 	htmlHEADERSContentType = "text/html; charset=utf-8"
 )
@@ -54,12 +55,19 @@ func WriteHeaders(ctx *fasthttp.RequestCtx) {
 	}
 }
 
+// WriteCSSHeaders return standart headers for CSS
+func WriteCSSHeaders(ctx *fasthttp.RequestCtx) {
+	WriteHeaders(ctx)
+	ctx.Response.Header.SetContentType(cssHEADERSContentType)
+}
+
 // WriteJSONHeaders return standart headers for JSON
 func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	WriteHeaders(ctx)
 	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
 }
 
+// WriteHeadersHTML return standart headers for HTML
 func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 	WriteHeaders(ctx)
 	ctx.Response.Header.SetContentType(htmlHEADERSContentType)

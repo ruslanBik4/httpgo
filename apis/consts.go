@@ -14,9 +14,9 @@ import (
 )
 
 // content types
-const (
-	ContentTypeJSON      = "application/json"
-	ContentTypeMultiPart = "multipart/form-data"
+var (
+	ContentTypeJSON      = []byte("application/json")
+	ContentTypeMultiPart = []byte("multipart/form-data")
 )
 
 type tMethod uint8

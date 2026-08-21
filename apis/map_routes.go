@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -205,7 +205,7 @@ func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 
 	e := m.method
 	//find some pathURL with others method
-	for t := GET; t < UNKNOWN-1; t++ {
+	for t := range UNKNOWN - 1 {
 		m.method = t
 		route, ok := r[m]
 		if ok {
@@ -213,7 +213,7 @@ func (r MapRoutes) GetRoute(ctx *fasthttp.RequestCtx) (*ApiRoute, error) {
 		}
 	}
 
-	return nil, errNotFoundPage
+	return nil, ErrNotFoundPage
 }
 
 func (r MapRoutes) findParentRoute(m mapRoute) (*ApiRoute, string) {

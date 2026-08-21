@@ -88,8 +88,6 @@ func NewApis(ctx CtxApis, routes MapRoutes, fncAuth auth.FncAuth) *Apis {
 // Handler find route on request, check & run
 func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 
-	//reset user values for HTTP/2
-	ctx.ResetUserValues()
 	route, err := a.routes.GetRoute(ctx)
 	if err != nil {
 		a.renderError(ctx, err, route)
@@ -113,7 +111,7 @@ func (a *Apis) Handler(ctx *fasthttp.RequestCtx) {
 			a.renderError(ctx, err, resp)
 		}
 
-	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, errNotFoundPage:
+	case ErrWrongParamsList, ErrUnAuthorized, errIncompatibleParams, ErrNotFoundPage:
 		a.renderError(ctx, err, resp)
 
 	default:
@@ -209,7 +207,7 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 
 			return
 
-		case errNotFoundPage:
+		case ErrNotFoundPage:
 			ctx.NotFound()
 			logs.DebugLog("Not Found Page %+v", ctx.Request.String())
 			return
@@ -227,7 +225,7 @@ func (a *Apis) writeBadRequest(ctx *fasthttp.RequestCtx, resp any) {
 		logs.ErrorLog(err, resp)
 	}
 
-	if bytes.HasPrefix(ctx.Request.Header.ContentType(), []byte(ContentTypeMultiPart)) {
+	if bytes.HasPrefix(ctx.Request.Header.ContentType(), ContentTypeMultiPart) {
 		logs.DebugLog(ctx.UserValue(MultiPartParams))
 	} else if ctx.IsPost() && ctx.PostArgs().Len() > 0 {
 		logs.DebugLog(ctx.PostArgs().String())
