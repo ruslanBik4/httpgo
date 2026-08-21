@@ -16,15 +16,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/d2lang/d2/d2compiler"
+	"github.com/d2lang/d2/d2exporter"
+	"github.com/d2lang/d2/d2layouts/d2dagrelayout"
+	"github.com/d2lang/d2/d2renderers/d2svg"
+	"github.com/d2lang/d2/d2themes/d2themescatalog"
+	"github.com/d2lang/d2/lib/textmeasure"
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
-	"oss.terrastruct.com/d2/d2compiler"
-	"oss.terrastruct.com/d2/d2exporter"
-	"oss.terrastruct.com/d2/d2layouts/d2dagrelayout"
-	"oss.terrastruct.com/d2/d2renderers/d2svg"
-	"oss.terrastruct.com/d2/d2themes/d2themescatalog"
-	"oss.terrastruct.com/d2/lib/textmeasure"
 
 	"github.com/ruslanBik4/logs"
 )
