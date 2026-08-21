@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
+	github.com/quic-go/quic-go v0.61.0
 	github.com/ruslanBik4/dbEngine v1.1.228
 	github.com/ruslanBik4/gotools v0.0.4
 	github.com/ruslanBik4/logs v0.1.8
@@ -62,6 +63,7 @@ require (
 	github.com/mazznoer/csscolorparser v0.1.8 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
