@@ -11,7 +11,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.62.0
-	github.com/ruslanBik4/dbEngine v1.2.4
+	github.com/ruslanBik4/dbEngine v1.2.5
 	github.com/ruslanBik4/gotools v0.0.4
 	github.com/ruslanBik4/logs v0.1.8
 	github.com/stretchr/testify v1.12.1
