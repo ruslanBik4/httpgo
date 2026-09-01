@@ -260,12 +260,14 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 	h.apis.StartTime = time.Now()
 	if h.h3Server != nil {
 		go func() {
+			logs.StatusLog("starting HTTP3 server")
 			if err := h.h3Server.ListenAndServe(); err != nil {
 				logs.ErrorLog(err, "HTTP/3 server stopped")
 			}
 		}()
 		//start upstream
 		go func() {
+			logs.StatusLog("starting HTTP3 server upstream")
 			listener, err := reuseport.Listen("tcp4", h.cfg.HTTP3Proxy.UpstreamAddr)
 			if err != nil {
 				logs.Fatal(err)

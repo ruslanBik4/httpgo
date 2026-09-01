@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -14,7 +14,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/valyala/fasthttp"
@@ -571,12 +571,12 @@ func TestDTO_NewValue(t *testing.T) {
 	}
 	nilPoint := pgtype.Point{}
 	test1 := pgtype.Point{
-		P:      pgtype.Vec2{1, 2},
-		Status: pgtype.Present,
+		P:     pgtype.Vec2{1, 2},
+		Valid: true,
 	}
 	test2 := pgtype.Point{
-		P:      pgtype.Vec2{2, 2},
-		Status: pgtype.Present,
+		P:     pgtype.Vec2{2, 2},
+		Valid: true,
 	}
 	tests := []struct {
 		name   string

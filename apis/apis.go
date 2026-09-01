@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 
@@ -140,8 +140,8 @@ func (a *Apis) handleRecover(ctx *fasthttp.RequestCtx, route *ApiRoute) {
 			params = ctx.UserValue(MultiPartParams)
 		}
 
-		logs.DebugLog("during performs handler '%s', params %+v", route.Desc, params)
-		a.renderError(ctx, errRec, nil)
+		resp := fmt.Sprintf("during performs handler '%s', params %+v", route.Desc, params)
+		a.renderError(ctx, errRec, resp)
 	case string:
 		a.renderError(ctx, errors.New(errRec), nil)
 	default:
@@ -208,6 +208,12 @@ func (a *Apis) renderError(ctx *fasthttp.RequestCtx, err error, resp any) {
 			return
 
 		case ErrNotFoundPage:
+			logs.ErrorLog(err,
+				"404 host=%q uri=%q h3=%q",
+				ctx.Host(),
+				ctx.RequestURI(),
+				ctx.Request.Header.Peek("X-Forwarded-HTTP-Version"),
+			)
 			ctx.NotFound()
 			logs.DebugLog("Not Found Page %+v", ctx.Request.String())
 			return

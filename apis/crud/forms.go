@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/valyala/fasthttp"
 	"golang.org/x/net/context"
 
@@ -242,8 +242,6 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 				func(values []interface{}, columns []Column) error {
 					ok = false
 					for i, col := range columns {
-						name := col.Name()
-						values[i] = ToStandartColumnValueType(table.Name(), name, id, values[i])
 						colDecors = append(colDecors, ToColDev(ctx, DB, patternList, col, values[i]))
 					}
 
@@ -388,90 +386,6 @@ func GetNameAccordingLang(table Table, name string, lang interface{}) string {
 	return name
 }
 
-func ToStandartColumnValueType(tableName, colName string, id int32, values interface{}) interface{} {
-	// todo- move to dbEngine
-	switch v := values.(type) {
-	case pgtype.VarcharArray:
-		return VarcharArrayToStrings(v.Elements)
-
-	case *pgtype.VarcharArray:
-		return VarcharArrayToStrings(v.Elements)
-
-	case pgtype.TextArray:
-		return TextArrayToStrings(v.Elements)
-
-	case *pgtype.TextArray:
-		return TextArrayToStrings(v.Elements)
-
-	case pgtype.BPCharArray:
-		return BPCharArrayToStrings(v.Elements)
-
-	case *pgtype.BPCharArray:
-		return BPCharArrayToStrings(v.Elements)
-
-	case pgtype.Int4Array:
-		return Int4ArrToStrings(v.Elements)
-
-	case pgtype.Int8Array:
-		return Int8ArrToStrings(v.Elements)
-
-	case pgtype.ArrayType:
-		str, done := ArrayToStrings(&v)
-		if done {
-			return str
-		}
-
-		return v
-
-	case *pgtype.ArrayType:
-		str, done := ArrayToStrings(v)
-		if done {
-			return str
-		}
-
-		return v
-
-	case *pgtype.GenericText:
-		logs.DebugLog("%T", v)
-		return "genericText: " + v.String
-
-	case pgtype.UntypedTextArray:
-		return v.Elements
-
-	case *pgtype.UntypedTextArray:
-		return v.Elements
-
-	case []interface{}:
-		return UnknownArrayToStrings(v)
-
-	case *pgtype.Bytea, pgtype.Bytea, []uint8:
-		return BlobToURL(tableName, colName, id)
-
-	case time.Time:
-		return TimeToString(v)
-
-	case *time.Time:
-		return TimeToString(*v)
-
-	case nil, string, bool, float32, float64, int32, int64, map[string]string, map[string]interface{}:
-		return values
-
-	// case *pgtype.Daterange, pgtype.Daterange:
-	//
-	// 	d := &DateRangeMarshal{}
-	// 	err := d.Set(v)
-	// 	if err != nil {
-	// 		return fmt.Sprintf("wrong DataMershal %v", err)
-	// 	}
-	//
-	// 	return *d
-
-	default:
-		logs.DebugLog("%T", values)
-		return values
-	}
-}
-
 func TimeToString(v time.Time) string {
 	return v.Format("2006-01-02")
 }
@@ -480,19 +394,10 @@ func BlobToURL(tableName string, colName string, id int32) string {
 	return fmt.Sprintf("/api/v1/blob/%s?id=%d&name=%s", tableName, id, colName)
 }
 
-func ArrayToStrings(v *pgtype.ArrayType) ([]string, bool) {
-	src, ok := v.Get().([]interface{})
-	if !ok {
-		return nil, false
-	}
-
-	return UnknownArrayToStrings(src), true
-}
-
 func Int4ArrToStrings(src []pgtype.Int4) []int32 {
 	str := make([]int32, len(src))
 	for i, val := range src {
-		str[i] = val.Int
+		str[i] = val.Int32
 	}
 
 	return str
@@ -501,13 +406,13 @@ func Int4ArrToStrings(src []pgtype.Int4) []int32 {
 func Int8ArrToStrings(src []pgtype.Int8) []int64 {
 	str := make([]int64, len(src))
 	for i, val := range src {
-		str[i] = val.Int
+		str[i] = val.Int64
 	}
 
 	return str
 }
 
-func UnknownArrayToStrings(src []interface{}) []string {
+func UnknownArrayToStrings(src []any) []string {
 	str := make([]string, len(src))
 	for i, val := range src {
 		str[i] = json.Element(val)
@@ -516,25 +421,7 @@ func UnknownArrayToStrings(src []interface{}) []string {
 	return str
 }
 
-func VarcharArrayToStrings(src []pgtype.Varchar) []string {
-	str := make([]string, len(src))
-	for i, val := range src {
-		str[i] = val.String
-	}
-
-	return str
-}
-
 func TextArrayToStrings(src []pgtype.Text) []string {
-	str := make([]string, len(src))
-	for i, val := range src {
-		str[i] = val.String
-	}
-
-	return str
-}
-
-func BPCharArrayToStrings(src []pgtype.BPChar) []string {
 	str := make([]string, len(src))
 	for i, val := range src {
 		str[i] = val.String

@@ -20,7 +20,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -218,7 +218,7 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 func (d *DateTimeString) GetPgxType() pgtype.Time {
 	return pgtype.Time{
 		Microseconds: (time.Time)(*d).UnixMicro(),
-		Status:       pgtype.Present,
+		Valid:        true,
 	}
 }
 
@@ -232,8 +232,8 @@ func NewTzString() *TzString {
 
 func (d *TzString) GetPgxType() pgtype.Timestamptz {
 	return pgtype.Timestamptz{
-		Time:   (time.Time)(*d.DateTimeString),
-		Status: pgtype.Present,
+		Time:  (time.Time)(*d.DateTimeString),
+		Valid: true,
 	}
 }
 
@@ -269,8 +269,8 @@ func NewTimestampString() *TimestampString {
 
 func (d *TimestampString) GetPgxType() pgtype.Timestamp {
 	return pgtype.Timestamp{
-		Time:   (time.Time)(*d.DateTimeString),
-		Status: pgtype.Present,
+		Time:  (time.Time)(*d.DateTimeString),
+		Valid: true,
 	}
 }
 
@@ -342,8 +342,8 @@ func (d *DateString) NewValue() any {
 
 func (d *DateString) GetPgxType() pgtype.Date {
 	return pgtype.Date{
-		Time:   (time.Time)(*d),
-		Status: pgtype.Present,
+		Time:  (time.Time)(*d),
+		Valid: true,
 	}
 }
 

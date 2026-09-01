@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -16,7 +16,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/valyala/quicktemplate"
 
@@ -161,14 +161,14 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Int4Array",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.Int4Array)(ptr)
+			accArray := (*pgtype.Array[pgtype.Int4])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
 				if i > 0 {
 					stream.WriteMore()
 				}
-				stream.WriteInt32(val.Int)
+				stream.WriteInt32(val.Int32)
 			}
 
 			stream.WriteArrayEnd()
@@ -180,14 +180,14 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Int8Array",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.Int8Array)(ptr)
+			accArray := (*pgtype.Array[pgtype.Int8])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
 				if i > 0 {
 					stream.WriteMore()
 				}
-				stream.WriteInt64(val.Int)
+				stream.WriteInt64(val.Int64)
 			}
 
 			stream.WriteArrayEnd()
@@ -199,14 +199,14 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Float4Array",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.Float4Array)(ptr)
+			accArray := (*pgtype.Array[pgtype.Float4])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
 				if i > 0 {
 					stream.WriteMore()
 				}
-				stream.WriteFloat32Lossy(val.Float)
+				stream.WriteFloat32Lossy(val.Float32)
 			}
 
 			stream.WriteArrayEnd()
@@ -218,14 +218,14 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Float8Array",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.Float8Array)(ptr)
+			accArray := (*pgtype.Array[pgtype.Float8])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
 				if i > 0 {
 					stream.WriteMore()
 				}
-				stream.WriteFloat64Lossy(val.Float)
+				stream.WriteFloat64Lossy(val.Float64)
 			}
 
 			stream.WriteArrayEnd()
@@ -258,7 +258,7 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.NumericArray",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.NumericArray)(ptr)
+			accArray := (*pgtype.Array[pgtype.Numeric])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
@@ -279,7 +279,7 @@ func init() {
 	jsoniter.RegisterTypeEncoderFunc("*pgtype.Date",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			val := (*pgtype.Date)(ptr)
-			if val.Status == pgtype.Present {
+			if val.Valid {
 				stream.WriteString(val.Time.Format(time.DateOnly))
 			} else {
 				stream.WriteNil()
@@ -287,12 +287,12 @@ func init() {
 		},
 		func(ptr unsafe.Pointer) bool {
 			val := (*pgtype.Date)(ptr)
-			return val.Status != pgtype.Present || val.Time.IsZero()
+			return !val.Valid || val.Time.IsZero()
 		})
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.Daterange",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			val := (*pgtype.Daterange)(ptr)
+			val := (*pgtype.Range[pgtype.Date])(ptr)
 			stream.WriteArrayStart()
 
 			stream.WriteInt64(val.Lower.Time.Unix())
@@ -307,7 +307,7 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.VarcharArray",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.VarcharArray)(ptr)
+			accArray := (*pgtype.Array[pgtype.Text])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
@@ -326,7 +326,7 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.BPCharArray",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.BPCharArray)(ptr)
+			accArray := (*pgtype.Array[pgtype.Text])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {
@@ -345,7 +345,7 @@ func init() {
 
 	jsoniter.RegisterTypeEncoderFunc("pgtype.TextArray",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			accArray := (*pgtype.TextArray)(ptr)
+			accArray := (*pgtype.Array[pgtype.Text])(ptr)
 			stream.WriteArrayStart()
 
 			for i, val := range accArray.Elements {

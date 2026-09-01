@@ -9,6 +9,7 @@ package apis
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 	"go/types"
@@ -19,13 +20,14 @@ import (
 	"time"
 
 	"github.com/iancoleman/strcase"
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
+	"github.com/ruslanBik4/dbEngine/dbEngine/psql"
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/gotools/typesExt"
 	"github.com/ruslanBik4/httpgo/auth"
@@ -225,7 +227,7 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 								col := columns[0]
 								src := values[0]
 								if strings.HasPrefix(col.Type(), "_") {
-									err := writeArray(ctx, src, col)
+									err := writeArray(ctx, src, col, DB)
 									if err != nil {
 										return err
 									}
@@ -294,7 +296,7 @@ func WriteRecordAsJSON(ctx *fasthttp.RequestCtx, rowComma *string) func(values [
 			_, _ = ctx.WriteString(comma + `"` + col.Name() + `":`)
 			if strings.HasPrefix(col.Type(), "_") {
 				src := values[i]
-				err := writeArray(ctx, src, col)
+				err := writeArray(ctx, src, col, nil)
 				if err != nil {
 					return err
 				}
@@ -310,25 +312,23 @@ func WriteRecordAsJSON(ctx *fasthttp.RequestCtx, rowComma *string) func(values [
 	}
 }
 
-func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) error {
-	var arrayHeader pgtype.ArrayHeader
-	rp, err := arrayHeader.DecodeBinary(nil, src)
+func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column, DB *dbEngine.DB) error {
+	var arrayHeader pgtype.ArrayCodec
+	m := pgtype.NewMap()
+	colType, ok := psql.ChkDataType(context.TODO(), DB, col.Type())
+	if !ok {
+		return errors.New("invalid column type")
+	}
+	rp, err := arrayHeader.DecodeValue(m, colType.OID, pgtype.BinaryFormatCode, src)
 	if err != nil {
 		return err
 	}
 
 	_, _ = ctx.WriteString("[")
 	comma := ""
-	for i := int32(0); i < arrayHeader.Dimensions[0].Length; i++ {
-		elemLen := int(int32(binary.BigEndian.Uint32(src[rp:])))
-		rp += 4
-		var elemSrc []byte
-		if elemLen >= 0 {
-			elemSrc = src[rp : rp+elemLen]
-			rp += elemLen
-		}
+	for _, src := range rp.(pgtype.Array[string]).Elements {
 		_, _ = ctx.WriteString(comma)
-		WriteElemValue(ctx, elemSrc, col)
+		_, _ = fmt.Fprintf(ctx, `"%s"`, src)
 		comma = ","
 	}
 
@@ -350,13 +350,14 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
-		decoded := &pgtype.Numeric{}
-		err := decoded.DecodeBinary(nil, src)
+		decoded := pgtype.NumericCodec{}
+		value, err := decoded.DecodeValue(pgtype.NewMap(), pgtype.NumericOID, pgtype.BinaryFormatCode, src)
 		if err != nil {
 			logs.ErrorLog(err, "decode UntypedFloat")
 			return
 		}
-		_, _ = fmt.Fprintf(ctx, "%sE%d", decoded.Int.String(), decoded.Exp)
+		numeric := value.(pgtype.Numeric)
+		_, _ = fmt.Fprintf(ctx, "%sE%d", numeric.Int.String(), numeric.Exp)
 
 	case types.Uint16, types.Byte:
 		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint16(src))

@@ -16,7 +16,6 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/jackc/pgtype"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -186,12 +185,12 @@ func (t TypeInParam) ConvertValue(ctx *fasthttp.RequestCtx, value string) (any, 
 
 func (t TypeInParam) ReadValue(s string, res any) (any, error) {
 	switch res := res.(type) {
-	case pgtype.Value:
-		err := res.Set(s)
-		if err != nil {
-			return nil, errors.Wrap(err, "Set s")
-		}
-		return res.Get(), nil
+	//case driver.Valuer:
+	//	err := res.Set(s)
+	//	if err != nil {
+	//		return nil, errors.Wrap(err, "Set s")
+	//	}
+	//	return res.Get(), nil
 
 	case json.Unmarshaler:
 		err := res.UnmarshalJSON(gotools.StringToBytes(s))

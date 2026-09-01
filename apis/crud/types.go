@@ -10,32 +10,32 @@ package crud
 import (
 	"database/sql/driver"
 	"fmt"
+	"net/netip"
 	"strings"
 
-	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 )
 
 type NumRangeMarshal struct {
-	*pgtype.Numrange
+	*pgtype.Range[pgtype.Numeric]
 }
 
 func (n *NumRangeMarshal) GetValue() any {
-	return n.Numrange
+	return n.Range
 }
 
 func (n *NumRangeMarshal) NewValue() any {
-	return &NumRangeMarshal{&pgtype.Numrange{}}
+	return &NumRangeMarshal{&pgtype.Range[pgtype.Numeric]{}}
 }
 
 type DateRangeMarshal struct {
-	*pgtype.Daterange
+	*pgtype.Range[pgtype.Date]
 }
 
 func NewDateRangeMarshal() *DateRangeMarshal {
-	return &DateRangeMarshal{&pgtype.Daterange{}}
+	return &DateRangeMarshal{&pgtype.Range[pgtype.Date]{}}
 }
 
 func (d *DateRangeMarshal) Expect() string {
@@ -51,15 +51,15 @@ func (d *DateRangeMarshal) RequestType() string {
 }
 
 func (d *DateRangeMarshal) GetValue() any {
-	return d.Daterange
+	return d.Range
 }
 
 func (d *DateRangeMarshal) NewValue() any {
-	return &DateRangeMarshal{&pgtype.Daterange{}}
+	return &DateRangeMarshal{&pgtype.Range[pgtype.Date]{}}
 }
 
 func (d *DateRangeMarshal) Value() (driver.Value, error) {
-	return d.Daterange, nil
+	return d.Range, nil
 }
 
 // Format implement Formatter interface
@@ -88,65 +88,65 @@ func (d *DateRangeMarshal) Get() any {
 	return d.GetValue()
 }
 
-func (d *DateRangeMarshal) Set(src any) error {
-	if d.Daterange == nil {
-		d.Daterange = &pgtype.Daterange{Status: pgtype.Null}
-	}
-	// untyped nil and typed nil interfaces are different
-	if src == nil {
-		d.Status = pgtype.Null
-		return nil
-	}
-
-	switch src := src.(type) {
-	case string:
-		if src == "" {
-			d.Status = pgtype.Undefined
-			return nil
-		}
-
-		parts := strings.Split(src, ",")
-
-		lower := strings.TrimSpace(parts[0])
-		d.LowerType, lower = lowerBoundType(lower)
-
-		err := d.Lower.Scan(lower)
-		if err == nil {
-			// if get one value set range to one date
-			if len(parts) == 1 {
-				d.Upper = d.Lower
-				d.UpperType = pgtype.Inclusive
-			} else {
-				upper := strings.TrimSpace(parts[1])
-				d.UpperType, upper = upperBoundType(upper)
-				err = d.Upper.Scan(upper)
-			}
-		}
-		if err != nil {
-			logs.ErrorLog(err)
-			return d.Daterange.Set(src)
-		}
-
-		d.Status = pgtype.Present
-
-	case *pgtype.Daterange:
-		d.Lower = src.Lower
-		d.Upper = src.Upper
-		d.LowerType = src.LowerType
-		d.UpperType = src.UpperType
-		d.Status = src.Status
-		d.LowerType = pgtype.Inclusive
-		d.UpperType = pgtype.Inclusive
-
-	case pgtype.Daterange:
-		return d.Set(&src)
-
-	default:
-		return d.Daterange.Set(src)
-	}
-
-	return nil
-}
+//func (d *DateRangeMarshal) Set(src any) error {
+//	if d.Range[pgtype.Date] == nil {
+//		d.Range[pgtype.Date] = &pgtype.Range[pgtype.Date]{Status: pgtype.Null}
+//	}
+//	// untyped nil and typed nil interfaces are different
+//	if src == nil {
+//		d.Status = pgtype.Null
+//		return nil
+//	}
+//
+//	switch src := src.(type) {
+//	case string:
+//		if src == "" {
+//			d.Status = pgtype.Undefined
+//			return nil
+//		}
+//
+//		parts := strings.Split(src, ",")
+//
+//		lower := strings.TrimSpace(parts[0])
+//		d.LowerType, lower = lowerBoundType(lower)
+//
+//		err := d.Lower.Scan(lower)
+//		if err == nil {
+//			// if get one value set range to one date
+//			if len(parts) == 1 {
+//				d.Upper = d.Lower
+//				d.UpperType = pgtype.Inclusive
+//			} else {
+//				upper := strings.TrimSpace(parts[1])
+//				d.UpperType, upper = upperBoundType(upper)
+//				err = d.Upper.Scan(upper)
+//			}
+//		}
+//		if err != nil {
+//			logs.ErrorLog(err)
+//			return d.Range[pgtype.Date].Set(src)
+//		}
+//
+//		d.Status = pgtype.Present
+//
+//	case *pgtype.Range[pgtype.Date]:
+//		d.Lower = src.Lower
+//		d.Upper = src.Upper
+//		d.LowerType = src.LowerType
+//		d.UpperType = src.UpperType
+//		d.Status = src.Status
+//		d.LowerType = pgtype.Inclusive
+//		d.UpperType = pgtype.Inclusive
+//
+//	case pgtype.Range[pgtype.Date]:
+//		return d.Set(&src)
+//
+//	default:
+//		return d.Range[pgtype.Date].Set(src)
+//	}
+//
+//	return nil
+//}
 
 func lowerBoundType(lower string) (pgtype.BoundType, string) {
 	if a, ok := strings.CutPrefix(lower, "["); ok {
@@ -170,8 +170,8 @@ func upperBoundType(upper string) (pgtype.BoundType, string) {
 	return pgtype.Inclusive, upper
 }
 
-func (d *DateRangeMarshal) GetPgxType() pgtype.Daterange {
-	return *d.Daterange
+func (d *DateRangeMarshal) GetPgxType() pgtype.Range[pgtype.Date] {
+	return *d.Range
 }
 
 type IntervalMarshal struct {
@@ -193,7 +193,7 @@ func (i *IntervalMarshal) NewValue() any {
 func (i *IntervalMarshal) Set(src any) error {
 	switch src := src.(type) {
 	case string:
-		return i.Interval.DecodeText(nil, gotools.StringToBytes(src))
+		return i.Interval.Scan(src)
 	default:
 		return i.Interval.Scan(src)
 	}
@@ -222,11 +222,11 @@ func (d *IntervalMarshal) Format(s fmt.State, verb rune) {
 }
 
 type InetMarshal struct {
-	*pgtype.Inet
+	*netip.Addr
 }
 
 func NewInetMarshal() *InetMarshal {
-	return &InetMarshal{&pgtype.Inet{}}
+	return &InetMarshal{&netip.Addr{}}
 }
 
 func (i *InetMarshal) GetValue() any {
@@ -234,19 +234,19 @@ func (i *InetMarshal) GetValue() any {
 }
 
 func (i *InetMarshal) NewValue() any {
-	return &InetMarshal{&pgtype.Inet{}}
+	return &InetMarshal{&netip.Addr{}}
 }
 
-func (i *InetMarshal) Set(src any) error {
-	switch src := src.(type) {
-	case string:
-		return i.DecodeText(nil, gotools.StringToBytes(src))
-	default:
-		return i.Scan(src)
-	}
-}
+//func (i *InetMarshal) Set(src any) error {
+//	switch src := src.(type) {
+//	case string:
+//		return i.DecodeText(nil, gotools.StringToBytes(src))
+//	default:
+//		return i.Scan(src)
+//	}
+//}
 
-type NumrangeMarshal pgtype.Numrange
+type NumrangeMarshal pgtype.Range[pgtype.Numeric]
 
 func (n *NumrangeMarshal) Expect() string {
 	return "float"
@@ -261,22 +261,22 @@ func (n *NumrangeMarshal) RequestType() string {
 }
 
 func (n *NumrangeMarshal) GetValue() any {
-	return pgtype.Numrange(*n)
+	return pgtype.Range[pgtype.Numeric](*n)
 }
 
 func (n *NumrangeMarshal) NewValue() any {
-	return new(NumrangeMarshal(pgtype.Numrange{}))
+	return new(NumrangeMarshal(pgtype.Range[pgtype.Numeric]{}))
 }
 
-func (n *NumrangeMarshal) Set(src any) error {
-	v := pgtype.Numrange(*n)
-	switch src := src.(type) {
-	case string:
-		return v.DecodeText(nil, gotools.StringToBytes(src))
-	default:
-		return v.Scan(src)
-	}
-}
+//func (n *NumrangeMarshal) Set(src any) error {
+//	v := pgtype.Range[pgtype.Numeric](*n)
+//	switch src := src.(type) {
+//	case string:
+//		return v.DecodeText(nil, gotools.StringToBytes(src))
+//	default:
+//		return v.Scan(src)
+//	}
+//}
 
 // Format implement Formatter interface
 func (n *NumrangeMarshal) Format(s fmt.State, verb rune) {
@@ -299,6 +299,6 @@ func (n *NumrangeMarshal) Format(s fmt.State, verb rune) {
 	}
 }
 
-func (d *NumrangeMarshal) GetPgxType() pgtype.Numrange {
-	return pgtype.Numrange(*d)
+func (d *NumrangeMarshal) GetPgxType() pgtype.Range[pgtype.Numeric] {
+	return pgtype.Range[pgtype.Numeric](*d)
 }

@@ -57,8 +57,24 @@ func NewHTTP3Proxy(
 		return nil, fmt.Errorf("invalid upstream URL: %w", err)
 	}
 
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.Transport = newHTTP3Transport(cfg)
+	logs.StatusLog(target)
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(pr *httputil.ProxyRequest) {
+			pr.SetURL(target)
+
+			// Preserve the original browser host for multi-site routing.
+			pr.Out.Host = pr.In.Host
+
+			pr.SetXForwarded()
+			pr.Out.Header.Set("X-Forwarded-Proto", "https")
+			pr.Out.Header.Set("X-Forwarded-HTTP-Version", "3")
+		},
+		Transport: newHTTP3Transport(cfg),
+	}
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		resp.Header.Set("X-Httpgo-Transport", "h3-proxy")
+		return nil
+	}
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		if errors.Is(err, context.Canceled) ||
 			errors.Is(r.Context().Err(), context.Canceled) {
