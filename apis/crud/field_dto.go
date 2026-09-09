@@ -97,24 +97,24 @@ func (D *DTOtype) NewValue() any {
 	return &DTOtype{Val: D.Val}
 }
 func (d *DTOtype) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't', 'P':
-		_, err := fmt.Fprintf(s, "%s", d.Val)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%s", d.Val)
+	//	for initial value
 	case 'g':
-		_, err := fmt.Fprintf(s, "crud.NewDTO(%s{})", d.Val)
-		if err != nil {
-			logs.ErrorLog(err)
+		if strings.HasPrefix(d.Val, "*crud.DTO[") {
+			_, err = fmt.Fprintf(s, "%s{}", strings.Replace(d.Val, "*", "&", 1))
+		} else {
+			_, err = fmt.Fprintf(s, "crud.NewDTO(%s{})", d.Val)
 		}
 
 	case 's':
-		_, err := fmt.Fprintf(s, "%s{}", d.Val)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprintf(s, "%s{}", d.Val)
+	default:
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -296,6 +296,23 @@ func (d *TimestampString) Format(s fmt.State, verb rune) {
 	}
 }
 
+type PgxDateString DateString
+
+func (d *PgxDateString) NewValue() any {
+	return &PgxDateString{}
+}
+
+func (d *PgxDateString) GetValue() any {
+	return pgtype.Date{
+		Time:  (time.Time)(*d),
+		Valid: true,
+	}
+}
+
+func (d *PgxDateString) PgxTypeString() string {
+	return "pgtype.Date"
+}
+
 type DateString time.Time
 
 func (d *DateString) Expect() string {
@@ -304,23 +321,18 @@ func (d *DateString) Expect() string {
 
 // Format implement Formatter interface
 func (d *DateString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err := fmt.Fprint(s, (time.Time)(*d).String())
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, (time.Time)(*d).String())
+	default:
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -345,6 +357,32 @@ func (d *DateString) GetPgxType() pgtype.Date {
 		Time:  (time.Time)(*d),
 		Valid: true,
 	}
+}
+
+type PGXType[T any] interface {
+	GetPgxType() T
+}
+
+// ToPgxSlice converts a slice of per-element wrapper values - DateString,
+// TimestampString, PointString, DateRangeMarshal, ... anything already providing
+// GetPgxType() E the way the single-value case does - into the []E slice pgx v5
+// itself expects for an array (or an array-of-range) column.
+//
+// It exists because a slice has no GetPgxType() method of its own: for a scalar
+// param, FuncAPI (endpointTpl.qtpl) can call apis.GetValue[*crud.DateString](ctx,
+// param) and chain ".GetPgxType()" straight onto the result, but for an array
+// param apis.GetValue[[]*crud.DateString](ctx, param) returns a slice - request
+// parsing already produced one wrapper per array element - and that slice must be
+// converted element-by-element instead. FuncParam calls this generic function
+// (crud.ToPgxSlice) rather than emitting a per-type loop for every "standard"
+// column type that has an array variant.
+func ToPgxSlice[T PGXType[E], E any](vals []T) []E {
+	out := make([]E, len(vals))
+	for i, v := range vals {
+		out[i] = v.GetPgxType()
+	}
+
+	return out
 }
 
 func ConvertUnixTime(t *time.Time, src string) error {
@@ -396,8 +434,29 @@ func (d *DateString) MarshalJSON() ([]byte, error) {
 
 type DtoFileField []*multipart.FileHeader
 
+func (d *DtoFileField) GetPgxType() [][]byte {
+	return slices.Collect(func(yield func([]byte) bool) {
+		for _, header := range *d {
+			f, err := header.Open()
+			if err != nil {
+				logs.ErrorLog(err, header)
+				continue
+			}
+			all, err := io.ReadAll(f)
+			_ = f.Close()
+			if err != nil {
+				logs.ErrorLog(err, header)
+				continue
+			}
+			if !yield(all) {
+				return
+			}
+		}
+
+	})
+}
 func (d *DtoFileField) GetValue() any {
-	return d
+	return d.GetPgxType()
 }
 
 func (d *DtoFileField) NewValue() any {
@@ -586,6 +645,139 @@ func IsEmptyDateString(ptr unsafe.Pointer) bool {
 	d := (*DateString)(ptr)
 	return (*time.Time)(d).IsZero()
 }
+
+// ===================== Geometric Types =====================
+
+type PointString struct {
+	pgtype.Point
+}
+
+func (p *PointString) GetPgxType() pgtype.Point {
+	return p.Point
+}
+
+func (p *PointString) GetValue() any       { return &p.Point }
+func (p *PointString) NewValue() any       { return &PointString{} }
+func (p *PointString) Expect() string      { return "point" }
+func (p *PointString) FormatDoc() string   { return "point" }
+func (p *PointString) RequestType() string { return "string" }
+
+func (p *PointString) Format(s fmt.State, verb rune) {
+	switch verb {
+	case 't':
+		fmt.Fprintf(s, "%T", p)
+	case 'g':
+		fmt.Fprintf(s, "&%T{}", *p)
+	case 's':
+		if p.Valid {
+			fmt.Fprintf(s, "(%v,%v)", p.P.X, p.P.Y)
+		}
+	}
+}
+
+// ===================== Other Geometric Types =====================
+
+type LineString struct{ pgtype.Line }
+type LsegString struct{ pgtype.Lseg }
+
+func (l *LsegString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *LsegString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+type BoxString struct{ pgtype.Box }
+
+func (l *BoxString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *BoxString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+type PathString struct{ pgtype.Path }
+
+func (l *PathString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *PathString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+type PolygonString struct{ pgtype.Polygon }
+
+func (l *PolygonString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *PolygonString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+type CircleString struct{ pgtype.Circle }
+
+func (l *CircleString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *CircleString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (l *LineString) GetPgxType() pgtype.Line       { return l.Line }
+func (l *LsegString) GetPgxType() pgtype.Lseg       { return l.Lseg }
+func (l *BoxString) GetPgxType() pgtype.Box         { return l.Box }
+func (l *PathString) GetPgxType() pgtype.Path       { return l.Path }
+func (l *PolygonString) GetPgxType() pgtype.Polygon { return l.Polygon }
+func (l *CircleString) GetPgxType() pgtype.Circle   { return l.Circle }
+
+// Common methods (can be simplified with embedding if desired)
+func (l *LineString) GetValue() any       { return &l.Line }
+func (l *LineString) NewValue() any       { return &LineString{} }
+func (l *LineString) Expect() string      { return "line" }
+func (l *LineString) FormatDoc() string   { return "line" }
+func (l *LineString) RequestType() string { return "string" }
+
+// (Repeat similar methods for LsegString, BoxString, PathString, PolygonString, CircleString)
+
+// ===================== Full-Text Search Types =====================
+
+type TSVectorString struct{ pgtype.Text }
+type TSQueryString struct{ pgtype.Text }
+
+func (t *TSQueryString) GetValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *TSQueryString) NewValue() any {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *TSVectorString) GetPgxType() pgtype.Text { return t.Text }
+func (t *TSQueryString) GetPgxType() pgtype.Text  { return t.Text }
+
+func (t *TSVectorString) GetValue() any       { return &t.Text }
+func (t *TSVectorString) NewValue() any       { return &TSVectorString{} }
+func (t *TSVectorString) Expect() string      { return "tsvector" }
+func (t *TSVectorString) FormatDoc() string   { return "tsvector" }
+func (t *TSVectorString) RequestType() string { return "string" }
+
 func init() {
 	jsoniter.RegisterTypeDecoderFunc("crud.DateTimeString", DecodeDatetimeString)
 	jsoniter.RegisterTypeEncoderFunc("crud.DateString", EncodeDateString, IsEmptyDateString)

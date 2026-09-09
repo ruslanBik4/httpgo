@@ -42,6 +42,18 @@ type APIRouteParamsType interface {
 	IsSlice() bool
 }
 
+type InParamOptions func(b *TypeInParam) error
+
+// Args set slice of arguments sql request
+func SetSlice(isSlice bool) InParamOptions {
+	return func(t *TypeInParam) error {
+
+		t.isSlice = isSlice
+
+		return nil
+	}
+}
+
 // TypeInParam has type definition of params ApiRoute
 type TypeInParam struct {
 	types.BasicKind
@@ -50,20 +62,33 @@ type TypeInParam struct {
 }
 
 // NewTypeInParam create TypeInParam
-func NewTypeInParam(bk types.BasicKind) TypeInParam {
+func NewTypeInParam(bk types.BasicKind, opts ...InParamOptions) TypeInParam {
 
-	return TypeInParam{
+	t := TypeInParam{
 		BasicKind: bk,
 	}
+	for _, opt := range opts {
+		if err := opt(&t); err != nil {
+			logs.ErrorLog(err)
+		}
+	}
+	return t
 }
 
 // NewStructInParam create TypeInParam for struct
-func NewStructInParam(dto RouteDTO) TypeInParam {
+func NewStructInParam(dto RouteDTO, opts ...InParamOptions) TypeInParam {
 
-	return TypeInParam{
+	t := TypeInParam{
 		BasicKind: typesExt.TStruct,
 		DTO:       dto,
 	}
+
+	for _, opt := range opts {
+		if err := opt(&t); err != nil {
+			logs.ErrorLog(err)
+		}
+	}
+	return t
 }
 
 // NewSliceTypeInParam create TypeInParam for slice
@@ -99,12 +124,17 @@ func (t TypeInParam) CheckType(ctx *fasthttp.RequestCtx, value string) bool {
 		return err == nil
 
 	case typesExt.TStruct:
-		err := Json.UnmarshalFromString(value, new(t.DTO.NewValue()))
-		if err != nil {
-			logs.ErrorLog(err)
+		switch t.DTO.(type) {
+		case RouteDTO:
+			err := Json.UnmarshalFromString(value, new(t.DTO.NewValue()))
+			if err != nil {
+				logs.ErrorLog(err)
+			}
+			return err == nil
+		default:
+			logs.ErrorLog(fmt.Errorf("invalid type %T", t.DTO))
+			return false
 		}
-
-		return err == nil
 
 	default:
 		return true
@@ -398,16 +428,25 @@ func (t TypeInParam) TypeString(s fmt.State, verb rune) (int, error) {
 		res = "T" + res
 		namePackage = "Ext"
 	}
+
 	switch {
 	case t.isSlice:
 		if verb == 't' {
-			_, _ = fmt.Fprintf(s, "[]%s", typesExt.StringTypeKinds(t.BasicKind))
-		} else if _, err := fmt.Fprintf(s, "apis.NewSliceTypeInParam(types%s.%s)",
-			namePackage,
-			strings.ReplaceAll(res, ".", ""),
-		); err != nil {
-			return -1, err
+			return fmt.Fprintf(s, "[]%s", typesExt.StringTypeKinds(t.BasicKind))
 		}
+
+		if t.DTO != nil {
+			if _, err := fmt.Fprintf(s, "apis.NewSliceDTOInParam("); err != nil {
+				return -1, err
+			}
+			return t.writeDTO(s, verb)
+		} else {
+			return fmt.Fprintf(s, "apis.NewSliceTypeInParam(types%s.%s)",
+				namePackage,
+				strings.ReplaceAll(res, ".", ""),
+			)
+		}
+
 	case t.DTO != nil:
 		if verb != 't' {
 			if _, err := s.Write([]byte("apis.NewStructInParam(")); err != nil {
@@ -415,19 +454,7 @@ func (t TypeInParam) TypeString(s fmt.State, verb rune) (int, error) {
 			}
 		}
 
-		if f, ok := t.DTO.(fmt.Formatter); ok {
-			f.Format(s, verb)
-		} else {
-			if _, err := s.Write(gotools.StringToBytes(strings.Replace(fmt.Sprintf("%T{}", t.DTO), "*", "&", 1))); err != nil {
-				return -1, err
-			}
-		}
-
-		if verb != 't' {
-			if _, err := s.Write([]byte(")")); err != nil {
-				return -1, err
-			}
-		}
+		return t.writeDTO(s, verb)
 
 	default:
 		if verb == 't' {
@@ -436,8 +463,23 @@ func (t TypeInParam) TypeString(s fmt.State, verb rune) (int, error) {
 			namePackage,
 			strings.ReplaceAll(res, ".", "")); err != nil {
 			return -1, err
-
 		}
+	}
+
+	return 0, nil
+}
+
+func (t TypeInParam) writeDTO(s fmt.State, verb rune) (int, error) {
+	if f, ok := t.DTO.(fmt.Formatter); ok {
+		f.Format(s, verb)
+	} else {
+		if _, err := s.Write(gotools.StringToBytes(strings.Replace(fmt.Sprintf("%T{}", t.DTO), "*", "&", 1))); err != nil {
+			return -1, err
+		}
+	}
+
+	if verb != 't' {
+		return s.Write([]byte(")"))
 	}
 
 	return 0, nil

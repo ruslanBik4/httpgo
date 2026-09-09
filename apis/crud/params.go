@@ -43,45 +43,84 @@ func NewDbApiParams(col dbEngine.Column) *DbApiParams {
 		param,
 		col,
 	}
-	p.ConvertDbType(col)
+	p.ConvertDbType()
 
 	return p
 }
 
-func (p *DbApiParams) ConvertDbType(col dbEngine.Column) {
-	isArray := strings.HasPrefix(col.Type(), "_")
-	switch col.Type() {
+func (p *DbApiParams) ConvertDbType() {
+	if strings.HasPrefix(p.Col.Type(), "_") {
+		p.convertArrayType()
+		return
+	}
+
+	p.setType(p.Col.Type())
+}
+
+// setType handles type conversion based on PostgreSQL type name
+func (p *DbApiParams) setType(t string, opts ...apis.InParamOptions) {
+	switch t {
 	case "date":
-		p.Type = apis.NewStructInParam(&DateString{})
+		p.Type = apis.NewStructInParam(&DateString{}, opts...)
 	case "time":
-		p.Type = apis.NewStructInParam(&DateTimeString{})
+		p.Type = apis.NewStructInParam(&DateTimeString{}, opts...)
 	case "timestamp":
-		p.Type = apis.NewStructInParam(NewTimestampString())
+		p.Type = apis.NewStructInParam(NewTimestampString(), opts...)
 	case "timestamptz":
-		p.Type = apis.NewStructInParam(NewTzString())
+		p.Type = apis.NewStructInParam(NewTzString(), opts...)
 	case "daterange":
-		p.Type = apis.NewStructInParam(NewDateRangeMarshal())
+		p.Type = apis.NewStructInParam(NewDateRangeMarshal(), opts...)
 	case "numrange":
-		p.Type = apis.NewStructInParam(&NumrangeMarshal{})
+		p.Type = apis.NewStructInParam(&NumrangeMarshal{}, opts...)
 	case "bytea":
-		p.Type = apis.NewStructInParam(&DtoFileField{})
+		p.Type = apis.NewStructInParam(&DtoFileField{}, opts...)
 	case "json", "jsonb":
-		p.Type = apis.NewStructInParam(&DtoField{})
+		p.Type = apis.NewStructInParam(&DtoField{}, opts...)
 	case "inet":
-		p.Type = apis.NewStructInParam(NewInetMarshal())
+		p.Type = apis.NewStructInParam(NewInetMarshal(), opts...)
 	case "interval":
-		p.Type = apis.NewStructInParam(NewIntervalMarshal())
+		p.Type = apis.NewStructInParam(NewIntervalMarshal(), opts...)
+	case "uuid", "xml", "cidr", "macaddr", "macaddr8", "bit", "bit varying":
+		p.Type = apis.NewTypeInParam(types.String, opts...)
+	case "money":
+		p.Type = apis.NewTypeInParam(types.Float64, opts...)
+	case "hstore":
+		p.Type = apis.NewStructInParam(&DtoField{}, opts...)
+	// Geometric & full-text types — treated as composite (pgx has dedicated types)
+	case "point":
+		p.Type = apis.NewStructInParam(&PointString{}, opts...)
+	case "line":
+		p.Type = apis.NewStructInParam(&LineString{}, opts...)
+	case "lseg":
+		p.Type = apis.NewStructInParam(&LsegString{}, opts...)
+	case "box":
+		p.Type = apis.NewStructInParam(&BoxString{}, opts...)
+	case "path":
+		p.Type = apis.NewStructInParam(&PathString{}, opts...)
+	case "polygon":
+		p.Type = apis.NewStructInParam(&PolygonString{}, opts...)
+	case "circle":
+		p.Type = apis.NewStructInParam(&CircleString{}, opts...)
+	case "tsvector":
+		p.Type = apis.NewStructInParam(&TSVectorString{}, opts...)
+	case "tsquery":
+		p.Type = apis.NewStructInParam(&TSQueryString{}, opts...)
+
 	default:
-		basicType := col.BasicType()
-		if isArray {
-			p.Type = apis.NewSliceTypeInParam(basicType)
-			p.Name += "[]"
-		} else if basicType == typesExt.TStruct {
-			p.Type = apis.NewStructInParam(nil)
+		basicType := p.Col.BasicType()
+		if basicType == typesExt.TStruct {
+			p.Type = apis.NewStructInParam(nil, opts...)
 		} else {
-			p.Type = apis.NewTypeInParam(basicType)
+			p.Type = apis.NewTypeInParam(basicType, opts...)
 		}
 	}
+}
+
+// convertArrayType handles array types by delegating to setType
+func (p *DbApiParams) convertArrayType() {
+	trimmedType := strings.TrimPrefix(p.Col.Type(), "_")
+	p.setType(trimmedType, apis.SetSlice(true))
+	p.Name += "[]"
 }
 
 func ToColDev(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, patternList dbEngine.Table, col dbEngine.Column,
