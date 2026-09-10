@@ -81,12 +81,16 @@ type InParam struct {
 
 // GetValue for getting server value as its type
 func GetValue[T any](ctx *fasthttp.RequestCtx, param *InParam) T {
-	v, ok := ctx.UserValue(param.Name).(T)
+	raw := ctx.UserValue(param.Name)
+	v, ok := raw.(T)
 	if ok {
 		return v
 	}
 
-	logs.DebugLog("%#v", v)
+	// log the actual value & concrete type that failed the assertion - the
+	// old "%#v", v here always logged T's own zero value (e.g. "" or 0),
+	// which is useless for diagnosing a mismatch.
+	logs.DebugLog("param %q: expected %T, got %#v (%T)", param.Name, v, raw, raw)
 	return v
 }
 func (param *InParam) Format(s fmt.State, verb rune) {
@@ -132,20 +136,7 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 		}
 		if param.DefValue != nil {
 			_, _ = fmt.Fprintf(s, "%sDefValue: ", caret)
-			switch p := param.Type.(type) {
-			case TypeInParam:
-				if p.BasicKind == types.String {
-					_, _ = fmt.Fprintf(s, "%q,", param.DefValue)
-				} else if d, ok := param.DefValue.(string); ok {
-					if strings.Contains(d, "NULL") {
-						_, _ = fmt.Fprintf(s, "(%t)(nil),", param.Type)
-					} else {
-						_, _ = fmt.Fprintf(s, "%s(%s),", typesExt.StringTypeKinds(p.BasicKind), d)
-					}
-				} else {
-					_, _ = fmt.Fprintf(s, "%s(%v),", typesExt.StringTypeKinds(p.BasicKind), param.DefValue)
-				}
-			}
+			formatDefValueGo(s, param)
 		}
 		if param.TestValue > "" {
 			_, _ = fmt.Fprintf(s, "%sTestValue: %v,", caret, param.TestValue)
@@ -155,10 +146,125 @@ func (param *InParam) Format(s fmt.State, verb rune) {
 		}
 		_, _ = fmt.Fprintf(s, "\n\t\t\t}")
 	default:
-		_, _ = fmt.Fprintf(s, `Name: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`,
+		_, _ = fmt.Fprintf(s, `%cName: "%s",  Desc: %q, Type: %g, Req: %v, DefValue: %q`, verb,
 			param.Name, param.Desc, param.Type, param.Req, param.DefValue,
 		)
 	}
+}
+
+// formatDefValueGo writes a Go source expression for param.DefValue, for
+// embedding as the DefValue field of a generated apis.InParam struct
+// literal. It must ALWAYS write a syntactically valid expression - the
+// caller has already written the unconditional "DefValue: " field name, so
+// writing nothing (as the previous switch-with-no-default did for any
+// param.Type that wasn't TypeInParam, e.g. every StructInParam - dates,
+// uuid, hstore, ranges, enums...) leaves a dangling "DefValue: " in the
+// generated file with no value before the next field, which fails to
+// compile.
+func formatDefValueGo(s fmt.State, param *InParam) {
+	p, ok := param.Type.(TypeInParam)
+	if !ok {
+		// APIRouteParamsType implementation we don't know how to build a
+		// default-value expression for at all (not even the fallback below,
+		// which is TypeInParam-specific) - drop the default rather than
+		// emit broken source, and say so loudly at generation time.
+		logs.DebugLog("param %q: no DefValue codegen support for %T (value %#v) - emitting nil",
+			param.Name, param.Type, param.DefValue)
+		_, _ = fmt.Fprint(s, "nil, // TODO: DefValue dropped, no codegen support for this param type")
+		return
+	}
+
+	formatBasicDefValueGo(s, p, param.DefValue)
+}
+
+// formatBasicDefValueGo handles TypeInParam - this covers both plain scalar
+// params (NewTypeInParam) and struct-wrapped ones (NewStructInParam, whose
+// BasicKind is one of typesExt's extended kinds - TStruct/TMap/TArray/TAny -
+// layered on top of go/types.BasicKind's numeric range: both constructors
+// produce a TypeInParam, they just set BasicKind differently).
+func formatBasicDefValueGo(s fmt.State, p TypeInParam, defValue any) {
+	if isNullDefault(defValue) {
+		// was: fmt.Fprintf(s, "(%t)(nil),", param.Type) - %t is the fmt
+		// *boolean* verb; param.Type is never a bool, so this always
+		// produced the literal garbage text "%!t(apis.TypeInParam=...)"
+		// straight into the generated .go file.
+		//
+		// The follow-up fix (StringTypeKinds(p.BasicKind) unconditionally)
+		// was ALSO wrong for any extended kind: typesExt.StringTypeKinds
+		// returns a descriptive word for those, e.g. "struct" for
+		// typesExt.TStruct, and "*struct" is not a valid Go type - it
+		// produced exactly that broken literal for a NewStructInParam
+		// default (e.g. a DateString column with a NULL default). Only cast
+		// to a concrete pointer type for the plain go/types.BasicKind
+		// values that actually have one; anything else falls back to a bare
+		// nil, which is also the more correct default here since there's no
+		// single real Go type to hand back a typed nil *of* for an
+		// arbitrary wrapped struct.
+		if goType, ok := basicGoTypeName(p.BasicKind); ok {
+			_, _ = fmt.Fprintf(s, "(*%s)(nil),", goType)
+		} else {
+			_, _ = fmt.Fprint(s, "nil,")
+		}
+		return
+	}
+
+	if p.BasicKind == types.String {
+		_, _ = fmt.Fprintf(s, "%q,", defValue)
+		return
+	}
+
+	d, ok := defValue.(string)
+	if !ok {
+		_, _ = fmt.Fprintf(s, "%s(%v),", typesExt.StringTypeKinds(p.BasicKind), defValue)
+		return
+	}
+
+	_, _ = fmt.Fprintf(s, "%s(%s),", typesExt.StringTypeKinds(p.BasicKind), d)
+}
+
+// basicGoTypeName returns the literal Go type-name spelling for a plain
+// go/types.BasicKind (Bool, Int*, Uint*, Float*, String, Complex*) suitable
+// for embedding in generated source as e.g. "(*<name>)(nil)". It reports
+// false for anything typesExt overlays on top of BasicKind's numeric range
+// (TStruct, TMap, TArray, TAny) - those describe a wrapped Go type that
+// varies per column, not one fixed name, so there's no single valid cast to
+// write here.
+func basicGoTypeName(kind types.BasicKind) (string, bool) {
+	switch kind {
+	case types.Bool,
+		types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
+		types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64,
+		types.Float32, types.Float64,
+		types.Complex64, types.Complex128,
+		types.String:
+		return typesExt.StringTypeKinds(kind), true
+	default:
+		return "", false
+	}
+}
+
+// isNullDefault reports whether defValue is catalog text that should have
+// been resolved to a real nil already. Column.SetDefault (dbEngine/psql)
+// already converts a plain "NULL" default to a genuine nil before this code
+// ever sees it - EXCEPT for a parenthesized SQL-expression default such as
+// "(NULL::text)", which SetDefault deliberately leaves un-stripped. This
+// only recognizes that shape: a bare "NULL", optionally wrapped in one
+// "(...)" and/or carrying a "::type" cast. The old check,
+// strings.Contains(d, "NULL"), was far too broad - it would also fire on
+// any ordinary non-null string default that merely contains the substring
+// "NULL" (e.g. a status value like 'NULLABLE_FIELD'), silently turning a
+// real default into nil.
+func isNullDefault(defValue any) bool {
+	d, ok := defValue.(string)
+	if !ok {
+		return false
+	}
+
+	d = strings.TrimSpace(d)
+	d = strings.TrimSuffix(strings.TrimPrefix(d, "("), ")")
+	d = strings.SplitN(d, "::", 2)[0]
+
+	return strings.EqualFold(strings.TrimSpace(d), "NULL")
 }
 
 func (param *InParam) isPartReq() bool {
@@ -277,7 +383,25 @@ func inParamToJSON(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	if param.Type != nil {
 		if t, ok := param.Type.(jsoniter.ValEncoder); ok {
 			stream.WriteMore()
-			t.Encode(unsafe.Pointer(&t), stream)
+			// was: unsafe.Pointer(&t) - &t is the address of the local
+			// jsoniter.ValEncoder *interface variable* (a 2-word
+			// type-descriptor+data header), not the address of the
+			// concrete value it holds. Reinterpreting that header's
+			// address as if it pointed at the concrete struct's first
+			// field is undefined behaviour: it reads whatever bytes happen
+			// to sit at that offset in the interface header rather than
+			// the actual param.Type data, so Encode silently serializes
+			// garbage instead of erroring. reflect.ValueOf(param.Type)
+			// gets the pointer to the real underlying data (boxing it via
+			// reflect.New first if param.Type's concrete type is held by
+			// value rather than by pointer).
+			rv := reflect.ValueOf(param.Type)
+			if rv.Kind() != reflect.Ptr {
+				boxed := reflect.New(rv.Type())
+				boxed.Elem().Set(rv)
+				rv = boxed
+			}
+			t.Encode(unsafe.Pointer(rv.Pointer()), stream)
 		} else {
 			AddFieldToJSON(stream, "format", "formdata")
 			t, ok := (param.Type).(TypeInParam)

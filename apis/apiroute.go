@@ -427,13 +427,6 @@ func writeArrayFallback(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Colum
 	return nil
 }
 
-// Helper type for numeric fallback
-type fakeNumericColumn struct{}
-
-func (f *fakeNumericColumn) BasicType() types.BasicKind { return types.UntypedFloat }
-func (f *fakeNumericColumn) Type() string               { return "numeric" }
-func (f *fakeNumericColumn) Name() string               { return "" }
-
 func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	basicType := col.BasicType()
 	if len(src) == 0 && basicType != types.String {

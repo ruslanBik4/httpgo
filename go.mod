@@ -11,7 +11,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
 	github.com/quic-go/quic-go v0.62.0
-	github.com/ruslanBik4/dbEngine v1.2.5
+	github.com/ruslanBik4/dbEngine v1.2.6
 	github.com/ruslanBik4/gotools v0.0.4
 	github.com/ruslanBik4/logs v0.1.8
 	github.com/stretchr/testify v1.12.1
@@ -52,7 +52,7 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
-	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/compress v1.20.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
 	github.com/mazznoer/csscolorparser v0.1.8 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
