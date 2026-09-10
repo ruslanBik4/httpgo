@@ -184,10 +184,10 @@ func NewAPIRouteWithDBEngine(desc string, method tMethod, needAuth bool, params 
 				return nil, dbEngine.ErrDBNotFound
 			}
 
+			// Build args without extra allocations
 			args := make([]any, 0, len(params))
 			for _, param := range params {
-				p := ctx.UserValue(param.Name)
-				if p != nil {
+				if p := ctx.UserValue(param.Name); p != nil {
 					args = append(args, p)
 				}
 			}
@@ -312,13 +312,104 @@ func WriteRecordAsJSON(ctx *fasthttp.RequestCtx, rowComma *string) func(values [
 	}
 }
 
+// writeArray - high performance version with direct binary decoding
 func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column, DB *dbEngine.DB) error {
+	if len(src) < 20 {
+		_, _ = ctx.WriteString("[]")
+		return nil
+	}
+
+	// PostgreSQL binary array header (1-dimensional)
+	ndim := int32(binary.BigEndian.Uint32(src[0:4]))
+	if ndim != 1 {
+		// Fallback for multi-dimensional arrays (rare)
+		return writeArrayFallback(ctx, src, col, DB)
+	}
+
+	// hasNull := int32(binary.BigEndian.Uint32(src[4:8]))
+	// oid := int32(binary.BigEndian.Uint32(src[8:12]))
+
+	// Dimension info
+	dim := int32(binary.BigEndian.Uint32(src[12:16]))
+	oid := binary.BigEndian.Uint32(src[8:12]) // element OID
+
+	_, _ = ctx.WriteString("[")
+	comma := ""
+
+	offset := 20
+	for i := int32(0); i < dim; i++ {
+		if offset+4 > len(src) {
+			break
+		}
+
+		elemLen := int32(binary.BigEndian.Uint32(src[offset : offset+4]))
+		offset += 4
+
+		_, _ = ctx.WriteString(comma)
+		comma = ","
+
+		if elemLen < 0 {
+			_, _ = ctx.WriteString("null")
+			continue
+		}
+
+		if offset+int(elemLen) > len(src) {
+			break
+		}
+
+		elem := src[offset : offset+int(elemLen)]
+		writeArrayElement(ctx, elem, oid)
+		offset += int(elemLen)
+	}
+
+	_, _ = ctx.WriteString("]")
+	return nil
+}
+
+// writeArrayElement writes a single array element based on its OID
+func writeArrayElement(ctx *fasthttp.RequestCtx, data []byte, oid uint32) {
+	switch oid {
+	case 16: // bool
+		if len(data) > 0 && data[0] != 0 {
+			_, _ = ctx.WriteString("true")
+		} else {
+			_, _ = ctx.WriteString("false")
+		}
+
+	case 20: // int8 / bigint
+		_, _ = fmt.Fprintf(ctx, "%d", int64(binary.BigEndian.Uint64(data)))
+
+	case 21: // int2 / smallint
+		_, _ = fmt.Fprintf(ctx, "%d", int16(binary.BigEndian.Uint16(data)))
+
+	case 23: // int4 / integer
+		_, _ = fmt.Fprintf(ctx, "%d", int32(binary.BigEndian.Uint32(data)))
+
+	case 700: // float4 / real
+		_, _ = fmt.Fprintf(ctx, "%f", math.Float32frombits(binary.BigEndian.Uint32(data)))
+
+	case 701: // float8 / double precision
+		_, _ = fmt.Fprintf(ctx, "%f", math.Float64frombits(binary.BigEndian.Uint64(data)))
+
+	case 1700: // numeric
+		// fallback to existing logic for numeric
+		writeNumeric(ctx, data)
+
+	default:
+		// text, varchar, uuid, json, etc. → write as string
+		json.WriteByteAsString(ctx, data)
+	}
+}
+
+// Minimal fallback for multi-dimensional arrays
+func writeArrayFallback(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column, DB *dbEngine.DB) error {
 	var arrayHeader pgtype.ArrayCodec
 	m := pgtype.NewMap()
 	colType, ok := psql.ChkDataType(context.TODO(), DB, col.Type())
 	if !ok {
 		return errors.New("invalid column type")
 	}
+
 	rp, err := arrayHeader.DecodeValue(m, colType.OID, pgtype.BinaryFormatCode, src)
 	if err != nil {
 		return err
@@ -326,15 +417,22 @@ func writeArray(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column, DB *d
 
 	_, _ = ctx.WriteString("[")
 	comma := ""
-	for _, src := range rp.(pgtype.Array[string]).Elements {
+	for _, el := range rp.(pgtype.Array[string]).Elements {
 		_, _ = ctx.WriteString(comma)
-		_, _ = fmt.Fprintf(ctx, `"%s"`, src)
+		json.WriteByteAsString(ctx, gotools.StringToBytes(el))
 		comma = ","
 	}
 
 	_, _ = ctx.WriteString("]")
 	return nil
 }
+
+// Helper type for numeric fallback
+type fakeNumericColumn struct{}
+
+func (f *fakeNumericColumn) BasicType() types.BasicKind { return types.UntypedFloat }
+func (f *fakeNumericColumn) Type() string               { return "numeric" }
+func (f *fakeNumericColumn) Name() string               { return "" }
 
 func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	basicType := col.BasicType()
@@ -350,14 +448,9 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	case types.String, types.UnsafePointer:
 		json.WriteByteAsString(ctx, src)
 	case types.UntypedFloat:
-		decoded := pgtype.NumericCodec{}
-		value, err := decoded.DecodeValue(pgtype.NewMap(), pgtype.NumericOID, pgtype.BinaryFormatCode, src)
-		if err != nil {
-			logs.ErrorLog(err, "decode UntypedFloat")
+		if writeNumeric(ctx, src) {
 			return
 		}
-		numeric := value.(pgtype.Numeric)
-		_, _ = fmt.Fprintf(ctx, "%sE%d", numeric.Int.String(), numeric.Exp)
 
 	case types.Uint16, types.Byte:
 		_, _ = fmt.Fprintf(ctx, "%d", binary.BigEndian.Uint16(src))
@@ -413,6 +506,18 @@ func WriteElemValue(ctx *fasthttp.RequestCtx, src []byte, col dbEngine.Column) {
 	default:
 		_, _ = fmt.Fprintf(ctx, `"%s"`, src)
 	}
+}
+
+func writeNumeric(ctx *fasthttp.RequestCtx, src []byte) bool {
+	decoded := pgtype.NumericCodec{}
+	value, err := decoded.DecodeValue(pgtype.NewMap(), pgtype.NumericOID, pgtype.BinaryFormatCode, src)
+	if err != nil {
+		logs.ErrorLog(err, "decode UntypedFloat")
+		return true
+	}
+	numeric := value.(pgtype.Numeric)
+	_, _ = fmt.Fprintf(ctx, "%sE%d", numeric.Int.String(), numeric.Exp)
+	return false
 }
 
 // CheckAndRun check & run route handler
