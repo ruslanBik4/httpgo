@@ -519,3 +519,7 @@ func (h *HeaderInParam) Encode(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 	stream.WriteString(h.b.String())
 	stream.WriteMore()
 }
+
+type PGXType[T any] interface {
+	GetPgxType() T
+}

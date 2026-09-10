@@ -87,6 +87,9 @@ func GetValue[T any](ctx *fasthttp.RequestCtx, param *InParam) T {
 		return v
 	}
 
+	if p, ok := raw.(PGXType[T]); ok {
+		return p.GetPgxType()
+	}
 	// log the actual value & concrete type that failed the assertion - the
 	// old "%#v", v here always logged T's own zero value (e.g. "" or 0),
 	// which is useless for diagnosing a mismatch.

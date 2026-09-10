@@ -379,10 +379,6 @@ func (d *DateString) GetPgxType() pgtype.Date {
 	}
 }
 
-type PGXType[T any] interface {
-	GetPgxType() T
-}
-
 // ToPgxSlice converts a slice of per-element wrapper values - DateString,
 // TimestampString, PointString, DateRangeMarshal, ... anything already providing
 // GetPgxType() E the way the single-value case does - into the []E slice pgx v5
@@ -396,7 +392,7 @@ type PGXType[T any] interface {
 // converted element-by-element instead. FuncParam calls this generic function
 // (crud.ToPgxSlice) rather than emitting a per-type loop for every "standard"
 // column type that has an array variant.
-func ToPgxSlice[T PGXType[E], E any](vals []T) []E {
+func ToPgxSlice[T apis.PGXType[E], E any](vals []T) []E {
 	out := make([]E, len(vals))
 	for i, v := range vals {
 		out[i] = v.GetPgxType()
