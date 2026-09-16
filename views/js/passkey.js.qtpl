@@ -1,0 +1,3 @@
+{% func PassKey() %}
+ {% cat "src/passkey.js" %}
+{% endfunc %}

@@ -19,8 +19,7 @@
 %}
 <form id="{%s idShake %}_form" name="{%s f.Title %}" role='form' class="{% if f.Classes > "" %}{%s f.Classes %}{% else %}form-horizontal{% endif %}" target="content"
          action="{%s f.Action %}" method="{%s= f.Method %}" enctype="multipart/form-data"
-         oninput="return FormIsModified(event, this);"
-         onchange="return FormIsModified(event, this);"
+         hx-swap="none"
       novalidate=true caption="{%s f.Title %}" >
 	<h2> {%s= f.Title %}</h2>
      <figcaption>{%s= f.Description %}</figcaption>
@@ -70,7 +69,7 @@
     </figure>
   {% endfor %}
   <output></output>
-  <progress value='0' max='100' hidden > </progress>
+  <progress class="progress" value='0' max='100' hidden > </progress>
 </form>
 {% endstripspace %}
 {% endcollapsespace %}

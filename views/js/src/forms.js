@@ -119,6 +119,11 @@ function saveForm(thisForm, successFunction, errorFunction) {
         }
     });
 
+// Compatibility for inline handlers still calling saveForm(this, success, error).
+// htmx.ajax avoids redispatching submit and therefore avoids recursive inline handlers.
+    function saveForm(thisForm, successFunction, errorFunction) {
+        prepareFormForHTMX(thisForm, successFunction, errorFunction);
+        htmx.ajax('POST', thisForm.getAttribute('hx-post'), {source: thisForm, swap: 'none'});
     return false;
 }
 

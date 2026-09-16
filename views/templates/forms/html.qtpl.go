@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -72,28 +72,28 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 //line html.qtpl:21
 	qw422016.N().S(f.Method)
 //line html.qtpl:21
-	qw422016.N().S(`" enctype="multipart/form-data"oninput="return FormIsModified(event, this);"onchange="return FormIsModified(event, this);"onsubmit="return saveForm(this, afterSaveAnyForm);" novalidate=true caption="`)
-//line html.qtpl:24
+	qw422016.N().S(`" enctype="multipart/form-data"hx-swap="none"novalidate=true caption="`)
+//line html.qtpl:23
 	qw422016.E().S(f.Title)
-//line html.qtpl:24
+//line html.qtpl:23
 	qw422016.N().S(`" ><h2>`)
-//line html.qtpl:25
+//line html.qtpl:24
 	qw422016.N().S(f.Title)
-//line html.qtpl:25
+//line html.qtpl:24
 	qw422016.N().S(`</h2><figcaption>`)
-//line html.qtpl:26
+//line html.qtpl:25
 	qw422016.N().S(f.Description)
-//line html.qtpl:26
+//line html.qtpl:25
 	qw422016.N().S(`</figcaption>`)
-//line html.qtpl:27
+//line html.qtpl:26
 	if len(defBlocks) > 0 {
-//line html.qtpl:27
+//line html.qtpl:26
 		qw422016.N().S(`<header id="navBlocks"> </header>`)
-//line html.qtpl:29
+//line html.qtpl:28
 	}
-//line html.qtpl:30
+//line html.qtpl:29
 	for _, block := range f.Blocks {
-//line html.qtpl:32
+//line html.qtpl:31
 		isHide := (len(defBlocks) > 0)
 		for _, id := range defBlocks {
 			if id == strconv.Itoa(block.Id) {
@@ -102,191 +102,191 @@ func (f *FormField) StreamFormHTML(qw422016 *qt422016.Writer) {
 			}
 		}
 
-//line html.qtpl:39
+//line html.qtpl:38
 		qw422016.N().S(`<figure id="block`)
-//line html.qtpl:40
+//line html.qtpl:39
 		qw422016.N().D(block.Id)
-//line html.qtpl:40
+//line html.qtpl:39
 		qw422016.N().S(`"`)
-//line html.qtpl:40
+//line html.qtpl:39
 		if isHide {
-//line html.qtpl:40
+//line html.qtpl:39
 			qw422016.N().S(`style="display:none"`)
-//line html.qtpl:40
+//line html.qtpl:39
 		}
-//line html.qtpl:40
+//line html.qtpl:39
 		if block.Classes > "" {
-//line html.qtpl:40
+//line html.qtpl:39
 			qw422016.N().S(`class="`)
-//line html.qtpl:40
+//line html.qtpl:39
 			qw422016.E().S(block.Classes)
-//line html.qtpl:40
+//line html.qtpl:39
 			qw422016.N().S(`"`)
-//line html.qtpl:40
+//line html.qtpl:39
 		}
-//line html.qtpl:40
+//line html.qtpl:39
 		qw422016.N().S(`>`)
-//line html.qtpl:41
+//line html.qtpl:40
 		if block.Title > "" {
-//line html.qtpl:41
+//line html.qtpl:40
 			qw422016.N().S(`<figcaption>`)
-//line html.qtpl:41
+//line html.qtpl:40
 			qw422016.E().S(block.Title)
-//line html.qtpl:41
+//line html.qtpl:40
 			qw422016.N().S(`</figcaption>`)
+//line html.qtpl:40
+		}
+//line html.qtpl:41
+		if block.Description > "" {
+//line html.qtpl:41
+			qw422016.N().S(`<p>`)
+//line html.qtpl:41
+			qw422016.E().S(block.Description)
+//line html.qtpl:41
+			qw422016.N().S(`</p>`)
 //line html.qtpl:41
 		}
 //line html.qtpl:42
-		if block.Description > "" {
-//line html.qtpl:42
-			qw422016.N().S(`<p>`)
-//line html.qtpl:42
-			qw422016.E().S(block.Description)
-//line html.qtpl:42
-			qw422016.N().S(`</p>`)
-//line html.qtpl:42
-		}
-//line html.qtpl:43
 		for i, col := range block.Columns {
-//line html.qtpl:45
+//line html.qtpl:44
 			if val := col.GetValues(); col.IsReadOnly && (len(val) == 0 || val[0] == nil) {
 				continue
 			}
 
-//line html.qtpl:48
+//line html.qtpl:47
 			qw422016.N().S(`<div id="divField`)
-//line html.qtpl:49
+//line html.qtpl:48
 			qw422016.N().D(i)
-//line html.qtpl:49
+//line html.qtpl:48
 			qw422016.N().S(`" class="input-wrap"`)
-//line html.qtpl:49
+//line html.qtpl:48
 			if col.IsHidden {
-//line html.qtpl:49
+//line html.qtpl:48
 				qw422016.N().S(`style="display:none"`)
-//line html.qtpl:49
+//line html.qtpl:48
 			}
-//line html.qtpl:49
+//line html.qtpl:48
 			qw422016.N().S(`><label class="input-label">`)
-//line html.qtpl:51
+//line html.qtpl:50
 			col.StreamRenderInputs(qw422016, data)
-//line html.qtpl:51
+//line html.qtpl:50
 			qw422016.N().S(`<h6 class="errorLabel">`)
-//line html.qtpl:52
+//line html.qtpl:51
 			qw422016.N().S(col.patternDesc)
-//line html.qtpl:52
+//line html.qtpl:51
 			qw422016.N().S(`</h6></label></div>`)
+//line html.qtpl:54
+		}
 //line html.qtpl:55
-		}
-//line html.qtpl:56
 		if block.Multiple {
-//line html.qtpl:56
+//line html.qtpl:55
 			qw422016.N().S(`<button class="main-btn btn" type="button"onclick="this.parentNode.insertBefore(this.previousElementSibling.cloneNode(true), this); return false;">+</button>`)
+//line html.qtpl:58
+		}
 //line html.qtpl:59
-		}
-//line html.qtpl:60
 		if len(block.Buttons) > 0 {
-//line html.qtpl:60
+//line html.qtpl:59
 			qw422016.N().S(`<div class="form-actions">`)
-//line html.qtpl:61
+//line html.qtpl:60
 			for _, btn := range block.Buttons {
-//line html.qtpl:61
+//line html.qtpl:60
 				qw422016.N().S(`<button class="`)
-//line html.qtpl:62
+//line html.qtpl:61
 				if btn.Position {
-//line html.qtpl:62
+//line html.qtpl:61
 					qw422016.N().S(`hidden`)
-//line html.qtpl:62
+//line html.qtpl:61
 				} else {
-//line html.qtpl:62
+//line html.qtpl:61
 					qw422016.N().S(`button btn`)
-//line html.qtpl:62
+//line html.qtpl:61
 				}
-//line html.qtpl:62
+//line html.qtpl:61
 				qw422016.N().S(` `)
-//line html.qtpl:62
+//line html.qtpl:61
 				qw422016.E().S(btn.Classes)
+//line html.qtpl:61
+				qw422016.N().S(`"`)
 //line html.qtpl:62
-				qw422016.N().S(`"`)
-//line html.qtpl:63
 				if btn.Id > "" {
-//line html.qtpl:63
+//line html.qtpl:62
 					qw422016.N().S(`id="`)
-//line html.qtpl:63
+//line html.qtpl:62
 					qw422016.E().S(btn.Id)
-//line html.qtpl:63
+//line html.qtpl:62
 					qw422016.N().S(`"`)
-//line html.qtpl:63
+//line html.qtpl:62
 				}
-//line html.qtpl:63
+//line html.qtpl:62
 				qw422016.N().S(`type="`)
-//line html.qtpl:64
+//line html.qtpl:63
 				qw422016.N().S(btn.Type)
-//line html.qtpl:64
+//line html.qtpl:63
 				qw422016.N().S(`"`)
-//line html.qtpl:64
+//line html.qtpl:63
 				if btn.OnClick > "" {
-//line html.qtpl:64
+//line html.qtpl:63
 					qw422016.N().S(`onClick="`)
-//line html.qtpl:64
+//line html.qtpl:63
 					qw422016.E().S(btn.OnClick)
-//line html.qtpl:64
+//line html.qtpl:63
 					qw422016.N().S(`"`)
-//line html.qtpl:64
+//line html.qtpl:63
 				}
-//line html.qtpl:64
+//line html.qtpl:63
 				if btn.Hidden {
-//line html.qtpl:64
+//line html.qtpl:63
 					qw422016.N().S(`hidden`)
-//line html.qtpl:64
+//line html.qtpl:63
 				}
-//line html.qtpl:64
+//line html.qtpl:63
 				qw422016.N().S(`>`)
-//line html.qtpl:65
+//line html.qtpl:64
 				qw422016.E().S(btn.Title)
-//line html.qtpl:65
+//line html.qtpl:64
 				qw422016.N().S(`</button>`)
-//line html.qtpl:67
+//line html.qtpl:66
 			}
-//line html.qtpl:67
+//line html.qtpl:66
 			qw422016.N().S(`</div>`)
-//line html.qtpl:69
+//line html.qtpl:68
 		}
-//line html.qtpl:69
+//line html.qtpl:68
 		qw422016.N().S(`</figure>`)
-//line html.qtpl:71
+//line html.qtpl:70
 	}
-//line html.qtpl:71
-	qw422016.N().S(`<output></output><progress value='0' max='100' hidden > </progress></form>`)
-//line html.qtpl:75
+//line html.qtpl:70
+	qw422016.N().S(`<output></output><progress class="progress" value='0' max='100' hidden > </progress></form>`)
+//line html.qtpl:74
 	qw422016.N().S(` `)
-//line html.qtpl:76
+//line html.qtpl:75
 	qw422016.N().S(`
 `)
-//line html.qtpl:77
+//line html.qtpl:76
 }
 
-//line html.qtpl:77
+//line html.qtpl:76
 func (f *FormField) WriteFormHTML(qq422016 qtio422016.Writer) {
-//line html.qtpl:77
+//line html.qtpl:76
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line html.qtpl:77
+//line html.qtpl:76
 	f.StreamFormHTML(qw422016)
-//line html.qtpl:77
+//line html.qtpl:76
 	qt422016.ReleaseWriter(qw422016)
-//line html.qtpl:77
+//line html.qtpl:76
 }
 
-//line html.qtpl:77
+//line html.qtpl:76
 func (f *FormField) FormHTML() string {
-//line html.qtpl:77
+//line html.qtpl:76
 	qb422016 := qt422016.AcquireByteBuffer()
-//line html.qtpl:77
+//line html.qtpl:76
 	f.WriteFormHTML(qb422016)
-//line html.qtpl:77
+//line html.qtpl:76
 	qs422016 := string(qb422016.B)
-//line html.qtpl:77
+//line html.qtpl:76
 	qt422016.ReleaseByteBuffer(qb422016)
-//line html.qtpl:77
+//line html.qtpl:76
 	return qs422016
-//line html.qtpl:77
+//line html.qtpl:76
 }

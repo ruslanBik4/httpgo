@@ -94,11 +94,13 @@ function setClickAll(target) {
             }
         })
 
-    // target = target || document.getElementsByTagName("body")[0];
-    // add onSubmit event instead default behaviourism of form
-    $('form:not([onsubmit]):not([rel])', target).on("submit", function () {
-        return saveForm(this);
-    });
+    // Forms need nothing set up here at all: <body hx-boost="true" ...>
+    // turns every form under it into an htmx request the moment
+    // htmx.process() sees it, which already happens above/in processAll()
+    // for the whole page and for anything dynamically swapped in. Nothing
+    // in this file should call htmx.process()/set hx-* attributes on a form
+    // - see saveForm() in forms.js for why that used to cause a double
+    // submit.
 
     // add click event instead default - response will show on div.#content
     // $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {

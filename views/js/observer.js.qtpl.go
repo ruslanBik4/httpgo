@@ -74,7 +74,43 @@ function processAll(parent) {
     console.error('is empty parent');
 }
 
+// Declarative alternative to saveForm(this, successFn, errFn): every form is
+// already an htmx request on its own, courtesy of <body hx-boost="true">
+// (see html.qtpl) - no hx-post/onsubmit needed for that part at all. A form
+// that also wants a custom success/error callback, without any inline JS,
+// can opt into the same dispatch used below by naming two *global*
+// functions instead of passing live references:
+//
+//   <form ... data-success="afterLogin" data-error="showLoginError">
+function namedFormHandlers(form) {
+    const successFunction = form.dataset.success && window[form.dataset.success];
+    const errorFunction = form.dataset.error && window[form.dataset.error];
+    return (successFunction || errorFunction) ? {successFunction, errorFunction} : undefined;
+}
+
+// Single delegated dirty-tracking listener for every form on the page.
+// Replaces the oninput="return FormIsModified(event, this)"/onchange="..."
+// attributes the template used to stamp onto every generated <form> -
+// html.qtpl no longer emits them, this is the one place that logic lives now.
+//
+// evt.target.form (not .closest('form')) is deliberate: a field can be
+// form-associated without being a DOM descendant of its <form> at all, via
+// the form="someId" content attribute - .closest() only walks ancestors and
+// would silently miss that field. .form is the native, spec-correct way
+// every form-associable element (input/select/textarea/button/output/
+// fieldset) resolves "which form do I belong to", so it's checked first;
+// .closest('form') is only the fallback for something that isn't natively
+// form-associable to begin with (a contenteditable block, a custom element)
+// but still happens to live inside a <form>.
+function markFormModified(evt) {
+    const form = evt.target.form || evt.target.closest('form');
+    if (form) FormIsModified(evt, form);
+}
+
 function cfgHTMX() {
+    document.body.addEventListener('input', markFormModified);
+    document.body.addEventListener('change', markFormModified);
+
     document.body.addEventListener('htmx:onLoadError', function (evt) {
         console.log(evt);
         handleError(evt.detail.xhr, evt.detail.xhr.status, evt.detail.xhr.error);
@@ -96,8 +132,81 @@ function cfgHTMX() {
         } else {
             console.log(evt);
         }
+
+        const form = evt.detail.elt.closest?.('form');
+        if (form) {
+            const parameters = evt.detail.parameters;
+            const isNewRecord = !form.querySelector('input[name="id"]');
+            form.querySelectorAll('[name]').forEach(field => {
+                const hiddenUnusedField = field.closest('figure:not([validated])') && !field.closest('figure').offsetParent;
+                const remove = hiddenUnusedField || field.readOnly
+                    || (!field.value && (isNewRecord || field.type === 'select-one' || field.type === 'file'));
+                if (remove) delete parameters[field.name];
+            });
+            form.querySelectorAll('input[type="checkbox"][checked]:not(:checked)').forEach(field => {
+                parameters[field.name] = '0';
+            });
+            parameters.is_get_form_actions = 'true';
+        }
     });
 
+    document.body.addEventListener('htmx:beforeRequest', evt => {
+        const form = evt.detail.elt.closest?.('form');
+        if (!form) return;
+
+        const title = form.querySelector('h2')?.textContent
+            || form.querySelector('figcaption')?.textContent
+            || form.name || form.id;
+        if (!validateFields(form) || (form.noValidate && !confirm(`)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`Do you sure to send form "${title}"?`)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`))) {
+            evt.preventDefault();
+            return;
+        }
+        form.querySelectorAll('figure:not([validated]) .input-label > input, figure:not([validated]) .input-label > select')
+            .forEach(field => {
+                if (!field.offsetParent) field.disabled = true;
+            });
+        form.querySelector('output')?.replaceChildren(document.createTextNode('Start sending...'));
+        // Clear every trace of a *previous* failed submit - not just hide it -
+        // so a field that was invalid last time but is fine now doesn't keep
+        // showing a stale error label/red border through a fresh attempt.
+        form.querySelectorAll('.errorLabel').forEach(label => {
+            label.hidden = true;
+            label.textContent = '';
+        });
+        form.querySelectorAll('.error-field').forEach(field => field.classList.remove('error-field'));
+        form.querySelectorAll('progress, .loading').forEach(element => {
+            element.hidden = false;
+        });
+    });
+
+    document.body.addEventListener('htmx:xhr:progress', evt => {
+        const form = evt.detail.elt.closest?.('form');
+        if (!form || !evt.detail.total) return;
+        const percent = Math.round((evt.detail.loaded / evt.detail.total) * 100);
+        const output = form.querySelector('output');
+        if (output) output.textContent = `)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`Progress - ${percent}%`)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`;
+        form.querySelectorAll('progress').forEach(progress => {
+            progress.value = percent;
+        });
+    });
+
+    // === Before Swap ===
     document.body.addEventListener('htmx:beforeSwap', evt => {
         if (!evt.detail.elt.attributes.target) {
             if (evt.detail.xhr.status === 204) {
@@ -110,7 +219,7 @@ function cfgHTMX() {
         switch (evt.detail.elt.attributes.target.nodeValue) {
             case "_modal":
                 fancyOpen(responseText);
-
+                evt.preventDefault();
                 return false;
 
             case "_blank":
@@ -127,13 +236,42 @@ function cfgHTMX() {
         }
     });
 
+    // === After Request - Main handler ===
+    // This is the ONLY place readEvents()/success/error handling for htmx
+    // requests happens. A form branches to its own <output> element; every
+    // other request falls through to the #content branch below. Nothing
+    // else in the codebase should call readEvents() for an htmx-driven
+    // request - see forms.js/saveForm() for why a second call path used to
+    // exist and cause it to run twice per submit.
     document.body.addEventListener('htmx:afterRequest', evt => {
-        var $out = $('#content');
-        if (evt.target.localName === 'form') {
-            $.fancybox.close();
-        }
         const xhr = evt.detail.xhr;
+        const form = evt.detail.elt.closest?.('form');
+        if (form) {
+            form.querySelectorAll('progress, .loading').forEach(element => {
+                element.hidden = true;
+            });
+            if (!evt.detail.successful) return;
+
+            const output = form.querySelector('output');
+            const data = parseHTMXResponse(xhr);
+            if (xhr.status === 206) {
+                readEvents($(output), data);
+                return;
+            }
+            if (output) output.textContent = xhr.statusText || 'Success';
+            const handlers = htmxFormHandlers.get(form) || namedFormHandlers(form);
+            if (handlers?.successFunction) {
+                handlers.successFunction(data, form);
+            } else {
+                afterSaveAnyForm(data || {}, xhr.statusText);
+            }
+            $.fancybox.close();
+            return;
+        }
+
         const target = evt.detail.target;
+        const data = parseHTMXResponse(xhr);
+
         switch (xhr.status) {
             case 204:
                 evt.preventDefault();
@@ -141,20 +279,33 @@ function cfgHTMX() {
                 return false;
 
             case 206:
-                readEvents($out, JSON.parse(xhr.response));
+                readEvents($('#content'), data);
                 return false;
 
-            case 201:
-                alert(`)
+            case 201: {
+                // xhr.response is whatever the server sent - usually a JSON
+                // object ({id, message, ...}), not a bare id, so pull a real
+                // message out of it instead of stringifying the raw
+                // response. Land it in a nearby <output> when the triggering
+                // element has one (mirrors the form convention above);
+                // otherwise a non-blocking toast, instead of alert()'s
+                // modal, so adding one row after another doesn't force a
+                // click through a dialog every time.
+                const message = data?.message
+                    || (data?.id !== undefined ? `)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`Successful add record #${xhr.response}`)
+	qw422016.N().S(`Successful add record #${data.id}`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`);
-                
+	qw422016.N().S(` : 'Successful add record');
+                showMessage(evt.detail.elt, message);
+                // fallthrough intentional: a fresh record still needs the
+                // normal 200 handling (fancybox/data-fancybox check, target
+                // refresh, processAll) run right after showing the message.
+            }
             case 200:
                 if (evt.target.matches("[data-fancybox]")) {
                     fancyOpen(xhr.response);
@@ -165,8 +316,50 @@ function cfgHTMX() {
         }
     });
 
+    // === Response Error ===
+    // This is the direct htmx equivalent of the old jQuery Form Plugin
+    // error callback ($(thisForm).ajaxSubmit({ error: ... })): a custom
+    // errorFunction (registered via saveForm(this, ok, err) or a
+    // data-error="fnName" attribute) fully overrides the default handling,
+    // exactly like before; otherwise 401 re-triggers login, 400 populates
+    // per-field error labels, and anything else falls back to the same
+    // alert(xhr.responseText) the legacy code used for an unclassified error.
     document.body.addEventListener('htmx:responseError', evt => {
         const xhr = evt.detail.xhr;
+        const form = evt.detail.elt.closest?.('form');
+
+        if (form) {
+            form.querySelectorAll('progress, .loading').forEach(element => {
+                element.hidden = true;
+            });
+            const output = form.querySelector('output');
+            if (output) output.textContent = xhr.responseText;
+
+            const handlers = htmxFormHandlers.get(form) || namedFormHandlers(form);
+            if (handlers?.errorFunction) {
+                handlers.errorFunction(xhr.statusText, form);
+                return;
+            }
+
+            evt.preventDefault();
+        switch (xhr.status) {
+            case 401:
+                urlAfterLogin = form;
+                htmx.trigger('#bLogin', 'click');
+                return;
+            case 400:
+                showErrors(parseHTMXResponse(xhr)?.formErrors, form);
+                return;
+            default:
+                alert(xhr.responseText);
+                return;
+        }
+        }
+
+        // Non-form htmx requests (hx-get links, table filters, etc.) - no
+        // <output>/errorFunction to report through, so 401/400 are the only
+        // statuses worth intercepting; anything else is left to htmx's own
+        // default error logging.
         switch (xhr.status) {
             case 401:
                 evt.preventDefault();
@@ -174,11 +367,36 @@ function cfgHTMX() {
             case 400:
                 // stop the regular request from being issued
                 evt.preventDefault();
-                const src = evt.detail.elt;
-                let obj = JSON.parse(xhr.responseText);
-                showErrors(obj.formErrors, src)
+                showErrors(parseHTMXResponse(xhr)?.formErrors, evt.detail.elt);
+                return;
         }
     });
+}
+
+// Show a short confirmation near whatever triggered the request. Forms have
+// their own <output> (see htmx:afterRequest above); a non-form trigger
+// (a hx-post button, an inline row action) may sit next to one too - use it
+// when present, otherwise fall back to a small auto-dismissing toast rather
+// than a blocking alert(), which gets old fast on repeated "record added"
+// actions. Toast styling (.htmx-toast) needs a couple of CSS rules in the
+// site's stylesheet - this only creates/removes the element.
+function showMessage(elt, message) {
+    if (!message) return;
+    const output = elt?.closest('[data-with-output]')?.querySelector('output')
+        || (elt?.parentElement?.querySelector(':scope > output'));
+    if (output) {
+        output.textContent = message;
+        return;
+    }
+    showToast(message);
+}
+
+function showToast(message, timeout = 4000) {
+    const toast = document.createElement('div');
+    toast.className = 'htmx-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), timeout);
 }
 
 function showErrors(formErrors, thisForm) {
@@ -216,13 +434,19 @@ function showErrors(formErrors, thisForm) {
     }
 }
 
+function parseHTMXResponse(xhr) {
+    if (!xhr.responseText) return null;
+    try {
+        return JSON.parse(xhr.responseText);
+    } catch (_) {
+        return null;
+    }
+}
+
 function isSelfRequest(ctx, event) {
     const trigger = event.detail?.requestConfig?.elt;
     return trigger === ctx;
 }
-
-
-
 `)
 //line observer.js.qtpl:2
 	qw422016.N().S(`

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2024-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -64,6 +64,16 @@ func (s *Store) StartSSELog(ctx *fasthttp.RequestCtx, startMsg []byte, fnc func(
 		defer close(l.ch)
 		logs.SetWriters(l, logs.FgInfo, logs.FgErr)
 		defer logs.DeleteWriters(l, logs.FgAll)
+
+		defer func() {
+			switch err := recover().(type) {
+			case nil:
+			case error:
+				logs.ErrorLog(err)
+			default:
+				logs.StatusLog("recover: %v", err)
+			}
+		}()
 
 		fnc(l)
 	}()
