@@ -48,6 +48,9 @@ function bufferToBase64url(buffer) {
 
 // Recursively walk a PublicKeyCredentialCreationOptions/RequestOptions JSON
 // blob and turn the well-known base64url fields into ArrayBuffers in place.
+// Pass body.publicKey, not the raw response body - go-webauthn's
+// CredentialCreation/CredentialAssertion both marshal the actual options
+// under a "publicKey" key (see decode call sites below).
 function decodeCredentialOptions(options) {
     if (options.challenge) options.challenge = base64urlToBuffer(options.challenge);
     if (options.user?.id) options.user.id = base64urlToBuffer(options.user.id);
@@ -60,7 +63,8 @@ function decodeCredentialOptions(options) {
 }
 
 // Turn a PublicKeyCredential response into the plain JSON shape the server
-// (go-webauthn's ParseCredentialCreationResponseBody/ParseCredentialRequestResponseBody) expects.
+// (go-webauthn's protocol.ParseCredentialCreationResponseBytes /
+// ParseCredentialRequestResponseBytes) expects.
 function encodeCredential(credential) {
     const base = {
         id: credential.id,
@@ -103,15 +107,17 @@ async function registerPasskey() {
     try {
         const beginResp = await fetch('/webauthn/register/begin', {
             method: 'POST',
+            credentials: 'same-origin', // sends/receives the px_session cookie
             headers: {'Authorization': 'Bearer ' + token, 'Accept': 'application/json'},
         });
         if (!beginResp.ok) throw new Error(`register/begin failed: ${beginResp.status}`);
-        const options = decodeCredentialOptions(await beginResp.json());
+        const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
         const credential = await navigator.credentials.create({publicKey: options});
 
         const finishResp = await fetch('/webauthn/register/finish', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Authorization': 'Bearer ' + token,
                 'Accept': 'application/json',
@@ -134,9 +140,11 @@ async function registerPasskey() {
 }
 
 // --- Login: replaces (or sits next to) the password form ------------------
-// `login` is whatever identifies the account (email/username) - go-webauthn
+// `login` is whatever identifies the account (email/username) - the server
 // needs it in login/begin to look up that user's registered credential ids
-// so the browser only offers a matching passkey.
+// so the browser only offers a matching passkey. It's NOT repeated in the
+// finish call: the server already tied that user to this ceremony's
+// px_session cookie at begin time, so finish only needs the credential.
 async function loginWithPasskey(login) {
     if (!isPasskeySupported()) {
         alert('Passkeys are not supported in this browser.');
@@ -146,18 +154,20 @@ async function loginWithPasskey(login) {
     try {
         const beginResp = await fetch('/webauthn/login/begin', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify({login}),
         });
         if (!beginResp.ok) throw new Error(`login/begin failed: ${beginResp.status}`);
-        const options = decodeCredentialOptions(await beginResp.json());
+        const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
         const credential = await navigator.credentials.get({publicKey: options});
 
         const finishResp = await fetch('/webauthn/login/finish', {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
-            body: JSON.stringify({login, ...encodeCredential(credential)}),
+            body: JSON.stringify(encodeCredential(credential)),
         });
         const userData = await finishResp.json();
         if (!finishResp.ok) {
