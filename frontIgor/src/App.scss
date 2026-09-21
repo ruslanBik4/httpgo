@@ -1,0 +1,14 @@
+@import "./styles/NullStyles.scss";
+@import "./styles/Header.scss";
+@import "./styles/Footer.scss";
+
+$backgound_color: #F5F5F5;
+
+
+body {
+  background: $backgound_color;
+}
+
+main {
+  height: calc(100vh - 70px - 270px);
+}
