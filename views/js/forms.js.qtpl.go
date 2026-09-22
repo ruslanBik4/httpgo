@@ -39,32 +39,52 @@ func StreamPutFormsJS(qw422016 *qt422016.Writer) {
 
 "use strict";
 
-// Configure an ordinary form for htmx.  Response handling lives in cfgHTMX(),
-// which means dynamically swapped forms use the same request lifecycle.
+// saveForm() used to be a self-contained handler built on the jQuery Form
+// Plugin's $(thisForm).ajaxSubmit({...}) - its own beforeSubmit/beforeSend/
+// success/error/complete callbacks did parameter prep, header injection,
+// progress reporting and response handling entirely independently of htmx.
+// That's been fully replaced by htmx's own request lifecycle so there's
+// only ONE code path for every request, form or not. Nothing from the old
+// callbacks was dropped - each one moved to the htmx event that plays the
+// same role, all in cfgHTMX() (observer.js):
+//   beforeSubmit (param prep: drop empty/readonly/hidden fields, coerce
+//                 unchecked checkboxes to 0, add is_get_form_actions)
+//                                          -> htmx:configRequest
+//   beforeSubmit (disable hidden fields, "Start sending...", show progress)
+//   + validateFields()/confirm() guard    -> htmx:beforeRequest
+//   beforeSend (auth/lang headers)        -> htmx:configRequest
+//   uploadProgress                        -> htmx:xhr:progress
+//   success (206 -> readEvents; else success/errorFunction, fancybox close)
+//                                          -> htmx:afterRequest
+//   error (errorFunction, else 401/400/default alert)
+//                                          -> htmx:responseError
+//   complete (hide progress/loading)      -> htmx:afterRequest / htmx:responseError
+//
+// None of that needs a form to carry hx-post/hx-trigger, and saveForm() does
+// NOT set them: <body hx-boost="true" ...> (see html.qtpl) already turns
+// every form's native action/method into an htmx request on its own, the
+// moment htmx.process() sees it (which processAll() already does for the
+// whole page and for anything dynamically swapped in). Setting hx-post by
+// hand on top of that was actively harmful, not just redundant - it made
+// htmx.process() register the form a *second* time, so a submit could fire
+// two requests instead of one (which is why readEvents()/SSE handling could
+// appear to run twice). The fix is simply not touching the form's htmx
+// wiring from JS at all.
 const htmxFormHandlers = new WeakMap();
 
-function prepareFormForHTMX(thisForm, successFunction, errorFunction) {
-    if (!(thisForm instanceof HTMLFormElement)) {
-        return;
-    }
+// Compatibility shim for markup still calling saveForm(this, success, error)
+// from an inline onsubmit attribute. It sends nothing itself - the boosted
+// form submission already does that - it only threads successFunction/
+// errorFunction (real JS references, only available at submit time) into
+// htmxFormHandlers so cfgHTMX()'s htmx:afterRequest/responseError can find
+// them. New markup should skip onsubmit entirely and use
+// data-success="fnName"/data-error="fnName" instead (namedFormHandlers() in
+// observer.js) - no inline JS at all.
+function saveForm(thisForm, successFunction, errorFunction) {
     if (successFunction || errorFunction) {
         htmxFormHandlers.set(thisForm, {successFunction, errorFunction});
-    }
-    if (thisForm.dataset.htmxFormPrepared) return;
-
-    thisForm.dataset.htmxFormPrepared = 'true';
-    thisForm.setAttribute('hx-post', thisForm.getAttribute('action') || window.location.href);
-    thisForm.setAttribute('hx-swap', 'none');
-    thisForm.setAttribute('hx-trigger', 'submit');
-    htmx.process(thisForm);
-}
-
-// Compatibility for inline handlers still calling saveForm(this, success, error).
-// htmx.ajax avoids redispatching submit and therefore avoids recursive inline handlers.
-function saveForm(thisForm, successFunction, errorFunction) {
-    prepareFormForHTMX(thisForm, successFunction, errorFunction);
-    htmx.ajax('POST', thisForm.getAttribute('hx-post'), {source: thisForm, swap: 'none'});
-    return false;
+            }
+    return true;
 }
 
 function readEvents($out, resp) {
@@ -90,18 +110,27 @@ function readEvents($out, resp) {
 	qw422016.N().S(`);
     };
     evtSource.onmessage = (event) => {
-        if (event.event === "closed") {
-            $out.prepend(`)
+        // NOTE: the previous `)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
-	qw422016.N().S(`<pre>Finish: ${event.data}</pre>`)
+	qw422016.N().S(`if (event.event === "closed")`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
-	qw422016.N().S(`);
-            return false;
-        }
+	qw422016.N().S(` check here was
+        // dead code - a plain MessageEvent has no `)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`.event`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(` property, so that
+        // branch could never run. The server's named "closed" event is
+        // already handled below via evtSource.addEventListener("closed", ...);
+        // this handler only needs to cover the default/unnamed message case.
         $out.prepend(`)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
@@ -200,26 +229,41 @@ function formReset(thisForm) {
 
 }
 
+// Marks a form dirty the first time the user actually changes something, so
+// its (initially hidden) save button only appears once there's something to
+// save. Called by cfgHTMX()'s single delegated input/change listener
+// (markFormModified() in observer.js) for every form on the page - the
+// generated markup no longer carries oninput/onchange attributes at all.
 function FormIsModified(event, thisForm) {
-    event = event || window.event;
+    if (!thisForm) return;
 
-    $('button.hidden', thisForm).show().addClass('main-btn').removeClass('hidden');
+    thisForm.classList.add('is-modified');
+    thisForm.querySelectorAll('button.hidden').forEach(btn => {
+        btn.classList.remove('hidden');
+        btn.classList.add('main-btn');
+    });
 }
 
 function formDelClick(thisButton) {
-    $.post('/admin/row/del/', {
+    // htmx.ajax(), not $.post() - see inputSearchKeyUp() above for why.
+    htmx.ajax('POST', '/admin/row/del/', {
+        source: thisButton,
+        values: {
         table: $('input[name="table"]').val(),
         id: $('input[name="id"]').val()
-    }, succesDelRecord);
+        },
+        swap: 'none',
+        handler: (elt, info) => succesDelRecord(info.xhr.responseText, info.xhr.statusText)
+    });
 }
 
 function succesDelRecord(data, status) {
     if (status === "Success") {
         $('form').hide();
-        alert("Success remove record !" + data)
+        showMessage(null, "Success remove record !" + data)
 
     } else {
-        alert(data);
+        showMessage(null, data);
 
     }
 }
@@ -269,7 +313,7 @@ function alertField(thisElem) {
     } else if (errLabel && errLabel.text() > "") {
         msg = errLabel.text();
     }
-    alert(`)
+    showMessage(thisElem, `)
 //line forms.js.qtpl:2
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
@@ -385,21 +429,33 @@ function validateEmailFields(thisForm) {
     return result;
 }
 
-// handling response AnyForm & render result according to structures of data
-function afterSaveAnyForm(data, status) {
+// handling response AnyForm & render result according to structures of data.
+// `)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(`form`)
+//line forms.js.qtpl:2
+	qw422016.N().S("`")
+//line forms.js.qtpl:2
+	qw422016.N().S(` is optional (observer.js's htmx:afterRequest passes the triggering
+// form so showMessage() can land text in its own <output> instead of always
+// falling back to a page-level toast) - existing callers that don't have one
+// still work, just always toast.
+function afterSaveAnyForm(data, status, form) {
 
     if (data.content_url !== undefined) {
         loadContent(data.content_url);
     } else if (data.formActions !== undefined) {
         loadContent(data.formActions[0].url);
     } else if (data.error !== undefined) {
-        alert(data.error);
+        showMessage(form, data.error);
     } else {
         console.log(data);
     }
 
     if (data.message !== undefined) {
-        alert(data.message);
+        showMessage(form, data.message);
     }
 }
 
@@ -481,14 +537,31 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
         return true;
     }
 
-    $.ajax({
-        url: thisElem.src,
-        data: {
+    // htmx.ajax(), not $.ajax(): picks up Authorization/Accept-Language from
+    // Auth.headers() the same way every other request does now, and a
+    // failure (401 included) is handled by the shared htmx:responseError
+    // listener (observer.js) instead of its own error callback - this used
+    // to alert() on any error including a 401, which just showed a
+    // confusing "error: Unauthorized" instead of re-authenticating.
+    // jQuery used to auto-parse the response by Content-Type (dataType
+    // wasn't set, so it guessed); htmx.ajax hands back the raw text, so the
+    // three branches below (HTML fragment / array / literal null) try a
+    // JSON parse first and fall back to the original string.
+    htmx.ajax('GET', thisElem.src, {
+        source: thisElem,
+        values: {
             "value": thisElem.value,
             "count": 10
         },
-        beforeSend: getHeaders,
-        success: function (data, status) {
+        swap: 'none',
+        handler: function (elt, info) {
+            let data = info.xhr.responseText;
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                // not JSON - keep the raw HTML fragment string
+            }
+
             $(thisClassH).removeClass('suggestions-select-hide').addClass('suggestions-select-show');
             if (typeof data === 'string') {
                 $(thisClass).html(data)
@@ -540,11 +613,6 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
 
                 return false;
             });
-
-        },
-        error: function (xhr, status, error) {
-            alert("Code : " + xhr.status + " error :" + error);
-            console.log(error);
         }
     });
 
@@ -670,7 +738,7 @@ function handleFileOnForm(evt) {
         });
     } else {
         console.log(f);
-        alert(f.type)
+        showMessage(evt, f.type)
     }
     img.attr('data-placeholder', f.name);
     //     };
@@ -694,6 +762,13 @@ function sendFile(blob, url, file, $output, $progress) {
     xhr.setRequestHeader("Content-Encoding", "gzip, deflate");
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.setRequestHeader("X-Original-Filename", file.name);
+    // Same Authorization/Accept-Language every other request gets
+    // (Auth.headers(), user.js) - previously missing here entirely. This
+    // can't go through htmx.ajax like the rest of the app's requests did in
+    // this pass: htmx has no hook for a custom Content-Encoding on a raw
+    // binary body, so it stays a plain XMLHttpRequest and asks Auth directly.
+    const authHeaders = Auth.headers();
+    Object.keys(authHeaders).forEach(name => xhr.setRequestHeader(name, authHeaders[name]));
     // let value =  generateChecksum(blob);
     // xhr.setRequestHeader("X-Upload-Checksum", value) // Verify integrity);
 
@@ -806,41 +881,7 @@ async function uploadGzippedFile(evt, url) {
 	qw422016.N().S("`")
 //line forms.js.qtpl:2
 	qw422016.N().S(`);
-    // let result = await response.json();
-    // switch (response.status) {
-    //     case 206:
-    //         readEvents($output, result);
-    //     case 400:
-    //         if (result.formErrors !== undefined) {
-    //             let formErrors = result.formErrors
-    //             for (let x in formErrors) {
-    //                 $output.append(`)
-//line forms.js.qtpl:2
-	qw422016.N().S("`")
-//line forms.js.qtpl:2
-	qw422016.N().S(`<h4>${x}</h4>`)
-//line forms.js.qtpl:2
-	qw422016.N().S("`")
-//line forms.js.qtpl:2
-	qw422016.N().S(`);
-    //                 $output.append(`)
-//line forms.js.qtpl:2
-	qw422016.N().S("`")
-//line forms.js.qtpl:2
-	qw422016.N().S(`<span>${formErrors[x]}</span>`)
-//line forms.js.qtpl:2
-	qw422016.N().S("`")
-//line forms.js.qtpl:2
-	qw422016.N().S(`);
-    //             }
-    //             return
-    //         }
-    // }
-    // console.log(response);
-    // console.log("Upload complete!");
-    // $output.text(result);
-}
-`)
+}`)
 //line forms.js.qtpl:2
 	qw422016.N().S(`
 `)

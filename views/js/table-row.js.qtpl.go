@@ -24,7 +24,7 @@ func StreamTableJS(qw422016 *qt422016.Writer) {
  `)
 //line table-row.js.qtpl:2
 	qw422016.N().S(`/*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст. 
@@ -76,12 +76,32 @@ function loadTableWithOrder() {
 
     params.set("order_by", orderBy);
 
-    $.ajaxSetup({
-        beforeSend: getHeaders,
-    });
     let newURL = url.origin + url.pathname + "?" + params.toString();
-    // load only table rows content
-    $(selTablesRows).load(newURL + ' .usr-table-row-cont');
+    // load only table rows content - `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`select`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(` pulls just .usr-table-row-cont
+    // out of the response and swaps it straight into the same selector,
+    // same as jQuery's `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.load(url + ' selector')`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(` used to, but through
+    // htmx's own request/swap pipeline instead of a separate one.
+    htmx.ajax('GET', newURL, {
+        select: selTablesRows,
+        target: selTablesRows,
+        swap: 'innerHTML',
+    });
 
     return setHashFromTable(newURL)
 }
@@ -153,31 +173,19 @@ function chkConditions(href) {
 function appendTable() {
     var tableRows = $(selTablesRows);
     let newURL = chkConditions(window.location.href);
-    $.ajax({
-        url: newURL,
-        data: {
+    htmx.ajax('GET', newURL, {
+        values: {
             "html": true
         },
-        processData: false,
-        contentType: false,
-        beforeSend: getHeaders,
-        success: function (data, status, xhr) {
+        swap: 'none',
+        handler: function (elt, info) {
+            const xhr = info.xhr;
             if (xhr.status === 204) {
                 // tableRows.html(data);
-                return false;
-            }
-            tableRows.append($('<div />').html(data).find(selTablesRows).html());
-            setHashFromTable(newURL);
-        },
-        error: function (xhr, status, error) {
-            if (xhr.status === 401) {
-                urlAfterLogin = newURL;
-                $('#bLogin').trigger("click");
                 return;
             }
-
-            alert("Code : " + xhr.status + ", " + error + ": " + xhr.responseText);
-            console.log(xhr);
+            tableRows.append($('<div />').html(xhr.responseText).find(selTablesRows).html());
+            setHashFromTable(newURL);
         }
     });
     return true;
@@ -241,7 +249,7 @@ function ScrollToElem(selector) {
     if (list.length > 0) {
         list[0].scrollIntoView(100);
     } else {
-        alert(selector + ' not found!');
+        showMessage(null, selector + ' not found!');
     }
     return true;
 }

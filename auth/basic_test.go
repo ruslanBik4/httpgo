@@ -9,7 +9,6 @@ package auth
 
 import (
 	"encoding/base64"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,81 +17,35 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+// NOTE on this file's limits: auth_basic.go (wherever AuthBasic/NewAuthBasic
+// actually live) was never uploaded to this session - only this test file
+// was. Every case below stays within what getBasic/getUserPass's own
+// existing fixtures already demonstrate empirically (base64-decode the
+// "Basic " header value, split once on the first ':', return both sides
+// plus an ok flag). TestAuthBasic_AdminAuth/Auth/String/TestNewAuthBasic
+// are left as TODO stubs rather than filled in with guessed behavior -
+// Auth/AdminAuth almost certainly compare the decoded password against
+// something (a stored hash? the Tokens store, like AuthBearer does with
+// bearer tokens?), and NewAuthBasic's second parameter (passed as nil in
+// the original skeleton) is a type this session has never seen. Guessing
+// either would produce tests that assert invented behavior instead of
+// real behavior - upload auth_basic.go (or whatever the source file is
+// named) to fill these in for real.
+
 func TestAuthBasic_AdminAuth(t *testing.T) {
-	type fields struct {
-		tokens Tokens
-	}
-	type args struct {
-		ctx *fasthttp.RequestCtx
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &AuthBasic{
-				tokens: tt.fields.tokens,
-			}
-			if got := a.AdminAuth(tt.args.ctx); got != tt.want {
-				t.Errorf("AdminAuth() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	t.Skip("AuthBasic's source (Auth/AdminAuth's actual password-checking logic) was never uploaded to this session - see this file's header comment")
 }
 
 func TestAuthBasic_Auth(t *testing.T) {
-	type fields struct {
-		tokens Tokens
-	}
-	type args struct {
-		ctx *fasthttp.RequestCtx
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &AuthBasic{
-				tokens: tt.fields.tokens,
-			}
-			if got := a.Auth(tt.args.ctx); got != tt.want {
-				t.Errorf("Auth() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	t.Skip("AuthBasic's source (Auth's actual password-checking logic) was never uploaded to this session - see this file's header comment")
 }
 
 func TestAuthBasic_String(t *testing.T) {
-	type fields struct {
-		tokens Tokens
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &AuthBasic{
-				tokens: tt.fields.tokens,
-			}
-			if got := a.String(); got != tt.want {
-				t.Errorf("String() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+	t.Skip("AuthBasic's source (String's exact output format) was never uploaded to this session - see this file's header comment")
+}
+
+func TestNewAuthBasic(t *testing.T) {
+	t.Skip("NewAuthBasic's second parameter's type/purpose (passed as nil in the original skeleton) was never uploaded to this session - see this file's header comment")
 }
 
 func TestAuthBasic_getBasic(t *testing.T) {
@@ -110,7 +63,6 @@ func TestAuthBasic_getBasic(t *testing.T) {
 		u      []byte
 		ok     bool
 	}{
-		// TODO: Add test cases.
 		{
 			"dchervakov@ukr.net",
 			fields{nil},
@@ -149,6 +101,20 @@ func TestAuthBasic_getBasic(t *testing.T) {
 			args{"zero@null.com:"},
 			[]byte("zero@null.com"),
 			[]byte(""),
+			true,
+		},
+		// Symmetric counterpart to "zero@null.com" above (empty password,
+		// non-empty login): an empty login with a non-empty password. Safe
+		// to infer from the same demonstrated mechanism (split once on ':',
+		// return both sides verbatim, ok=true as long as a colon is
+		// present and the header decodes) - not a guess about unrelated
+		// logic like AdminAuth/Auth.
+		{
+			"empty login, non-empty password",
+			fields{nil},
+			args{":onlypassword"},
+			[]byte(""),
+			[]byte("onlypassword"),
 			true,
 		},
 		// negative
@@ -251,24 +217,4 @@ func TestAuthBasic_getBasic_Alladin(t *testing.T) {
 	assert.Equal(t, tt.u, U)
 	assert.Equal(t, tt.ok, ok)
 
-}
-
-func TestNewAuthBasic(t *testing.T) {
-	type args struct {
-		tokens Tokens
-	}
-	tests := []struct {
-		name string
-		args args
-		want *AuthBasic
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NewAuthBasic(tt.args.tokens, nil); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewAuthBasic() = %v, want %v", got, tt.want)
-			}
-		})
-	}
 }

@@ -6,6 +6,7 @@ require (
 	github.com/d2lang/d2 v0.9.0
 	github.com/domsolutions/http2 v0.4.0
 	github.com/go-openapi/spec v1.0.1
+	github.com/go-webauthn/webauthn v0.18.1
 	github.com/iancoleman/strcase v0.3.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/json-iterator/go v1.1.12
@@ -37,6 +38,7 @@ require (
 	github.com/d2lang/rough-go v0.2.0 // indirect
 	github.com/d2lang/util-go v0.2.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.8.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
 	github.com/getsentry/sentry-go v0.49.0 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-openapi/jsonpointer v1.0.1 // indirect
@@ -49,7 +51,12 @@ require (
 	github.com/go-openapi/swag/typeutils v0.29.2 // indirect
 	github.com/go-openapi/swag/yamlutils v0.29.2 // indirect
 	github.com/go-text/typesetting v0.3.5 // indirect
+	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
+	github.com/go-webauthn/x v0.3.1 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/glog v1.2.4 // indirect
+	github.com/google/go-tpm v0.9.8 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
@@ -59,10 +66,13 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/molecule-man/go-brrr v1.1.0 // indirect
+	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fastrand v1.1.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yuin/goldmark v1.8.6 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.57.0 // indirect

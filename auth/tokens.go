@@ -22,6 +22,21 @@ type Tokens interface {
 	NewToken(userData TokenData) (string, error)
 	GetToken(s string) TokenData
 	RemoveToken(s string) error
+	// SetToken stores userData under an EXPLICIT key s, unlike NewToken
+	// (which generates its own random token string). MapTokens already
+	// implemented this before it was added here - SimplePasskeyStore
+	// (simple_passkey_store.go) is what needs it exposed on the interface,
+	// to key a record by login instead of by a random session token.
+	//
+	// CAVEAT this creates for that use: MapTokens.SetToken always arms the
+	// SAME m.expiresIn deletion timer NewToken's session tokens get. A
+	// passkey record stored this way (keyed by login, not by a fresh random
+	// token) inherits that timer too - it silently disappears after
+	// m.expiresIn, exactly like an ordinary session would, even though a
+	// registered passkey should keep working indefinitely. See
+	// SimplePasskeyStore's doc comment for the full explanation and what to
+	// do about it before relying on this in anything long-lived.
+	SetToken(s string, userData TokenData)
 }
 
 type TokenData interface {

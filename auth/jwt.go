@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -30,6 +30,21 @@ func NewAuthBearer(tokens Tokens) *AuthBearer {
 	}
 
 	return &AuthBearer{tokens}
+}
+
+// TokenIssuer is the minimal capability a route needs from whatever
+// auth.FncAuth is currently wired in as the app's auth manager: mint a
+// Bearer token for a freshly-authenticated TokenData. Neither FncAuth nor
+// FncPasskey (passkey.go) declares this - both only guarantee
+// Auth/AdminAuth/String - so a route that issues its own token (e.g.
+// /user/signin/'s password login) asserts to this interface instead of a
+// concrete type. *AuthBearer satisfies it directly (NewToken below);
+// *WebAuthnPasskey satisfies it too, by promotion, since it embeds
+// *AuthBearer - so a route written against TokenIssuer works unchanged
+// whichever of the two the app hands to apis.NewApis(ctx, routes, fncAuth)
+// as its app-wide auth manager.
+type TokenIssuer interface {
+	NewToken(userData TokenData) (string, error)
 }
 
 func (a *AuthBearer) NewToken(userData TokenData) (string, error) {

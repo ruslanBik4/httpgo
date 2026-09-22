@@ -49,12 +49,12 @@ function setClickAll(target) {
     let cfgDate = {
         format: 'YYYY-MM-DD',
         timepicker: false,
-        lang: lang
+        lang: Auth.lang
     };
     let cfgDateTime = {
         format: 'Y-m-d H:i:s',
         singleDate: true,
-        lang: lang
+        lang: Auth.lang
     };
     let cfgDateRange = {
         setValue: function (s) {
@@ -79,11 +79,10 @@ function setClickAll(target) {
         ...cfgDate
     };
 
-    let hxEvents = $('[hx-get], [hx-post], [hx-target], [hx-trigger], [hx-on], [hx-boost], [hx-vals]', target).not('[rel]');
-    if (hxEvents.length > 0) {
-        hxEvents.attr("rel", 'htmx');
-        htmx.process(target);
-    }
+    // No separate htmx.process(target) pass here for [hx-get]/[hx-boost]/etc.
+    // elements - processAll(parent) already calls htmx.process(parent)
+    // unconditionally, immediately before calling setClickAll(parent), so
+    // this was processing the same target a second time on every call.
     $('form:not([rel]), .filt-arrow:not([rel])', target).each(
         (ind, elem) => {
             SetDatesInputs(target);
@@ -102,12 +101,11 @@ function setClickAll(target) {
     // - see saveForm() in forms.js for why that used to cause a double
     // submit.
 
-    // add click event instead default - response will show on div.#content
-    // $('a[href!="#"]:not([rel]):not([onclick]):not([target=_blank])', target).each(function () {
-    //     this.rel = 'setClickAll';
-    //
-    //     $(this).click(OverClick);
-    // });
+    // Plain links need nothing set up here either, for the same reason as
+    // forms above: <body hx-boost="true"> already boosts every link under
+    // it. This used to bind a hand-rolled click handler (OverClick, in
+    // over_click.js) to do that manually - duplicate control over
+    // navigation/history/headers that OverClick's removal cleaned up.
     setTextEdit(target);
     setSliderBox(target);
 

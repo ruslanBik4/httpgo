@@ -11,7 +11,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"go/types"
-	"log"
 	"mime/multipart"
 	"net"
 	"os"
@@ -34,6 +33,7 @@ import (
 	"github.com/ruslanBik4/gotools"
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/apis/crud"
+	"github.com/ruslanBik4/httpgo/auth"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/logs"
 )
@@ -50,7 +50,76 @@ type HttpGo struct {
 	h3Server   *http3.Server
 }
 
-var regIp = regexp.MustCompile(`for=s*(\d+\.?)+,`)
+// regForwardedFor extracts the "for=" identifier from a single element of an
+// RFC 7239 Forwarded header, e.g. `for=192.0.2.60;proto=http;by=203.0.113.43`
+// or `for="[2001:db8:cafe::17]:4711"`. Two real bugs fixed vs. the previous
+// pattern (`for=s*(\d+\.?)+,`):
+//  1. `s*` was very likely meant to be `\s*` (optional whitespace after
+//     "for=", which RFC 7239 explicitly permits) - as written it matched zero
+//     or more literal "s" characters, which happens to still "work" only
+//     because zero of them is allowed.
+//  2. The trailing `,` made the whole pattern require a SECOND forwarded-for
+//     element after the one being captured - a single-hop Forwarded header
+//     (the common case: exactly one proxy) has no comma at all, so it never
+//     matched and silently fell through to the X-ProxyUser-Ip/remote-addr
+//     fallback instead of the value the header actually carried.
+//
+// Bracketed IPv6 (`[::1]`) and a bare quoted value are both matched by the
+// permissive `[^;,\s"]+` class; callers get back the raw for= value as-is
+// (still possibly wrapped in `[...]` or a trailing `:port`), same shape the
+// old code produced.
+var regForwardedFor = regexp.MustCompile(`(?i)for=\s*"?(\[[^\]]+\]|[^;,\s"]+)"?`)
+
+// extractClientIP centralizes what blockingHandler used to do inline, fixing
+// two correctness bugs along the way (see regForwardedFor's doc comment for
+// the Forwarded-header one):
+//
+//   - X-Forwarded-For can legitimately carry a comma-separated hop chain
+//     ("client, proxy1, proxy2" - RFC 7239's non-standardized predecessor).
+//     The previous code used the ENTIRE raw header value as "the" client IP,
+//     which is not a single address at all once more than one hop is
+//     present - almost certainly never matching a clean-IP allow/deny list.
+//     This takes the first (left-most / original-client) entry, same
+//     convention as every other XFF consumer, and trims whitespace.
+//   - The Forwarded-header branch used to return the ENTIRE regex match,
+//     including the literal "for=" prefix and trailing comma, as "the" IP
+//     (Go's regexp only keeps the LAST capture of a repeated group like
+//     `(\d+\.?)+`, so the old code fell back to group 0, the whole match).
+//     This returns the actual captured for= value.
+//
+// SECURITY: every one of these headers (X-Forwarded-For, Forwarded,
+// X-ProxyUser-Ip) is caller-supplied and trivially spoofable by any client
+// that talks to this server directly - fixing the parsing bugs above does
+// NOT make IP-based allow/deny (blockingHandler, cfg.Allow/cfg.Deny) safe
+// against spoofing on its own. It is only meaningful when this server sits
+// behind a reverse proxy/load balancer that you control, which OVERWRITES
+// these headers with the real client address before forwarding (never just
+// appends to whatever the client sent) - and even then, only the header your
+// specific proxy actually sets should be trusted; the others should arguably
+// be ignored rather than tried as a fallback chain. If httpgo is ever
+// reachable directly (no proxy in front, or the proxy doesn't scrub these
+// headers), a client can set X-Forwarded-For to an allow-listed IP and walk
+// straight past cfg.Allow/cfg.Deny. Worth confirming which of these header
+// checks the deployment actually needs before relying on this for anything
+// more sensitive than coarse logging/rate-limiting hints.
+func extractClientIP(ctx *fasthttp.RequestCtx) string {
+	if xff := ctx.Request.Header.Peek("X-Forwarded-For"); len(xff) > 0 {
+		first, _, _ := strings.Cut(gotools.BytesToString(xff), ",")
+		return strings.TrimSpace(first)
+	}
+
+	if fwd := ctx.Request.Header.Peek("Forwarded"); len(fwd) > 0 {
+		if m := regForwardedFor.FindSubmatch(fwd); m != nil {
+			return gotools.BytesToString(m[1])
+		}
+	}
+
+	if proxyIP := ctx.Request.Header.Peek("X-ProxyUser-Ip"); len(proxyIP) > 0 {
+		return gotools.BytesToString(proxyIP)
+	}
+
+	return ctx.Conn().RemoteAddr().String()
+}
 
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
@@ -93,7 +162,11 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// 	return fasthttp.RequestConfig{}
 	// }
 	cfg.Server.ContinueHandler = func(header *fasthttp.RequestHeader) bool {
-		logs.StatusLog("has Continue !", header)
+		// Was StatusLog - a "100-continue" header arrives on every large/
+		// chunked upload that expects one, so at StatusLog level (presumably
+		// always-on, unlike DebugLog) this was pure noise on any server that
+		// takes file uploads at any real volume.
+		logs.DebugLog("has Continue !", header)
 		return true
 	}
 	cfg.Server.ErrorHandler = renderError
@@ -195,7 +268,16 @@ func (h *HttpGo) setHTTP3() {
 		} else {
 			certMaps := newCertMaps()
 			if err := certMaps.loadCertificates(); err != nil {
-				logs.ErrorLog(err)
+				// Was: log the error and press on anyway, building a
+				// tls.Config around a certMaps that may hold zero usable
+				// certificates - every HTTP/3 handshake would then fail one
+				// at a time in production instead of failing loudly, once,
+				// at startup. HTTP/3 is opt-in (h.cfg.HTTP3) and the TCP
+				// server already came up fine without it, so disabling just
+				// this half of the server is strictly safer than serving UDP
+				// port 443 with a broken TLS config.
+				logs.ErrorLog(err, "HTTP/3 disabled: failed to load TLS certificates")
+				return
 			}
 			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
 		}
@@ -209,7 +291,13 @@ func (h *HttpGo) setHTTP3() {
 			fPort,
 			h.cfg.HTTP3Proxy,
 		); err != nil {
-			log.Fatal(err)
+			// Was stdlib log.Fatal - every other fatal/error path in this
+			// file goes through the app's own logs package (consistent
+			// formatting/output/whatever sinks logs.Fatal is wired to);
+			// stdlib log.Fatal here was writing to a different, unrelated
+			// destination for what is otherwise identical "can't start
+			// HTTP/3, give up" behavior (both still call os.Exit(1)).
+			logs.Fatal(err)
 		} else {
 			h.h3Server = h3
 		}
@@ -226,21 +314,7 @@ func (h *HttpGo) setHTTP3() {
 
 func blockingHandler(cfg *CfgHttp, handler fasthttp.RequestHandler) func(ctx *fasthttp.RequestCtx) {
 	return func(ctx *fasthttp.RequestCtx) {
-		ipClient := ctx.Request.Header.Peek("X-Forwarded-For")
-		addr := gotools.BytesToString(ipClient)
-		if len(ipClient) == 0 {
-			ipClient = ctx.Request.Header.Peek("Forwarded")
-			ips := regIp.FindSubmatch(ipClient)
-
-			if len(ips) == 0 {
-				addr = gotools.BytesToString(ctx.Request.Header.Peek("X-ProxyUser-Ip"))
-				if len(addr) == 0 {
-					addr = ctx.Conn().RemoteAddr().String()
-				}
-			} else {
-				addr = gotools.BytesToString(ips[0])
-			}
-		}
+		addr := extractClientIP(ctx)
 
 		if cfg.Allow(ctx, addr) || !cfg.Deny(ctx, addr) {
 			handler(ctx)
@@ -289,17 +363,38 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 
 // listenOnShutdown implement correct shutdown server
 func (h *HttpGo) listenOnShutdown() {
-	ch := make(chan os.Signal)
+	// Was `make(chan os.Signal)` - unbuffered. os/signal's own doc is
+	// explicit that Notify's channel "should be buffered" - the runtime
+	// delivers a signal by a non-blocking send, so with no buffer and no
+	// receiver ready at that exact instant (the goroutine hasn't reached
+	// `<-ch` yet, or is busy handling a previous signal), the signal is
+	// simply dropped and this shutdown path never runs at all. A capacity
+	// of 1 is what signal.Notify's own docs recommend.
+	ch := make(chan os.Signal, 1)
 	KillSignal := syscall.Signal(h.cfg.KillSignal)
 	// syscall.SIGTTIN
-	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
+	//
+	// Was also listed here: syscall.SIGKILL, and syscall.SIGINT twice.
+	// SIGKILL can never be caught, blocked, or ignored by any process (both
+	// POSIX and Go's own os/signal docs say so) - registering it with
+	// Notify is not an error, it just never does anything, which reads as
+	// "this process handles SIGKILL gracefully" when it can't possibly.
+	// SIGINT was listed twice for no effect either way; removed the
+	// duplicate.
+	signal.Notify(ch, KillSignal, syscall.SIGINT, syscall.SIGHUP, syscall.SIGTERM)
 	logs.StatusLog("Shutdown service starting %v on signal '%v'", time.Now(), KillSignal)
 	signShut := <-ch
 
 	logs.StatusLog("Shutdown service get signal: " + signShut.String())
 	close(h.broadcast)
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	// Was `ctx, _ := context.WithTimeout(...)` - discarding the cancel func
+	// is a real leak (staticcheck/go vet both flag this as "lostcancel"):
+	// the context's internal timer keeps running until the 5s deadline
+	// fires regardless, instead of being released the moment shutdown
+	// actually finishes early.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
 
 	if err := h.rdServerShutdownWithContext(ctx); err != nil {
 		logs.ErrorLog(err)
@@ -339,6 +434,140 @@ func isLocalRedirect(ip string) bool {
 
 func isLocalDirectory(ip string) bool {
 	return strings.HasPrefix(ip, separator) || strings.HasSuffix(ip, separator)
+}
+
+// webAuthnManager resolves the app-wide auth manager (set per-request by
+// apis.Apis.Handler via auth.SetAuthManager) and asserts it to
+// auth.FncPasskey. Registering the four /webauthn/* routes below
+// unconditionally in createAdminRoutes - rather than in a per-project
+// generated routes.go - means passkey support is "standard equipment" on
+// every NewHttpgo() server, exactly like /httpgo/cfg/* already is: a
+// server wired with a plain *auth.AuthBearer simply has these four routes
+// return ErrRouteForbidden (no passkey support configured), while one
+// wired with a *auth.WebAuthnPasskey (see auth/passkey.go) gets working
+// endpoints with zero extra route registration in the project itself.
+func webAuthnManager(ctx *fasthttp.RequestCtx) (auth.FncPasskey, error) {
+	x, ok := auth.GetAuthManager(ctx)
+	if !ok {
+		return nil, ErrRouteForbidden
+	}
+	p, ok := x.(auth.FncPasskey)
+	if !ok {
+		return nil, ErrRouteForbidden
+	}
+
+	return p, nil
+}
+
+// cookieValue reads the named cookie's raw value off the incoming request.
+// Not passkey-specific - any handler needing to read one of its own cookies
+// back off the request can call this the same way the passkey endpoints
+// below do (cookieValue(ctx, auth.PasskeySessionCookie)).
+func cookieValue(ctx *fasthttp.RequestCtx, name string) string {
+	return string(ctx.Request.Header.Cookie(name))
+}
+
+// setCookie writes name/value onto the response, scoped to path and valid
+// for maxAge from now. HttpOnly/Secure/SameSite=Strict is a fixed policy
+// here, not a parameter - every current caller wants exactly that posture
+// for a short-lived, server-correlated session id; a cookie needing looser
+// attributes (e.g. readable by JS, cross-site) would need its own variant
+// rather than passing different flags into this one.
+func setCookie(ctx *fasthttp.RequestCtx, name, value, path string, maxAge time.Duration) {
+	c := fasthttp.AcquireCookie()
+	defer fasthttp.ReleaseCookie(c)
+	c.SetKey(name)
+	c.SetValue(value)
+	c.SetPath(path)
+	c.SetHTTPOnly(true)
+	c.SetSecure(true)
+	c.SetSameSite(fasthttp.CookieSameSiteStrictMode)
+	c.SetMaxAge(int(maxAge.Seconds()))
+	ctx.Response.Header.SetCookie(c)
+}
+
+// clearCookie tells the browser to drop the named cookie.
+func clearCookie(ctx *fasthttp.RequestCtx, name string) {
+	// DelClientCookie (not DelCookie) - this tells the *browser* to drop the
+	// cookie it already has; DelCookie only removes it from this response's
+	// own headers before sending, which wouldn't touch what the browser is
+	// already holding.
+	ctx.Response.Header.DelClientCookie(name)
+}
+
+// handleWebAuthnRegisterBegin -> POST /webauthn/register/begin. Not
+// NeedAuth: CheckAndRun would run FncAuth.Auth(ctx) BEFORE this handler
+// ever runs, which requires the caller to already hold a valid Bearer
+// token - but this route's whole job is registering a passkey for a login
+// that may have never authenticated before (a brand new account's very
+// first passkey doubles as sign-up). It identifies the account via the
+// crud.ParamsLogin ("login") param declared on the route below instead -
+// see BeginRegistration's own doc comment in passkey.go for the full
+// reasoning, and crud.ParamsLogin's doc comment for an open question about
+// whether that param actually gets populated for this request's real
+// Content-Type.
+func handleWebAuthnRegisterBegin(ctx *fasthttp.RequestCtx) (any, error) {
+	p, err := webAuthnManager(ctx)
+	if err != nil {
+		return nil, err
+	}
+	login := GetValue[string](ctx, &crud.ParamsLogin)
+
+	challenge, err := p.BeginRegistration(ctx, login)
+	if err != nil {
+		return nil, ErrWrongParamsList
+	}
+
+	setCookie(ctx, auth.PasskeySessionCookie, challenge.SessionID, "/webauthn/", auth.PasskeySessionTTL)
+	return challenge.Body, nil
+}
+
+// handleWebAuthnRegisterFinish -> POST /webauthn/register/finish. Also not
+// NeedAuth - FinishRegistration was never gated by Bearer auth in the
+// first place (it resolves its caller from the ceremony's session cookie,
+// see takeSession in passkey.go), so the route-level NeedAuth this had
+// before never actually did anything for it either.
+func handleWebAuthnRegisterFinish(ctx *fasthttp.RequestCtx) (any, error) {
+	p, err := webAuthnManager(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	sessionID := cookieValue(ctx, auth.PasskeySessionCookie)
+	clearCookie(ctx, auth.PasskeySessionCookie)
+	return p.FinishRegistration(ctx, sessionID, ctx.PostBody())
+}
+
+// handleWebAuthnLoginBegin -> POST /webauthn/login/begin (no auth yet - the
+// request body is {"login": "..."}, that's the whole point of this route).
+func handleWebAuthnLoginBegin(ctx *fasthttp.RequestCtx) (any, error) {
+	p, err := webAuthnManager(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	login := GetValue[string](ctx, &crud.ParamsLogin)
+
+	logs.StatusLog(p, login)
+	challenge, err := p.BeginLogin(ctx, login)
+	if err != nil {
+		return err.Error(), ErrWrongParamsList
+	}
+
+	setCookie(ctx, auth.PasskeySessionCookie, challenge.SessionID, "/webauthn/", auth.PasskeySessionTTL)
+	return challenge.Body, nil
+}
+
+// handleWebAuthnLoginFinish -> POST /webauthn/login/finish (no auth yet).
+func handleWebAuthnLoginFinish(ctx *fasthttp.RequestCtx) (any, error) {
+	p, err := webAuthnManager(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	sessionID := cookieValue(ctx, auth.PasskeySessionCookie)
+	clearCookie(ctx, auth.PasskeySessionCookie)
+	return p.FinishLogin(ctx, sessionID, ctx.PostBody())
 }
 
 func createAdminRoutes(cfg *CfgHttp) ApiRoutes {
@@ -422,6 +651,39 @@ remove IP addresses show config of httpGo`,
 			OnlyAdmin: true,
 			Params:    allowedParams,
 		},
+		// Passkey (WebAuthn) ceremony endpoints - see webAuthnManager's doc
+		// comment above for why these live here rather than in a
+		// per-project routes.go, and auth/passkey.go for what each Fnc
+		// actually does. Exact paths passkey-auth.js/user.js already call.
+		//
+		// Neither register route is NeedAuth: register/begin identifies the
+		// account via the "login" param below rather than an existing
+		// Bearer token (see handleWebAuthnRegisterBegin's doc comment for
+		// why), and register/finish never read the Bearer-auth-derived
+		// ctx.UserValue at all - it resolves its caller from the ceremony's
+		// own session cookie.
+		"/webauthn/register/begin": {
+			Desc:   "begin passkey registration (login param identifies the account; a login with no existing passkey is registered as a new account)",
+			Fnc:    handleWebAuthnRegisterBegin,
+			Method: POST,
+			Params: []InParam{crud.ParamsLogin},
+		},
+		"/webauthn/register/finish": {
+			Desc:   "finish passkey registration",
+			Fnc:    handleWebAuthnRegisterFinish,
+			Method: POST,
+		},
+		"/webauthn/login/begin": {
+			Desc:   "begin passkey login (no auth yet)",
+			Fnc:    handleWebAuthnLoginBegin,
+			Method: POST,
+			Params: []InParam{crud.ParamsLogin},
+		},
+		"/webauthn/login/finish": {
+			Desc:   "finish passkey login (no auth yet)",
+			Fnc:    handleWebAuthnLoginFinish,
+			Method: POST,
+		},
 		"/httpgo/store/": {
 			Desc: " # store",
 			Fnc: func(ctx *fasthttp.RequestCtx) (any, error) {
@@ -491,7 +753,13 @@ func (log *fastHTTPLogger) Printf(mess string, args ...any) {
 			err, ok := a.(error)
 			return ok && (isTLSError(err) || isReadError(err) || isHeaderError(err) || isMPFBodyError(err) || isUnsupportedContent(err))
 		}) {
-			//	nothing to tell :-)
+			// These are the well-known "client did something a bit odd"
+			// noise fasthttp itself logs on essentially every deployment
+			// (a bad TLS handshake probe, a client that hung up mid-request,
+			// ...) - genuinely not worth a log line at any level in the
+			// common case. Kept fully silent as before; if this class ever
+			// needs to be *investigated* rather than just ignored, this is
+			// the one spot to add a DebugLog(mess, args...) back in.
 		} else if strings.Contains(mess, "serving connection") {
 			logs.DebugLog(fmt.Sprintf(mess, args...))
 			if len(args) > 2 {

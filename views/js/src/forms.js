@@ -7,124 +7,52 @@
 
 "use strict";
 
+// saveForm() used to be a self-contained handler built on the jQuery Form
+// Plugin's $(thisForm).ajaxSubmit({...}) - its own beforeSubmit/beforeSend/
+// success/error/complete callbacks did parameter prep, header injection,
+// progress reporting and response handling entirely independently of htmx.
+// That's been fully replaced by htmx's own request lifecycle so there's
+// only ONE code path for every request, form or not. Nothing from the old
+// callbacks was dropped - each one moved to the htmx event that plays the
+// same role, all in cfgHTMX() (observer.js):
+//   beforeSubmit (param prep: drop empty/readonly/hidden fields, coerce
+//                 unchecked checkboxes to 0, add is_get_form_actions)
+//                                          -> htmx:configRequest
+//   beforeSubmit (disable hidden fields, "Start sending...", show progress)
+//   + validateFields()/confirm() guard    -> htmx:beforeRequest
+//   beforeSend (auth/lang headers)        -> htmx:configRequest
+//   uploadProgress                        -> htmx:xhr:progress
+//   success (206 -> readEvents; else success/errorFunction, fancybox close)
+//                                          -> htmx:afterRequest
+//   error (errorFunction, else 401/400/default alert)
+//                                          -> htmx:responseError
+//   complete (hide progress/loading)      -> htmx:afterRequest / htmx:responseError
+//
+// None of that needs a form to carry hx-post/hx-trigger, and saveForm() does
+// NOT set them: <body hx-boost="true" ...> (see html.qtpl) already turns
+// every form's native action/method into an htmx request on its own, the
+// moment htmx.process() sees it (which processAll() already does for the
+// whole page and for anything dynamically swapped in). Setting hx-post by
+// hand on top of that was actively harmful, not just redundant - it made
+// htmx.process() register the form a *second* time, so a submit could fire
+// two requests instead of one (which is why readEvents()/SSE handling could
+// appear to run twice). The fix is simply not touching the form's htmx
+// wiring from JS at all.
+const htmxFormHandlers = new WeakMap();
+
+// Compatibility shim for markup still calling saveForm(this, success, error)
+// from an inline onsubmit attribute. It sends nothing itself - the boosted
+// form submission already does that - it only threads successFunction/
+// errorFunction (real JS references, only available at submit time) into
+// htmxFormHandlers so cfgHTMX()'s htmx:afterRequest/responseError can find
+// them. New markup should skip onsubmit entirely and use
+// data-success="fnName"/data-error="fnName" instead (namedFormHandlers() in
+// observer.js) - no inline JS at all.
 function saveForm(thisForm, successFunction, errorFunction) {
-    let title = $('h2', thisForm).text() || $('figcaption', thisForm).text() || $(thisForm).attr('name') || thisForm.id,
-        nav = getFormNav(thisForm);
-    // hidden fields of not used blocks
-    $('form figure:hidden:not([validated]) .input-label').children('input, select').attr('disabled', true);
-
-    if (!validateFields(thisForm))
-        return false;
-
-    if (thisForm.noValidate && !confirm(`Do you sure to send form "${title}"?`)) {
-        return false
-    }
-    // TODO: create element form for output form result
-    const $out = $('output', thisForm),
-        $loading = $('.loading', thisForm),
-        $progress = $('progress', thisForm);
-
-    $(thisForm).ajaxSubmit({
-        beforeSubmit: function (a, f, o) {
-            o.dataType = "json";
-
-            // rm field without values
-            var isNewRecord = $('input[name=id]').length === 0;
-
-            for (var i = a.length - 1; i >= 0; --i) {
-                if (a[i].readOnly
-                    || ((a[i].value === '') && (isNewRecord || a[i].type === 'select-one' || a[i].type === 'file'))
-                    || (a[i].value.length === 0)) {
-                    let t = a.splice(i, 1);
-                    console.log(t);
-                }
+    if (successFunction || errorFunction) {
+        htmxFormHandlers.set(thisForm, {successFunction, errorFunction});
             }
-
-            $("input[type=checkbox][checked]:not(:checked)", f).each(function () {
-                a.push({name: this.name, value: 0, type: this.type, required: this.required});
-            });
-            a.push({name: "is_get_form_actions", value: true, type: "boolean"});
-            $out.html('Start sending...');
-            $('.errorLabel').hide();
-            $progress.show();
-            $loading.show();
-        },
-        beforeSend: (xhr) => {
-            getHeaders(xhr);
-            // xhr.setRequestHeader("Content-Type", "application/octet-stream");
-        },
-        uploadProgress: (event, position, total, percentComplete) => {
-            console.log(event, position, total, percentComplete);
-            $out.html('Progress - ' + percentComplete + '%');
-            $progress.val(percentComplete);
-        },
-        statusCode: {
-            206: (data, status, xhr) => {
-                console.log(status);
-                console.log(data);
-                console.log(xhr);
-            }
-        },
-        success: (data, status, xhr) => {
-            if (xhr.status === 206) {
-                readEvents($out, data);
-                return
-            }
-            $out.html(status);
-            // TODO: добавить загрузку скрипта, если функция определена, но не подключена!
-            if (successFunction !== undefined) {
-                successFunction(data, thisForm);
-            } else {
-                afterSaveAnyForm(data, status);
-            }
-            $.fancybox.close();
-        },
-        error: function (xhr, status, error) {
-            if (errorFunction !== undefined) {
-                errorFunction(error, thisForm);
-            } else {
-                $out.html(xhr.responseText);
-                switch (xhr.status) {
-                    case 206: {
-                        fancyOpen(xhr.responseText);
-                        return
-                    }
-                    case 400: {
-                        if (xhr.responseJSON.formErrors !== undefined) {
-                            let formErrors = xhr.responseJSON.formErrors
-                            for (let x in formErrors) {
-                                let elem = $(`[name=${x}]`, thisForm);
-                                elem.nextAll('.errorLabel').text(formErrors[x]).show();
-                                elem.addClass('error-field').focus();
-                            }
-                        }
-                        return
-                    }
-                    case 401: {
-                        urlAfterLogin = thisForm;
-                        $('#bLogin').trigger("click");
-                        return;
-                    }
-
-                    default:
-                        alert(xhr.responseText);
-                }
-            }
-        },
-        complete: function (xhr, status, obj) {
-            $progress.hide();
-            $loading.hide();
-            console.log(xhr);
-            console.log(obj);
-        }
-    });
-
-// Compatibility for inline handlers still calling saveForm(this, success, error).
-// htmx.ajax avoids redispatching submit and therefore avoids recursive inline handlers.
-    function saveForm(thisForm, successFunction, errorFunction) {
-        prepareFormForHTMX(thisForm, successFunction, errorFunction);
-        htmx.ajax('POST', thisForm.getAttribute('hx-post'), {source: thisForm, swap: 'none'});
-    return false;
+    return true;
 }
 
 function readEvents($out, resp) {
@@ -142,10 +70,11 @@ function readEvents($out, resp) {
         $out.html(`${resp.message}`);
     };
     evtSource.onmessage = (event) => {
-        if (event.event === "closed") {
-            $out.prepend(`<pre>Finish: ${event.data}</pre>`);
-            return false;
-        }
+        // NOTE: the previous `if (event.event === "closed")` check here was
+        // dead code - a plain MessageEvent has no `.event` property, so that
+        // branch could never run. The server's named "closed" event is
+        // already handled below via evtSource.addEventListener("closed", ...);
+        // this handler only needs to cover the default/unnamed message case.
         $out.prepend(`<pre>${event.data}</pre>`);
         if (event.data === "closed") {
             evtSource.close();
@@ -212,26 +141,41 @@ function formReset(thisForm) {
 
 }
 
+// Marks a form dirty the first time the user actually changes something, so
+// its (initially hidden) save button only appears once there's something to
+// save. Called by cfgHTMX()'s single delegated input/change listener
+// (markFormModified() in observer.js) for every form on the page - the
+// generated markup no longer carries oninput/onchange attributes at all.
 function FormIsModified(event, thisForm) {
-    event = event || window.event;
+    if (!thisForm) return;
 
-    $('button.hidden', thisForm).show().addClass('main-btn').removeClass('hidden');
+    thisForm.classList.add('is-modified');
+    thisForm.querySelectorAll('button.hidden').forEach(btn => {
+        btn.classList.remove('hidden');
+        btn.classList.add('main-btn');
+    });
 }
 
 function formDelClick(thisButton) {
-    $.post('/admin/row/del/', {
+    // htmx.ajax(), not $.post() - see inputSearchKeyUp() above for why.
+    htmx.ajax('POST', '/admin/row/del/', {
+        source: thisButton,
+        values: {
         table: $('input[name="table"]').val(),
         id: $('input[name="id"]').val()
-    }, succesDelRecord);
+        },
+        swap: 'none',
+        handler: (elt, info) => succesDelRecord(info.xhr.responseText, info.xhr.statusText)
+    });
 }
 
 function succesDelRecord(data, status) {
     if (status === "Success") {
         $('form').hide();
-        alert("Success remove record !" + data)
+        showMessage(null, "Success remove record !" + data)
 
     } else {
-        alert(data);
+        showMessage(null, data);
 
     }
 }
@@ -281,7 +225,7 @@ function alertField(thisElem) {
     } else if (errLabel && errLabel.text() > "") {
         msg = errLabel.text();
     }
-    alert(`Field '${nameField}' ${msg}`);
+    showMessage(thisElem, `Field '${nameField}' ${msg}`);
     if (elem.hasClass('suggestions-constraints')) {
         elem = elem.parents('label').children('input:first');
     }
@@ -389,21 +333,25 @@ function validateEmailFields(thisForm) {
     return result;
 }
 
-// handling response AnyForm & render result according to structures of data
-function afterSaveAnyForm(data, status) {
+// handling response AnyForm & render result according to structures of data.
+// `form` is optional (observer.js's htmx:afterRequest passes the triggering
+// form so showMessage() can land text in its own <output> instead of always
+// falling back to a page-level toast) - existing callers that don't have one
+// still work, just always toast.
+function afterSaveAnyForm(data, status, form) {
 
     if (data.content_url !== undefined) {
         loadContent(data.content_url);
     } else if (data.formActions !== undefined) {
         loadContent(data.formActions[0].url);
     } else if (data.error !== undefined) {
-        alert(data.error);
+        showMessage(form, data.error);
     } else {
         console.log(data);
     }
 
     if (data.message !== undefined) {
-        alert(data.message);
+        showMessage(form, data.message);
     }
 }
 
@@ -485,14 +433,31 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
         return true;
     }
 
-    $.ajax({
-        url: thisElem.src,
-        data: {
+    // htmx.ajax(), not $.ajax(): picks up Authorization/Accept-Language from
+    // Auth.headers() the same way every other request does now, and a
+    // failure (401 included) is handled by the shared htmx:responseError
+    // listener (observer.js) instead of its own error callback - this used
+    // to alert() on any error including a 401, which just showed a
+    // confusing "error: Unauthorized" instead of re-authenticating.
+    // jQuery used to auto-parse the response by Content-Type (dataType
+    // wasn't set, so it guessed); htmx.ajax hands back the raw text, so the
+    // three branches below (HTML fragment / array / literal null) try a
+    // JSON parse first and fall back to the original string.
+    htmx.ajax('GET', thisElem.src, {
+        source: thisElem,
+        values: {
             "value": thisElem.value,
             "count": 10
         },
-        beforeSend: getHeaders,
-        success: function (data, status) {
+        swap: 'none',
+        handler: function (elt, info) {
+            let data = info.xhr.responseText;
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                // not JSON - keep the raw HTML fragment string
+            }
+
             $(thisClassH).removeClass('suggestions-select-hide').addClass('suggestions-select-show');
             if (typeof data === 'string') {
                 $(thisClass).html(data)
@@ -528,11 +493,6 @@ function inputSearchKeyUp(thisElem, event, forceEnter) {
 
                 return false;
             });
-
-        },
-        error: function (xhr, status, error) {
-            alert("Code : " + xhr.status + " error :" + error);
-            console.log(error);
         }
     });
 
@@ -610,7 +570,7 @@ function handleFileOnForm(evt) {
         });
     } else {
         console.log(f);
-        alert(f.type)
+        showMessage(evt, f.type)
     }
     img.attr('data-placeholder', f.name);
     //     };
@@ -634,6 +594,13 @@ function sendFile(blob, url, file, $output, $progress) {
     xhr.setRequestHeader("Content-Encoding", "gzip, deflate");
     xhr.setRequestHeader("Content-Type", "application/octet-stream");
     xhr.setRequestHeader("X-Original-Filename", file.name);
+    // Same Authorization/Accept-Language every other request gets
+    // (Auth.headers(), user.js) - previously missing here entirely. This
+    // can't go through htmx.ajax like the rest of the app's requests did in
+    // this pass: htmx has no hook for a custom Content-Encoding on a raw
+    // binary body, so it stays a plain XMLHttpRequest and asks Auth directly.
+    const authHeaders = Auth.headers();
+    Object.keys(authHeaders).forEach(name => xhr.setRequestHeader(name, authHeaders[name]));
     // let value =  generateChecksum(blob);
     // xhr.setRequestHeader("X-Upload-Checksum", value) // Verify integrity);
 
@@ -706,21 +673,4 @@ async function uploadGzippedFile(evt, url) {
         sendFile(compressedBlob, url, file, $output, $progress);
     }
     $output.append(`<h2>Upload complete!</h2>`);
-    // let result = await response.json();
-    // switch (response.status) {
-    //     case 206:
-    //         readEvents($output, result);
-    //     case 400:
-    //         if (result.formErrors !== undefined) {
-    //             let formErrors = result.formErrors
-    //             for (let x in formErrors) {
-    //                 $output.append(`<h4>${x}</h4>`);
-    //                 $output.append(`<span>${formErrors[x]}</span>`);
-    //             }
-    //             return
-    //         }
-    // }
-    // console.log(response);
-    // console.log("Upload complete!");
-    // $output.text(result);
 }
