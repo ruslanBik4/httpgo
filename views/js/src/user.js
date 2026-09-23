@@ -490,21 +490,35 @@ function logOut(elem) {
         };
     }
 
-    // --- Registration: "Add a passkey" button in account settings ----------
-    // Requires the user already be logged in (token set) - registering a
-    // brand new account via passkey-only is a separate, simpler flow (no
-    // existing user/session to attach the credential to).
-    async function registerPasskey() {
+    // --- Registration: "Add a passkey" button in account settings, OR a
+    // brand new login registering its first passkey (see
+    // offerPasskeyRegistration below) ----------------------------------------
+    // loginValue is REQUIRED now: register/begin identifies the account
+    // purely by a "login" value in the request (see BeginRegistration's own
+    // doc comment in passkey.go) - it no longer reads a Bearer token at all,
+    // which is what makes it possible to register a passkey for a login
+    // that was never signed in before (offerPasskeyRegistration's whole
+    // point). A caller that already has a session (the "Add a passkey"
+    // button in account settings) still sends the Bearer token too, if one
+    // is set - harmless, and keeps this working unchanged if the server
+    // ever re-adds NeedAuth here.
+    async function registerPasskey(loginValue) {
         if (!isPasskeySupported()) {
             showMessage(null, 'Passkeys are not supported in this browser.');
             return false;
+        }
+
+        const headers = {'Accept': 'application/json', 'Content-Type': 'application/json'};
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
         }
 
         try {
             const beginResp = await fetch('/webauthn/register/begin', {
                 method: 'POST',
                 credentials: 'same-origin', // sends/receives the px_session cookie
-                headers: {'Authorization': 'Bearer ' + token, 'Accept': 'application/json'},
+                headers,
+                body: JSON.stringify({login: loginValue}),
             });
             if (!beginResp.ok) throw new Error(`register/begin failed: ${beginResp.status}`);
             const options = decodeCredentialOptions((await beginResp.json()).publicKey);
@@ -514,11 +528,7 @@ function logOut(elem) {
             const finishResp = await fetch('/webauthn/register/finish', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
+                headers,
                 body: JSON.stringify(encodeCredential(credential)),
             });
             const data = await finishResp.json();
@@ -535,6 +545,88 @@ function logOut(elem) {
         }
     }
 
+    // showConfirmToast is a non-blocking replacement for window.confirm().
+    // WHY: navigator.credentials.create() (called inside registerPasskey,
+    // right after this resolves) requires the page to have transient user
+    // activation. A blocking native dialog like confirm()/alert()/prompt()
+    // is a well-documented way to lose that activation window - by the time
+    // the user dismisses the dialog and registerPasskey has awaited its own
+    // fetch('/webauthn/register/begin') round trip, the activation from
+    // whatever click originally led here has typically already expired,
+    // which is exactly what was producing a NotAllowedError out of
+    // navigator.credentials.create() (unrelated to anything server-side).
+    // Reuses showToast's own .htmx-toast class so this looks consistent with
+    // the rest of the app's messaging, but - unlike showToast - it doesn't
+    // auto-dismiss on a timeout: the click on its own "Register" button IS
+    // the fresh user gesture that registerPasskey's create() call needs, so
+    // this has to stay up until the user actually clicks something.
+    function showConfirmToast(message, confirmLabel) {
+        return new Promise((resolve) => {
+            const toast = document.createElement('div');
+            toast.className = 'htmx-toast';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '0.75em';
+
+            const text = document.createElement('span');
+            text.textContent = message;
+            toast.appendChild(text);
+
+            const yesBtn = document.createElement('button');
+            yesBtn.type = 'button';
+            yesBtn.textContent = confirmLabel;
+            toast.appendChild(yesBtn);
+
+            const noBtn = document.createElement('button');
+            noBtn.type = 'button';
+            noBtn.textContent = 'Not now';
+            toast.appendChild(noBtn);
+
+            document.body.appendChild(toast);
+
+            function cleanup(result) {
+                toast.remove();
+                resolve(result);
+            }
+
+            yesBtn.addEventListener('click', () => cleanup(true));
+            noBtn.addEventListener('click', () => cleanup(false));
+        });
+    }
+
+    // offerPasskeyRegistration is called after a login/begin failure (see
+    // loginWithPasskey below) - the server deliberately returns the SAME
+    // error for "no such login" and "login exists but has no passkey
+    // registered yet" (auth.PasskeyStore.FindByLogin never leaks which
+    // logins exist - see its own doc comment), so this can't tell those
+    // apart either; either way, offering to register a passkey for this
+    // login is the right next step. Registering only SAVES a credential -
+    // FinishRegistration doesn't sign the caller in on its own (that's a
+    // separate ceremony, ValidateLogin vs CreateCredential - see
+    // passkey.go), so a successful registration here immediately retries the
+    // login once, with offerRegistration:false so a second failure doesn't
+    // loop back here.
+    //
+    // Uses showConfirmToast, NOT window.confirm() - see its own doc comment
+    // for why a blocking native dialog here was breaking registerPasskey's
+    // navigator.credentials.create() call with a NotAllowedError.
+    async function offerPasskeyRegistration(loginValue) {
+        const wantsToRegister = await showConfirmToast(
+            `No passkey found for "${loginValue}" yet. Register one now?`,
+            'Register passkey'
+        );
+        if (!wantsToRegister) {
+            return false;
+        }
+
+        const registered = await registerPasskey(loginValue);
+        if (!registered) {
+            return false;
+        }
+
+        return loginWithPasskey(loginValue, {offerRegistration: false});
+    }
+
     // --- Login: the primary sign-in path ------------------------------------
     // `loginValue` is whatever identifies the account (email/username) - the
     // server needs it in login/begin to look up that user's registered
@@ -542,7 +634,23 @@ function logOut(elem) {
     // repeated in the finish call: the server already tied that user to this
     // ceremony's px_session cookie at begin time, so finish only needs the
     // credential.
-    async function loginWithPasskey(loginValue) {
+    // offerRegistration controls what happens when login/begin itself
+    // fails (as opposed to the ceremony being declined/cancelled after a
+    // successful begin, which always just falls through to `return false`
+    // below): true offers to register a new passkey for loginValue instead
+    // (see offerPasskeyRegistration above) - appropriate for an explicit,
+    // deliberate "Use Face ID / Touch ID" button click
+    // (tryPasskeyLoginFromForm, below, passes true). Defaults to false so
+    // the automatic try-passkey-first-then-fall-back-to-password path
+    // (login(), further below) stays silent on a plain login/begin miss,
+    // exactly as before - every password-login attempt for an account with
+    // no passkey yet would otherwise get interrupted by the registration
+    // toast (showConfirmToast, in offerPasskeyRegistration above) before it
+    // even reaches the password field. Flip that default here
+    // (or pass {offerRegistration: true} from login() below) if this
+    // project wants to actively prompt for passkey registration on every
+    // login attempt instead.
+    async function loginWithPasskey(loginValue, {offerRegistration = false} = {}) {
         if (!isPasskeySupported()) {
             return false;
         }
@@ -554,7 +662,12 @@ function logOut(elem) {
                 headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
                 body: JSON.stringify({login: loginValue}),
             });
-            if (!beginResp.ok) throw new Error(`login/begin failed: ${beginResp.status}`);
+            if (!beginResp.ok) {
+                if (offerRegistration) {
+                    return await offerPasskeyRegistration(loginValue);
+                }
+                throw new Error(`login/begin failed: ${beginResp.status}`);
+            }
             const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
             const credential = await navigator.credentials.get({publicKey: options});
@@ -594,7 +707,11 @@ function logOut(elem) {
             showMessage(thisForm, 'Enter your email/username first, then choose "Use Face ID / Touch ID".');
             return false;
         }
-        return loginWithPasskey(loginValue);
+        // offerRegistration: true - this is an explicit, deliberate click on
+        // a passkey-specific button (unlike login()'s automatic try-first
+        // behavior below), so proposing registration on a miss is the
+        // helpful response, not an unwelcome interruption.
+        return loginWithPasskey(loginValue, {offerRegistration: true});
     }
 
     // login is the ONE entry point a login form needs. It no longer needs
@@ -677,6 +794,7 @@ function logOut(elem) {
         isPasskeySupported,
         isPlatformAuthenticatorAvailable,
         registerPasskey,
+        offerPasskeyRegistration,
         loginWithPasskey,
         tryPasskeyLoginFromForm,
         login,
@@ -736,7 +854,6 @@ function ChangeTheme(id_themes) {
 function logOut(elem) {
     return Auth.logOut(elem);
 }
-
 // Replaces app.js's old `function relogin(url) { return App.relogin(url); }`
 // - relogin now takes the failing htmx event itself, not a bare URL, so it
 // can tell what actually needs replaying. See Auth.relogin() above.
@@ -752,8 +869,8 @@ function isPlatformAuthenticatorAvailable() {
     return Auth.isPlatformAuthenticatorAvailable();
 }
 
-function registerPasskey() {
-    return Auth.registerPasskey();
+function registerPasskey(loginValue) {
+    return Auth.registerPasskey(loginValue);
 }
 
 function loginWithPasskey(loginValue) {

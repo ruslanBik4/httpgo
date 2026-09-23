@@ -147,7 +147,7 @@ func (u simplePasskeyUser) PasskeyDisplayName() string {
 }
 
 func (u simplePasskeyUser) PasskeyCredentials() []webauthn.Credential {
-	// RLock, not Lock - this only reads u.rec.creds, it never mutates it.
+	// RLock, not Lock - this only reads u.rec.data.Creds, it never mutates it.
 	u.rec.mu.RLock()
 	defer u.rec.mu.RUnlock()
 
@@ -286,6 +286,7 @@ func (s *SimplePasskeyStore) UpdateCredential(user PasskeyUser, cred webauthn.Cr
 		return bytes.Equal(d.ID, cred.ID)
 	}); i > -1 {
 		u.rec.data.Creds[i] = cred
+		return nil
 	}
 
 	return errors.New("passkey: credential not found")

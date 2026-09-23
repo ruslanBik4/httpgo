@@ -123,17 +123,30 @@ function encodeCredential(credential) {
 // Requires the user already be logged in (token set) - registering a brand
 // new account via passkey-only is a separate, simpler flow (no existing
 // user/session to attach the credential to).
-async function registerPasskey() {
+// loginValue is REQUIRED now: register/begin identifies the account purely
+// by a "login" value in the request (see BeginRegistration's own doc
+// comment in passkey.go) - it no longer reads a Bearer token at all, which
+// is what makes it possible to register a passkey for a login that was
+// never signed in before (see offerPasskeyRegistration below). A caller
+// that already has a session (the "Add a passkey" button in account
+// settings) still sends the Bearer token too, if one is set - harmless.
+async function registerPasskey(loginValue) {
     if (!isPasskeySupported()) {
         alert('Passkeys are not supported in this browser.');
         return false;
+    }
+
+    const headers = {'Accept': 'application/json', 'Content-Type': 'application/json'};
+    if (typeof token !== 'undefined' && token) {
+        headers['Authorization'] = 'Bearer ' + token;
     }
 
     try {
         const beginResp = await fetch('/webauthn/register/begin', {
             method: 'POST',
             credentials: 'same-origin', // sends/receives the px_session cookie
-            headers: {'Authorization': 'Bearer ' + token, 'Accept': 'application/json'},
+            headers,
+            body: JSON.stringify({login: loginValue}),
         });
         if (!beginResp.ok) throw new Error(`)
 //line passkey.js.qtpl:2
@@ -151,11 +164,7 @@ async function registerPasskey() {
         const finishResp = await fetch('/webauthn/register/finish', {
             method: 'POST',
             credentials: 'same-origin',
-            headers: {
-                'Authorization': 'Bearer ' + token,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify(encodeCredential(credential)),
         });
         const data = await finishResp.json();
@@ -172,6 +181,94 @@ async function registerPasskey() {
     }
 }
 
+// showConfirmToast is a non-blocking replacement for window.confirm().
+// WHY: navigator.credentials.create() (called inside registerPasskey, right
+// after this resolves) requires the page to have transient user activation.
+// A blocking native dialog like confirm()/alert()/prompt() is a
+// well-documented way to lose that activation window - by the time the user
+// dismisses the dialog and registerPasskey has awaited its own
+// fetch('/webauthn/register/begin') round trip, the activation from
+// whatever click originally led here has typically already expired, which
+// is exactly what was producing a NotAllowedError out of
+// navigator.credentials.create() (unrelated to anything server-side). This
+// file has no shared toast helper of its own (unlike user.js's showToast),
+// so it builds one inline - unlike a fire-and-forget toast, this one must
+// NOT auto-dismiss on a timeout: the click on its own "Register" button IS
+// the fresh user gesture that registerPasskey's create() call needs, so it
+// has to stay up until the user actually clicks something.
+function showConfirmToast(message, confirmLabel) {
+    return new Promise((resolve) => {
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:1em;left:50%;transform:translateX(-50%);' +
+            'display:flex;align-items:center;gap:0.75em;padding:0.75em 1em;' +
+            'background:#333;color:#fff;border-radius:4px;z-index:9999;';
+
+        const text = document.createElement('span');
+        text.textContent = message;
+        toast.appendChild(text);
+
+        const yesBtn = document.createElement('button');
+        yesBtn.type = 'button';
+        yesBtn.textContent = confirmLabel;
+        toast.appendChild(yesBtn);
+
+        const noBtn = document.createElement('button');
+        noBtn.type = 'button';
+        noBtn.textContent = 'Not now';
+        toast.appendChild(noBtn);
+
+        document.body.appendChild(toast);
+
+        function cleanup(result) {
+            toast.remove();
+            resolve(result);
+        }
+
+        yesBtn.addEventListener('click', () => cleanup(true));
+        noBtn.addEventListener('click', () => cleanup(false));
+    });
+}
+
+// offerPasskeyRegistration is called after a login/begin failure (see
+// loginWithPasskey below) - the server deliberately returns the SAME error
+// for "no such login" and "login exists but has no passkey registered yet"
+// (auth.PasskeyStore.FindByLogin never leaks which logins exist), so this
+// can't tell those apart either; either way, offering to register a
+// passkey for this login is the right next step. Registering only SAVES a
+// credential - FinishRegistration doesn't sign the caller in on its own
+// (that's a separate ceremony, ValidateLogin vs CreateCredential - see
+// passkey.go), so a successful registration here immediately retries the
+// login once, with offerRegistration:false so a second failure doesn't
+// loop back here.
+//
+// Uses showConfirmToast, NOT window.confirm() - see its own doc comment for
+// why a blocking native dialog here was breaking registerPasskey's
+// navigator.credentials.create() call with a NotAllowedError.
+async function offerPasskeyRegistration(loginValue) {
+    const wantsToRegister = await showConfirmToast(
+        `)
+//line passkey.js.qtpl:2
+	qw422016.N().S("`")
+//line passkey.js.qtpl:2
+	qw422016.N().S(`No passkey found for "${loginValue}" yet. Register one now?`)
+//line passkey.js.qtpl:2
+	qw422016.N().S("`")
+//line passkey.js.qtpl:2
+	qw422016.N().S(`,
+        'Register passkey'
+    );
+    if (!wantsToRegister) {
+        return false;
+    }
+
+    const registered = await registerPasskey(loginValue);
+    if (!registered) {
+        return false;
+    }
+
+    return loginWithPasskey(loginValue, {offerRegistration: false});
+}
+
 // --- Login: replaces (or sits next to) the password form ------------------
 // `)
 //line passkey.js.qtpl:2
@@ -186,7 +283,23 @@ async function registerPasskey() {
 // so the browser only offers a matching passkey. It's NOT repeated in the
 // finish call: the server already tied that user to this ceremony's
 // px_session cookie at begin time, so finish only needs the credential.
-async function loginWithPasskey(login) {
+// offerRegistration controls what happens when login/begin itself fails:
+// true offers to register a new passkey for `)
+//line passkey.js.qtpl:2
+	qw422016.N().S("`")
+//line passkey.js.qtpl:2
+	qw422016.N().S(`login`)
+//line passkey.js.qtpl:2
+	qw422016.N().S("`")
+//line passkey.js.qtpl:2
+	qw422016.N().S(` instead (see
+// offerPasskeyRegistration above) - appropriate for an explicit, deliberate
+// "Use Face ID / Touch ID" button click (tryPasskeyLoginFromForm, below,
+// passes true). Defaults to false so a caller that tries a passkey first
+// and silently falls back to some other login method on any failure isn't
+// interrupted by the registration toast (showConfirmToast, in
+// offerPasskeyRegistration above) first.
+async function loginWithPasskey(login, {offerRegistration = false} = {}) {
     if (!isPasskeySupported()) {
         alert('Passkeys are not supported in this browser.');
         return false;
@@ -199,7 +312,11 @@ async function loginWithPasskey(login) {
             headers: {'Accept': 'application/json', 'Content-Type': 'application/json'},
             body: JSON.stringify({login}),
         });
-        if (!beginResp.ok) throw new Error(`)
+        if (!beginResp.ok) {
+            if (offerRegistration) {
+                return await offerPasskeyRegistration(login);
+            }
+            throw new Error(`)
 //line passkey.js.qtpl:2
 	qw422016.N().S("`")
 //line passkey.js.qtpl:2
@@ -208,6 +325,7 @@ async function loginWithPasskey(login) {
 	qw422016.N().S("`")
 //line passkey.js.qtpl:2
 	qw422016.N().S(`);
+        }
         const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
         const credential = await navigator.credentials.get({publicKey: options});
@@ -247,7 +365,10 @@ async function tryPasskeyLoginFromForm(thisForm) {
         alert('Enter your email/username first, then choose "Use Face ID / Touch ID".');
         return false;
     }
-    return loginWithPasskey(login);
+    // offerRegistration: true - this is an explicit, deliberate click on a
+    // passkey-specific button, so proposing registration on a miss is the
+    // helpful response, not an unwelcome interruption.
+    return loginWithPasskey(login, {offerRegistration: true});
 }`)
 //line passkey.js.qtpl:2
 	qw422016.N().S(`
