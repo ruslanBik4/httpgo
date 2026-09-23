@@ -657,7 +657,6 @@ func (route *ApiRoute) performsJSON(ctx *fasthttp.RequestCtx) (any, error) {
 			} else if param.Req {
 				badParams[name] = "is required"
 			}
-			logs.StatusLog(name, d)
 		}
 
 		dto = d

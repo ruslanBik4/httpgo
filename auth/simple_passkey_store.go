@@ -9,6 +9,7 @@ package auth
 import (
 	"bytes"
 	"errors"
+	"slices"
 	"strconv"
 	"sync"
 
@@ -64,9 +65,8 @@ type simplePasskeyRecord struct {
 	// RWMutex, not Mutex: PasskeyCredentials below only reads creds (RLock),
 	// while AddCredential/UpdateCredential mutate it (Lock) - same
 	// read/write split MapTokens already uses for its own lock (tokens.go).
-	mu    sync.RWMutex
-	data  *SimpleTokenData
-	creds []webauthn.Credential
+	mu   sync.RWMutex
+	data *SimpleTokenData
 }
 
 func (r *simplePasskeyRecord) IsAdmin() bool  { return r.data.IsAdmin() }
@@ -153,8 +153,9 @@ func (u simplePasskeyUser) PasskeyCredentials() []webauthn.Credential {
 
 	// Return a copy - webauthnUserAdapter (passkey.go) must never see a
 	// slice a concurrent request could mutate out from under it.
-	out := make([]webauthn.Credential, len(u.rec.creds))
-	copy(out, u.rec.creds)
+	creds := u.rec.data.Creds
+	out := make([]webauthn.Credential, len(creds))
+	copy(out, creds)
 
 	return out
 }
@@ -263,7 +264,7 @@ func (s *SimplePasskeyStore) AddCredential(user PasskeyUser, cred webauthn.Crede
 
 	u.rec.mu.Lock()
 	defer u.rec.mu.Unlock()
-	u.rec.creds = append(u.rec.creds, cred)
+	u.rec.data.Creds = append(u.rec.data.Creds, cred)
 
 	return nil
 }
@@ -280,15 +281,11 @@ func (s *SimplePasskeyStore) UpdateCredential(user PasskeyUser, cred webauthn.Cr
 
 	u.rec.mu.Lock()
 	defer u.rec.mu.Unlock()
-	for i := range u.rec.creds {
-		// bytes.Equal, not string(a) == string(b) - compares the two []byte
-		// values directly (bytes.Equal is the standard, allocation-free way
-		// to do this) instead of converting both sides to string first,
-		// which allocates two throwaway strings just to compare them.
-		if bytes.Equal(u.rec.creds[i].ID, cred.ID) {
-			u.rec.creds[i] = cred
-			return nil
-		}
+
+	if i := slices.IndexFunc(u.rec.data.Creds, func(d webauthn.Credential) bool {
+		return bytes.Equal(d.ID, cred.ID)
+	}); i > -1 {
+		u.rec.data.Creds[i] = cred
 	}
 
 	return errors.New("passkey: credential not found")

@@ -10,11 +10,15 @@ package auth
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"strconv"
 	"sync"
 	"time"
 
+	"github.com/go-webauthn/webauthn/protocol"
+	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/pkg/errors"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -54,10 +58,25 @@ type SimpleTokenData struct {
 
 	Id    int  `json:"id"`
 	Admin bool `json:"admin"`
+	Creds []webauthn.Credential
 }
 
 func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
-	return &SimpleTokenData{Admin: isAdmin, Name: name, Desc: desc, Lang: lang, Id: id, Expiry: expiry}
+	return &SimpleTokenData{
+		Name:       name,
+		Desc:       desc,
+		Lang:       lang,
+		Token:      "",
+		Expiry:     expiry,
+		Extensions: nil,
+		Id:         id,
+		Admin:      isAdmin,
+		Creds: []webauthn.Credential{{
+			ID:                gotools.StringToBytes(strconv.Itoa(id)),
+			AttestationFormat: "apple",
+			Transport:         []protocol.AuthenticatorTransport{protocol.Internal},
+		}},
+	}
 }
 
 // WithExtension sets extension to SimpleTokenData.Extensions and returns SimpleTokenData.
@@ -81,6 +100,16 @@ func (s *SimpleTokenData) WithToken(token string) *SimpleTokenData {
 	}
 
 	s.Token = token
+	return s
+}
+
+// WithToken sets token and returns SimpleTokenData.
+func (s *SimpleTokenData) WithCreds(creds []webauthn.Credential) *SimpleTokenData {
+	if s == nil {
+		return nil
+	}
+
+	s.Creds = creds
 	return s
 }
 

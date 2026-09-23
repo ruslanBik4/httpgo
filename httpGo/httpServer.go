@@ -548,10 +548,9 @@ func handleWebAuthnLoginBegin(ctx *fasthttp.RequestCtx) (any, error) {
 
 	login := GetValue[string](ctx, &crud.ParamsLogin)
 
-	logs.StatusLog(p, login)
 	challenge, err := p.BeginLogin(ctx, login)
 	if err != nil {
-		return err.Error(), ErrWrongParamsList
+		return crud.ErrWrongParamsResult(err.Error(), login)
 	}
 
 	setCookie(ctx, auth.PasskeySessionCookie, challenge.SessionID, "/webauthn/", auth.PasskeySessionTTL)

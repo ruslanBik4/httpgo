@@ -10,6 +10,7 @@ package crud
 import (
 	"database/sql"
 	"fmt"
+	"maps"
 	"regexp"
 
 	"github.com/jackc/pgx/v5"
@@ -27,6 +28,16 @@ var (
 	regKeyWrong      = regexp.MustCompile(`[Kk]ey\s+(?:[(\w\s]+)?\((\w+)(?:,[^=]+)?\)+=\(([^)]+)\)([^.]+)`)
 	regKeyTypeWrong  = regexp.MustCompile(`column\s+"(\w+)(?:,[^=]+)?"\s+is\s+of\s+type\s+([(\w\s)]+) but expression is of type ([(\w\s)]+)$`)
 )
+
+func ErrWrongParamsResult(mapResp ...string) (any, error) {
+	return apis.NewErrorResp(maps.Collect(func(yield func(string, string) bool) {
+		for i := 0; i+1 < len(mapResp); i += 2 {
+			if !yield(mapResp[i], mapResp[i+1]) {
+				return
+			}
+		}
+	})), apis.ErrWrongParamsList
+}
 
 func CreateErrResult(err error) (any, error) {
 	if err == nil || errors.Unwrap(err) == sql.ErrNoRows || errors.Cause(err) == sql.ErrNoRows || errors.Is(err, pgx.ErrNoRows) {
@@ -51,37 +62,27 @@ func CreateErrResult(err error) (any, error) {
 	// key (phone)=(+380) already exists.
 
 	if s := regKeyWrong.FindStringSubmatch(msg); len(s) > 0 {
-		return apis.NewErrorResp(map[string]string{
-			s[1]: "`" + s[2] + "`" + s[3],
-		}), apis.ErrWrongParamsList
+		return ErrWrongParamsResult(s[1], "`"+s[2]+"`"+s[3])
 	}
 
 	// column "risk" is of type numeric but expression is of type text
 	if s := regKeyTypeWrong.FindStringSubmatch(msg); len(s) > 0 {
-		return apis.NewErrorResp(map[string]string{
-			s[1]: s[3] + " instead of" + s[2],
-		}), apis.ErrWrongParamsList
+		return ErrWrongParamsResult(s[1], s[3]+" instead of"+s[2])
 	}
 
 	// invalid input syntax for type numeric: ""
 	if s := regSyntaxWrong.FindStringSubmatch(msg); len(s) > 0 {
-		return apis.NewErrorResp(map[string]string{
-			s[1]: s[0],
-		}), apis.ErrWrongParamsList
+		return ErrWrongParamsResult(s[1], s[0])
 	}
 
 	if s := regDuplicated.FindStringSubmatch(msg); len(s) > 0 {
 		logs.DebugLog("%#v %[1]T", errors.Cause(err))
-		return apis.NewErrorResp(map[string]string{
-			s[1]: "duplicate key value violates unique constraint",
-		}), apis.ErrWrongParamsList
+		return ErrWrongParamsResult(s[1], "duplicate key value violates unique constraint")
 	}
 
 	//new row for relation "trading_plans" violates check constraint "risk_no_zero"
 	if e.ConstraintName != "" {
-		return apis.NewErrorResp(map[string]string{
-			e.TableName: fmt.Sprintf(`violates check constraint "%s"`, e.ConstraintName),
-		}), apis.ErrWrongParamsList
+		return ErrWrongParamsResult(e.TableName, fmt.Sprintf(`violates check constraint "%s"`, e.ConstraintName))
 	}
 
 	logs.ErrorLog(err)
