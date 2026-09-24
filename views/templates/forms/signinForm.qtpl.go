@@ -35,21 +35,71 @@ type SignForm struct {
 }
 
 //line signinForm.qtpl:10
-func (sf *SignForm) StreamSigningForm(qw422016 *qt422016.Writer) {
+func (sf *SignForm) StreamSignUpForm(qw422016 *qt422016.Writer) {
 //line signinForm.qtpl:10
 	qw422016.N().S(`
 <div class="main-form-wrap">
-    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" enctype="multipart/form-data">
+    <form target="content" action="/user/signup/" method="POST" class="form-signing" onsubmit=" Auth.offerPasskeyRegistration(this.querySelector('[name=email]')?.value); return false;" enctype="multipart/form-data">
         <h2 class="form-signing-heading">SignIn</h2>
         <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="`)
 //line signinForm.qtpl:14
 	qw422016.E().S(sf.Email)
 //line signinForm.qtpl:14
 	qw422016.N().S(`">
+        <label class="checkbox">
+         <input type="checkbox" name="remember" value="remember-me"> Save me on site
+        </label>
+       <button class="main-btn" type="submit">Register</button>
+        <output></output>
+        <progress value='0' max='100' hidden > </progress>
+    </form>
+</div>
+`)
+//line signinForm.qtpl:23
+}
+
+//line signinForm.qtpl:23
+func (sf *SignForm) WriteSignUpForm(qq422016 qtio422016.Writer) {
+//line signinForm.qtpl:23
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line signinForm.qtpl:23
+	sf.StreamSignUpForm(qw422016)
+//line signinForm.qtpl:23
+	qt422016.ReleaseWriter(qw422016)
+//line signinForm.qtpl:23
+}
+
+//line signinForm.qtpl:23
+func (sf *SignForm) SignUpForm() string {
+//line signinForm.qtpl:23
+	qb422016 := qt422016.AcquireByteBuffer()
+//line signinForm.qtpl:23
+	sf.WriteSignUpForm(qb422016)
+//line signinForm.qtpl:23
+	qs422016 := string(qb422016.B)
+//line signinForm.qtpl:23
+	qt422016.ReleaseByteBuffer(qb422016)
+//line signinForm.qtpl:23
+	return qs422016
+//line signinForm.qtpl:23
+}
+
+//line signinForm.qtpl:24
+func (sf *SignForm) StreamSigningForm(qw422016 *qt422016.Writer) {
+//line signinForm.qtpl:24
+	qw422016.N().S(`
+<div class="main-form-wrap">
+    <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" enctype="multipart/form-data">
+        <h2 class="form-signing-heading">SignIn</h2>
+        <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="`)
+//line signinForm.qtpl:28
+	qw422016.E().S(sf.Email)
+//line signinForm.qtpl:28
+	qw422016.N().S(`">
         <input type="password" name="key" class="input-block-level" placeholder="`)
-//line signinForm.qtpl:15
+//line signinForm.qtpl:29
 	qw422016.E().S(sf.Password)
-//line signinForm.qtpl:15
+//line signinForm.qtpl:29
 	qw422016.N().S(`">
         <label class="checkbox">
          <input type="checkbox" name="remember" value="remember-me"> Save me on site
@@ -60,40 +110,40 @@ func (sf *SignForm) StreamSigningForm(qw422016 *qt422016.Writer) {
     </form>
 </div>
 `)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 }
 
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 func (sf *SignForm) WriteSigningForm(qq422016 qtio422016.Writer) {
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	sf.StreamSigningForm(qw422016)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	qt422016.ReleaseWriter(qw422016)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 }
 
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 func (sf *SignForm) SigningForm() string {
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	qb422016 := qt422016.AcquireByteBuffer()
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	sf.WriteSigningForm(qb422016)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	qs422016 := string(qb422016.B)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	qt422016.ReleaseByteBuffer(qb422016)
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 	return qs422016
-//line signinForm.qtpl:24
+//line signinForm.qtpl:38
 }
 
 // hx-post="/get/token/"
 
-//line signinForm.qtpl:26
+//line signinForm.qtpl:40
 func (sf *SignForm) StreamSignForm(qw422016 *qt422016.Writer) {
-//line signinForm.qtpl:26
+//line signinForm.qtpl:40
 	qw422016.N().S(`
 <div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
 	<div class="modal-underlay" _="on click trigger closeModal"></div>
@@ -112,31 +162,31 @@ func (sf *SignForm) StreamSignForm(qw422016 *qt422016.Writer) {
 		</form>	</div>
 </div>
 `)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 }
 
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 func (sf *SignForm) WriteSignForm(qq422016 qtio422016.Writer) {
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	sf.StreamSignForm(qw422016)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	qt422016.ReleaseWriter(qw422016)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 }
 
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 func (sf *SignForm) SignForm() string {
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	qb422016 := qt422016.AcquireByteBuffer()
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	sf.WriteSignForm(qb422016)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	qs422016 := string(qb422016.B)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	qt422016.ReleaseByteBuffer(qb422016)
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 	return qs422016
-//line signinForm.qtpl:43
+//line signinForm.qtpl:57
 }

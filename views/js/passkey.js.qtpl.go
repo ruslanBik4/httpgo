@@ -229,6 +229,41 @@ function showConfirmToast(message, confirmLabel) {
     });
 }
 
+// waitForDocumentFocus works around a real Chrome quirk: right after the
+// platform authenticator's native UI (Touch ID/Face ID/security-key prompt)
+// dismisses, document.hasFocus() can still read false for a brief moment -
+// the browser hasn't finished handing focus back to the page yet. Calling
+// navigator.credentials.create()/get() again in that gap throws
+// "NotAllowedError: The document is not focused." even though everything
+// else about the call is correct. Awaiting registerPasskey()'s own network
+// round trip (its fetch to /webauthn/register/finish) is NOT enough to
+// guarantee focus has come back by the time it resolves - that's exactly
+// what was happening in offerPasskeyRegistration below, chaining straight
+// from a successful create() ceremony into a get() ceremony. Resolves
+// immediately if the document is already focused; otherwise waits for a
+// real 'focus' event, with a timeout so a tab that's genuinely lost focus
+// for good (user switched away) doesn't hang this forever - the caller's
+// own get() call will just fail normally in that case.
+function waitForDocumentFocus(timeoutMs = 2000) {
+    if (document.hasFocus()) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+        let done = false;
+
+        function finish() {
+            if (done) return;
+            done = true;
+            window.removeEventListener('focus', finish);
+            resolve();
+        }
+
+        window.addEventListener('focus', finish);
+        setTimeout(finish, timeoutMs);
+    });
+}
+
 // offerPasskeyRegistration is called after a login/begin failure (see
 // loginWithPasskey below) - the server deliberately returns the SAME error
 // for "no such login" and "login exists but has no passkey registered yet"
@@ -265,6 +300,13 @@ async function offerPasskeyRegistration(loginValue) {
     if (!registered) {
         return false;
     }
+
+    // See waitForDocumentFocus's own doc comment - without this,
+    // loginWithPasskey's navigator.credentials.get() call below can fire
+    // before the browser finishes returning focus from the create()
+    // ceremony that just closed, throwing "The document is not focused."
+    // instead of showing the sign-in prompt.
+    await waitForDocumentFocus();
 
     return loginWithPasskey(loginValue, {offerRegistration: false});
 }

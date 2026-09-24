@@ -61,6 +61,34 @@ type SimpleTokenData struct {
 	Creds []webauthn.Credential
 }
 
+// NewSimpleTokenData deliberately leaves Creds nil - a brand new account has
+// no registered passkey yet, and it must NOT get one, real or fake. Creds is
+// populated later, for real, by SimplePasskeyStore.AddCredential once
+// FinishRegistration actually succeeds (simple_passkey_store.go); that
+// credential arrives already carrying the correct Transport hints
+// (protocol.AuthenticatorTransport) that go-webauthn reads straight out of
+// the browser's own registration response - nothing here needs to guess or
+// hardcode them.
+//
+// This used to seed Creds with one fabricated entry (ID: the account's own
+// decimal id, AttestationFormat: "apple", Transport: []protocol.
+// AuthenticatorTransport{protocol.Internal}) on every single account. That
+// entry had no PublicKey/attestation data, so it could never actually
+// authenticate anyone - but PasskeyCredentials() (simple_passkey_store.go)
+// returns u.rec.data.Creds verbatim, so it WAS flowing into every
+// BeginRegistration's excludeCredentials and every BeginLogin's
+// allowCredentials, mixed in with any real credential the account went on to
+// register. Its hardcoded Transport: [Internal] is what forced the browser
+// to always jump straight to the platform authenticator (Touch ID/Face
+// ID/Windows Hello) UI, for every account, permanently, regardless of what
+// kind of authenticator a real registered credential actually supported -
+// confirmed directly: removing just that fake entry's Transport field made
+// the browser fall back to its generic chooser (security key / QR-code
+// cross-device) instead, since an entry with no transport hint tells the
+// browser it doesn't know what to expect. Removing the whole fake entry,
+// rather than re-adding a hardcoded Transport to it, is the fix that doesn't
+// also silently block security-key/cross-device passkeys for every account
+// once someone legitimately registers one.
 func NewSimpleTokenData(name, desc, lang string, id int, isAdmin bool, expiry time.Time) *SimpleTokenData {
 	return &SimpleTokenData{
 		Name:       name,
@@ -103,7 +131,7 @@ func (s *SimpleTokenData) WithToken(token string) *SimpleTokenData {
 	return s
 }
 
-// WithToken sets token and returns SimpleTokenData.
+// WithCreds sets creds and returns SimpleTokenData.
 func (s *SimpleTokenData) WithCreds(creds []webauthn.Credential) *SimpleTokenData {
 	if s == nil {
 		return nil

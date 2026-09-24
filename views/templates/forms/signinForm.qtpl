@@ -7,6 +7,20 @@ i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
         Email, Password string
     }
 %}
+{% func (sf *SignForm) SignUpForm() %}
+<div class="main-form-wrap">
+    <form target="content" action="/user/signup/" method="POST" class="form-signing" onsubmit=" Auth.offerPasskeyRegistration(this.querySelector('[name=email]')?.value); return false;" enctype="multipart/form-data">
+        <h2 class="form-signing-heading">SignIn</h2>
+        <input type="email" name="email" class="input-block-level" placeholder="Registration email" value="{%s sf.Email %}">
+        <label class="checkbox">
+         <input type="checkbox" name="remember" value="remember-me"> Save me on site
+        </label>
+       <button class="main-btn" type="submit">Register</button>
+        <output></output>
+        <progress value='0' max='100' hidden > </progress>
+    </form>
+</div>
+{% endfunc %}
 {% func (sf *SignForm) SigningForm() %}
 <div class="main-form-wrap">
     <form target="content" action="/user/signin/" method="POST" class="form-signing" onsubmit="return saveForm(this, afterLogin);" enctype="multipart/form-data">

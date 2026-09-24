@@ -594,6 +594,42 @@ function logOut(elem) {
         });
     }
 
+    // waitForDocumentFocus works around a real Chrome quirk: right after the
+    // platform authenticator's native UI (Touch ID/Face ID/security-key
+    // prompt) dismisses, document.hasFocus() can still read false for a
+    // brief moment - the browser hasn't finished handing focus back to the
+    // page yet. Calling navigator.credentials.create()/get() again in that
+    // gap throws "NotAllowedError: The document is not focused." even
+    // though everything else about the call is correct. Awaiting
+    // registerPasskey()'s own network round trip (its fetch to
+    // /webauthn/register/finish) is NOT enough to guarantee focus has come
+    // back by the time it resolves - that's exactly what was happening in
+    // offerPasskeyRegistration below, chaining straight from a successful
+    // create() ceremony into a get() ceremony. Resolves immediately if the
+    // document is already focused; otherwise waits for a real 'focus' event,
+    // with a timeout so a tab that's genuinely lost focus for good (user
+    // switched away) doesn't hang this forever - the caller's own get() call
+    // will just fail normally in that case.
+    function waitForDocumentFocus(timeoutMs = 2000) {
+        if (document.hasFocus()) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            let done = false;
+
+            function finish() {
+                if (done) return;
+                done = true;
+                window.removeEventListener('focus', finish);
+                resolve();
+            }
+
+            window.addEventListener('focus', finish);
+            setTimeout(finish, timeoutMs);
+        });
+    }
+
     // offerPasskeyRegistration is called after a login/begin failure (see
     // loginWithPasskey below) - the server deliberately returns the SAME
     // error for "no such login" and "login exists but has no passkey
@@ -623,6 +659,13 @@ function logOut(elem) {
         if (!registered) {
             return false;
         }
+
+        // See waitForDocumentFocus's own doc comment - without this,
+        // loginWithPasskey's navigator.credentials.get() call below can fire
+        // before the browser finishes returning focus from the create()
+        // ceremony that just closed, throwing "The document is not
+        // focused." instead of showing the sign-in prompt.
+        await waitForDocumentFocus();
 
         return loginWithPasskey(loginValue, {offerRegistration: false});
     }
@@ -764,14 +807,44 @@ function logOut(elem) {
 
         event.preventDefault();
 
-        const ok = await loginWithPasskey(loginValue);
+        const ok = await loginWithPasskey(loginValue, {offerRegistration: true});
         if (!ok) {
             // Passkey unsupported/declined/failed - fall back to the form's
             // own password submit, exactly once.
             thisForm.dataset.passkeyTried = '1';
             htmx.trigger(thisForm, 'submit');
-        }
         return false;
+    }
+
+        closeLoginForm(thisForm);
+        return false;
+    }
+
+    // closeLoginForm cleans up the sign-in form after a SUCCESSFUL passkey
+    // login via the automatic try-first path above. A password login gets
+    // this for free as a side effect of saveUser()'s urlAfterLogin redirect
+    // (loadContent() swaps #content out from under the form entirely) - but
+    // that only happens when the server's login response actually included
+    // formActions, and it does nothing at all for the modal SignForm()
+    // variant (signinForm.qtpl), whose <div id="modal"> sits outside
+    // #content and only closes on its own explicit `closeModal` event (see
+    // its hyperscript: `_="on closeModal add .closing then wait for
+    // animationend then remove me"`). Without this, a passkey login left
+    // via just an email typed into the form (no password) visibly stayed
+    // open afterward, still showing the empty password field.
+    //
+    // thisForm.reset() clears the form's own fields/validation state
+    // regardless of which markup variant this is; the closest('#modal')
+    // check additionally fires the app's own modal-close convention when
+    // the form happens to be inside one, and is a harmless no-op for the
+    // plain inline SigningForm().
+    function closeLoginForm(thisForm) {
+        thisForm.reset();
+
+        const modal = thisForm.closest('#modal');
+        if (modal) {
+            htmx.trigger(modal, 'closeModal');
+        }
     }
 
     // No eager ensureUser() call here any more - see the comment on

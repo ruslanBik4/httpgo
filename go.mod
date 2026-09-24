@@ -6,13 +6,13 @@ require (
 	github.com/d2lang/d2 v0.9.0
 	github.com/domsolutions/http2 v0.4.0
 	github.com/go-openapi/spec v1.0.1
-	github.com/go-webauthn/webauthn v0.18.1
+	github.com/go-webauthn/webauthn v0.18.2
 	github.com/iancoleman/strcase v0.3.0
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/json-iterator/go v1.1.12
 	github.com/pkg/errors v0.9.1
-	github.com/quic-go/quic-go v0.62.0
-	github.com/ruslanBik4/dbEngine v1.2.7
+	github.com/quic-go/quic-go v0.63.0
+	github.com/ruslanBik4/dbEngine v1.2.8
 	github.com/ruslanBik4/gotools v0.0.4
 	github.com/ruslanBik4/logs v0.1.8
 	github.com/stretchr/testify v1.12.1
@@ -30,7 +30,7 @@ require (
 require (
 	github.com/PuerkitoBio/goquery v1.13.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.27.0 // indirect
-	github.com/andybalholm/brotli v1.2.3 // indirect
+	github.com/andybalholm/brotli v1.2.4 // indirect
 	github.com/andybalholm/cascadia v1.3.5 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/d2lang/dagro v0.2.1 // indirect
@@ -38,7 +38,7 @@ require (
 	github.com/d2lang/rough-go v0.2.0 // indirect
 	github.com/d2lang/util-go v0.2.0 // indirect
 	github.com/dlclark/regexp2/v2 v2.8.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.4 // indirect
 	github.com/getsentry/sentry-go v0.49.0 // indirect
 	github.com/go-errors/errors v1.5.1 // indirect
 	github.com/go-openapi/jsonpointer v1.0.1 // indirect
@@ -65,7 +65,7 @@ require (
 	github.com/mazznoer/csscolorparser v0.1.8 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/molecule-man/go-brrr v1.1.0 // indirect
+	github.com/molecule-man/go-brrr v1.1.1 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

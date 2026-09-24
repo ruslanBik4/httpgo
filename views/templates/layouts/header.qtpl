@@ -15,7 +15,7 @@
 			    </a>
 		    </li>
 		    <li class="top-mnu-item before-login">
-		        <a id="bSignUp" href="/show/forms/signup" class="navbar-link btn-login" title="Open registration form"  data-fancybox >
+		        <a id="bSignUp" href="/show/forms/signup" class="navbar-link btn-login" title="Open registration form" hx-swap="none"  data-fancybox >
 		        <span class="glyphicon-info-sign">SignUp</span>
 		        </a>
 		    </li>
