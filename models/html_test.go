@@ -1,12 +1,15 @@
-// Copyright 2018 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package models
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -42,7 +45,7 @@ func TestGetTags(t *testing.T) {
 			w := sync.WaitGroup{}
 			for _, name := range ff {
 
-				b, err := ioutil.ReadFile(name)
+				b, err := os.ReadFile(name)
 				if err != nil {
 					t.Error(err, tt.name)
 					continue

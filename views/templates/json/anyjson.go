@@ -95,14 +95,14 @@ func init() {
 		})
 	jsoniter.RegisterTypeEncoderFunc("map[string]interface{}",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			m := *(*map[string]interface{})(ptr)
+			m := *(*map[string]any)(ptr)
 			WriteAnyJSON(stream, m)
 		}, func(pointer unsafe.Pointer) bool {
 			return false
 		})
 	jsoniter.RegisterTypeEncoderFunc("interface{}",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
-			m := *(*interface{})(ptr)
+			m := *(*any)(ptr)
 			WriteElement(stream, m)
 		}, func(pointer unsafe.Pointer) bool {
 			return false

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -8,6 +8,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"go/types"
 	"os/exec"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
-	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/logs"
@@ -113,7 +113,7 @@ var systemRoutes = apis.ApiRoutes{
 
 // HandleStatusServer  show status of httpgo
 // @/api/status/
-func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleStatusServer(ctx *fasthttp.RequestCtx) (any, error) {
 	unitName := ctx.UserValue(paramsSystemctlUnit).(string)
 	cmd := exec.Command("systemctl", "status", unitName, "-l")
 
@@ -124,13 +124,13 @@ func HandleStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 // HandleStatusServices  show status of local services
 // @/api/status/services
-func HandleStatusServices(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleStatusServices(ctx *fasthttp.RequestCtx) (any, error) {
 	return Status("all"), nil
 }
 
 // HandleStatusDB  show current processes of  DB
 // @/api/status/
-func HandleStatusDB(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleStatusDB(ctx *fasthttp.RequestCtx) (any, error) {
 
 	DB, ok := ctx.UserValue("DB").(*dbEngine.DB)
 	if !ok {
@@ -144,7 +144,7 @@ func HandleStatusDB(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 // HandleShowPostgresLog show services errors
 // @/api/status/psql
-func HandleShowPostgresLog(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleShowPostgresLog(ctx *fasthttp.RequestCtx) (any, error) {
 
 	stdout, err := RunPostgresqlLog("ERROR.*")
 	return nil, views.RenderOutput(ctx, stdout, err)
@@ -152,33 +152,33 @@ func HandleShowPostgresLog(ctx *fasthttp.RequestCtx) (interface{}, error) {
 
 // HandleShowErrorsServer show services errors
 // @/api/log/errors/
-func HandleShowErrorsServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleShowErrorsServer(ctx *fasthttp.RequestCtx) (any, error) {
 
 	return getLogOutput(ctx, getParamLog("ERROR"))
 }
 
 // HandleShowStatusServer show status message
 // @/api/log/info/
-func HandleShowStatusServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleShowStatusServer(ctx *fasthttp.RequestCtx) (any, error) {
 
 	return getLogOutput(ctx, getParamLog("INFO"))
 }
 
 // HandleShowDebugServer show debug messages
 // @/api/log/debug/
-func HandleShowDebugServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleShowDebugServer(ctx *fasthttp.RequestCtx) (any, error) {
 
 	return getLogOutput(ctx, getParamLog("DEBUG"))
 }
 
 // HandleShowLogServer show logs messages
 // @/api/log/
-func HandleShowLogServer(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleShowLogServer(ctx *fasthttp.RequestCtx) (any, error) {
 
 	return getLogOutput(ctx, "")
 }
 
-func getLogOutput(ctx *fasthttp.RequestCtx, params string) (interface{}, error) {
+func getLogOutput(ctx *fasthttp.RequestCtx, params string) (any, error) {
 	var cmd *exec.Cmd
 
 	showLogCmd, ok := ctx.UserValue(SHOW_LOG_CMD).(string)
@@ -306,19 +306,19 @@ func (s ShowLogsEngine) Init(ctx context.Context) error {
 	return nil
 }
 
-func (s ShowLogsEngine) Send(ctx context.Context, messages ...interface{}) error {
+func (s ShowLogsEngine) Send(ctx context.Context, messages ...any) error {
 	panic("implement me")
 }
 
-func (s ShowLogsEngine) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
+func (s ShowLogsEngine) Get(ctx context.Context, messages ...any) (response any, err error) {
 	panic("implement me")
 }
 
-func (s ShowLogsEngine) Connect(in <-chan interface{}) (out chan interface{}, err error) {
+func (s ShowLogsEngine) Connect(in <-chan any) (out chan any, err error) {
 	panic("implement me")
 }
 
-func (s ShowLogsEngine) Close(out chan<- interface{}) error {
+func (s ShowLogsEngine) Close(out chan<- any) error {
 	panic("implement me")
 }
 

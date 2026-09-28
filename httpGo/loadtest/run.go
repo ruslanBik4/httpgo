@@ -109,10 +109,8 @@ func RunHARHTTP3(
 
 	var wg sync.WaitGroup
 	for worker := 0; worker < cfg.Concurrency; worker++ {
-		wg.Add(1)
 
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 
 			// One H3 transport per worker gives the test several QUIC connections.
 			transport := &http3.Transport{
@@ -160,7 +158,7 @@ func RunHARHTTP3(
 
 				results <- attempt
 			}
-		}()
+		})
 	}
 
 	go func() {

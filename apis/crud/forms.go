@@ -8,14 +8,15 @@
 package crud
 
 import (
+	"context"
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/valyala/fasthttp"
-	"golang.org/x/net/context"
 
 	. "github.com/ruslanBik4/dbEngine/dbEngine"
 	"github.com/ruslanBik4/logs"
@@ -47,9 +48,7 @@ func RoutesFromDB(ctx context.Context, routeTypes []DbRouteType, tables ...strin
 			for _, name := range tables {
 				if name == tableName {
 					tableRoutes := createRoutesForTable(DB, tableName, preRoute, table, routeTypes, inParams)
-					for path, route := range tableRoutes {
-						routes[path] = route
-					}
+					maps.Copy(routes, tableRoutes)
 				}
 			}
 		}
@@ -155,7 +154,7 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 }
 
 func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.ApiRouteHandler {
-	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
+	return func(ctx *fasthttp.RequestCtx) (any, error) {
 		patternList, ok := DB.Tables["patterns_list"]
 		if !ok {
 			logs.ErrorLog(ErrNotFoundTable{Table: "patterns_list"}, "it can be a problem on validations fields")
@@ -171,7 +170,7 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 		colDecors := make([]*forms.ColumnDecor, 0)
 
 		id, ok := int32(0), false
-		args := make([]interface{}, len(priColumns))
+		args := make([]any, len(priColumns))
 		columnsTable := table.Columns()
 		for i, name := range priColumns {
 			if name == "id" {
@@ -239,7 +238,7 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 			}
 
 			err := table.SelectAndRunEach(ctx,
-				func(values []interface{}, columns []Column) error {
+				func(values []any, columns []Column) error {
 					ok = false
 					for i, col := range columns {
 						colDecors = append(colDecors, ToColDev(ctx, DB, patternList, col, values[i]))
@@ -316,7 +315,7 @@ func TableForm(DB *DB, preRoute string, table Table, priColumns []string) apis.A
 	}
 }
 
-func GetForeignName(ctx *fasthttp.RequestCtx, DB *DB, col Column, val interface{}) interface{} {
+func GetForeignName(ctx *fasthttp.RequestCtx, DB *DB, col Column, val any) any {
 	if val != nil && col.Foreign() != nil {
 		table, ok := DB.Tables[col.Foreign().Parent]
 		if ok {
@@ -354,7 +353,7 @@ func GetForeignName(ctx *fasthttp.RequestCtx, DB *DB, col Column, val interface{
 	return nil
 }
 
-func GetNameOfTitleColumn(table Table, lang interface{}) string {
+func GetNameOfTitleColumn(table Table, lang any) string {
 	var names = []string{
 		"name",
 		"title",
@@ -377,7 +376,7 @@ func GetNameOfTitleColumn(table Table, lang interface{}) string {
 	return ""
 }
 
-func GetNameAccordingLang(table Table, name string, lang interface{}) string {
+func GetNameAccordingLang(table Table, name string, lang any) string {
 
 	if l, ok := lang.(string); ok && (table.FindColumn(name+"_"+l) != nil) {
 		return name + "_" + l

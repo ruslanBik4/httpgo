@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -13,7 +13,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net"
 	"net/http"
@@ -282,10 +281,7 @@ type streamWriter struct {
 func (w *streamWriter) Write(p []byte) (int, error) {
 	nn := 0
 	for len(p) > 0 {
-		n := len(p)
-		if n > maxWrite {
-			n = maxWrite
-		}
+		n := min(len(p), maxWrite)
 		if err := w.c.writeRecord(w.recType, p[:n]); err != nil {
 			return nn, err
 		}
@@ -316,10 +312,7 @@ func (w *streamReader) Read(p []byte) (n int, err error) {
 			}
 		}
 
-		n = len(p)
-		if n > len(w.buf) {
-			n = len(w.buf)
-		}
+		n = min(len(p), len(w.buf))
 		copy(p, w.buf[:n])
 		w.buf = w.buf[n:]
 	}
@@ -375,9 +368,9 @@ func (this *FCGIClient) Request(p map[string]string, req io.Reader) (resp *http.
 	resp.ContentLength, _ = strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
 
 	if chunked(resp.TransferEncoding) {
-		resp.Body = ioutil.NopCloser(httputil.NewChunkedReader(rb))
+		resp.Body = io.NopCloser(httputil.NewChunkedReader(rb))
 	} else {
-		resp.Body = ioutil.NopCloser(rb)
+		resp.Body = io.NopCloser(rb)
 	}
 
 	return

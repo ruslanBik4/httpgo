@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -13,7 +13,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"net"
@@ -151,7 +150,7 @@ func sendFcgi(reqType int, fcgi_params map[string]string, data []byte, posts map
 	}
 
 	defer resp.Body.Close()
-	content, err = ioutil.ReadAll(resp.Body)
+	content, err = io.ReadAll(resp.Body)
 
 	log.Println("c: send data length ≈", length, string(content))
 	fcgi.Close()
@@ -229,7 +228,7 @@ func Test(t *testing.T) {
 	log.Println("test:", "post data (more than 60KB)")
 	data := ""
 	length := 0
-	for i := 0x00; i < 0xff; i++ {
+	for i := range 0xff {
 		v0 := strings.Repeat(strconv.Itoa(i), 256)
 		h := md5.New()
 		io.WriteString(h, v0)
@@ -250,7 +249,7 @@ func Test(t *testing.T) {
 
 	log.Println("test:", "post forms (256 keys, more than 1MB)")
 	p1 := make(map[string]string, 1)
-	for i := 0x00; i < 0xff; i++ {
+	for i := range 0xff {
 		v0 := strings.Repeat(strconv.Itoa(i), 4096)
 		h := md5.New()
 		io.WriteString(h, v0)

@@ -16,8 +16,8 @@ import (
 )
 
 func TableSelect(table dbEngine.Table, params []string) apis.ApiRouteHandler {
-	return func(ctx *fasthttp.RequestCtx) (interface{}, error) {
-		args := make([]interface{}, 0, len(params))
+	return func(ctx *fasthttp.RequestCtx) (any, error) {
+		args := make([]any, 0, len(params))
 		colNames := make([]string, 0, len(params))
 		for _, key := range params {
 			if v := ctx.UserValue(key); v != nil {
@@ -26,10 +26,10 @@ func TableSelect(table dbEngine.Table, params []string) apis.ApiRouteHandler {
 			}
 		}
 
-		res := make([]map[string]interface{}, 0)
+		res := make([]map[string]any, 0)
 		err := table.SelectAndRunEach(ctx,
-			func(values []interface{}, columns []dbEngine.Column) error {
-				r := make(map[string]interface{}, len(columns))
+			func(values []any, columns []dbEngine.Column) error {
+				r := make(map[string]any, len(columns))
 				for key, col := range columns {
 					r[col.Name()] = values[key]
 				}

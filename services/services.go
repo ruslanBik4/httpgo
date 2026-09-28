@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -9,10 +9,10 @@
 package services
 
 import (
+	"context"
 	"strings"
 
 	"github.com/pkg/errors"
-	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/logs"
 )
@@ -20,10 +20,10 @@ import (
 // IService root service interface
 type IService interface {
 	Init(ctx context.Context) error
-	Send(ctx context.Context, messages ...interface{}) error
-	Get(ctx context.Context, messages ...interface{}) (response interface{}, err error)
-	Connect(in <-chan interface{}) (out chan interface{}, err error)
-	Close(out chan<- interface{}) error
+	Send(ctx context.Context, messages ...any) error
+	Get(ctx context.Context, messages ...any) (response any, err error)
+	Connect(in <-chan any) (out chan any, err error)
+	Close(out chan<- any) error
 	Status() string
 }
 
@@ -100,7 +100,7 @@ func AddService(name string, pService IService) {
 }
 
 // Send messages to service {name}
-func Send(ctx context.Context, name string, messages ...interface{}) (err error) {
+func Send(ctx context.Context, name string, messages ...any) (err error) {
 
 	pService := getService(name)
 	if pService == nil {
@@ -121,7 +121,7 @@ func Send(ctx context.Context, name string, messages ...interface{}) (err error)
 }
 
 // Get messages to service {name} & return result
-func Get(ctx context.Context, name string, messages ...interface{}) (response interface{}, err error) {
+func Get(ctx context.Context, name string, messages ...any) (response any, err error) {
 
 	pService := getService(name)
 	if pService == nil {
@@ -132,7 +132,7 @@ func Get(ctx context.Context, name string, messages ...interface{}) (response in
 }
 
 // Connect to service {name} from channel in & return channel service
-func Connect(name string, in <-chan interface{}) (out chan interface{}, err error) {
+func Connect(name string, in <-chan any) (out chan any, err error) {
 	pService := getService(name)
 	if pService == nil {
 		return nil, &ErrServiceNotFound{Name: name}
@@ -142,7 +142,7 @@ func Connect(name string, in <-chan interface{}) (out chan interface{}, err erro
 }
 
 // Close service {name}
-func Close(name string, out chan<- interface{}) error {
+func Close(name string, out chan<- any) error {
 	pService := getService(name)
 	if pService == nil {
 		return &ErrServiceNotFound{Name: name}

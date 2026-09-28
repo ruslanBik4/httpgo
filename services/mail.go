@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -8,12 +8,12 @@
 package services
 
 import (
+	"context"
 	netMail "net/mail"
 	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	"golang.org/x/net/context"
 	"gopkg.in/gomail.v2"
 	"gopkg.in/yaml.v3"
 
@@ -95,7 +95,7 @@ func (mailServ *mailService) Init(ctx context.Context) error {
 	return nil
 }
 
-func (mailServ *mailService) Send(ctx context.Context, messages ...interface{}) error {
+func (mailServ *mailService) Send(ctx context.Context, messages ...any) error {
 
 	currentMail, err := mailServ.getMailStruct(messages...)
 	if err != nil {
@@ -131,16 +131,16 @@ func (mailServ *mailService) SendMail(ctx context.Context, mail *Mail) error {
 	return nil
 }
 
-func (mailServ *mailService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
+func (mailServ *mailService) Get(ctx context.Context, messages ...any) (response any, err error) {
 	logs.DebugLog(messages)
 	return nil, nil
 
 }
-func (mailServ *mailService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
+func (mailServ *mailService) Connect(in <-chan any) (out chan any, err error) {
 
 	return nil, nil
 }
-func (mailServ *mailService) Close(out chan<- interface{}) error {
+func (mailServ *mailService) Close(out chan<- any) error {
 
 	close(out)
 
@@ -162,7 +162,7 @@ func (mailServ *mailService) getStaticFilePath() string {
 func (mailServ *mailService) getDialer() *gomail.Dialer {
 	return gomail.NewDialer(mailServ.mConfig.Server, mailServ.mConfig.Port, mailServ.mConfig.Email, mailServ.mConfig.Password)
 }
-func (mailServ *mailService) getMailStruct(messages ...interface{}) (*Mail, error) {
+func (mailServ *mailService) getMailStruct(messages ...any) (*Mail, error) {
 
 	currentMail := new(Mail)
 	for _, message := range messages {

@@ -303,8 +303,9 @@ func Test_simplePasskeyUser_PasskeyDisplayName(t *testing.T) {
 
 func Test_simplePasskeyUser_PasskeyCredentials_ReturnsCopy(t *testing.T) {
 	rec := &simplePasskeyRecord{
-		data:  &SimpleTokenData{Name: "copy@example.com"},
-		creds: []webauthn.Credential{{ID: []byte("original")}},
+		data: &SimpleTokenData{Name: "copy@example.com",
+			Creds: []webauthn.Credential{{ID: []byte("original")}},
+		},
 	}
 	u := simplePasskeyUser{rec: rec}
 
@@ -313,7 +314,7 @@ func Test_simplePasskeyUser_PasskeyCredentials_ReturnsCopy(t *testing.T) {
 
 	// The record's own slice must be unaffected - webauthnUserAdapter must
 	// never be able to see a concurrent request's in-progress mutation.
-	assert.Equal(t, "original", string(rec.creds[0].ID))
+	assert.Equal(t, "original", string(rec.data.Creds[0].ID))
 }
 
 func Test_simplePasskeyUser_NewToken_LoginResponse_SameObject(t *testing.T) {

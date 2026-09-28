@@ -10,11 +10,11 @@ package httpGo
 import (
 	"os"
 
-	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"gopkg.in/yaml.v3"
 
+	"github.com/ruslanBik4/httpgo/httpGo/http2"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -22,13 +22,13 @@ import (
 type CfgHttp struct {
 	*AccessConf  `yaml:"Access" json:"access,omitempty"`
 	fileCfg      string
-	Domains      map[string]string   `yaml:"Domains,omitempty" json:"Domains,omitempty"`
-	HTTP2        *http2.ServerConfig `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
-	HTTP3        bool                `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
-	HTTP3Proxy   *HTTP3ProxyConfig   `yaml:"HTTP3Proxy,omitempty" json:"HTTP3Proxy,omitempty"`
-	KillSignal   int                 `yaml:"KillSignal" json:"KillSignal,omitempty"`
-	Server       *fasthttp.Server    `yaml:"Server,omitempty" json:"-"`
-	PortRedirect string              `yaml:"PortRedirect" json:"PortRedirect,omitempty"`
+	Domains      map[string]string `yaml:"Domains,omitempty" json:"Domains,omitempty"`
+	HTTP2        *http2.Config     `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
+	HTTP3        bool              `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
+	HTTP3Proxy   *HTTP3ProxyConfig `yaml:"HTTP3Proxy,omitempty" json:"HTTP3Proxy,omitempty"`
+	KillSignal   int               `yaml:"KillSignal" json:"KillSignal,omitempty"`
+	Server       *fasthttp.Server  `yaml:"Server,omitempty" json:"-"`
+	PortRedirect string            `yaml:"PortRedirect" json:"PortRedirect,omitempty"`
 }
 
 // NewCfgHttp create CfgHttp from config file

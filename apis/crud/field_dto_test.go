@@ -476,7 +476,7 @@ func TestDtoFileField_GetValue(t *testing.T) {
 	tests := []struct {
 		name string
 		d    DtoFileField
-		want interface{}
+		want any
 	}{
 		// TODO: Add test cases.
 	}
@@ -491,7 +491,7 @@ func TestDtoFileField_NewValue(t *testing.T) {
 	tests := []struct {
 		name string
 		d    DtoFileField
-		want interface{}
+		want any
 	}{
 		// TODO: Add test cases.
 	}

@@ -1,6 +1,9 @@
-// Copyright 2018 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package selenius
 
@@ -84,7 +87,7 @@ func (wd *WD) ActiveElement() (WebElement, error) {
 	return wd.wd.ActiveElement()
 }
 
-func (wd *WD) ExecuteScript(script string, args []interface{}) (interface{}, error) {
+func (wd *WD) ExecuteScript(script string, args []any) (any, error) {
 	return wd.wd.ExecuteScript(script, args)
 }
 

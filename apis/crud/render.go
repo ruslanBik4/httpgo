@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -19,7 +19,7 @@ import (
 
 func isNilOrEmpty[T any](v T) bool {
 	// fast nil test
-	var i interface{} = v
+	var i any = v
 	// check by type
 	switch x := i.(type) {
 	case nil:

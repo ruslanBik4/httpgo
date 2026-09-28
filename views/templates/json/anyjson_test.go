@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2022-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -22,7 +22,7 @@ func TestStreamWrap(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		value interface{}
+		value any
 		res   string
 	}{
 		{

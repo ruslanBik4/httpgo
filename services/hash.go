@@ -1,15 +1,17 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package services
 
 import (
+	. "context"
 	"crypto/rand"
 	"encoding/base64"
 	"hash/crc32"
-
-	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/logs"
 )
@@ -19,11 +21,11 @@ type cryptoService struct {
 	status string
 }
 
-func (c cryptoService) Init(ctx context.Context) error {
+func (c cryptoService) Init(ctx Context) error {
 	return nil
 }
 
-func (c cryptoService) Send(ctx context.Context, messages ...interface{}) error {
+func (c cryptoService) Send(ctx Context, messages ...any) error {
 	switch messages[0] {
 	case "password":
 		return nil
@@ -32,7 +34,7 @@ func (c cryptoService) Send(ctx context.Context, messages ...interface{}) error 
 	}
 }
 
-func (c cryptoService) Get(ctx context.Context, messages ...interface{}) (response interface{}, err error) {
+func (c cryptoService) Get(ctx Context, messages ...any) (response any, err error) {
 	switch messages[0] {
 	case "password":
 		return GeneratePassword(messages[1].(string))
@@ -41,11 +43,11 @@ func (c cryptoService) Get(ctx context.Context, messages ...interface{}) (respon
 	}
 }
 
-func (c cryptoService) Connect(in <-chan interface{}) (out chan interface{}, err error) {
+func (c cryptoService) Connect(in <-chan any) (out chan any, err error) {
 	panic("implement me")
 }
 
-func (c cryptoService) Close(out chan<- interface{}) error {
+func (c cryptoService) Close(out chan<- any) error {
 	panic("implement me")
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -37,7 +37,7 @@ func TestColumnDecor_ToJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	tests := []struct {
@@ -111,7 +111,7 @@ func TestColumnDecor_InputTypeForJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	tests := []struct {
@@ -172,7 +172,7 @@ func TestColumnDecor_RenderAttr(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
@@ -237,11 +237,11 @@ func TestColumnDecor_RenderInputs(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
-		data map[string]interface{}
+		data map[string]any
 	}
 	tests := []struct {
 		name   string
@@ -302,11 +302,11 @@ func TestColumnDecor_RenderValue(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
-		value interface{}
+		value any
 	}
 	tests := []struct {
 		name   string
@@ -367,7 +367,7 @@ func TestColumnDecor_StreamDataForJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
@@ -431,7 +431,7 @@ func TestColumnDecor_StreamInputTypeForJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
@@ -495,7 +495,7 @@ func TestColumnDecor_StreamRenderAttr(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
@@ -560,12 +560,12 @@ func TestColumnDecor_StreamRenderInputs(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
 		qw422016 *qt422016.Writer
-		data     map[string]interface{}
+		data     map[string]any
 	}
 	tests := []struct {
 		name   string
@@ -625,12 +625,12 @@ func TestColumnDecor_StreamRenderValue(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
 		qw422016 *qt422016.Writer
-		value    interface{}
+		value    any
 	}
 	tests := []struct {
 		name   string
@@ -690,7 +690,7 @@ func TestColumnDecor_WriteDataForJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	tests := []struct {
@@ -753,7 +753,7 @@ func TestColumnDecor_WriteInputTypeForJSON(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	tests := []struct {
@@ -816,7 +816,7 @@ func TestColumnDecor_WriteRenderAttr(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
@@ -883,11 +883,11 @@ func TestColumnDecor_WriteRenderInputs(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
-		data map[string]interface{}
+		data map[string]any
 	}
 	tests := []struct {
 		name         string
@@ -950,11 +950,11 @@ func TestColumnDecor_WriteRenderValue(t *testing.T) {
 		Label             string
 		pattern           string
 		patternDesc       string
-		Value             interface{}
+		Value             any
 		Suggestions       string
 	}
 	type args struct {
-		value interface{}
+		value any
 	}
 	tests := []struct {
 		name         string
@@ -1003,7 +1003,7 @@ func TestFormField_FormHTML(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		blocks []BlockColumns
@@ -1039,7 +1039,7 @@ func TestFormField_FormJSON(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 		blocks      []BlockColumns
 	}
 	tests := []struct {
@@ -1093,7 +1093,7 @@ func TestFormField_RenderForm(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		isHTML bool
@@ -1129,7 +1129,7 @@ func TestFormField_StreamFormHTML(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		qw422016 *qt422016.Writer
@@ -1164,7 +1164,7 @@ func TestFormField_StreamFormJSON(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		qw422016 *qt422016.Writer
@@ -1199,7 +1199,7 @@ func TestFormField_StreamRenderForm(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		qw422016 *qt422016.Writer
@@ -1235,7 +1235,7 @@ func TestFormField_WriteFormHTML(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		blocks []BlockColumns
@@ -1272,7 +1272,7 @@ func TestFormField_WriteFormJSON(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		blocks []BlockColumns
@@ -1309,7 +1309,7 @@ func TestFormField_WriteRenderForm(t *testing.T) {
 		Action      string
 		Method      string
 		Description string
-		HideBlock   interface{}
+		HideBlock   any
 	}
 	type args struct {
 		isHTML bool

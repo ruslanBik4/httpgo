@@ -23,7 +23,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/domsolutions/http2"
 	"github.com/pkg/errors"
 	"github.com/quic-go/quic-go/http3"
 	"github.com/valyala/fasthttp"
@@ -34,6 +33,7 @@ import (
 	. "github.com/ruslanBik4/httpgo/apis"
 	"github.com/ruslanBik4/httpgo/apis/crud"
 	"github.com/ruslanBik4/httpgo/auth"
+	"github.com/ruslanBik4/httpgo/httpGo/http2"
 	"github.com/ruslanBik4/httpgo/views"
 	"github.com/ruslanBik4/logs"
 )
@@ -48,6 +48,7 @@ type HttpGo struct {
 	store      *Store
 	rdServer   *fasthttp.Server
 	h3Server   *http3.Server
+	h2Server   *http2.Server
 }
 
 // regForwardedFor extracts the "for=" identifier from a single element of an
@@ -125,16 +126,10 @@ func extractClientIP(ctx *fasthttp.RequestCtx) string {
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
+	// No ResetUserValues wrapper for HTTP/2 any more: every HTTP/2 stream gets
+	// a freshly reset RequestCtx, released only after its handler returns.
+	// (It would also erase the key http2.Push uses to find the stream.)
 	cfg.Server.Handler = apis.Handler
-	if cfg.HTTP2 != nil {
-		http2.ConfigureServer(cfg.Server, *cfg.HTTP2)
-		logs.StatusLog("set HTTP2 server configuration")
-		//reset user values for HTTP/2
-		cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			ctx.ResetUserValues()
-			apis.Handler(ctx)
-		}
-	}
 
 	if apis.Ctx == nil {
 		apis.Ctx = NewCtxApis(8)
@@ -186,6 +181,10 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 
 	_ = apis.AddRoutes(apisRoute)
 
+	// HTTP/2 (ALPN "h2"). Safe before the handler wrapping below: the
+	// HTTP/2 server resolves cfg.Server.Handler per request.
+	h2Server := NewHTTP2Server(cfg)
+
 	h := &HttpGo{
 		mainServer: cfg.Server,
 		listener:   listener,
@@ -193,6 +192,7 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 		apis:       apis,
 		cfg:        cfg,
 		store:      store,
+		h2Server:   h2Server,
 	}
 
 	h.setHTTP3()
@@ -402,6 +402,16 @@ func (h *HttpGo) listenOnShutdown() {
 
 	if err := h.h3ServerShutdownWithContext(ctx); err != nil {
 		logs.ErrorLog(err)
+	}
+
+	// Must run alongside mainServer shutdown: fasthttp waits for every open
+	// conn but can't close the ones it handed over to HTTP/2 via NextProto.
+	if h.h2Server != nil {
+		go func() {
+			if err := h.h2Server.Shutdown(ctx); err != nil {
+				logs.ErrorLog(err)
+			}
+		}()
 	}
 
 	if err := h.mainServer.ShutdownWithContext(ctx); err != nil {

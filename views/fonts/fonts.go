@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -43,7 +43,7 @@ var fontTypes = map[string]string{
 
 // HandleGetFont push font for some browser
 // @/fonts/{font_name}
-func HandleGetFont(ctx *fasthttp.RequestCtx) (interface{}, error) {
+func HandleGetFont(ctx *fasthttp.RequestCtx) (any, error) {
 
 	ext := ".ttf"
 	if browser := string(ctx.Request.Header.Peek("User-Agent")); strings.Contains(browser, "Safari") {

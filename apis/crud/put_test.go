@@ -23,7 +23,7 @@ func TestAddColumnAndValue(t *testing.T) {
 	type args struct {
 		name      string
 		table     dbEngine.Table
-		arg       interface{}
+		arg       any
 		buf       *bytes.Buffer
 		badParams map[string]string
 	}

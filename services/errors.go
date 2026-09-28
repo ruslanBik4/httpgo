@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 package services
 
@@ -47,7 +50,7 @@ const photosNotCorrectParameterType = " Wrong params type "
 type ErrServiceNotCorrectParamType struct {
 	Name   string
 	Number int
-	Param  interface{}
+	Param  any
 }
 
 func (err ErrServiceNotCorrectParamType) Error() string {
@@ -59,7 +62,7 @@ const photosNotEnoughParameter = " not enough parameters: "
 // ErrServiceNotEnoughParameter for errors if not found required parameter
 type ErrServiceNotEnoughParameter struct {
 	Name  string
-	Param interface{}
+	Param any
 }
 
 func (err ErrServiceNotEnoughParameter) Error() string {
@@ -71,7 +74,7 @@ const brokenStatus = " broken status "
 // ErrBrokenConnection for errors broken connection
 type ErrBrokenConnection struct {
 	Name  string
-	Param interface{}
+	Param any
 }
 
 func (err ErrBrokenConnection) Error() string {

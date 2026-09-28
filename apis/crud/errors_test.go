@@ -96,7 +96,7 @@ func Test_createResult(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    interface{}
+		want    any
 		wantErr bool
 	}{
 		// TODO: Add test cases.

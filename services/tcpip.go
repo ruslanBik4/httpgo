@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -165,9 +165,9 @@ func doRequest(url string, hdr *fasthttp.RequestHeader, method string) (*fasthtt
 	req.Header.SetMethod(method)
 	req.SetRequestURI(url)
 
-	c := fasthttp.Client{}
-	//avoid error when server has not trusted certificate
-	c.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	c := fasthttp.Client{
+		//avoid error when server has not trusted certificate
+		TLSConfig: &tls.Config{InsecureSkipVerify: true}}
 	for {
 
 		resp := &fasthttp.Response{}

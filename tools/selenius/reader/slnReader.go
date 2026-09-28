@@ -1,6 +1,9 @@
-// Copyright 2017 Author: Ruslan Bikchentaev. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
+/*
+ * Copyright (c) 2026. Author: Ruslan Bikchentaev. All rights reserved.
+ * Use of this source code is governed by a BSD-style
+ * license that can be found in the LICENSE file.
+ * Перший приватний програміст.
+ */
 
 // read file with seleniumCSS command and run with Chrome
 package main
@@ -9,8 +12,8 @@ import (
 	"bytes"
 	"errors"
 	"flag"
-	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -59,16 +62,16 @@ func main() {
 		return
 	}
 
-	b, err := ioutil.ReadFile(*fFilename)
+	b, err := os.ReadFile(*fFilename)
 	if err != nil {
 		logs.ErrorLog(err, "")
 		return
 	}
 
 	b = bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
-	slBytes := bytes.Split(b, []byte("\n"))
+	slBytes := bytes.SplitSeq(b, []byte("\n"))
 
-	for _, line := range slBytes {
+	for line := range slBytes {
 
 		// комментарии и пустые строки пропускаем
 		if (len(line) == 0) || isComment(line) {
@@ -134,7 +137,6 @@ func isComment(line []byte) bool {
 		(bytes.HasPrefix(line, []byte("/*")) && bytes.HasSuffix(line, []byte("*/")))
 }
 
-//
 func getParam(param string) string {
 	param = strings.TrimSpace(param)
 	if (param > "") && (param[0] == valPrefix) {
