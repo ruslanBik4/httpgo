@@ -305,6 +305,17 @@ func init() {
 			return false
 		})
 
+	jsoniter.RegisterTypeEncoderFunc("pgtype.Timestamp",
+		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
+			val := (*pgtype.Timestamp)(ptr)
+
+			stream.WriteInt64(val.Time.Unix())
+
+		},
+		func(pointer unsafe.Pointer) bool {
+			return false
+		})
+
 	jsoniter.RegisterTypeEncoderFunc("pgtype.VarcharArray",
 		func(ptr unsafe.Pointer, stream *jsoniter.Stream) {
 			accArray := (*pgtype.Array[pgtype.Text])(ptr)

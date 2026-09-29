@@ -12,8 +12,10 @@ import (
 	"fmt"
 	"net/netip"
 	"strings"
+	"unsafe"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	jsoniter "github.com/json-iterator/go"
 
 	"github.com/ruslanBik4/logs"
 )
@@ -55,7 +57,7 @@ func (d *DateRangeMarshal) GetValue() any {
 }
 
 func (d *DateRangeMarshal) NewValue() any {
-	return &DateRangeMarshal{&pgtype.Range[pgtype.Date]{}}
+	return NewDateRangeMarshal()
 }
 
 func (d *DateRangeMarshal) Value() (driver.Value, error) {
@@ -64,89 +66,92 @@ func (d *DateRangeMarshal) Value() (driver.Value, error) {
 
 // Format implement Formatter interface
 func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err := fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+	default:
+		_, err = fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
 
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (d *DateRangeMarshal) Get() any {
 	return d.GetValue()
 }
+func (d *DateRangeMarshal) UnmarshalJSON(src []byte) error {
+	sc := new(pgtype.RangeCodec{ElementType: &pgtype.Type{
+		Codec: pgtype.DateCodec{},
+		Name:  "date",
+		OID:   pgtype.DateOID,
+	}}).PlanScan(pgtype.NewMap(), pgtype.DateOID, pgtype.TextFormatCode, d)
+	logs.StatusLog(sc, d)
+	err := sc.Scan(src, d)
+	logs.StatusLog("d = %s '%s'", d, src, err)
+	return err
+}
+func DecodeDateRangeMarshal(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
+	val := (*DateRangeMarshal)(ptr)
+	switch t := iter.WhatIsNext(); t {
+	case jsoniter.ArrayValue:
+		v := val.Lower
+		iter.Read()
+		iter.ReadArrayCB(func(iter *jsoniter.Iterator) bool {
+			err := v.Scan(iter.ReadObject())
+			if err != nil {
+				logs.ErrorLog(err)
+				return false
+			}
+			v = val.Upper
+			return true
+		})
+		val.LowerType = pgtype.Inclusive
+		val.UpperType = val.LowerType
+		val.Valid = true
 
-//func (d *DateRangeMarshal) Set(src any) error {
-//	if d.Range[pgtype.Date] == nil {
-//		d.Range[pgtype.Date] = &pgtype.Range[pgtype.Date]{Status: pgtype.Null}
-//	}
-//	// untyped nil and typed nil interfaces are different
-//	if src == nil {
-//		d.Status = pgtype.Null
-//		return nil
-//	}
-//
-//	switch src := src.(type) {
-//	case string:
-//		if src == "" {
-//			d.Status = pgtype.Undefined
-//			return nil
-//		}
-//
-//		parts := strings.Split(src, ",")
-//
-//		lower := strings.TrimSpace(parts[0])
-//		d.LowerType, lower = lowerBoundType(lower)
-//
-//		err := d.Lower.Scan(lower)
-//		if err == nil {
-//			// if get one value set range to one date
-//			if len(parts) == 1 {
-//				d.Upper = d.Lower
-//				d.UpperType = pgtype.Inclusive
-//			} else {
-//				upper := strings.TrimSpace(parts[1])
-//				d.UpperType, upper = upperBoundType(upper)
-//				err = d.Upper.Scan(upper)
-//			}
-//		}
-//		if err != nil {
-//			logs.ErrorLog(err)
-//			return d.Range[pgtype.Date].Set(src)
-//		}
-//
-//		d.Status = pgtype.Present
-//
-//	case *pgtype.Range[pgtype.Date]:
-//		d.Lower = src.Lower
-//		d.Upper = src.Upper
-//		d.LowerType = src.LowerType
-//		d.UpperType = src.UpperType
-//		d.Status = src.Status
-//		d.LowerType = pgtype.Inclusive
-//		d.UpperType = pgtype.Inclusive
-//
-//	case pgtype.Range[pgtype.Date]:
-//		return d.Set(&src)
-//
-//	default:
-//		return d.Range[pgtype.Date].Set(src)
-//	}
-//
-//	return nil
-//}
+	case jsoniter.StringValue:
+		src := iter.ReadString()
+
+		if src == "" {
+			val.Valid = false
+			return
+		}
+
+		parts := strings.Split(src, ",")
+
+		lower := strings.TrimSpace(parts[0])
+		val.LowerType, lower = lowerBoundType(lower)
+
+		err := val.Lower.Scan(lower)
+		if err == nil {
+			// if get one value set range to one date
+			if len(parts) == 1 {
+				val.Upper = val.Lower
+				val.UpperType = pgtype.Inclusive
+			} else {
+				upper := strings.TrimSpace(parts[1])
+				val.UpperType, upper = upperBoundType(upper)
+				err = val.Upper.Scan(upper)
+			}
+		}
+		if err != nil {
+			logs.ErrorLog(err)
+			return
+		}
+
+		val.Valid = true
+
+	default:
+		logs.ErrorLog(fmt.Errorf("unknown type"), t)
+	}
+}
 
 func lowerBoundType(lower string) (pgtype.BoundType, string) {
 	if a, ok := strings.CutPrefix(lower, "["); ok {
@@ -301,4 +306,9 @@ func (n *NumrangeMarshal) Format(s fmt.State, verb rune) {
 
 func (d *NumrangeMarshal) GetPgxType() pgtype.Range[pgtype.Numeric] {
 	return pgtype.Range[pgtype.Numeric](*d)
+}
+
+func init() {
+	jsoniter.RegisterTypeDecoderFunc("crud.DateRangeMarshal", DecodeDateRangeMarshal)
+	//jsoniter.RegisterTypeEncoderFunc("crud.DateRangeMarshal", EncodeDateString, IsEmptyDateString)
 }
