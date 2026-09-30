@@ -225,7 +225,7 @@ func (t TypeInParam) ReadValue(s string, res any) (any, error) {
 	case json.Unmarshaler:
 		err := res.UnmarshalJSON(gotools.StringToBytes(s))
 		if err != nil {
-			return nil, errors.Wrap(err, "Unmarshal ")
+			return nil, errors.Wrapf(err, "Unmarshal %g", t)
 		}
 		return res, nil
 
@@ -240,7 +240,7 @@ func (t TypeInParam) ReadValue(s string, res any) (any, error) {
 	default:
 		err := Json.UnmarshalFromString(s, &res)
 		if err != nil {
-			return nil, errors.Wrap(err, "UnmarshalFromString")
+			return nil, errors.Wrapf(err, "UnmarshalFromString '%s'", s)
 		}
 		return res, nil
 	}

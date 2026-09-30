@@ -1336,9 +1336,9 @@ func (e *EnumString) FormatDoc() string   { return "enum" }
 func (e *EnumString) RequestType() string { return "string" }
 
 func (e *EnumString) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
+	s := gotools.BytesToString(src)
+	if s == "" || !slices.Contains(e.Allowed, s) {
+		return fmt.Errorf("%q must be one of: %s", s, strings.Join(e.Allowed, ", "))
 	}
 
 	e.Value = s
@@ -1348,7 +1348,7 @@ func (e *EnumString) UnmarshalJSON(src []byte) error {
 // CheckParams implement CheckDTO interface - rejects a label Postgres doesn't
 // know about with a clear message instead of letting the query fail server-side.
 func (e *EnumString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]string) bool {
-	if e.Value == "" || slices.Contains(e.Allowed, e.Value) {
+	if slices.Contains(e.Allowed, e.Value) {
 		return true
 	}
 
