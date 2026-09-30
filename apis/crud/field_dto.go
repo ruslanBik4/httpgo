@@ -41,24 +41,17 @@ func (d *DTO[T]) String() string {
 }
 
 func (d *DTO[T]) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "*crud.DTO[%T]", d.val)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "*crud.DTO[%T]", d.val)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&crud.DTO[%T]{}", d.val)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprintf(s, "&crud.DTO[%T]{}", d.val)
 	case 's':
-		_, err := fmt.Fprintf(s, "&crud.DTO[%T]", d.val)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprintf(s, "&crud.DTO[%T]", d.val)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -128,23 +121,17 @@ func (d *DateTimeString) Expect() string {
 
 // Format implement Formatter interface
 func (d *DateTimeString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err := fmt.Fprint(s, (time.Time)(*d).String())
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, (time.Time)(*d).String())
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -249,26 +236,20 @@ func (d *TzString) NewValue() any { return NewTzString() }
 
 // Format implement Formatter interface
 func (d *TzString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
 		// NewTzString(), not "&crud.TzString{}" - the zero-value literal leaves the
 		// embedded *DateTimeString nil, which panics the moment anything (UnmarshalJSON,
 		// GetPgxType) touches it.
-		_, err := fmt.Fprint(s, "crud.NewTzString()")
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprint(s, "crud.NewTzString()")
 	case 's':
-		_, err := fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -295,24 +276,18 @@ func (d *TimestampString) NewValue() any { return NewTimestampString() }
 
 // Format implement Formatter interface
 func (d *TimestampString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
 		// NewTimestampString(), not "&crud.TimestampString{}" - see TzString.Format above.
-		_, err := fmt.Fprint(s, "crud.NewTimestampString()")
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprint(s, "crud.NewTimestampString()")
 	case 's':
-		_, err := fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -493,23 +468,17 @@ func (d *DtoFileField) RequestType() string {
 
 // Format implement Formatter interface
 func (d *DtoFileField) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err := fmt.Fprint(s, "[]*multipart.FileHeader")
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, "[]*multipart.FileHeader")
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -553,23 +522,17 @@ func (d *DtoField) RequestType() string {
 
 // Format implement Formatter interface
 func (d *DtoField) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err := fmt.Fprint(s, "map[string]any")
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprint(s, "map[string]any")
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -679,15 +642,19 @@ func (p *PointString) FormatDoc() string   { return "point" }
 func (p *PointString) RequestType() string { return "string" }
 
 func (p *PointString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", p)
+		_, err = fmt.Fprintf(s, "%T", p)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *p)
+		_, err = fmt.Fprintf(s, "&%T{}", *p)
 	case 's':
 		if p.Valid {
-			fmt.Fprintf(s, "(%v,%v)", p.P.X, p.P.Y)
+			_, err = fmt.Fprintf(s, "(%v,%v)", p.P.X, p.P.Y)
 		}
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -772,80 +739,109 @@ func (l *CircleString) UnmarshalJSON(src []byte) error  { return scanTextJSON(l,
 // database/sql/driver.Valuer (promoted the same way Scan is above), rendering
 // Postgres's own canonical text syntax for that type - so no per-type formatting
 // code is needed here either.
-func formatValuerString(v interface{ Value() (driver.Value, error) }, s fmt.State) {
+// formatValuerString returns the error instead of logging it itself, so
+// every Format method below can fold it into that method's own single
+// `var err error` / one logs.ErrorLog(err) at the end - not a second,
+// separate log site living inside this helper.
+func formatValuerString(v interface{ Value() (driver.Value, error) }, s fmt.State) error {
 	val, err := v.Value()
 	if err != nil {
-		logs.ErrorLog(err)
-		return
+		return err
 	}
-	if val != nil {
-		fmt.Fprintf(s, "%v", val)
+	if val == nil {
+		return nil
 	}
+	_, err = fmt.Fprintf(s, "%v", val)
+	return err
 }
 
 func (l *LineString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (l *LsegString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (l *BoxString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (l *PathString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (l *PolygonString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (l *CircleString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", l)
+		_, err = fmt.Fprintf(s, "%T", l)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *l)
+		_, err = fmt.Fprintf(s, "&%T{}", *l)
 	case 's':
-		formatValuerString(l, s)
+		err = formatValuerString(l, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -878,24 +874,32 @@ func (t *TSVectorString) RequestType() string { return "string" }
 func (t *TSQueryString) RequestType() string  { return "string" }
 
 func (t *TSVectorString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", t)
+		_, err = fmt.Fprintf(s, "%T", t)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *t)
+		_, err = fmt.Fprintf(s, "&%T{}", *t)
 	case 's':
-		formatValuerString(t, s)
+		err = formatValuerString(t, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (t *TSQueryString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", t)
+		_, err = fmt.Fprintf(s, "%T", t)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *t)
+		_, err = fmt.Fprintf(s, "&%T{}", *t)
 	case 's':
-		formatValuerString(t, s)
+		err = formatValuerString(t, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -919,13 +923,17 @@ func (n *NumericString) FormatDoc() string          { return "numeric" }
 func (n *NumericString) RequestType() string        { return "number" }
 
 func (n *NumericString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", n)
+		_, err = fmt.Fprintf(s, "%T", n)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *n)
+		_, err = fmt.Fprintf(s, "&%T{}", *n)
 	case 's':
-		formatValuerString(n, s)
+		err = formatValuerString(n, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -956,13 +964,17 @@ func (h *HstoreMarshal) UnmarshalJSON(src []byte) error {
 }
 
 func (h *HstoreMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", h)
+		_, err = fmt.Fprintf(s, "%T", h)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *h)
+		_, err = fmt.Fprintf(s, "&%T{}", *h)
 	case 's':
-		formatValuerString(h, s)
+		err = formatValuerString(h, s)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -1196,46 +1208,62 @@ func (r *TsTzRangeMarshal) UnmarshalJSON(src []byte) error {
 }
 
 func (r *Int4RangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", r)
+		_, err = fmt.Fprintf(s, "%T", r)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *r)
+		_, err = fmt.Fprintf(s, "&%T{}", *r)
 	case 's':
-		fmt.Fprint(s, formatRangeLiteral(r.Range))
+		_, err = fmt.Fprint(s, formatRangeLiteral(r.Range))
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (r *Int8RangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", r)
+		_, err = fmt.Fprintf(s, "%T", r)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *r)
+		_, err = fmt.Fprintf(s, "&%T{}", *r)
 	case 's':
-		fmt.Fprint(s, formatRangeLiteral(r.Range))
+		_, err = fmt.Fprint(s, formatRangeLiteral(r.Range))
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (r *TsRangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", r)
+		_, err = fmt.Fprintf(s, "%T", r)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *r)
+		_, err = fmt.Fprintf(s, "&%T{}", *r)
 	case 's':
-		fmt.Fprint(s, formatRangeLiteral(r.Range))
+		_, err = fmt.Fprint(s, formatRangeLiteral(r.Range))
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
 func (r *TsTzRangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", r)
+		_, err = fmt.Fprintf(s, "%T", r)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *r)
+		_, err = fmt.Fprintf(s, "&%T{}", *r)
 	case 's':
-		fmt.Fprint(s, formatRangeLiteral(r.Range))
+		_, err = fmt.Fprint(s, formatRangeLiteral(r.Range))
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -1256,15 +1284,19 @@ func (u *UUIDString) FormatDoc() string       { return "uuid" }
 func (u *UUIDString) RequestType() string     { return "string" }
 
 func (u *UUIDString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", u)
+		_, err = fmt.Fprintf(s, "%T", u)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *u)
+		_, err = fmt.Fprintf(s, "&%T{}", *u)
 	case 's':
 		if u.Valid {
-			fmt.Fprint(s, u.UUID.String())
+			_, err = fmt.Fprint(s, u.UUID.String())
 		}
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -1300,15 +1332,19 @@ func (m *MacaddrString) UnmarshalJSON(src []byte) error {
 }
 
 func (m *MacaddrString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", m)
+		_, err = fmt.Fprintf(s, "%T", m)
 	case 'g':
-		fmt.Fprintf(s, "&%T{}", *m)
+		_, err = fmt.Fprintf(s, "&%T{}", *m)
 	case 's':
 		if m.HardwareAddr != nil {
-			fmt.Fprint(s, m.HardwareAddr.String())
+			_, err = fmt.Fprint(s, m.HardwareAddr.String())
 		}
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -1357,13 +1393,17 @@ func (e *EnumString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[string]
 }
 
 func (e *EnumString) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		fmt.Fprintf(s, "%T", e)
+		_, err = fmt.Fprintf(s, "%T", e)
 	case 'g':
-		fmt.Fprintf(s, "crud.NewEnumString(%#v)", e.Allowed)
+		_, err = fmt.Fprintf(s, "crud.NewEnumString(%#v)", e.Allowed)
 	case 's':
-		fmt.Fprint(s, e.Value)
+		_, err = fmt.Fprint(s, e.Value)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
