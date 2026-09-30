@@ -9,6 +9,7 @@ package crud
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"net/netip"
 	"strings"
@@ -204,25 +205,35 @@ func (i *IntervalMarshal) Set(src any) error {
 	}
 }
 
-// Format implement Formatter interface
+// UnmarshalJSON: pgtype.Interval has no UnmarshalJSON of its own - unwrap the
+// JSON string and hand it to Set, which already knows how to Scan a
+// Postgres interval literal into the embedded value.
+func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
+	var s string
+	if err := json.Unmarshal(src, &s); err != nil {
+		return err
+	}
+
+	return i.Set(s)
+}
+
+// Format implement Formatter interface. 'g' uses crud.NewIntervalMarshal(),
+// not the zero-value literal "&crud.IntervalMarshal{}" - the latter leaves
+// the embedded *pgtype.Interval nil, which panics the moment UnmarshalJSON
+// (Set -> i.Interval.Scan) dereferences it - same reasoning as
+// TzString/TimestampString/InetMarshal's own Format doc comments.
 func (d *IntervalMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *d)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprint(s, "crud.NewIntervalMarshal()")
 	case 's':
-		_, err := fmt.Fprintf(s, "%d month %d day %d", d.Months, d.Days, d.Microseconds)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
-
+		_, err = fmt.Fprintf(s, "%d month %d day %d", d.Months, d.Days, d.Microseconds)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 
@@ -240,6 +251,46 @@ func (i *InetMarshal) GetValue() any {
 
 func (i *InetMarshal) NewValue() any {
 	return &InetMarshal{&netip.Addr{}}
+}
+
+// UnmarshalJSON: netip.Addr has no UnmarshalJSON of its own (only
+// UnmarshalText), so unwrap the JSON string first and parse it directly -
+// covers both "inet" and "cidr" (inet/cidr share InetMarshal, see setType).
+func (i *InetMarshal) UnmarshalJSON(src []byte) error {
+	var s string
+	if err := json.Unmarshal(src, &s); err != nil {
+		return err
+	}
+
+	addr, err := netip.ParseAddr(s)
+	if err != nil {
+		return err
+	}
+
+	*i.Addr = addr
+	return nil
+}
+
+// Format implement Formatter interface. 'g' uses crud.NewInetMarshal(), not
+// the zero-value literal "&crud.InetMarshal{}" - the latter leaves the
+// embedded *netip.Addr nil, which panics the moment UnmarshalJSON above (or
+// anything else) dereferences i.Addr - same reasoning as TzString/
+// TimestampString's own Format doc comments.
+func (i *InetMarshal) Format(s fmt.State, verb rune) {
+	var err error
+	switch verb {
+	case 't':
+		_, err = fmt.Fprintf(s, "%T", i)
+	case 'g':
+		_, err = fmt.Fprint(s, "crud.NewInetMarshal()")
+	case 's':
+		if i.Addr != nil && i.Addr.IsValid() {
+			_, err = fmt.Fprint(s, i.Addr.String())
+		}
+	}
+	if err != nil {
+		logs.ErrorLog(err)
+	}
 }
 
 //func (i *InetMarshal) Set(src any) error {
@@ -269,6 +320,31 @@ func (n *NumrangeMarshal) GetValue() any {
 	return pgtype.Range[pgtype.Numeric](*n)
 }
 
+// UnmarshalJSON reuses parseRangeLiteral (field_dto.go) - the same helper
+// Int4RangeMarshal/Int8RangeMarshal/TsRangeMarshal/TsTzRangeMarshal already
+// use - with a bound parser that hands the bound's text to pgtype.Numeric's
+// own Scan, which already parses arbitrary-precision decimal text without
+// going through float64 (see NumericString's doc comment for why that
+// matters).
+func (n *NumrangeMarshal) UnmarshalJSON(src []byte) error {
+	var s string
+	if err := json.Unmarshal(src, &s); err != nil {
+		return err
+	}
+
+	rng, err := parseRangeLiteral(s, func(b string) (pgtype.Numeric, error) {
+		var num pgtype.Numeric
+		err := num.Scan(b)
+		return num, err
+	})
+	if err != nil {
+		return err
+	}
+
+	*n = NumrangeMarshal(rng)
+	return nil
+}
+
 func (n *NumrangeMarshal) NewValue() any {
 	return new(NumrangeMarshal(pgtype.Range[pgtype.Numeric]{}))
 }
@@ -285,22 +361,17 @@ func (n *NumrangeMarshal) NewValue() any {
 
 // Format implement Formatter interface
 func (n *NumrangeMarshal) Format(s fmt.State, verb rune) {
+	var err error
 	switch verb {
 	case 't':
-		_, err := fmt.Fprintf(s, "%T", n)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%T", n)
 	case 'g':
-		_, err := fmt.Fprintf(s, "&%T{}", *n)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "&%T{}", *n)
 	case 's':
-		_, err := fmt.Fprintf(s, "%v %v %v %v", n.LowerType, n.Lower, n.UpperType, n.UpperType)
-		if err != nil {
-			logs.ErrorLog(err)
-		}
+		_, err = fmt.Fprintf(s, "%v %v %v %v", n.LowerType, n.Lower, n.UpperType, n.UpperType)
+	}
+	if err != nil {
+		logs.ErrorLog(err)
 	}
 }
 

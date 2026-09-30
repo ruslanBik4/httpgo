@@ -26,6 +26,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
+	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/httpgo/apis"
@@ -569,6 +570,23 @@ func (d *DtoField) NewValue() any {
 	return n
 }
 
+// Each implements apis.Visit's per-key callback. obj may be any JSON value
+// (object, array, or scalar) - not only another object - so it's decoded the
+// same way UnmarshalJSON above decodes a whole body: via encoding/json rather
+// than a hand-rolled fastjson.Value walk, since a map[string]any accepts any
+// of those shapes with no type mismatch possible. NewValue above returns a
+// *DtoField over a nil map, so the first call has to allocate it.
+func (d *DtoField) Each(key []byte, v *fastjson.Value) {
+	(map[string]any)(*d)[gotools.BytesToString(key)] = v.GetStringBytes()
+}
+
+// Result implements apis.Visit. A DtoField is a plain map, not a struct like
+// {dtoName}Map, so it has nowhere to stash a per-Each error - Each already
+// logs and skips a key it can't decode instead - and Result always succeeds.
+func (d *DtoField) Result() (any, error) {
+	return d, nil
+}
+
 type FormActions struct {
 	Typ string `json:"type"`
 	Url string `json:"url"`
@@ -640,6 +658,12 @@ func (p *PointString) NewValue() any       { return &PointString{} }
 func (p *PointString) Expect() string      { return "point" }
 func (p *PointString) FormatDoc() string   { return "point" }
 func (p *PointString) RequestType() string { return "string" }
+
+// UnmarshalJSON: same reasoning as the "Other Geometric Types" wrappers below
+// - pgtype.Point has no UnmarshalJSON of its own, but the embedded value's
+// promoted Scan(any) error already parses Postgres's own text syntax
+// ("(x,y)"), so scanTextJSON only needs a JSON string unwrapped first.
+func (p *PointString) UnmarshalJSON(src []byte) error { return scanTextJSON(p, src) }
 
 func (p *PointString) Format(s fmt.State, verb rune) {
 	var err error
