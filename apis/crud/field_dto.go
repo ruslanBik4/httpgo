@@ -570,12 +570,11 @@ func (d *DtoField) NewValue() any {
 	return n
 }
 
-// Each implements apis.Visit's per-key callback. obj may be any JSON value
-// (object, array, or scalar) - not only another object - so it's decoded the
-// same way UnmarshalJSON above decodes a whole body: via encoding/json rather
-// than a hand-rolled fastjson.Value walk, since a map[string]any accepts any
-// of those shapes with no type mismatch possible. NewValue above returns a
-// *DtoField over a nil map, so the first call has to allocate it.
+// Each implements apis.Visit's per-key callback - r.field is always
+// constructed via New{dtoName}()'s &crud.DtoField{} literal (see Format's 'g'
+// case below), never via NewValue's nil map, so no allocation guard is
+// needed here. gotools.BytesToString avoids the copy plain string(key) would
+// make, same as {dtoName}Map.Each's own key handling.
 func (d *DtoField) Each(key []byte, v *fastjson.Value) {
 	(map[string]any)(*d)[gotools.BytesToString(key)] = v.GetStringBytes()
 }
