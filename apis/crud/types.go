@@ -74,9 +74,9 @@ func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
 	case 'g':
 		_, err = fmt.Fprintf(s, "&%T{}", *d)
 	case 's':
-		_, err = fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+		_, err = fmt.Fprintf(s, "%s %v %v %s", d.LowerType, d.Lower, d.Upper, d.UpperType)
 	default:
-		_, err = fmt.Fprintf(s, "%v %v %v %v", d.LowerType, d.Lower, d.UpperType, d.UpperType)
+		_, err = fmt.Fprintf(s, "%s %v %v %s", d.LowerType, d.Lower, d.Upper, d.UpperType)
 
 	}
 	if err != nil {
@@ -93,7 +93,7 @@ func (d *DateRangeMarshal) UnmarshalJSON(src []byte) error {
 		Name:  "date",
 		OID:   pgtype.DateOID,
 	}}).PlanScan(pgtype.NewMap(), pgtype.DateOID, pgtype.TextFormatCode, d)
-	logs.StatusLog(sc, d)
+	//logs.StatusLog(sc, d)
 	err := sc.Scan(src, d)
 	logs.StatusLog("d = %s '%s'", d, src, err)
 	return err

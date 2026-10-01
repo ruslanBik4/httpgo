@@ -266,7 +266,7 @@ func (h *HttpGo) setHTTP3() {
 			tlsCfg = ln.tlsCfg.Clone()
 			fPort = ln.fPort
 		} else {
-			certMaps := newCertMaps()
+			certMaps := newCertMaps() // $HTTPGO_CERT_DIR (list) or /etc/ssl/sites
 			if err := certMaps.loadCertificates(); err != nil {
 				// Was: log the error and press on anyway, building a
 				// tls.Config around a certMaps that may hold zero usable
