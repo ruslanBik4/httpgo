@@ -45,8 +45,8 @@ func CreateErrResult(err error) (any, error) {
 	}
 
 	msg := err.Error()
-	e, ok := errors.Cause(err).(*pgconn.PgError)
-	if ok {
+	e, isPgError := errors.Cause(err).(*pgconn.PgError)
+	if isPgError {
 		if e.Detail != "" {
 			msg = e.Detail
 		} else {
@@ -80,9 +80,11 @@ func CreateErrResult(err error) (any, error) {
 		return ErrWrongParamsResult(s[1], "duplicate key value violates unique constraint")
 	}
 
-	//new row for relation "trading_plans" violates check constraint "risk_no_zero"
-	if e.ConstraintName != "" {
-		return ErrWrongParamsResult(e.TableName, fmt.Sprintf(`violates check constraint "%s"`, e.ConstraintName))
+	if isPgError {
+		//new row for relation "trading_plans" violates check constraint "risk_no_zero"
+		if e.ConstraintName != "" {
+			return ErrWrongParamsResult(e.TableName, fmt.Sprintf(`violates check constraint "%s"`, e.ConstraintName))
+		}
 	}
 
 	logs.ErrorLog(err)

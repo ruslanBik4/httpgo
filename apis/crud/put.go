@@ -170,7 +170,7 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 			}
 
 		case *DtoField:
-			_, err := fmt.Fprintf(buf, " %v", arg)
+			_, err := fmt.Fprintf(buf, " %v", val)
 			logs.ErrorLog(err)
 			return colName, val
 
@@ -182,7 +182,13 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 	default:
 		_, err := fmt.Fprintf(buf, " %v", arg)
 		logs.ErrorLog(err)
-		return colName, arg
+
+		switch val := arg.(type) {
+		case apis.RouteDTO:
+			return colName, val.GetValue()
+		default:
+			return colName, arg
+		}
 	}
 }
 

@@ -1424,6 +1424,8 @@ func (e *EnumString) Format(s fmt.State, verb rune) {
 		_, err = fmt.Fprintf(s, "crud.NewEnumString(%#v)", e.Allowed)
 	case 's':
 		_, err = fmt.Fprint(s, e.Value)
+	default:
+		_, err = fmt.Fprintf(s, "%s %v", e.Value, e.Allowed)
 	}
 	if err != nil {
 		logs.ErrorLog(err)
