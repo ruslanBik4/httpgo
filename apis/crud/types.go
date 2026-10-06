@@ -230,6 +230,10 @@ func (i *IntervalMarshal) NewValue() any {
 	return &IntervalMarshal{&pgtype.Interval{}}
 }
 
+func (i *IntervalMarshal) GetPgxType() pgtype.Interval {
+	return *i.Interval
+}
+
 func (i *IntervalMarshal) Set(src any) error {
 	switch src := src.(type) {
 	case string:
@@ -285,6 +289,10 @@ func (i *InetMarshal) GetValue() any {
 
 func (i *InetMarshal) NewValue() any {
 	return &InetMarshal{&netip.Addr{}}
+}
+
+func (i *InetMarshal) GetPgxType() netip.Addr {
+	return *i.Addr
 }
 
 // UnmarshalJSON: netip.Addr has no UnmarshalJSON of its own (only

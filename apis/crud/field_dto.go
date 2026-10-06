@@ -1173,10 +1173,48 @@ func NewInt8RangeMarshal() *Int8RangeMarshal { return &Int8RangeMarshal{} }
 func NewTsRangeMarshal() *TsRangeMarshal     { return &TsRangeMarshal{} }
 func NewTsTzRangeMarshal() *TsTzRangeMarshal { return &TsTzRangeMarshal{} }
 
-func (r *Int4RangeMarshal) GetPgxType() pgtype.Range[int32]     { return r.Range }
-func (r *Int8RangeMarshal) GetPgxType() pgtype.Range[int64]     { return r.Range }
-func (r *TsRangeMarshal) GetPgxType() pgtype.Range[time.Time]   { return r.Range }
-func (r *TsTzRangeMarshal) GetPgxType() pgtype.Range[time.Time] { return r.Range }
+// convertRange is the own conversion from the element type a Range is parsed
+// into (int32, time.Time, ...) to the element type its db column is generated
+// with. getCodecType (PackageBuilder) names a range column's Go type from the
+// range codec's ELEMENT codec - int4range is pgtype.Range[pgtype.Int4],
+// tsrange pgtype.Range[pgtype.Timestamp], tstzrange pgtype.Range[pgtype.Timestamptz]
+// - not pgtype.Range[int32] / pgtype.Range[time.Time], which are different types
+// and can't be assigned to those fields. A bound's value is converted only when
+// the bound exists: an unbounded or empty side keeps the zero element, which
+// pgx's RangeCodec ignores on encode anyway.
+func convertRange[From, To any](r pgtype.Range[From], conv func(From) To) pgtype.Range[To] {
+	out := pgtype.Range[To]{
+		LowerType: r.LowerType,
+		UpperType: r.UpperType,
+		Valid:     r.Valid,
+	}
+	if r.LowerType == pgtype.Inclusive || r.LowerType == pgtype.Exclusive {
+		out.Lower = conv(r.Lower)
+	}
+	if r.UpperType == pgtype.Inclusive || r.UpperType == pgtype.Exclusive {
+		out.Upper = conv(r.Upper)
+	}
+
+	return out
+}
+
+// GetPgxType of the four range wrappers below returns the shape of the db
+// column's own field (see convertRange), not of the wrapper's parsed element.
+func (r *Int4RangeMarshal) GetPgxType() pgtype.Range[pgtype.Int4] {
+	return convertRange(r.Range, func(v int32) pgtype.Int4 { return pgtype.Int4{Int32: v, Valid: true} })
+}
+
+func (r *Int8RangeMarshal) GetPgxType() pgtype.Range[pgtype.Int8] {
+	return convertRange(r.Range, func(v int64) pgtype.Int8 { return pgtype.Int8{Int64: v, Valid: true} })
+}
+
+func (r *TsRangeMarshal) GetPgxType() pgtype.Range[pgtype.Timestamp] {
+	return convertRange(r.Range, func(v time.Time) pgtype.Timestamp { return pgtype.Timestamp{Time: v, Valid: true} })
+}
+
+func (r *TsTzRangeMarshal) GetPgxType() pgtype.Range[pgtype.Timestamptz] {
+	return convertRange(r.Range, func(v time.Time) pgtype.Timestamptz { return pgtype.Timestamptz{Time: v, Valid: true} })
+}
 
 func (r *Int4RangeMarshal) GetValue() any { return &r.Range }
 func (r *Int8RangeMarshal) GetValue() any { return &r.Range }
