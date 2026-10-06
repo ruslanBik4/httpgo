@@ -8,6 +8,7 @@
 package crud
 
 import (
+	"bytes"
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
@@ -18,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	jsoniter "github.com/json-iterator/go"
 
+	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
 )
 
@@ -72,7 +74,10 @@ func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
 	case 't':
 		_, err = fmt.Fprintf(s, "%T", d)
 	case 'g':
-		_, err = fmt.Fprintf(s, "&%T{}", *d)
+		// NewDateRangeMarshal(), not "&crud.DateRangeMarshal{}" - the zero-value
+		// literal leaves the embedded *pgtype.Range nil, which panics the moment
+		// UnmarshalJSON (or GetPgxType) touches it - same as TzString.Format.
+		_, err = fmt.Fprint(s, "crud.NewDateRangeMarshal()")
 	case 's':
 		_, err = fmt.Fprintf(s, "%s %v %v %s", d.LowerType, d.Lower, d.Upper, d.UpperType)
 	default:
@@ -87,17 +92,46 @@ func (d *DateRangeMarshal) Format(s fmt.State, verb rune) {
 func (d *DateRangeMarshal) Get() any {
 	return d.GetValue()
 }
+
+// UnmarshalJSON scans a range literal in Postgres's own text syntax
+// ("[2026-01-01,2026-02-01)", "empty") with pgx's RangeCodec; when that fails it
+// tries the value as a single date, in any layout DateString.UnmarshalJSON
+// accepts ("2026-01-01", "01.02.2026", Unix time, ...), and makes it the
+// one-day range "[2026-01-01,2026-01-01]" - the same as DecodeDateRangeMarshal.
 func (d *DateRangeMarshal) UnmarshalJSON(src []byte) error {
+	// "&crud.DateRangeMarshal{}" would leave the embedded *pgtype.Range nil -
+	// see Format's 'g' case; guarded here too for a value built any other way.
+	if d.Range == nil {
+		d.Range = &pgtype.Range[pgtype.Date]{}
+	}
+
+	src = bytes.Trim(src, `" `)
 	sc := new(pgtype.RangeCodec{ElementType: &pgtype.Type{
 		Codec: pgtype.DateCodec{},
 		Name:  "date",
 		OID:   pgtype.DateOID,
 	}}).PlanScan(pgtype.NewMap(), pgtype.DateOID, pgtype.TextFormatCode, d)
-	//logs.StatusLog(sc, d)
 	err := sc.Scan(src, d)
-	logs.StatusLog("d = %s '%s'", d, src, err)
-	return err
+	if err == nil {
+		return nil
+	}
+
+	t, dateErr := parseDate(gotools.BytesToString(src))
+	if dateErr != nil {
+		return fmt.Errorf("not a range (%w) nor a date (%w)", err, dateErr)
+	}
+
+	date := pgtype.Date{Time: t, Valid: true}
+	*d.Range = pgtype.Range[pgtype.Date]{
+		Lower:     date,
+		Upper:     date,
+		LowerType: pgtype.Inclusive,
+		UpperType: pgtype.Inclusive,
+		Valid:     true,
+	}
+	return nil
 }
+
 func DecodeDateRangeMarshal(ptr unsafe.Pointer, iter *jsoniter.Iterator) {
 	val := (*DateRangeMarshal)(ptr)
 	switch t := iter.WhatIsNext(); t {

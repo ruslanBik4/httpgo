@@ -388,14 +388,57 @@ func ConvertUnixTime(t *time.Time, src string) error {
 	return nil
 }
 
+// dateFormats are the layouts DateString.UnmarshalJSON and (for a single date)
+// DateRangeMarshal.UnmarshalJSON accept. First match wins, so where a pair is
+// ambiguous the earlier one decides: month-first "01-02-2006" is tried before
+// day-first "02-01-2006" (a day above 12 fails the first and lands on the
+// second), and the same for the slash pair.
+var dateFormats = []string{
+	time.DateOnly, // 2006-01-02
+	"2006/01/02",
+	"2006.01.02",
+	"20060102",
+	"01-02-2006",
+	"02-01-2006",
+	"01/02/2006",
+	"02/01/2006",
+	"02.01.2006",
+	"2 Jan 2006",
+	"Jan 2, 2006",
+	"2 January 2006",
+	"January 2, 2006",
+	// a full timestamp is accepted too - only its date is kept
+	time.RFC3339, // fractional seconds are accepted without RFC3339Nano
+	"2006-01-02T15:04:05",
+	time.DateTime,
+	time.RFC1123,
+	time.RFC1123Z,
+}
+
+// parseDate reads s as a date in any of dateFormats, or as Unix time, and
+// returns it as midnight UTC of that calendar day - a DateString/pgtype.Date
+// carries no time of day, so a timestamp's clock part and zone are dropped.
+func parseDate(s string) (time.Time, error) {
+	s = strings.TrimSpace(s)
+
+	var t time.Time
+	var err error
+	if !slices.ContainsFunc(dateFormats, func(f string) bool {
+		t, err = time.Parse(f, s)
+		return err == nil
+	}) {
+		if err = ConvertUnixTime(&t, s); err != nil {
+			return t, fmt.Errorf("'%s' is not a date: expected %s (also DD.MM.YYYY, YYYY/MM/DD, '2 Jan 2006', an RFC3339 timestamp) or Unix time", s, time.DateOnly)
+		}
+		t = t.UTC()
+	}
+
+	y, m, d := t.Date()
+	return time.Date(y, m, d, 0, 0, 0, 0, time.UTC), nil
+}
+
 func (d *DateString) UnmarshalJSON(src []byte) error {
-	t, err := bytesToTime(
-		src,
-		time.DateOnly,
-		"2006-02-01",
-		"01-02-2006",
-		"02-01-2006",
-	)
+	t, err := parseDate(jsonText(src))
 	if err != nil {
 		return err
 	}
@@ -404,8 +447,17 @@ func (d *DateString) UnmarshalJSON(src []byte) error {
 	return nil
 }
 
+// jsonText returns src as plain text, without the quotes of a JSON string
+// ("2026-01-01") or the whitespace around it. UnmarshalJSON receives the quoted
+// form from encoding/json and from fastjson's Value.MarshalTo (what the generated
+// Each() passes), while time.Parse and ConvertUnixTime only understand the bare
+// text. Dates carry no escapes, so nothing needs decoding.
+func jsonText(src []byte) string {
+	return gotools.BytesToString(bytes.Trim(src, `" `))
+}
+
 func bytesToTime(src []byte, formats ...string) (t time.Time, err error) {
-	str := gotools.BytesToString(src)
+	str := jsonText(src)
 	if i := slices.IndexFunc(formats, func(f string) bool {
 		t, err = time.Parse(f, str)
 		return err == nil
