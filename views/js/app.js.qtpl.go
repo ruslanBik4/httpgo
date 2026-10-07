@@ -631,46 +631,41 @@ func StreamAppMax(qw422016 *qt422016.Writer) {
 	StreamSetFlatPickr(qw422016)
 //line app.js.qtpl:13
 	qw422016.N().S(`
-`)
-//line app.js.qtpl:14
-	StreamObserver(qw422016)
-//line app.js.qtpl:14
-	qw422016.N().S(`
 $(function () {
     if (document.body.querySelector('[hx-ext="json-swap"]')  !== null) {
         `)
-//line app.js.qtpl:17
+//line app.js.qtpl:16
 	StreamHtmxJson(qw422016)
-//line app.js.qtpl:17
+//line app.js.qtpl:16
 	qw422016.N().S(`
     }
 });
 `)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 }
 
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 func WriteAppMax(qq422016 qtio422016.Writer) {
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	StreamAppMax(qw422016)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	qt422016.ReleaseWriter(qw422016)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 }
 
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 func AppMax() string {
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	qb422016 := qt422016.AcquireByteBuffer()
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	WriteAppMax(qb422016)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	qs422016 := string(qb422016.B)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	qt422016.ReleaseByteBuffer(qb422016)
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 	return qs422016
-//line app.js.qtpl:20
+//line app.js.qtpl:19
 }
