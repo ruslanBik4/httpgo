@@ -1,7 +1,6 @@
 {% func App() %}
 {%= UserJS() %}
 {%= SetClicksJS()  %}
-{%= OverClick()  %}
 {%= Observer()  %}
 	{% cat "src/app.js" %}
 {% endfunc %}
@@ -12,6 +11,7 @@
 {%= PutFormsJS() %}
 {%= TableJS() %}
 {%= SetFlatPickr() %}
+{%= Observer()  %}
 $(function () {
     if (document.body.querySelector('[hx-ext="json-swap"]')  !== null) {
         {%= HtmxJson() %}

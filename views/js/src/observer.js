@@ -260,6 +260,14 @@ function cfgHTMX() {
         const elt = evt.detail.elt;
         const xhr = evt.detail.xhr;
 
+        // 206's body is an SSE descriptor / dialog fragment, not content for
+        // the swap target - htmx:afterRequest below consumes it
+        // (handlePartialContent). Search requests are left to swap normally.
+        if (xhr.status === 206 && !isNo206(elt)) {
+            evt.detail.shouldSwap = false;
+            return;
+        }
+
         // showJSON()'s successor: OverClick() (over_click.js, now removed)
         // used to special-case a raw `application/json` response the same
         // way, in its own hand-rolled $.ajax success handler - restored
@@ -310,8 +318,8 @@ function cfgHTMX() {
     });
 
     // === After Request - Main handler ===
-    // This is the ONLY place readEvents()/success/error handling for htmx
-    // requests happens. A form branches to its own <output> element; every
+    // This is the ONLY place 206 (handlePartialContent -> readEvents) and
+    // success/error handling for htmx requests happens. A form branches to its own <output> element; every
     // other request falls through to the #content branch below. Nothing
     // else in the codebase should call readEvents() for an htmx-driven
     // request - see forms.js/saveForm() for why a second call path used to
@@ -323,14 +331,24 @@ function cfgHTMX() {
             form.querySelectorAll('progress, .loading').forEach(element => {
                 element.hidden = true;
             });
+        }
+
+        // The ONLY 206 handler for htmx requests, form or not. Search forms/
+        // inputs (and data-no-206) are skipped and fall through to the normal
+        // handling below. Progress goes into the form's <output>, else #content.
+        if (xhr.status === 206 && !isNo206(evt.detail.elt)) {
+            handlePartialContent(
+                $(form?.querySelector('output') ?? '#content'),
+                parseHTMXResponse(xhr),
+                xhr.responseText);
+            return;
+        }
+
+        if (form) {
             if (!evt.detail.successful) return;
 
             const output = form.querySelector('output');
             const data = parseHTMXResponse(xhr);
-            if (xhr.status === 206) {
-                readEvents($(output), data);
-                return;
-            }
             if (output) output.textContent = xhr.statusText || 'Success';
             const handlers = htmxFormHandlers.get(form) || namedFormHandlers(form);
             if (handlers?.successFunction) {
@@ -361,10 +379,6 @@ function cfgHTMX() {
             case 204:
                 evt.preventDefault();
                 showMessage(evt.detail.elt, 'empty response!');
-                return false;
-
-            case 206:
-                readEvents($('#content'), data);
                 return false;
 
             case 201: {
@@ -656,6 +670,15 @@ function showJSON(data, target) {
 
     showJsonElem(data, $target);
     return true;
+}
+
+// Requests that must NOT get the 206 (SSE progress) treatment: search forms /
+// search-as-you-type inputs, plus anything marked data-no-206. Used by the
+// htmx:beforeSwap and htmx:afterRequest listeners above.
+const NO_206_SELECTOR = '[data-no-206], .active-search, [role="search"], [data-name="search-results"]';
+
+function isNo206(elt) {
+    return !!elt?.closest?.(NO_206_SELECTOR);
 }
 
 function isSelfRequest(ctx, event) {

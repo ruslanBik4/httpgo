@@ -22,7 +22,7 @@
 //   + validateFields()/confirm() guard    -> htmx:beforeRequest
 //   beforeSend (auth/lang headers)        -> htmx:configRequest
 //   uploadProgress                        -> htmx:xhr:progress
-//   success (206 -> readEvents; else success/errorFunction, fancybox close)
+//   success (206 -> handlePartialContent; else success/errorFunction, fancybox close)
 //                                          -> htmx:afterRequest
 //   error (errorFunction, else 401/400/default alert)
 //                                          -> htmx:responseError
@@ -53,6 +53,31 @@ function saveForm(thisForm, successFunction, errorFunction) {
         htmxFormHandlers.set(thisForm, {successFunction, errorFunction});
             }
     return true;
+}
+
+// ---------------------------------------------------------------------------
+// HTTP 206 — the ONE place it is handled.
+//
+// 206 means "accepted, the job runs on the server - follow it over SSE":
+//   JSON {url, message}  -> readEvents() below prints the progress
+//   anything else (HTML) -> a fragment meant for a dialog (fancyOpen)
+//
+// It only DOES the work; deciding "is this a 206?" stays with the caller
+// (a `case 206:` / `status === 206` next to the other status codes):
+//   - observer.js, htmx:afterRequest  (every htmx request, form or not)
+//   - sendFile() below                (a raw XHR - htmx events never fire for it)
+//
+//   $out          jQuery box to print into
+//   data          parsed JSON body (or null/undefined if it wasn't JSON)
+//   responseText  raw body, used when there is no SSE url (an HTML fragment)
+function handlePartialContent($out, data, responseText) {
+    if (data?.url) {
+        readEvents($out, data);
+    } else if (responseText) {
+        fancyOpen(responseText);
+    } else {
+        console.warn('206 without an SSE url or a body');
+    }
 }
 
 function readEvents($out, resp) {
@@ -619,7 +644,7 @@ function sendFile(blob, url, file, $output, $progress) {
         let result = JSON.parse(xhr.responseText);
         switch (xhr.status) {
             case 206:
-                readEvents($output, result);
+                handlePartialContent($output, result, xhr.responseText);
                 return;
 
             case 400:
