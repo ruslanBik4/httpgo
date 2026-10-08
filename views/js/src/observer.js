@@ -222,7 +222,7 @@ function cfgHTMX() {
         const title = form.querySelector('h2')?.textContent
             || form.querySelector('figcaption')?.textContent
             || form.name || form.id;
-        if (!validateFields(form) || (form.noValidate && !confirm(`Do you sure to send form "${title}"?`))) {
+        if (!validateFields(form) || (form.noValidate && !confirm(`Are you sure to send form "${title}"?`))) {
             evt.preventDefault();
             return;
         }

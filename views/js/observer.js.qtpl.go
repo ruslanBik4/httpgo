@@ -306,7 +306,7 @@ function cfgHTMX() {
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`Do you sure to send form "${title}"?`)
+	qw422016.N().S(`Are you sure to send form "${title}"?`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2

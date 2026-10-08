@@ -85,7 +85,7 @@ function setClickAll(target) {
     // this was processing the same target a second time on every call.
     $('form:not([rel]), .filt-arrow:not([rel])', target).each(
         (ind, elem) => {
-            SetDatesInputs(target);
+            // SetDatesInputs(target);
 
             let dates = $('input[type=datetime]:not([rel])', elem);
             if (dates.length > 0) {

@@ -80,6 +80,16 @@ function handlePartialContent($out, data, responseText) {
     }
 }
 
+// Streams currently open, by url. readEvents() uses it so the same url is
+// never read twice at once, even if it is called twice for one 206.
+const activeStreams = new Map();
+
+// Follows a server-sent-events stream and prints it into $out. Reads the
+// stream EXACTLY ONCE: EventSource silently reconnects (and replays the whole
+// log) whenever the connection drops - which is what a normal end of the
+// stream looks like when the server doesn't send a proper "closed" event -
+// so every way out (closed event, error, no ping) goes through finish(),
+// which closes the source for good before the browser can reconnect.
 function readEvents($out, resp) {
     console.log(resp);
     if (!resp || !resp.url) {
@@ -87,72 +97,59 @@ function readEvents($out, resp) {
         console.dir(resp);
         return;
     }
-
-    var evtSource = new EventSource(resp.url);
-    console.log(evtSource);
-    evtSource.onopen = (event) => {
-        console.log(JSON.stringify(event));
-        $out.html(`${resp.message}`);
-    };
-    evtSource.onmessage = (event) => {
-        // NOTE: the previous `if (event.event === "closed")` check here was
-        // dead code - a plain MessageEvent has no `.event` property, so that
-        // branch could never run. The server's named "closed" event is
-        // already handled below via evtSource.addEventListener("closed", ...);
-        // this handler only needs to cover the default/unnamed message case.
-        $out.prepend(`<pre>${event.data}</pre>`);
-        if (event.data === "closed") {
-            evtSource.close();
-        }
+    if (activeStreams.has(resp.url)) {
+        console.warn('SSE already open, not reading again:', resp.url);
+        return;
     }
 
-    evtSource.onerror = (err) => {
-        if (evtSource.readyState === EventSource.CONNECTING) {
-            console.log("Temporary issue, reconnecting...");
-        }
-
-        if (evtSource.readyState === EventSource.CLOSED) {
-            console.log("SSE connection closed.");
-            evtSource.close();
-        }
-        var msg = JSON.stringify(err)
-        $out.append(`<pre>Error: ${msg}</pre>`);
-    }
+    const evtSource = new EventSource(resp.url);
+    activeStreams.set(resp.url, evtSource);
 
     let lastPing = Date.now();
-    let isAlive = true;
+    let intervalId = null;
+
+    // the single exit: safe to call any number of times
+    const finish = (text) => {
+        if (activeStreams.get(resp.url) !== evtSource) return;
+        activeStreams.delete(resp.url);
+        evtSource.close();
+        clearInterval(intervalId);
+        if (text) $out.prepend(`<pre>${text}</pre>`);
+    };
+
+    evtSource.onopen = () => {
+        $out.html(`${resp.message}`);
+    };
+
+    // default (unnamed) messages
+    evtSource.onmessage = (event) => {
+        $out.prepend(`<pre>${event.data}</pre>`);
+        if (event.data === "closed") {
+            finish();
+    }
+    };
+
+    // any error = the connection is gone. Without the close() in finish() the
+    // browser would reconnect and read the stream again.
+    evtSource.onerror = () => {
+            console.log("SSE connection closed.");
+        finish('Connection closed');
+    };
 
     evtSource.addEventListener("ping", () => {
         lastPing = Date.now();
-        if (!isAlive) {
-            console.log("Connection restored");
-            isAlive = true;
-        }
     });
 
-    let intervalId = setInterval(() => {
-        const diff = Date.now() - lastPing;
+    evtSource.addEventListener("closed", (event) => {
+        finish(`Finish: ${event.data}`);
+    });
 
-        if (diff > 10000) { // 10s timeout
-            if (isAlive) {
-                console.log("Connection lost (no ping)");
-                isAlive = false;
-            }
-
-            $out.prepend(`<pre>Server close connection</pre>`);
-            // optional hard stop
-            evtSource.close();
-            clearInterval(intervalId); // ✅ STOP interva
+    // no ping for 10s = dead connection
+    intervalId = setInterval(() => {
+        if (Date.now() - lastPing > 10000) {
+            finish('Server close connection');
         }
     }, 3000);
-
-    evtSource.addEventListener("closed", function (event) {
-        $out.prepend(`<pre>Finish: ${event.data}</pre>`);
-        evtSource.close();
-        clearInterval(intervalId); // ✅ STOP interva
-        console.log(event);
-    })
-
 }
 
 // ОБщие события для форм - стандарт
