@@ -98,7 +98,7 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	<div id="container-fluid">
 	        <aside class="sidebar-section">
 	            <div id="catalog_pane"  class="well sidebar-nav">
-	                <div class="sidebar"></div>
+	                <div id="catalog_sidebar" class="sidebar"></div>
 	                `)
 //line index.qtpl:52
 	body.Catalog.StreamRenderMenu(qw422016, "left-mnu-list", "left-mnu-item")

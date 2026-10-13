@@ -9,28 +9,19 @@
 
 // App is the page-lifecycle/content-loading singleton: one instance, built
 // once at parse time, holding what used to be a dozen unrelated top-level
-// functions and a bare `go_history` global. Everything below the IIFE is a
-// same-named global wrapper (e.g. `function loadContent(url){ return
-// App.loadContent(url); }`) so every existing caller - forms.js, observer.js,
-// set_clicks.js, setFlatPickr.js, table-row.js, and any onclick="..."/
-// hx-on="..." attribute already baked into rendered HTML - keeps working
-// unchanged. New code should call App.* directly; the wrappers exist for
-// everything this refactor can't also rewrite. over_click.js is gone -
-// handleError()/getHeaders() moved into observer.js/user.js respectively.
+// functions. Everything below the IIFE is a same-named global wrapper (e.g.
+// `function loadContent(url){ return App.loadContent(url); }`) so every
+// existing caller - forms.js, observer.js, set_clicks.js, setFlatPickr.js,
+// table-row.js, and any onclick="..."/hx-on="..." attribute already baked into
+// rendered HTML - keeps working unchanged. New code should call App.* directly.
 //
-// De-duplicated against htmx's own controls (see onPopState/setDocumentHash
-// below for the history fix, and Auth.headers() in user.js for the auth/
-// language fix - every request in the app, htmx or not, gets those two
-// headers from that one place now): this file no longer tracks its own full
-// copy of "what does document.title get set to" or "what headers go on this
-// request" - those were previously computed twice by two different,
-// occasionally-disagreeing implementations. loadContent()/loadCSS() below
-// now issue their requests via htmx.ajax() rather than $.ajax(), so a 401
-// during either one is handled by the same Auth.relogin(evt) path as every
-// other request instead of its own separate case statement.
+// This file no longer touches page regions by hand. Content, sidebar,
+// breadcrumbs and <title> are swapped by htmx from the response (swap target +
+// out-of-band elements), history/back/forward are htmx's own (hx-push-url),
+// and every request - hx-* element, boosted link/form, or script - gets its
+// auth/language headers from Auth.headers() via observer.js's
+// htmx:configRequest. See navigate()/loadContent() below.
 const App = (function () {
-
-    let goHistory = 1;
 
     function fancyOpen(data) {
         $.fancybox.open({
@@ -85,117 +76,37 @@ const App = (function () {
         $('head').append(`<script title="${name}">${js}</script>`);
     }
 
-    // Эта функция отрабатывает при перемещении по истории просмотром (кнопки вперед-назад в браузере)
-    //
-    // <body hx-boost="true"> means htmx owns popstate for every boosted
-    // click/submit already - it keeps its own history-cache entries and
-    // restores them itself, with no help from this file. This handler only
-    // exists for the few navigations that DON'T go through boost - the ones
-    // App.loadContent() drives directly (changeLang, logOut, the post-login
-    // redirect) - which push their own {url, data} state below. The
-    // `event.state.data === undefined` guard is what keeps this from
-    // misfiring on an htmx-owned history entry: those have a different
-    // shape, so this correctly no-ops and lets htmx's own listener handle
-    // it instead of calling setContent(undefined).
-    function onPopState(event) {
-        if (goHistory === 0 || event.state == null || event.state.data === undefined) {
-            return true;
-        }
+    // Script-initiated navigation, done the htmx way - the single replacement
+    // for the old setContent()/putContent()/findAndReplaceElem()/
+    // setDocumentHash()/onPopState() set, which fetched a page with a custom
+    // handler and then copied pieces of it (#content, breadcrumbs, sidebar,
+    // topline, <title>) into the DOM by hand and kept their own history.
+    // Now htmx does all of that from the response itself:
+    //   * the main body is swapped into `target` (innerHTML);
+    //   * every other region the page owns arrives as an out-of-band element
+    //     in the same response (<div id="catalog_sidebar" hx-swap-oob="true">,
+    //     <breadcrumbs id="breadcrumbs" hx-swap-oob="true">, ...) - see
+    //     clearStaleSidebar() in observer.js for the "no sidebar" case;
+    //   * <title> in the response sets document.title;
+    //   * history, back/forward and the page snapshot are htmx's own
+    //     (hx-push-url) - no popstate handler of ours.
+    // htmx reads hx-push-url from the request's source element, so each call
+    // gets a throw-away hidden one (a shared element would make htmx drop a
+    // second request while the first is still in flight). Being a normal
+    // htmx request it picks up Auth.headers() in htmx:configRequest, and a
+    // 401 goes through htmx:responseError -> Auth.relogin(evt).
+    function navigate(url, {target = '#content', select, push = true} = {}) {
+        const source = document.createElement('span');
+        source.hidden = true;
+        if (push) source.setAttribute('hx-push-url', 'true');
+        document.body.append(source);
 
-        const title = setContent(event.state.data);
-        if (title > "") {
-            document.title = title;
-        }
+        const done = () => setTimeout(() => source.remove(), 0);
+        return htmx.ajax('GET', url, {source, target, select, swap: 'innerHTML'}).then(done, done);
     }
 
-    // смена адресной строки с предотвращением перезагрузки Содержимого
-    //
-    // Only pushes the history entry - title is set by putContent() (via
-    // setContent()'s own, more complete `title, h2` extraction) right after
-    // this is called, so duplicating that extraction here would just risk
-    // setting document.title twice with two different results.
-    function setDocumentHash(url, data) {
-        window.history.pushState({'url': url, 'data': data}, '', url);
-    }
-
-    // run request & show content
-    //
-    // htmx.ajax(), not $.ajax(): this is now the SAME request pipeline every
-    // hx-* element uses, so it gets Accept-Language/Authorization from
-    // Auth.headers() via observer.js's htmx:configRequest, and a 401/404/etc.
-    // goes through the shared htmx:responseError handler (which calls
-    // Auth.relogin(evt) on 401) instead of its own separate error callback.
-    // swap:'none' + a custom handler because the response isn't a single
-    // innerHTML swap into one target - setContent()/putContent() below
-    // distribute pieces of it across #content, the sidebar, breadcrumbs and
-    // the topline, which nothing in htmx's own swap mechanism knows how to
-    // do. That's also why this still drives its own history via
-    // setDocumentHash()/onPopState() rather than htmx's push/hx-history-elt
-    // snapshotting - htmx can only snapshot+restore a single element, not
-    // this multi-region layout.
     function loadContent(url) {
-        htmx.ajax('GET', url, {
-            values: {html: true},
-            swap: 'none',
-            handler: (elt, info) => putContent(info.xhr.responseText, url)
-        });
-    }
-
-    function putContent(data, url) {
-        const title = setContent(data);
-        const isChild = url && url.startsWith(document.location.href);
-
-        setDocumentHash(url, data);
-        if (title > "") {
-            if (isChild) {
-                $('ol.breadcrumb').append(`<li class="breadcrumb-item">${title}</li>`);
-            } else {
-                $('ol.breadcrumb li:last').text(title);
-            }
-            document.title = title;
-        }
-    }
-
-    function setContent(data) {
-        if (typeof data == 'string' && data.startsWith('<!DOCTYPE html>')) {
-            $('html').html(data);
-            return
-        }
-        const a = document.createElement('div');
-
-        a.innerHTML = data;
-
-        // Sidebar: ONE slot, #catalog_sidebar (index.qtpl), for any kind of
-        // page. A response fills it by carrying <div id="catalog_sidebar"
-        // hx-swap-oob="true">...</div> (htmx does that itself for boosted
-        // requests - see clearStaleSidebar() in observer.js); this handler
-        // does the same for loadContent(), whose custom handler bypasses
-        // htmx's OOB processing. No sidebar in the response -> slot emptied.
-        // The element is taken OUT of `a` so a duplicate id can't end up in
-        // #content below.
-        const $side = $('#catalog_sidebar', a);
-        $('#catalog_sidebar').html($side.html() ?? '');
-        $side.remove();
-        findAndReplaceElem(a, 'breadcrumbs', 'breadcrumbs');
-        findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section');
-        findAndReplaceElem(a, 'header .topline', 'body > header .topline');
-        findAndReplaceElem(a, 'header .topline-btns', 'body > header .topline-btns');
-        const $content = $('#content');
-        if (!findAndReplaceElem(a, '#content', '#content')) {
-            $content.html(a.innerHTML).removeAttr('rel');
-            setClickAll($content[0]);
-        }
-        return $('title, h2', a).text()
-    }
-
-    function findAndReplaceElem(src, selector, dst) {
-        const elem = $(selector, src);
-        if (elem.length > 0) {
-            $(dst).html(elem.html()).removeAttr('rel');
-            setClickAll($(dst)[0]);
-            return true;
-        }
-        return false;
+        return navigate(url);
     }
 
     function loadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
@@ -256,11 +167,7 @@ const App = (function () {
     // init runs once, on document ready - everything the old bare
     // `$(function () {...})` block at the bottom of app.js used to do.
     function init() {
-        if (!window.onpopstate) {
-            window.onpopstate = onPopState;
-        }
-
-        console.log("v1.2.199");
+        console.log("v1.3.0");
         window.addEventListener("beforeunload", evt => {
             evt = evt || window.event;
 
@@ -296,23 +203,14 @@ const App = (function () {
         loadCSSOnce,
         AddStyles: addStyles,
         AddScript: addScript,
-        SetDocumentHash: setDocumentHash,
         loadContent,
-        PutContent: putContent,
-        SetContent: setContent,
-        findAndReplaceElem,
+        navigate,
         LoadJScript: loadJScript,
         LoadCSS: loadCSS,
         errorLoadResource,
         isScrollableY,
         isScrollableX,
         SetTableEvents: setTableEvents,
-        get goHistory() {
-            return goHistory;
-        },
-        set goHistory(v) {
-            goHistory = v;
-        },
     };
 })();
 
@@ -352,24 +250,12 @@ function AddScript(name, js) {
     return App.AddScript(name, js);
 }
 
-function SetDocumentHash(url, data) {
-    return App.SetDocumentHash(url, data);
-}
-
 function loadContent(url) {
     return App.loadContent(url);
 }
 
-function PutContent(data, url) {
-    return App.PutContent(data, url);
-}
-
-function SetContent(data) {
-    return App.SetContent(data);
-}
-
-function findAndReplaceElem(src, selector, dst) {
-    return App.findAndReplaceElem(src, selector, dst);
+function navigate(url, opts) {
+    return App.navigate(url, opts);
 }
 
 function LoadJScript(url, asyncS, cacheS, successFunc, completeFunc) {
@@ -395,14 +281,3 @@ function isScrollableX(node) {
 function SetTableEvents() {
     return App.SetTableEvents();
 }
-
-// go_history wasn't read anywhere outside app.js in the files reviewed, but
-// it's a bare global that some unreviewed page script could still toggle
-// (e.g. `go_history = 0` to suppress one popstate) - this keeps that working
-// by aliasing it straight onto App.goHistory instead of silently dropping it.
-Object.defineProperty(window, 'go_history', {
-    get: () => App.goHistory,
-    set: (v) => {
-        App.goHistory = v;
-    },
-});

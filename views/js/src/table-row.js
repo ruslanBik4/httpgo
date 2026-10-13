@@ -44,22 +44,18 @@ function loadTableWithOrder() {
     params.set("order_by", orderBy);
 
     let newURL = url.origin + url.pathname + "?" + params.toString();
-    // load only table rows content - `select` pulls just .usr-table-row-cont
-    // out of the response and swaps it straight into the same selector,
-    // same as jQuery's `.load(url + ' selector')` used to, but through
-    // htmx's own request/swap pipeline instead of a separate one.
-    htmx.ajax('GET', newURL, {
-        select: selTablesRows,
-        target: selTablesRows,
-        swap: 'innerHTML',
-    });
-
-    return setHashFromTable(newURL)
+    // Reload only the table rows: `select` pulls .usr-table-row-cont out of
+    // the response and htmx swaps it into the same selector; navigate() pushes
+    // the new URL through htmx's own history (hx-push-url), so back/forward
+    // restore the previous order.
+    navigate(newURL, {target: selTablesRows, select: selTablesRows});
+    return true;
 }
 
-// set hash with all data of table
+// Keep the address bar in step with the filters/offset of the table that is
+// on screen. Only the URL changes - no history entry, no stored HTML.
 function setHashFromTable(url) {
-    SetDocumentHash(url, $('.usr-table').html());
+    window.history.replaceState(window.history.state, '', url);
     return true;
 }
 
@@ -112,27 +108,21 @@ function chkConditions(href) {
     return url.origin + url.pathname + "?" + params.toString();
 }
 
-// append data over limit into table content
+// Append the next rows when a client-side filter shows fewer lines than a
+// page. htmx fetches them and inserts every row of the response's
+// .usr-table-row-cont at the end of the rows container (select ' > *' takes
+// the rows, not the wrapper), then htmx:afterRequest runs processAll() on it.
+// A 204 means "no more rows": htmx doesn't swap it.
 function appendTable() {
-    var tableRows = $(selTablesRows);
-    let newURL = chkConditions(window.location.href);
+    const newURL = chkConditions(window.location.href);
     htmx.ajax('GET', newURL, {
-        values: {
-            "html": true
-        },
-        swap: 'none',
-        handler: function (elt, info) {
-            const xhr = info.xhr;
-            if (xhr.status === 204) {
-                // tableRows.html(data);
-                return;
-            }
-            tableRows.append($('<div />').html(xhr.responseText).find(selTablesRows).html());
-            setHashFromTable(newURL);
-        }
+        target: selTablesRows,
+        select: selTablesRows + ' > *',
+        swap: 'beforeend',
+    }).then(() => setHashFromTable(newURL), () => {
     });
-    return true;
-}
+        }
+
 const unfiltered = 'unfiltered';
 
 function filterTableData(value, className) {

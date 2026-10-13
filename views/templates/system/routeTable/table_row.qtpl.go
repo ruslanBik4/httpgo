@@ -117,11 +117,11 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:41
 	qw422016.E().S(t.Comment())
 //line table_row.qtpl:41
-	qw422016.N().S(`</title><div class="sidebar" id="t_`)
+	qw422016.N().S(`</title><div id="catalog_sidebar" class="sidebar" id="t_`)
 //line table_row.qtpl:42
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:42
-	qw422016.N().S(`_sidebar" hx-swap-oob="outerHTML:.sidebar"><form action="`)
+	qw422016.N().S(`_sidebar" hx-swap-oob="true"><form action="`)
 //line table_row.qtpl:43
 	qw422016.E().S(t.ApiImport)
 //line table_row.qtpl:43

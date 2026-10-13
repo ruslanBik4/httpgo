@@ -897,24 +897,29 @@ function showJSON(data, target) {
 // Requests that must NOT get the 206 (SSE progress) treatment: search forms /
 // search-as-you-type inputs, plus anything marked data-no-206. Used by the
 // htmx:beforeSwap and htmx:afterRequest listeners above.
-// The sidebar contract (index.qtpl / app.js setContent()): the page has ONE
-// slot, <div id="catalog_sidebar" class="sidebar">, and any response (a table,
-// a form, a flowchart palette...) fills it by carrying
+// The sidebar contract (index.qtpl; every page swap - boosted link, form or
+// App.navigate()/loadContent() - runs through htmx, so it all lands here): the
+// page has ONE slot, <div id="catalog_sidebar" class="sidebar">, and any
+// response (a table, a form, a flowchart palette...) fills it by carrying
 //     <div id="catalog_sidebar" hx-swap-oob="true"> ... </div>
 // htmx then replaces the slot by id - exactly one target, whatever else on
-// the page happens to have the class "sidebar" (a class selector like
-// "outerHTML:.sidebar" matched every such element and duplicated the content).
+// the page happens to have the class "sidebar".
+//
 // What htmx can't do is *empty* the slot when a page has no sidebar: with no
 // OOB element in the response there is nothing to swap, and the previous
-// page's sidebar would stay. So a page-level swap into #content (a boosted GET
-// navigation) that carries no sidebar clears it here. This runs in
-// htmx:beforeSwap, i.e. BEFORE htmx performs the swap and its OOB step, so a
-// response that does carry a sidebar still wins. Partial loads (rows, sorting,
-// search suggestions) don't target #content and never touch the sidebar.
+// page's sidebar would stay. So every page-level swap (a GET swapped into
+// #content) empties the slot first. This is unconditional on purpose: it runs
+// in htmx:beforeSwap, i.e. BEFORE htmx performs the swap and its OOB step, so
+// a response that does carry a sidebar simply refills the (now empty) slot in
+// the same tick, with no repaint in between. An earlier version skipped the
+// clear whenever the response text contained id="catalog_sidebar" - but a
+// response that merely contains that markup (a page shell, a template that
+// ships the empty slot) is not a sidebar update, and the old sidebar stayed.
+// Partial loads (rows, sorting, search suggestions) don't target #content and
+// never touch the sidebar.
 function clearStaleSidebar(evt) {
-    const {target, xhr, requestConfig, shouldSwap} = evt.detail;
+    const {target, requestConfig, shouldSwap} = evt.detail;
     if (!shouldSwap || target?.id !== 'content' || requestConfig?.verb !== 'get') return;
-    if (/\bid\s*=\s*["']?catalog_sidebar\b/.test(xhr.responseText)) return;
     document.getElementById('catalog_sidebar')?.replaceChildren();
 }
 

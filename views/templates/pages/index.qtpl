@@ -48,7 +48,7 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 	<div id="container-fluid">
 	        <aside class="sidebar-section">
 	            <div id="catalog_pane"  class="well sidebar-nav">
-	                <div class="sidebar"></div>
+	                <div id="catalog_sidebar" class="sidebar"></div>
 	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
 	            </div>
 	        </aside>
