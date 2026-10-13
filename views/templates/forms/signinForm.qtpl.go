@@ -140,53 +140,87 @@ func (sf *SignForm) SigningForm() string {
 }
 
 // hx-post="/get/token/"
+//
+// SignForm is the modal sign-in / sign-up window, passkey first:
+//
+//   * one field - the email (it is the passkey "login" the server identifies the
+//     account by, see /webauthn/* routes);
+//   * "Sign in with passkey"  -> Auth.passkeyAction(form, 'login')
+//         existing passkey -> signed in; none for this email yet -> the page offers
+//         to create one (Auth.loginWithPasskey -> offerPasskeyRegistration);
+//   * "Create a passkey"      -> Auth.passkeyAction(form, 'register')
+//         new account / new device: registers a passkey, then signs in with it;
+//   * Enter in the email field does the same as "Sign in with passkey";
+//   * the password is only a fallback inside <details>. A normal submit of this
+//     form (action = /user/signin/) is picked up by observer.js, which calls
+//     Auth.login(): with a password typed it goes straight to the ordinary
+//     password POST, without a passkey prompt in front of it.
+//   * the buttons are type="button" on purpose - they must not submit the form;
+//     only the fallback "Login" button does.
+//   * after a successful passkey login closeLoginForm() (user.js) fires `closeModal`
+//     (the hyperscript on #modal below), so the window closes by itself; a
+//     cancelled/failed ceremony opens the password section and says so in <output>.
+//
 
-//line signinForm.qtpl:40
+//line signinForm.qtpl:61
 func (sf *SignForm) StreamSignForm(qw422016 *qt422016.Writer) {
-//line signinForm.qtpl:40
+//line signinForm.qtpl:61
 	qw422016.N().S(`
 <div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
 	<div class="modal-underlay" _="on click trigger closeModal"></div>
 	<div class="modal-content" >
-		<form target="content" action="/user/signin/" enctype="multipart/form-data" method="post"  class="form-signing"
+		<form target="content" action="/user/signin/" enctype="multipart/form-data" method="post" class="form-signing"
 			hx-swap="none" hx-push-url=false>
-			<h2 class="form-signing-heading">SignIn</h2>
-			<input type="email" name="email" class="input-block-level" placeholder="Registration email">
-			<input type="password" name="key" class="input-block-level">
+			<h2 class="form-signing-heading">Sign in</h2>
+			<input type="email" name="email" class="input-block-level" placeholder="Email" required
+				autocomplete="username" value="`)
+//line signinForm.qtpl:69
+	qw422016.E().S(sf.Email)
+//line signinForm.qtpl:69
+	qw422016.N().S(`"
+				onkeydown="if (event.key === 'Enter') { event.preventDefault(); Auth.passkeyAction(this.form, 'login'); }">
+			<button class="main-btn" type="button" onclick="Auth.passkeyAction(this.form, 'login')">Sign in with passkey</button>
+			<button class="button" type="button" onclick="Auth.passkeyAction(this.form, 'register')">Create a passkey</button>
+			<details class="passkey-fallback">
+				<summary>Use password instead</summary>
+				<input type="password" name="key" class="input-block-level" placeholder="Password"
+					autocomplete="current-password">
 			<label class="checkbox">
 				<input type="checkbox" name="remember" value="remember-me"> Save me on site
 			</label>
 			<button class="main-btn" type="submit">Login</button>
+			</details>
 			<output></output>
 			<progress value='0' max='100' hidden > </progress>
-		</form>	</div>
+		</form>
+	</div>
 </div>
 `)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 }
 
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 func (sf *SignForm) WriteSignForm(qq422016 qtio422016.Writer) {
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	sf.StreamSignForm(qw422016)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	qt422016.ReleaseWriter(qw422016)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 }
 
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 func (sf *SignForm) SignForm() string {
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	qb422016 := qt422016.AcquireByteBuffer()
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	sf.WriteSignForm(qb422016)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	qs422016 := string(qb422016.B)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	qt422016.ReleaseByteBuffer(qb422016)
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 	return qs422016
-//line signinForm.qtpl:57
+//line signinForm.qtpl:87
 }

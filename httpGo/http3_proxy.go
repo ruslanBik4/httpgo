@@ -12,9 +12,11 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/quic-go/quic-go/http3"
@@ -25,8 +27,11 @@ import (
 // NewHTTP3Proxy creates an HTTP/3 UDP server that proxies requests to your
 // existing fasthttp TCP server.
 //
-// publicUDPAddr: ":443"
-// upstream:       "http://127.0.0.1:8080"  (recommended private fasthttp port)
+// publicUDPAddr:    ":443"
+// cfg.UpstreamAddr: the private fasthttp listener requests are forwarded to,
+// "host:port" or ":port" (= 127.0.0.1:port); empty means 127.0.0.1:8080.
+// HttpGo itself always passes the address of the loopback listener it opened
+// (see listenH3Upstream), so it never depends on a fixed port.
 //
 // tlsCfg is the SAME config used to create your TCP tlsListener.
 // Its GetCertificate callback continues to select the correct certificate by SNI.
@@ -44,15 +49,16 @@ func NewHTTP3Proxy(
 	}
 	// UDP: HTTP/3 proxy.
 	// Point this at a private fasthttp listener.
+	// cfg is not modified: it is the user's config (shown by /httpgo/cfg/)
 	upstream := cfg.UpstreamAddr
-	if upstream == "" {
-		upstream = "http://127.0.0.1:8080"
-		cfg.UpstreamAddr = ":8080"
-	} else {
-		upstream = "http://127.0.0.1" + upstream
+	switch {
+	case upstream == "":
+		upstream = "127.0.0.1:8080"
+	case strings.HasPrefix(upstream, ":"):
+		upstream = "127.0.0.1" + upstream
 	}
 
-	target, err := url.Parse(upstream)
+	target, err := url.Parse("http://" + upstream)
 	if err != nil {
 		return nil, fmt.Errorf("invalid upstream URL: %w", err)
 	}
@@ -98,6 +104,40 @@ func NewHTTP3Proxy(
 			proxy.ServeHTTP(w, r)
 		}),
 	}, nil
+}
+
+// listenH3Upstream opens the private TCP listener the HTTP/3 proxy forwards to.
+//
+// It is always loopback-only: this listener speaks plain HTTP and trusts the
+// X-Forwarded-* headers set by the proxy, so it must never be reachable from
+// outside. Empty addr picks a free port (unique per process). A plain
+// net.Listen (no SO_REUSEPORT) is used deliberately: with reuseport two httpgo
+// processes on one host silently shared a fixed port and the kernel spread
+// HTTP/3 requests of one app across both.
+func listenH3Upstream(addr string) (net.Listener, error) {
+	switch {
+	case addr == "":
+		addr = "127.0.0.1:0"
+	case strings.HasPrefix(addr, ":"):
+		addr = "127.0.0.1" + addr
+	}
+
+	return net.Listen("tcp4", addr)
+}
+
+// h3AltSvc builds the Alt-Svc header value that announces HTTP/3 on the port
+// of addr. Only the port is advertised (the browser keeps the same host), so
+// ":443", "0.0.0.0:443" and "[::]:443" all give `h3=":443"`.
+func h3AltSvc(addr string) (string, error) {
+	_, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return "", err
+	}
+	if port == "" || port == "0" {
+		return "", fmt.Errorf("no port to advertise in %q", addr)
+	}
+
+	return fmt.Sprintf(`h3=":%s"; ma=86400`, port), nil
 }
 
 type HTTP3ProxyConfig struct {

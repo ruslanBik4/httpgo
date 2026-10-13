@@ -252,7 +252,10 @@ function cfgHTMX() {
     // up by the very reauth it's trying to complete - see isSignInRequest()
     // below for why that's keyed off the request's actual target/action
     // rather than a guessed element id.
+    // Auth.trackRequest() remembers the request first (every request, also
+    // while no reauth is running): a later 401 replays it from that copy.
     document.body.addEventListener('htmx:confirm', function (evt) {
+        Auth.trackRequest(evt);
         if (!Auth.isReauthInProgress()) return;
         if (isSignInRequest(evt)) return;
 
@@ -306,7 +309,7 @@ function cfgHTMX() {
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`Are you sure to send form "${title}"?`)
+	qw422016.N().S(`Do you sure to send form "${title}"?`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
@@ -393,6 +396,8 @@ function cfgHTMX() {
             }
         }
 
+        clearStaleSidebar(evt);
+
         if (!elt.attributes.target) {
             if (xhr.status === 204) {
                 showMessage(elt, 'empty response!');
@@ -429,6 +434,7 @@ function cfgHTMX() {
     // request - see forms.js/saveForm() for why a second call path used to
     // exist and cause it to run twice per submit.
     document.body.addEventListener('htmx:afterRequest', evt => {
+        Auth.forgetRequest(evt);
         const xhr = evt.detail.xhr;
         const form = evt.detail.elt.closest?.('form');
         if (form) {
@@ -891,6 +897,27 @@ function showJSON(data, target) {
 // Requests that must NOT get the 206 (SSE progress) treatment: search forms /
 // search-as-you-type inputs, plus anything marked data-no-206. Used by the
 // htmx:beforeSwap and htmx:afterRequest listeners above.
+// The sidebar contract (index.qtpl / app.js setContent()): the page has ONE
+// slot, <div id="catalog_sidebar" class="sidebar">, and any response (a table,
+// a form, a flowchart palette...) fills it by carrying
+//     <div id="catalog_sidebar" hx-swap-oob="true"> ... </div>
+// htmx then replaces the slot by id - exactly one target, whatever else on
+// the page happens to have the class "sidebar" (a class selector like
+// "outerHTML:.sidebar" matched every such element and duplicated the content).
+// What htmx can't do is *empty* the slot when a page has no sidebar: with no
+// OOB element in the response there is nothing to swap, and the previous
+// page's sidebar would stay. So a page-level swap into #content (a boosted GET
+// navigation) that carries no sidebar clears it here. This runs in
+// htmx:beforeSwap, i.e. BEFORE htmx performs the swap and its OOB step, so a
+// response that does carry a sidebar still wins. Partial loads (rows, sorting,
+// search suggestions) don't target #content and never touch the sidebar.
+function clearStaleSidebar(evt) {
+    const {target, xhr, requestConfig, shouldSwap} = evt.detail;
+    if (!shouldSwap || target?.id !== 'content' || requestConfig?.verb !== 'get') return;
+    if (/\bid\s*=\s*["']?catalog_sidebar\b/.test(xhr.responseText)) return;
+    document.getElementById('catalog_sidebar')?.replaceChildren();
+}
+
 const NO_206_SELECTOR = '[data-no-206], .active-search, [role="search"], [data-name="search-results"]';
 
 function isNo206(elt) {

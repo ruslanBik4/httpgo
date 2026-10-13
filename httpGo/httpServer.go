@@ -13,6 +13,7 @@ import (
 	"go/types"
 	"mime/multipart"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"path"
@@ -26,7 +27,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/quic-go/quic-go/http3"
 	"github.com/valyala/fasthttp"
-	"github.com/valyala/fasthttp/reuseport"
 	"golang.org/x/net/context"
 
 	"github.com/ruslanBik4/gotools"
@@ -49,6 +49,11 @@ type HttpGo struct {
 	rdServer   *fasthttp.Server
 	h3Server   *http3.Server
 	h2Server   *http2.Server
+	// h3Conn is the UDP socket of HTTP/3, bound in setHTTP3 so that Alt-Svc
+	// is only advertised when HTTP/3 is really reachable
+	h3Conn net.PacketConn
+	// h3Upstream is the private loopback listener the HTTP/3 proxy forwards to
+	h3Upstream net.Listener
 }
 
 // regForwardedFor extracts the "for=" identifier from a single element of an
@@ -184,6 +189,10 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// HTTP/2 (ALPN "h2"). Safe before the handler wrapping below: the
 	// HTTP/2 server resolves cfg.Server.Handler per request.
 	h2Server := NewHTTP2Server(cfg)
+	if h2Server == nil {
+		// never offer h2 in ALPN without a server for it
+		withoutALPN(listener, H2TLSProto)
+	}
 
 	h := &HttpGo{
 		mainServer: cfg.Server,
@@ -259,57 +268,86 @@ func spliDomainsHandler(cfg *CfgHttp, listener net.Listener, handler fasthttp.Re
 }
 
 func (h *HttpGo) setHTTP3() {
-	if h.cfg.HTTP3 {
-		var tlsCfg *tls.Config
-		fPort := ":443"
-		if ln, ok := h.listener.(LnMultiCerts); ok {
-			tlsCfg = ln.tlsCfg.Clone()
-			fPort = ln.fPort
-		} else {
-			certMaps := newCertMaps() // $HTTPGO_CERT_DIR (list) or /etc/ssl/sites
-			if err := certMaps.loadCertificates(); err != nil {
-				// Was: log the error and press on anyway, building a
-				// tls.Config around a certMaps that may hold zero usable
-				// certificates - every HTTP/3 handshake would then fail one
-				// at a time in production instead of failing loudly, once,
-				// at startup. HTTP/3 is opt-in (h.cfg.HTTP3) and the TCP
-				// server already came up fine without it, so disabling just
-				// this half of the server is strictly safer than serving UDP
-				// port 443 with a broken TLS config.
-				logs.ErrorLog(err, "HTTP/3 disabled: failed to load TLS certificates")
-				return
-			}
-			tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
-		}
-		tlsCfg.NextProtos = []string{"h3"}
-		if h.cfg.HTTP3Proxy == nil {
-			h.cfg.HTTP3Proxy = &HTTP3ProxyConfig{}
-		}
-
-		if h3, err := NewHTTP3Proxy(
-			tlsCfg,
-			fPort,
-			h.cfg.HTTP3Proxy,
-		); err != nil {
-			// Was stdlib log.Fatal - every other fatal/error path in this
-			// file goes through the app's own logs package (consistent
-			// formatting/output/whatever sinks logs.Fatal is wired to);
-			// stdlib log.Fatal here was writing to a different, unrelated
-			// destination for what is otherwise identical "can't start
-			// HTTP/3, give up" behavior (both still call os.Exit(1)).
-			logs.Fatal(err)
-		} else {
-			h.h3Server = h3
-		}
-
-		logs.StatusLog("[*] HTTP3 multi-site proxy running on %s, %v", fPort, h.h3Server.Addr)
-		h3AltSvc := fmt.Sprintf(`h3="%s"; ma=86400`, fPort)
-		handler := h.cfg.Server.Handler
-		h.cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
-			ctx.Response.Header.Set("Alt-Svc", h3AltSvc)
-			handler(ctx)
-		}
+	if !h.cfg.HTTP3 {
+		return
 	}
+
+	var tlsCfg *tls.Config
+	fPort := ":443"
+	if ln, ok := h.listener.(LnMultiCerts); ok {
+		tlsCfg = ln.tlsCfg.Clone()
+		fPort = ln.fPort
+	} else {
+		certMaps := newCertMaps() // $HTTPGO_CERT_DIR (list) or /etc/ssl/sites
+		if err := certMaps.loadCertificates(); err != nil {
+			// HTTP/3 is opt-in and the TCP server works without it:
+			// disable only this half instead of serving UDP with a broken TLS config.
+			logs.ErrorLog(err, "HTTP/3 disabled: failed to load TLS certificates")
+			return
+		}
+		tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
+	}
+	tlsCfg.NextProtos = []string{"h3"}
+	if h.cfg.HTTP3Proxy == nil {
+		h.cfg.HTTP3Proxy = &HTTP3ProxyConfig{}
+	}
+
+	// Bind both sockets now, not in Run: a busy/unpublished UDP port must
+	// switch HTTP/3 off instead of sending browsers to a dead Alt-Svc.
+	udp, err := net.ListenPacket("udp", fPort)
+	if err != nil {
+		logs.ErrorLog(err, "HTTP/3 disabled: cannot listen UDP %s", fPort)
+		return
+	}
+
+	altSvc, err := h3AltSvc(udp.LocalAddr().String())
+	if err != nil {
+		logs.ErrorLog(err, "HTTP/3 disabled")
+		logs.ErrorLog(udp.Close())
+		return
+	}
+
+	upstream, err := listenH3Upstream(h.cfg.HTTP3Proxy.UpstreamAddr)
+	if err != nil {
+		logs.ErrorLog(err, "HTTP/3 disabled: cannot listen upstream %q", h.cfg.HTTP3Proxy.UpstreamAddr)
+		logs.ErrorLog(udp.Close())
+		return
+	}
+
+	// the proxy targets the listener really opened (its port may be dynamic)
+	proxyCfg := *h.cfg.HTTP3Proxy
+	proxyCfg.UpstreamAddr = upstream.Addr().String()
+	h3, err := NewHTTP3Proxy(tlsCfg, fPort, &proxyCfg)
+	if err != nil {
+		logs.ErrorLog(err, "HTTP/3 disabled")
+		logs.ErrorLog(udp.Close())
+		logs.ErrorLog(upstream.Close())
+		return
+	}
+
+	h.h3Server, h.h3Conn, h.h3Upstream = h3, udp, upstream
+	logs.StatusLog("[*] HTTP3 multi-site proxy running on %s (udp %s), upstream %s",
+		fPort, udp.LocalAddr(), proxyCfg.UpstreamAddr)
+
+	upstreamAddr := proxyCfg.UpstreamAddr
+	handler := h.cfg.Server.Handler
+	h.cfg.Server.Handler = func(ctx *fasthttp.RequestCtx) {
+		if isH3Upstream(ctx, upstreamAddr) {
+			// came through the HTTP/3 proxy: the client is on https even
+			// though this hop is plain http (redirects build URLs from Scheme())
+			ctx.URI().SetScheme("https")
+		}
+		ctx.Response.Header.Set("Alt-Svc", altSvc)
+		handler(ctx)
+	}
+}
+
+// isH3Upstream reports that ctx arrived on the private HTTP/3 upstream listener.
+// Decided by the local address of the connection, not by X-Forwarded-Proto:
+// that header can be sent by any client on the public TCP port.
+func isH3Upstream(ctx *fasthttp.RequestCtx, upstreamAddr string) bool {
+	addr := ctx.LocalAddr()
+	return addr != nil && addr.String() == upstreamAddr
 }
 
 func blockingHandler(cfg *CfgHttp, handler fasthttp.RequestHandler) func(ctx *fasthttp.RequestCtx) {
@@ -332,25 +370,7 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 
 	h.apis.Https = secure
 	h.apis.StartTime = time.Now()
-	if h.h3Server != nil {
-		go func() {
-			logs.StatusLog("starting HTTP3 server")
-			if err := h.h3Server.ListenAndServe(); err != nil {
-				logs.ErrorLog(err, "HTTP/3 server stopped")
-			}
-		}()
-		//start upstream
-		go func() {
-			logs.StatusLog("starting HTTP3 server upstream")
-			listener, err := reuseport.Listen("tcp4", h.cfg.HTTP3Proxy.UpstreamAddr)
-			if err != nil {
-				logs.Fatal(err)
-			}
-			if err := h.cfg.Server.Serve(listener); err != nil {
-				logs.ErrorLog(err, "HTTP/3 upstream stopped")
-			}
-		}()
-	}
+	h.runHTTP3()
 
 	//todo change parameters type on
 	go h.listenOnShutdown()
@@ -359,6 +379,26 @@ func (h *HttpGo) Run(secure bool, certFile, keyFile string) error {
 	}
 
 	return h.mainServer.Serve(h.listener)
+}
+
+// runHTTP3 starts the HTTP/3 server and its private upstream in background;
+// the sockets were bound in setHTTP3. No-op when HTTP/3 is off.
+func (h *HttpGo) runHTTP3() {
+	if h.h3Server == nil {
+		return
+	}
+	go func() {
+		logs.StatusLog("starting HTTP3 server")
+		if err := h.h3Server.Serve(h.h3Conn); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logs.ErrorLog(err, "HTTP/3 server stopped")
+		}
+	}()
+	go func() {
+		logs.StatusLog("starting HTTP3 server upstream on %s", h.h3Upstream.Addr())
+		if err := h.cfg.Server.Serve(h.h3Upstream); err != nil {
+			logs.ErrorLog(err, "HTTP/3 upstream stopped")
+		}
+	}()
 }
 
 // listenOnShutdown implement correct shutdown server
@@ -429,10 +469,17 @@ func (h *HttpGo) rdServerShutdownWithContext(ctx context.Context) error {
 }
 
 func (h *HttpGo) h3ServerShutdownWithContext(ctx context.Context) error {
-	if h.h3Server != nil {
-		return h.h3Server.Shutdown(ctx)
+	if h.h3Server == nil {
+		return nil
 	}
-	return nil
+	err := h.h3Server.Shutdown(ctx)
+	// http3.Server.Serve never closes a PacketConn it was given
+	if h.h3Conn != nil {
+		if errClose := h.h3Conn.Close(); err == nil {
+			err = errClose
+		}
+	}
+	return err
 }
 
 const separator = "/"

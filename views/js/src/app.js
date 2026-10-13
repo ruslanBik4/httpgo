@@ -165,9 +165,17 @@ const App = (function () {
 
         a.innerHTML = data;
 
-        // sidebar work only for own page
-        $('#catalog_pane .sidebar').remove();
-        $('.sidebar', a).appendTo('#catalog_pane');
+        // Sidebar: ONE slot, #catalog_sidebar (index.qtpl), for any kind of
+        // page. A response fills it by carrying <div id="catalog_sidebar"
+        // hx-swap-oob="true">...</div> (htmx does that itself for boosted
+        // requests - see clearStaleSidebar() in observer.js); this handler
+        // does the same for loadContent(), whose custom handler bypasses
+        // htmx's OOB processing. No sidebar in the response -> slot emptied.
+        // The element is taken OUT of `a` so a duplicate id can't end up in
+        // #content below.
+        const $side = $('#catalog_sidebar', a);
+        $('#catalog_sidebar').html($side.html() ?? '');
+        $side.remove();
         findAndReplaceElem(a, 'breadcrumbs', 'breadcrumbs');
         findAndReplaceElem(a, '.sidebar-section', 'main .sidebar-section');
         findAndReplaceElem(a, 'header .topline', 'body > header .topline');

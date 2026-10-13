@@ -8,6 +8,9 @@
 package httpGo
 
 import (
+	"net"
+	"slices"
+
 	"github.com/valyala/fasthttp"
 
 	"github.com/ruslanBik4/httpgo/httpGo/http2"
@@ -36,6 +39,21 @@ func NewHTTP2Server(cfg *CfgHttp) *http2.Server {
 
 	logs.StatusLog("HTTP/2 enabled (httpgo/http2)")
 	return h2
+}
+
+// withoutALPN stops an httpgo TLS listener from offering proto during the TLS
+// handshake. Used for "h2" when no HTTP/2 server is registered: otherwise a
+// browser negotiates h2 and sends the HTTP/2 preface ("PRI * HTTP/2.0") to the
+// HTTP/1.1 parser, so every request ends as 404 (host="", uri="*").
+// Must be called before the listener accepts connections.
+func withoutALPN(listener net.Listener, proto string) {
+	ln, ok := listener.(LnMultiCerts)
+	if !ok || ln.tlsCfg == nil {
+		return
+	}
+	ln.tlsCfg.NextProtos = slices.DeleteFunc(ln.tlsCfg.NextProtos, func(p string) bool {
+		return p == proto
+	})
 }
 
 // HTTP2Config converts CfgHttp into http2.Config. Values set explicitly in

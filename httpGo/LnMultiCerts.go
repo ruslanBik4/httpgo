@@ -26,6 +26,11 @@ import (
 	"github.com/ruslanBik4/logs"
 )
 
+// DefaultCertName is the domain directory whose certificate is served to
+// clients asking for an unknown name (e.g. "localhost", an IP, no SNI).
+// Without it the first certificate loaded is used.
+const DefaultCertName = "default"
+
 // DefaultCertDir is a directory containing a subfolder per domain
 // (<dir>/<domain>/fullchain.pem + privkey.pem, or server.crt + server.key).
 const DefaultCertDir = "/etc/ssl/sites"
@@ -66,6 +71,11 @@ type certMaps struct {
 	baseDirs  []string
 	certMap   map[string]*tls.Certificate
 	certMutex sync.RWMutex
+	// fallback answers unknown names; fixed at load time so every connection
+	// gets the same certificate (map iteration order is random)
+	fallback *tls.Certificate
+	// loadOrder - domains in the order they were loaded (dirs priority, then name)
+	loadOrder []string
 }
 
 // newCertMaps creates a cache reading from baseDirs (none/empty -> ResolveCertDirs default).
@@ -135,6 +145,8 @@ func (m *certMaps) loadCertificates() error {
 		}
 	}
 
+	m.fallback = m.chooseFallback()
+
 	if len(m.certMap) == 0 {
 		return fmt.Errorf("no certificates loaded from %v (set %s or pass certDirs): %w",
 			m.baseDirs, CertDirEnv, errors.Join(dirErrs...))
@@ -176,7 +188,22 @@ func (m *certMaps) loadDir(baseDir string, symLinks map[string]string) error {
 		}
 
 		m.certMap[name] = &cert
+		m.loadOrder = append(m.loadOrder, name)
 		logs.StatusLog("[CERT] Loaded certificate for %s from %s", e.Name(), baseDir)
+	}
+	return nil
+}
+
+// chooseFallback picks the certificate for unknown names: DefaultCertName if
+// present, else the first one loaded. Caller holds certMutex.
+func (m *certMaps) chooseFallback() *tls.Certificate {
+	if cert, ok := m.certMap[DefaultCertName]; ok {
+		return cert
+	}
+	for _, name := range m.loadOrder {
+		if cert, ok := m.certMap[name]; ok {
+			return cert
+		}
 	}
 	return nil
 }
@@ -188,11 +215,10 @@ func (m *certMaps) getCertificate(chi *tls.ClientHelloInfo) (*tls.Certificate, e
 	if cert, ok := m.certMap[host]; ok {
 		return cert, nil
 	}
-	// fallback to any cert if unknown
-	for _, c := range m.certMap {
-		return c, nil
+	if m.fallback != nil {
+		return m.fallback, nil
 	}
-	logs.StatusLog("[CERT] No certificate for %s", host, chi)
+	logs.StatusLog("[CERT] No certificate for %q", host)
 	return nil, nil
 }
 
