@@ -58,6 +58,7 @@ const Auth = (function () {
     // replayed by calling it again instead of guessing what to rebuild.
     const inflight = [];
     let reauthPromise = null;
+    let loginRequestedAt = 0;   // when the sign-in window was last asked for (openLoginModal)
     let reauthResolve = null;
     let reauthTimeout = null;
 
@@ -291,6 +292,7 @@ function saveUser(userData) {
 
     $('#sUser').text(userData.name + userSuffix);
     $('body').attr('auth', true);
+    closeLoginModals();
     changeLang(userData.lang);
     // No $.ajaxSetup({beforeSend: getHeaders}) here anymore - every
     // request in the app now either goes through htmx.ajax()/hx-* (and
@@ -667,14 +669,48 @@ function logOut(elem) {
     function relogin(evt) {
         if (evt && evt.preventDefault) evt.preventDefault();
 
+        // A 401 from the sign-in request itself means wrong credentials, not
+        // an expired session: the form that is already open shows the
+        // server's message (observer.js htmx:responseError). Don't clear the
+        // token again, don't queue the sign-in POST for replay after the
+        // next login (it would re-send the old password and 401 again), and
+        // don't open a second window.
+        if (evt?.target && typeof isSignInRequest === 'function' && isSignInRequest(evt)) {
+            return false;
+        }
+
         token = null;
         localStorage.removeItem("TOKEN");
 
         queuePendingRequest(evt);
 
         beginReauth();
-        htmx.trigger('#bLogin', 'click');
+        openLoginModal();
         return false;
+    }
+
+    // An expired token usually fails several requests at once (page content,
+    // menus, theme...), and every one of them ends up in relogin(). Only the
+    // first may open the sign-in window - otherwise the user gets a stack of
+    // identical windows, and closing the top one after logging in reveals the
+    // next: "the sign-in popup comes back". #bLogin's own request is async,
+    // so the DOM check alone can't see a window that is still on its way;
+    // hence the timestamp.
+    function openLoginModal() {
+        const now = Date.now();
+        if (document.getElementById('modal') || now - loginRequestedAt < 3000) return;
+        loginRequestedAt = now;
+        htmx.trigger('#bLogin', 'click');
+    }
+
+    // Close every sign-in window (there can be more than one id="modal").
+    // Called from saveUser(), so ANY successful login closes them - passkey,
+    // password, or a replay after relogin - not just the passkey path.
+    function closeLoginModals() {
+        loginRequestedAt = 0;
+        document.querySelectorAll('#modal').forEach(modal => {
+            if (!modal.classList.contains('closing')) htmx.trigger(modal, 'closeModal');
+        });
     }
 
     // --- Passkey (WebAuthn) - the PRIMARY sign-in path ----------------------
@@ -1275,11 +1311,7 @@ function logOut(elem) {
     // plain inline SigningForm().
     function closeLoginForm(thisForm) {
         thisForm.reset();
-
-        const modal = thisForm.closest('#modal');
-        if (modal) {
-            htmx.trigger(modal, 'closeModal');
-        }
+        closeLoginModals();
     }
 
     // No eager ensureUser() call here any more - see the comment on

@@ -46,8 +46,8 @@
 <h3>{%s t.Name() %}</h3>
 <div class="only_auth">
 {%- if !t.OnlyView -%}
-<span class="hiddenInput" style="height:30px;width:50%" title="Choice csv-file for import to table '{%s t.Name() %}: {%s t.Comment() %}'">
-	<input type="file" required multiple id="csv" name="csv" accept=".csv" onchange="uploadGzippedFile(this, '{%s t.ApiImport %}');"/>
+<span class="hiddenInput" style="height:30px;width:50%" title="Choice csv or Excel file for import to table '{%s t.Name() %}: {%s t.Comment() %}'">
+	<input type="file" required multiple id="csv" name="csv" accept=".csv,.xls,.xlsx,.xlsm" onchange="uploadGzippedFile(this, '{%s t.ApiImport %}');"/>
 </span>
 {%- else -%}
 

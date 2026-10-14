@@ -137,7 +137,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:48
 	if !t.OnlyView {
 //line table_row.qtpl:48
-		qw422016.N().S(`<span class="hiddenInput" style="height:30px;width:50%" title="Choice csv-file for import to table '`)
+		qw422016.N().S(`<span class="hiddenInput" style="height:30px;width:50%" title="Choice csv or Excel file for import to table '`)
 //line table_row.qtpl:49
 		qw422016.E().S(t.Name())
 //line table_row.qtpl:49
@@ -145,7 +145,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:49
 		qw422016.E().S(t.Comment())
 //line table_row.qtpl:49
-		qw422016.N().S(`'"><input type="file" required multiple id="csv" name="csv" accept=".csv" onchange="uploadGzippedFile(this, '`)
+		qw422016.N().S(`'"><input type="file" required multiple id="csv" name="csv" accept=".csv,.xls,.xlsx,.xlsm" onchange="uploadGzippedFile(this, '`)
 //line table_row.qtpl:50
 		qw422016.E().S(t.ApiImport)
 //line table_row.qtpl:50
