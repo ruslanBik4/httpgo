@@ -159,7 +159,7 @@ func (t *TableRender) StreamAllTable(qw422016 *qt422016.Writer) {
 //line table_row.qtpl:56
 	qw422016.E().S(t.ApiExport)
 //line table_row.qtpl:56
-	qw422016.N().S(`" download='.csv' title="Save data from '`)
+	qw422016.N().S(`" download='.csv;.xls;.xlsx' title="Save data from '`)
 //line table_row.qtpl:56
 	qw422016.E().S(t.Name())
 //line table_row.qtpl:56
