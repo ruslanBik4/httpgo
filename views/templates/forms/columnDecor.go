@@ -66,7 +66,12 @@ type ColumnDecor struct {
 	Label             string
 	Max               any
 	Min               any
-	multiple          bool
+	// Multiple: the select takes several values (a slice param)
+	Multiple bool
+	// SelectOptionsFnc is a Go expression giving the SelectOptions at run time,
+	// written as is into the code generated from a JSON form, e.g.
+	// "options": "GetThemesOptions(ctx)" - for lists kept in the DB
+	SelectOptionsFnc  string
 	pattern           string
 	patternDesc       string
 	Value             any
@@ -113,7 +118,7 @@ func NewColumnDecor(col dbEngine.Column, patternList dbEngine.Table, suggestions
 			if len(p) > 0 {
 				colDec.Suggestions = gotools.BytesToString(p)
 			}
-			colDec.multiple = parse.GetBool("multiple")
+			colDec.Multiple = parse.GetBool("multiple")
 			params := parse.GetObject("suggestions_params")
 			params.Visit(func(key []byte, v *fastjson.Value) {
 				b, err := v.StringBytes()
@@ -184,7 +189,9 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.IsHidden = true
 			col.InputType = "hidden"
 		case "multiple":
-			col.multiple = true
+			col.Multiple = true
+		case "options":
+			col.SelectOptionsFnc = gotools.BytesToString(val.GetStringBytes())
 		case "error":
 			v := val.Get("message")
 			errMsg = gotools.BytesToString(v.GetStringBytes())

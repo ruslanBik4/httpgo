@@ -41,7 +41,7 @@
         {% endif %}
 
          {% if col.IsSlice %}
-           {% if col.multiple %}
+           {% if col.Multiple %}
             "type": "select",
             "multiple": true
            {% else %}
@@ -188,6 +188,7 @@ id="id_{%s col.InputName(i) %}"
    	{% case  col.SelectOptions != nil %}
         {%- if !col.IsSlice -%}{%s col.Label %} {%- endif -%}
             <select {%= col.RenderAttr(i) %}
+                    {% if col.Multiple %} multiple size="{%d min(max(len(col.SelectOptions), 2), 8) %}" {% endif %}
                     {% if d, ok := data[ col.InputName(i) ].(map[string]any); ok %}
                     {% comment %} must have '' for internal presentation strings with "" {% endcomment %}
                       data-show-blocks='{%= json.Element(d) %}'

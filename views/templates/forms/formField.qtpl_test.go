@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Author: Ruslan Bikchentaev. All rights reserved.
+ * Copyright (c) 2023-2026. Author: Ruslan Bikchentaev. All rights reserved.
  * Use of this source code is governed by a BSD-style
  * license that can be found in the LICENSE file.
  * Перший приватний програміст.
@@ -126,7 +126,7 @@ func TestFormField_WriteCreate(t *testing.T) {
 								PlaceHolder:       "",
 								LinkNew:           "",
 								Label:             "",
-								multiple:          false,
+								Multiple:          false,
 								pattern:           "",
 								patternDesc:       "",
 								Value:             nil,

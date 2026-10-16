@@ -126,6 +126,9 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                             {%- if col.IsReadOnly -%}
                             IsReadOnly: {%v col.IsReadOnly %},
                             {%- endif -%}
+                            {%- if col.Multiple -%}
+                            Multiple: true,
+                            {%- endif -%}
                             {%- if col.IsSlice -%}
                             IsSlice: {%v col.IsSlice %},
                             {%- endif -%}
@@ -149,7 +152,9 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                             Attachments: {%s= fmt.Sprintf("%+#v", col.Attachments) %},
                             {%- endif -%}
                             PatternList: patternList,
-                            {%- if col.SelectOptions != nil && len(col.SelectOptions) > 0 -%}
+                            {%- if col.SelectOptionsFnc > "" -%}
+                            SelectOptions: {%s= col.SelectOptionsFnc %},
+                            {%- elseif col.SelectOptions != nil && len(col.SelectOptions) > 0 -%}
                             SelectOptions: {%s= fmt.Sprintf("%+#v", col.SelectOptions) %},
                             {%- endif -%}
                             {%- if col.PatternName  > "" -%}
