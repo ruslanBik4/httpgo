@@ -1,0 +1,46 @@
+$shadow: 0px 0px 2px 0px rgba(0,0,0,0.5);
+$font_color: #464646;
+
+.header {
+   background: #ffffff;
+   box-shadow: $shadow;
+   color: $font_color;
+   font-weight: 500;
+
+   @media screen and (max-width: 640px) {
+      // no order for adaptivity
+   }
+}
+
+.header__container {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+}
+
+.header__logo-img {
+   height: 70px;
+}
+
+.header__nav {
+   display: flex;
+   align-items: center;
+   justify-content: flex-end;
+   margin-right: 20px;
+
+   input {
+      border: 1px solid $font_color;
+      border-radius: 2px;
+      padding: 5px;
+      margin-left: 5px;
+   }
+
+   label {
+      margin-left: 20px;
+   }
+
+   a {
+      margin-left: 20px;
+      color: $font_color;
+   }
+}
