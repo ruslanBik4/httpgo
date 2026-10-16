@@ -13,11 +13,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/netip"
+	"regexp"
 	"strings"
 	"unsafe"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/valyala/fastjson"
 
 	"github.com/ruslanBik4/gotools"
 	"github.com/ruslanBik4/logs"
@@ -235,24 +237,121 @@ func (i *IntervalMarshal) GetPgxType() pgtype.Interval {
 }
 
 func (i *IntervalMarshal) Set(src any) error {
-	switch src := src.(type) {
-	case string:
-		return i.Interval.Scan(src)
-	default:
+	if i.Interval == nil {
+		i.Interval = &pgtype.Interval{}
+	}
+	s, ok := src.(string)
+	if !ok {
 		return i.Interval.Scan(src)
 	}
+	s = strings.TrimSpace(s)
+	if s == "" {
+		*i.Interval = pgtype.Interval{} // NULL
+		return nil
+	}
+	if shortClock.MatchString(s) {
+		s += ":00"
+	}
+	return i.Interval.Scan(s)
 }
 
-// UnmarshalJSON: pgtype.Interval has no UnmarshalJSON of its own - unwrap the
-// JSON string and hand it to Set, which already knows how to Scan a
-// Postgres interval literal into the embedded value.
+// "00:00", "1:30", "-01:30" - the short clock form that <input type="time">
+// sends when the seconds are zero; pgx's text parser only accepts H:M:S.
+var shortClock = regexp.MustCompile(`^[+-]?\d+:\d{1,2}$`)
+
+// UnmarshalJSON accepts every shape an interval arrives in:
+//   - string "00:00:00", "1 day 02:03:04", ...  -> Set (pgtype.Interval.Scan)
+//   - object {"Months":..,"Days":..,"Microseconds":..,"Valid":..}
+//     (what pgtype.Interval itself marshals to) -> read as the struct
+//   - null / ""                                  -> NULL interval
 func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
+	if i.Interval == nil {
+		i.Interval = &pgtype.Interval{}
+	}
+
+	var p fastjson.Parser
+	v, err := p.ParseBytes(src)
+	if err != nil {
 		return err
 	}
 
-	return i.Set(s)
+	switch v.Type() {
+	case fastjson.TypeNull:
+		*i.Interval = pgtype.Interval{}
+		return nil
+
+	case fastjson.TypeString:
+		b, err := v.StringBytes()
+		if err != nil {
+			return err
+		}
+		s := strings.TrimSpace(gotools.BytesToString(b)) // copy: the parser reuses its buffer
+		if s == "" {
+			*i.Interval = pgtype.Interval{}
+			return nil
+		}
+		if shortClock.MatchString(s) {
+			s += ":00"
+		}
+		return i.Set(s)
+
+	case fastjson.TypeObject:
+		// Go marshals the struct with capitalised keys; accept lower case too.
+		field := func(name string) *fastjson.Value {
+			if f := v.Get(name); f != nil {
+				return f
+			}
+			return v.Get(strings.ToLower(name))
+		}
+		num := func(name string) (int64, error) {
+			f := field(name)
+			if f == nil || f.Type() == fastjson.TypeNull {
+				return 0, nil
+			}
+			n, err := f.Int64()
+			if err != nil {
+				return 0, fmt.Errorf("interval field %s: %w", name, err)
+			}
+			return n, nil
+		}
+
+		months, err := num("Months")
+		if err != nil {
+			return err
+		}
+		days, err := num("Days")
+		if err != nil {
+			return err
+		}
+		micro, err := num("Microseconds")
+		if err != nil {
+			return err
+		}
+		valid := true // a missing "Valid" means a real value
+		if f := field("Valid"); f != nil && f.Type() != fastjson.TypeNull {
+			if valid, err = f.Bool(); err != nil {
+				return fmt.Errorf("interval field Valid: %w", err)
+			}
+		}
+
+		*i.Interval = pgtype.Interval{
+			Months: int32(months), Days: int32(days), Microseconds: micro, Valid: valid,
+		}
+		return nil
+	}
+
+	return fmt.Errorf("interval: unexpected JSON %s", v.Type())
+}
+
+func (i IntervalMarshal) MarshalJSON() ([]byte, error) {
+	if i.Interval == nil || !i.Valid {
+		return []byte("null"), nil
+	}
+	v, err := i.Interval.Value() // "00:00:00", "1 day 02:03:04"
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(v)
 }
 
 // Format implement Formatter interface. 'g' uses crud.NewIntervalMarshal(),

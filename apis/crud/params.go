@@ -173,7 +173,6 @@ func ToColDev(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, patternList dbEngine.Ta
 	value any) *forms.ColumnDecor {
 
 	colDec := forms.NewColumnDecor(col, patternList)
-	colDec.IsDisabled = colDec.IsReadOnly && !(colDec.IsHidden)
 	colDec.IsSlice = strings.HasPrefix(col.Type(), "_")
 	colDec.Value = value
 
@@ -188,6 +187,7 @@ func ToColDev(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, patternList dbEngine.Ta
 		colDec.InputType = "markdown"
 	}
 
+	colDec.IsDisabled = colDec.IsReadOnly && !(colDec.IsHidden)
 	GetForeignOptions(ctx, DB, colDec, value)
 
 	return colDec
