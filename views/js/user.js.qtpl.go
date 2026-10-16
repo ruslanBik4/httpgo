@@ -706,10 +706,54 @@ function logOut(elem) {
     // Close every sign-in window (there can be more than one id="modal").
     // Called from saveUser(), so ANY successful login closes them - passkey,
     // password, or a replay after relogin - not just the passkey path.
+    //
+    // The sign-in window is opened through fancybox (fancyOpen() of the
+    // /show/forms/signin response), so #modal is the *content* of a
+    // .fancybox-container. Three things have to happen to really get rid
+    // of it, and the passkey path used to do none of them reliably:
+    //   1. fancybox itself must be closed - removing/animating #modal alone
+    //      leaves the container, the overlay and the close button behind
+    //      (the password path did this in observer.js's afterRequest, the
+    //      passkey path never did);
+    //   2. the app's own `)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`closeModal`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(` event is still fired for a modal that
+    //      is NOT hosted by fancybox (its hyperscript adds .closing and
+    //      removes the element on animationend);
+    //   3. `)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`animationend`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(` only fires if .closing actually has a CSS
+    //      animation - when it doesn't, the element would stay forever, so
+    //      a timeout removes whatever is still attached.
     function closeLoginModals() {
         loginRequestedAt = 0;
-        document.querySelectorAll('#modal').forEach(modal => {
+        const modals = document.querySelectorAll('#modal');
+
+        if (window.jQuery?.fancybox && [...modals].some(m => m.closest('.fancybox-container'))) {
+            const instance = jQuery.fancybox.getInstance?.();
+            if (instance) instance.close(); else jQuery.fancybox.close(true);
+        }
+
+        modals.forEach(modal => {
             if (!modal.classList.contains('closing')) htmx.trigger(modal, 'closeModal');
+            setTimeout(() => {
+                if (modal.isConnected) modal.remove();
+                document.querySelectorAll('.fancybox-container').forEach(c => {
+                    if (!c.querySelector('.fancybox-content')?.firstElementChild) c.remove();
+                });
+            }, 800);
         });
     }
 
@@ -879,13 +923,38 @@ function logOut(elem) {
     // auto-dismiss on a timeout: the click on its own "Register" button IS
     // the fresh user gesture that registerPasskey's create() call needs, so
     // this has to stay up until the user actually clicks something.
-    function showConfirmToast(message, confirmLabel) {
+    //
+    // `)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(`host`)
+//line user.js.qtpl:2
+	qw422016.N().S("`")
+//line user.js.qtpl:2
+	qw422016.N().S(` (optional) is an element to put the prompt INTO instead of the
+    // page footer. The sign-in window is a modal on top of everything, so a
+    // toast appended to <body> ended up underneath it - visible only as a
+    // strip at the bottom of the page and impossible to click. When no host is
+    // given but a sign-in window is open, its form is used automatically, so
+    // the question always appears next to the field the user just filled in.
+    function showConfirmToast(message, confirmLabel, host) {
+        host = host || document.querySelector('#modal form');
         return new Promise((resolve) => {
             const toast = document.createElement('div');
-            toast.className = 'htmx-toast';
+            toast.className = host ? 'passkey-offer' : 'htmx-toast';
             toast.style.display = 'flex';
             toast.style.alignItems = 'center';
             toast.style.gap = '0.75em';
+            if (host) {
+                // inline inside the form: wrap, full width, readable colors
+                toast.style.flexWrap = 'wrap';
+                toast.style.margin = '0.75em 0';
+                toast.style.padding = '0.75em';
+                toast.style.border = '1px solid currentColor';
+                toast.style.borderRadius = '6px';
+                toast.setAttribute('role', 'alert');
+            }
 
             const text = document.createElement('span');
             text.textContent = message;
@@ -901,7 +970,13 @@ function logOut(elem) {
             noBtn.textContent = 'Not now';
             toast.appendChild(noBtn);
 
+            if (host) {
+                const output = host.querySelector('output');
+                if (output) output.before(toast); else host.appendChild(toast);
+                yesBtn.focus();
+            } else {
             document.body.appendChild(toast);
+            }
 
             function cleanup(result) {
                 toast.remove();
@@ -965,7 +1040,7 @@ function logOut(elem) {
     // Uses showConfirmToast, NOT window.confirm() - see its own doc comment
     // for why a blocking native dialog here was breaking registerPasskey's
     // navigator.credentials.create() call with a NotAllowedError.
-    async function offerPasskeyRegistration(loginValue) {
+    async function offerPasskeyRegistration(loginValue, host) {
         const wantsToRegister = await showConfirmToast(
             `)
 //line user.js.qtpl:2
@@ -976,7 +1051,8 @@ function logOut(elem) {
 	qw422016.N().S("`")
 //line user.js.qtpl:2
 	qw422016.N().S(`,
-            'Register passkey'
+            'Register passkey',
+            host
         );
         if (!wantsToRegister) {
             return false;
@@ -1036,7 +1112,7 @@ function logOut(elem) {
     // (or pass {offerRegistration: true} from login() below) if this
     // project wants to actively prompt for passkey registration on every
     // login attempt instead.
-    async function loginWithPasskey(loginValue, {offerRegistration = false} = {}) {
+    async function loginWithPasskey(loginValue, {offerRegistration = false, host = null} = {}) {
         if (!isPasskeySupported()) {
             return false;
         }
@@ -1050,7 +1126,7 @@ function logOut(elem) {
             });
             if (!beginResp.ok) {
                 if (offerRegistration) {
-                    return await offerPasskeyRegistration(loginValue);
+                    return await offerPasskeyRegistration(loginValue, host);
                 }
                 throw new Error(`)
 //line user.js.qtpl:2
@@ -1105,7 +1181,7 @@ function logOut(elem) {
         // a passkey-specific button (unlike login()'s automatic try-first
         // behavior below), so proposing registration on a miss is the
         // helpful response, not an unwelcome interruption.
-        return loginWithPasskey(loginValue, {offerRegistration: true});
+        return loginWithPasskey(loginValue, {offerRegistration: true, host: thisForm});
     }
 
     // registerAndLogin is the "Create a passkey" button of the passkey modal:
@@ -1155,7 +1231,7 @@ function logOut(elem) {
         try {
             const ok = mode === 'register'
                 ? await registerAndLogin(loginValue)
-                : await loginWithPasskey(loginValue, {offerRegistration: true});
+                : await loginWithPasskey(loginValue, {offerRegistration: true, host: thisForm});
             if (ok) {
                 closeLoginForm(thisForm);
                 return true;
