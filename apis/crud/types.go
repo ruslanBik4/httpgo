@@ -15,6 +15,7 @@ import (
 	"net/netip"
 	"regexp"
 	"strings"
+	"time"
 	"unsafe"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -269,6 +270,12 @@ func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
 		i.Interval = &pgtype.Interval{}
 	}
 
+	switch gotools.BytesToString(src) {
+	case "", "0", "00", "00:00", "00:00:00":
+		*i.Interval = pgtype.Interval{}
+		return nil
+	}
+
 	var p fastjson.Parser
 	v, err := p.ParseBytes(src)
 	if err != nil {
@@ -290,6 +297,7 @@ func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
 			*i.Interval = pgtype.Interval{}
 			return nil
 		}
+		logs.StatusLog(s)
 		if shortClock.MatchString(s) {
 			s += ":00"
 		}
@@ -359,15 +367,15 @@ func (i IntervalMarshal) MarshalJSON() ([]byte, error) {
 // the embedded *pgtype.Interval nil, which panics the moment UnmarshalJSON
 // (Set -> i.Interval.Scan) dereferences it - same reasoning as
 // TzString/TimestampString/InetMarshal's own Format doc comments.
-func (d *IntervalMarshal) Format(s fmt.State, verb rune) {
+func (i *IntervalMarshal) Format(s fmt.State, verb rune) {
 	var err error
 	switch verb {
 	case 't':
-		_, err = fmt.Fprintf(s, "%T", d)
+		_, err = fmt.Fprintf(s, "%T", i)
 	case 'g':
 		_, err = fmt.Fprint(s, "crud.NewIntervalMarshal()")
 	case 's':
-		_, err = fmt.Fprintf(s, "%d month %d day %d", d.Months, d.Days, d.Microseconds)
+		_, err = fmt.Fprintf(s, "%d month %d day %d", i.Months, i.Days, time.Duration(i.Microseconds).String())
 	}
 	if err != nil {
 		logs.ErrorLog(err)
