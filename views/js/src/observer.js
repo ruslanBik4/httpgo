@@ -190,6 +190,7 @@ function cfgHTMX() {
         // one remaining raw XHR (which can't go through htmx) by calling
         // Auth.headers() directly - over_click.js's getHeaders() shim for
         // raw jQuery $.ajax calls is gone along with the last of those calls.
+        keepDialogOutOfHistory(evt);
         Object.assign(evt.detail.headers, Auth.headers());
         evt.detail.headers['X-Requested-With'] = 'XMLHttpRequest';
         evt.detail.headers['HX-Request'] = 'html';
@@ -490,6 +491,32 @@ function cfgHTMX() {
             Auth.login(evt, form);
         }
     }, true);
+}
+
+// A request that only fetches a dialog (the sign-in window, anything opened
+// in fancybox) must not become a history entry. Under <body hx-boost="true">
+// every boosted link pushes its URL after the response, so opening
+// /show/forms/signin left that address in the bar and in the back-button
+// list although the page itself never changed. htmx decides this from the
+// request element's hx-push-url, read when the response arrives, so marking
+// the element "false" here (configRequest runs before the request is sent)
+// is enough - and it holds for every trigger of the dialog: a click, the
+// programmatic htmx.trigger('#bLogin', 'click') of Auth.relogin(), a link in a
+// menu. The cleaner fix is still the attribute in the markup itself
+// (hx-push-url="false" on #bLogin); this is the safety net for dialog links
+// that don't carry it. An explicit hx-push-url on the element wins.
+const DIALOG_TRIGGER = '[data-fancybox], [target="_modal"], #bLogin';
+const DIALOG_PATHS = ['/show/forms/signin'];
+
+function keepDialogOutOfHistory(evt) {
+    const elt = evt.detail.elt;
+    if (!elt || elt.hasAttribute?.('hx-push-url') || elt.hasAttribute?.('hx-replace-url')) return;
+
+    const raw = evt.detail.path;
+    const path = String(raw?.finalRequestPath ?? raw ?? '').split('?')[0];
+    if (elt.matches?.(DIALOG_TRIGGER) || DIALOG_PATHS.includes(path)) {
+        elt.setAttribute('hx-push-url', 'false');
+    }
 }
 
 // The real sign-in endpoint (routes.qtpl: "/user/signin/") - the one stable

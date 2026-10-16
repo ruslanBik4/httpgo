@@ -18,6 +18,33 @@ const Auth = (function () {
     // replayed by calling it again instead of guessing what to rebuild.
     const inflight = [];
     let reauthPromise = null;
+    // What the last passkey attempt did, so passkeyAction() can tell the user
+    // WHICH step failed instead of one generic sentence: `registered` - a new
+    // passkey was saved on the server; `failure` - the reason of the last
+    // failed step ("login/begin: HTTP 400 ...", "NotAllowedError: ...").
+    const passkeyState = {registered: false, failure: ''};
+
+    function passkeyFailed(step, reason) {
+        passkeyState.failure = `${step}: ${reason}`;
+        console.error('passkey', passkeyState.failure);
+        return false;
+    }
+
+    // "HTTP 400 {error text}" from a failed fetch, for the messages above
+    async function httpReason(resp) {
+        let detail = '';
+        try {
+            const text = await resp.text();
+            try {
+                detail = JSON.parse(text).error || text;
+            } catch (e) {
+                detail = text;
+            }
+        } catch (e) { /* body unreadable */
+        }
+        return `HTTP ${resp.status}${detail ? ' ' + String(detail).slice(0, 200) : ''}`;
+    }
+
     let loginRequestedAt = 0;   // when the sign-in window was last asked for (openLoginModal)
     let reauthResolve = null;
     let reauthTimeout = null;
@@ -643,7 +670,7 @@ function logOut(elem) {
                 headers,
                 body: JSON.stringify({login: loginValue}),
             });
-            if (!beginResp.ok) throw new Error(`register/begin failed: ${beginResp.status}`);
+            if (!beginResp.ok) return passkeyFailed('register/begin', await httpReason(beginResp));
             const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
             const credential = await navigator.credentials.create({publicKey: options});
@@ -657,14 +684,15 @@ function logOut(elem) {
             const data = await finishResp.json();
             if (!finishResp.ok) {
                 showMessage(null, data.error || 'Could not save passkey.');
-                return false;
+                return passkeyFailed('register/finish', `HTTP ${finishResp.status} ${data.error || ''}`);
             }
+            passkeyState.registered = true;
             afterSaveAnyForm(data, 'Success');
             return true;
         } catch (e) {
             console.error(e);
             showMessage(null, 'Passkey registration was cancelled or failed: ' + e.message);
-            return false;
+            return passkeyFailed('register', `${e.name}: ${e.message}`);
         }
     }
 
@@ -856,7 +884,7 @@ function logOut(elem) {
                 if (offerRegistration) {
                     return await offerPasskeyRegistration(loginValue, host);
                 }
-                throw new Error(`login/begin failed: ${beginResp.status}`);
+                return passkeyFailed('login/begin', await httpReason(beginResp));
             }
             const options = decodeCredentialOptions((await beginResp.json()).publicKey);
 
@@ -871,13 +899,13 @@ function logOut(elem) {
             const userData = await finishResp.json();
             if (!finishResp.ok) {
                 showMessage(null, userData.error || 'Sign-in failed.');
-                return false;
+                return passkeyFailed('login/finish', `HTTP ${finishResp.status} ${userData.error || ''}`);
             }
             // Same response shape a password login already produces, so it
             // plugs straight into the existing session bootstrap.
-            return afterLogin(userData);
+            return afterLogin(userData) || passkeyFailed('login/finish', 'no user data in the response');
         } catch (e) {
-            console.error(e);
+            passkeyFailed('login', `${e.name}: ${e.message}`);
             // A cancelled/failed platform prompt (e.g. Face ID declined)
             // falls back to the password form silently rather than alert() -
             // the browser's own biometric UI already told the user what
@@ -944,6 +972,9 @@ function logOut(elem) {
             return false;
         }
 
+        passkeyState.registered = false;
+        passkeyState.failure = '';
+
         // one ceremony at a time: a second click while the browser's own
         // passkey prompt is open would start a racing second ceremony
         const buttons = thisForm.querySelectorAll('button');
@@ -956,7 +987,13 @@ function logOut(elem) {
                 closeLoginForm(thisForm);
                 return true;
             }
-            showFormNotice(thisForm, 'Passkey was cancelled or failed. You can use your password instead.', true);
+            const why = passkeyState.failure ? ` (${passkeyState.failure})` : '';
+            if (passkeyState.registered) {
+                // the passkey IS saved - only the sign-in right after it failed
+                showFormNotice(thisForm, `Passkey created, but signing in with it did not finish${why}. Click "Sign in with passkey" to sign in.`);
+            } else {
+                showFormNotice(thisForm, `Passkey was cancelled or failed${why}. You can use your password instead.`, true);
+            }
             return false;
         } finally {
             buttons.forEach(b => b.disabled = false);
