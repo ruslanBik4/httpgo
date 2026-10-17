@@ -2,6 +2,8 @@ All the text outside function templates is treated as comments,
 i.e. it is just ignored by quicktemplate compiler (`qtc`). It is for humans.
 
 {% import (
+	"strings"
+
 	"github.com/ruslanBik4/httpgo/views/templates/css"
 	"github.com/ruslanBik4/httpgo/views/js"
 )
@@ -16,11 +18,34 @@ type HeadHTMLPage struct {
     MetaTags []string
     Scripts []string
 }
+
+// rtlLanguages are written from right to left: their pages get dir="rtl"
+var rtlLanguages = map[string]bool{
+	"ar": true, "he": true, "fa": true, "ur": true, "yi": true,
+	"ps": true, "dv": true, "ckb": true, "sd": true, "ug": true,
+}
+
+// IsRTL reports whether lang ("he", "he-IL", "ar,en;q=0.8"...) is written from right to left
+func IsRTL(lang string) bool {
+	lang, _, _ = strings.Cut(lang, ",")
+	lang, _, _ = strings.Cut(lang, ";")
+	lang, _, _ = strings.Cut(lang, "-")
+	lang, _, _ = strings.Cut(lang, "_")
+	return rtlLanguages[strings.ToLower(strings.TrimSpace(lang))]
+}
+
+// Dir is the text direction of the page language: "rtl" or "ltr"
+func (head *HeadHTMLPage) Dir() string {
+	if IsRTL(head.Language) {
+		return "rtl"
+	}
+	return "ltr"
+}
 %}
 
 {%- func (head *HeadHTMLPage) HeadHTML() -%}
 <!DOCTYPE html>
-<html lang="{%s head.Language %}">
+<html lang="{%s head.Language %}" dir="{%s head.Dir() %}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta charset="{%s head.Charset %}">

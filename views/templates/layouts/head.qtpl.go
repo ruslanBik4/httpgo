@@ -17,26 +17,28 @@ package layouts
 
 //line head.qtpl:4
 import (
+	"strings"
+
 	"github.com/ruslanBik4/httpgo/views/js"
 	"github.com/ruslanBik4/httpgo/views/templates/css"
 )
 
 // head for index page.
 
-//line head.qtpl:10
+//line head.qtpl:12
 import (
 	qtio422016 "io"
 
 	qt422016 "github.com/valyala/quicktemplate"
 )
 
-//line head.qtpl:10
+//line head.qtpl:12
 var (
 	_ = qtio422016.Copy
 	_ = qt422016.AcquireByteBuffer
 )
 
-//line head.qtpl:11
+//line head.qtpl:13
 type HeadHTMLPage struct {
 	Title      string
 	Language   string
@@ -46,21 +48,48 @@ type HeadHTMLPage struct {
 	Scripts    []string
 }
 
-//line head.qtpl:21
+// rtlLanguages are written from right to left: their pages get dir="rtl"
+var rtlLanguages = map[string]bool{
+	"ar": true, "he": true, "fa": true, "ur": true, "yi": true,
+	"ps": true, "dv": true, "ckb": true, "sd": true, "ug": true,
+}
+
+// IsRTL reports whether lang ("he", "he-IL", "ar,en;q=0.8"...) is written from right to left
+func IsRTL(lang string) bool {
+	lang, _, _ = strings.Cut(lang, ",")
+	lang, _, _ = strings.Cut(lang, ";")
+	lang, _, _ = strings.Cut(lang, "-")
+	lang, _, _ = strings.Cut(lang, "_")
+	return rtlLanguages[strings.ToLower(strings.TrimSpace(lang))]
+}
+
+// Dir is the text direction of the page language: "rtl" or "ltr"
+func (head *HeadHTMLPage) Dir() string {
+	if IsRTL(head.Language) {
+		return "rtl"
+	}
+	return "ltr"
+}
+
+//line head.qtpl:46
 func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
-//line head.qtpl:21
+//line head.qtpl:46
 	qw422016.N().S(`<!DOCTYPE html>
 <html lang="`)
-//line head.qtpl:23
+//line head.qtpl:48
 	qw422016.E().S(head.Language)
-//line head.qtpl:23
+//line head.qtpl:48
+	qw422016.N().S(`" dir="`)
+//line head.qtpl:48
+	qw422016.E().S(head.Dir())
+//line head.qtpl:48
 	qw422016.N().S(`">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta charset="`)
-//line head.qtpl:26
+//line head.qtpl:51
 	qw422016.E().S(head.Charset)
-//line head.qtpl:26
+//line head.qtpl:51
 	qw422016.N().S(`">
 	<!--
   * 204 No Content by default does nothing, but is not an error
@@ -89,22 +118,22 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <meta name="description" content="">
     <meta name="author" content="httpgo">
 `)
-//line head.qtpl:53
+//line head.qtpl:78
 	for i := 0; i < len(head.MetaTags); i++ {
-//line head.qtpl:53
+//line head.qtpl:78
 		qw422016.N().S(`        `)
-//line head.qtpl:54
+//line head.qtpl:79
 		qw422016.N().S(head.MetaTags[i])
-//line head.qtpl:54
+//line head.qtpl:79
 		qw422016.N().S(`
 `)
-//line head.qtpl:55
+//line head.qtpl:80
 	}
-//line head.qtpl:55
+//line head.qtpl:80
 	qw422016.N().S(`    <title>`)
-//line head.qtpl:56
+//line head.qtpl:81
 	qw422016.E().S(head.Title)
-//line head.qtpl:56
+//line head.qtpl:81
 	qw422016.N().S(`</title>
     <link rel="shortcut icon" href="/favicon.ico" />
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
@@ -132,21 +161,21 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <!-- Fav and touch icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css" type="text/css" media="screen">
 `)
-//line head.qtpl:82
+//line head.qtpl:107
 	for i := 0; i < len(head.LinkStyles); i++ {
-//line head.qtpl:82
+//line head.qtpl:107
 		qw422016.N().S(head.LinkStyles[i])
-//line head.qtpl:82
+//line head.qtpl:107
 		qw422016.N().S(`
 `)
-//line head.qtpl:83
+//line head.qtpl:108
 	}
-//line head.qtpl:83
+//line head.qtpl:108
 	qw422016.N().S(`    <script>
       `)
-//line head.qtpl:85
+//line head.qtpl:110
 	js.StreamJQueryMin(qw422016)
-//line head.qtpl:85
+//line head.qtpl:110
 	qw422016.N().S(`
       </script>
     <!-- forms rendering & validation -->
@@ -167,16 +196,16 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
     <script src="https://cdn.jsdelivr.net/jquery.formstyler/1.7.8/jquery.formstyler.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 `)
-//line head.qtpl:104
+//line head.qtpl:129
 	for i := 0; i < len(head.Scripts); i++ {
-//line head.qtpl:104
+//line head.qtpl:129
 		qw422016.N().S(head.Scripts[i])
-//line head.qtpl:104
+//line head.qtpl:129
 		qw422016.N().S(`
 `)
-//line head.qtpl:105
+//line head.qtpl:130
 	}
-//line head.qtpl:105
+//line head.qtpl:130
 	qw422016.N().S(`    <link href="https://cdn.jsdelivr.net/jquery.suggestions/16.8/css/suggestions.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/gh/loadingio/loading.css@v2.0.0/dist/loading.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/jquery.suggestions/16.8/js/jquery.suggestions.min.js" defer></script>
@@ -196,38 +225,38 @@ func (head *HeadHTMLPage) StreamHeadHTML(qw422016 *qt422016.Writer) {
 <!-- script src="https://cdn.jsdelivr.net/npm/flatpickr"></script -->
 </head>
 `)
-//line head.qtpl:124
+//line head.qtpl:149
 }
 
-//line head.qtpl:124
+//line head.qtpl:149
 func (head *HeadHTMLPage) WriteHeadHTML(qq422016 qtio422016.Writer) {
-//line head.qtpl:124
+//line head.qtpl:149
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:124
+//line head.qtpl:149
 	head.StreamHeadHTML(qw422016)
-//line head.qtpl:124
+//line head.qtpl:149
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:124
+//line head.qtpl:149
 }
 
-//line head.qtpl:124
+//line head.qtpl:149
 func (head *HeadHTMLPage) HeadHTML() string {
-//line head.qtpl:124
+//line head.qtpl:149
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:124
+//line head.qtpl:149
 	head.WriteHeadHTML(qb422016)
-//line head.qtpl:124
+//line head.qtpl:149
 	qs422016 := string(qb422016.B)
-//line head.qtpl:124
+//line head.qtpl:149
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:124
+//line head.qtpl:149
 	return qs422016
-//line head.qtpl:124
+//line head.qtpl:149
 }
 
-//line head.qtpl:127
+//line head.qtpl:152
 func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
-//line head.qtpl:127
+//line head.qtpl:152
 	qw422016.N().S(`
 <!DOCTYPE html>
 <html>
@@ -237,9 +266,9 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="httpgo">
     <title>`)
-//line head.qtpl:135
+//line head.qtpl:160
 	qw422016.E().S(title)
-//line head.qtpl:135
+//line head.qtpl:160
 	qw422016.N().S(`</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="/bootstrap-theme.min.css">
@@ -248,39 +277,39 @@ func StreamAdminHead(qw422016 *qt422016.Writer, title string) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
     <style>
     `)
-//line head.qtpl:142
+//line head.qtpl:167
 	css.StreamHttpgoMainCSS(qw422016)
-//line head.qtpl:142
+//line head.qtpl:167
 	qw422016.N().S(`
     </style>
 </head>
 
 `)
-//line head.qtpl:146
+//line head.qtpl:171
 }
 
-//line head.qtpl:146
+//line head.qtpl:171
 func WriteAdminHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:146
+//line head.qtpl:171
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:146
+//line head.qtpl:171
 	StreamAdminHead(qw422016, title)
-//line head.qtpl:146
+//line head.qtpl:171
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:146
+//line head.qtpl:171
 }
 
-//line head.qtpl:146
+//line head.qtpl:171
 func AdminHead(title string) string {
-//line head.qtpl:146
+//line head.qtpl:171
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:146
+//line head.qtpl:171
 	WriteAdminHead(qb422016, title)
-//line head.qtpl:146
+//line head.qtpl:171
 	qs422016 := string(qb422016.B)
-//line head.qtpl:146
+//line head.qtpl:171
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:146
+//line head.qtpl:171
 	return qs422016
-//line head.qtpl:146
+//line head.qtpl:171
 }

@@ -159,12 +159,27 @@ function afterLogin(userData, thisForm) {
         return h;
     }
 
+    // languages written from right to left: the page is mirrored for them
+    const RTL_LANGS = ['ar', 'he', 'fa', 'ur', 'yi', 'ps', 'dv', 'ckb', 'sd', 'ug'];
+
+    function isRTL(l) {
+        return RTL_LANGS.includes(String(l || '').split(/[-_,;]/)[0].trim().toLowerCase());
+    }
+
+    // <html lang dir> follow the language: CSS (themes too) uses [dir=rtl] or :dir(rtl)
+    function setLangDirection(l) {
+        const html = document.documentElement;
+        html.setAttribute('lang', l);
+        html.setAttribute('dir', isRTL(l) ? 'rtl' : 'ltr');
+    }
+
 function changeLang(newLang) {
     if (lang.includes(newLang)) {
         return false
     }
 
     lang = newLang;
+    setLangDirection(newLang);
     // htmx.ajax(), not $.ajax() - picks up Accept-Language (the whole
     // point of this call) from Auth.headers() via observer.js's
     // htmx:configRequest, same as every other request in the app now.
@@ -1119,6 +1134,8 @@ function logOut(elem) {
         saveUser,
         changeLang,
         ChangeTheme: changeTheme,
+        isRTL,
+        setLangDirection,
         logOut,
         headers,
         relogin,
