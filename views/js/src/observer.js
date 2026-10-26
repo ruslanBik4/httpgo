@@ -293,6 +293,7 @@ function cfgHTMX() {
             }
         }
 
+        unwrapFullDocument(evt);
         clearStaleSidebar(evt);
 
         if (!elt.attributes.target) {
@@ -728,6 +729,38 @@ function showJSON(data, target) {
 // ships the empty slot) is not a sidebar update, and the old sidebar stayed.
 // Partial loads (rows, sorting, search suggestions) don't target #content and
 // never touch the sidebar.
+// Safety net against the "page inside a page" loop. A request for the main
+// content (hx-boost link, navigate(), hx-get ...) is expected to come back as
+// a FRAGMENT. It can come back as the whole page - layout, menus, <script>
+// tags - when the browser answers it from its HTTP cache with the document it
+// stored for the same URL on an ordinary navigation (the two requests differ
+// only in the HX-Request header, and without "Vary: HX-Request" the cache
+// can't tell them apart - see varyOnHTMX in httpServer.go). Swapped into
+// #content as it is, that page brings its own scripts: they run again, start
+// the same content request again, get the same cached page again... and the
+// Network tab fills with thousands of identical requests while the screen
+// shows menus nested in menus.
+// So a whole-document answer is never inserted as is: for #content only the
+// page's own #content children are taken (scripts and layout around them are
+// dropped), anywhere else it is ignored.
+const FULL_DOCUMENT = /^\s*(<!doctype\s+html|<html[\s>])/i;
+
+function unwrapFullDocument(evt) {
+    const {xhr, target, shouldSwap} = evt.detail;
+    if (!shouldSwap || !target || target === document.body || target === document.documentElement) return;
+    if (!FULL_DOCUMENT.test(xhr?.responseText || '')) return;
+
+    const url = evt.detail.pathInfo?.requestPath || xhr.responseURL;
+    if (target.id === 'content' && /\bid\s*=\s*["']content["']/.test(xhr.responseText)) {
+        console.warn(`full page received for #content (${url}) - taking only its #content`);
+        evt.detail.selectOverride = '#content > *';
+        return;
+    }
+
+    console.error(`full page received for ${target.id ? '#' + target.id : target.tagName} (${url}) - not inserted`);
+    evt.detail.shouldSwap = false;
+}
+
 function clearStaleSidebar(evt) {
     const {target, requestConfig, shouldSwap} = evt.detail;
     if (!shouldSwap || target?.id !== 'content' || requestConfig?.verb !== 'get') return;
