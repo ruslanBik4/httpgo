@@ -570,9 +570,21 @@ func handleWebAuthnRegisterBegin(ctx *fasthttp.RequestCtx) (any, error) {
 	}
 	login := GetValue[string](ctx, &crud.ParamsLogin)
 
+	logs.StatusLog(p, login)
+	// ctx (not context.Background()) - *fasthttp.RequestCtx already
+	// implements context.Context (Deadline/Done/Err/Value), so this is
+	// httpServer.go's own real request context, passed straight through.
 	challenge, err := p.BeginRegistration(ctx, login)
 	if err != nil {
-		return nil, ErrWrongParamsList
+		// Was `return nil, ErrWrongParamsList`: every failure of
+		// BeginRegistration (empty login, a failed INSERT into Users, a
+		// webauthn config problem, ...) reached the browser as the same
+		// "400 null", and nothing was logged. Log the real cause, and answer
+		// the way login/begin below does (the error text as the body). Note:
+		// this route is public, so once it works consider returning a fixed
+		// text for store/DB errors and keeping the details in the log only.
+		logs.ErrorLog(err, "passkey register/begin", login)
+		return err.Error(), ErrWrongParamsList
 	}
 
 	setCookie(ctx, auth.PasskeySessionCookie, challenge.SessionID, "/webauthn/", auth.PasskeySessionTTL)

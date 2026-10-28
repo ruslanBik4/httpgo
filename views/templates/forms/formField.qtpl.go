@@ -368,343 +368,360 @@ func RenderForm`)
 //line formField.qtpl:119
 				}
 //line formField.qtpl:120
-				if col.IsHidden {
+				if col.Unique > "" {
 //line formField.qtpl:120
-					qw422016.N().S(`                            IsHidden: `)
+					qw422016.N().S(`                            Unique: `)
+//line formField.qtpl:120
+					qw422016.N().S("`")
 //line formField.qtpl:121
-					qw422016.E().V(col.IsHidden)
+					qw422016.N().S(col.Unique)
+//line formField.qtpl:121
+					qw422016.N().S(``)
+//line formField.qtpl:121
+					qw422016.N().S("`")
 //line formField.qtpl:121
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:122
 				}
 //line formField.qtpl:123
-				if col.IsDisabled {
+				if col.IsHidden {
 //line formField.qtpl:123
-					qw422016.N().S(`                            IsDisabled: `)
+					qw422016.N().S(`                            IsHidden: `)
 //line formField.qtpl:124
-					qw422016.E().V(col.IsDisabled)
+					qw422016.E().V(col.IsHidden)
 //line formField.qtpl:124
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:125
 				}
 //line formField.qtpl:126
-				if col.IsReadOnly {
+				if col.IsDisabled {
 //line formField.qtpl:126
-					qw422016.N().S(`                            IsReadOnly: `)
+					qw422016.N().S(`                            IsDisabled: `)
 //line formField.qtpl:127
-					qw422016.E().V(col.IsReadOnly)
+					qw422016.E().V(col.IsDisabled)
 //line formField.qtpl:127
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:128
 				}
 //line formField.qtpl:129
-				if col.Multiple {
+				if col.IsReadOnly {
 //line formField.qtpl:129
-					qw422016.N().S(`                            Multiple: true,
+					qw422016.N().S(`                            IsReadOnly: `)
+//line formField.qtpl:130
+					qw422016.E().V(col.IsReadOnly)
+//line formField.qtpl:130
+					qw422016.N().S(`,
 `)
 //line formField.qtpl:131
 				}
 //line formField.qtpl:132
-				if col.IsSlice {
+				if col.Multiple {
 //line formField.qtpl:132
-					qw422016.N().S(`                            IsSlice: `)
-//line formField.qtpl:133
-					qw422016.E().V(col.IsSlice)
-//line formField.qtpl:133
-					qw422016.N().S(`,
+					qw422016.N().S(`                            Multiple: true,
 `)
 //line formField.qtpl:134
 				}
 //line formField.qtpl:135
-				if col.IsNewPrimary {
+				if col.IsSlice {
 //line formField.qtpl:135
-					qw422016.N().S(`                            IsNewPrimary: `)
+					qw422016.N().S(`                            IsSlice: `)
 //line formField.qtpl:136
-					qw422016.E().V(col.IsNewPrimary)
+					qw422016.E().V(col.IsSlice)
 //line formField.qtpl:136
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:137
 				}
 //line formField.qtpl:138
-				if col.SelectWithNew {
+				if col.IsNewPrimary {
 //line formField.qtpl:138
-					qw422016.N().S(`                            SelectWithNew: `)
+					qw422016.N().S(`                            IsNewPrimary: `)
 //line formField.qtpl:139
-					qw422016.E().V(col.SelectWithNew)
+					qw422016.E().V(col.IsNewPrimary)
 //line formField.qtpl:139
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:140
 				}
 //line formField.qtpl:141
-				if col.ExtProperties != nil {
+				if col.SelectWithNew {
 //line formField.qtpl:141
-					qw422016.N().S(`                            ExtProperties: `)
+					qw422016.N().S(`                            SelectWithNew: `)
 //line formField.qtpl:142
-					qw422016.N().S(fmt.Sprintf("%+#v", col.ExtProperties))
+					qw422016.E().V(col.SelectWithNew)
 //line formField.qtpl:142
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:143
 				}
-//line formField.qtpl:143
+//line formField.qtpl:144
+				if col.ExtProperties != nil {
+//line formField.qtpl:144
+					qw422016.N().S(`                            ExtProperties: `)
+//line formField.qtpl:145
+					qw422016.N().S(fmt.Sprintf("%+#v", col.ExtProperties))
+//line formField.qtpl:145
+					qw422016.N().S(`,
+`)
+//line formField.qtpl:146
+				}
+//line formField.qtpl:146
 				qw422016.N().S(`                            InputType: "`)
-//line formField.qtpl:144
+//line formField.qtpl:147
 				qw422016.N().S(col.InputType)
-//line formField.qtpl:144
+//line formField.qtpl:147
 				qw422016.N().S(`",
 `)
-//line formField.qtpl:145
+//line formField.qtpl:148
 				if col.SpecialInputName > "" {
-//line formField.qtpl:145
+//line formField.qtpl:148
 					qw422016.N().S(`                            SpecialInputName: "`)
-//line formField.qtpl:146
-					qw422016.N().S(col.SpecialInputName)
-//line formField.qtpl:146
-					qw422016.N().S(`",
-`)
-//line formField.qtpl:147
-				}
-//line formField.qtpl:148
-				if col.DefaultInputValue > "" {
-//line formField.qtpl:148
-					qw422016.N().S(`                            DefaultInputValue: "`)
 //line formField.qtpl:149
-					qw422016.N().S(col.DefaultInputValue)
+					qw422016.N().S(col.SpecialInputName)
 //line formField.qtpl:149
 					qw422016.N().S(`",
 `)
 //line formField.qtpl:150
 				}
 //line formField.qtpl:151
-				if len(col.Attachments) > 0 {
+				if col.DefaultInputValue > "" {
 //line formField.qtpl:151
-					qw422016.N().S(`                            Attachments: `)
+					qw422016.N().S(`                            DefaultInputValue: "`)
 //line formField.qtpl:152
-					qw422016.N().S(fmt.Sprintf("%+#v", col.Attachments))
+					qw422016.N().S(col.DefaultInputValue)
 //line formField.qtpl:152
-					qw422016.N().S(`,
+					qw422016.N().S(`",
 `)
 //line formField.qtpl:153
 				}
-//line formField.qtpl:153
+//line formField.qtpl:154
+				if len(col.Attachments) > 0 {
+//line formField.qtpl:154
+					qw422016.N().S(`                            Attachments: `)
+//line formField.qtpl:155
+					qw422016.N().S(fmt.Sprintf("%+#v", col.Attachments))
+//line formField.qtpl:155
+					qw422016.N().S(`,
+`)
+//line formField.qtpl:156
+				}
+//line formField.qtpl:156
 				qw422016.N().S(`                            PatternList: patternList,
 `)
-//line formField.qtpl:155
+//line formField.qtpl:158
 				if col.SelectOptionsFnc > "" {
-//line formField.qtpl:155
-					qw422016.N().S(`                            SelectOptions: `)
-//line formField.qtpl:156
-					qw422016.N().S(col.SelectOptionsFnc)
-//line formField.qtpl:156
-					qw422016.N().S(`,
-`)
-//line formField.qtpl:157
-				} else if col.SelectOptions != nil && len(col.SelectOptions) > 0 {
-//line formField.qtpl:157
-					qw422016.N().S(`                            SelectOptions: `)
 //line formField.qtpl:158
-					qw422016.N().S(fmt.Sprintf("%+#v", col.SelectOptions))
-//line formField.qtpl:158
-					qw422016.N().S(`,
-`)
+					qw422016.N().S(`                            SelectOptions: `)
 //line formField.qtpl:159
-				}
+					qw422016.N().S(col.SelectOptionsFnc)
+//line formField.qtpl:159
+					qw422016.N().S(`,
+`)
 //line formField.qtpl:160
-				if col.PatternName > "" {
+				} else if col.SelectOptions != nil && len(col.SelectOptions) > 0 {
 //line formField.qtpl:160
-					qw422016.N().S(`                            PatternName: `)
-//line formField.qtpl:160
-					qw422016.N().S("`")
+					qw422016.N().S(`                            SelectOptions: `)
 //line formField.qtpl:161
-					qw422016.N().S(col.PatternName)
-//line formField.qtpl:161
-					qw422016.N().S(``)
-//line formField.qtpl:161
-					qw422016.N().S("`")
+					qw422016.N().S(fmt.Sprintf("%+#v", col.SelectOptions))
 //line formField.qtpl:161
 					qw422016.N().S(`,
 `)
 //line formField.qtpl:162
 				}
 //line formField.qtpl:163
-				if col.PlaceHolder > "" {
+				if col.PatternName > "" {
 //line formField.qtpl:163
-					qw422016.N().S(`                            PlaceHolder: "`)
+					qw422016.N().S(`                            PatternName: `)
+//line formField.qtpl:163
+					qw422016.N().S("`")
 //line formField.qtpl:164
-					qw422016.N().S(col.PlaceHolder)
+					qw422016.N().S(col.PatternName)
 //line formField.qtpl:164
-					qw422016.N().S(`",
+					qw422016.N().S(``)
+//line formField.qtpl:164
+					qw422016.N().S("`")
+//line formField.qtpl:164
+					qw422016.N().S(`,
 `)
 //line formField.qtpl:165
 				}
 //line formField.qtpl:166
-				if col.LinkNew > "" {
+				if col.PlaceHolder > "" {
 //line formField.qtpl:166
-					qw422016.N().S(`                            LinkNew: "`)
+					qw422016.N().S(`                            PlaceHolder: "`)
 //line formField.qtpl:167
-					qw422016.N().S(col.LinkNew)
+					qw422016.N().S(col.PlaceHolder)
 //line formField.qtpl:167
 					qw422016.N().S(`",
 `)
 //line formField.qtpl:168
 				}
-//line formField.qtpl:168
+//line formField.qtpl:169
+				if col.LinkNew > "" {
+//line formField.qtpl:169
+					qw422016.N().S(`                            LinkNew: "`)
+//line formField.qtpl:170
+					qw422016.N().S(col.LinkNew)
+//line formField.qtpl:170
+					qw422016.N().S(`",
+`)
+//line formField.qtpl:171
+				}
+//line formField.qtpl:171
 				qw422016.N().S(`                            Label: api.Translate(ctx, "`)
-//line formField.qtpl:169
+//line formField.qtpl:172
 				qw422016.N().S(col.Label)
-//line formField.qtpl:169
+//line formField.qtpl:172
 				qw422016.N().S(`"),
 `)
-//line formField.qtpl:170
+//line formField.qtpl:173
 				if col.Suggestions > "" {
-//line formField.qtpl:170
+//line formField.qtpl:173
 					qw422016.N().S(`                            Suggestions: `)
-//line formField.qtpl:170
+//line formField.qtpl:173
 					qw422016.N().S("`")
-//line formField.qtpl:171
+//line formField.qtpl:174
 					qw422016.E().V(col.Suggestions)
-//line formField.qtpl:171
+//line formField.qtpl:174
 					qw422016.N().S(``)
-//line formField.qtpl:171
+//line formField.qtpl:174
 					qw422016.N().S("`")
-//line formField.qtpl:171
+//line formField.qtpl:174
 					qw422016.N().S(`,
 `)
-//line formField.qtpl:172
+//line formField.qtpl:175
 				}
-//line formField.qtpl:173
+//line formField.qtpl:176
 				if col.SuggestionsParams != nil && len(col.SuggestionsParams) > 0 {
-//line formField.qtpl:173
+//line formField.qtpl:176
 					qw422016.N().S(`                            SuggestionsParams: `)
-//line formField.qtpl:174
+//line formField.qtpl:177
 					qw422016.N().S(fmt.Sprintf("%+#v", col.SuggestionsParams))
-//line formField.qtpl:174
+//line formField.qtpl:177
 					qw422016.N().S(`,
 `)
-//line formField.qtpl:175
+//line formField.qtpl:178
 				}
-//line formField.qtpl:175
+//line formField.qtpl:178
 				qw422016.N().S(`                        },
 `)
-//line formField.qtpl:177
+//line formField.qtpl:180
 			}
-//line formField.qtpl:177
+//line formField.qtpl:180
 			qw422016.N().S(`                        },
 `)
-//line formField.qtpl:179
+//line formField.qtpl:182
 		}
-//line formField.qtpl:180
+//line formField.qtpl:183
 		if len(block.Buttons) > 0 {
-//line formField.qtpl:180
+//line formField.qtpl:183
 			qw422016.N().S(`                    Buttons:[]forms.Button{
 `)
-//line formField.qtpl:182
+//line formField.qtpl:185
 			for _, btn := range block.Buttons {
-//line formField.qtpl:182
+//line formField.qtpl:185
 				qw422016.N().S(`                            forms.Button{
                                 Id: "`)
-//line formField.qtpl:184
+//line formField.qtpl:187
 				qw422016.E().S(btn.Id)
-//line formField.qtpl:184
+//line formField.qtpl:187
 				qw422016.N().S(`",
 `)
-//line formField.qtpl:185
+//line formField.qtpl:188
 				if btn.Classes > "" {
-//line formField.qtpl:185
+//line formField.qtpl:188
 					qw422016.N().S(`	                            Classes:      api.Translate(ctx, `)
-//line formField.qtpl:185
+//line formField.qtpl:188
 					qw422016.N().S("`")
-//line formField.qtpl:186
+//line formField.qtpl:189
 					qw422016.N().S(btn.Classes)
-//line formField.qtpl:186
+//line formField.qtpl:189
 					qw422016.N().S(``)
-//line formField.qtpl:186
+//line formField.qtpl:189
 					qw422016.N().S("`")
-//line formField.qtpl:186
+//line formField.qtpl:189
 					qw422016.N().S(`),
-`)
-//line formField.qtpl:187
-				}
-//line formField.qtpl:188
-				if btn.Hidden {
-//line formField.qtpl:188
-					qw422016.N().S(`	                            Hidden: true,
 `)
 //line formField.qtpl:190
 				}
 //line formField.qtpl:191
-				if btn.Position {
+				if btn.Hidden {
 //line formField.qtpl:191
-					qw422016.N().S(`	                            Position: true,
+					qw422016.N().S(`	                            Hidden: true,
 `)
 //line formField.qtpl:193
 				}
 //line formField.qtpl:194
-				if btn.Title > "" {
+				if btn.Position {
 //line formField.qtpl:194
-					qw422016.N().S(`	                            Title:      api.Translate(ctx, `)
-//line formField.qtpl:194
-					qw422016.N().S("`")
-//line formField.qtpl:195
-					qw422016.N().S(btn.Title)
-//line formField.qtpl:195
-					qw422016.N().S(``)
-//line formField.qtpl:195
-					qw422016.N().S("`")
-//line formField.qtpl:195
-					qw422016.N().S(`),
+					qw422016.N().S(`	                            Position: true,
 `)
 //line formField.qtpl:196
 				}
 //line formField.qtpl:197
-				if btn.Type > "" {
+				if btn.Title > "" {
 //line formField.qtpl:197
-					qw422016.N().S(`	                            Type:       "`)
+					qw422016.N().S(`	                            Title:      api.Translate(ctx, `)
+//line formField.qtpl:197
+					qw422016.N().S("`")
 //line formField.qtpl:198
-					qw422016.N().S(btn.Type)
+					qw422016.N().S(btn.Title)
 //line formField.qtpl:198
-					qw422016.N().S(`",
+					qw422016.N().S(``)
+//line formField.qtpl:198
+					qw422016.N().S("`")
+//line formField.qtpl:198
+					qw422016.N().S(`),
 `)
 //line formField.qtpl:199
 				}
 //line formField.qtpl:200
-				if btn.OnClick > "" {
+				if btn.Type > "" {
 //line formField.qtpl:200
-					qw422016.N().S(`	                            OnClick:    `)
-//line formField.qtpl:200
-					qw422016.N().S("`")
+					qw422016.N().S(`	                            Type:       "`)
 //line formField.qtpl:201
-					qw422016.N().S(btn.OnClick)
+					qw422016.N().S(btn.Type)
 //line formField.qtpl:201
-					qw422016.N().S(``)
-//line formField.qtpl:201
-					qw422016.N().S("`")
-//line formField.qtpl:201
-					qw422016.N().S(`,
+					qw422016.N().S(`",
 `)
 //line formField.qtpl:202
 				}
-//line formField.qtpl:202
+//line formField.qtpl:203
+				if btn.OnClick > "" {
+//line formField.qtpl:203
+					qw422016.N().S(`	                            OnClick:    `)
+//line formField.qtpl:203
+					qw422016.N().S("`")
+//line formField.qtpl:204
+					qw422016.N().S(btn.OnClick)
+//line formField.qtpl:204
+					qw422016.N().S(``)
+//line formField.qtpl:204
+					qw422016.N().S("`")
+//line formField.qtpl:204
+					qw422016.N().S(`,
+`)
+//line formField.qtpl:205
+				}
+//line formField.qtpl:205
 				qw422016.N().S(`                            },
 `)
-//line formField.qtpl:204
+//line formField.qtpl:207
 			}
-//line formField.qtpl:204
+//line formField.qtpl:207
 			qw422016.N().S(`                    },
 `)
-//line formField.qtpl:206
+//line formField.qtpl:209
 		}
-//line formField.qtpl:206
+//line formField.qtpl:209
 		qw422016.N().S(`                },
 `)
-//line formField.qtpl:208
+//line formField.qtpl:211
 	}
-//line formField.qtpl:208
+//line formField.qtpl:211
 	qw422016.N().S(`            },
         }
 
@@ -713,31 +730,31 @@ func RenderForm`)
     return nil, nil
 }
 `)
-//line formField.qtpl:216
+//line formField.qtpl:219
 }
 
-//line formField.qtpl:216
+//line formField.qtpl:219
 func (f *FormField) WriteCreate(qq422016 qtio422016.Writer, repo, packageName, unitName string) {
-//line formField.qtpl:216
+//line formField.qtpl:219
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line formField.qtpl:216
+//line formField.qtpl:219
 	f.StreamCreate(qw422016, repo, packageName, unitName)
-//line formField.qtpl:216
+//line formField.qtpl:219
 	qt422016.ReleaseWriter(qw422016)
-//line formField.qtpl:216
+//line formField.qtpl:219
 }
 
-//line formField.qtpl:216
+//line formField.qtpl:219
 func (f *FormField) Create(repo, packageName, unitName string) string {
-//line formField.qtpl:216
+//line formField.qtpl:219
 	qb422016 := qt422016.AcquireByteBuffer()
-//line formField.qtpl:216
+//line formField.qtpl:219
 	f.WriteCreate(qb422016, repo, packageName, unitName)
-//line formField.qtpl:216
+//line formField.qtpl:219
 	qs422016 := string(qb422016.B)
-//line formField.qtpl:216
+//line formField.qtpl:219
 	qt422016.ReleaseByteBuffer(qb422016)
-//line formField.qtpl:216
+//line formField.qtpl:219
 	return qs422016
-//line formField.qtpl:216
+//line formField.qtpl:219
 }

@@ -117,6 +117,9 @@ func RenderForm{%s strcase.ToCamel(unitName) %}(ctx *fasthttp.RequestCtx, patter
                             {%- if col.Accept > "" -%}
                             Accept: "{%s col.Accept %}",
                             {%- endif -%}
+                            {%- if col.Unique > "" -%}
+                            Unique: `{%s= col.Unique %}`,
+                            {%- endif -%}
                             {%- if col.IsHidden -%}
                             IsHidden: {%v col.IsHidden %},
                             {%- endif -%}

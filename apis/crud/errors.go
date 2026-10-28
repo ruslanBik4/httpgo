@@ -55,7 +55,7 @@ func CreateErrResult(err error) (any, error) {
 		logs.DebugLog("%#v", e)
 	}
 
-	logs.StatusLog(msg)
+	logs.DebugLog(msg)
 	// Key (id)=(3) already exists. duplicate key value violates unique constraint "candidates_name_uindex"
 	// duplicate key value violates unique constraint "candidates_mobile_uindex"
 	// Key (digest(blob, 'sha1'::text))=(\x34d3fb7ceb19bf448d89ab76e7b1e16260c1d8b0) already exists.

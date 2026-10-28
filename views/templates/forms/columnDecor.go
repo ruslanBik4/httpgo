@@ -71,11 +71,18 @@ type ColumnDecor struct {
 	// SelectOptionsFnc is a Go expression giving the SelectOptions at run time,
 	// written as is into the code generated from a JSON form, e.g.
 	// "options": "GetThemesOptions(ctx)" - for lists kept in the DB
-	SelectOptionsFnc  string
-	pattern           string
-	patternDesc       string
-	Value             any
-	Accept            string
+	SelectOptionsFnc string
+	pattern          string
+	patternDesc      string
+	Value            any
+	Accept           string
+	// Unique is the URL of a handle that looks the value up in its table:
+	// the value must not be there yet. The form asks GET Unique?<name>=<value>
+	// while the user types - 204 (no rows) means the value is free, 200 that
+	// it is taken - and holds the submit until the value is free (see
+	// checkUniqueField in views/js/src/forms.js), e.g. for a JSON form
+	// "unique": "/table/projects/get?select=id"
+	Unique            string
 	Suggestions       string
 	SuggestionsParams map[string]any
 	Step              any
@@ -178,6 +185,8 @@ func NewColumnDecorFromJSON(val *fastjson.Value, patternList dbEngine.Table) *Co
 			col.IsReadOnly = true
 		case "accept":
 			col.Accept = gotools.BytesToString(val.GetStringBytes())
+		case "unique":
+			col.Unique = gotools.BytesToString(val.GetStringBytes())
 		case "suggestions":
 			col.Suggestions = gotools.BytesToString(val.GetStringBytes())
 		case "data":

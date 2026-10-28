@@ -539,6 +539,100 @@ figure label > input {
     border: none;
 }
 
+/* ---------------------------------------------------------------------------
+   Text field of a form (columnDecor.qtpl):
+     <label class="input-label">
+        <input|textarea placeholder=" " ...> <span data-placeholder="Label"></span>
+        [<div class="suggestions-wrapper">] <h6 class="errorLabel"></h6>
+     </label>
+   One grid column, no absolute positions - every part takes its own row,
+   so the error label is never covered by the field:
+     row 1 - the field, row 2 - the span as the title (under the field),
+     row 3 - suggestions, row 4 - .errorLabel.
+   The span is the placeholder - laid over the field in row 1 - while the field
+   is empty (:placeholder-shown of the blank placeholder=" ") and not focused.
+   A field with a real placeholder keeps the span as the title.
+   Checkbox, radio, slider, select and file keep their own layout. */
+.input-wrap > label.input-label:has(> :is(input:not([type=checkbox], [type=radio], [type=hidden]), textarea) + span[data-placeholder]:not(.slider)) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    align-items: center;
+    row-gap: 2px;
+    box-sizing: border-box;
+    margin-top: 4px;
+}
+
+.input-wrap > label.input-label > input:not([type=checkbox], [type=radio], [type=hidden]),
+.input-wrap > label.input-label > textarea {
+    grid-area: 1 / 1;
+    position: static;
+    float: none;
+    width: 100%;
+    height: auto;
+    min-height: 24px;
+    box-sizing: border-box;
+    padding: 2px 4px;
+    text-align: start;
+    border-bottom: 1px solid #adadad;
+    transition: border-color .4s, box-shadow .4s;
+}
+
+.input-wrap > label.input-label > input:not([type=checkbox], [type=radio], [type=hidden]):focus,
+.input-wrap > label.input-label > textarea:focus {
+    border-bottom-color: #d5007d;
+    box-shadow: 0 1px 0 0 #e53935;
+}
+
+/* the title: under the field */
+.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider) {
+    grid-area: 2 / 1;
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0 4px;
+    font-size: smaller;
+    color: #666;
+    text-align: start;
+    pointer-events: none;
+    transition: all .3s;
+}
+
+.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider)::after {
+    content: attr(data-placeholder);
+    position: static;
+    display: inline;
+    width: auto;
+}
+
+/* the underline of the old absolute layout - the field has its own border now */
+.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider)::before {
+    content: none;
+}
+
+/* the placeholder: over the empty field without focus */
+.input-wrap > label.input-label > :is(input, textarea)[placeholder=" "]:placeholder-shown:not(:focus) + span[data-placeholder]:not(.slider) {
+    grid-area: 1 / 1;
+    font-size: inherit;
+    color: #999;
+}
+
+.input-wrap > label.input-label > textarea[placeholder=" "]:placeholder-shown:not(:focus) + span[data-placeholder] {
+    align-self: start;
+    padding-top: 2px;
+}
+
+.input-wrap > label.input-label > .suggestions-wrapper {
+    grid-area: 3 / 1;
+}
+
+.input-wrap > label.input-label > .errorLabel {
+    grid-area: 4 / 1;
+    margin: 0;
+    padding: 0 4px;
+    font-size: smaller;
+}
+
 ul.form-field {
     position: relative;
     overflow: visible;
@@ -566,6 +660,19 @@ li.form-field select {
 .errorLabel {
     display: none;
     color: red;
+}
+
+/* the error label follows the status of its field (a sibling before it):
+   .error-field - set by the validation of the form (forms.js) and by the
+   errors of the server (showErrors), :user-invalid - the field is invalid
+   after the user touched it (setCustomValidity of unique fields too).
+   Separate rules: a browser without :user-invalid drops only its own rule */
+.error-field ~ .errorLabel:not(:empty) {
+    display: flex;
+}
+
+:user-invalid ~ .errorLabel:not(:empty) {
+    display: flex;
 }
 
 .removeField {

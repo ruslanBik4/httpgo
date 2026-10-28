@@ -100,7 +100,7 @@ const Auth = (function () {
         try {
             const text = await resp.text();
             try {
-                detail = JSON.parse(text).error || text;
+                detail = JSON.parse(text)?.error || (text === 'null' ? '' : text);
             } catch (e) {
                 detail = text;
             }

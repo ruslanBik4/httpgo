@@ -19,6 +19,9 @@
 
         "name": "{%s= col.InputName(-1) %}",
         "required": {%v col.Required() %},
+         {% if col.Unique > "" %}
+             "unique": "{%j= col.Unique %}",
+         {% endif %}
          {% if col.patternDesc > "" %}
              "error": {
                 "pattern": "{%s= col.patternDesc %}",
@@ -162,7 +165,12 @@ id="id_{%s col.InputName(i) %}"
          {% if col.Min != nil %} min={%v col.Min %} {% space %} {%- endif -%}
          {% if col.Step != nil %}step={%v col.Step %} {% space %} {%- endif -%}
          {% if col.Classes > "" %} class="{%s col.Classes %}" {% endif %}
-         {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% endif %}
+         {% comment %}
+            a blank placeholder: :placeholder-shown means "the field is empty",
+            the styles show the label (span[data-placeholder]) as the placeholder then
+         {% endcomment %}
+         {% if col.PlaceHolder > "" %} placeholder="{%s col.PlaceHolder %}" {% else %} placeholder=" " {% endif %}
+         {% if col.Unique > "" %} data-unique="{%s col.Unique %}" {% endif %}
          {% if p := col.Suggestions; p > "" %}
          {% elseif col.Pattern() > "" %}
                 pattern="{%s= col.Pattern() %}" onkeyup="return validatePattern(this);"

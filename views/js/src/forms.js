@@ -329,8 +329,174 @@ function validatePatternsField(thisForm) {
 }
 
 function validateFields(elem) {
-    return (validateReguiredFields(elem) && validateEmailFields(elem) && validatePatternsField(elem))
+    return (validateReguiredFields(elem) && validateEmailFields(elem) && validatePatternsField(elem)
+        && validateUniqueFields(elem))
 }
+
+// ---------------------------------------------------------------------------
+// Unique fields: <input data-unique="/table/projects/get?select=id"> (column
+// "unique" of a JSON form, ColumnDecor.Unique). The value must not be in the
+// table behind the url yet: GET url?<field name>=<value> answers 204 (no
+// rows) when it is free and 200 when it is taken. Any other answer (401 for
+// a guest, 5xx, network) does not block the form - the handle the form posts
+// to checks the value again, that check is the one that counts.
+//
+// The check runs while the user types (debounced) and on change;
+// validateFields() -> validateUniqueFields() holds the submit while a check
+// is pending, then submits the form again by itself once the value is free.
+const uniqueChecks = new WeakMap(); // field -> {value, state, promise}
+const uniqueTimers = new WeakMap(); // field -> debounce timer
+const UNIQUE_DEBOUNCE = 400;
+
+function checkUniqueField(field) {
+    const value = field.value.trim();
+    let check = uniqueChecks.get(field);
+    if (check && check.value === value) {
+        return check.promise;
+    }
+
+    check = {value, state: 'pending'};
+    uniqueChecks.set(field, check);
+    if (value === '') {
+        // empty is the business of "required", not of "unique"
+        check.state = 'free';
+        check.promise = Promise.resolve(check);
+        markUniqueField(field, check);
+        return check.promise;
+    }
+
+    const url = new URL(field.dataset.unique, window.location.href);
+    url.searchParams.set(field.name, value);
+    check.promise = fetch(url, {
+        headers: Object.assign({'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'},
+            typeof Auth !== 'undefined' ? Auth.headers() : {}),
+        credentials: 'same-origin',
+    })
+        .then(resp => {
+            check.state = resp.status === 204 ? 'free' : (resp.ok ? 'taken' : 'unknown');
+        })
+        .catch(err => {
+            console.log(err);
+            check.state = 'unknown';
+        })
+        .then(() => {
+            // only the answer for the current value is shown
+            if (uniqueChecks.get(field) === check) {
+                markUniqueField(field, check);
+            }
+            return check;
+        });
+
+    return check.promise;
+}
+
+function uniqueFieldMessage(field, value) {
+    return `'${value}' already exists, choose another one`;
+}
+
+// Sets the status of the field only: the class error-field / validated-field
+// and its validity (setCustomValidity). Whether .errorLabel is shown is the
+// business of the styles (.error-field ~ .errorLabel, :user-invalid ~
+// .errorLabel in styles.css); here the label gets just its text.
+function markUniqueField(field, check) {
+    const errLabel = field.closest('label')?.querySelector('.errorLabel');
+    if (errLabel) {
+        // an inline display/hidden left by .show()/.hide() would override the styles
+        errLabel.style.removeProperty('display');
+        errLabel.hidden = false;
+    }
+
+    if (check.state === 'taken') {
+        const msg = uniqueFieldMessage(field, check.value);
+        field.setCustomValidity(msg);
+        field.classList.add('error-field');
+        field.classList.remove('validated-field');
+        if (errLabel) {
+            if (errLabel.dataset.text === undefined) {
+                errLabel.dataset.text = errLabel.textContent;
+            }
+            errLabel.textContent = msg;
+        }
+        return;
+    }
+
+    field.setCustomValidity('');
+    field.classList.remove('error-field');
+    if (check.state === 'free' && check.value > '') {
+        field.classList.add('validated-field');
+    }
+    if (errLabel && errLabel.dataset.text !== undefined) {
+        errLabel.textContent = errLabel.dataset.text;
+        delete errLabel.dataset.text;
+    }
+}
+
+function alertUniqueField(field, check) {
+    markUniqueField(field, check);
+    showMessage(field, uniqueFieldMessage(field, check.value));
+    field.focus();
+    field.scrollIntoView({block: 'center'});
+}
+
+function isActiveUniqueField(field) {
+    return !field.disabled && field.offsetParent !== null;
+}
+
+// submit guard: false while any unique field is taken or not checked yet
+function validateUniqueFields(thisForm) {
+    const pending = [];
+    for (const field of thisForm.querySelectorAll('[data-unique]')) {
+        if (!isActiveUniqueField(field)) continue;
+
+        const check = uniqueChecks.get(field);
+        if (!check || check.value !== field.value.trim() || check.state === 'pending') {
+            pending.push(checkUniqueField(field));
+        } else if (check.state === 'taken') {
+            alertUniqueField(field, check);
+            return false;
+        }
+    }
+    if (pending.length === 0) {
+        return true;
+    }
+
+    if (thisForm.dataset.uniqueWait === undefined) {
+        thisForm.dataset.uniqueWait = '';
+        Promise.all(pending).then(checks => {
+            delete thisForm.dataset.uniqueWait;
+            const taken = checks.find(check => check.state === 'taken');
+            if (taken) {
+                const field = Array.from(thisForm.querySelectorAll('[data-unique]'))
+                    .find(f => uniqueChecks.get(f) === taken);
+                if (field) alertUniqueField(field, taken);
+                return;
+            }
+            // every value is free (or can't be checked here) - send the form
+            // as the user asked; validateFields() passes this time
+            thisForm.requestSubmit();
+        });
+    }
+    return false;
+}
+
+document.addEventListener('input', evt => {
+    const field = evt.target;
+    if (!field.matches?.('[data-unique]')) return;
+
+    // a new value: the old verdict no longer applies
+    field.setCustomValidity('');
+    field.classList.remove('error-field', 'validated-field');
+    clearTimeout(uniqueTimers.get(field));
+    uniqueTimers.set(field, setTimeout(() => checkUniqueField(field), UNIQUE_DEBOUNCE));
+});
+
+document.addEventListener('change', evt => {
+    const field = evt.target;
+    if (!field.matches?.('[data-unique]')) return;
+
+    clearTimeout(uniqueTimers.get(field));
+    checkUniqueField(field);
+});
 
 function validateEmail(email) {
     var re = /^(([^<>()[\\.,;:\s@\"\]]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
