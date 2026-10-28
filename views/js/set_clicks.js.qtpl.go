@@ -195,6 +195,8 @@ function setSliderBox(target) {
 // - The textarea is shown according to its text: HTML is shown rendered
 //   (div.text-preview - a click or Enter opens the editor again), plain text
 //   stays in the textarea. Also for the values that come from the server.
+// - Every way into the field opens its editor again: focus of the textarea
+//   or of the preview (click, Tab) and a click anywhere in its label.
 // set_clicks.js may be evaluated twice (app.js and forms.js) - so `)
 //line set_clicks.js.qtpl:2
 	qw422016.N().S("`")
@@ -272,15 +274,10 @@ function showTextView(textarea) {
         preview.tabIndex = 0;
         preview.setAttribute('role', 'textbox');
         preview.setAttribute('aria-multiline', 'true');
+        // entering the preview (focus, click) opens the editor - see the listeners at the end;
+        // a link of the text opens the editor, not the page
         preview.addEventListener('click', evt => {
-            if (evt.target.closest('a')) evt.preventDefault(); // a link of the text opens the editor, not the page
-            openTextEditor(textarea);
-        });
-        preview.addEventListener('keydown', evt => {
-            if (evt.key === 'Enter' || evt.key === ' ') {
-                evt.preventDefault();
-                openTextEditor(textarea);
-            }
+            if (evt.target.closest('a')) evt.preventDefault();
         });
         // before the title (span[data-placeholder]) - the styles place it over the textarea
         const title = textarea.parentNode.querySelector(':scope > span[data-placeholder]');
@@ -337,7 +334,9 @@ function openTextEditor(textarea) {
             target: textarea,
             menubar: false,
             highlight_on_focus: true,
-            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            // only what the toolbar uses (+ autolink): every plugin is one more
+            // request to the CDN (emoticons also loads its emoji database)
+            plugins: 'autolink link lists image media table',
             toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | removeformat',
             setup: editor => {
                 textEdit.editors.set(textarea, editor);
@@ -362,13 +361,56 @@ function setTextEdit(target) {
     $(TEXT_EDIT_SELECTOR, target).each((ind, textarea) => showTextView(textarea));
 }
 
-// one delegated listener for every textarea, also for those swapped in later
-// (setTextEdit() used to bind a focus handler again on every setClickAll())
+function isTextEditorShown(textarea) {
+    const editor = textEdit.editors.get(textarea);
+    return !!editor && !editor.removed && !editor.isHidden();
+}
+
+// the textarea of the field the element belongs to: the textarea itself or its preview
+function textEditTarget(elem) {
+    if (elem.matches?.(TEXT_EDIT_SELECTOR)) return elem;
+    if (elem.classList?.contains('text-preview')) {
+        return elem.parentNode.querySelector(`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`:scope > ${TEXT_EDIT_SELECTOR}`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`);
+    }
+    return null;
+}
+
+// delegated listeners for every textarea, also for those swapped in later
+// (setTextEdit() used to bind a focus handler again on every setClickAll()).
+// Every way into the field opens its editor - not only the first one:
 if (!window.textEditBound) {
     window.textEditBound = true;
+    // focus of the textarea (the first time, plain text) or of its preview (click, Tab)
     document.addEventListener('focusin', evt => {
-        const textarea = evt.target;
-        if (textarea.matches?.(TEXT_EDIT_SELECTOR)) {
+        const textarea = textEditTarget(evt.target);
+        if (textarea && !isTextEditorShown(textarea)) {
+            openTextEditor(textarea);
+        }
+    });
+    // a click anywhere in the field - the title, the empty space of the label:
+    // the label passes such a click to its textarea, but that one is hidden
+    // (by the preview or by the editor) and can't take the focus
+    document.addEventListener('click', evt => {
+        if (evt.target.closest?.('.tox')) return; // inside the editor (and its menus)
+        const label = evt.target.closest?.('label.input-label');
+        const textarea = label?.querySelector(`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`:scope > ${TEXT_EDIT_SELECTOR}`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`);
+        if (textarea && !isTextEditorShown(textarea)) {
             openTextEditor(textarea);
         }
     });
