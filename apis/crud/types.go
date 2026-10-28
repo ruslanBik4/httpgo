@@ -375,7 +375,7 @@ func (i *IntervalMarshal) Format(s fmt.State, verb rune) {
 	case 'g':
 		_, err = fmt.Fprint(s, "crud.NewIntervalMarshal()")
 	case 's':
-		_, err = fmt.Fprintf(s, "%d month %d day %d", i.Months, i.Days, time.Duration(i.Microseconds).String())
+		_, err = fmt.Fprintf(s, "%d month %d day %s", i.Months, i.Days, time.Duration(i.Microseconds).String())
 	}
 	if err != nil {
 		logs.ErrorLog(err)

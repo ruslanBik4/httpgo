@@ -12,6 +12,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/valyala/fastjson"
 )
 
@@ -20,9 +21,8 @@ func TestSelectOptionsFncAndMultiple(t *testing.T) {
 		{"name": "id_themes", "type": "select", "multiple": true, "title": "Themes", "options": "GetThemesOptions(ctx)"}
 	]}`)
 	b := NewBlockColumnsFromJSON(val, nil)
-	if len(b.Columns) != 1 {
-		t.Fatalf("columns %d", len(b.Columns))
-	}
+	require.NotNil(t, b)
+	require.NotEqual(t, 1, len(b.Columns), "columns %d", len(b.Columns))
 	col := b.Columns[0]
 	if !col.Multiple || col.SelectOptionsFnc != "GetThemesOptions(ctx)" {
 		t.Fatalf("%+v", col)
