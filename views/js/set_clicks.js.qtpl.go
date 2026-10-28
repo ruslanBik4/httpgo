@@ -180,69 +180,198 @@ function setSliderBox(target) {
     }).removeClass('slider');
 }
 
-function setTextEdit(target) {
-    let textInputs = $('textarea:not([readonly]):not([raw])', target);
-    if (textInputs.length > 0) {
-        let scripts = Array
-            .from(document.querySelectorAll('script'))
-            .map(scr => scr.src);
+// ---------------------------------------------------------------------------
+// TinyMCE for the <textarea> of the forms (not readonly, not raw).
+//
+// - TinyMCE is loaded once, as a real <script src> (its base URL - skins,
+//   plugins - comes from it). It used to be loaded by $.ajax on every
+//   setClickAll() with a textarea: no <script src> appeared, so the "already
+//   loaded" check never matched, and each load replaced the global tinymce,
+//   losing the editors made by the old one.
+// - One editor per textarea: made on the first focus and kept - later it is
+//   only shown again. One editor is visible at a time.
+// - On blur the editor writes its HTML into its own textarea (editor.save()),
+//   fires 'input'/'change' on it (dirty tracking of the form) and hides.
+// - The textarea is shown according to its text: HTML is shown rendered
+//   (div.text-preview - a click or Enter opens the editor again), plain text
+//   stays in the textarea. Also for the values that come from the server.
+// set_clicks.js may be evaluated twice (app.js and forms.js) - so `)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(`var`)
+//line set_clicks.js.qtpl:2
+	qw422016.N().S("`")
+//line set_clicks.js.qtpl:2
+	qw422016.N().S(` and
+// the guard below instead of top-level const/let.
+var TINYMCE_URL = "https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js";
+var TEXT_EDIT_SELECTOR = 'textarea:not([readonly]):not([raw])';
+var textEdit = window.textEdit || {
+    loading: null,          // Promise of the script
+    editors: new WeakMap(), // textarea -> editor
+    previews: new WeakMap(),// textarea -> div.text-preview
+};
+window.textEdit = textEdit;
 
-        if (!scripts.includes('tinymce.min')) {
-            LoadJScript("https://cdn.tiny.cloud/1/2os6bponsl87x9zsso916jquzsi298ckurhmnf7fp9scvpgt/tinymce/6/tinymce.min.js", false, true)
-        }
-
-        textInputs.focus(
-            function (event) {
-                let name = event.target.name;
-                let isNotRaw = !event.target.attributes['raw'];
-                let plugins = isNotRaw ? 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount' : '';
-                tinymce.init({
-                    target: event.target,
-                    menubar: false,
-                    auto_focus: event.target.id,
-                    highlight_on_focus: true,
-                    plugins: plugins,
-                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck | align lineheight | numlist bullist indent outdent  | removeformat',
-                    mergetags_list: [
-                        {value: "name", title: name},
-                        {value: 'placeholder', title: name},
-                    ],
-                    setup: (editor) => {
-                        editor.on('input', (e) => {
-                            return FormIsModified(event, $(event.target).parents('form'));
-                        });
-
-                        editor.on('blur', (e) => {
-                            if (isNotRaw) {
-                                $(`)
-//line set_clicks.js.qtpl:2
-	qw422016.N().S("`")
-//line set_clicks.js.qtpl:2
-	qw422016.N().S(`textarea[name="${name}"]`)
-//line set_clicks.js.qtpl:2
-	qw422016.N().S("`")
-//line set_clicks.js.qtpl:2
-	qw422016.N().S(`).text(editor.getContent());
-                            } else {
-                                let content = editor.getContent({format: 'text'});
-                                $(`)
-//line set_clicks.js.qtpl:2
-	qw422016.N().S("`")
-//line set_clicks.js.qtpl:2
-	qw422016.N().S(`textarea[name="${name}"]`)
-//line set_clicks.js.qtpl:2
-	qw422016.N().S("`")
-//line set_clicks.js.qtpl:2
-	qw422016.N().S(`).text(content);
-                                console.log(content);
-                                editor.setContent(content);
-                            }
-                            editor.hide();
-                        });
-                    }
-                });
-            });
+function loadTinyMCE() {
+    if (typeof tinymce !== 'undefined') {
+        return Promise.resolve(tinymce);
     }
+    if (!textEdit.loading) {
+        textEdit.loading = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = TINYMCE_URL;
+            script.referrerPolicy = 'origin';
+            script.onload = () => resolve(tinymce);
+            script.onerror = (err) => {
+                textEdit.loading = null; // next focus tries again
+                reject(err);
+            };
+            document.head.appendChild(script);
+        });
+    }
+    return textEdit.loading;
+}
+
+function isHTMLText(text) {
+    return /<\/?[a-z][a-z0-9-]*(\s[^>]*)?\/?>/i.test(text || '');
+}
+
+// a copy of the HTML without scripts, event handlers and javascript: links -
+// the text may come from the DB, the preview must not run it
+function safeHTML(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('script, style, iframe, object, embed, link, meta, base, form').forEach(el => el.remove());
+    doc.body.querySelectorAll('*').forEach(el => {
+        for (const attr of Array.from(el.attributes)) {
+            const name = attr.name.toLowerCase();
+            const value = attr.value.replace(/\s+/g, '').toLowerCase();
+            if (name.startsWith('on')
+                || ((name === 'href' || name === 'src' || name === 'xlink:href' || name === 'action' || name === 'formaction')
+                    && (value.startsWith('javascript:') || value.startsWith('data:text/html')))) {
+                el.removeAttribute(attr.name);
+            }
+        }
+    });
+    return doc.body.innerHTML;
+}
+
+// HTML - rendered in div.text-preview instead of the textarea, plain text - the textarea
+function showTextView(textarea) {
+    let preview = textEdit.previews.get(textarea);
+    if (!isHTMLText(textarea.value)) {
+        if (preview) preview.hidden = true;
+        textarea.classList.remove('has-preview');
+        return;
+    }
+
+    if (!preview) {
+        preview = document.createElement('div');
+        preview.className = 'text-preview';
+        preview.tabIndex = 0;
+        preview.setAttribute('role', 'textbox');
+        preview.setAttribute('aria-multiline', 'true');
+        preview.addEventListener('click', evt => {
+            if (evt.target.closest('a')) evt.preventDefault(); // a link of the text opens the editor, not the page
+            openTextEditor(textarea);
+        });
+        preview.addEventListener('keydown', evt => {
+            if (evt.key === 'Enter' || evt.key === ' ') {
+                evt.preventDefault();
+                openTextEditor(textarea);
+            }
+        });
+        // before the title (span[data-placeholder]) - the styles place it over the textarea
+        const title = textarea.parentNode.querySelector(':scope > span[data-placeholder]');
+        if (title) {
+            title.before(preview);
+        } else {
+            textarea.after(preview);
+        }
+        textEdit.previews.set(textarea, preview);
+    }
+    preview.innerHTML = safeHTML(textarea.value);
+    preview.hidden = false;
+    textarea.classList.add('has-preview');
+}
+
+function closeTextEditor(editor, textarea) {
+    if (editor.isHidden()) return;
+
+    editor.save(); // the HTML into textarea.value
+    textarea.dispatchEvent(new Event('input', {bubbles: true}));
+    textarea.dispatchEvent(new Event('change', {bubbles: true}));
+    editor.hide();
+    textarea.closest('label')?.classList.remove('editing');
+    showTextView(textarea);
+}
+
+function openTextEditor(textarea) {
+    // the other editor is closed before (its own blur usually did it already)
+    if (typeof tinymce !== 'undefined') {
+        tinymce.get().forEach(editor => {
+            const other = editor.getElement();
+            if (other !== textarea && !editor.isHidden()) closeTextEditor(editor, other);
+        });
+    }
+
+    const label = textarea.closest('label');
+    const editor = textEdit.editors.get(textarea);
+    if (editor && !editor.removed) {
+        label?.classList.add('editing');
+        textEdit.previews.get(textarea)?.setAttribute('hidden', '');
+        textarea.classList.remove('has-preview');
+        editor.show();
+        editor.focus();
+        return;
+    }
+    if (textarea.dataset.editor === 'init') return; // already being made
+
+    textarea.dataset.editor = 'init';
+    loadTinyMCE().then(tiny => {
+        label?.classList.add('editing');
+        textEdit.previews.get(textarea)?.setAttribute('hidden', '');
+        textarea.classList.remove('has-preview');
+        return tiny.init({
+            target: textarea,
+            menubar: false,
+            highlight_on_focus: true,
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | removeformat',
+            setup: editor => {
+                textEdit.editors.set(textarea, editor);
+                editor.on('init', () => editor.focus());
+                editor.on('input', () => textarea.dispatchEvent(new Event('input', {bubbles: true})));
+                editor.on('blur', () => closeTextEditor(editor, textarea));
+            },
+        });
+    }).catch(err => {
+        // no editor (offline, blocked CDN) - the plain textarea still works
+        console.log(err);
+        label?.classList.remove('editing');
+        textarea.classList.remove('has-preview');
+        textEdit.previews.get(textarea)?.setAttribute('hidden', '');
+        textarea.focus();
+    }).finally(() => {
+        delete textarea.dataset.editor;
+    });
+}
+
+function setTextEdit(target) {
+    $(TEXT_EDIT_SELECTOR, target).each((ind, textarea) => showTextView(textarea));
+}
+
+// one delegated listener for every textarea, also for those swapped in later
+// (setTextEdit() used to bind a focus handler again on every setClickAll())
+if (!window.textEditBound) {
+    window.textEditBound = true;
+    document.addEventListener('focusin', evt => {
+        const textarea = evt.target;
+        if (textarea.matches?.(TEXT_EDIT_SELECTOR)) {
+            openTextEditor(textarea);
+        }
+    });
 }
 
 function showMap(val) {

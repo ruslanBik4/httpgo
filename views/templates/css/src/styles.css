@@ -553,10 +553,13 @@ figure label > input {
    is empty (:placeholder-shown of the blank placeholder=" ") and not focused.
    A field with a real placeholder keeps the span as the title.
    Checkbox, radio, slider, select and file keep their own layout. */
-.input-wrap > label.input-label:has(> :is(input:not([type=checkbox], [type=radio], [type=hidden]), textarea) + span[data-placeholder]:not(.slider)) {
+.input-wrap > label.input-label:has(> :is(input:not([type=checkbox], [type=radio], [type=hidden]), textarea) ~ span[data-placeholder]:not(.slider)) {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto;
+    /* row 2 keeps the height of the title also while the span is the
+       placeholder: focus/blur of an empty field must not move the fields
+       below (a click there landed on another element) */
+    grid-template-rows: auto minmax(1.2em, auto) auto auto;
     align-items: center;
     row-gap: 2px;
     box-sizing: border-box;
@@ -585,7 +588,7 @@ figure label > input {
 }
 
 /* the title: under the field */
-.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider) {
+.input-wrap > label.input-label > :is(input, textarea) ~ span[data-placeholder]:not(.slider) {
     grid-area: 2 / 1;
     position: static;
     width: auto;
@@ -598,7 +601,7 @@ figure label > input {
     transition: all .3s;
 }
 
-.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider)::after {
+.input-wrap > label.input-label > :is(input, textarea) ~ span[data-placeholder]:not(.slider)::after {
     content: attr(data-placeholder);
     position: static;
     display: inline;
@@ -606,24 +609,133 @@ figure label > input {
 }
 
 /* the underline of the old absolute layout - the field has its own border now */
-.input-wrap > label.input-label > :is(input, textarea) + span[data-placeholder]:not(.slider)::before {
+.input-wrap > label.input-label > :is(input, textarea) ~ span[data-placeholder]:not(.slider)::before {
     content: none;
 }
 
 /* the placeholder: over the empty field without focus */
-.input-wrap > label.input-label > :is(input, textarea)[placeholder=" "]:placeholder-shown:not(:focus) + span[data-placeholder]:not(.slider) {
+.input-wrap > label.input-label:not(.editing) > :is(input, textarea)[placeholder=" "]:placeholder-shown:not(:focus) ~ span[data-placeholder]:not(.slider) {
     grid-area: 1 / 1;
     font-size: inherit;
     color: #999;
 }
 
-.input-wrap > label.input-label > textarea[placeholder=" "]:placeholder-shown:not(:focus) + span[data-placeholder] {
+.input-wrap > label.input-label:not(.editing) > textarea[placeholder=" "]:placeholder-shown:not(:focus) ~ span[data-placeholder] {
     align-self: start;
     padding-top: 2px;
 }
 
 .input-wrap > label.input-label > .suggestions-wrapper {
     grid-area: 3 / 1;
+}
+
+/* TinyMCE (set_clicks.js, setTextEdit) puts its editor (div.tox-tinymce) after
+   the textarea; a textarea with HTML is shown rendered (div.text-preview).
+   Both take the place of the textarea - row 1 */
+.input-wrap > label.input-label > .tox-tinymce,
+.input-wrap > label.input-label > .text-preview {
+    grid-area: 1 / 1;
+}
+
+.input-wrap > label.input-label > textarea.has-preview {
+    display: none;
+}
+
+.text-preview {
+    min-height: 24px;
+    max-height: 320px;
+    overflow: auto;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #adadad;
+    cursor: text;
+    text-align: start;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.text-preview:hover {
+    background-color: #fafafa;
+}
+
+.text-preview:focus {
+    outline: none;
+    border-bottom-color: #d5007d;
+    box-shadow: 0 1px 0 0 #e53935;
+}
+
+.text-preview[hidden] {
+    display: none;
+}
+
+.text-preview > :first-child {
+    margin-top: 0;
+}
+
+.text-preview > :last-child {
+    margin-bottom: 0;
+}
+
+.text-preview p, .text-preview ul, .text-preview ol, .text-preview blockquote {
+    margin: .4em 0;
+}
+
+.text-preview h1, .text-preview h2, .text-preview h3,
+.text-preview h4, .text-preview h5, .text-preview h6 {
+    margin: .5em 0 .3em;
+    line-height: 1.2;
+}
+
+.text-preview img, .text-preview video, .text-preview iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+.text-preview table {
+    border-collapse: collapse;
+    max-width: 100%;
+}
+
+.text-preview td, .text-preview th {
+    border: 1px solid #ccc;
+    padding: 2px 6px;
+}
+
+.text-preview blockquote {
+    padding-left: .8em;
+    border-left: 3px solid #ddd;
+    color: #555;
+}
+
+.text-preview pre, .text-preview code {
+    font-family: Consolas, Monaco, monospace;
+    background: #f4f4f4;
+}
+
+.text-preview a {
+    color: #1a5fb4;
+    padding: 0;
+    text-align: inherit;
+    text-decoration: underline;
+}
+
+/* the text of the editor, not a menu: undo the global ul/ol/li of the menus */
+.text-preview ul, .text-preview ol {
+    padding-left: 1.6em;
+    overflow: visible;
+}
+
+.text-preview ul {
+    list-style-type: disc;
+}
+
+.text-preview ol {
+    list-style-type: decimal;
+}
+
+.text-preview ul > li, .text-preview ol > li {
+    display: list-item;
+    float: none;
 }
 
 .input-wrap > label.input-label > .errorLabel {
