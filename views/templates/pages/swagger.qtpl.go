@@ -177,39 +177,49 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </head>
 <body>
-
+    <!-- Web Component Version -->
+    <redoc
+        spec-url="/apis?json"
+        expand-responses="200,201"
+        hide-download-button="false"
+        hide-hostname="false"
+        required-props-first="true"
+        sort-props-alphabetically="true"
+        path-in-middle-panel="true"
+        native-scrollbars="true"
+    ></redoc>
 <div id="redoc-container"></div>
 
 </body>
 </html>
 `)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 }
 
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 func WriteSwaggerPage(qq422016 qtio422016.Writer) {
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	StreamSwaggerPage(qw422016)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	qt422016.ReleaseWriter(qw422016)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 }
 
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 func SwaggerPage() string {
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	qb422016 := qt422016.AcquireByteBuffer()
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	WriteSwaggerPage(qb422016)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	qs422016 := string(qb422016.B)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	qt422016.ReleaseByteBuffer(qb422016)
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 	return qs422016
-//line swagger.qtpl:157
+//line swagger.qtpl:167
 }
 
 // <header style="position: fixed; top: 1px; left:50%; width: 50%; background-color: white; border: aqua; border-width: thick; border-radius: 1px; border-style: dashed; z-index: 100;">
