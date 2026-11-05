@@ -38,7 +38,7 @@ name="q" placeholder="" required="" value="">
 <!-- wrapper handles full search on Enter -->
 <div id="fSearch"
      hx-include="this"
-     hx-trigger="click from:.results-input, keyup[key=='Enter']" hx-get="{%s s.action %}"
+     hx-trigger="click from:.results-input, click from:find button.search-find, keyup[key=='Enter']" hx-get="{%s s.action %}"
      hx-target="#content"
 	{%- if s.showObject > "" -%}
    hx-on::after-request="if (isSelfRequest(this, event)) return {%s s.showObject %}();"
@@ -60,7 +60,8 @@ name="q" placeholder="" required="" value="">
           hx-on::after-request="event.preventDefault();"
     {%- endif -%}/>
 	{%- if s.labelButton > "" -%}
-     <button type="submit"><i class="fa fa-search">{%s= s.labelButton %}</i></button>
+     <!-- the panel is not a form: the button is in hx-trigger of #fSearch -->
+     <button type="button" class="search-find"><i class="fa fa-search">{%s= s.labelButton %}</i></button>
     {%- endif -%}
     <output></output>
 	{%- if s.liveSearchURL > "" -%}

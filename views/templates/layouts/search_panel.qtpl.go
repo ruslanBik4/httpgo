@@ -67,7 +67,7 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 	qw422016.N().S(`<!-- wrapper handles full search on Enter -->
 <div id="fSearch"
      hx-include="this"
-     hx-trigger="click from:.results-input, keyup[key=='Enter']" hx-get="`)
+     hx-trigger="click from:.results-input, click from:find button.search-find, keyup[key=='Enter']" hx-get="`)
 //line search_panel.qtpl:41
 	qw422016.E().S(s.action)
 //line search_panel.qtpl:41
@@ -128,76 +128,77 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 //line search_panel.qtpl:62
 	if s.labelButton > "" {
 //line search_panel.qtpl:62
-		qw422016.N().S(`     <button type="submit"><i class="fa fa-search">`)
-//line search_panel.qtpl:63
+		qw422016.N().S(`     <!-- the panel is not a form: the button is in hx-trigger of #fSearch -->
+     <button type="button" class="search-find"><i class="fa fa-search">`)
+//line search_panel.qtpl:64
 		qw422016.N().S(s.labelButton)
-//line search_panel.qtpl:63
+//line search_panel.qtpl:64
 		qw422016.N().S(`</i></button>
 `)
-//line search_panel.qtpl:64
+//line search_panel.qtpl:65
 	}
-//line search_panel.qtpl:64
+//line search_panel.qtpl:65
 	qw422016.N().S(`    <output></output>
 `)
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 	if s.liveSearchURL > "" {
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S(`	<!-- live liveSearchURL -->
     <ul id="search-results" hx-ext="json-swap" hx-swap="json">
         <template json-each="$this">
 	        <li>
 	            <span @title='`)
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S("`")
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S(`${$this.full_name}`)
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S("`")
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S(`' class='results-input' tabIndex=0>${$this.name}</span>
 	           <input type="hidden" .value='`)
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S("`")
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S(`${$this.id}`)
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S("`")
-//line search_panel.qtpl:66
+//line search_panel.qtpl:67
 		qw422016.N().S(`'>
 	       </li>
         </template>
      </ul>
 `)
-//line search_panel.qtpl:76
+//line search_panel.qtpl:77
 	}
-//line search_panel.qtpl:76
+//line search_panel.qtpl:77
 	qw422016.N().S(`</div>
 `)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 }
 
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 func (s *SearchPanel) WriteRender(qq422016 qtio422016.Writer) {
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	s.StreamRender(qw422016)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	qt422016.ReleaseWriter(qw422016)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 }
 
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 func (s *SearchPanel) Render() string {
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	qb422016 := qt422016.AcquireByteBuffer()
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	s.WriteRender(qb422016)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	qs422016 := string(qb422016.B)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	qt422016.ReleaseByteBuffer(qb422016)
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 	return qs422016
-//line search_panel.qtpl:78
+//line search_panel.qtpl:79
 }
