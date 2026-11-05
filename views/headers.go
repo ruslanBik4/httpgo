@@ -38,7 +38,13 @@ var HEADERS = map[string]string{
 }
 
 // WriteHeaders выдаем стандартные заголовки страницы
+//
+// Vary: one URL is answered as the page (a direct load) and as its content
+// (an htmx request: HX-Request, X-Requested-With) - without it the browser
+// gives the page it keeps to htmx (an empty #content) or the content to a
+// reload (a bare fragment)
 func WriteHeaders(ctx *fasthttp.RequestCtx) {
+	ctx.Response.Header.Set("Vary", "HX-Request, X-Requested-With")
 	age, ok := ctx.UserValue(AgeOfServer).(float64)
 	if ok {
 		ctx.Response.Header.Set("Age", fmt.Sprintf("%f", age))
@@ -61,15 +67,26 @@ func WriteCSSHeaders(ctx *fasthttp.RequestCtx) {
 	ctx.Response.Header.SetContentType(cssHEADERSContentType)
 }
 
+// noCache: an answer of a handler is made for the request - asked again, not
+// taken from the cache of the browser (Last-Modified is the start of the
+// server: the browser would keep it for hours); a handler may set its own
+func noCache(ctx *fasthttp.RequestCtx) {
+	if len(ctx.Response.Header.Peek("Cache-Control")) == 0 {
+		ctx.Response.Header.Set("Cache-Control", "no-cache")
+	}
+}
+
 // WriteJSONHeaders return standart headers for JSON
 func WriteJSONHeaders(ctx *fasthttp.RequestCtx) {
 	WriteHeaders(ctx)
+	noCache(ctx)
 	ctx.Response.Header.SetContentType(jsonHEADERSContentType)
 }
 
 // WriteHeadersHTML return standart headers for HTML
 func WriteHeadersHTML(ctx *fasthttp.RequestCtx) {
 	WriteHeaders(ctx)
+	noCache(ctx)
 	ctx.Response.Header.SetContentType(htmlHEADERSContentType)
 }
 

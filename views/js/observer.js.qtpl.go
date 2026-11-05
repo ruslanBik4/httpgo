@@ -388,7 +388,12 @@ function cfgHTMX() {
         // (hx-swap="json") - that's a different, complementary tool for
         // JSON with a pre-authored template; showJSON is the schema-less
         // fallback for JSON with no template at all.
-        if (!elt.closest?.('form')) {
+        // the element of the request, not detail.elt: htmx 2 gives the
+        // target of the swap there - a form whose target is outside it (an
+        // inherited hx-target) was dumped by showJSON, its own handling in
+        // htmx:afterRequest (content_url...) never ran
+        const requestElt = evt.detail.requestConfig?.elt || elt;
+        if (!requestElt.closest?.('form')) {
             const contentType = xhr.getResponseHeader('Content-Type') || '';
             if (xhr.status === 200 && contentType.startsWith('application/json') && effectiveSwapStyle(elt) !== 'json') {
                 evt.detail.shouldSwap = false;

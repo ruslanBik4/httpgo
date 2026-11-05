@@ -285,6 +285,7 @@ func (h *HttpGo) setHTTP3() {
 			logs.ErrorLog(err, "HTTP/3 disabled: failed to load TLS certificates")
 			return
 		}
+		certMaps.reloadEvery(certReload())
 		tlsCfg = &tls.Config{GetCertificate: certMaps.getCertificate}
 	}
 	tlsCfg.NextProtos = []string{"h3"}

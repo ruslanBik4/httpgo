@@ -19,6 +19,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/valyala/fasthttp/reuseport"
 
@@ -34,6 +35,28 @@ const DefaultCertName = "default"
 // DefaultCertDir is a directory containing a subfolder per domain
 // (<dir>/<domain>/fullchain.pem + privkey.pem, or server.crt + server.key).
 const DefaultCertDir = "/etc/ssl/sites"
+
+// CertReloadEnv is how often the certificates are read again (a renewed one
+// of Let's Encrypt is used without a restart): a duration ("6h", "30m"),
+// "0" - never; DefaultCertReload when it is not set
+const CertReloadEnv = "HTTPGO_CERT_RELOAD"
+
+// DefaultCertReload: certbot renews a certificate 30 days before its end
+const DefaultCertReload = 12 * time.Hour
+
+// certReload is the period of CertReloadEnv (0 - no reload)
+func certReload() time.Duration {
+	v := strings.TrimSpace(os.Getenv(CertReloadEnv))
+	if v == "" {
+		return DefaultCertReload
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil || d < 0 {
+		logs.ErrorLog(err, "%s=%q: the certificates are read again every %v", CertReloadEnv, v, DefaultCertReload)
+		return DefaultCertReload
+	}
+	return d
+}
 
 // CertDirEnv overrides DefaultCertDir when no directory is passed explicitly.
 // Several directories are separated like $PATH: "/etc/ssl/sites:/home/app/certs".
@@ -194,6 +217,33 @@ func (m *certMaps) loadDir(baseDir string, symLinks map[string]string) error {
 	return nil
 }
 
+// reload reads the certificates again into a new cache and takes it when
+// it loads: a failed read (a certificate being renewed) keeps the old ones
+func (m *certMaps) reload() error {
+	fresh := newCertMaps(m.baseDirs...)
+	if err := fresh.loadCertificates(); err != nil {
+		return err
+	}
+	m.certMutex.Lock()
+	m.certMap, m.fallback, m.loadOrder = fresh.certMap, fresh.fallback, fresh.loadOrder
+	m.certMutex.Unlock()
+	return nil
+}
+
+// reloadEvery reads the certificates again every period (0 - never)
+func (m *certMaps) reloadEvery(period time.Duration) {
+	if period <= 0 {
+		return
+	}
+	go func() {
+		for range time.Tick(period) {
+			if err := m.reload(); err != nil {
+				logs.ErrorLog(err, "[CERT] the certificates are not read again, the old ones are kept")
+			}
+		}
+	}()
+}
+
 // chooseFallback picks the certificate for unknown names: DefaultCertName if
 // present, else the first one loaded. Caller holds certMutex.
 func (m *certMaps) chooseFallback() *tls.Certificate {
@@ -259,6 +309,7 @@ func GetTSLListener(secure bool, fPort string, certDirs ...string) net.Listener 
 		if err != nil {
 			logs.Fatal(err)
 		}
+		tlsListener.certMaps.reloadEvery(certReload())
 		tlsListener.tlsCfg = &tls.Config{
 			GetCertificate: tlsListener.certMaps.getCertificate,
 			NextProtos:     []string{"h2", "http/1.1"},
