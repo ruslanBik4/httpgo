@@ -1,0 +1,3 @@
+{%- func Breadcrumbs() -%}
+	{% cat "src/breadcrumbs.js" %}
+{% endfunc %}
