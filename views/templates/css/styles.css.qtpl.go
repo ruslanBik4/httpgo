@@ -897,33 +897,39 @@ form div#map, .map_showing {
 breadcrumbs {
     --bs-breadcrumb-divider: '>';
     /*width: 99%;*/
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    align-items: center;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 }
 ol.breadcrumb {
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     margin-bottom: 5px;
     flex-grow: 1;
 }
-/* Form for search*/
+
+/* Form for search: a pill - input + icon button - living in the header row */
 #fSearch {
+    position: relative; /* anchor of the live results list */
+    display: flex;
+    align-items: center;
     height: 32px;
     flex-grow: 1;
-    width: fit-content;
+    width: 100%;
     margin: 0;
-    align-items: center;
-    vertical-align: middle;
 }
 
 #fSearch > output {
     height: fit-content;
     width: fit-content;
+    flex: 0 0 auto;
 }
 
 #fSearch input[type=search] {
+    flex: 1 1 auto; /* fills the row in the header */
+    min-width: 0;
     align-items: center;
     vertical-align: middle;
     width: fit-content;
@@ -935,11 +941,151 @@ ol.breadcrumb {
     caret-color: #1b70b7;
 }
 
+/* the "Find" button is the icon the input draws on its left: an invisible
+   button over it, so a click on the icon runs the search */
+#fSearch .search-find {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 32px;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 100px 0 0 100px;
+    background: transparent;
+    cursor: pointer;
+}
+
+#fSearch .search-find:hover {
+    background: rgba(17, 131, 214, .12);
+}
+
+#fSearch .search-find:focus-visible {
+    outline: 2px solid #1183d6;
+    outline-offset: -2px;
+}
+
 #fSearch input[type="search"]:focus {
     box-shadow: 0 0 3px 0 #1183d6;
     border-color: #1183d6;
     width: -webkit-fill-available;
     outline: none;
+}
+
+/* top menu + search = one flowing header row: the search takes the free
+   space after the menu and drops under it when the screen is narrow */
+header .topline {
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    padding-inline-end: 72px; /* room for the absolutely placed .topline-btns */
+}
+
+/* the search is small until it is used: focused (or holding results) it takes
+   all the free space of the line */
+header .header-search {
+    flex: 0 1 200px;
+    min-width: 140px;
+    max-width: 220px;
+    margin-inline-start: auto;
+    transition: flex-grow .2s ease;
+}
+
+header .header-search:focus-within {
+    flex: 1 1 200px;
+    max-width: 100%;
+}
+
+@media (max-width: 640px) {
+    header .header-search,
+    header .header-search:focus-within {
+        flex-basis: 100%;
+        max-width: none;
+    }
+}
+
+/* Home: the site icon at the start of the menu */
+header .home-link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: inherit;
+    font-size: 22px;
+}
+
+header .home-link img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+header .home-link:hover,
+header .home-link:focus-visible {
+    background: rgba(128, 128, 128, .3);
+    outline: none;
+}
+
+/* breadcrumbs: the way back (see breadcrumbs.js) */
+breadcrumbs .bc-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 16rem;
+    margin-inline-end: 8px;
+    padding: 2px 12px;
+    border: 1px solid #555;
+    border-radius: 100px;
+    background: transparent;
+    color: #0a1c3b;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+breadcrumbs .bc-back[hidden] {
+    display: none;
+}
+
+breadcrumbs .bc-back span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+breadcrumbs .bc-back:hover,
+breadcrumbs .bc-back:focus-visible {
+    color: #1183d6;
+    border-color: #1183d6;
+    outline: none;
+}
+
+[dir=rtl] breadcrumbs .bc-back i {
+    transform: scaleX(-1);
+}
+
+breadcrumbs .breadcrumb-item {
+    max-width: 18rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+breadcrumbs .breadcrumb-item.active {
+    font-weight: 600;
+}
+
+/* live results hang under the input instead of pushing the header down */
+#fSearch > #search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: #fff;
 }
 
 #fSearch > .suggestions-wrapper {

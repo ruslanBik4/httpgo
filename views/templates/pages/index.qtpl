@@ -34,12 +34,9 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 {% func (body *IndexPageBody) IndexHTML() %}
 {%= body.HeadHTML.HeadHTML() %}
 <body {%s body.Attr %} hx-boost="true" hx-target='#content' hx-indicator=".progress">
-{%= layouts.HeaderHTML(body.TopMenu) %}
-<breadcrumbs separator="›" aria-label="breadcrumb" aria-label="breadcrumb">
-  <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
-  </ol>
-{%- if body.SearchPanel != nil -%}{%= body.SearchPanel.Render() %}{%- endif -%}
+{%= layouts.HeaderSearchHTML(body.TopMenu, body.SearchPanel) %}
+<breadcrumbs id="breadcrumbs" separator="›" aria-label="breadcrumb">
+  <ol class="breadcrumb"></ol>
 </breadcrumbs>
 <div class="progress" style="height: 3px; background-color: white;">
       <div class="indeterminate" style="background-color: red;"></div>

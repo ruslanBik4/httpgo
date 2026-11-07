@@ -1,9 +1,22 @@
-{% func HeaderHTML(TopMenu Menu) %}
+{% func HeaderHTML(TopMenu Menu) %}{%= HeaderSearchHTML(TopMenu, nil) %}{% endfunc %}
+
+{% comment %}
+HeaderSearchHTML is the header with the top menu and the search panel in ONE flowing
+row (see ".topline" / ".header-search" in styles.css): the search takes the free
+space after the menu, and wraps under it on a narrow screen. Search == nil gives
+the plain header.
+{% endcomment %}
+{% func HeaderSearchHTML(TopMenu Menu, Search *SearchPanel) %}
 <header class="main-header">
 <div class="topline">
+    <a class="home-link" href="/" title="Home" aria-label="Home"><img src="/favicon.ico" alt="" width="24" height="24"
+        onerror="this.replaceWith(Object.assign(document.createElement('i'), {className: 'bi bi-house-door'}))"></a>
     <nav class="topline-navbar">
         {%= TopMenu.RenderMenu("top-mnu-list navbar-nav", "top-mnu-item") %}
     </nav>
+    {%- if Search != nil -%}
+    <div class="header-search">{%= Search.Render() %}</div>
+    {%- endif -%}
     <div class="topline-btns">
     <ul class="burger-list">
     <li>

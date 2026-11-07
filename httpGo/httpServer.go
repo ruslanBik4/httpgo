@@ -127,6 +127,27 @@ func extractClientIP(ctx *fasthttp.RequestCtx) string {
 	return ctx.Conn().RemoteAddr().String()
 }
 
+// varyOnHTMX adds "Vary: HX-Request, Accept-Language" to every response.
+//
+// The same URL is answered differently depending on request headers: a
+// fragment (or JSON) for an htmx request - the HX-Request header, see
+// crud.ParamsHTML - and the whole page for an ordinary navigation, and the
+// text depends on Accept-Language. A browser cache keys only by URL unless
+// the response says otherwise, so after the user opened
+// /show/forms/sales directly (full page cached), Chrome answered the htmx
+// request for the same URL from disk cache ("200 OK (from disk cache)") with
+// that full page; the page was put into #content, ran its scripts, asked for
+// the same URL again, and so on without end. "Vary" makes the cache keep
+// the variants apart. (Entries stored before this header existed stay in
+// users' caches until they expire - observer.js's adoptFullDocument() copes
+// with those.)
+func varyOnHTMX(handler fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		handler(ctx)
+		ctx.Response.Header.Add("Vary", "HX-Request, Accept-Language")
+	}
+}
+
 // NewHttpgo get configuration option from cfg
 // listener to receive requests
 func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
@@ -134,7 +155,8 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	// No ResetUserValues wrapper for HTTP/2 any more: every HTTP/2 stream gets
 	// a freshly reset RequestCtx, released only after its handler returns.
 	// (It would also erase the key http2.Push uses to find the stream.)
-	cfg.Server.Handler = apis.Handler
+	// first wrapper, so every response of every route carries the Vary header
+	cfg.Server.Handler = varyOnHTMX(apis.Handler)
 
 	if apis.Ctx == nil {
 		apis.Ctx = NewCtxApis(8)

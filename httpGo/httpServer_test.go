@@ -9,6 +9,7 @@ package httpGo
 import (
 	"errors"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
@@ -288,4 +289,27 @@ func Test_isMPFBodyError(t *testing.T) {
 func Test_isUnsupportedContent(t *testing.T) {
 	assert.True(t, isUnsupportedContent(errors.New("unsupported Content-Encoding: br")))
 	assert.False(t, isUnsupportedContent(errors.New("some other error")))
+}
+
+// --- varyOnHTMX ---------------------------------------------------------
+
+// The same URL answers a navigation with the whole page and an htmx request
+// with a fragment; without Vary the browser cache hands the cached page to
+// the htmx request (see varyOnHTMX).
+func Test_varyOnHTMX(t *testing.T) {
+	called := false
+	h := varyOnHTMX(func(ctx *fasthttp.RequestCtx) {
+		called = true
+		ctx.SetBodyString("page")
+	})
+
+	ctx := &fasthttp.RequestCtx{}
+	h(ctx)
+
+	assert.True(t, called, "the wrapped handler must run")
+	assert.Equal(t, "page", string(ctx.Response.Body()))
+
+	vary := string(ctx.Response.Header.Peek("Vary"))
+	assert.True(t, strings.Contains(vary, "HX-Request"), "Vary: %q", vary)
+	assert.True(t, strings.Contains(vary, "Accept-Language"), "Vary: %q", vary)
 }

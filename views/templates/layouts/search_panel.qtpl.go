@@ -129,11 +129,15 @@ func (s *SearchPanel) StreamRender(qw422016 *qt422016.Writer) {
 	if s.labelButton > "" {
 //line search_panel.qtpl:62
 		qw422016.N().S(`     <!-- the panel is not a form: the button is in hx-trigger of #fSearch -->
-     <button type="button" class="search-find"><i class="fa fa-search">`)
+     <button type="button" class="search-find" title="`)
 //line search_panel.qtpl:64
-		qw422016.N().S(s.labelButton)
+		qw422016.E().S(s.labelButton)
 //line search_panel.qtpl:64
-		qw422016.N().S(`</i></button>
+		qw422016.N().S(`" aria-label="`)
+//line search_panel.qtpl:64
+		qw422016.E().S(s.labelButton)
+//line search_panel.qtpl:64
+		qw422016.N().S(`"></button>
 `)
 //line search_panel.qtpl:65
 	}

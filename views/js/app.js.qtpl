@@ -2,6 +2,7 @@
 {%= UserJS() %}
 {%= SetClicksJS()  %}
 {%= Observer()  %}
+{%= Breadcrumbs() %}
 	{% cat "src/app.js" %}
 {% endfunc %}
 

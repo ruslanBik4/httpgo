@@ -402,7 +402,7 @@ function cfgHTMX() {
             }
         }
 
-        unwrapFullDocument(evt);
+        adoptFullDocument(evt);
         clearStaleSidebar(evt);
 
         if (!elt.attributes.target) {
@@ -950,52 +950,102 @@ function showJSON(data, target) {
 // ships the empty slot) is not a sidebar update, and the old sidebar stayed.
 // Partial loads (rows, sorting, search suggestions) don't target #content and
 // never touch the sidebar.
-// Safety net against the "page inside a page" loop. A request for the main
-// content (hx-boost link, navigate(), hx-get ...) is expected to come back as
-// a FRAGMENT. It can come back as the whole page - layout, menus, <script>
-// tags - when the browser answers it from its HTTP cache with the document it
+// A request for page content is expected to come back as a FRAGMENT, but it
+// can come back as the whole page - layout, menus, <script> tags - for
+// instance when the browser answers it from its HTTP cache with the document
 // stored for the same URL on an ordinary navigation (the two requests differ
-// only in the HX-Request header, and without "Vary: HX-Request" the cache
-// can't tell them apart - see varyOnHTMX in httpServer.go). Swapped into
-// #content as it is, that page brings its own scripts: they run again, start
-// the same content request again, get the same cached page again... and the
-// Network tab fills with thousands of identical requests while the screen
-// shows menus nested in menus.
-// So a whole-document answer is never inserted as is: for #content only the
-// page's own #content children are taken (scripts and layout around them are
-// dropped), anywhere else it is ignored.
+// only in the HX-Request header; see varyOnHTMX in httpServer.go), or when the
+// server simply renders a route as a full page. Inserted as it is, that page
+// ends up inside #content: menus inside menus, and its scripts run again,
+// start the same request again, get the same page again... an endless loop.
+//
+// So a whole document is never inserted as it is. It is taken apart the way
+// the index page is built, and only the parts the page is made of are used:
+//   * the main part (#content, or <main> when the page has no #content) goes
+//     into the request's target;
+//   * every other standard region of the page (PAGE_REGIONS) that exists both
+//     in the response and on screen replaces its counterpart - an
+//     out-of-band swap, exactly like the sidebar/breadcrumbs a fragment
+//     response carries;
+//   * <title> sets the window title;
+//   * everything else - <head>, scripts and the layout around the parts,
+//     menus, footer - is dropped (the page is already there).
+// To make one more part of the index page follow along, give it an id and a
+// data-region attribute (<aside id="catalog_pane" data-region>) - or add its
+// selector below. A region needs an id: that is how htmx finds the element to
+// replace.
 const FULL_DOCUMENT = /^\s*(<!doctype\s+html|<html[\s>])/i;
+const MAIN_SELECTORS = ['#content', 'main'];
+const PAGE_REGIONS = ['#catalog_sidebar', '#breadcrumbs', '[data-region]'];
 
-function unwrapFullDocument(evt) {
+function adoptFullDocument(evt) {
     const {xhr, target, shouldSwap} = evt.detail;
     if (!shouldSwap || !target || target === document.body || target === document.documentElement) return;
     if (!FULL_DOCUMENT.test(xhr?.responseText || '')) return;
 
     const url = evt.detail.pathInfo?.requestPath || xhr.responseURL;
-    if (target.id === 'content' && /\bid\s*=\s*["']content["']/.test(xhr.responseText)) {
-        console.warn(`)
+    const page = new DOMParser().parseFromString(xhr.responseText, 'text/html');
+
+    // the part that belongs into the target: the element with the target's own
+    // id, for #content also <main>
+    let main = target.id ? page.getElementById(target.id) : null;
+    if (!main && target.id === 'content') {
+        main = MAIN_SELECTORS.map(sel => page.querySelector(sel)).find(Boolean) || null;
+    }
+    if (!main) {
+        console.error(`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`full page received for #content (${url}) - taking only its #content`)
+	qw422016.N().S(`full page received for ${target.id ? '#' + target.id : target.tagName} (${url}) - no part of it fits, not inserted`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
 	qw422016.N().S(`);
-        evt.detail.selectOverride = '#content > *';
+        evt.detail.shouldSwap = false;
         return;
     }
-
-    console.error(`)
+    console.warn(`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
-	qw422016.N().S(`full page received for ${target.id ? '#' + target.id : target.tagName} (${url}) - not inserted`)
+	qw422016.N().S(`full page received for ${target.id ? '#' + target.id : target.tagName} (${url}) - split into its parts`)
 //line observer.js.qtpl:2
 	qw422016.N().S("`")
 //line observer.js.qtpl:2
 	qw422016.N().S(`);
-    evt.detail.shouldSwap = false;
+
+    let html = '';
+    const title = page.title?.trim();
+    if (title) {
+        html += `)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`<title>${title.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</title>`)
+//line observer.js.qtpl:2
+	qw422016.N().S("`")
+//line observer.js.qtpl:2
+	qw422016.N().S(`;
+    }
+    html += main.innerHTML;
+
+    // the other regions, as out-of-band elements - only ones that exist on
+    // screen too (htmx reports an error for an out-of-band id it can't find),
+    // are not the main part and not inside it or another region
+    const seen = new Set();
+    page.querySelectorAll(PAGE_REGIONS.join(',')).forEach(region => {
+        if (!region.id || seen.has(region.id) || region === main || main.contains(region)) return;
+        if (!document.getElementById(region.id) || document.getElementById(region.id) === target) return;
+        if ([...seen].some(id => page.getElementById(id).contains(region))) return;
+
+        seen.add(region.id);
+        const oob = region.cloneNode(true);
+        oob.setAttribute('hx-swap-oob', 'true');
+        html += oob.outerHTML;
+    });
+
+    evt.detail.serverResponse = html;
 }
 
 function clearStaleSidebar(evt) {

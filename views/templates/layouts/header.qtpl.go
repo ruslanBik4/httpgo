@@ -27,17 +27,65 @@ var (
 //line header.qtpl:1
 func StreamHeaderHTML(qw422016 *qt422016.Writer, TopMenu Menu) {
 //line header.qtpl:1
+	StreamHeaderSearchHTML(qw422016, TopMenu, nil)
+//line header.qtpl:1
+}
+
+//line header.qtpl:1
+func WriteHeaderHTML(qq422016 qtio422016.Writer, TopMenu Menu) {
+//line header.qtpl:1
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line header.qtpl:1
+	StreamHeaderHTML(qw422016, TopMenu)
+//line header.qtpl:1
+	qt422016.ReleaseWriter(qw422016)
+//line header.qtpl:1
+}
+
+//line header.qtpl:1
+func HeaderHTML(TopMenu Menu) string {
+//line header.qtpl:1
+	qb422016 := qt422016.AcquireByteBuffer()
+//line header.qtpl:1
+	WriteHeaderHTML(qb422016, TopMenu)
+//line header.qtpl:1
+	qs422016 := string(qb422016.B)
+//line header.qtpl:1
+	qt422016.ReleaseByteBuffer(qb422016)
+//line header.qtpl:1
+	return qs422016
+//line header.qtpl:1
+}
+
+//line header.qtpl:9
+func StreamHeaderSearchHTML(qw422016 *qt422016.Writer, TopMenu Menu, Search *SearchPanel) {
+//line header.qtpl:9
 	qw422016.N().S(`
 <header class="main-header">
 <div class="topline">
+    <a class="home-link" href="/" title="Home" aria-label="Home"><img src="/favicon.ico" alt="" width="24" height="24"
+        onerror="this.replaceWith(Object.assign(document.createElement('i'), {className: 'bi bi-house-door'}))"></a>
     <nav class="topline-navbar">
         `)
-//line header.qtpl:5
+//line header.qtpl:15
 	TopMenu.StreamRenderMenu(qw422016, "top-mnu-list navbar-nav", "top-mnu-item")
-//line header.qtpl:5
+//line header.qtpl:15
 	qw422016.N().S(`
     </nav>
-    <div class="topline-btns">
+`)
+//line header.qtpl:17
+	if Search != nil {
+//line header.qtpl:17
+		qw422016.N().S(`    <div class="header-search">`)
+//line header.qtpl:18
+		Search.StreamRender(qw422016)
+//line header.qtpl:18
+		qw422016.N().S(`</div>
+`)
+//line header.qtpl:19
+	}
+//line header.qtpl:19
+	qw422016.N().S(`    <div class="topline-btns">
     <ul class="burger-list">
     <li>
         <span id="sUser"> </span>
@@ -64,31 +112,31 @@ func StreamHeaderHTML(qw422016 *qt422016.Writer, TopMenu Menu) {
 </div>
 </header>
 `)
-//line header.qtpl:33
+//line header.qtpl:46
 }
 
-//line header.qtpl:33
-func WriteHeaderHTML(qq422016 qtio422016.Writer, TopMenu Menu) {
-//line header.qtpl:33
+//line header.qtpl:46
+func WriteHeaderSearchHTML(qq422016 qtio422016.Writer, TopMenu Menu, Search *SearchPanel) {
+//line header.qtpl:46
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line header.qtpl:33
-	StreamHeaderHTML(qw422016, TopMenu)
-//line header.qtpl:33
+//line header.qtpl:46
+	StreamHeaderSearchHTML(qw422016, TopMenu, Search)
+//line header.qtpl:46
 	qt422016.ReleaseWriter(qw422016)
-//line header.qtpl:33
+//line header.qtpl:46
 }
 
-//line header.qtpl:33
-func HeaderHTML(TopMenu Menu) string {
-//line header.qtpl:33
+//line header.qtpl:46
+func HeaderSearchHTML(TopMenu Menu, Search *SearchPanel) string {
+//line header.qtpl:46
 	qb422016 := qt422016.AcquireByteBuffer()
-//line header.qtpl:33
-	WriteHeaderHTML(qb422016, TopMenu)
-//line header.qtpl:33
+//line header.qtpl:46
+	WriteHeaderSearchHTML(qb422016, TopMenu, Search)
+//line header.qtpl:46
 	qs422016 := string(qb422016.B)
-//line header.qtpl:33
+//line header.qtpl:46
 	qt422016.ReleaseByteBuffer(qb422016)
-//line header.qtpl:33
+//line header.qtpl:46
 	return qs422016
-//line header.qtpl:33
+//line header.qtpl:46
 }

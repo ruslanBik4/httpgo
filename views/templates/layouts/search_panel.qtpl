@@ -61,7 +61,7 @@ name="q" placeholder="" required="" value="">
     {%- endif -%}/>
 	{%- if s.labelButton > "" -%}
      <!-- the panel is not a form: the button is in hx-trigger of #fSearch -->
-     <button type="button" class="search-find"><i class="fa fa-search">{%s= s.labelButton %}</i></button>
+     <button type="button" class="search-find" title="{%s s.labelButton %}" aria-label="{%s s.labelButton %}"></button>
     {%- endif -%}
     <output></output>
 	{%- if s.liveSearchURL > "" -%}
