@@ -830,3 +830,43 @@ function isSelfRequest(ctx, event) {
     const trigger = event.detail?.requestConfig?.elt;
     return trigger === ctx;
 }
+
+// ---- failed-request indication ------------------------------------------------
+// The .progress strip (index.qtpl, styles.css) shows that a request is running.
+// When a request ends badly the strip turns into a solid colour for 1-3 s so
+// the user sees it without a dialog: 5xx, no connection and timeout = "error"
+// (3 s), 4xx = "warn" (2 s), 204 = "empty" (1 s). 401 is left to the sign-in
+// window. The colours come from the theme (--progress-error ... in styles.css).
+function requestFailKind(status) {
+    if (status === 401 || status === 206) return null;
+    if (status === 0 || status >= 500) return {kind: 'error', ms: 3000};
+    if (status >= 400) return {kind: 'warn', ms: 2000};
+    if (status === 204) return {kind: 'empty', ms: 1000};
+    return null;
+}
+
+let requestFailTimer = 0;
+
+// status 0 = the request never got an answer. Also usable by raw XHR callers.
+function flashRequestFailure(status) {
+    const fail = requestFailKind(status);
+    const bar = document.querySelector('.progress');
+    if (!fail || !bar) return;
+
+    clearTimeout(requestFailTimer);
+    delete bar.dataset.fail;
+    void bar.offsetWidth; // let the CSS animation start again
+    bar.style.setProperty('--progress-fail-ms', fail.ms + 'ms');
+    bar.dataset.fail = fail.kind;
+    requestFailTimer = setTimeout(() => {
+        delete bar.dataset.fail;
+        bar.style.removeProperty('--progress-fail-ms');
+    }, fail.ms);
+}
+
+document.addEventListener('htmx:afterRequest', evt => {
+    const status = evt.detail?.xhr?.status;
+    if (status) flashRequestFailure(status); // 0 is an abort or an error event below
+});
+document.addEventListener('htmx:sendError', () => flashRequestFailure(0));
+document.addEventListener('htmx:timeout', () => flashRequestFailure(0));
