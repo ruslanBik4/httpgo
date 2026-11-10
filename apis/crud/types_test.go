@@ -52,7 +52,7 @@ func TestIntervalMarshal_Set(t *testing.T) {
 			pgtype.Interval{Months: 27, Days: 4, Microseconds: 18_367_000_000, Valid: true}, false},
 		{"nil is NULL", nil, pgtype.Interval{}, false},
 
-		// pgx's text parser wants exactly H:M:S - Set adds the missing ":00"
+		// pgx's text parser wants exactly H:M:S - Scan also reads H:M
 		// (what <input type="time"> sends) and takes "" as NULL
 		{"short clock gets :00", "00:00", pgtype.Interval{Valid: true}, false},
 		{"short clock hours and minutes", "1:30", pgtype.Interval{Microseconds: 5_400_000_000, Valid: true}, false},
@@ -61,7 +61,8 @@ func TestIntervalMarshal_Set(t *testing.T) {
 		{"garbage", "abc", pgtype.Interval{}, true},
 		{"ISO 8601 is not supported", "PT0S", pgtype.Interval{}, true},
 		{"int is not supported", 5, pgtype.Interval{}, true},
-		{"[]byte is not supported", []byte("00:00:00"), pgtype.Interval{}, true},
+		{"[]byte is text too", []byte("1 day 02:03:04"), pgtype.Interval{Days: 1, Microseconds: 7_384_000_000, Valid: true}, false},
+		{"nil []byte is NULL", []byte(nil), pgtype.Interval{}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -632,16 +633,13 @@ func TestNumrangeMarshal_Format(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// Known problems found while writing these tests. Each subtest describes the
-// behaviour it should have and is skipped until the code is fixed - remove the
-// t.Skip line after fixing and the test becomes a regression test.
+// Problems found while writing these tests. The fixed ones stay here as
+// regression tests; one that is still open describes the behaviour it should
+// have and is skipped - remove its t.Skip line after fixing.
 // ---------------------------------------------------------------------------
 
 func TestKnownIssues(t *testing.T) {
-	t.Run("DecodeDateRangeMarshal panics for a nil *DateRangeMarshal struct field", func(t *testing.T) {
-		t.Skip("KNOWN BUG: jsoniter allocates a zero DateRangeMarshal whose embedded *pgtype.Range is nil; " +
-			"DecodeDateRangeMarshal dereferences it. UnmarshalJSON guards this (d.Range == nil), the jsoniter decoder does not.")
-
+	t.Run("DecodeDateRangeMarshal takes a nil *DateRangeMarshal struct field", func(t *testing.T) {
 		var dst struct{ R *DateRangeMarshal }
 		require.NotPanics(t, func() {
 			require.NoError(t, jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal([]byte(`{"R":"2026-01-01"}`), &dst))
@@ -651,9 +649,6 @@ func TestKnownIssues(t *testing.T) {
 	})
 
 	t.Run("DecodeDateRangeMarshal array form [lower, upper]", func(t *testing.T) {
-		t.Skip("KNOWN BUG: the ArrayValue branch calls iter.Read() before ReadArrayCB (consumes the whole array), " +
-			"and v := val.Lower is a copy, so Lower/Upper are never written back.")
-
 		d := NewDateRangeMarshal()
 		require.NoError(t, jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal([]byte(`["2026-01-01","2026-02-01"]`), d))
 		assert.True(t, date(2026, 1, 1).Equal(d.Lower.Time))
@@ -661,35 +656,29 @@ func TestKnownIssues(t *testing.T) {
 	})
 
 	t.Run("InetMarshal accepts a cidr network", func(t *testing.T) {
-		t.Skip("KNOWN GAP: the doc comment says it covers inet and cidr, but netip.ParseAddr rejects \"10.0.0.0/8\". " +
-			"Either parse with netip.ParsePrefix (and keep the prefix) or drop cidr from the comment.")
+		t.Skip("KNOWN GAP: InetMarshal keeps a netip.Addr, so netip.ParseAddr rejects \"10.0.0.0/8\" - a cidr column " +
+			"(and an inet with a mask) cannot be sent. Keeping the prefix means netip.Prefix in GetPgxType, " +
+			"and so in the code generated from it.")
 
 		i := NewInetMarshal()
 		require.NoError(t, i.UnmarshalJSON([]byte(`"10.0.0.0/8"`)))
 	})
 
 	t.Run("NumrangeMarshal Format verb s prints the upper bound", func(t *testing.T) {
-		t.Skip("KNOWN BUG: Format's 's' case prints n.UpperType twice and never n.Upper.")
-
 		n := new(NumrangeMarshal)
 		require.NoError(t, json.Unmarshal([]byte(`"[1,99)"`), n))
 		assert.Contains(t, fmt.Sprintf("%s", n), "99")
 	})
 
 	t.Run("IntervalMarshal Format verb s uses the right unit", func(t *testing.T) {
-		t.Skip("KNOWN BUG: Format's 's' case does time.Duration(i.Microseconds).String() - a Duration counts " +
-			"nanoseconds, so 1.5 s (1_500_000 us) prints as 1.5ms. Use time.Duration(i.Microseconds) * time.Microsecond.")
-
 		i := &IntervalMarshal{&pgtype.Interval{Microseconds: 1_500_000, Valid: true}}
 		assert.Equal(t, "0 month 0 day 1.5s", fmt.Sprintf("%s", i))
 	})
 
 	t.Run("IntervalMarshal Format verb v prints something", func(t *testing.T) {
-		t.Skip("KNOWN GAP: Format has no default case, so the v verb, fmt.Sprint and log lines print an empty string; " +
-			"'s' prints raw microseconds ('0 month 1 day 7384000000').")
-
 		i := NewIntervalMarshal()
 		require.NoError(t, i.Set("1 day 02:03:04"))
-		assert.NotEmpty(t, fmt.Sprintf("%v", i))
+		assert.Equal(t, "0 month 1 day 2h3m4s", fmt.Sprintf("%v", i))
+		assert.Equal(t, "", fmt.Sprintf("%v", &IntervalMarshal{}), "a nil embedded *Interval must not panic")
 	})
 }

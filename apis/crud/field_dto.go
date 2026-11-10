@@ -152,17 +152,32 @@ func (d *DateTimeString) NewValue() any {
 	return &DateTimeString{}
 }
 
-func (d *DateTimeString) UnmarshalJSON(src []byte) error {
-	t, err := bytesToTime(
-		src,
-		time.RFC3339,
+// dateTimeFormats are the layouts of a timestamp; timeFormats adds the clock
+// alone - what a "time" column (and <input type="time">) sends: "15:04:05",
+// "15:04". Only DateTimeString itself takes the clock alone: for a
+// timestamp/timestamptz (TimestampString/TzString) a value without a date
+// stays an error.
+var (
+	dateTimeFormats = []string{
+		time.RFC3339, // fractional seconds are accepted without RFC3339Nano
 		time.RFC3339Nano,
 		time.DateTime,
 		time.RFC1123,
 		time.RFC1123Z,
 		time.Stamp,
+	}
+	timeFormats = append(dateTimeFormats[:len(dateTimeFormats):len(dateTimeFormats)],
+		time.TimeOnly,
+		"15:04",
 	)
+)
 
+func (d *DateTimeString) UnmarshalJSON(src []byte) error {
+	return d.unmarshal(src, timeFormats)
+}
+
+func (d *DateTimeString) unmarshal(src []byte, formats []string) error {
+	t, err := bytesToTime(src, formats...)
 	if err != nil {
 		return err
 	}
@@ -171,8 +186,15 @@ func (d *DateTimeString) UnmarshalJSON(src []byte) error {
 	return nil
 }
 
+// MarshalJSON writes a JSON string. (It used to return the bare text,
+// 2026-01-02T15:04:05Z without quotes - not JSON, so encoding/json refused
+// the value and jsoniter wrote a broken document.)
 func (d *DateTimeString) MarshalJSON() ([]byte, error) {
-	return gotools.StringToBytes((*time.Time)(d).Format(time.RFC3339)), nil
+	buf := make([]byte, 0, len(time.RFC3339)+2)
+	buf = append(buf, '"')
+	buf = (*time.Time)(d).AppendFormat(buf, time.RFC3339)
+
+	return append(buf, '"'), nil
 }
 
 func (d *DateTimeString) Scan(src any) error {
@@ -205,10 +227,17 @@ func (d *DateTimeString) CheckParams(ctx *fasthttp.RequestCtx, badParams map[str
 	return true
 }
 
+// GetPgxType is the time of day: pgtype.Time counts microseconds since
+// midnight (0..86_400_000_000), not since 1970 - Postgres refuses the latter
+// as out of range.
 func (d *DateTimeString) GetPgxType() pgtype.Time {
+	t := (time.Time)(*d)
+	h, m, s := t.Clock()
+
 	return pgtype.Time{
-		Microseconds: (time.Time)(*d).UnixMicro(),
-		Valid:        true,
+		Microseconds: int64(h)*usPerHour + int64(m)*usPerMinute + int64(s)*usPerSecond +
+			int64(t.Nanosecond()/1000),
+		Valid: true,
 	}
 }
 
@@ -220,11 +249,29 @@ func NewTzString() *TzString {
 	return &TzString{&DateTimeString{}}
 }
 
+// GetPgxType is NULL for a zero-value TzString ("&crud.TzString{}", a struct
+// field nothing was read into): its embedded *DateTimeString is nil.
 func (d *TzString) GetPgxType() pgtype.Timestamptz {
+	if d == nil || d.DateTimeString == nil {
+		return pgtype.Timestamptz{}
+	}
+
 	return pgtype.Timestamptz{
 		Time:  (time.Time)(*d.DateTimeString),
 		Valid: true,
 	}
+}
+
+// UnmarshalJSON is not left to promotion: the promoted method writes through
+// the embedded pointer, which is nil in a zero-value TzString (what
+// encoding/json and jsoniter create for a struct field), and it would take a
+// clock without a date ("15:04"), which is no timestamp.
+func (d *TzString) UnmarshalJSON(src []byte) error {
+	if d.DateTimeString == nil {
+		d.DateTimeString = new(DateTimeString)
+	}
+
+	return d.DateTimeString.unmarshal(src, dateTimeFormats)
 }
 
 // GetValue/NewValue are overridden (rather than left to promotion from the
@@ -247,7 +294,9 @@ func (d *TzString) Format(s fmt.State, verb rune) {
 		// GetPgxType) touches it.
 		_, err = fmt.Fprint(s, "crud.NewTzString()")
 	case 's':
-		_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		if d.DateTimeString != nil {
+			_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		}
 	}
 	if err != nil {
 		logs.ErrorLog(err)
@@ -262,11 +311,25 @@ func NewTimestampString() *TimestampString {
 	return &TimestampString{&DateTimeString{}}
 }
 
+// GetPgxType is NULL for a zero-value TimestampString - see TzString.GetPgxType.
 func (d *TimestampString) GetPgxType() pgtype.Timestamp {
+	if d == nil || d.DateTimeString == nil {
+		return pgtype.Timestamp{}
+	}
+
 	return pgtype.Timestamp{
 		Time:  (time.Time)(*d.DateTimeString),
 		Valid: true,
 	}
+}
+
+// UnmarshalJSON - see TzString.UnmarshalJSON.
+func (d *TimestampString) UnmarshalJSON(src []byte) error {
+	if d.DateTimeString == nil {
+		d.DateTimeString = new(DateTimeString)
+	}
+
+	return d.DateTimeString.unmarshal(src, dateTimeFormats)
 }
 
 // GetValue/NewValue overridden for the same reason as TzString above - the
@@ -285,7 +348,9 @@ func (d *TimestampString) Format(s fmt.State, verb rune) {
 		// NewTimestampString(), not "&crud.TimestampString{}" - see TzString.Format above.
 		_, err = fmt.Fprint(s, "crud.NewTimestampString()")
 	case 's':
-		_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		if d.DateTimeString != nil {
+			_, err = fmt.Fprint(s, (time.Time)(*d.DateTimeString).String())
+		}
 	}
 	if err != nil {
 		logs.ErrorLog(err)
@@ -456,6 +521,41 @@ func jsonText(src []byte) string {
 	return gotools.BytesToString(bytes.Trim(src, `" `))
 }
 
+// paramText returns the text of a parameter value, whichever way it reached
+// an UnmarshalJSON:
+//   - a JSON string, "192.168.0.1" - from a JSON body (encoding/json, jsoniter,
+//     and fastjson's Value.MarshalTo in the generated Each());
+//   - the bare text, 192.168.0.1 - from a form or query parameter:
+//     TypeInParam.ReadValue passes the parameter's own bytes, without quotes;
+//   - null - reported by the second result.
+//
+// A wrapper that only does json.Unmarshal(src, &s) reads the first and fails
+// on the second; one that takes src as it is fails on the first.
+//
+// Nothing is copied unless the JSON string has escapes, so text points into
+// src: use it before returning and strings.Clone it to keep it.
+func paramText(src []byte) (text string, null bool) {
+	src = bytes.TrimSpace(src)
+
+	if n := len(src); n >= 2 && src[0] == '"' && src[n-1] == '"' {
+		body := src[1 : n-1]
+		if bytes.IndexByte(body, '\\') >= 0 {
+			var s string
+			if json.Unmarshal(src, &s) == nil {
+				return s, false
+			}
+		} else if bytes.IndexByte(body, '"') < 0 {
+			return gotools.BytesToString(body), false
+		}
+		// not a JSON string after all - bare text that begins and ends with a
+		// quote (a tsquery: "new york" & "times")
+	} else if string(src) == "null" {
+		return "", true
+	}
+
+	return gotools.BytesToString(src), false
+}
+
 func bytesToTime(src []byte, formats ...string) (t time.Time, err error) {
 	str := jsonText(src)
 	if i := slices.IndexFunc(formats, func(f string) bool {
@@ -472,8 +572,13 @@ func bytesToTime(src []byte, formats ...string) (t time.Time, err error) {
 	return
 }
 
+// MarshalJSON writes a JSON string - see DateTimeString.MarshalJSON.
 func (d *DateString) MarshalJSON() ([]byte, error) {
-	return gotools.StringToBytes((*time.Time)(d).Format(time.DateOnly)), nil
+	buf := make([]byte, 0, len(time.DateOnly)+2)
+	buf = append(buf, '"')
+	buf = (*time.Time)(d).AppendFormat(buf, time.DateOnly)
+
+	return append(buf, '"'), nil
 }
 
 type DtoFileField []*multipart.FileHeader
@@ -552,6 +657,7 @@ func (d *DtoFileField) CheckParams(ctx *fasthttp.RequestCtx, badParams map[strin
 		if err != nil {
 			logs.DebugLog(err, header)
 			badParams[header.Filename] = errors.Wrapf(err, "%d. open file", i).Error()
+			continue // f is nil
 		}
 		_ = f.Close()
 	}
@@ -621,13 +727,64 @@ func (d *DtoField) NewValue() any {
 	return new(DtoField(make(map[string]any)))
 }
 
-// Each implements apis.Visit's per-key callback - r.field is always
-// constructed via New{dtoName}()'s &crud.DtoField{} literal (see Format's 'g'
-// case below), never via NewValue's nil map, so no allocation guard is
-// needed here. gotools.BytesToString avoids the copy plain string(key) would
-// make, same as {dtoName}Map.Each's own key handling.
+// Each implements apis.Visit's per-key callback. The map is made here when
+// it is still nil ("new(crud.DtoField)", "var d crud.DtoField") - writing to
+// a nil map panics. gotools.BytesToString avoids the copy plain string(key)
+// would make, same as {dtoName}Map.Each's own key handling.
+//
+// The value is stored as the Go value of its JSON type (see jsonValue), not
+// as v.GetStringBytes(): that is nil for everything that is not a string -
+// a number, a bool, a nested object or array was lost - and a []byte in a
+// map[string]any goes to a json/jsonb column as base64, not as the string.
 func (d *DtoField) Each(key []byte, v *fastjson.Value) {
-	(map[string]any)(*d)[gotools.BytesToString(key)] = v.GetStringBytes()
+	if *d == nil {
+		*d = make(DtoField)
+	}
+
+	(*d)[gotools.BytesToString(key)] = jsonValue(v)
+}
+
+// jsonValue converts v to what encoding/json would put into an any: string,
+// bool, nil, []any, map[string]any - except a number, which is an int64 when
+// it is written as an integer that fits one (an id above 2^53 survives) and
+// a float64 otherwise. Strings and nested keys are copied: they outlive the
+// parser's buffer.
+func jsonValue(v *fastjson.Value) any {
+	switch v.Type() {
+	case fastjson.TypeString:
+		return string(v.GetStringBytes())
+
+	case fastjson.TypeNumber:
+		if n, err := v.Int64(); err == nil {
+			return n
+		}
+		return v.GetFloat64()
+
+	case fastjson.TypeTrue:
+		return true
+
+	case fastjson.TypeFalse:
+		return false
+
+	case fastjson.TypeArray:
+		items := v.GetArray()
+		res := make([]any, len(items))
+		for i, item := range items {
+			res[i] = jsonValue(item)
+		}
+		return res
+
+	case fastjson.TypeObject:
+		o := v.GetObject()
+		res := make(map[string]any, o.Len())
+		o.Visit(func(key []byte, item *fastjson.Value) {
+			res[string(key)] = jsonValue(item)
+		})
+		return res
+
+	default: // fastjson.TypeNull
+		return nil
+	}
 }
 
 // Result implements apis.Visit. A DtoField is a plain map, not a struct like
@@ -741,10 +898,13 @@ func (p *PointString) Format(s fmt.State, verb rune) {
 // need a bespoke parser of their own. dst is satisfied automatically by every
 // *LineString/*LsegString/*BoxString/*PathString/*PolygonString/*CircleString
 // below via method promotion from their embedded pgtype value.
+//
+// The text is taken with paramText: a JSON string from a JSON body, the bare
+// text of a form/query parameter, or null (NULL).
 func scanTextJSON(dst interface{ Scan(any) error }, src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
+	s, null := paramText(src)
+	if null {
+		return dst.Scan(nil)
 	}
 
 	return dst.Scan(s)
@@ -922,12 +1082,27 @@ func (l *CircleString) Format(s fmt.State, verb rune) {
 // ===================== Full-Text Search Types =====================
 
 // TSVectorString and TSQueryString both embed pgtype.Text, which already
-// implements UnmarshalJSON/MarshalJSON/Scan/Value on its own (pgx v5 represents
-// both tsvector and tsquery as plain text client-side - Postgres does the actual
-// full-text parsing server-side), so both get those four for free via promotion
-// and only need the same companion methods every other wrapper here provides.
+// implements MarshalJSON/Scan/Value on its own (pgx v5 represents both
+// tsvector and tsquery as plain text client-side - Postgres does the actual
+// full-text parsing server-side), so both get those three for free via
+// promotion. UnmarshalJSON is their own: pgtype.Text's takes a JSON string
+// only, and a form/query parameter arrives as bare text (see paramText).
 type TSVectorString struct{ pgtype.Text }
 type TSQueryString struct{ pgtype.Text }
+
+func (t *TSVectorString) UnmarshalJSON(src []byte) error { return unmarshalText(&t.Text, src) }
+func (t *TSQueryString) UnmarshalJSON(src []byte) error  { return unmarshalText(&t.Text, src) }
+
+func unmarshalText(dst *pgtype.Text, src []byte) error {
+	s, null := paramText(src)
+	if null {
+		*dst = pgtype.Text{}
+		return nil
+	}
+
+	*dst = pgtype.Text{String: strings.Clone(s), Valid: true} // s points into src
+	return nil
+}
 
 func (t *TSVectorString) GetPgxType() pgtype.Text { return t.Text }
 func (t *TSQueryString) GetPgxType() pgtype.Text  { return t.Text }
@@ -995,6 +1170,21 @@ func (n *NumericString) NewValue() any              { return &NumericString{} }
 func (n *NumericString) Expect() string             { return "numeric" }
 func (n *NumericString) FormatDoc() string          { return "numeric" }
 func (n *NumericString) RequestType() string        { return "number" }
+
+// UnmarshalJSON takes the number as a JSON number (12.50), as a JSON string
+// ("12.50" - how a client sends a decimal it must not round) and as the bare
+// text of a form/query parameter. pgtype.Numeric's own UnmarshalJSON reads
+// the first only: for a string it sees the quotes and fails. null is NULL;
+// NaN, Infinity and -Infinity are read as Postgres writes them.
+func (n *NumericString) UnmarshalJSON(src []byte) error {
+	s, null := paramText(src)
+	if null {
+		n.Numeric = pgtype.Numeric{}
+		return nil
+	}
+
+	return n.Numeric.ScanScientific(s)
+}
 
 func (n *NumericString) Format(s fmt.State, verb rune) {
 	var err error
@@ -1072,6 +1262,8 @@ func (h *HstoreMarshal) Format(s fmt.State, verb rune) {
 func parseRangeLiteral[E any](src string, parse func(string) (E, error)) (pgtype.Range[E], error) {
 	var r pgtype.Range[E]
 
+	src = strings.TrimSpace(src)
+
 	if src == "empty" {
 		r.LowerType, r.UpperType = pgtype.Empty, pgtype.Empty
 		r.Valid = true
@@ -1104,6 +1296,8 @@ func parseRangeLiteral[E any](src string, parse func(string) (E, error)) (pgtype
 	if !found {
 		return r, fmt.Errorf("invalid range literal %q: missing ','", src)
 	}
+	// "[1, 10)" - a space after the comma is common and means nothing
+	lowerSrc, upperSrc = strings.TrimSpace(lowerSrc), strings.TrimSpace(upperSrc)
 
 	if lowerSrc == "" {
 		r.LowerType = pgtype.Unbounded
@@ -1127,6 +1321,18 @@ func parseRangeLiteral[E any](src string, parse func(string) (E, error)) (pgtype
 
 	r.Valid = true
 	return r, nil
+}
+
+// unmarshalRange is the UnmarshalJSON of every range wrapper: the literal is
+// taken with paramText (a JSON string, the bare text of a form/query
+// parameter, or null for NULL) and parsed with parseRangeLiteral.
+func unmarshalRange[E any](src []byte, parse func(string) (E, error)) (pgtype.Range[E], error) {
+	s, null := paramText(src)
+	if null {
+		return pgtype.Range[E]{}, nil
+	}
+
+	return parseRangeLiteral(s, parse)
 }
 
 // formatRangeLiteral renders a pgtype.Range[E] back into the same syntax
@@ -1245,12 +1451,7 @@ func (r *TsRangeMarshal) RequestType() string   { return "string" }
 func (r *TsTzRangeMarshal) RequestType() string { return "string" }
 
 func (r *Int4RangeMarshal) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
-	}
-
-	rng, err := parseRangeLiteral(s, func(b string) (int32, error) {
+	rng, err := unmarshalRange(src, func(b string) (int32, error) {
 		v, err := strconv.ParseInt(b, 10, 32)
 		return int32(v), err
 	})
@@ -1263,12 +1464,7 @@ func (r *Int4RangeMarshal) UnmarshalJSON(src []byte) error {
 }
 
 func (r *Int8RangeMarshal) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
-	}
-
-	rng, err := parseRangeLiteral(s, func(b string) (int64, error) {
+	rng, err := unmarshalRange(src, func(b string) (int64, error) {
 		return strconv.ParseInt(b, 10, 64)
 	})
 	if err != nil {
@@ -1290,12 +1486,7 @@ func tsBound(b string) (time.Time, error) {
 }
 
 func (r *TsRangeMarshal) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
-	}
-
-	rng, err := parseRangeLiteral(s, tsBound)
+	rng, err := unmarshalRange(src, tsBound)
 	if err != nil {
 		return err
 	}
@@ -1305,12 +1496,7 @@ func (r *TsRangeMarshal) UnmarshalJSON(src []byte) error {
 }
 
 func (r *TsTzRangeMarshal) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
-	}
-
-	rng, err := parseRangeLiteral(s, tsBound)
+	rng, err := unmarshalRange(src, tsBound)
 	if err != nil {
 		return err
 	}
@@ -1395,6 +1581,19 @@ func (u *UUIDString) Expect() string          { return "uuid" }
 func (u *UUIDString) FormatDoc() string       { return "uuid" }
 func (u *UUIDString) RequestType() string     { return "string" }
 
+// UnmarshalJSON: pgtype.UUID's own takes exactly a quoted UUID (38 bytes), so
+// the bare text of a form/query parameter - 36 bytes, no quotes - failed with
+// "invalid length for UUID". See paramText.
+func (u *UUIDString) UnmarshalJSON(src []byte) error {
+	s, null := paramText(src)
+	if null {
+		u.UUID = pgtype.UUID{}
+		return nil
+	}
+
+	return u.UUID.Scan(s)
+}
+
 func (u *UUIDString) Format(s fmt.State, verb rune) {
 	var err error
 	switch verb {
@@ -1429,9 +1628,10 @@ func (m *MacaddrString) FormatDoc() string            { return "macaddr" }
 func (m *MacaddrString) RequestType() string          { return "string" }
 
 func (m *MacaddrString) UnmarshalJSON(src []byte) error {
-	var s string
-	if err := json.Unmarshal(src, &s); err != nil {
-		return err
+	s, null := paramText(src)
+	if null {
+		m.HardwareAddr = nil
+		return nil
 	}
 
 	addr, err := net.ParseMAC(s)
@@ -1483,13 +1683,18 @@ func (e *EnumString) Expect() string      { return "one of: " + strings.Join(e.A
 func (e *EnumString) FormatDoc() string   { return "enum" }
 func (e *EnumString) RequestType() string { return "string" }
 
+// UnmarshalJSON takes the label as bare text (a form/query parameter) and as
+// a JSON string - it used to compare src as it was, so "active" from a JSON
+// body, quotes included, was never one of the labels. See paramText.
 func (e *EnumString) UnmarshalJSON(src []byte) error {
-	s := gotools.BytesToString(src)
-	if s == "" || !slices.Contains(e.Allowed, s) {
+	s, _ := paramText(src)
+
+	n := slices.Index(e.Allowed, s)
+	if s == "" || n < 0 {
 		return fmt.Errorf("%q must be one of: %s", s, strings.Join(e.Allowed, ", "))
 	}
 
-	e.Value = s
+	e.Value = e.Allowed[n] // not s: it points into src
 	return nil
 }
 
