@@ -527,11 +527,18 @@ function validateEmailFields(thisForm) {
 // falling back to a page-level toast) - existing callers that don't have one
 // still work, just always toast.
 function afterSaveAnyForm(data, status, form) {
+    // Breadcrumbs.afterSave() returns to the page the form was opened from and
+    // loads it again, so a table shows the saved row; false = it is not a
+    // case for it and the server's redirect is followed. The pages are loaded
+    // with no-cache: a table address may be answered from the browser cache.
+    const open = url => (window.Breadcrumbs?.open ? window.Breadcrumbs.open(url) : loadContent(url));
 
-    if (data.content_url !== undefined) {
-        loadContent(data.content_url);
+    if (window.Breadcrumbs?.afterSave?.(form, data)) {
+        // handled
+    } else if (data.content_url !== undefined) {
+        open(data.content_url);
     } else if (data.formActions !== undefined) {
-        loadContent(data.formActions[0].url);
+        open(data.formActions[0].url);
     } else if (data.error !== undefined) {
         showMessage(form, data.error);
     } else {

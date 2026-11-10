@@ -624,7 +624,9 @@ function cfgHTMX() {
 // (hx-push-url="false" on #bLogin); this is the safety net for dialog links
 // that don't carry it. An explicit hx-push-url on the element wins.
 const DIALOG_TRIGGER = '[data-fancybox], [target="_modal"], #bLogin';
-const DIALOG_PATHS = ['/show/forms/signin'];
+// '/user/signin/' is the sign-in POST itself: it must never push a history entry
+// (a literal here: SIGNIN_ACTION below is declared later).
+const DIALOG_PATHS = ['/show/forms/signin', '/user/signin/'];
 
 function keepDialogOutOfHistory(evt) {
     const elt = evt.detail.elt;
@@ -632,7 +634,11 @@ function keepDialogOutOfHistory(evt) {
 
     const raw = evt.detail.path;
     const path = String(raw?.finalRequestPath ?? raw ?? '').split('?')[0];
-    if (elt.matches?.(DIALOG_TRIGGER) || DIALOG_PATHS.includes(path)) {
+    // A boosted form that POSTs/PUTs/DELETEs (a saved record) is an action, not
+    // a page: htmx would push its action ("/save") into the history, so the
+    // browser's Back - and Breadcrumbs - land on an address nobody can GET.
+    const verb = String(evt.detail.verb || 'get').toLowerCase();
+    if (elt.matches?.(DIALOG_TRIGGER) || DIALOG_PATHS.includes(path) || verb !== 'get') {
         elt.setAttribute('hx-push-url', 'false');
     }
 }

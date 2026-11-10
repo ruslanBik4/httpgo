@@ -302,7 +302,10 @@ function afterLogin(userData, thisForm) {
         html.setAttribute('dir', isRTL(l) ? 'rtl' : 'ltr');
     }
 
-function changeLang(newLang) {
+// opts.reload === false: update the language and the menus but do not load the
+// page again (a relogin is under way - the request that got 401 is replayed
+// by completeReauth(), a second load of the page would race it).
+    function changeLang(newLang, opts) {
     if (lang.includes(newLang)) {
         return false
     }
@@ -320,7 +323,8 @@ function changeLang(newLang) {
         swap: 'none',
         handler: (elt, info) => $('.footer-mnu').html(info.xhr.responseText)
     });
-    loadContent(document.location.href.replace(/lang=\d+/, `)
+        if (opts?.reload !== false) {
+            loadContent(document.location.href.replace(/lang=\d+/, `)
 //line user.js.qtpl:2
 	qw422016.N().S("`")
 //line user.js.qtpl:2
@@ -329,6 +333,7 @@ function changeLang(newLang) {
 	qw422016.N().S("`")
 //line user.js.qtpl:2
 	qw422016.N().S(`));
+        }
     return false
 }
 
@@ -360,7 +365,7 @@ function saveUser(userData) {
     $('#sUser').text(userData.name + userSuffix);
     $('body').attr('auth', true);
     closeLoginModals();
-    changeLang(userData.lang);
+    changeLang(userData.lang, {reload: !isReauthInProgress()});
     // No $.ajaxSetup({beforeSend: getHeaders}) here anymore - every
     // request in the app now either goes through htmx.ajax()/hx-* (and
     // gets these headers via htmx:configRequest -> Auth.headers()) or,
@@ -495,7 +500,12 @@ function logOut(elem) {
             // (still no valid session to run them with - that would just
             // re-401 and re-queue), it only releases everything that was
             // being held so the page is usable again.
-            reauthTimeout = setTimeout(() => {
+            const valve = () => {
+                // the login window is still open - the user is typing; keep waiting
+                if (document.getElementById('modal')) {
+                    reauthTimeout = setTimeout(valve, 30000);
+                    return;
+                }
                 console.warn('Auth: relogin was never completed - releasing requests held for it without replaying them.');
                 // reauthResolve, not the executor's own `)
 //line user.js.qtpl:2
@@ -515,7 +525,8 @@ function logOut(elem) {
                 reauthResolve = null;
                 pendingRequests = [];
                 give_up();
-            }, 30000);
+            };
+            reauthTimeout = setTimeout(valve, 30000);
         }
         return reauthPromise;
     }
@@ -1590,8 +1601,8 @@ function saveUser(userData) {
     return Auth.saveUser(userData);
 }
 
-function changeLang(newLang) {
-    return Auth.changeLang(newLang);
+function changeLang(newLang, opts) {
+    return Auth.changeLang(newLang, opts);
 }
 
 function ChangeTheme(id_themes) {
