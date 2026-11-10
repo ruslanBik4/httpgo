@@ -230,7 +230,7 @@ func (i *IntervalMarshal) GetValue() any {
 }
 
 func (i *IntervalMarshal) NewValue() any {
-	return &IntervalMarshal{&pgtype.Interval{}}
+	return NewIntervalMarshal()
 }
 
 func (i *IntervalMarshal) GetPgxType() pgtype.Interval {
@@ -270,14 +270,19 @@ func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
 		i.Interval = &pgtype.Interval{}
 	}
 
-	switch gotools.BytesToString(src) {
+	switch s := gotools.BytesToString(src); s {
 	case "", "0", "00", "00:00", "00:00:00":
-		*i.Interval = pgtype.Interval{}
+		*i.Interval = pgtype.Interval{Valid: true}
 		return nil
+	default:
+		if err := i.Interval.Scan(s); err == nil {
+			return nil
+		} else { // otherwise we have format JSON and run parsing
+			logs.DebugLog(err)
+		}
 	}
 
-	var p fastjson.Parser
-	v, err := p.ParseBytes(src)
+	v, err := fastjson.ParseBytes(src)
 	if err != nil {
 		return err
 	}
@@ -346,9 +351,9 @@ func (i *IntervalMarshal) UnmarshalJSON(src []byte) error {
 			Months: int32(months), Days: int32(days), Microseconds: micro, Valid: valid,
 		}
 		return nil
+	default:
+		return fmt.Errorf("interval: unexpected JSON %s", v.Type())
 	}
-
-	return fmt.Errorf("interval: unexpected JSON %s", v.Type())
 }
 
 func (i IntervalMarshal) MarshalJSON() ([]byte, error) {

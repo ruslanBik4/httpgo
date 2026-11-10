@@ -618,8 +618,7 @@ func (d *DtoField) GetValue() any {
 }
 
 func (d *DtoField) NewValue() any {
-	n := new(DtoField)
-	return n
+	return new(DtoField(make(map[string]any)))
 }
 
 // Each implements apis.Visit's per-key callback - r.field is always

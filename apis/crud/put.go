@@ -169,7 +169,7 @@ func AddColumnAndValue(name string, table dbEngine.Table, arg any, buf io.Writer
 				return colName, bytea
 			}
 
-		case *DtoField:
+		case *DtoField, map[string]string, map[string]any:
 			_, err := fmt.Fprintf(buf, " %v", val)
 			logs.ErrorLog(err)
 			return colName, val
