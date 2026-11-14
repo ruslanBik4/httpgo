@@ -48,7 +48,7 @@ func (tr Translator) of(ctx *fasthttp.RequestCtx, name string) string {
 // "view_url" of the column comment, as a link to a blob (url), as the title of
 // the foreign row it points to, or as plain text.
 func ToTableView(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, url string, col *forms.ColumnDecor, val any, paramReplacer *strings.Replacer) string {
-	if val == nil || (col.BasicType() == types.UnsafePointer && len(val.([]byte)) == 0) {
+	if b, ok := val.([]byte); val == nil || (ok && len(b) == 0 && col.BasicType() == types.UnsafePointer) {
 		return ""
 	}
 
@@ -221,11 +221,11 @@ func PhotosURL(id int32, s ...string) string {
 	}
 }
 
-// CreateColumnDecors fills colDecors (allocated when it has no capacity) with
+// CreateColumnDecors fills colDecors (allocated when shorter than columns) with
 // the decors of columns, their texts translated by tr.
 func CreateColumnDecors(ctx *fasthttp.RequestCtx, columns []dbEngine.Column, patternList dbEngine.Table,
 	colDecors []*forms.ColumnDecor, tr Translator) []*forms.ColumnDecor {
-	if cap(colDecors) == 0 {
+	if len(colDecors) < len(columns) {
 		colDecors = make([]*forms.ColumnDecor, len(columns))
 	}
 	for i, col := range columns {
@@ -326,6 +326,8 @@ func rangeToString(src pgtype.RangeValuer) string {
 
 // PrepareSQLArgs collects the values of the request params named columns
 // (when present) and their column names for an SQL statement on table.
+// A param AddColumnAndValue rejects (unknown column, bad file) is left out:
+// the reason is in badParams.
 func PrepareSQLArgs(ctx *fasthttp.RequestCtx, table dbEngine.Table, buf io.Writer, badParams map[string]string,
 	columns ...string) ([]any, []string) {
 	args := make([]any, 0, len(columns))
@@ -333,6 +335,9 @@ func PrepareSQLArgs(ctx *fasthttp.RequestCtx, table dbEngine.Table, buf io.Write
 	for _, name := range columns {
 		if v := ctx.UserValue(name); v != nil {
 			n, a := AddColumnAndValue(name, table, v, buf, badParams)
+			if n == "" {
+				continue
+			}
 			args = append(args, a)
 			colNames = append(colNames, n)
 		}
