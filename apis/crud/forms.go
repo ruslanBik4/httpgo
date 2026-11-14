@@ -353,22 +353,16 @@ func GetForeignName(ctx *fasthttp.RequestCtx, DB *DB, col Column, val any) any {
 	return nil
 }
 
+// GetNameOfTitleColumn returns the column presenting a row (namesTitleCols,
+// else the first not primary one), in the language lang when the table has it.
 func GetNameOfTitleColumn(table Table, lang any) string {
-	var names = []string{
-		"name",
-		"title",
-		"desc",
-		"description",
-	}
-
-	for _, name := range names {
-		col := table.FindColumn(name)
-		if col != nil {
+	for _, name := range namesTitleCols {
+		if table.FindColumn(name) != nil {
 			return GetNameAccordingLang(table, name, lang)
 		}
 	}
 	for _, col := range table.Columns() {
-		if col.Name() != "id" {
+		if !col.Primary() {
 			return GetNameAccordingLang(table, col.Name(), lang)
 		}
 	}
@@ -411,7 +405,7 @@ func Int8ArrToStrings(src []pgtype.Int8) []int64 {
 	return str
 }
 
-func UnknownArrayToStrings(src []any) []string {
+func UnknownArrayToStrings[T any](src []T) []string {
 	str := make([]string, len(src))
 	for i, val := range src {
 		str[i] = json.Element(val)
