@@ -130,6 +130,16 @@ function setParams(url) {
 	qw422016.N().S(`);
     $('div.filt-arrow > input, div.filt-arrow > select').each(
         (i, elem) => {
+            if (elem.dataset.tri !== undefined) {
+                // switch of a boolean column: any / true / false. 'any' also drops
+                // what an earlier request left in the address bar
+                if (elem.dataset.state === 'any') {
+                    params.delete(elem.dataset.name);
+                } else {
+                    params.set(elem.dataset.name, elem.dataset.state);
+                }
+                return;
+            }
             if (elem.value) {
                 let value = elem.value;
                 if (elem.type === 'checkbox') {
@@ -184,7 +194,10 @@ const unfiltered = 'unfiltered';
 function filterTableData(value, className) {
     let val = value.trim();
     if (val === "") {
-        $('.usr-table-row-cont .usr-table-row').show();
+        // this column no longer filters; the others (a switch of a boolean
+        // column, say) still do
+        $(document.getElementsByClassName(className)).removeClass(unfiltered);
+        applyRowFilterVisibility();
         return true;
     }
 
@@ -220,17 +233,22 @@ function filterTableData(value, className) {
             return true;
         });
 
+    applyRowFilterVisibility();
+    // append data if we filter has counter of lines less than page
+    if (i < GetPageLines()) {
+        appendTable();
+    }
+}
+
+// a row is hidden while any of its cells is marked by a filter
+function applyRowFilterVisibility() {
     $('.usr-table-row').each((ind, elem) => {
-        if ($(elem).children('.usr-table-col.'+unfiltered).length > 0) {
+        if ($(elem).children('.usr-table-col.' + unfiltered).length > 0) {
             $(elem).hide();
         } else {
             $(elem).show();
         }
     })
-    // append data if we filter has counter of lines less than page
-    if (i < GetPageLines()) {
-        appendTable();
-    }
 }
 
 function ScrollToElem(selector) {
@@ -423,6 +441,566 @@ function handleFileCSVSelect(evt) {
     reader.readAsText(f);
 }
 
+// ---- switches of boolean columns, lists and cards of foreign keys ---------------------
+//
+// table_row.qtpl draws a boolean cell as a switch, and ToTableView (apis/crud/view.go)
+// a foreign key as <span class="tbl-fk">. The table keeps where to save in its
+// data-* attributes (data-update-url, data-pk-col...), a row - the key of the row
+// (data-pk). Nothing here works on a read-only table (no such attributes).
+//
+//   * a switch in a cell: a change is sent to the server at once, and taken back
+//     when the server refuses;
+//   * the filter of a boolean column is a switch of three states (all -> true ->
+//     false -> all); hovering it shows a card: 'toggle' flips the visible rows,
+//     'true' / 'false' set every record of the table (administrators only, asked
+//     for twice);
+//   * a click on a foreign key opens the list of the parents - the options of the
+//     filter of this column - to choose another one, saved at once; hovering it
+//     shows the short card of the parent, with the link to its form.
+//
+// The colours are custom properties (--switch-on, --pop-bg...), see table-row.css.
+const TableSwitches = (function () {
+    const REQUEST_TIMEOUT = 60000;
+    const CARD_TTL = 60000;
+    const NEXT_STATE = {any: 'true', true: 'false', false: 'any'};
+
+    const tableOf = el => el.closest('.usr-table');
+    const rowOf = el => el.closest('.usr-table-row-cont > .usr-table-row');
+    const say = message => (typeof showToast === 'function' ? showToast(message) : console.log(message));
+
+    // the server decides, this only hides what the user can't use anyway
+    function isAdmin() {
+        try {
+            return JSON.parse(localStorage.getItem('USER'))?.admin === true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // POST values to the server. Resolves with the xhr when the server accepted
+    // them, rejects when it refused (observer.js shows the reason). A 401 is no
+    // answer: the sign-in window opens and sends the request again.
+    function send(source, url, values, multipart) {
+        return new Promise((resolve, reject) => {
+            let timer = 0;
+            const finish = () => {
+                clearTimeout(timer);
+                source.removeEventListener('htmx:afterRequest', done);
+            };
+            const done = evt => {
+                if (evt.detail.elt !== source) return;
+                const xhr = evt.detail.xhr;
+                if (xhr.status === 401) return;
+                finish();
+                if (evt.detail.successful) resolve(xhr);
+                else reject(new Error(xhr.responseText || `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`HTTP ${xhr.status}`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`));
+            };
+            timer = setTimeout(() => {
+                finish();
+                reject(new Error('timeout'));
+            }, REQUEST_TIMEOUT);
+
+            source.addEventListener('htmx:afterRequest', done);
+            // the update route reads multipart forms only
+            if (multipart) source.setAttribute('hx-encoding', 'multipart/form-data');
+            const request = htmx.ajax('POST', url, {source, target: source, swap: 'none', values});
+            request?.catch?.(() => {
+            });
+        });
+    }
+
+    // Save one cell: column = value of the row the source is in.
+    function saveCell(source, column, value) {
+        const table = tableOf(source);
+        const pk = rowOf(source)?.dataset.pk;
+        const url = table?.dataset.updateUrl;
+        if (!url || !table.dataset.pkCol || pk === undefined) {
+            return Promise.reject(new Error('the table is read only'));
+        }
+
+        return send(source, url, {[table.dataset.pkCol]: pk, [column]: String(value)}, true);
+    }
+
+    // ---- switches in the cells
+
+    function onCellSwitch(el) {
+        const wanted = el.checked;
+        el.disabled = true;
+        saveCell(el, el.dataset.col, wanted)
+            .then(() => {
+                el.dataset.saved = String(wanted);
+            })
+            .catch(() => {
+                el.checked = el.dataset.saved === 'true';
+            })
+            .finally(() => {
+                el.disabled = false;
+            });
+    }
+
+    // ---- the filter of a boolean column: any / true / false
+
+    function setTri(el, state) {
+        el.dataset.state = state;
+        el.indeterminate = state === 'any';
+        el.checked = state === 'true';
+        el.setAttribute('aria-checked', state === 'any' ? 'mixed' : state);
+        el.title = `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`${el.dataset.label || el.dataset.col}: ${state === 'any' ? 'all' : state}`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`;
+    }
+
+    // Hide the rows whose switch isn't in the state of the filter.
+    function applyBoolFilter(el) {
+        const table = tableOf(el);
+        if (!table) return;
+
+        const state = el.dataset.state || 'any';
+        let shown = 0;
+        table.querySelectorAll(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.usr-table-row-cont .${el.dataset.class}`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`).forEach(cell => {
+            const sw = cell.querySelector('input.tbl-switch');
+            const match = state === 'any' || (sw !== null && String(sw.checked) === state);
+            cell.classList.toggle(unfiltered, !match);
+            if (match) shown++;
+        });
+        applyRowFilterVisibility();
+        // not enough rows on the screen: ask the server for more (they come filtered)
+        if (state !== 'any' && shown < GetPageLines()) appendTable();
+    }
+
+    // the rows the user sees: not hidden by a filter
+    function visibleRows(table) {
+        return [...table.querySelectorAll('.usr-table-row-cont > .usr-table-row')]
+            .filter(row => row.style.display !== 'none' && !row.querySelector(':scope > .' + unfiltered));
+    }
+
+    function bulkMessage(xhr, label) {
+        try {
+            return JSON.parse(xhr.responseText).message || label;
+        } catch (e) {
+            return label;
+        }
+    }
+
+    // a button of the card of the filter
+    function bulk(filter, button) {
+        const table = tableOf(filter);
+        const column = filter.dataset.col;
+        const label = filter.dataset.label || column;
+        const act = button.dataset.act;
+        const cells = () => [...table.querySelectorAll(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.usr-table-row-cont .${filter.dataset.class} input.tbl-switch`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`)];
+        let request;
+
+        if (act === 'toggle') {
+            const rows = visibleRows(table).filter(row => row.dataset.pk !== undefined);
+            if (!table.dataset.boolUrl) return say('The table is read only');
+            if (!rows.length) return say('No visible rows');
+
+            button.disabled = true;
+            request = send(button, table.dataset.boolUrl,
+                {column, value: 'toggle', ids: rows.map(row => row.dataset.pk).join(',')}, false)
+                .then(xhr => {
+                    rows.forEach(row => {
+                        const sw = row.querySelector(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.${filter.dataset.class} input.tbl-switch`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`);
+                        if (sw) {
+                            sw.checked = !sw.checked;
+                            sw.dataset.saved = String(sw.checked);
+                        }
+                    });
+                    say(bulkMessage(xhr, label));
+                });
+        } else {
+            if (!table.dataset.boolAllUrl) return say('The table is read only');
+            const name = table.id.replace(/^t_/, '');
+            if (!confirm(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`Set "${label}" = ${act} for ALL records of the table "${name}"?`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`)) return;
+
+            button.disabled = true;
+            request = send(button, table.dataset.boolAllUrl, {column, value: act}, false)
+                .then(xhr => {
+                    cells().forEach(sw => {
+                        sw.checked = act === 'true';
+                        sw.dataset.saved = act;
+                    });
+                    say(bulkMessage(xhr, label));
+                });
+        }
+
+        request
+            .then(() => applyBoolFilter(filter))
+            .catch(() => {
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+    }
+
+    // ---- floating windows: the card of the filter, the list and the card of a foreign key
+
+    let pop = null, popKind = '', popOwner = null, hideTimer = 0;
+
+    function closePop() {
+        clearTimeout(hideTimer);
+        pop?.remove();
+        pop = popKind = popOwner = null;
+    }
+
+    function hideSoon() {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(closePop, 250);
+    }
+
+    function place(el, anchor) {
+        document.body.append(el);
+        const rect = anchor.getBoundingClientRect();
+        const width = el.offsetWidth, height = el.offsetHeight;
+        const left = Math.min(Math.max(4, rect.left), Math.max(4, window.innerWidth - width - 4));
+        let top = rect.bottom + 4;
+        if (top + height > window.innerHeight - 4 && rect.top - height - 4 > 4) top = rect.top - height - 4;
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+    }
+
+    function openPop(kind, owner, el) {
+        closePop();
+        pop = el;
+        popKind = kind;
+        popOwner = owner;
+        el.classList.add('tbl-pop');
+        // hovering keeps the window, leaving closes it; a list stays until a choice
+        el.addEventListener('pointerenter', () => clearTimeout(hideTimer));
+        el.addEventListener('pointerleave', () => {
+            if (kind !== 'list') hideSoon();
+        });
+        place(el, owner);
+    }
+
+    function boolCard(filter) {
+        const label = filter.dataset.label || filter.dataset.col;
+        const card = document.createElement('div');
+        card.className = 'tbl-bool-card';
+        card.setAttribute('role', 'group');
+        card.setAttribute('aria-label', label);
+
+        const text = (tag, className, content) => {
+            const el = document.createElement(tag);
+            el.className = className;
+            el.textContent = content;
+            return el;
+        };
+        const button = (act, title) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.dataset.act = act;
+            b.textContent = act;
+            b.title = title;
+            return b;
+        };
+
+        // 'true' and 'false' are titled by the name of the column
+        const toggle = button('toggle', `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`${label}: toggle in the visible rows`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`);
+        const yes = button('true', label), no = button('false', label);
+        if (!isAdmin()) {
+            for (const b of [yes, no]) {
+                b.disabled = true;
+                b.title = `)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`${label} (administrators only)`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`;
+            }
+        }
+        card.append(
+            text('strong', 'tbl-pop__title', label),
+            text('span', 'tbl-pop__caption', 'visible rows'), toggle,
+            text('span', 'tbl-pop__caption', 'all records'), yes, no);
+        card.addEventListener('click', evt => {
+            const b = evt.target.closest('button[data-act]');
+            if (b && !b.disabled) bulk(filter, b);
+        });
+
+        return card;
+    }
+
+    // the parents the foreign key of the cell may point to: the options of the
+    // filter of its column (the filter has "All" with no value - not one of them)
+    function parentOptions(fk) {
+        const table = tableOf(fk);
+        const cls = [...fk.closest('.usr-table-col').classList].find(c => /^table-col-\d+$/.test(c));
+        const select = cls && table.querySelector(`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`.usr-table__filter .${cls} select`)
+//line table-row.js.qtpl:2
+	qw422016.N().S("`")
+//line table-row.js.qtpl:2
+	qw422016.N().S(`);
+
+        return select ? [...select.options].filter(o => o.value !== '').map(o => ({value: o.value, text: o.text})) : [];
+    }
+
+    function chooseParent(fk, option) {
+        closePop();
+        if (option.value === fk.dataset.fkId) return;
+
+        fk.setAttribute('aria-busy', 'true');
+        saveCell(fk, fk.dataset.col, option.value)
+            .then(() => {
+                fk.textContent = option.text;
+                fk.dataset.fkId = option.value;
+                cardCache.clear();
+            })
+            .catch(() => {
+            })
+            .finally(() => fk.removeAttribute('aria-busy'));
+    }
+
+    function openParentList(fk) {
+        const options = parentOptions(fk);
+        if (!tableOf(fk)?.dataset.updateUrl || options.length === 0) return false;
+
+        const box = document.createElement('div');
+        box.className = 'tbl-fk-list';
+        box.tabIndex = -1;
+        const search = options.length > 7 ? document.createElement('input') : null;
+        if (search) {
+            search.type = 'search';
+            search.placeholder = 'Search…';
+            search.setAttribute('aria-label', 'Search');
+            box.append(search);
+        }
+        const list = document.createElement('ul');
+        list.setAttribute('role', 'listbox');
+        for (const option of options) {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'option');
+            li.dataset.value = option.value;
+            li.textContent = option.text;
+            if (option.value === fk.dataset.fkId) li.setAttribute('aria-selected', 'true');
+            list.append(li);
+        }
+        box.append(list);
+
+        const items = () => [...list.children].filter(li => !li.hidden);
+        const activate = li => {
+            list.querySelector('.is-active')?.classList.remove('is-active');
+            li?.classList.add('is-active');
+            li?.scrollIntoView?.({block: 'nearest'});
+        };
+        const optionOf = li => options.find(o => o.value === li.dataset.value);
+
+        list.addEventListener('click', evt => {
+            const li = evt.target.closest('li');
+            if (li) chooseParent(fk, optionOf(li));
+        });
+        search?.addEventListener('input', () => {
+            const q = search.value.trim().toLowerCase();
+            for (const li of list.children) li.hidden = q !== '' && !li.textContent.toLowerCase().includes(q);
+            activate(items()[0]);
+        });
+        box.addEventListener('keydown', evt => {
+            const all = items(), at = all.indexOf(list.querySelector('.is-active'));
+            switch (evt.key) {
+                case 'ArrowDown':
+                    activate(all[Math.min(at + 1, all.length - 1)]);
+                    break;
+                case 'ArrowUp':
+                    activate(all[Math.max(at - 1, 0)]);
+                    break;
+                case 'Enter': {
+                    const li = list.querySelector('.is-active') || all[0];
+                    if (li) chooseParent(fk, optionOf(li));
+                    break;
+                }
+                case 'Escape':
+                    closePop();
+                    fk.focus();
+                    break;
+                default:
+                    return;
+            }
+            evt.preventDefault();
+        });
+
+        openPop('list', fk, box);
+        activate(list.querySelector('[aria-selected]'));
+        (search || box).focus();
+
+        return true;
+    }
+
+    // ---- the card of the parent
+
+    const cardCache = new Map(); // url -> {html, at}
+    let hoverTimer = 0, hoverFk = null;
+
+    function loadCard(url) {
+        const hit = cardCache.get(url);
+        if (hit && Date.now() - hit.at < CARD_TTL) return Promise.resolve(hit.html);
+
+        const headers = Object.assign({'X-Requested-With': 'XMLHttpRequest'}, typeof Auth !== 'undefined' ? Auth.headers() : {});
+        return fetch(url, {headers})
+            .then(response => (response.status === 200 ? response.text() : ''))
+            .then(html => {
+                cardCache.set(url, {html, at: Date.now()});
+                return html;
+            })
+            .catch(() => '');
+    }
+
+    function showCard(fk) {
+        // the card is for signed-in users: asking for it must not open the sign-in window
+        if (!document.body.hasAttribute('auth') || popKind === 'list' || !fk.dataset.card) return;
+
+        loadCard(fk.dataset.card + encodeURIComponent(fk.dataset.fkId)).then(html => {
+            if (!html || hoverFk !== fk || popKind === 'list') return;
+            const card = document.createElement('div');
+            card.className = 'tbl-fk-card';
+            card.innerHTML = html;
+            openPop('card', fk, card);
+            htmx.process(card);
+        });
+    }
+
+    // ---- events
+
+    document.addEventListener('change', evt => {
+        const el = evt.target;
+        if (el.matches?.('.usr-table-col > input.tbl-switch:not(.tbl-switch--filter)')) onCellSwitch(el);
+    });
+
+    // the filter switch goes round: the click has flipped the box, the state is set after it
+    document.addEventListener('click', evt => {
+        const filter = evt.target.closest?.('input.tbl-switch--filter');
+        if (filter) {
+            setTimeout(() => {
+                setTri(filter, NEXT_STATE[filter.dataset.state] || 'true');
+                applyBoolFilter(filter);
+            }, 0);
+            return;
+        }
+
+        const fk = evt.target.closest?.('.tbl-fk');
+        if (fk) {
+            evt.preventDefault();
+            clearTimeout(hoverTimer);
+            if (popKind === 'list' && popOwner === fk) closePop();
+            else openParentList(fk);
+            return;
+        }
+
+        // a link of a card opens the form: the card is no more needed
+        if (pop && (!pop.contains(evt.target) || evt.target.closest('a'))) closePop();
+    });
+
+    document.addEventListener('keydown', evt => {
+        const fk = evt.target.closest?.('.tbl-fk');
+        if (fk && (evt.key === 'Enter' || evt.key === ' ')) {
+            evt.preventDefault();
+            openParentList(fk);
+        } else if (evt.key === 'Escape' && pop) {
+            closePop();
+        }
+    });
+
+    document.addEventListener('mouseover', evt => {
+        const filter = evt.target.closest?.('input.tbl-switch--filter');
+        if (filter) {
+            if (popOwner !== filter) openPop('bool', filter, boolCard(filter));
+            else clearTimeout(hideTimer);
+            return;
+        }
+
+        const fk = evt.target.closest?.('.tbl-fk');
+        if (fk && fk !== hoverFk) {
+            hoverFk = fk;
+            clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => showCard(fk), 350);
+        }
+    });
+
+    document.addEventListener('mouseout', evt => {
+        const owner = evt.target.closest?.('input.tbl-switch--filter, .tbl-fk');
+        if (!owner || owner.contains(evt.relatedTarget)) return;
+
+        if (owner === hoverFk) {
+            hoverFk = null;
+            clearTimeout(hoverTimer);
+        }
+        if (popOwner === owner && popKind !== 'list') hideSoon();
+    });
+
+    // the filter shows its card on focus too: keyboard and touch have no hover
+    document.addEventListener('focusin', evt => {
+        const filter = evt.target.closest?.('input.tbl-switch--filter');
+        if (filter && popOwner !== filter) openPop('bool', filter, boolCard(filter));
+    });
+
+    window.addEventListener('scroll', () => {
+        if (popKind !== 'list') closePop();
+    }, true);
+
+    return {setTri, applyBoolFilter, send, isAdmin};
+})();
+
 // What the user did on a table - the filters and the scroll of the rows - is
 // kept by the breadcrumbs when the page is left and put back on return, so
 // going from an edit form back to the table does not lose it.
@@ -434,7 +1012,9 @@ if (window.Breadcrumbs?.registerState) {
             document.querySelectorAll(FILTERS).forEach(el => {
                 const name = el.dataset.name;
                 if (!name) return;
-                if (el.type === 'checkbox') {
+                if (el.dataset.tri !== undefined) {
+                    if (el.dataset.state !== 'any') filters[name] = el.dataset.state;
+                } else if (el.type === 'checkbox') {
                     if (el.checked) filters[name] = true;
                 } else if (el.value) {
                     filters[name] = el.value;
@@ -453,6 +1033,13 @@ if (window.Breadcrumbs?.registerState) {
                 if (!name) return;
                 const v = state.filters?.[name];
                 let changed;
+                if (el.dataset.tri !== undefined) {
+                    const next = v === 'true' || v === 'false' ? v : 'any';
+                    changed = el.dataset.state !== next;
+                    TableSwitches.setTri(el, next);
+                    if (fresh && changed) TableSwitches.applyBoolFilter(el);
+                    return;
+                }
                 if (el.type === 'checkbox') {
                     changed = el.checked !== (v === true);
                     el.checked = v === true;

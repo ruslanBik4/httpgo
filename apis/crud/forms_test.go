@@ -85,6 +85,7 @@ func TestRoutesFromDB(t *testing.T) {
 	t.Run("routes of the listed tables only", func(t *testing.T) {
 		routes := RoutesFromDB(ctx, all, "goods", "unknown")
 		assert.Equal(t, []string{
+			"/api/v1/table/goods/card",
 			"/api/v1/table/goods/form",
 			"/api/v1/table/goods/get",
 			"/api/v1/table/goods/put",
@@ -99,7 +100,7 @@ func TestRoutesFromDB(t *testing.T) {
 	t.Run("path version of the context", func(t *testing.T) {
 		ctx := context.WithValue(ctx, PathVersion, "/api/v2")
 		routes := RoutesFromDB(ctx, []DbRouteType{DbRouteType_Select}, "brands")
-		assert.Equal(t, []string{"/api/v2/table/brands/get"}, slices.Sorted(maps.Keys(routes)))
+		assert.Equal(t, []string{"/api/v2/table/brands/card", "/api/v2/table/brands/get"}, slices.Sorted(maps.Keys(routes)))
 	})
 }
 
@@ -144,7 +145,21 @@ func TestCreateRoutesForTable(t *testing.T) {
 	t.Run("no form for select only", func(t *testing.T) {
 		routes := createRoutesForTable(s.DB, "goods", "/table/", s.goods, []DbRouteType{DbRouteType_Select}, defParams)
 		assert.NotContains(t, routes, "/table/goods/form")
-		assert.Len(t, routes, 1)
+		assert.Len(t, routes, 2, "get and the card")
+	})
+
+	t.Run("card of a row by its key", func(t *testing.T) {
+		card := routes["/table/goods/card"]
+		require.NotNil(t, card)
+		assert.Equal(t, apis.GET, card.Method)
+		assert.True(t, card.NeedAuth)
+		assert.Equal(t, []string{"id", ParamsLang.Name}, names(card.Params))
+		assert.True(t, card.Params[0].Req)
+	})
+
+	t.Run("no switches without a boolean column", func(t *testing.T) {
+		assert.NotContains(t, routes, "/table/goods/set_bool")
+		assert.NotContains(t, routes, "/table/goods/set_bool_all")
 	})
 }
 

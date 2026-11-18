@@ -333,6 +333,198 @@ img.cover {
     min-height: 40px;
 }
 
+
+/* ---- switches of boolean columns, lists and cards of foreign keys (table-row.js) ----
+   Themes set the custom properties (every one has a default):
+     --switch-on, --switch-off, --switch-any (the filter that shows all), --switch-knob,
+     --switch-border, --switch-focus;
+     --pop-bg, --pop-fg, --pop-border, --pop-muted, --pop-hover, --pop-active, --pop-accent. */
+.usr-table-col input.tbl-switch {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    position: relative;
+    display: block;
+    width: 2.4em;
+    height: 1.3em;
+    margin: 0 auto;
+    padding: 0;
+    border: 1px solid var(--switch-border, rgba(0, 0, 0, 0.25));
+    border-radius: 1.3em;
+    background-color: var(--switch-off, #b8c0c8);
+    background-image: radial-gradient(circle, var(--switch-knob, #fff) 0.45em, transparent 0.5em);
+    background-repeat: no-repeat;
+    background-size: 1.1em 1.1em;
+    background-position: 0.1em center;
+    cursor: pointer;
+    transition: background-color .15s ease, background-position .15s ease;
+}
+
+.usr-table-col input.tbl-switch:checked {
+    background-color: var(--switch-on, #4caf50);
+    background-position: calc(100% - 0.1em) center;
+}
+
+.usr-table-col input.tbl-switch:disabled {
+    opacity: .55;
+    cursor: progress;
+}
+
+.usr-table-col input.tbl-switch:focus-visible {
+    outline: 2px solid var(--switch-focus, #4fc3f7);
+    outline-offset: 2px;
+}
+
+/* the filter: all (knob in the middle, neutral) -> true -> false -> all */
+.usr-table-col input.tbl-switch--filter[data-state=any] {
+    background-color: var(--switch-any, #dfe4e8);
+    background-position: center center;
+}
+
+.usr-table-col input.tbl-switch--filter[data-state=false] {
+    background-color: var(--switch-off, #b8c0c8);
+    background-position: 0.1em center;
+}
+
+/* windows over the table: the cells cut what is outside, so they hang on the body */
+.tbl-pop {
+    position: fixed;
+    z-index: 3000;
+    box-sizing: border-box;
+    max-width: 360px;
+    padding: 8px 10px;
+    border: 1px solid var(--pop-border, rgba(0, 0, 0, 0.2));
+    border-radius: 6px;
+    background-color: var(--pop-bg, #fff);
+    color: var(--pop-fg, #243541);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    font: 400 14px/1.35 sans-serif;
+    text-align: left;
+    word-break: normal;
+}
+
+.tbl-pop a {
+    color: var(--pop-accent, #1976d2);
+}
+
+/* the card of the filter of a boolean column */
+.tbl-bool-card {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 4px 8px;
+    align-items: center;
+}
+
+.tbl-bool-card .tbl-pop__title {
+    grid-column: 1 / -1;
+}
+
+.tbl-bool-card .tbl-pop__caption {
+    grid-column: 1 / -1;
+    color: var(--pop-muted, #6b7a86);
+    font-size: 12px;
+}
+
+.tbl-bool-card button {
+    padding: 3px 10px;
+    border: 1px solid var(--pop-border, rgba(0, 0, 0, 0.25));
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tbl-bool-card button[data-act=toggle] {
+    grid-column: 1 / -1;
+}
+
+.tbl-bool-card button:hover:not(:disabled) {
+    background-color: var(--pop-hover, rgba(120, 147, 182, 0.2));
+}
+
+.tbl-bool-card button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* a foreign key: the name of the parent, a click chooses another */
+.tbl-fk {
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+}
+
+.tbl-fk:hover, .tbl-fk:focus-visible {
+    text-decoration-style: solid;
+}
+
+.tbl-fk[aria-busy=true] {
+    opacity: .5;
+    cursor: progress;
+}
+
+.tbl-fk-list {
+    min-width: 12em;
+    padding: 4px;
+    outline: none;
+}
+
+.tbl-fk-list input[type=search] {
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.tbl-fk-list ul {
+    max-height: 16em;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.tbl-fk-list li {
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.tbl-fk-list li:hover, .tbl-fk-list li.is-active {
+    background-color: var(--pop-hover, rgba(120, 147, 182, 0.2));
+}
+
+.tbl-fk-list li[aria-selected=true] {
+    background-color: var(--pop-active, rgba(25, 118, 210, 0.18));
+    font-weight: 600;
+}
+
+/* the card of the parent */
+.tbl-card {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 2px 10px;
+    margin: 0;
+}
+
+.tbl-card dt {
+    color: var(--pop-muted, #6b7a86);
+}
+
+.tbl-card dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+/* the title takes the line: its dt is empty */
+.tbl-card dt.tbl-card__title {
+    display: none;
+}
+
+.tbl-card dd.tbl-card__title {
+    grid-column: 1 / -1;
+    font-weight: 600;
+}
 `)
 //line table-row.css.qtpl:5
 }

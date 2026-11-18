@@ -1,6 +1,7 @@
 {% import (
 	"regexp"
 	"fmt"
+	"strings"
 	"time"
 	"sort"
 	"go/types"
@@ -25,6 +26,47 @@
 	func NewTableRender(table dbEngine.Table, columns []*forms.ColumnDecor, rows [][]any, ApiURL string, onlyView bool) *TableRender {
     	return &TableRender{Table: table, columns: columns, rows: rows, ApiURL: ApiURL, ApiImport: ApiURL+"import", ApiExport: ApiURL+"export", OnlyView: onlyView}
     }
+
+	// pkIndex is the index of the only primary column among the columns of
+	// the view (a column named "id" counts when none is marked), -1 when there
+	// is none or there are several: a row can't be told to the server then.
+	func (t *TableRender) pkIndex() int {
+		idx, marked := -1, false
+		for i, col := range t.columns {
+			switch {
+			case col.Primary():
+				if marked {
+					return -1
+				}
+				idx, marked = i, true
+			case col.Name() == "id" && !marked:
+				idx = i
+			}
+		}
+
+		return idx
+	}
+
+	// editable: the switches and the lists of foreign keys save to the server
+	func (t *TableRender) editable() bool {
+		return !t.OnlyView && t.Table != nil && t.pkIndex() >= 0
+	}
+
+	// BoolValue reads a boolean cell: the value is a bool, or the text of one
+	// ("true"/"false", as ToTableView gives it)
+	func BoolValue(val any) bool {
+		switch v := val.(type) {
+		case bool:
+			return v
+		case string:
+			switch strings.ToLower(strings.TrimSpace(v)) {
+			case "true", "t", "1", "yes", "y", "on":
+				return true
+			}
+		}
+
+		return false
+	}
 %}
 {% func TableRow(columns []*forms.ColumnDecor, rows [][] any) %}
 {%code
@@ -82,7 +124,7 @@
     </figure>
 </form>
 </div>
-<div class="usr-table table-custom" id="t_{%s t.Name() %}" hx-boost="true">
+<div class="usr-table table-custom" id="t_{%s t.Name() %}" hx-boost="true"{% if t.editable() %}{% space %}data-update-url="{%s t.ApiURL %}update" data-pk-col="{%s t.columns[t.pkIndex()].Name() %}" data-bool-url="{%s t.ApiURL %}set_bool" data-bool-all-url="{%s t.ApiURL %}set_bool_all"{% endif %}>
 	<div class="usr-table-header">
 	    <div class="usr-table__t-head  usr-table-row">
 	    {% for i, col := range t.columns %}
@@ -127,6 +169,8 @@
                 </select>
 			{% case col.InputType == "file" %}
 	            <span class="hiddenInput" style="background-image: url('%v val %');"> </span>
+			{% case col.BasicType() == types.Bool %}
+				<input type="checkbox" class="tbl-switch tbl-switch--filter" role="switch" aria-checked="mixed" data-tri="1" data-state="any" data-name="{%s col.InputName(i) %}" data-col="{%s col.Name() %}" data-label="{%s col.Label %}" data-class="table-col-{%d i%}" title="{%s col.Label %}: all"/>
 			{% case col.Suggestions > "" %}
 	            <input type="text" src="{%j= col.Suggestions %}" data="{%s col.InputName(i) %}-sel" data-name="{%s col.InputName(i) %}"
 	                autocapitalize="none" autocorrect="off" autocomplete="off"
@@ -179,6 +223,12 @@
 }
 </style>
 {% endfunc %}
+A boolean cell: a switch. A change is sent to the server at once (views/js/src/table-row.js);
+disabled where the table can't be changed. A value that isn't known (NULL) is shown off.
+{% func RenderBoolSwitch(col *forms.ColumnDecor, val any, editable bool) %}
+<input type="checkbox" class="tbl-switch" role="switch" data-col="{%s col.Name() %}" title="{%s col.Label %}"{% if BoolValue(val) %}{% space %}checked data-saved="true"{% else %}{% space %}data-saved="false"{% endif %}
+{% if !editable %}{% space %}disabled{% endif %}{% space %}/>
+{% endfunc %}
 {% func RenderTime(i int, val time.Time)%}
 	{%- code hour, min, sec := val.Clock() -%}
     {%- if hour > 0 || min > 0 || sec > 0 -%}
@@ -205,16 +255,21 @@ func render Table rows{
 	        colLen[i] = len(col.Label)*lSymb
 	        colDeep[i] = 1
 	   }
+	   pk, editable := t.pkIndex(), t.editable()
 	%}
 <div class="usr-table-row-cont">
    {% for i, row  := range t.rows %}
         <div class="usr-table-row"
+        {% if pk >= 0 && pk < len(row) %}{% space %}data-pk="{%s fmt.Sprint(row[pk]) %}"{% endif %}
         {% if i ==(2 + len(t.rows) / 2) %}
             hx-swap="afterend" hx-select=".usr-table-row-cont" hx-trigger='intersect once' hx-get='{%s t.ApiURL %}browse' hx-vals='js:{...reqParams()}'
         {%endif %}
         >
         {% for i, column := range t.columns %}
             <div class="usr-table-col  table-col-{%d i%}">
+                {% if column.BasicType() == types.Bool %}
+                  {%= RenderBoolSwitch(column, row[i], editable) %}
+                {% else %}
                 {% switch val := row[i].(type) %}
                 {% case time.Time %} {%s= RenderTime(i,val) %}
                 {% case string %}
@@ -346,6 +401,7 @@ func render Table rows{
                {% default %}
                         {%= json.Element(row[i]) %}
                 {% endswitch %}
+                {% endif %}
             </div>
         {% endfor %}
 

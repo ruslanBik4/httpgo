@@ -67,6 +67,8 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 		params      = make([]string, 0)
 		autoIncCols = make([]string, 0)
 		priColumns  = make([]string, 0)
+		// the param of the only primary key: the card of a row is asked by it
+		pkParam     apis.InParam
 		basicParams = []apis.InParam{
 			ParamsHTML,
 			ParamsLang,
@@ -94,6 +96,8 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 		if col.Primary() || (col.Name() == "id") {
 			priColumns = append(priColumns, p.Name)
 			basicParams = append(basicParams, *p.InParam.WithNotRequired())
+			pkParam = p.InParam
+			pkParam.Req = true
 		}
 	}
 
@@ -124,6 +128,25 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 				Params:      updateParams,
 				Resp:        nil,
 			}
+
+			// switches of the boolean columns in the table view: many rows at once
+			if len(priColumns) == 1 && HasBoolColumns(table) {
+				ret[preRoute+tableName+"/set_bool"] = &apis.ApiRoute{
+					Desc:     "set a boolean column of the chosen rows of table '" + tableName + "'",
+					Method:   apis.POST,
+					NeedAuth: true,
+					Fnc:      TableSetBool(db, table, priColumns[0], false),
+					Params:   setBoolParams(false),
+				}
+				ret[preRoute+tableName+"/set_bool_all"] = &apis.ApiRoute{
+					Desc:      "set a boolean column of ALL rows of table '" + tableName + "' (only admin)",
+					Method:    apis.POST,
+					NeedAuth:  true,
+					OnlyAdmin: true,
+					Fnc:       TableSetBool(db, table, priColumns[0], true),
+					Params:    setBoolParams(true),
+				}
+			}
 		case DbRouteType_Select:
 			newSelectParams := append(params, autoIncCols...)
 			for i := range selectParams {
@@ -136,6 +159,17 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 				NeedAuth: true,
 				Params:   selectParams,
 				Fnc:      TableSelect(table, newSelectParams),
+			}
+
+			// the short card of a row: it is shown on hovering a foreign key to the table
+			if len(priColumns) == 1 {
+				ret[preRoute+tableName+"/card"] = &apis.ApiRoute{
+					Desc:     "short card (HTML) of a row of table '" + tableName + "'",
+					Method:   apis.GET,
+					NeedAuth: true,
+					Params:   []apis.InParam{pkParam, ParamsLang},
+					Fnc:      TableCard(table, priColumns[0]),
+				}
 			}
 		}
 	}
