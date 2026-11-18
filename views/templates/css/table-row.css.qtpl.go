@@ -525,6 +525,51 @@ img.cover {
     grid-column: 1 / -1;
     font-weight: 600;
 }
+
+/* an array of foreign keys: check boxes and the buttons */
+.tbl-fk-list li input[type=checkbox] {
+    width: auto;
+    margin: 0 6px 0 0;
+    vertical-align: middle;
+    pointer-events: none;
+}
+
+.tbl-fk-list li input[type=checkbox] + span {
+    vertical-align: middle;
+}
+
+.tbl-fk-list__bar {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+.tbl-fk-list__bar button {
+    padding: 3px 12px;
+    border: 1px solid var(--pop-border, rgba(0, 0, 0, 0.25));
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.tbl-fk-list__bar button.tbl-fk-save {
+    border-color: var(--pop-accent, #1976d2);
+    color: var(--pop-accent, #1976d2);
+}
+
+.tbl-fk-list__bar button:hover {
+    background-color: var(--pop-hover, rgba(120, 147, 182, 0.2));
+}
+
+/* several cards (an array of keys) one under another */
+.tbl-fk-card .tbl-card + .tbl-card {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--pop-border, rgba(0, 0, 0, 0.2));
+}
 `)
 //line table-row.css.qtpl:5
 }

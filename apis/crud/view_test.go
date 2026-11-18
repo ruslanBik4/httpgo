@@ -98,7 +98,7 @@ func TestToTableView(t *testing.T) {
 		{"foreign by the name id_<table>", "id_colors", int32(1),
 			`<span class="tbl-fk" tabindex="0" role="button" data-col="id_colors" data-fk-table="colors" data-fk-id="1" data-card="/table/colors/card?id=">red</span>`},
 		{"foreign array", "tags", []int32{3, 4},
-			`<a href='/table/brands/form?html&id=[3 4]' target="_modal">[Acme Bolt]</a>`},
+			`<span class="tbl-fk tbl-fk--multi" data-multi="1" tabindex="0" role="button" data-col="tags" data-fk-table="brands" data-fk-id="3,4" data-card="/table/brands/card?id=">[Acme Bolt]</span>`},
 		{"photos as img", "id_photos", int32(5),
 			`<img src='/table/photos/blob?id=5' id='imgblob5' style='max-width:100%'/>`},
 	}

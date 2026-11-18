@@ -9,7 +9,6 @@ package crud
 
 import (
 	"go/types"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -73,32 +72,27 @@ func TestBuildSetBoolSQL(t *testing.T) {
 	wrap := func(q string) string { return strings.Replace(cte, "%s", q, 1) }
 
 	tests := []struct {
-		name               string
-		column, value, ids string
-		all                bool
-		wantSQL            string
-		wantArgs           []any
-		wantErr            string
+		name          string
+		column, value string
+		wantSQL       string
+		wantArgs      []any
+		wantErr       string
 	}{
-		{name: "toggle chosen rows", column: "active", value: "toggle", ids: "1, 2,2,,3",
-			wantSQL:  wrap(`UPDATE "users" SET "active" = NOT COALESCE("active", false) WHERE "id"::text = ANY($1)`),
-			wantArgs: []any{[]string{"1", "2", "3"}}},
-		{name: "true for chosen rows", column: "active", value: "true", ids: "7",
-			wantSQL:  wrap(`UPDATE "users" SET "active" = $1 WHERE "id"::text = ANY($2)`),
-			wantArgs: []any{true, []string{"7"}}},
-		{name: "false for all rows", column: "active", value: "false", all: true,
+		{name: "true for all rows", column: "active", value: "true",
+			wantSQL:  wrap(`UPDATE "users" SET "active" = $1`),
+			wantArgs: []any{true}},
+		{name: "false for all rows", column: "active", value: "false",
 			wantSQL:  wrap(`UPDATE "users" SET "active" = $1`),
 			wantArgs: []any{false}},
-		{name: "toggle of all rows is not allowed", column: "active", value: "toggle", all: true,
-			wantErr: "'toggle' changes only chosen rows"},
-		{name: "unknown column", column: "nope", value: "true", ids: "1", wantErr: "unknown column 'nope'"},
-		{name: "not a boolean column", column: "name", value: "true", ids: "1", wantErr: "column 'name' isn't boolean"},
-		{name: "unknown value", column: "active", value: "maybe", ids: "1", wantErr: "value must be 'true' or 'false'"},
-		{name: "no rows", column: "active", value: "true", ids: " , ", wantErr: "no rows chosen"},
+		{name: "toggle is for chosen rows (put/batch)", column: "active", value: "toggle",
+			wantErr: "value must be 'true' or 'false'"},
+		{name: "unknown column", column: "nope", value: "true", wantErr: "unknown column 'nope'"},
+		{name: "not a boolean column", column: "name", value: "true", wantErr: "column 'name' isn't boolean"},
+		{name: "unknown value", column: "active", value: "maybe", wantErr: "value must be 'true' or 'false'"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			sql, args, err := BuildSetBoolSQL(users, "id", tt.column, tt.value, tt.ids, tt.all)
+			sql, args, err := BuildSetBoolSQL(users, tt.column, tt.value)
 			if tt.wantErr != "" {
 				require.Error(t, err)
 				assert.Equal(t, tt.wantErr, err.Error())
@@ -110,26 +104,11 @@ func TestBuildSetBoolSQL(t *testing.T) {
 		})
 	}
 
-	t.Run("unknown primary column", func(t *testing.T) {
-		_, _, err := BuildSetBoolSQL(users, "key", "active", "true", "1", false)
-		assert.EqualError(t, err, "unknown primary column 'key'")
-	})
-
 	t.Run("names are quoted", func(t *testing.T) {
 		odd := newTable("my.table", "", newCol("id", "int4", asPrimary), newCol(`a"b`, "bool", withBasic(types.Bool)))
-		sql, _, err := BuildSetBoolSQL(odd, "id", `a"b`, "true", "1", false)
+		sql, _, err := BuildSetBoolSQL(odd, `a"b`, "true")
 		require.NoError(t, err)
 		assert.Contains(t, sql, `UPDATE "my"."table" SET "a""b" = $1`)
-	})
-
-	t.Run("too many rows", func(t *testing.T) {
-		ids := make([]string, maxBulkIDs+1)
-		for i := range ids {
-			ids[i] = strconv.Itoa(i)
-		}
-		_, _, err := BuildSetBoolSQL(users, "id", "active", "true", strings.Join(ids, ","), false)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "too many rows")
 	})
 }
 
@@ -199,6 +178,21 @@ func TestForeignCell(t *testing.T) {
 		ForeignCell(roles, "id_roles", int32(2), "Admin & Co"))
 }
 
+func TestForeignArrayCell(t *testing.T) {
+	_, roles := newUsers()
+	assert.Equal(t,
+		`<span class="tbl-fk tbl-fk--multi" data-multi="1" tabindex="0" role="button" data-col="id_roles" data-fk-table="roles" data-fk-id="2,5" data-card="/table/roles/card?id=">[Admin Co]</span>`,
+		ForeignArrayCell(roles, "id_roles", "2,5", "[Admin Co]"))
+}
+
+func TestKeysList(t *testing.T) {
+	for val, want := range map[string]string{"[3 4]": "3,4", "[7]": "7", "[]": ""} {
+		assert.Equal(t, want, KeysList(map[string][]int32{"[3 4]": {3, 4}, "[7]": {7}, "[]": {}}[val]), val)
+	}
+	assert.Equal(t, "3,4", KeysList([]any{int32(3), int32(4)}))
+	assert.Equal(t, "", KeysList(nil), "no keys")
+}
+
 func TestIsAdminRequest(t *testing.T) {
 	ctx := &fasthttp.RequestCtx{}
 	assert.False(t, IsAdminRequest(ctx), "no token")
@@ -212,12 +206,11 @@ func TestIsAdminRequest(t *testing.T) {
 
 func TestTableSetBoolWrongParams(t *testing.T) {
 	users, _ := newUsers()
-	fnc := TableSetBool(nil, users, "id", false)
+	fnc := TableSetBool(nil, users)
 
 	ctx := &fasthttp.RequestCtx{}
 	ctx.SetUserValue("column", "name")
 	ctx.SetUserValue("value", "true")
-	ctx.SetUserValue("ids", "1")
 	res, err := fnc(ctx)
 	assert.ErrorIs(t, err, apis.ErrWrongParamsList)
 	assert.Equal(t, map[string]string{"column": "column 'name' isn't boolean"}, res)

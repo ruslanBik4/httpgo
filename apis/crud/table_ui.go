@@ -10,8 +10,9 @@ package crud
 // What the table view needs besides its rows (see views/js/src/table-row.js):
 //
 //   - switches of boolean columns: a switch saves one cell through the
-//     "update" route, the filter card changes many rows at once - the visible
-//     ones ("set_bool") or the whole table ("set_bool_all", admin only);
+//     "update" route, the filter card changes the visible rows through the
+//     "put/batch" route of the table (generated for a project) and the whole
+//     table through "set_bool_all" (admin only);
 //   - the short card of the parent row a foreign key points to ("card").
 //
 // This file holds the parts that only build SQL and HTML; the handlers that
@@ -34,8 +35,6 @@ import (
 )
 
 const (
-	// maxBulkIDs limits the rows one "set_bool" request may change
-	maxBulkIDs = 5000
 	// maxCardFields is the count of the fields of a card, the title included
 	maxCardFields = 8
 	// maxCardValueLen is the length of a value of a card, in characters
@@ -78,77 +77,24 @@ func SinglePrimary(table dbEngine.Table) string {
 	return name
 }
 
-// BuildSetBoolSQL builds the query that sets the boolean column of the table.
-//
-// value is "true", "false" or "toggle" (a NULL becomes true). ids is the list
-// of the values of the primary column pk, separated by commas: the rows to
-// change. all=true changes every row, ids is not used then, and "toggle" is
-// not allowed (nothing tells what the user saw).
-// The query returns one number: the count of the changed rows.
-func BuildSetBoolSQL(table dbEngine.Table, pk, column, value, ids string, all bool) (string, []any, error) {
+// BuildSetBoolSQL builds the query that sets the boolean column of EVERY row of
+// the table to value ("true" or "false"). The query returns one number: the
+// count of the changed rows.
+func BuildSetBoolSQL(table dbEngine.Table, column, value string) (string, []any, error) {
 	col := table.FindColumn(column)
 	switch {
 	case col == nil:
 		return "", nil, fmt.Errorf("unknown column '%s'", column)
 	case col.BasicType() != types.Bool:
 		return "", nil, fmt.Errorf("column '%s' isn't boolean", column)
-	case table.FindColumn(pk) == nil:
-		return "", nil, fmt.Errorf("unknown primary column '%s'", pk)
-	}
-
-	quoted := pgx.Identifier{column}.Sanitize()
-	var (
-		set  string
-		args []any
-	)
-	switch value {
-	case "true", "false":
-		set, args = quoted+" = $1", []any{value == "true"}
-	case "toggle":
-		if all {
-			return "", nil, fmt.Errorf("'toggle' changes only chosen rows")
-		}
-		set = quoted + " = NOT COALESCE(" + quoted + ", false)"
-	default:
+	case value != "true" && value != "false":
 		return "", nil, fmt.Errorf("value must be 'true' or 'false'")
 	}
 
-	query := "UPDATE " + pgx.Identifier(strings.Split(table.Name(), ".")).Sanitize() + " SET " + set
-	if !all {
-		list, err := splitIDs(ids)
-		if err != nil {
-			return "", nil, err
-		}
-		args = append(args, list)
-		query += fmt.Sprintf(" WHERE %s::text = ANY($%d)", pgx.Identifier{pk}.Sanitize(), len(args))
-	}
+	query := "UPDATE " + pgx.Identifier(strings.Split(table.Name(), ".")).Sanitize() +
+		" SET " + pgx.Identifier{column}.Sanitize() + " = $1"
 
-	return "WITH changed AS (" + query + " RETURNING 1) SELECT count(*) FROM changed", args, nil
-}
-
-// splitIDs splits the list of ids separated by commas; the same id once.
-func splitIDs(ids string) ([]string, error) {
-	list := make([]string, 0, strings.Count(ids, ",")+1)
-	seen := make(map[string]struct{})
-	for _, id := range strings.Split(ids, ",") {
-		if id = strings.TrimSpace(id); id == "" {
-			continue
-		}
-		if _, ok := seen[id]; ok {
-			continue
-		}
-		seen[id] = struct{}{}
-		list = append(list, id)
-	}
-
-	switch {
-	case len(list) == 0:
-		return nil, fmt.Errorf("no rows chosen")
-	case len(list) > maxBulkIDs:
-		return nil, fmt.Errorf("too many rows: %d, the limit is %d", len(list), maxBulkIDs)
-	}
-
-	return list, nil
+	return "WITH changed AS (" + query + " RETURNING 1) SELECT count(*) FROM changed", []any{value == "true"}, nil
 }
 
 // CardField is a line of the card of a row.
@@ -288,4 +234,24 @@ func ForeignCell(parent dbEngine.Table, column string, id any, name any) string 
 	return fmt.Sprintf(`<span class="tbl-fk" tabindex="0" role="button" data-col="%s" data-fk-table="%s" data-fk-id="%v" data-card="/table/%s/card?%s=">%v</span>`,
 		html.EscapeString(column), html.EscapeString(parentName), html.EscapeString(fmt.Sprint(id)),
 		url.PathEscape(parentName), url.QueryEscape(pk), html.EscapeString(fmt.Sprint(name)))
+}
+
+// ForeignArrayCell is the HTML of a cell with an array of foreign keys: ids is
+// the list of the keys separated by commas, name - the names of the parents. The
+// script of the table opens the list of the parents with a check box on a click,
+// to choose several of them, and the cards of the chosen ones - on hovering.
+func ForeignArrayCell(parent dbEngine.Table, column string, ids string, name any) string {
+	cell := ForeignCell(parent, column, ids, name)
+
+	return strings.Replace(cell, `class="tbl-fk"`, `class="tbl-fk tbl-fk--multi" data-multi="1"`, 1)
+}
+
+// KeysList is the keys of an array foreign key as a list separated by commas:
+// []int32{3, 4} -> "3,4".
+func KeysList(val any) string {
+	if val == nil {
+		return ""
+	}
+
+	return strings.Join(strings.Fields(strings.Trim(ToStandardColumnValueType(val), "[]")), ",")
 }

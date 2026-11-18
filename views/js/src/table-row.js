@@ -331,12 +331,13 @@ function handleFileCSVSelect(evt) {
 //   * a switch in a cell: a change is sent to the server at once, and taken back
 //     when the server refuses;
 //   * the filter of a boolean column is a switch of three states (all -> true ->
-//     false -> all); hovering it shows a card: 'toggle' flips the visible rows,
-//     'true' / 'false' set every record of the table (administrators only, asked
-//     for twice);
+//     false -> all); hovering it shows a card: 'toggle' flips the visible rows
+//     (the "put/batch" route of the table), 'true' / 'false' set every record of
+//     the table ("set_bool_all", administrators only, asked for twice);
 //   * a click on a foreign key opens the list of the parents - the options of the
-//     filter of this column - to choose another one, saved at once; hovering it
-//     shows the short card of the parent, with the link to its form.
+//     filter of this column - to choose another one, saved at once; an array of
+//     keys (id_themes int[]) has check boxes and the button Save; hovering it
+//     shows the short card of the parent ("card"), with the link to its form.
 //
 // The colours are custom properties (--switch-on, --pop-bg...), see table-row.css.
 const TableSwitches = (function () {
@@ -389,7 +390,7 @@ const TableSwitches = (function () {
         });
     }
 
-    // Save one cell: column = value of the row the source is in.
+    // Save one cell: column = value of the row the source is in (an array: a repeated field).
     function saveCell(source, column, value) {
         const table = tableOf(source);
         const pk = rowOf(source)?.dataset.pk;
@@ -398,7 +399,19 @@ const TableSwitches = (function () {
             return Promise.reject(new Error('the table is read only'));
         }
 
-        return send(source, url, {[table.dataset.pkCol]: pk, [column]: String(value)}, true);
+        return send(source, url, {
+            [table.dataset.pkCol]: pk,
+            [column]: Array.isArray(value) ? value.map(String) : String(value)
+        }, true);
+    }
+
+    // Save a value of many rows at once through the "put/batch" route of the table:
+    // changes = {key of a row: {column: value}}.
+    function saveBatch(source, changes) {
+        const url = tableOf(source)?.dataset.batchUrl;
+        if (!url) return Promise.reject(new Error('no batch route'));
+
+        return send(source, url, {data: JSON.stringify(changes)}, true);
     }
 
     // ---- switches in the cells
@@ -471,21 +484,28 @@ const TableSwitches = (function () {
 
         if (act === 'toggle') {
             const rows = visibleRows(table).filter(row => row.dataset.pk !== undefined);
-            if (!table.dataset.boolUrl) return say('The table is read only');
+            if (!table.dataset.batchUrl) return say('The table is read only');
             if (!rows.length) return say('No visible rows');
 
+            // every visible row gets the opposite of what its switch shows now
+            const now = new Map();
+            const changes = {};
+            for (const row of rows) {
+                const sw = row.querySelector(`.${filter.dataset.class} input.tbl-switch`);
+                if (!sw || sw.disabled) continue;
+                now.set(sw, !sw.checked);
+                changes[row.dataset.pk] = {[column]: !sw.checked};
+            }
+            if (!now.size) return say('No visible rows');
+
             button.disabled = true;
-            request = send(button, table.dataset.boolUrl,
-                {column, value: 'toggle', ids: rows.map(row => row.dataset.pk).join(',')}, false)
-                .then(xhr => {
-                    rows.forEach(row => {
-                        const sw = row.querySelector(`.${filter.dataset.class} input.tbl-switch`);
-                        if (sw) {
-                            sw.checked = !sw.checked;
-                            sw.dataset.saved = String(sw.checked);
-                        }
+            request = send(button, table.dataset.batchUrl, {data: JSON.stringify(changes)}, true)
+                .then(() => {
+                    now.forEach((value, sw) => {
+                        sw.checked = value;
+                        sw.dataset.saved = String(value);
                     });
-                    say(bulkMessage(xhr, label));
+                    say(`${label}: ${now.size} rows changed`);
                 });
         } else {
             if (!table.dataset.boolAllUrl) return say('The table is read only');
@@ -621,10 +641,45 @@ const TableSwitches = (function () {
             .finally(() => fk.removeAttribute('aria-busy'));
     }
 
+    // keys of an integer column go to the server as numbers
+    const asKey = value => (/^-?\d+$/.test(value) ? Number(value) : value);
+
+    // an array of keys: the chosen ones replace it
+    function chooseParents(fk, chosen) {
+        closePop();
+        const ids = chosen.map(o => o.value);
+        if (ids.join(',') === fk.dataset.fkId) return;
+
+        const row = rowOf(fk)?.dataset.pk;
+        const table = tableOf(fk);
+        let request;
+        if (table?.dataset.batchUrl && row !== undefined) {
+            request = saveBatch(fk, {[row]: {[fk.dataset.col]: ids.map(asKey)}});
+        } else if (ids.length) {
+            // no batch route: the update route takes the repeated field (and not an empty array)
+            request = saveCell(fk, fk.dataset.col, ids);
+        } else {
+            return say('The table can not clear the list');
+        }
+
+        fk.setAttribute('aria-busy', 'true');
+        request
+            .then(() => {
+                fk.textContent = chosen.map(o => o.text).join(', ');
+                fk.dataset.fkId = ids.join(',');
+                cardCache.clear();
+            })
+            .catch(() => {
+            })
+            .finally(() => fk.removeAttribute('aria-busy'));
+    }
+
     function openParentList(fk) {
         const options = parentOptions(fk);
         if (!tableOf(fk)?.dataset.updateUrl || options.length === 0) return false;
 
+        const multi = fk.dataset.multi !== undefined;
+        const current = new Set(fk.dataset.fkId.split(',').filter(Boolean));
         const box = document.createElement('div');
         box.className = 'tbl-fk-list';
         box.tabIndex = -1;
@@ -637,12 +692,24 @@ const TableSwitches = (function () {
         }
         const list = document.createElement('ul');
         list.setAttribute('role', 'listbox');
+        if (multi) list.setAttribute('aria-multiselectable', 'true');
         for (const option of options) {
             const li = document.createElement('li');
             li.setAttribute('role', 'option');
             li.dataset.value = option.value;
-            li.textContent = option.text;
-            if (option.value === fk.dataset.fkId) li.setAttribute('aria-selected', 'true');
+            if (multi) {
+                const check = document.createElement('input');
+                check.type = 'checkbox';
+                check.tabIndex = -1;
+                check.checked = current.has(option.value);
+                const label = document.createElement('span');
+                label.textContent = option.text;
+                li.append(check, label);
+                li.setAttribute('aria-selected', String(check.checked));
+            } else {
+                li.textContent = option.text;
+                if (option.value === fk.dataset.fkId) li.setAttribute('aria-selected', 'true');
+            }
             list.append(li);
         }
         box.append(list);
@@ -654,10 +721,42 @@ const TableSwitches = (function () {
             li?.scrollIntoView?.({block: 'nearest'});
         };
         const optionOf = li => options.find(o => o.value === li.dataset.value);
+        const flip = li => {
+            const check = li.querySelector('input[type=checkbox]');
+            check.checked = !check.checked;
+            li.setAttribute('aria-selected', String(check.checked));
+        };
+        // the chosen ones keep the order of the list
+        const chosen = () => [...list.children]
+            .filter(li => li.querySelector('input[type=checkbox]')?.checked)
+            .map(optionOf);
+        const save = () => chooseParents(fk, chosen());
+
+        if (multi) {
+            const bar = document.createElement('div');
+            bar.className = 'tbl-fk-list__bar';
+            for (const [name, className, handler] of [['Save', 'tbl-fk-save', save], ['Cancel', 'tbl-fk-cancel', closePop]]) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = className;
+                b.textContent = name;
+                b.addEventListener('click', handler);
+                bar.append(b);
+            }
+            box.append(bar);
+        }
 
         list.addEventListener('click', evt => {
             const li = evt.target.closest('li');
-            if (li) chooseParent(fk, optionOf(li));
+            if (!li) return;
+            if (multi) {
+                // a click on the box itself has flipped it already
+                if (evt.target.type === 'checkbox') li.setAttribute('aria-selected', String(evt.target.checked));
+                else flip(li);
+                activate(li);
+            } else {
+                chooseParent(fk, optionOf(li));
+            }
         });
         search?.addEventListener('input', () => {
             const q = search.value.trim().toLowerCase();
@@ -673,7 +772,17 @@ const TableSwitches = (function () {
                 case 'ArrowUp':
                     activate(all[Math.max(at - 1, 0)]);
                     break;
+                case ' ':
+                    // a space in the search box is a space
+                    if (!multi || evt.target === search || at < 0) return;
+                    flip(all[at]);
+                    break;
                 case 'Enter': {
+                    if (evt.target.tagName === 'BUTTON') return;
+                    if (multi) {
+                        save();
+                        break;
+                    }
                     const li = list.querySelector('.is-active') || all[0];
                     if (li) chooseParent(fk, optionOf(li));
                     break;
@@ -689,7 +798,7 @@ const TableSwitches = (function () {
         });
 
         openPop('list', fk, box);
-        activate(list.querySelector('[aria-selected]'));
+        activate(list.querySelector('[aria-selected=true]'));
         (search || box).focus();
 
         return true;
@@ -714,15 +823,20 @@ const TableSwitches = (function () {
             .catch(() => '');
     }
 
+    const MAX_CARDS = 5;
+
     function showCard(fk) {
         // the card is for signed-in users: asking for it must not open the sign-in window
         if (!document.body.hasAttribute('auth') || popKind === 'list' || !fk.dataset.card) return;
 
-        loadCard(fk.dataset.card + encodeURIComponent(fk.dataset.fkId)).then(html => {
-            if (!html || hoverFk !== fk || popKind === 'list') return;
+        const ids = fk.dataset.fkId.split(',').filter(Boolean).slice(0, MAX_CARDS);
+        Promise.all(ids.map(id => loadCard(fk.dataset.card + encodeURIComponent(id)))).then(cards => {
+            cards = cards.filter(Boolean);
+            if (!cards.length || hoverFk !== fk || popKind === 'list') return;
+
             const card = document.createElement('div');
             card.className = 'tbl-fk-card';
-            card.innerHTML = html;
+            card.innerHTML = cards.join('');
             openPop('card', fk, card);
             htmx.process(card);
         });

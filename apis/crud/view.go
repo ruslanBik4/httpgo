@@ -46,7 +46,7 @@ func (tr Translator) of(ctx *fasthttp.RequestCtx, name string) string {
 
 // ToTableView renders the value val of column col for a table view: by the
 // "view_url" of the column comment, as a link to a blob (url), as the title of
-// the foreign row it points to (see ForeignCell), or as plain text.
+// the foreign row it points to (see ForeignCell, ForeignArrayCell), or as plain text.
 func ToTableView(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, url string, col *forms.ColumnDecor, val any, paramReplacer *strings.Replacer) string {
 	if b, ok := val.([]byte); val == nil || (ok && len(b) == 0 && col.BasicType() == types.UnsafePointer) {
 		return ""
@@ -65,8 +65,8 @@ func ToTableView(ctx *fasthttp.RequestCtx, DB *dbEngine.DB, url string, col *for
 		case foreignName == "photos":
 			return renderImg(val.(int32), foreignName, "blob")
 		case isArray:
-			return fmt.Sprintf(`<a href='/table/%s/form?html&id=[%s]' target="_modal">%s</a>`,
-				foreignName, ToStandardColumnValueType(val), v)
+			// like a single key, but several parents are chosen (check boxes)
+			return ForeignArrayCell(foreign, col.Name(), KeysList(val), v)
 		default:
 			// not a link: a click opens the list of the parents to choose another,
 			// the card of the parent - with the link to its form - shows on hovering

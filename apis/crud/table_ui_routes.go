@@ -22,38 +22,21 @@ import (
 	"github.com/ruslanBik4/httpgo/views"
 )
 
-// setBoolParams are the params of the "set_bool" routes; the rows to change
-// (ids) are not needed when the whole table is changed.
-func setBoolParams(all bool) []apis.InParam {
-	valueDesc := "true or false"
-	if !all {
-		valueDesc += ", or toggle (the opposite of the value of every chosen row)"
-	}
-
-	params := []apis.InParam{
-		{
-			Name: "column",
-			Desc: "name of the boolean column",
-			Req:  true,
-			Type: apis.NewTypeInParam(types.String),
-		},
-		{
-			Name: "value",
-			Desc: valueDesc,
-			Req:  true,
-			Type: apis.NewTypeInParam(types.String),
-		},
-	}
-	if !all {
-		params = append(params, apis.InParam{
-			Name: "ids",
-			Desc: "values of the primary column of the rows to change, separated by commas",
-			Req:  true,
-			Type: apis.NewTypeInParam(types.String),
-		})
-	}
-
-	return params
+// ParamsSetBool are the params of the route that sets a boolean column of the
+// whole table (TableSetBool).
+var ParamsSetBool = []apis.InParam{
+	{
+		Name: "column",
+		Desc: "name of the boolean column",
+		Req:  true,
+		Type: apis.NewTypeInParam(types.String),
+	},
+	{
+		Name: "value",
+		Desc: "true or false",
+		Req:  true,
+		Type: apis.NewTypeInParam(types.String),
+	},
 }
 
 // IsAdminRequest reports that the user of the request is an administrator.
@@ -63,17 +46,15 @@ func IsAdminRequest(ctx *fasthttp.RequestCtx) bool {
 	return ok && token.IsAdmin()
 }
 
-// TableSetBool sets a boolean column of many rows at once: the rows with the
-// given ids ("set_bool", the switch 'toggle' of the filter of the table), or
-// every row of the table (all=true, "set_bool_all", the buttons 'true' and
-// 'false' of the filter - the route is for administrators).
-func TableSetBool(db *dbEngine.DB, table dbEngine.Table, pk string, all bool) apis.ApiRouteHandler {
+// TableSetBool sets a boolean column of EVERY row of the table ("set_bool_all",
+// the buttons 'true' and 'false' of the filter of the table - the route is for
+// administrators). The visible rows are changed by the "put/batch" route.
+func TableSetBool(db *dbEngine.DB, table dbEngine.Table) apis.ApiRouteHandler {
 	return func(ctx *fasthttp.RequestCtx) (any, error) {
 		column, _ := ctx.UserValue("column").(string)
 		value, _ := ctx.UserValue("value").(string)
-		ids, _ := ctx.UserValue("ids").(string)
 
-		query, args, err := BuildSetBoolSQL(table, pk, column, value, ids, all)
+		query, args, err := BuildSetBoolSQL(table, column, value)
 		if err != nil {
 			return map[string]string{"column": err.Error()}, apis.ErrWrongParamsList
 		}
@@ -83,7 +64,7 @@ func TableSetBool(db *dbEngine.DB, table dbEngine.Table, pk string, all bool) ap
 			return nil, errors.Wrap(err, table.Name())
 		}
 
-		logs.StatusLog("%s.%s set %s: %d rows (all: %v)", table.Name(), column, value, changed, all)
+		logs.StatusLog("%s.%s set %s: %d rows", table.Name(), column, value, changed)
 		ctx.SetStatusCode(fasthttp.StatusAccepted)
 
 		return map[string]any{

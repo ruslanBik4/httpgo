@@ -129,22 +129,16 @@ func createRoutesForTable(db *DB, tableName, preRoute string, table Table, route
 				Resp:        nil,
 			}
 
-			// switches of the boolean columns in the table view: many rows at once
-			if len(priColumns) == 1 && HasBoolColumns(table) {
-				ret[preRoute+tableName+"/set_bool"] = &apis.ApiRoute{
-					Desc:     "set a boolean column of the chosen rows of table '" + tableName + "'",
-					Method:   apis.POST,
-					NeedAuth: true,
-					Fnc:      TableSetBool(db, table, priColumns[0], false),
-					Params:   setBoolParams(false),
-				}
+			// the buttons 'true'/'false' of the filter of a boolean column in the table view
+			// (the visible rows are changed by the project's "put/batch" route)
+			if HasBoolColumns(table) {
 				ret[preRoute+tableName+"/set_bool_all"] = &apis.ApiRoute{
 					Desc:      "set a boolean column of ALL rows of table '" + tableName + "' (only admin)",
 					Method:    apis.POST,
 					NeedAuth:  true,
 					OnlyAdmin: true,
-					Fnc:       TableSetBool(db, table, priColumns[0], true),
-					Params:    setBoolParams(true),
+					Fnc:       TableSetBool(db, table),
+					Params:    ParamsSetBool,
 				}
 			}
 		case DbRouteType_Select:
