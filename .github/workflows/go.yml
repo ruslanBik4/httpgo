@@ -10,7 +10,7 @@ jobs:
       - name: Set up Go 1.25
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.25
+          go-version: ^1.27
           check-latest: true
 
       - name: Check out code into the Go module directory
@@ -25,4 +25,4 @@ jobs:
           fi
 
       - name: Test
-        run: go test -v ./apis/...
+        run: go test -v ./...

@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"path"
 	"regexp"
 	"runtime"
 	"slices"
@@ -196,10 +195,12 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	cfg.Server.KeepHijackedConns = true
 	cfg.Server.CloseOnShutdown = true
 
-	if len(cfg.Domains) > 0 {
-		logs.DebugLog("Subdomains is %+v", cfg.Domains)
-		cfg.Server.Handler = spliDomainsHandler(cfg, listener, cfg.Server.Handler)
+	// always wrap: subdomains may be added while server runs (Domains.Add)
+	if cfg.Domains == nil {
+		cfg.Domains = NewDomains(nil)
 	}
+	logs.DebugLog("Subdomains is %+v", cfg.Domains.All())
+	cfg.Server.Handler = cfg.Domains.Handler(listener, cfg.Server.Handler)
 
 	store := NewStore()
 	apis.Ctx.AddValue(AppStore, store)
@@ -245,48 +246,6 @@ func NewHttpgo(cfg *CfgHttp, listener net.Listener, apis *Apis) *HttpGo {
 	}
 
 	return h
-}
-
-func spliDomainsHandler(cfg *CfgHttp, listener net.Listener, handler fasthttp.RequestHandler) func(ctx *fasthttp.RequestCtx) {
-	return func(ctx *fasthttp.RequestCtx) {
-		for subD, ip := range cfg.Domains {
-			host := gotools.BytesToString(ctx.Host())
-			if host != ip && strings.HasPrefix(host, subD) {
-				if isLocalDirectory(ip) {
-					p := gotools.BytesToString(ctx.URI().Path())
-					if p == "" || p == "/" {
-						p = "index.html"
-					}
-					logs.StatusLog(ip, p)
-					fileName := path.Join(".", ip, p)
-					err := ctx.Response.SendFile(fileName)
-					if err != nil {
-						logs.ErrorLog(err, ctx.String())
-						return
-					}
-					ct, fileName := views.GetContentType(ctx, fileName)
-					ctx.Response.Header.SetContentType(ct)
-					return
-				}
-
-				if !isLocalRedirect(ip) {
-					ctx.Redirect(ip, fasthttp.StatusMovedPermanently)
-					logs.DebugLog("redirect", ip)
-					return
-				}
-
-				if !strings.HasSuffix(listener.Addr().String(), ip) {
-					url := fmt.Sprintf("%s://%s%s/", ctx.URI().Scheme(), host, ip)
-					logs.DebugLog("redirect:", url)
-					ctx.Redirect(url, fasthttp.StatusMovedPermanently)
-					return
-				}
-
-			}
-		}
-
-		handler(ctx)
-	}
 }
 
 func (h *HttpGo) setHTTP3() {
@@ -513,7 +472,9 @@ func isLocalRedirect(ip string) bool {
 }
 
 func isLocalDirectory(ip string) bool {
-	return strings.HasPrefix(ip, separator) || strings.HasSuffix(ip, separator)
+	// "https://host/" ends with separator too, but it is redirect
+	return !strings.Contains(ip, "://") &&
+		(strings.HasPrefix(ip, separator) || strings.HasSuffix(ip, separator))
 }
 
 // webAuthnManager resolves the app-wide auth manager (set per-request by

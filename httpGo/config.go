@@ -22,7 +22,7 @@ import (
 type CfgHttp struct {
 	*AccessConf  `yaml:"Access" json:"access,omitempty"`
 	fileCfg      string
-	Domains      map[string]string `yaml:"Domains,omitempty" json:"Domains,omitempty"`
+	Domains      *Domains          `yaml:"Domains,omitempty" json:"Domains,omitempty"`
 	HTTP2        *http2.Config     `yaml:"HTTP2,omitempty" json:"HTTP2,omitempty"`
 	HTTP3        bool              `yaml:"HTTP3,omitempty" json:"HTTP3,omitempty"`
 	HTTP3Proxy   *HTTP3ProxyConfig `yaml:"HTTP3Proxy,omitempty" json:"HTTP3Proxy,omitempty"`

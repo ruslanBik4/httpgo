@@ -41,7 +41,7 @@ func TestAccessConf_Allow(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -77,7 +77,7 @@ func TestAccessConf_Deny(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -132,7 +132,7 @@ func TestAccessConf_Reload(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -172,7 +172,7 @@ func TestAccessConf_isAllowIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -207,7 +207,7 @@ func TestAccessConf_isAllowRoute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -242,7 +242,7 @@ func TestAccessConf_isDenyIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
@@ -277,7 +277,7 @@ func TestAccessConf_isDenyRoute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cfg := &CfgHttp{
 				fileCfg:    tt.fields.fileCfg,
-				Domains:    tt.fields.Domains,
+				Domains:    NewDomains(tt.fields.Domains),
 				KillSignal: tt.fields.KillSignal,
 				Server:     tt.fields.Server,
 				AccessConf: tt.fields.AccessConf,
