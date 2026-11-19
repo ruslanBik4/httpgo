@@ -210,8 +210,8 @@ func (d *Domains) Handler(listener net.Listener, next fasthttp.RequestHandler) f
 
 		default:
 			// keep path & query, host:port of other local server.
-			// Temporary: browsers cache 301 forever, but local ports change
-			// (e.g. container of project rebuilt on another port)
+			// Temporary: browsers cache 301 and skip this server next time, but
+			// such subdomain may disappear (container of project is stopped/removed)
 			url := fmt.Sprintf("%s://%s%s%s",
 				ctx.URI().Scheme(), hostWithoutPort(host), target, ctx.RequestURI())
 			logs.DebugLog("redirect:", url)
