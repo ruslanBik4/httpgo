@@ -87,12 +87,20 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 <main class="content-wrap">
 	<div id="container-fluid">
 	        <aside class="sidebar-section">
-	            <div id="catalog_pane"  class="well sidebar-nav">
+`)
+//line index.qtpl:47
+	qw422016.N().S(`<button type="button" class="catalog-toggle" aria-controls="catalog_pane" aria-expanded="false" aria-label="Catalog" title="Catalog">
+    <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/></svg>
+    <span class="catalog-toggle-label">Catalog</span>
+</button>
+`)
+//line index.qtpl:47
+	qw422016.N().S(`	            <div id="catalog_pane"  class="well sidebar-nav">
 	                <div id="catalog_sidebar" class="sidebar"></div>
 	                `)
-//line index.qtpl:49
+//line index.qtpl:50
 	body.Catalog.StreamRenderMenu(qw422016, "left-mnu-list", "left-mnu-item")
-//line index.qtpl:49
+//line index.qtpl:50
 	qw422016.N().S(`
 	            </div>
 	        </aside>
@@ -100,72 +108,72 @@ func (body *IndexPageBody) StreamIndexHTML(qw422016 *qt422016.Writer) {
 	        </div>
 	        <div class="content-section">
 		        <div id="content" `)
-//line index.qtpl:55
+//line index.qtpl:56
 	if body.Route > "" {
-//line index.qtpl:55
+//line index.qtpl:56
 		qw422016.N().S(`hx-get="`)
-//line index.qtpl:55
+//line index.qtpl:56
 		qw422016.N().S(body.Route)
-//line index.qtpl:55
+//line index.qtpl:56
 		qw422016.N().S(`" hx-trigger="load once"`)
-//line index.qtpl:55
+//line index.qtpl:56
 	}
-//line index.qtpl:55
+//line index.qtpl:56
 	qw422016.N().S(`>
 `)
-//line index.qtpl:56
+//line index.qtpl:57
 	if body.ContentWrite != nil {
-//line index.qtpl:56
+//line index.qtpl:57
 		body.StreamContentWrite(qw422016)
-//line index.qtpl:56
+//line index.qtpl:57
 		qw422016.N().S(`
 `)
-//line index.qtpl:57
+//line index.qtpl:58
 	} else {
-//line index.qtpl:57
+//line index.qtpl:58
 		qw422016.E().S(body.Content)
-//line index.qtpl:57
+//line index.qtpl:58
 		qw422016.N().S(`
 `)
-//line index.qtpl:58
+//line index.qtpl:59
 	}
-//line index.qtpl:58
+//line index.qtpl:59
 	qw422016.N().S(`</div>
 	        </div>
 	</div>
 </main>
 `)
-//line index.qtpl:62
+//line index.qtpl:63
 	layouts.StreamFooterHTML(qw422016, body.FooterMenu)
-//line index.qtpl:62
+//line index.qtpl:63
 	qw422016.N().S(`
 </body>
 `)
-//line index.qtpl:64
+//line index.qtpl:65
 }
 
-//line index.qtpl:64
+//line index.qtpl:65
 func (body *IndexPageBody) WriteIndexHTML(qq422016 qtio422016.Writer) {
-//line index.qtpl:64
+//line index.qtpl:65
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line index.qtpl:64
+//line index.qtpl:65
 	body.StreamIndexHTML(qw422016)
-//line index.qtpl:64
+//line index.qtpl:65
 	qt422016.ReleaseWriter(qw422016)
-//line index.qtpl:64
+//line index.qtpl:65
 }
 
-//line index.qtpl:64
+//line index.qtpl:65
 func (body *IndexPageBody) IndexHTML() string {
-//line index.qtpl:64
+//line index.qtpl:65
 	qb422016 := qt422016.AcquireByteBuffer()
-//line index.qtpl:64
+//line index.qtpl:65
 	body.WriteIndexHTML(qb422016)
-//line index.qtpl:64
+//line index.qtpl:65
 	qs422016 := string(qb422016.B)
-//line index.qtpl:64
+//line index.qtpl:65
 	qt422016.ReleaseByteBuffer(qb422016)
-//line index.qtpl:64
+//line index.qtpl:65
 	return qs422016
-//line index.qtpl:64
+//line index.qtpl:65
 }

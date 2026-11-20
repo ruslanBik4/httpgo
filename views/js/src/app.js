@@ -1796,3 +1796,77 @@ function isScrollableX(node) {
 function SetTableEvents() {
     return App.SetTableEvents();
 }
+
+// CatalogDrawer: on narrow screens (styles.css, max-width: 768px) the catalog pane
+// is an icon rail; its .catalog-toggle opens it as a drawer. Escape, a tap outside
+// or choosing an item closes it. Delegated events: htmx may replace the pane.
+const CatalogDrawer = (function () {
+    const OPEN = 'catalog-open';
+    const narrow = window.matchMedia('(max-width: 768px)');
+
+    function pane() {
+        return document.querySelector('.sidebar-section');
+    }
+
+    function setOpen(aside, open, byKeyboard) {
+        aside.classList.toggle(OPEN, open);
+        const toggle = aside.querySelector('.catalog-toggle');
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', String(open));
+        }
+        if (open && byKeyboard) {
+            const first = aside.querySelector('#catalog_pane :is(a[href], button, input, select)');
+            if (first) {
+                first.focus({preventScroll: true});
+            }
+        }
+    }
+
+    document.addEventListener('click', evt => {
+        const aside = pane();
+        if (!aside) {
+            return;
+        }
+        const toggle = evt.target.closest('.catalog-toggle');
+        if (toggle && aside.contains(toggle)) {
+            // evt.detail === 0: Enter/Space on the button, not a pointer
+            setOpen(aside, !aside.classList.contains(OPEN), evt.detail === 0);
+            return;
+        }
+        if (!aside.classList.contains(OPEN)) {
+            return;
+        }
+        if (!aside.contains(evt.target)) {
+            setOpen(aside, false);
+            return;
+        }
+        // an item is chosen (a submenu parent with href="#" only unfolds)
+        if (evt.target.closest('#catalog_pane :is(a[href]:not([href="#"]), [hx-get])')) {
+            setOpen(aside, false);
+        }
+    });
+
+    document.addEventListener('keydown', evt => {
+        const aside = pane();
+        if (evt.key === 'Escape' && aside && aside.classList.contains(OPEN)) {
+            setOpen(aside, false);
+            const toggle = aside.querySelector('.catalog-toggle');
+            if (toggle) {
+                toggle.focus();
+            }
+        }
+    });
+
+    // back to the wide layout (rotation, resize): the pane is a column again
+    narrow.addEventListener('change', evt => {
+        const aside = pane();
+        if (!evt.matches && aside) {
+            setOpen(aside, false);
+        }
+    });
+
+    return {
+        open: () => pane() && setOpen(pane(), true),
+        close: () => pane() && setOpen(pane(), false),
+    };
+})();

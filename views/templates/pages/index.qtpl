@@ -44,6 +44,7 @@ func (body *IndexPageBody) StreamContentWrite(w *quicktemplate.Writer) {
 <main class="content-wrap">
 	<div id="container-fluid">
 	        <aside class="sidebar-section">
+	            {%- cat "tpl/catalog_toggle.html" -%}
 	            <div id="catalog_pane"  class="well sidebar-nav">
 	                <div id="catalog_sidebar" class="sidebar"></div>
 	                {%= body.Catalog.RenderMenu("left-mnu-list", "left-mnu-item") %}
