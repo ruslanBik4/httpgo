@@ -113,6 +113,8 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 
 .usr-table-row {
     display: flex;
+    width: max-content;
+    min-width: 100%;
     flex-direction: row;
     justify-content: flex-start;
     gap: 2px;
@@ -129,11 +131,15 @@ func StreamTableCSS(qw422016 *qt422016.Writer) {
 
 .usr-table-col {
     padding: 2px;
+    margin: 0;
     align-content: center;
     max-height: 100px;
     overflow: hidden;
     word-break: break-all;
-    box-sizing: content-box;
+    /* width is the width of the whole cell (padding included) and a cell never
+       shrinks: header, filter and data cells of one column are always equally wide */
+    box-sizing: border-box;
+    flex: 0 0 auto;
 }
 
 .usr-table-col input {

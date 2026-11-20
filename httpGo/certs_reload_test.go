@@ -24,8 +24,14 @@ import (
 
 func writeCert(t *testing.T, dir, cn string, serial int64) {
 	t.Helper()
+	writeCertNames(t, dir, cn, serial, cn)
+}
+
+// writeCertNames writes a certificate valid for names (they may be wildcards)
+func writeCertNames(t *testing.T, dir, cn string, serial int64, names ...string) {
+	t.Helper()
 	key, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	tpl := &x509.Certificate{SerialNumber: big.NewInt(serial), Subject: pkix.Name{CommonName: cn}, DNSNames: []string{cn},
+	tpl := &x509.Certificate{SerialNumber: big.NewInt(serial), Subject: pkix.Name{CommonName: cn}, DNSNames: names,
 		NotBefore: time.Now().Add(-time.Hour), NotAfter: time.Now().Add(90 * 24 * time.Hour)}
 	der, err := x509.CreateCertificate(rand.Reader, tpl, tpl, &key.PublicKey, key)
 	if err != nil {
@@ -96,5 +102,49 @@ func TestCertReloadEnv(t *testing.T) {
 		if got := certReload(); got != want {
 			t.Errorf("%q: %v, want %v", v, got, want)
 		}
+	}
+}
+
+// a subdomain is served by the certificate that names it, not by the directory of the exact name
+func TestCertSubdomains(t *testing.T) {
+	root := t.TempDir()
+	writeCert(t, filepath.Join(root, "default"), "default", 1)
+	// a wildcard certificate lives in the directory of the base domain
+	writeCertNames(t, filepath.Join(root, "example.com"), "example.com", 2, "example.com", "*.example.com")
+	// a directory named after the wildcard, the certificate has the names too
+	writeCertNames(t, filepath.Join(root, "*.shop.org"), "shop.org", 3, "shop.org", "*.shop.org")
+	// one certificate with several concrete names
+	writeCertNames(t, filepath.Join(root, "multi"), "a.multi.net", 4, "a.multi.net", "b.multi.net")
+
+	m := newCertMaps(root)
+	if err := m.loadCertificates(); err != nil {
+		t.Fatal(err)
+	}
+	for host, want := range map[string]int64{
+		"example.com":           2,
+		"EXAMPLE.com":           2,
+		"api.example.com":       2,
+		"api.example.com.":      2, // absolute name
+		"a.b.example.com":       2, // nested: the nearest wildcard up the tree
+		"shop.org":              3,
+		"www.shop.org":          3,
+		"b.multi.net":           4,
+		"unknown.net":           1, // fallback
+		"":                      1, // no SNI
+		"c.multi.net":           1, // not listed in the certificate
+		"example.com.evil.test": 1, // a suffix is not a parent
+	} {
+		if got := serial(t, m, host); got != want {
+			t.Errorf("%q: serial %d, want %d", host, got, want)
+		}
+	}
+
+	// the names are indexed again after a reload
+	writeCertNames(t, filepath.Join(root, "example.com"), "example.com", 5, "example.com", "*.example.com")
+	if err := m.reload(); err != nil {
+		t.Fatal(err)
+	}
+	if got := serial(t, m, "api.example.com"); got != 5 {
+		t.Errorf("after reload: serial %d, want 5", got)
 	}
 }

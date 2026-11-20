@@ -9,6 +9,7 @@ package httpGo
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -99,6 +100,11 @@ type certMaps struct {
 	fallback *tls.Certificate
 	// loadOrder - domains in the order they were loaded (dirs priority, then name)
 	loadOrder []string
+	// bySAN: a name listed in a certificate (DNSNames) -> that certificate, so a
+	// subdomain is served by the certificate that names it whatever its directory is
+	bySAN map[string]*tls.Certificate
+	// byWildcard: "example.com" -> the certificate of "*.example.com"
+	byWildcard map[string]*tls.Certificate
 }
 
 // newCertMaps creates a cache reading from baseDirs (none/empty -> ResolveCertDirs default).
@@ -106,6 +112,9 @@ func newCertMaps(baseDirs ...string) *certMaps {
 	return &certMaps{
 		baseDirs: ResolveCertDirs(baseDirs...),
 		certMap:  make(map[string]*tls.Certificate),
+
+		bySAN:      make(map[string]*tls.Certificate),
+		byWildcard: make(map[string]*tls.Certificate),
 	}
 }
 
@@ -168,6 +177,7 @@ func (m *certMaps) loadCertificates() error {
 		}
 	}
 
+	m.indexNames()
 	m.fallback = m.chooseFallback()
 
 	if len(m.certMap) == 0 {
@@ -226,6 +236,7 @@ func (m *certMaps) reload() error {
 	}
 	m.certMutex.Lock()
 	m.certMap, m.fallback, m.loadOrder = fresh.certMap, fresh.fallback, fresh.loadOrder
+	m.bySAN, m.byWildcard = fresh.bySAN, fresh.byWildcard
 	m.certMutex.Unlock()
 	return nil
 }
@@ -258,11 +269,78 @@ func (m *certMaps) chooseFallback() *tls.Certificate {
 	return nil
 }
 
+// indexNames lists the names every loaded certificate is valid for, so a
+// request for a subdomain finds the certificate by its names, not only by the
+// name of its directory. The first loaded certificate (dirs priority, then
+// name) wins a name. Caller holds certMutex.
+func (m *certMaps) indexNames() {
+	m.bySAN = make(map[string]*tls.Certificate)
+	m.byWildcard = make(map[string]*tls.Certificate)
+	for _, dir := range m.loadOrder {
+		cert, ok := m.certMap[dir]
+		if !ok {
+			continue
+		}
+		leaf := cert.Leaf
+		if leaf == nil && len(cert.Certificate) > 0 {
+			var err error
+			if leaf, err = x509.ParseCertificate(cert.Certificate[0]); err != nil {
+				logs.ErrorLog(err, "[CERT] %s: cannot read names of the certificate", dir)
+				continue
+			}
+		}
+		if leaf == nil {
+			continue
+		}
+		for _, name := range leaf.DNSNames {
+			name = strings.ToLower(strings.TrimSpace(name))
+			if parent, ok := strings.CutPrefix(name, "*."); ok {
+				if _, ok := m.byWildcard[parent]; !ok {
+					m.byWildcard[parent] = cert
+				}
+			} else if _, ok := m.bySAN[name]; !ok {
+				m.bySAN[name] = cert
+			}
+		}
+	}
+	// a directory "*.example.com" without a readable name list still serves its level
+	for dir, cert := range m.certMap {
+		if parent, ok := strings.CutPrefix(dir, "*."); ok {
+			if _, ok := m.byWildcard[parent]; !ok {
+				m.byWildcard[parent] = cert
+			}
+		}
+	}
+}
+
+// lookup finds the certificate for host: the directory of that name, then a
+// certificate that lists the name, then a wildcard ("*.example.com") of a
+// parent: a.b.example.com is checked against *.b.example.com, *.example.com.
+// nil - there is none. Caller holds certMutex.
+func (m *certMaps) lookup(host string) *tls.Certificate {
+	if cert, ok := m.certMap[host]; ok {
+		return cert
+	}
+	if cert, ok := m.bySAN[host]; ok {
+		return cert
+	}
+	for rest := host; ; {
+		_, parent, found := strings.Cut(rest, ".")
+		if !found || parent == "" {
+			return nil
+		}
+		if cert, ok := m.byWildcard[parent]; ok {
+			return cert
+		}
+		rest = parent
+	}
+}
+
 func (m *certMaps) getCertificate(chi *tls.ClientHelloInfo) (*tls.Certificate, error) {
 	m.certMutex.RLock()
 	defer m.certMutex.RUnlock()
-	host := strings.ToLower(chi.ServerName)
-	if cert, ok := m.certMap[host]; ok {
+	host := strings.TrimSuffix(strings.ToLower(chi.ServerName), ".")
+	if cert := m.lookup(host); cert != nil {
 		return cert, nil
 	}
 	if m.fallback != nil {
