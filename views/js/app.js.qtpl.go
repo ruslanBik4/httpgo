@@ -2368,6 +2368,7 @@ function isScrollableX(node) {
 function SetTableEvents() {
     return App.SetTableEvents();
 }
+
 // CatalogDrawer: on narrow screens (styles.css, max-width: 768px) the catalog pane
 // is an icon rail; its .catalog-toggle opens it as a drawer. Escape, a tap outside
 // or choosing an item closes it. Delegated events: htmx may replace the pane.
