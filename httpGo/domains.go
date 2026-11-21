@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"maps"
 	"net"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -222,14 +223,37 @@ func (d *Domains) Handler(listener net.Listener, next fasthttp.RequestHandler) f
 
 func sendDomainFile(ctx *fasthttp.RequestCtx, dir string) {
 	p := gotools.BytesToString(ctx.URI().Path())
-	if p == "" || p == "/" {
-		p = "index.html"
-	}
 	// path.Join cleans "..", Path() is normalized by fasthttp already
 	fileName := path.Join(".", dir, p)
-	logs.DebugLog(dir, p)
+
+	// "/" or any subdirectory: its start page (index.html, MainPage.html ...)
+	if info, err := os.Stat(fileName); err == nil && info.IsDir() {
+		// relative links of the page must resolve inside this directory
+		if p != "" && !strings.HasSuffix(p, "/") {
+			uri := p + "/"
+			if q := ctx.URI().QueryString(); len(q) > 0 {
+				uri += "?" + string(q)
+			}
+			ctx.Redirect(uri, fasthttp.StatusMovedPermanently)
+			return
+		}
+		name, err := findStartPage(fileName)
+		if err != nil {
+			logs.DebugLog(err)
+			ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+			return
+		}
+		fileName = path.Join(fileName, name)
+	}
+
+	logs.DebugLog(dir, p, fileName)
 	if err := ctx.Response.SendFile(fileName); err != nil {
+		if os.IsNotExist(err) {
+			ctx.Error(fasthttp.StatusMessage(fasthttp.StatusNotFound), fasthttp.StatusNotFound)
+			return
+		}
 		logs.ErrorLog(err, ctx.String())
+		ctx.Error(fasthttp.StatusMessage(fasthttp.StatusInternalServerError), fasthttp.StatusInternalServerError)
 		return
 	}
 
