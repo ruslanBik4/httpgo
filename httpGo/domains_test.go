@@ -22,10 +22,12 @@ import (
 
 func TestDomains_Match(t *testing.T) {
 	d := NewDomains(map[string]string{
-		"lexx":     "/www/lexx/",
-		"toto.kid": "/experimental/toto/",
-		"toto":     ":8081",
-		"DEV":      ":8080",
+		"lexx":                "/www/lexx/",
+		"toto.kid":            "/experimental/toto/",
+		"toto":                ":8081",
+		"DEV":                 ":8080",
+		"createx.gomc.dev":    "/www/Createx/",
+		"star-bucks.gomc.dev": "/www/StarBucks/",
 	})
 
 	tests := []struct {
@@ -37,6 +39,8 @@ func TestDomains_Match(t *testing.T) {
 		{"toto.kid.gozaurus.com", "toto.kid", "/experimental/toto/", true},
 		{"toto.gozaurus.com", "toto", ":8081", true},
 		{"dev.localhost", "dev", ":8080", true},
+		{"createx.gomc.dev", "createx.gomc.dev", "/www/Createx/", true},
+		{"star-bucks.gomc.dev", "star-bucks.gomc.dev", "/www/StarBucks/", true},
 		{"lexx", "lexx", "/www/lexx/", true},
 		{"lexxx.gozaurus.com", "", "", false},
 		{"www.lexx.com", "", "", false},

@@ -105,6 +105,8 @@ type certMaps struct {
 	bySAN map[string]*tls.Certificate
 	// byWildcard: "example.com" -> the certificate of "*.example.com"
 	byWildcard map[string]*tls.Certificate
+	// warned: hosts served by a parent certificate that does not cover them (logged once)
+	warned sync.Map
 }
 
 // newCertMaps creates a cache reading from baseDirs (none/empty -> ResolveCertDirs default).
@@ -131,6 +133,13 @@ func firstExisting(dir string, names ...string) (string, error) {
 		}
 	}
 	return "", fmt.Errorf("none of %v found in %s: %w", names, dir, err)
+}
+
+// hasCertFiles reports that dir has a certificate and its key
+func hasCertFiles(dir string) bool {
+	_, errCert := firstExisting(dir, "fullchain.pem", "server.crt")
+	_, errKey := firstExisting(dir, "privkey.pem", "server.key")
+	return errCert == nil && errKey == nil
 }
 
 func (m *certMaps) readCertificates(baseDir, domain string) (tls.Certificate, error) {
@@ -196,7 +205,16 @@ func (m *certMaps) loadDir(baseDir string, symLinks map[string]string) error {
 
 	for _, e := range entries {
 		name := strings.ToLower(e.Name())
-		if !e.IsDir() {
+		isDir := e.IsDir()
+		if e.Type()&fs.ModeSymlink != 0 {
+			// a link to a directory of certificate files is the directory of its name:
+			// /etc/ssl/sites/gomc.dev -> /etc/letsencrypt/live/gomc.dev
+			if info, err := os.Stat(filepath.Join(baseDir, e.Name())); err == nil && info.IsDir() &&
+				hasCertFiles(filepath.Join(baseDir, e.Name())) {
+				isDir = true
+			}
+		}
+		if !isDir {
 			if e.Type()&fs.ModeSymlink != 0 {
 				// Resolve symlink (one hop)
 				targetPath, err := os.Readlink(filepath.Join(baseDir, e.Name()))
@@ -238,6 +256,8 @@ func (m *certMaps) reload() error {
 	m.certMap, m.fallback, m.loadOrder = fresh.certMap, fresh.fallback, fresh.loadOrder
 	m.bySAN, m.byWildcard = fresh.bySAN, fresh.byWildcard
 	m.certMutex.Unlock()
+	// warn again about the certificates read now
+	m.warned.Clear()
 	return nil
 }
 
@@ -288,6 +308,7 @@ func (m *certMaps) indexNames() {
 				logs.ErrorLog(err, "[CERT] %s: cannot read names of the certificate", dir)
 				continue
 			}
+			cert.Leaf = leaf
 		}
 		if leaf == nil {
 			continue
@@ -313,9 +334,13 @@ func (m *certMaps) indexNames() {
 	}
 }
 
-// lookup finds the certificate for host: the directory of that name, then a
-// certificate that lists the name, then a wildcard ("*.example.com") of a
-// parent: a.b.example.com is checked against *.b.example.com, *.example.com.
+// lookup finds the certificate for host:
+//  1. the directory of that name (a subdomain with its own certificate);
+//  2. a certificate that lists the name;
+//  3. a wildcard ("*.example.com") of a parent: a.b.example.com is checked
+//     against *.b.example.com, *.example.com;
+//  4. the directory of the nearest parent: createx.gomc.dev -> gomc.dev.
+//
 // nil - there is none. Caller holds certMutex.
 func (m *certMaps) lookup(host string) *tls.Certificate {
 	if cert, ok := m.certMap[host]; ok {
@@ -324,15 +349,40 @@ func (m *certMaps) lookup(host string) *tls.Certificate {
 	if cert, ok := m.bySAN[host]; ok {
 		return cert
 	}
-	for rest := host; ; {
-		_, parent, found := strings.Cut(rest, ".")
-		if !found || parent == "" {
-			return nil
-		}
+	for parent := parentDomain(host); parent != ""; parent = parentDomain(parent) {
 		if cert, ok := m.byWildcard[parent]; ok {
 			return cert
 		}
-		rest = parent
+	}
+	for parent := parentDomain(host); parent != ""; parent = parentDomain(parent) {
+		// a top level domain ("dev") is not a parent of sites
+		if !strings.Contains(parent, ".") {
+			break
+		}
+		if cert, ok := m.certMap[parent]; ok {
+			m.warnNotCovered(host, parent, cert)
+			return cert
+		}
+	}
+
+	return nil
+}
+
+// parentDomain: "a.b.example.com" -> "b.example.com", "com" -> ""
+func parentDomain(host string) string {
+	_, parent, _ := strings.Cut(host, ".")
+	return parent
+}
+
+// warnNotCovered logs once per host that the certificate of parent directory
+// is not valid for host (it is not a wildcard): browsers will reject it
+func (m *certMaps) warnNotCovered(host, parent string, cert *tls.Certificate) {
+	if cert.Leaf == nil || cert.Leaf.VerifyHostname(host) == nil {
+		return
+	}
+	if _, loaded := m.warned.LoadOrStore(host, true); !loaded {
+		logs.ErrorLog(errors.New("certificate is not valid for the subdomain"),
+			"[CERT] %s uses certificate of %s %v: add *.%s into it", host, parent, cert.Leaf.DNSNames, parent)
 	}
 }
 

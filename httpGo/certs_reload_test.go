@@ -148,3 +148,80 @@ func TestCertSubdomains(t *testing.T) {
 		t.Errorf("after reload: serial %d, want 5", got)
 	}
 }
+
+// the certificate of the base domain serves its subdomains, a subdomain with its own directory keeps it
+func TestCertParentDomain(t *testing.T) {
+	root := t.TempDir()
+	writeCert(t, filepath.Join(root, "default"), "default", 1)
+	writeCertNames(t, filepath.Join(root, "gomc.dev"), "gomc.dev", 2, "gomc.dev", "*.gomc.dev")
+	writeCert(t, filepath.Join(root, "createx.gomc.dev"), "createx.gomc.dev", 3)
+	// no wildcard in it: served for subdomains as the nearest one (with a warning in log)
+	writeCertNames(t, filepath.Join(root, "plain.org"), "plain.org", 4, "plain.org", "www.plain.org")
+	// a directory of a top level domain is not a parent of sites
+	writeCert(t, filepath.Join(root, "dev"), "dev", 5)
+
+	m := newCertMaps(root)
+	if err := m.loadCertificates(); err != nil {
+		t.Fatal(err)
+	}
+	for host, want := range map[string]int64{
+		"gomc.dev":            2,
+		"star-bucks.gomc.dev": 2, // wildcard
+		"a.b.gomc.dev":        2,
+		"createx.gomc.dev":    3, // own certificate wins
+		"plain.org":           4,
+		"shop.plain.org":      4, // parent directory
+		"a.shop.plain.org":    4,
+		"other.dev":           1, // "dev" is not a parent: fallback
+	} {
+		if got := serial(t, m, host); got != want {
+			t.Errorf("%q: serial %d, want %d", host, got, want)
+		}
+	}
+
+	if _, warned := m.warned.Load("shop.plain.org"); !warned {
+		t.Error("shop.plain.org: no warning for a certificate without its name")
+	}
+	if _, warned := m.warned.Load("star-bucks.gomc.dev"); warned {
+		t.Error("star-bucks.gomc.dev: warning for a valid wildcard")
+	}
+}
+
+// a symlink to a directory of certificate files (/etc/letsencrypt/live/<domain>) is that domain,
+// a symlink to another site directory stays its alias
+func TestCertSymlinkDir(t *testing.T) {
+	root := t.TempDir()
+	sites := filepath.Join(root, "sites")
+	writeCert(t, filepath.Join(sites, "default"), "default", 1)
+
+	live := filepath.Join(root, "letsencrypt", "live", "gomc.dev")
+	writeCertNames(t, live, "gomc.dev", 2, "gomc.dev", "*.gomc.dev")
+	if err := os.Symlink(live, filepath.Join(sites, "gomc.dev")); err != nil {
+		t.Fatal(err)
+	}
+	// relative link to a sibling directory
+	writeCert(t, filepath.Join(sites, "example.com"), "example.com", 3)
+	if err := os.Symlink("example.com", filepath.Join(sites, "www.example.com")); err != nil {
+		t.Fatal(err)
+	}
+	// broken link is skipped
+	if err := os.Symlink(filepath.Join(root, "nowhere"), filepath.Join(sites, "broken.net")); err != nil {
+		t.Fatal(err)
+	}
+
+	m := newCertMaps(sites)
+	if err := m.loadCertificates(); err != nil {
+		t.Fatal(err)
+	}
+	for host, want := range map[string]int64{
+		"gomc.dev":         2,
+		"createx.gomc.dev": 2,
+		"example.com":      3,
+		"www.example.com":  3,
+		"broken.net":       1,
+	} {
+		if got := serial(t, m, host); got != want {
+			t.Errorf("%q: serial %d, want %d", host, got, want)
+		}
+	}
+}
