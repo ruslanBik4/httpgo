@@ -1,0 +1,31 @@
+.footer {
+   height: 270px;
+   padding: 30px;
+   background: #343A40;
+   color: rgb(212, 212, 212);
+   line-height: 1.5rem;
+
+   a {
+      color: rgb(212, 212, 212);
+   }
+
+   h3 {
+      font-weight: 600;
+      text-align: center;
+      margin-top: 40px;
+   }
+}
+
+.footer__nav {
+   display: flex;
+   justify-content: space-around;
+}
+
+.footer__nav-links {
+   width: 20%;
+   text-align: end;
+}
+
+.footer__contacts {
+   width: 20%;
+}
